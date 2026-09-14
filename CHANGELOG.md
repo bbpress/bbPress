@@ -68,6 +68,7 @@ Development for the next bbPress release is in progress. See the active
   parent content they cannot read.
 - Prevented failed reply-move and topic-split authorization checks from changing
   content.
+- Prevented unauthorized reply submissions from removing topic tags.
 
 ### Fixed
 

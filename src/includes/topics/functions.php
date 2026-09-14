@@ -637,23 +637,9 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	/** Topic Tags ************************************************************/
 
-	// Either replace terms
-	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', $topic_id ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
-
-		// Escape tag input
-		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
-
-		// Explode by comma
-		if ( strstr( $terms, ',' ) ) {
-			$terms = explode( ',', $terms );
-		}
-
-		// Add topic tag ID as main key
-		$terms = array( bbp_get_topic_tag_tax_id() => $terms );
-
-	// ...or remove them.
-	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
-		$terms = array( bbp_get_topic_tag_tax_id() => array() );
+	// Replace allowed terms
+	if ( bbp_allow_topic_tags() && isset( $_POST['bbp_topic_tags'] ) ) {
+		$terms = array( bbp_get_topic_tag_tax_id() => bbp_get_topic_tag_names_for_update( $topic_id, $_POST['bbp_topic_tags'] ) );
 
 	// Existing terms
 	} else {
@@ -3874,6 +3860,51 @@ function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_topic_tag_names', $terms, $topic_id, $sep );
+}
+
+/**
+ * Get the topic-tag names a user is allowed to set on a topic.
+ *
+ * @since 2.6.16 bbPress
+ *
+ * @param int      $topic_id Topic id.
+ * @param string   $tag_names Comma-separated topic-tag names.
+ * @param int|bool $user_id User id. Default false for the current user.
+ *
+ * @return string Comma-separated topic-tag names.
+ */
+function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $user_id = false ) {
+	$topic_id       = bbp_get_topic_id( $topic_id );
+	$user_id        = ( false === $user_id )
+		? bbp_get_current_user_id()
+		: absint( $user_id );
+	$existing_tags  = bbp_get_topic_tags( $topic_id );
+	$existing_names = wp_list_pluck( $existing_tags, 'name' );
+
+	// Preserve existing tags for malformed input
+	if ( ! is_string( $tag_names ) ) {
+		$tag_names = implode( ', ', $existing_names );
+
+	// Parse submitted tag names
+	} else {
+		$tag_names = sanitize_text_field( $tag_names );
+		$tag_names = array_filter( array_map( 'trim', explode( ',', $tag_names ) ) );
+		$retval    = user_can( $user_id, 'assign_topic_tags', $topic_id )
+			? $tag_names
+			: array();
+
+		// Preserve existing tags that were retained or cannot be removed
+		foreach ( $existing_tags as $existing_tag ) {
+			if ( in_array( $existing_tag->name, $tag_names, true ) || ! user_can( $user_id, 'remove_topic_tag', $topic_id, $existing_tag->term_id ) ) {
+				$retval[] = $existing_tag->name;
+			}
+		}
+
+		$tag_names = implode( ', ', array_unique( $retval ) );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_topic_tag_names_for_update', $tag_names, $topic_id, $user_id );
 }
 
 /**

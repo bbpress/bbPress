@@ -178,6 +178,7 @@
 				<element value="edit_topic_tags" />
 				<element value="delete_topic_tag" />
 				<element value="delete_topic_tags" />
+				<element value="remove_topic_tag" />
 				<element value="assign_topic_tags" />
 			</property>
 		</properties>

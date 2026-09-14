@@ -319,6 +319,34 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 
 			break;
 
+		case 'remove_topic_tag' :
+
+			$topic_id = ! empty( $args[0] )
+				? bbp_get_topic_id( $args[0] )
+				: 0;
+			$tag_id   = ! empty( $args[1] )
+				? absint( $args[1] )
+				: 0;
+
+			// Do not allow invalid topic-tag relationships
+			if ( empty( $topic_id ) || empty( $tag_id ) || ! has_term( $tag_id, bbp_get_topic_tag_tax_id(), $topic_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Add 'do_not_allow' cap if user is spam or deleted
+			} elseif ( bbp_is_user_inactive( $user_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Moderators can always remove
+			} elseif ( user_can( $user_id, 'moderate', $topic_id ) ) {
+				$caps = array( 'moderate' );
+
+			// Fallback to assigning topic tags
+			} else {
+				$caps = array( 'assign_topic_tags' );
+			}
+
+			break;
+
 		/** Management ********************************************************/
 
 		case 'manage_topic_tags' :
