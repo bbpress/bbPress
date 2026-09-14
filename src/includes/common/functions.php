@@ -154,6 +154,27 @@ function bbp_get_unique_array_values( $array = array() ) {
 }
 
 /**
+ * Return the non-empty string values of an array.
+ *
+ * @since 2.6.16 bbPress
+ *
+ * @param mixed $arr Value or array to get string values of
+ *
+ * @return array
+ */
+function bbp_get_string_array_values( $arr = array() ) {
+	$retval = array();
+
+	foreach ( (array) $arr as $value ) {
+		if ( is_string( $value ) && ( '' !== $value ) ) {
+			$retval[] = $value;
+		}
+	}
+
+	return $retval;
+}
+
+/**
  * Fix post author id on post save
  *
  * When a logged in user changes the status of an anonymous reply or topic, or

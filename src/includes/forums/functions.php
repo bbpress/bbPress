@@ -2751,7 +2751,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 	// Get the raw query post types.
 	$post_type_query_var = $posts_query->get( 'post_type' );
-	$post_types          = array_filter( (array) $post_type_query_var );
+	$post_types          = bbp_get_string_array_values( $post_type_query_var );
 
 	// Resolve the post types included in "any" and implicit search queries.
 	if ( ( 'any' === $post_type_query_var ) || ( empty( $post_types ) && $posts_query->is_search() ) ) {
@@ -2781,6 +2781,10 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 	// Separate non-bbPress post types from supported bbPress post types.
 	$non_bbp_post_types = array_diff( $post_types, $bbp_post_types );
+	$content_post_types = array_intersect(
+		$bbp_post_types,
+		array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
+	);
 
 	/**
 	 * Clause filters do not run when a query suppresses filters. Remove bbPress
@@ -2797,10 +2801,38 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 	// Forums
 	if ( in_array( bbp_get_forum_post_type(), $post_types, true ) ) {
+		$content_post_statuses = array();
+
+		/**
+		 * Preserve the statuses requested for topics and replies before adding
+		 * forum visibilities to a shared query. Without a post-type-aware status
+		 * clause, private and hidden content inherits the broader forum statuses.
+		 */
+		if ( ! empty( $content_post_types ) ) {
+			$content_post_statuses = bbp_get_string_array_values( $posts_query->get( 'post_status' ) );
+
+			if ( empty( $content_post_statuses ) ) {
+				$content_post_statuses = bbp_get_public_topic_statuses();
+			} elseif ( in_array( 'any', $content_post_statuses, true ) ) {
+				// Match WordPress handling of an explicitly requested "any" status.
+				$content_post_statuses = get_post_stati( array( 'exclude_from_search' => false ) );
+			}
+
+			$posts_query->set( '_bbp_forum_visibility_post_types',    $content_post_types    );
+			$posts_query->set( '_bbp_forum_visibility_post_statuses', $content_post_statuses );
+		}
 
 		// Add all supported forum visibilities to bbPress-only queries.
 		if ( empty( $non_bbp_post_types ) ) {
-			$posts_query->set( 'post_status', array_keys( bbp_get_forum_visibilities() ) );
+			$posts_query->set(
+				'post_status',
+				array_unique(
+					array_merge(
+						array_keys( bbp_get_forum_visibilities() ),
+						$content_post_statuses
+					)
+				)
+			);
 		}
 
 		// Excluding some forums
@@ -2839,11 +2871,6 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	 * bbPress forum metadata.
 	 */
 	if ( ! empty( $non_bbp_post_types ) ) {
-		$content_post_types = array_intersect(
-			$bbp_post_types,
-			array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
-		);
-
 		$posts_query->set( '_bbp_forum_visibility_post_types', $content_post_types );
 		$posts_query->set( '_bbp_forum_visibility_forum_ids',  $forum_ids          );
 		return;
@@ -2894,23 +2921,42 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
 	}
 
 	// Get the query-specific visibility constraints.
-	$post_types = array_filter( (array) $posts_query->get( '_bbp_forum_visibility_post_types' ) );
-	$forum_ids  = wp_parse_id_list( $posts_query->get( '_bbp_forum_visibility_forum_ids' ) );
+	$post_types    = bbp_get_string_array_values( $posts_query->get( '_bbp_forum_visibility_post_types' )    );
+	$post_statuses = bbp_get_string_array_values( $posts_query->get( '_bbp_forum_visibility_post_statuses' ) );
+	$forum_ids     = wp_parse_id_list( $posts_query->get( '_bbp_forum_visibility_forum_ids' ) );
 
 	// Bail if this query does not need a post-type-aware visibility clause.
-	if ( empty( $post_types ) || empty( $forum_ids ) ) {
+	if ( empty( $post_types ) || ( empty( $post_statuses ) && empty( $forum_ids ) ) ) {
 		return $where;
 	}
 
 	// Get the database object.
 	$bbp_db = bbp_db();
 
-	// Prepare post-type and forum-ID placeholders.
+	// Prepare post-type placeholders.
 	$post_type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
-	$forum_id_placeholders  = implode( ', ', array_fill( 0, count( $forum_ids  ), '%d' ) );
 
-	// Prepare values in the same order as their placeholders.
-	$values = array_merge( $post_types, $forum_ids );
+	// Restrict topic and reply statuses in mixed forum queries.
+	if ( ! empty( $post_statuses ) ) {
+		$post_status_placeholders = implode( ', ', array_fill( 0, count( $post_statuses ), '%s' ) );
+		$status_values            = array_merge( $post_types, $post_statuses );
+		$where                   .= $bbp_db->prepare(
+			" AND (
+				{$bbp_db->posts}.post_type NOT IN ({$post_type_placeholders})
+				OR {$bbp_db->posts}.post_status IN ({$post_status_placeholders})
+			)",
+			$status_values
+		);
+	}
+
+	// Bail if there are no forum IDs to exclude.
+	if ( empty( $forum_ids ) ) {
+		return $where;
+	}
+
+	// Prepare forum-ID placeholders and values.
+	$forum_id_placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
+	$values                = array_merge( $post_types, $forum_ids );
 
 	/**
 	 * Require topic and reply rows to have forum metadata, and exclude rows with
