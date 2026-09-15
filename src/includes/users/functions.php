@@ -172,7 +172,7 @@ function bbp_current_author_ua() {
 /**
  * Filter user profile data according to the current user's field permissions.
  *
- * @since 2.7.0
+ * @since 2.6.16
  *
  * @param array $data    Submitted user profile data.
  * @param int   $user_id User being edited.
@@ -229,7 +229,7 @@ function bbp_filter_user_edit_post_data( $data = array(), $user_id = 0 ) {
  * Self-service changes require confirmation by default, while privileged edits
  * to another user update the address directly.
  *
- * @since 2.7.0
+ * @since 2.6.16
  *
  * @param int $user_id User being edited.
  * @return bool Whether confirmation is required.
