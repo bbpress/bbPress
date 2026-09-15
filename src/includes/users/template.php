@@ -1583,7 +1583,7 @@ function bbp_edit_user_display_name() {
 function bbp_edit_user_blog_role() {
 
 	// Bail if no user is being edited
-	if ( ! bbp_is_single_user_edit() ) {
+	if ( ! bbp_is_single_user_edit() || ! bbp_current_user_can_edit_user_field( 'site_role', bbp_get_displayed_user_id() ) ) {
 		return;
 	}
 
@@ -1615,7 +1615,7 @@ function bbp_edit_user_blog_role() {
 function bbp_edit_user_forums_role() {
 
 	// Bail if no user is being edited
-	if ( ! bbp_is_single_user_edit() ) {
+	if ( ! bbp_is_single_user_edit() || ! bbp_current_user_can_edit_user_field( 'forum_role', bbp_get_displayed_user_id() ) ) {
 		return;
 	}
 
@@ -1623,12 +1623,7 @@ function bbp_edit_user_forums_role() {
 	$user_role     = bbp_get_user_role( bbp_get_displayed_user_id() );
 
 	// Get the folum roles
-	$dynamic_roles = bbp_get_dynamic_roles();
-
-	// Only keymasters can set other keymasters
-	if ( ! bbp_is_user_keymaster() ) {
-		unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
-	} ?>
+	$dynamic_roles = bbp_get_user_editable_forum_roles( bbp_get_displayed_user_id() ); ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
 		<option value=""><?php esc_html_e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
@@ -1642,6 +1637,23 @@ function bbp_edit_user_forums_role() {
 	</select>
 
 	<?php
+}
+
+/**
+ * Filter whether password fields are displayed on a bbPress user profile.
+ *
+ * @since 2.7.0
+ *
+ * @param bool    $show         Whether to show the password fields.
+ * @param WP_User $profile_user User being edited.
+ * @return bool Whether to show the password fields.
+ */
+function bbp_filter_user_edit_password_fields( $show, $profile_user ) {
+	if ( $show && ! is_admin() && bbp_is_single_user_edit() ) {
+		$show = bbp_current_user_can_edit_user_field( 'password', $profile_user->ID );
+	}
+
+	return $show;
 }
 
 /**

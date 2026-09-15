@@ -30,6 +30,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Updated `form-user-roles.php` to honor field-level profile permissions. Themes
+  overriding this template part should update their copy.
 - Raised the minimum requirements to WordPress 6.0 and PHP 7.2.
 - Moved built-in topic, reply, forum, and user count synchronization to
   `bbp_transition_post_status`. Existing creation and moderation actions still
@@ -50,6 +52,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Scoped Super Moderator user editing to front-end bbPress profiles and added
+  field-level profile permissions.
 - Validated and filtered topic titles when converting replies or splitting
   topics.
 - Prevented subscription emails from disclosing content to users who can no

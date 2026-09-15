@@ -113,22 +113,26 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 		/** Super Moderators **************************************************/
 
-		case 'edit_user'  :
-		case 'edit_users' :
+		case 'edit_user'    :
+		case 'promote_user' :
 
-			// Moderators can edit users if super moderators is enabled
-			if ( bbp_allow_super_mods() ) {
+			// Moderators can edit users if super moderators is enabled.
+			if ( bbp_allow_super_mods() && ! is_admin() && bbp_is_single_user_edit() ) {
 
 				// Get the user ID
 				$_user_id = ! empty( $args[0] )
 					? (int) $args[0]
 					: bbp_get_displayed_user_id();
 
-				// Users can always edit themselves, so only map for others
+				// Users can always edit themselves, so only map for others.
 				if ( ! empty( $_user_id ) && ( $_user_id !== $user_id ) ) {
 
-					// Super moderators cannot edit keymasters
-					if ( ! bbp_is_user_keymaster( $_user_id ) ) {
+					// Super moderators cannot edit keymasters or site administrators.
+					if (
+						! bbp_is_user_keymaster( $_user_id )
+						&& ! user_can( $_user_id, 'manage_options' )
+						&& ! is_super_admin( $_user_id )
+					) {
 						$caps = array( 'moderate' );
 					}
 				}
@@ -289,6 +293,11 @@ function bbp_profile_update_role( $user_id = 0 ) {
 		return;
 	}
 
+	// Bail if the current user cannot edit the forum role.
+	if ( ! bbp_current_user_can_edit_user_field( 'forum_role', $user_id ) ) {
+		return;
+	}
+
 	// Bail if current user cannot promote the passing user
 	if ( ! current_user_can( 'promote_user', $user_id ) ) {
 		return;
@@ -299,11 +308,82 @@ function bbp_profile_update_role( $user_id = 0 ) {
 		return;
 	}
 
-	// Forums role we want the user to have
-	$new_role = sanitize_key( $_POST['bbp-forums-role'] );
+	// Forums role we want the user to have.
+	$new_role = sanitize_key( wp_unslash( $_POST['bbp-forums-role'] ) );
+
+	// Bail if the current user cannot assign this forum role.
+	if ( ! array_key_exists( $new_role, bbp_get_user_editable_forum_roles( $user_id ) ) ) {
+		return;
+	}
 
 	// Set the new forums role
 	bbp_set_user_role( $user_id, $new_role );
+}
+
+/**
+ * Return the forum roles the current user may assign to another user.
+ *
+ * @since 2.7.0
+ *
+ * @param int $user_id User being edited. Defaults to the displayed user.
+ * @return array Filtered array of editable forum roles.
+ */
+function bbp_get_user_editable_forum_roles( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$roles   = bbp_get_dynamic_roles();
+
+	// Moderators may assign non-staff roles by default.
+	if ( ! bbp_is_user_keymaster() ) {
+		unset(
+			$roles[ bbp_get_keymaster_role() ],
+			$roles[ bbp_get_moderator_role() ]
+		);
+	}
+
+	// Filter & return.
+	return (array) apply_filters( 'bbp_get_user_editable_forum_roles', $roles, $user_id, bbp_get_current_user_id() );
+}
+
+/**
+ * Return whether the current user may edit a user-profile field.
+ *
+ * @since 2.7.0
+ *
+ * @param string $field   Profile field group: profile, email, password,
+ *                        site_role, or forum_role.
+ * @param int    $user_id User being edited. Defaults to the displayed user.
+ * @return bool Whether the field may be edited.
+ */
+function bbp_current_user_can_edit_user_field( $field = 'profile', $user_id = 0 ) {
+	$user_id         = bbp_get_user_id( $user_id, false, false );
+	$current_user_id = bbp_get_current_user_id();
+
+	// Default to the general profile-edit capability.
+	$retval = current_user_can( 'edit_user', $user_id );
+
+	// Apply narrower defaults to sensitive field groups.
+	switch ( $field ) {
+		case 'password':
+			$retval = ! empty( $user_id )
+				&& ! empty( $current_user_id )
+				&& $retval
+				&& ( ( $user_id === $current_user_id )
+					|| bbp_is_user_keymaster( $current_user_id )
+					|| current_user_can( 'manage_options' ) );
+			break;
+
+		case 'site_role':
+			$retval = current_user_can( 'promote_users' )
+				&& current_user_can( 'promote_user', $user_id );
+			break;
+
+		case 'forum_role':
+			$retval = current_user_can( 'promote_user', $user_id );
+			break;
+	}
+
+	// Filter & return.
+	return (bool) apply_filters( 'bbp_current_user_can_edit_user_field', $retval, $field, $user_id, $current_user_id );
 }
 
 /**
