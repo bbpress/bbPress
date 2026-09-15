@@ -62,6 +62,9 @@ add_filter( 'comments_open', 'bbp_force_comment_status' );
 // Remove forums roles from list of all roles
 add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 
+// User profile fields
+add_filter( 'show_password_fields', 'bbp_filter_user_edit_password_fields', 10, 2 );
+
 // Reply title fallback
 add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 

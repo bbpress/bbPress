@@ -170,6 +170,79 @@ function bbp_current_author_ua() {
 /** Edit **********************************************************************/
 
 /**
+ * Filter user profile data according to the current user's field permissions.
+ *
+ * @since 2.6.16
+ *
+ * @param array $data    Submitted user profile data.
+ * @param int   $user_id User being edited.
+ * @return array Filtered user profile data.
+ */
+function bbp_filter_user_edit_post_data( $data = array(), $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$user    = get_userdata( $user_id );
+
+	// Remove general profile fields.
+	if ( ! bbp_current_user_can_edit_user_field( 'profile', $user_id ) ) {
+		unset(
+			$data['first_name'],
+			$data['last_name'],
+			$data['nickname'],
+			$data['display_name'],
+			$data['url'],
+			$data['description'],
+			$data['locale']
+		);
+
+		// Remove dynamic WordPress contact methods.
+		if ( ! empty( $user ) ) {
+			foreach ( array_keys( wp_get_user_contact_methods( $user ) ) as $contact_method ) {
+				unset( $data[ $contact_method ] );
+			}
+		}
+	}
+
+	// Preserve the existing email address.
+	if ( ! bbp_current_user_can_edit_user_field( 'email', $user_id ) ) {
+		$data['email'] = ! empty( $user->user_email )
+			? $user->user_email
+			: '';
+	}
+
+	// Remove password fields.
+	if ( ! bbp_current_user_can_edit_user_field( 'password', $user_id ) ) {
+		unset( $data['pass1'], $data['pass2'] );
+	}
+
+	// Remove the WordPress site role.
+	if ( ! bbp_current_user_can_edit_user_field( 'site_role', $user_id ) ) {
+		unset( $data['role'] );
+	}
+
+	// Filter & return.
+	return (array) apply_filters( 'bbp_filter_user_edit_post_data', $data, $user_id, bbp_get_current_user_id() );
+}
+
+/**
+ * Return whether an email change requires confirmation from the edited user.
+ *
+ * Self-service changes require confirmation by default, while privileged edits
+ * to another user update the address directly.
+ *
+ * @since 2.6.16
+ *
+ * @param int $user_id User being edited.
+ * @return bool Whether confirmation is required.
+ */
+function bbp_user_email_change_requires_confirmation( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$retval  = ( bbp_get_current_user_id() === $user_id );
+
+	// Filter & return.
+	return (bool) apply_filters( 'bbp_user_email_change_requires_confirmation', $retval, $user_id, bbp_get_current_user_id() );
+}
+
+/**
  * Handles the front end user editing from POST requests
  *
  * @since 2.0.0 bbPress (r2790)
@@ -203,6 +276,9 @@ function bbp_edit_user_handler( $action = '' ) {
 		return;
 	}
 
+	// Enforce field-level profile permissions before validating and saving.
+	$_POST = bbp_filter_user_edit_post_data( $_POST, $user_id );
+
 	// Empty email check
 	if ( empty( $_POST['email'] ) ) {
 		bbp_add_error( 'bbp_user_email_empty', __( '<strong>Error</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
@@ -227,20 +303,22 @@ function bbp_edit_user_handler( $action = '' ) {
 			return;
 		}
 
-		// Update the option
-		$option = array(
-			'hash'     => md5( $_POST['email'] . time() . wp_rand() ),
-			'newemail' => $_POST['email'],
-		);
-		update_user_meta( $user_id, '_new_email', $option );
+		if ( bbp_user_email_change_requires_confirmation( $user_id ) ) {
+			// Update the option.
+			$option = array(
+				'hash'     => md5( $_POST['email'] . time() . wp_rand() ),
+				'newemail' => $_POST['email'],
+			);
+			update_user_meta( $user_id, '_new_email', $option );
 
-		// Attempt to notify the user of email address change
-		bbp_edit_user_email_send_notification( $user_id, $option );
+			// Attempt to notify the user of email address change.
+			bbp_edit_user_email_send_notification( $user_id, $option );
 
-		// Set the POST email variable back to the user's email address
-		// so `edit_user()` does not attempt to update it. This is not ideal,
-		// but it's also what send_confirmation_on_profile_email() does.
-		$_POST['email'] = $user_email;
+			// Set the POST email variable back to the user's email address
+			// so `edit_user()` does not attempt to update it. This is not ideal,
+			// but it's also what send_confirmation_on_profile_email() does.
+			$_POST['email'] = $user_email;
+		}
 	}
 
 	// Do action based on who's profile you're editing

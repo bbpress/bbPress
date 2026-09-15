@@ -248,7 +248,7 @@ function bbp_admin_get_settings_fields() {
 
 					// Allow per-forum moderators
 					'_bbp_allow_forum_mods' => array(
-						'title'             => esc_html__( 'Forum Moderators', 'bbpress' ),
+						'title'             => esc_html__( 'Per-Forum Moderators', 'bbpress' ),
 						'callback'          => 'bbp_admin_setting_callback_forum_mods',
 						'sanitize_callback' => 'intval',
 						'args'              => array()
@@ -877,7 +877,7 @@ function bbp_admin_setting_callback_super_mods() {
 
 	<input name="_bbp_allow_super_mods" id="_bbp_allow_super_mods" type="checkbox" value="1" <?php checked( bbp_allow_super_mods( false ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_allow_super_mods' ); ?> />
 	<label for="_bbp_allow_super_mods"><?php esc_html_e( 'Allow Moderators and Keymasters to edit users', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'This includes roles, passwords, and email addresses.', 'bbpress' ); ?></p>
+	<p class="description"><?php esc_html_e( 'In forum profiles, this includes: names, contact info, about, and forum roles.', 'bbpress' ); ?></p>
 
 <?php
 }
