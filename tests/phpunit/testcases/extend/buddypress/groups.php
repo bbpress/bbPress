@@ -363,7 +363,6 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$group = groups_get_group( $group_id );
 
 		$this->set_current_user( $user_id );
-		buddypress()->loggedin_user->id  = $user_id;
 		buddypress()->groups->current_group = $group;
 		buddypress()->current_component  = 'groups';
 		buddypress()->current_item       = $group->slug;
