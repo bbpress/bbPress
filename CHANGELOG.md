@@ -87,6 +87,10 @@ Development for the next bbPress release is in progress. See the active
 - Prevented BuddyPress integration from loading bbPress translations before
   WordPress initialization.
 
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-17/)
+
+[Release announcement](https://bbpress.org/blog/2026/09/bbpress-2-6-17-is-out/)
+
 ## 2.6.15 - 2026-09-03
 
 ### Security
