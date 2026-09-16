@@ -38,6 +38,11 @@ def case(name, setup=None, good=False):
     if setup:
         setup(wc)
     before = run("svn", "status", str(wc))
+    trunk_before = sorted(
+        (p.relative_to(wc / "trunk").as_posix(), p.read_bytes())
+        for p in (wc / "trunk").rglob("*")
+        if p.is_file()
+    )
     result = sp.run(
         [str(helper), str(candidate), str(wc), "2.6.16", "2.6", str(blueprint)],
         env={**os.environ, "BBPRESS_PLUGIN_SVN_URL": url},
@@ -47,7 +52,7 @@ def case(name, setup=None, good=False):
     )
     if good:
         assert result.returncode == 0, result.stdout
-        for target in ["trunk", "branches/2.6", "tags/2.6.16"]:
+        for target in ["branches/2.6", "tags/2.6.16"]:
             assert sorted(
                 p.relative_to(wc / target).as_posix() for p in (wc / target).rglob("*")
             ) == sorted(
@@ -55,6 +60,12 @@ def case(name, setup=None, good=False):
             )
             for p in candidate.iterdir():
                 assert p.read_bytes() == (wc / target / p.name).read_bytes()
+        assert trunk_before == sorted(
+            (p.relative_to(wc / "trunk").as_posix(), p.read_bytes())
+            for p in (wc / "trunk").rglob("*")
+            if p.is_file()
+        )
+        assert not run("svn", "status", str(wc / "trunk"))
         assert blueprint.read_bytes() == (
             wc / "assets/blueprints/blueprint.json"
         ).read_bytes()
@@ -73,12 +84,15 @@ def case(name, setup=None, good=False):
 
 
 case("dirty", lambda w: (w / "untracked").write_text("preserve"))
-case("sparse", lambda w: run("svn", "update", "--set-depth", "empty", str(w / "trunk")))
+case(
+    "sparse",
+    lambda w: run("svn", "update", "--set-depth", "empty", str(w / "branches/2.6")),
+)
 case("sparse-assets", lambda w: run("svn", "update", "--set-depth", "empty", str(w / "assets")))
 case(
     "nested-sparse",
     lambda w: run(
-        "svn", "update", "--set-depth", "empty", str(w / "trunk/old-directory")
+        "svn", "update", "--set-depth", "empty", str(w / "branches/2.6/old-directory")
     ),
 )
 (candidate / "bbpress.php").write_text("<?php\n * Version: 2x6x16\n")

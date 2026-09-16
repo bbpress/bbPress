@@ -72,7 +72,7 @@ if any(entry.findtext("name") == sys.argv[1] for entry in ET.parse(sys.stdin).fi
 ' "$version"
 
 # Require complete, unswitched deployment trees before synchronizing files.
-for target in "$trunk" "$branch" "$assets"; do
+for target in "$branch" "$assets"; do
 	[[ "$(svn info --show-item url "$target")" == "$expected_url/${target#"$working_copy/"}" ]] || fail "Unexpected deployment target URL."
 	[[ "$(svn info --show-item depth "$target")" == "infinity" ]] || fail "Deployment target is sparse."
 	svn info --xml --depth infinity "$target" | python3 -c '
@@ -98,7 +98,6 @@ for entry in ET.parse(sys.stdin).findall(".//entry"):
 '
 }
 
-sync_tree "$trunk"
 sync_tree "$branch"
 svn copy "$branch" "$tag" >/dev/null
 
@@ -106,9 +105,9 @@ mkdir -p "$assets/blueprints"
 cp "$blueprint_file" "$assets/blueprints/blueprint.json"
 svn add --force --parents "$assets/blueprints/blueprint.json" >/dev/null
 
-diff -qr --exclude=.svn "$candidate_dir" "$trunk" >/dev/null || fail "Staged trunk differs from the candidate."
 diff -qr --exclude=.svn "$candidate_dir" "$branch" >/dev/null || fail "Staged branch differs from the candidate."
 diff -qr --exclude=.svn "$candidate_dir" "$tag" >/dev/null || fail "Staged tag differs from the candidate."
 cmp "$blueprint_file" "$assets/blueprints/blueprint.json" >/dev/null || fail "Staged blueprint differs from canonical source."
+[[ -z "$(svn status "$trunk")" ]] || fail "Stable deployment must not modify Plugin SVN trunk."
 
 ( cd "$working_copy" && svn status && svn diff )

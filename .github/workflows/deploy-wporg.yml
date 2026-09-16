@@ -188,7 +188,6 @@ jobs:
         run: |
           set -euo pipefail
           svn checkout --depth immediates https://plugins.svn.wordpress.org/bbpress plugin-svn
-          svn update --set-depth infinity plugin-svn/trunk
           svn update --set-depth immediates plugin-svn/branches
           svn update --set-depth infinity "plugin-svn/branches/$SERIES"
           svn update --set-depth immediates plugin-svn/tags
@@ -259,7 +258,6 @@ jobs:
         run: |
           set -euo pipefail
           svn checkout --depth immediates https://plugins.svn.wordpress.org/bbpress plugin-svn
-          svn update --set-depth infinity plugin-svn/trunk
           svn update --set-depth immediates plugin-svn/branches
           svn update --set-depth infinity "plugin-svn/branches/$SERIES"
           svn update --set-depth immediates plugin-svn/tags
@@ -288,7 +286,7 @@ jobs:
           test -z "$(svn status plugin-svn)"
           DEPLOYMENT_REVISION=$(svn info --show-item last-changed-revision "plugin-svn/tags/$VERSION")
           svn log -r "$DEPLOYMENT_REVISION" "https://plugins.svn.wordpress.org/bbpress/tags/$VERSION@$DEPLOYMENT_REVISION"
-          for target in "branches/$SERIES" trunk "tags/$VERSION"; do
+          for target in "branches/$SERIES" "tags/$VERSION"; do
             svn export -r "$DEPLOYMENT_REVISION" "https://plugins.svn.wordpress.org/bbpress/$target@$DEPLOYMENT_REVISION" "$RUNNER_TEMP/verified-${target//\//-}"
             diff -qr candidate/bbpress "$RUNNER_TEMP/verified-${target//\//-}"
           done
