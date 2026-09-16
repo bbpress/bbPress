@@ -429,7 +429,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * Remove an object from all users.
 	 *
 	 * @since 2.6.0 bbPress (r6737)
-	 * @since 2.6.16 Limit removal to the requested relationship taxonomy.
+	 * @since 2.6.17 Limit removal to the requested relationship taxonomy.
 	 *
 	 * @param int    $object_id The object id.
 	 * @param int    $user_id   The user id.

@@ -172,7 +172,7 @@ function bbp_current_author_ua() {
 /**
  * Filter user profile data according to the current user's field permissions.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param array $data    Submitted user profile data.
  * @param int   $user_id User being edited.
@@ -229,7 +229,7 @@ function bbp_filter_user_edit_post_data( $data = array(), $user_id = 0 ) {
  * Self-service changes require confirmation by default, while privileged edits
  * to another user update the address directly.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int $user_id User being edited.
  * @return bool Whether confirmation is required.
@@ -773,7 +773,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  * Bump the topic count for a user by a certain amount.
  *
  * @since 2.6.0 bbPress (r5309)
- * @since 2.6.16 Rebuild the count when the user option is missing.
+ * @since 2.6.17 Rebuild the count when the user option is missing.
  *
  * @param int $user_id    User id.
  * @param int $difference Optional. Default 1. Number to bump.
@@ -814,7 +814,7 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  * Bump the reply count for a user by a certain amount.
  *
  * @since 2.6.0 bbPress (r5309)
- * @since 2.6.16 Rebuild the count when the user option is missing.
+ * @since 2.6.17 Rebuild the count when the user option is missing.
  *
  * @param int $user_id    User id.
  * @param int $difference Optional. Default 1. Number to bump.
@@ -854,7 +854,7 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 /**
  * Update user counts when a topic or reply changes authors.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int     $post_id     Post ID.
  * @param WP_Post $post_after  Post object following the update.
@@ -916,7 +916,7 @@ function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = fa
 /**
  * Update topic engagements when a topic or reply changes authors.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int     $post_id     Post ID.
  * @param WP_Post $post_after  Post object following the update.
@@ -950,7 +950,7 @@ function bbp_recalculate_engagements_on_post_author_change( $post_id = 0, $post_
  * normal post update actions. Record affected topics before that write, then
  * repair the replacement user's counts and those topics after it completes.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int      $user_id  ID of the user being deleted.
  * @param int|null $reassign ID of the user receiving the posts.

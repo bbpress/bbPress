@@ -194,7 +194,7 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
  * See: https://bbpress.trac.wordpress.org/ticket/3083
  *
  * @since 2.6.0 bbPress (r6522)
- * @since 2.6.16 Honor filtered public reply statuses.
+ * @since 2.6.17 Honor filtered public reply statuses.
  *
  * @param int $topic_id Optional. Topic id.
  *

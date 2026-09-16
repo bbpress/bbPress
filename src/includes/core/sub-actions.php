@@ -323,7 +323,7 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
 /**
  * Add the bbPress-specific post updated action.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int     $post_id     Post ID.
  * @param WP_Post $post_after  Post object following the update.

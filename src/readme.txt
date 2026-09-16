@@ -6,7 +6,7 @@ License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP:      7.2
 Requires at least: 6.0
 Tested up to:      7.1
-Stable tag:        2.6.16
+Stable tag:        2.6.17
 
 bbPress is forum software for WordPress.
 
@@ -45,7 +45,7 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 
 == Developer Notes ==
 
-= Count updates in 2.6.16 =
+= Count updates in 2.6.17 =
 
 bbPress now synchronizes its built-in public and hidden topic and reply counts, aggregate forum counts, and user contribution counts on `bbp_transition_post_status` at priority 10, after WordPress persists the new post status. When a topic crosses the public status boundary, its stored public reply count is applied to the forum aggregate instead of recounting every reply. The action receives the new status, old status, and `WP_Post` object. The `bbp_pre_update_counts_on_transition_post_status` filter can short-circuit the complete topic or reply count operation for custom status lifecycles or count storage.
 
@@ -65,7 +65,7 @@ WordPress metadata tables do not enforce unique object-and-key pairs, so simulta
 
 Post-author changes and user deletion with post reassignment now reconcile affected user contribution, topic engagement, and voice counts. Moderator move, merge, and split operations also reconcile source, destination, and ancestor forum counts. Forum count updater functions accept an optional final argument for propagating a recount's difference through ancestor totals; existing calls remain compatible. Forum reply recounts include public replies only when their parent topics are also public. A public reply beneath a non-public topic is excluded from the public forum total without being included in the pending, spammed, and trashed reply count. Topic engagement recounts honor filtered public topic and reply statuses, and preserve other term-backed relationships.
 
-= Subforum counts in 2.6.16 =
+= Subforum counts in 2.6.17 =
 
 bbPress now maintains subforum counts when forums are trashed, restored, permanently deleted, or moved between parents. Recursive forum counts include public, private, and hidden subforums while excluding subforums with uncountable statuses. `bbp_forum_query_subforum_ids()` no longer inherits the broader `bbp_get_all_child_ids` result; extensions that customized subforum count membership through that lower-level filter should use `bbp_forum_query_subforum_ids`, `bbp_get_countable_forum_statuses`, or the forum-status filters. The new `bbp_post_updated` action receives the post ID, the updated `WP_Post` object, and the previous `WP_Post` object after any bbPress post type is updated.
 
@@ -87,6 +87,6 @@ Check out the [releases page](https://codex.bbpress.org/releases/)
 
 == Upgrade Notice ==
 
-= 2.6.16 =
+= 2.6.17 =
 
 Count maintenance now uses the bbPress post-status transition action and conditional metadata writes. Extensions that attach count callbacks to creation or moderation actions, add custom statuses, filter count values, or customize subforum queries should review the Developer Notes. Sites with known stale counts can selectively run the repair tools after upgrading.

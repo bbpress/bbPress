@@ -281,7 +281,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Unlike the request-specific capability mapping, this check accepts an
 	 * explicit user ID so it can validate subscription recipients.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param bool $retval   Whether the user can view the forum.
 	 * @param int  $user_id  User ID.

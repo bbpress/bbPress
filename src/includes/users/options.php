@@ -123,7 +123,7 @@ function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
  * Update the topic count for a user.
  *
  * @since 2.6.0 bbPress (r5309)
- * @since 2.6.16 Support atomic count differences.
+ * @since 2.6.17 Support atomic count differences.
  *
  * @param int       $user_id    User ID.
  * @param mixed     $count      New topic count.
@@ -164,7 +164,7 @@ function bbp_update_user_topic_count( $user_id = 0, $count = false, $difference 
  * Update the reply count for a user.
  *
  * @since 2.6.0 bbPress (r5309)
- * @since 2.6.16 Support atomic count differences.
+ * @since 2.6.17 Support atomic count differences.
  *
  * @param int       $user_id    User ID.
  * @param mixed     $count      New reply count.

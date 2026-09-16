@@ -481,7 +481,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * template part as needed.
  *
  * @since 2.0.0 bbPress (r3032)
- * @since 2.6.16 bbPress Added support for Block Themes
+ * @since 2.6.17 bbPress Added support for Block Themes
  *
  * @param string $template
  */

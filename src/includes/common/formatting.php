@@ -304,7 +304,7 @@ function bbp_rel_nofollow( $text = '' ) {
  * Adds rel=nofollow to a link.
  *
  * @since 2.3.0 bbPress (r4866)
- * @since 2.6.16 Use the WordPress link relationship callback.
+ * @since 2.6.17 Use the WordPress link relationship callback.
  *
  * @param array $matches
  * @return string $text Link with rel=nofollow added.

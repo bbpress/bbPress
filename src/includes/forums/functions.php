@@ -1151,7 +1151,7 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
  * Bump the total topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3825)
- * @since 2.6.16 Use atomic metadata writes and non-negative counts.
+ * @since 2.6.17 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1
@@ -1271,7 +1271,7 @@ function bbp_decrease_forum_topic_count( $forum_id = 0 ) {
  * Bump the total topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3825)
- * @since 2.6.16 Use atomic metadata writes and non-negative counts.
+ * @since 2.6.17 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1
@@ -1391,7 +1391,7 @@ function bbp_decrease_forum_topic_count_hidden( $forum_id = 0 ) {
  * Bump the total topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3825)
- * @since 2.6.16 Use atomic metadata writes and non-negative counts.
+ * @since 2.6.17 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1.
@@ -1451,7 +1451,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
  * Bump the total topic count of a forum.
  *
  * @since 2.6.0 bbPress (r6922)
- * @since 2.6.16 Use atomic metadata writes and non-negative counts.
+ * @since 2.6.17 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1.
@@ -1521,7 +1521,7 @@ function bbp_bump_forum_reply_count_hidden( $forum_id = 0, $difference = 1, $upd
  * a valid forum hierarchy, even when the metadata key stores their totals. The
  * walk stops if a malformed parent relationship leaves the forum post type.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int    $forum_id   Starting forum ID. Its own count is not changed.
  * @param string $meta_key   Topic or reply total count metadata key.
@@ -1915,7 +1915,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
  * Update the forum sub-forum count.
  *
  * @since 2.0.0 bbPress (r2625)
- * @since 2.6.16 Count supported forum visibilities from the post hierarchy.
+ * @since 2.6.17 Count supported forum visibilities from the post hierarchy.
  *
  * @param int      $forum_id Optional. Forum ID.
  * @param int|bool $subforums Optional. Number of subforums, or false to query.
@@ -1956,7 +1956,7 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = false ) {
 /**
  * Synchronize child-forum metadata after WordPress reparents deleted children.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int     $forum_id Deleted forum ID.
  * @param WP_Post $forum    Deleted forum post object.
@@ -1983,7 +1983,7 @@ function bbp_reparent_forum_subforums( $forum_id = 0, $forum = false ) {
 /**
  * Update a parent forum's subforum count after a child is permanently deleted.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int          $forum_id Forum ID.
  * @param WP_Post|bool $forum    Optional. Forum post object.
@@ -2005,7 +2005,7 @@ function bbp_update_parent_forum_subforum_count( $forum_id = 0, $forum = false )
 /**
  * Update a parent forum's subforum count after a child changes count status.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
@@ -2034,7 +2034,7 @@ function bbp_update_forum_subforum_count_on_transition_post_status( $new_status 
 /**
  * Update subforum counts after a forum changes parent or post type.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int     $forum_id     Forum ID.
  * @param WP_Post $forum_after  Forum object following the update.
@@ -2078,7 +2078,7 @@ function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum
  * Adjust the total topic count of a forum.
  *
  * @since 2.0.0 bbPress (r2464)
- * @since 2.6.16 Optionally update ancestor forum totals.
+ * @since 2.6.17 Optionally update ancestor forum totals.
  *
  * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
@@ -2127,7 +2127,7 @@ function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false 
  *
  * @since 2.0.0 bbPress (r2888)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
- * @since 2.6.16 Optionally update ancestor forum totals.
+ * @since 2.6.17 Optionally update ancestor forum totals.
  *
  * @param int $forum_id Optional. Topic id to update.
  * @param int $topic_count Optional. Set the topic count manually.
@@ -2212,8 +2212,8 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
  *
  * @since 2.0.0 bbPress (r2464)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects.
- * @since 2.6.16 Count replies only when their parent topics are public.
- * @since 2.6.16 Optionally update ancestor forum totals.
+ * @since 2.6.17 Count replies only when their parent topics are public.
+ * @since 2.6.17 Optionally update ancestor forum totals.
  *
  * @param int  $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
@@ -2293,7 +2293,7 @@ function bbp_update_forum_reply_count( $forum_id = 0, $update_ancestors = false 
  * Adjust the total hidden reply count of a forum.
  *
  * @since 2.6.0 bbPress (r6922)
- * @since 2.6.16 Optionally update ancestor forum totals.
+ * @since 2.6.17 Optionally update ancestor forum totals.
  *
  * @param int  $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
@@ -2412,7 +2412,7 @@ function bbp_update_forum( $args = array() ) {
 /**
  * Walk up the forum hierarchy and update parent forums.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param array $args Parsed arguments from bbp_update_forum().
  * @return false|null False if there is no parent forum, otherwise null.
@@ -2548,7 +2548,7 @@ function bbp_get_non_public_forum_statuses() {
 /**
  * Return forum statuses included in forum and subforum counts.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @return array
  */
@@ -3000,7 +3000,7 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  * Only forums with countable statuses are returned.
  *
  * @since 2.0.0 bbPress (r2908)
- * @since 2.6.16 Restrict results to countable statuses instead of using
+ * @since 2.6.17 Restrict results to countable statuses instead of using
  *               bbp_get_all_child_ids().
  *
  * @param int $forum_id Forum id.
@@ -3423,7 +3423,7 @@ function bbp_untrash_forum( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3668)
  * @since 2.6.0 bbPress (r6526) Not recommend for usage
- * @since 2.6.16 Added the `$forum` parameter and passed it to the action.
+ * @since 2.6.17 Added the `$forum` parameter and passed it to the action.
  *
  * @param int          $forum_id Forum ID.
  * @param WP_Post|bool $forum    Optional. Deleted forum post object.

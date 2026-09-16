@@ -174,7 +174,7 @@ function bbp_db() {
  * intended for uniquely keyed numeric count metadata; WordPress metadata tables
  * do not enforce uniqueness during simultaneous first-time inserts.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @see https://bbpress.trac.wordpress.org/ticket/3678
  *
@@ -201,7 +201,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 	 *
 	 * Returning a non-null value prevents the normal metadata update.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param null|bool $check      Whether to short-circuit the metadata update.
 	 * @param string    $meta_type  Type of object metadata is for.
@@ -218,7 +218,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 	/**
 	 * Filters the metadata types that support atomic count updates.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param array  $meta_types Supported metadata types.
 	 * @param string $meta_type  Requested metadata type.
@@ -246,7 +246,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 	/**
 	 * Filters the maximum number of conditional metadata write attempts.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param int    $max_attempts Maximum number of attempts.
 	 * @param string $meta_type    Type of object metadata is for.
