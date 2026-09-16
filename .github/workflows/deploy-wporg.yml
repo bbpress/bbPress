@@ -72,6 +72,11 @@ jobs:
           fi
           echo "series=${VERSION%.*}" >> "$GITHUB_OUTPUT"
 
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes subversion
+
       - name: Export canonical source tag
         env:
           SOURCE_REVISION: ${{ inputs.source_revision }}
@@ -223,6 +228,11 @@ jobs:
         with:
           persist-credentials: false
           path: automation
+
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes subversion
 
       - name: Download release evidence
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
