@@ -13,7 +13,7 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
-## 2.6.16 - 2026-09-15
+## 2.6.17 - 2026-09-16
 
 ### Added
 
@@ -66,6 +66,7 @@ Development for the next bbPress release is in progress. See the active
 - Allowed moderators to mark trashed replies as spam from the front end.
 - Preserved forum visibility when restoring a forum from the trash.
 - Prevented stale post caches during nested updates and repeated moderation.
+- Preserved reply statuses when users are marked as spam and later restored.
 - Kept public, hidden, and author contribution counts accurate when topics and
   replies change moderation status or are permanently deleted.
 - Prevented simultaneous topic and reply submissions from overwriting each

@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Validate an XML-RPC edit against bbPress posting rules.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param string $method XML-RPC method name.
  * @param array  $args   XML-RPC method arguments.
@@ -141,7 +141,7 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 /**
  * Deny a post capability when an XML-RPC edit failed bbPress validation.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param array  $caps    Required capabilities.
  * @param string $cap     Requested capability.
@@ -164,7 +164,7 @@ function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 /**
  * Apply bbPress moderation to XML-RPC post data.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param array $post_data Parsed post data.
  * @return array Parsed post data.

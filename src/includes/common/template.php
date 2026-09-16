@@ -421,7 +421,7 @@ function bbp_is_topic_tag_edit() {
  * Check if the current post type is one that comes with bbPress.
  *
  * @since 2.0.0 bbPress (r3311)
- * @since 2.6.16 bbPress Added support for post-type names and arrays.
+ * @since 2.6.17 bbPress Added support for post-type names and arrays.
  *
  * @param mixed $post_types Optional. Post object, post ID, post-type name, or
  *                          an array of post-type names.
@@ -453,7 +453,7 @@ function bbp_is_custom_post_type( $post_types = false ) {
 /**
  * Check if a bbPress object or any of its parents is password protected.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int    $object_id   Optional. Object ID. Defaults to the current post.
  * @param string $object_type Optional. Object type. Defaults to 'post'.

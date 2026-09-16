@@ -117,7 +117,7 @@ function bbp_init() {
 /**
  * Initialize the bbPress REST API
  *
- * @since 2.6.16
+ * @since 2.6.17
  */
 function bbp_rest_api_init() {
 	do_action( 'bbp_rest_api_init' );
@@ -126,7 +126,7 @@ function bbp_rest_api_init() {
 /**
  * Pass an XML-RPC request through bbPress.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param string            $method XML-RPC method name.
  * @param array             $args   XML-RPC method arguments.
@@ -314,7 +314,7 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
 /**
  * Add the bbPress-specific post updated action.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int     $post_id     Post ID.
  * @param WP_Post $post_after  Post object following the update.

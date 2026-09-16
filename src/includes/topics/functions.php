@@ -1317,7 +1317,7 @@ function bbp_merge_topic_handler( $action = '' ) {
  * and their forums.
  *
  * @since 2.0.0 bbPress (r2756)
- * @since 2.6.16 Recount both forums and topic engagements.
+ * @since 2.6.17 Recount both forums and topic engagements.
  *
  * @param int $destination_topic_id Destination topic id.
  * @param int $source_topic_id Source topic id.
@@ -1366,7 +1366,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * Handles the front end split topic submission
  *
  * @since 2.0.0 bbPress (r2756)
- * @since 2.6.16 Recount both forums and topic engagements.
+ * @since 2.6.17 Recount both forums and topic engagements.
  *
  * @param string $action The requested action to compare this function to
  */
@@ -1705,7 +1705,7 @@ function bbp_split_topic_handler( $action = '' ) {
  * and their forums.
  *
  * @since 2.0.0 bbPress (r2756)
- * @since 2.6.16 Recount both forums and topic engagements.
+ * @since 2.6.17 Recount both forums and topic engagements.
  *
  * @param int $from_reply_id From reply id
  * @param int $source_topic_id Source topic id
@@ -2408,7 +2408,7 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
  * Bump the total reply count of a topic
  *
  * @since 2.1.0 bbPress (r3825)
- * @since 2.6.16 Use atomic metadata writes and non-negative counts.
+ * @since 2.6.17 Use atomic metadata writes and non-negative counts.
  *
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1
@@ -2502,7 +2502,7 @@ function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
  * Bump the total hidden reply count of a topic
  *
  * @since 2.1.0 bbPress (r3825)
- * @since 2.6.16 Use atomic metadata writes and non-negative counts.
+ * @since 2.6.17 Use atomic metadata writes and non-negative counts.
  *
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1
@@ -3811,7 +3811,7 @@ function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 /**
  * Get the topic-tag names a user is allowed to set on a topic.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param int      $topic_id Topic id.
  * @param string   $tag_names Comma-separated topic-tag names.

@@ -168,7 +168,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Check whether a user can view a private or hidden group forum.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param int $user_id  User ID.
 	 * @param int $forum_id Forum ID.
@@ -203,7 +203,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Map read access for private and hidden group forums in every request.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param array  $caps    Capabilities for the meta capability.
 	 * @param string $cap     Capability name.
@@ -236,7 +236,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Exclude private and hidden group forums a user cannot view.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param array $forum_ids Forum IDs already excluded.
 	 * @return array Forum IDs the user cannot view.
@@ -281,7 +281,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Unlike the request-specific capability mapping, this check accepts an
 	 * explicit user ID so it can validate subscription recipients.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param bool $retval   Whether the user can view the forum.
 	 * @param int  $user_id  User ID.

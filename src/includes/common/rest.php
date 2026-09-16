@@ -13,14 +13,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API controller for bbPress post types.
  *
- * @since 2.6.16
+ * @since 2.6.17
  */
 class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 	/**
 	 * Checks if a post can be updated.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
@@ -77,7 +77,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * bbPress posts may be attachment parents even when their own REST routes
 	 * are disabled.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param WP_Post_Type|string $post_type Post type object or name.
 	 * @return bool Whether the post type is allowed.
@@ -99,7 +99,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Checks if a post can be read.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be read.
@@ -152,14 +152,14 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 /**
  * REST API controller for attachments to bbPress post types.
  *
- * @since 2.6.16
+ * @since 2.6.17
  */
 class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
 
 	/**
 	 * Checks if an attachment can be read.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param WP_Post $post Attachment post object.
 	 * @return bool Whether the attachment can be read.
@@ -189,7 +189,7 @@ class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
 /**
  * Use the bbPress controller for attachments when Core's is unchanged.
  *
- * @since 2.6.16
+ * @since 2.6.17
  */
 function bbp_register_rest_attachment_controller() {
 	$post_type = get_post_type_object( 'attachment' );

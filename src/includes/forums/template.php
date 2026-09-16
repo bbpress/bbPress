@@ -1699,7 +1699,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Is the forum private or hidden?
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int  $forum_id Optional. Forum id.
  * @param bool $check_ancestors Whether to check the forum ancestors.
@@ -1719,7 +1719,7 @@ function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
  * Checks the forum and its ancestors for private or hidden visibility, and
  * whether the user is a forum moderator or can otherwise read the forum.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param int $forum_id Optional. Forum ID.
  * @param int $user_id  Optional. User ID. Defaults to 0.

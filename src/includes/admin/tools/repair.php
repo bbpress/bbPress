@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * Repair tools update metadata directly in the database, bypassing the cache
  * invalidation performed by the WordPress metadata API.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param string $post_type Post type name.
  */

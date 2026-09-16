@@ -156,7 +156,7 @@ function bbp_get_unique_array_values( $array = array() ) {
 /**
  * Return the non-empty string values of an array.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param mixed $arr Value or array to get string values of
  *
@@ -245,7 +245,7 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
 /**
  * Update related counts when a topic or reply is created or changes status.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
@@ -260,7 +260,7 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 	 * updates. This allows integrations with custom post-status lifecycles or
 	 * count storage to replace the complete transition operation.
 	 *
-	 * @since 2.6.16
+	 * @since 2.6.17
 	 *
 	 * @param null|bool $check      Whether to short-circuit count updates.
 	 * @param string    $new_status New post status.
@@ -1247,7 +1247,7 @@ function bbp_get_do_not_reply_address() {
  * current access immediately before preparing a notification so restricted
  * content is not sent to former participants.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param array $user_ids Subscriber user IDs.
  * @param int   $forum_id Forum ID.
@@ -1266,7 +1266,7 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 		/**
 		 * Filters whether a subscription recipient can view a forum.
 		 *
-		 * @since 2.6.16
+		 * @since 2.6.17
 		 *
 		 * @param bool $can_view Whether the user can view the forum.
 		 * @param int  $user_id  User ID.
@@ -2914,7 +2914,7 @@ function bbp_get_page_by_path( $path = '' ) {
  * on forum access. Older versions of WordPress may otherwise guess a restricted
  * forum or topic permalink from a partial slug and expose its full title.
  *
- * @since 2.6.16 bbPress
+ * @since 2.6.17 bbPress
  *
  * @param bool $do_redirect_guess Whether to attempt to guess a redirect URL.
  *

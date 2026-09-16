@@ -1622,7 +1622,7 @@ function bbp_edit_user_forums_role() {
 /**
  * Filter whether password fields are displayed on a bbPress user profile.
  *
- * @since 2.6.16
+ * @since 2.6.17
  *
  * @param bool    $show         Whether to show the password fields.
  * @param WP_User $profile_user User being edited.
