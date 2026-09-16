@@ -15,6 +15,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_errors;
 	protected $old_allow_forum_mods;
 	protected $group_extension;
+	protected $template_parts = array();
 
 	public function setUp(): void {
 		parent::setUp();
@@ -206,6 +207,26 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$other_group_id   = $this->bp_factory->group->create();
 		$group_forum_id   = $this->factory->forum->create();
 		$other_forum_id   = $this->factory->forum->create();
+		$group_topic_id   = $this->factory->topic->create( array( 'post_parent' => $group_forum_id ) );
+		$other_topic_id   = $this->factory->topic->create( array( 'post_parent' => $other_forum_id ) );
+		$group_reply_id   = $this->factory->reply->create(
+			array(
+				'post_parent' => $group_topic_id,
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $group_forum_id,
+					'_bbp_topic_id' => $group_topic_id,
+				),
+			)
+		);
+		$other_reply_id   = $this->factory->reply->create(
+			array(
+				'post_parent' => $other_topic_id,
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $other_forum_id,
+					'_bbp_topic_id' => $other_topic_id,
+				),
+			)
+		);
 
 		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
 		bbp_set_user_role( $group_mod_id, bbp_get_participant_role() );
@@ -221,6 +242,83 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->assertTrue( user_can( $group_mod_id, 'read_forum', $group_forum_id ) );
 		$this->assertFalse( user_can( $group_mod_id, 'read_forum', $other_forum_id ) );
 		$this->assertFalse( user_can( $group_mod_id, 'moderate', $other_forum_id ) );
+		$this->assertTrue( user_can( $group_mod_id, 'edit_topic', $group_topic_id ) );
+		$this->assertTrue( user_can( $group_mod_id, 'edit_reply', $group_reply_id ) );
+		$this->assertFalse( user_can( $group_mod_id, 'edit_topic', $other_topic_id ) );
+		$this->assertFalse( user_can( $group_mod_id, 'edit_reply', $other_reply_id ) );
+		$this->assertFalse( user_can( $group_mod_id, 'delete_topic', $other_topic_id ) );
+		$this->assertFalse( user_can( $group_mod_id, 'delete_reply', $other_reply_id ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
+	 * @covers ::BBP_Shortcodes::display_forum
+	 * @covers ::BBP_Shortcodes::display_topic
+	 * @covers ::BBP_Shortcodes::display_reply
+	 */
+	public function test_group_context_does_not_expose_another_group_forum_via_shortcodes() {
+		$creator_id     = $this->factory->user->create();
+		$member_id      = $this->factory->user->create();
+		$group_id       = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$other_group_id = $this->bp_factory->group->create();
+		$group_forum_id = $this->factory->forum->create();
+		$group_topic_id = $this->factory->topic->create( array( 'post_parent' => $group_forum_id ) );
+		$group_reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $group_topic_id,
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $group_forum_id,
+					'_bbp_topic_id' => $group_topic_id,
+				),
+			)
+		);
+		$forum_id       = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id       = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $forum_id,
+					'_bbp_topic_id' => $topic_id,
+				),
+			)
+		);
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		bbp_set_user_role( $member_id, bbp_get_participant_role() );
+		groups_join_group( $group_id, $member_id );
+		$this->attach_forum_to_group( $group_forum_id, $group_id );
+		$this->attach_forum_to_group( $forum_id, $other_group_id );
+		bbp_privatize_forum( $group_forum_id );
+		bbp_privatize_forum( $forum_id );
+		$this->set_group_context( $group_id, $member_id );
+
+		$this->assertSame(
+			array(
+				'forum' => array( 'feedback-no-access' ),
+				'topic' => array( 'feedback-no-access' ),
+				'reply' => array( 'feedback-no-access' ),
+			),
+			array(
+				'forum' => $this->get_shortcode_template_parts( 'display_forum', $forum_id ),
+				'topic' => $this->get_shortcode_template_parts( 'display_topic', $topic_id ),
+				'reply' => $this->get_shortcode_template_parts( 'display_reply', $reply_id ),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'forum' => array( 'content-single-forum' ),
+				'topic' => array( 'content-single-topic' ),
+				'reply' => array( 'content-single-reply' ),
+			),
+			array(
+				'forum' => $this->get_shortcode_template_parts( 'display_forum', $group_forum_id ),
+				'topic' => $this->get_shortcode_template_parts( 'display_topic', $group_topic_id ),
+				'reply' => $this->get_shortcode_template_parts( 'display_reply', $group_reply_id ),
+			)
+		);
 	}
 
 	/**
@@ -282,6 +380,23 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected function attach_forum_to_group( $forum_id, $group_id ) {
 		bbp_add_forum_id_to_group( $group_id, $forum_id );
 		bbp_add_group_id_to_forum( $forum_id, $group_id );
+	}
+
+	protected function get_shortcode_template_parts( $method, $post_id ) {
+		$this->template_parts = array();
+		add_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10, 3 );
+
+		bbpress()->shortcodes->{$method}( array( 'id' => $post_id ) );
+
+		remove_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10 );
+
+		return $this->template_parts;
+	}
+
+	public function capture_template_part( $templates, $slug, $name ) {
+		$this->template_parts[] = $slug . '-' . $name;
+
+		return $templates;
 	}
 
 	protected function submit_forum_edit( $forum_id, $parent_id ) {
