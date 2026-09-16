@@ -620,7 +620,7 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 			'post_parent' => $forum_id,
 			'topic_meta'  => array( 'forum_id' => $forum_id ),
 		) );
-		$this->factory->reply->create( array(
+		$reply_id = $this->factory->reply->create( array(
 			'post_author' => $user_id,
 			'post_parent' => $topic_id,
 			'reply_meta'  => array(
@@ -630,6 +630,8 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 		) );
 
 		$this->assertTrue( bbp_make_spam_user( $user_id ) );
+		$this->assertSame( bbp_get_spam_status_id(), get_post_status( $topic_id ) );
+		$this->assertSame( bbp_get_spam_status_id(), get_post_status( $reply_id ) );
 		$this->assertSame( 0, bbp_get_user_topic_count( $user_id, true ) );
 		$this->assertSame( 0, bbp_get_user_reply_count( $user_id, true ) );
 		$this->assertSame( 0, bbp_get_forum_topic_count( $forum_id, false, true ) );
@@ -638,6 +640,8 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
 
 		$this->assertTrue( bbp_make_ham_user( $user_id ) );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
 		$this->assertSame( 1, bbp_get_user_topic_count( $user_id, true ) );
 		$this->assertSame( 1, bbp_get_user_reply_count( $user_id, true ) );
 		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );

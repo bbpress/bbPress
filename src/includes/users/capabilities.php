@@ -604,9 +604,8 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		$blogs[ $bbp_db->blogid ] = array();
 	}
 
-	// Get array of post types to mark as spam
-	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-	$post_types = "'" . implode( "', '", $post_types ) . "'";
+	// Process replies before topics so topic status helpers run last
+	$post_types = array( bbp_get_reply_post_type(), bbp_get_topic_post_type() );
 
 	// Get array of statuses to mark as spam
 	$post_statuses = bbp_get_public_topic_statuses();
@@ -618,25 +617,28 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		// Switch to the site ID
 		bbp_switch_to_site( $blog_id );
 
-		// Get topics and replies
-		$query = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_author = %d AND post_status IN ( {$post_statuses} ) AND post_type IN ( {$post_types} )", $user_id );
-		$posts = $bbp_db->get_col( $query );
+		foreach ( $post_types as $post_type ) {
 
-		// Loop through posts and spam them
-		if ( ! empty( $posts ) ) {
-			foreach ( $posts as $post_id ) {
+			// Get posts of this type
+			$query = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_author = %d AND post_status IN ( {$post_statuses} ) AND post_type = %s", $user_id, $post_type );
+			$posts = $bbp_db->get_col( $query );
 
-				// The routines for topics ang replies are different, so use the
-				// correct one based on the post type
-				switch ( get_post_type( $post_id ) ) {
+			// Loop through posts and spam them
+			if ( ! empty( $posts ) ) {
+				foreach ( $posts as $post_id ) {
 
-					case bbp_get_topic_post_type() :
-						bbp_spam_topic( $post_id );
-						break;
+					// The routines for topics and replies are different, so use the
+					// correct one based on the post type
+					switch ( $post_type ) {
 
-					case bbp_get_reply_post_type() :
-						bbp_spam_reply( $post_id );
-						break;
+						case bbp_get_topic_post_type() :
+							bbp_spam_topic( $post_id );
+							break;
+
+						case bbp_get_reply_post_type() :
+							bbp_spam_reply( $post_id );
+							break;
+					}
 				}
 			}
 		}
@@ -689,9 +691,8 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		$blogs[ $bbp_db->blogid ] = array();
 	}
 
-	// Get array of post types to mark as spam
-	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-	$post_types = "'" . implode( "', '", $post_types ) . "'";
+	// Process replies before topics so topic status helpers run last
+	$post_types = array( bbp_get_reply_post_type(), bbp_get_topic_post_type() );
 
 	// Get array of statuses to unmark as spam
 	$post_statuses = array( bbp_get_spam_status_id() );
@@ -703,25 +704,28 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		// Switch to the site ID
 		bbp_switch_to_site( $blog_id );
 
-		// Get topics and replies
-		$query = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_author = %d AND post_status IN ( {$post_statuses} ) AND post_type IN ( {$post_types} )", $user_id );
-		$posts = $bbp_db->get_col( $query );
+		foreach ( $post_types as $post_type ) {
 
-		// Loop through posts and spam them
-		if ( ! empty( $posts ) ) {
-			foreach ( $posts as $post_id ) {
+			// Get posts of this type
+			$query = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_author = %d AND post_status IN ( {$post_statuses} ) AND post_type = %s", $user_id, $post_type );
+			$posts = $bbp_db->get_col( $query );
 
-				// The routines for topics ang replies are different, so use the
-				// correct one based on the post type
-				switch ( get_post_type( $post_id ) ) {
+			// Loop through posts and unspam them
+			if ( ! empty( $posts ) ) {
+				foreach ( $posts as $post_id ) {
 
-					case bbp_get_topic_post_type() :
-						bbp_unspam_topic( $post_id );
-						break;
+					// The routines for topics and replies are different, so use the
+					// correct one based on the post type
+					switch ( $post_type ) {
 
-					case bbp_get_reply_post_type() :
-						bbp_unspam_reply( $post_id );
-						break;
+						case bbp_get_topic_post_type() :
+							bbp_unspam_topic( $post_id );
+							break;
+
+						case bbp_get_reply_post_type() :
+							bbp_unspam_reply( $post_id );
+							break;
+					}
 				}
 			}
 		}
