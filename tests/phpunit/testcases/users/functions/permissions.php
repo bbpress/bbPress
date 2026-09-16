@@ -166,10 +166,17 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 
-		$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
-		$this->assertTrue( current_user_can( 'promote_user', $target_id ) );
-		$this->assertTrue( current_user_can( 'edit_users' ) );
-		$this->assertTrue( current_user_can( 'list_users' ) );
+		if ( is_multisite() ) {
+			$this->assertFalse( current_user_can( 'edit_user', $target_id ) );
+			$this->assertTrue( current_user_can( 'promote_user', $target_id ) );
+			$this->assertFalse( current_user_can( 'edit_users' ) );
+			$this->assertTrue( current_user_can( 'list_users' ) );
+		} else {
+			$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
+			$this->assertTrue( current_user_can( 'promote_user', $target_id ) );
+			$this->assertTrue( current_user_can( 'edit_users' ) );
+			$this->assertTrue( current_user_can( 'list_users' ) );
+		}
 		$this->assertTrue( bbp_filter_user_edit_password_fields( true, $target ) );
 	}
 
