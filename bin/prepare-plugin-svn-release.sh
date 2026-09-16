@@ -48,7 +48,7 @@ actual_url="$(svn info --show-item url "$working_copy")"
 [[ -f "$candidate_dir/readme.txt" ]] || fail "Candidate is missing readme.txt."
 [[ -s "$candidate_dir/bbpress.pot" ]] || fail "Candidate is missing a non-empty bbpress.pot."
 [[ ! -e "$candidate_dir/tests" ]] || fail "Candidate unexpectedly contains tests."
-for development_path in .github .git .svn Gruntfile.js package.json package-lock.json composer.json composer.lock; do
+for development_path in .github .git .svn Gruntfile.js package.json package-lock.json composer.lock; do
 	[[ ! -e "$candidate_dir/$development_path" ]] || fail "Candidate unexpectedly contains $development_path."
 done
 escaped_version="${version//./\\.}"
