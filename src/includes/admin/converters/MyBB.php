@@ -413,7 +413,7 @@ class MyBB extends BBP_Converter_Base {
 
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
-			'to_type'      => 'users',
+			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
 			'default'      => 'MyBB'
 		);
@@ -546,15 +546,15 @@ class MyBB extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {
 			return false;
 		}
 
 		// Return comparison
 		return hash_equals(
 			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
+			md5( md5( $pass_array['salt'] ) . md5( $password ) )
 		);
 	}
 

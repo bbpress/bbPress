@@ -17,6 +17,7 @@ Development for the next bbPress release is in progress. See the active
 
 - Supported first-login password upgrades for phpBB imports that use bcrypt,
   Argon2, or combined phpass and bcrypt hashes.
+- Supported first-login password upgrades for MyBB imports.
 
 ## 2.6.17 - 2026-09-16
 
