@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected first-login password upgrades for new and rerun AEF imports.
 - Supported first-login password upgrades for phpBB imports that use bcrypt,
   Argon2, or combined phpass and bcrypt hashes.
 - Supported first-login password upgrades for MyBB imports.
