@@ -635,14 +635,15 @@ class vBulletin3 extends BBP_Converter_Base {
 
 
 	/**
-	 * This method is to save the salt and password together.  That
-	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by WordPress.
+	 * This method saves the salt and password together so they can be retrieved
+	 * as one value during authentication. WordPress unslashes metadata values,
+	 * so the salt is pre-slashed to preserve vBulletin's printable ASCII salts.
+	 * Password hashes are hexadecimal and do not require slashing.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => $row['salt']
+			'salt' => isset( $row['salt'] ) ? wp_slash( (string) $row['salt'] ) : ''
 		);
 
 		return $pass_array;
@@ -651,11 +652,6 @@ class vBulletin3 extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
-	 *
-	 * vBulletin passwords do not work. Maybe use the below plugin's approach?
-	 *
-	 * @link https://wordpress.org/extend/plugins/vb-user-copy/
-	 * @link https://plugins.trac.wordpress.org/browser/vb-user-copy/trunk/vb_user_copy.php
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -668,8 +664,8 @@ class vBulletin3 extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {
 			return false;
 		}
 
