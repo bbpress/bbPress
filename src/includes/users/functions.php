@@ -1267,7 +1267,14 @@ function bbp_user_maybe_convert_pass() {
 	// Get converter class from usermeta
 	$class = get_user_meta( $user->ID, '_bbp_class', true );
 
-	// Bail if no converter class in meta
+	// Older imports may have password metadata without a converter class. Use
+	// the saved import platform as a candidate; its password callback still
+	// needs to verify the stored legacy hash before changing the account.
+	if ( empty( $class ) && metadata_exists( 'user', $user->ID, '_bbp_password' ) ) {
+		$class = get_option( '_bbp_converter_platform' );
+	}
+
+	// Bail if no converter class
 	if ( empty( $class ) || ! is_string( $class ) ) {
 		return;
 	}

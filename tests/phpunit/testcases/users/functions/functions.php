@@ -10,6 +10,7 @@
 
 	public function tearDown(): void {
 		unset( $_POST['log'], $_POST['pwd'] );
+		delete_option( '_bbp_converter_platform' );
 
 		parent::tearDown();
 	}
@@ -342,6 +343,167 @@
 		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
 		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_class' ) );
 		$this->assert_source_database_not_connected( $converter );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_uses_saved_platform_when_class_meta_is_missing() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		delete_user_meta( $user_id, '_bbp_class' );
+		update_option( '_bbp_converter_platform', 'phpBB' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$user = get_userdata( $user_id );
+
+		$this->assertTrue( wp_check_password( $password, $user->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_saved_platform_fails_closed() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		delete_user_meta( $user_id, '_bbp_class' );
+		update_option( '_bbp_converter_platform', 'NotAConverter' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_missing_class_fails_closed() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		delete_user_meta( $user_id, '_bbp_class' );
+		update_option( '_bbp_converter_platform', 'phpBB' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'incorrect';
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_class_meta_takes_precedence_over_saved_platform() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		update_option( '_bbp_converter_platform', 'NotAConverter' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_does_not_use_saved_platform_without_password_meta() {
+		$password = 'Current WordPress Password';
+		$user_id  = $this->factory->user->create(
+			array(
+				'user_login' => 'not-imported-' . wp_generate_password( 8, false ),
+				'user_pass'  => $password,
+			)
+		);
+		$user     = get_userdata( $user_id );
+
+		update_option( '_bbp_converter_platform', 'phpBB' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_routes_both_metadata_paths_for_all_converters() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		$platforms = array_keys( bbp_get_converters() );
+
+		foreach ( $platforms as $platform ) {
+			foreach ( array( true, false ) as $has_class_meta ) {
+				if ( $has_class_meta ) {
+					update_user_meta( $user_id, '_bbp_class', $platform );
+					update_option( '_bbp_converter_platform', 'NotAConverter' );
+				} else {
+					delete_user_meta( $user_id, '_bbp_class' );
+					update_option( '_bbp_converter_platform', $platform );
+				}
+
+				$requested_platform  = null;
+				$requested_converter = null;
+				$capture             = function( $converter, $requested ) use ( &$requested_platform, &$requested_converter ) {
+					$requested_platform  = $requested;
+					$requested_converter = $converter;
+
+					return null;
+				};
+
+				add_filter( 'bbp_new_converter', $capture, 10, 2 );
+
+				try {
+					bbp_user_maybe_convert_pass();
+				} finally {
+					remove_filter( 'bbp_new_converter', $capture, 10 );
+				}
+
+				$this->assertSame(
+					$platform,
+					$requested_platform,
+					sprintf( '%s did not use the %s metadata path.', $platform, $has_class_meta ? 'per-user' : 'saved-platform' )
+				);
+				$this->assert_source_database_not_connected( $requested_converter );
+			}
+		}
 	}
 
 	/**

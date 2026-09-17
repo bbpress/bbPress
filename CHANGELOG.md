@@ -72,6 +72,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Recovered first-login password upgrades for existing imports missing
+  per-user converter metadata by using the saved importer platform.
 - Allowed imported users to upgrade their passwords after the source database
   is no longer available.
 - Allowed imported-user first-login upgrades with email addresses, slashed
