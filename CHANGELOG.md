@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected first-login password upgrades for Kunena 3 imports.
 - Corrected first-login password upgrades for Kunena 2 imports.
 - Corrected first-login password upgrades for Kunena 1 imports.
 - Corrected first-login password upgrades for new and rerun AEF imports.
