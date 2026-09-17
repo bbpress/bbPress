@@ -83,6 +83,7 @@ Development for the next bbPress release is in progress. See the active
 - Supported first-login password upgrades for MyBB imports.
 - Supported first-login password upgrades for FluxBB imports.
 - Supported first-login password upgrades for PunBB imports.
+- Supported first-login password upgrades for Phorum imports.
 - Allowed moderators to mark trashed replies as spam from the front end.
 - Preserved forum visibility when restoring a forum from the trash.
 - Prevented stale post caches during nested updates and repeated moderation.
