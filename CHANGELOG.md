@@ -78,6 +78,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected first-login password upgrades for XMB imports.
 - Corrected first-login password upgrades for e107 v1 imports.
 - Corrected first-login password upgrades for Kunena 3 imports.
 - Corrected first-login password upgrades for Kunena 2 imports.
