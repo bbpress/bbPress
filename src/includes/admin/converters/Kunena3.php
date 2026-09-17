@@ -399,7 +399,7 @@ class Kunena3 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_old_user_id'
 		);
 
-		// Store old user password (Stored in usermeta serialized with salt)
+		// Store old user password (Stored in serialized usermeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'users',
 			'from_fieldname'  => 'password',
@@ -408,19 +408,9 @@ class Kunena3 extends BBP_Converter_Base {
 			'callback_method' => 'callback_savepass'
 		);
 
-		// Store old user salt (This is only used for the SELECT row info for the above password save)
-		/*
-		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'salt',
-			'to_type'        => 'user',
-			'to_fieldname'   => ''
-		);
-		*/
-
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
-			'to_type'      => 'users',
+			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
 			'default'      => 'Kunena3'
 		);
@@ -702,12 +692,7 @@ class Kunena3 extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array(
-			'hash' => $field,
-			'salt' => $row['salt']
-		);
-
-		return $pass_array;
+		return array( 'hash' => $field );
 	}
 
 	/**
@@ -725,16 +710,38 @@ class Kunena3 extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
-		);
+		$hash = $pass_array['hash'];
+
+		// Modern Joomla password formats
+		if ( 0 === strpos( $hash, '$P$' ) ) {
+			return wp_check_password( $password, $hash );
+		} elseif ( 0 === strpos( $hash, '$2' ) || 0 === strpos( $hash, '$argon2i' ) || 0 === strpos( $hash, '$argon2id' ) ) {
+			return password_verify( $password, $hash );
+		}
+
+		// Legacy Joomla SHA-256 passwords
+		if ( 0 === strpos( $hash, '{SHA256}' ) ) {
+			$parts = explode( ':', substr( $hash, 8 ) );
+			$salt  = isset( $parts[1] ) ? $parts[1] : '';
+
+			return hash_equals(
+				$hash,
+				'{SHA256}' . hash( 'sha256', $password . $salt ) . ( $salt ? ':' . $salt : '' )
+			);
+		}
+
+		// Legacy Joomla MD5 passwords
+		$parts = explode( ':', $hash );
+		$salt  = isset( $parts[1] ) ? $parts[1] : '';
+
+		$test_hash = md5( $password . $salt ) . ( $salt ? ':' . $salt : ( false !== strpos( $hash, ':' ) ? ':' : '' ) );
+
+		return hash_equals( $hash, $test_hash );
 	}
 
 	/**
