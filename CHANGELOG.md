@@ -20,6 +20,7 @@ Development for the next bbPress release is in progress. See the active
 - Supported first-login password upgrades for MyBB imports.
 - Supported first-login password upgrades for FluxBB imports.
 - Supported first-login password upgrades for PunBB imports.
+- Supported first-login password upgrades for Phorum imports.
 
 ## 2.6.17 - 2026-09-16
 
