@@ -80,6 +80,7 @@ Development for the next bbPress release is in progress. See the active
 
 - Supported first-login password upgrades for phpBB imports that use bcrypt,
   Argon2, or combined phpass and bcrypt hashes.
+- Supported first-login password upgrades for MyBB imports.
 - Allowed moderators to mark trashed replies as spam from the front end.
 - Preserved forum visibility when restoring a forum from the trash.
 - Prevented stale post caches during nested updates and repeated moderation.
