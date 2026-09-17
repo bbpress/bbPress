@@ -454,16 +454,18 @@ class FluxBB extends BBP_Converter_Base {
 		);
 
 		// Store old user salt (This is only used for the SELECT row info for the above password save)
-//      $this->field_map[] = array(
-//          'from_tablename' => 'users',
-//          'from_fieldname' => 'salt',
-//          'to_type'        => 'user',
-//          'to_fieldname'   => ''
-//      );
+		if ( $this->source_has_salt() ) {
+			$this->field_map[] = array(
+				'from_tablename' => 'users',
+				'from_fieldname' => 'salt',
+				'to_type'        => 'user',
+				'to_fieldname'   => ''
+			);
+		}
 
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
-			'to_type'      => 'users',
+			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
 			'default'      => 'FluxBB'
 		);
@@ -592,6 +594,19 @@ class FluxBB extends BBP_Converter_Base {
 	}
 
 	/**
+	 * Check whether the source users table retains the legacy FluxBB salt field.
+	 *
+	 * @return bool True when the salt field exists, false otherwise.
+	 */
+	private function source_has_salt() {
+		if ( empty( $this->opdb ) ) {
+			return false;
+		}
+
+		return (bool) $this->opdb->get_var( "SHOW COLUMNS FROM {$this->opdb->prefix}users LIKE 'salt'" );
+	}
+
+	/**
 	 * This method is to save the salt and password together.  That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
@@ -599,7 +614,7 @@ class FluxBB extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => $row['salt']
+			'salt' => isset( $row['salt'] ) ? (string) $row['salt'] : ''
 		);
 
 		return $pass_array;
@@ -620,15 +635,33 @@ class FluxBB extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! array_key_exists( 'salt', $pass_array ) || ! is_string( $pass_array['hash'] ) || ( ! is_string( $pass_array['salt'] ) && ! is_null( $pass_array['salt'] ) ) ) {
 			return false;
 		}
 
-		// Return comparison
+		$salt = (string) $pass_array['salt'];
+
+		// Salted SHA-1 from FluxBB 1.3
+		if ( ! empty( $salt ) ) {
+			return hash_equals(
+				$pass_array['hash'],
+				sha1( $salt . sha1( $password ) )
+			);
+		}
+
+		// Unsalted MD5 from FluxBB 1.2
+		if ( 40 !== strlen( $pass_array['hash'] ) ) {
+			return hash_equals(
+				$pass_array['hash'],
+				md5( $password )
+			);
+		}
+
+		// SHA-1 from FluxBB 1.4 and newer
 		return hash_equals(
 			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
+			sha1( $password )
 		);
 	}
 
