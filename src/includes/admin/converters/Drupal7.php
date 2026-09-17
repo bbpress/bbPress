@@ -487,26 +487,18 @@ class Drupal7 extends BBP_Converter_Base {
 			'to_fieldname'    => '_bbp_old_user_id'
 		);
 
-		// Store old user password (Stored in usermeta serialized with salt)
+		// Store old user password (Stored in usermeta as a serialized array)
 		$this->field_map[] = array(
 			'from_tablename'  => 'users',
 			'from_fieldname'  => 'pass',
 			'to_type'         => 'user',
-			'to_fieldname'    => '_bbp_password'
-			// 'callback_method' => 'callback_savepass'
-		);
-
-		// Store old user salt (This is only used for the SELECT row info for the above password save)
-		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'pass',
-			'to_type'        => 'user',
-			'to_fieldname'   => ''
+			'to_fieldname'    => '_bbp_password',
+			'callback_method' => 'callback_savepass'
 		);
 
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
-			'to_type'      => 'users',
+			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
 			'default'      => 'Drupal7'
 		);
@@ -563,17 +555,61 @@ class Drupal7 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method is to save the salt and password together.  That
-	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by WordPress.
+	 * Store the Drupal password hash in a serialized array.
+	 *
+	 * Array values are automatically serialized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array(
-			'hash' => $field,
-			'salt' => $row['salt']
-		);
+		return array( 'hash' => $field );
+	}
 
-		return $pass_array;
+	/**
+	 * Upgrade password metadata written by earlier Drupal 7 imports.
+	 *
+	 * Earlier imports stored the hash without serializing it. New imports use
+	 * the parent callback and the serialized format from callback_savepass().
+	 *
+	 * @param string      $username    WordPress user login.
+	 * @param string      $password    Unslashed password for Drupal.
+	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 */
+	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
+		$user = get_user_by( 'login', $username );
+
+		if ( ! empty( $user ) && '' === $user->user_pass ) {
+			$stored_hash = get_user_meta( $user->ID, '_bbp_password', true );
+
+			if ( is_string( $stored_hash ) && $this->is_drupal_hash( $stored_hash ) ) {
+				if ( $this->authenticate_pass( $password, serialize( array( 'hash' => $stored_hash ) ) ) ) {
+					$this->upgrade_user_pass( $user->ID, is_null( $wp_password ) ? $password : $wp_password );
+				}
+
+				return;
+			}
+		}
+
+		parent::callback_pass( $username, $password, $wp_password );
+	}
+
+	/**
+	 * Upgrade a Drupal hash copied directly into wp_users by an old import.
+	 *
+	 * @param WP_User     $user        WordPress user.
+	 * @param string      $password    Unslashed password for Drupal.
+	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 */
+	public function callback_user_pass( $user, $password, $wp_password = null ) {
+		$wp_password = is_null( $wp_password ) ? $password : $wp_password;
+
+		// Do not replace a password that WordPress or a password plugin already
+		// recognizes, regardless of the stored hash prefix.
+		if ( ! ( $user instanceof WP_User ) || wp_check_password( $wp_password, $user->user_pass, $user->ID ) || ! $this->is_drupal_hash( $user->user_pass, false ) ) {
+			return;
+		}
+
+		if ( $this->authenticate_pass( $password, serialize( array( 'hash' => $user->user_pass ) ) ) ) {
+			$this->upgrade_user_pass( $user->ID, $wp_password );
+		}
 	}
 
 	/**
@@ -591,16 +627,149 @@ class Drupal7 extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
-		);
+		$stored_hash = $pass_array['hash'];
+
+		// Drupal 6 passwords upgraded to Drupal 7 use an MD5 pre-hash
+		if ( 0 === strpos( $stored_hash, 'U$' ) ) {
+			$stored_hash = substr( $stored_hash, 1 );
+			$password    = md5( $password );
+		}
+
+		switch ( substr( $stored_hash, 0, 3 ) ) {
+			case '$S$' :
+				$hash = $this->hash_password( 'sha512', $password, $stored_hash );
+				break;
+
+			case '$H$' :
+			case '$P$' :
+				$hash = $this->hash_password( 'md5', $password, $stored_hash );
+				break;
+
+			default :
+				return false;
+		}
+
+		return is_string( $hash ) && hash_equals( $stored_hash, $hash );
+	}
+
+	/**
+	 * Hash a password using Drupal 7's portable password algorithm.
+	 *
+	 * @param string $algorithm Hash algorithm.
+	 * @param string $password  Plain-text password.
+	 * @param string $setting   Stored hash or hash setting.
+	 * @return string|bool Password hash on success, false on failure.
+	 */
+	private function hash_password( $algorithm, $password, $setting ) {
+		if ( strlen( $password ) > 512 ) {
+			return false;
+		}
+
+		$setting = substr( $setting, 0, 12 );
+		if ( 12 !== strlen( $setting ) || '$' !== $setting[0] || '$' !== $setting[2] ) {
+			return false;
+		}
+
+		$characters = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		$count_log2 = strpos( $characters, $setting[3] );
+		$salt       = substr( $setting, 4, 8 );
+
+		if ( false === $count_log2 || $count_log2 < 7 || $count_log2 > 30 || 8 !== strlen( $salt ) ) {
+			return false;
+		}
+
+		$count = 1 << $count_log2;
+		$hash  = hash( $algorithm, $salt . $password, true );
+
+		do {
+			$hash = hash( $algorithm, $hash . $password, true );
+		} while ( --$count );
+
+		$output   = $setting . $this->base64_encode_password( $hash, strlen( $hash ) );
+		$expected = 12 + ceil( ( 8 * strlen( $hash ) ) / 6 );
+
+		return ( strlen( $output ) === (int) $expected )
+			? substr( $output, 0, 55 )
+			: false;
+	}
+
+	/**
+	 * Encode bytes using Drupal 7's password base64 alphabet.
+	 *
+	 * @param string $input Bytes to encode.
+	 * @param int    $count Number of bytes to encode.
+	 * @return string Encoded bytes.
+	 */
+	private function base64_encode_password( $input, $count ) {
+		$output     = '';
+		$index      = 0;
+		$characters = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+		do {
+			$value   = ord( $input[ $index++ ] );
+			$output .= $characters[ $value & 0x3f ];
+			if ( $index < $count ) {
+				$value |= ord( $input[ $index ] ) << 8;
+			}
+			$output .= $characters[ ( $value >> 6 ) & 0x3f ];
+			if ( $index++ >= $count ) {
+				break;
+			}
+			if ( $index < $count ) {
+				$value |= ord( $input[ $index ] ) << 16;
+			}
+			$output .= $characters[ ( $value >> 12 ) & 0x3f ];
+			if ( $index++ >= $count ) {
+				break;
+			}
+			$output .= $characters[ ( $value >> 18 ) & 0x3f ];
+		} while ( $index < $count );
+
+		return $output;
+	}
+
+	/**
+	 * Determine whether a stored value is a Drupal password hash.
+	 *
+	 * @param string $hash          Stored password hash.
+	 * @param bool   $allow_phpass Whether to include WordPress-compatible $P$.
+	 * @return bool True when the value has a supported Drupal hash prefix.
+	 */
+	private function is_drupal_hash( $hash, $allow_phpass = true ) {
+		if ( ! is_string( $hash ) ) {
+			return false;
+		}
+
+		// A $P$ hash in metadata is unambiguously from Drupal, while one copied
+		// into user_pass is also a WordPress-compatible password hash.
+		$prefixes = $allow_phpass
+			? array( '$S$', '$H$', '$P$', 'U$' )
+			: array( '$S$', '$H$', 'U$' );
+
+		foreach ( $prefixes as $prefix ) {
+			if ( 0 === strpos( $hash, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Replace a verified Drupal hash with a WordPress password.
+	 *
+	 * @param int    $user_id  WordPress user ID.
+	 * @param string $password Password to hash for WordPress.
+	 */
+	private function upgrade_user_pass( $user_id, $password ) {
+		wp_set_password( $password, $user_id );
+		delete_user_meta( $user_id, '_bbp_password' );
+		delete_user_meta( $user_id, '_bbp_class' );
 	}
 
 	/**
