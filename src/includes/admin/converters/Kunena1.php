@@ -390,22 +390,12 @@ class Kunena1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_savepass'
 		);
 
-		// Store old user salt (This is only used for the SELECT row info for the above password save)
-		/*
-		$this->field_map[] = array(
-			'from_tablename' => 'user',
-			'from_fieldname' => 'salt',
-			'to_type'        => 'user',
-			'to_fieldname'   => ''
-		);
-
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
 			'default'      => 'Kunena1'
 		);
-		*/
 
 		// User name.
 		$this->field_map[] = array(
@@ -447,11 +437,7 @@ class Kunena1 extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array(
-			'hash' => $field,
-			'salt' => $row['salt']
-		);
-		return $pass_array;
+		return array( 'hash' => $field );
 	}
 
 	/**
@@ -469,16 +455,15 @@ class Kunena1 extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
-		);
+		$parts = explode( ':', $pass_array['hash'], 2 );
+		$salt  = isset( $parts[1] ) ? $parts[1] : '';
+
+		return hash_equals( $parts[0], md5( $password . $salt ) );
 	}
 
 	/**
