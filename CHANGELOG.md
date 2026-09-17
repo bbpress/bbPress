@@ -78,6 +78,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected first-login password upgrades for new and rerun AEF imports.
 - Allowed imported users to upgrade their passwords after the source database
   is no longer available.
 - Allowed imported-user first-login upgrades with email addresses, slashed

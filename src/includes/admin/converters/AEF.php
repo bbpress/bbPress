@@ -443,7 +443,7 @@ class AEF extends BBP_Converter_Base {
 
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
-			'to_type'      => 'users',
+			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
 			'default'      => 'AEF'
 		);
@@ -592,16 +592,26 @@ class AEF extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
-		);
+		// AEF encodes and escapes the submitted password before hashing it
+		foreach ( array( 'UTF-8', 'ISO-8859-1' ) as $charset ) {
+			$legacy_password = addslashes( htmlentities( $password, ENT_QUOTES, $charset ) );
+
+			// Do not let invalid input collapse to an empty password
+			if ( ( '' === $legacy_password ) && ( '' !== $password ) ) {
+				continue;
+			}
+
+			if ( hash_equals( $pass_array['hash'], md5( $pass_array['salt'] . $legacy_password ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
