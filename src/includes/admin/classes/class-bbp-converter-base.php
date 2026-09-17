@@ -156,12 +156,6 @@ abstract class BBP_Converter_Base {
 		// Setup old forum Database
 		$this->opdb = new BBP_Converter_DB( $db_user, $db_pass, $db_name, $db_host );
 
-		// Connection failed
-		if ( ! $this->opdb->db_connect( false ) ) {
-			$error = new WP_Error( 'bbp_converter_db_connection_failed', esc_html__( 'Database connection failed.', 'bbpress' ) );
-			wp_send_json_error( $error );
-		}
-
 		// Maybe setup the database prefix
 		$this->opdb->prefix = $db_prefix;
 
@@ -332,10 +326,19 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Convert Table.
 	 *
+	 * @since 2.6.18 Connects to the source database when conversion begins.
+	 *
 	 * @param string $to_type The destination type
 	 * @param int $start Start row
 	 */
 	public function convert_table( $to_type, $start ) {
+
+		// Connect to the source database only when conversion begins. This keeps
+		// first-login password upgrades independent of the source database.
+		if ( ! $this->opdb->db_connect( false ) ) {
+			$error = new WP_Error( 'bbp_converter_db_connection_failed', esc_html__( 'Database connection failed.', 'bbpress' ) );
+			wp_send_json_error( $error );
+		}
 
 		// Set some defaults
 		$has_insert     = false;
