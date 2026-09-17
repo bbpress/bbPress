@@ -345,6 +345,142 @@
 	}
 
 	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_by_email() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = $user->user_email;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$user = get_userdata( $user_id );
+
+		$this->assertNotSame( '', $user->user_pass );
+		$this->assertTrue( wp_check_password( $password, $user->user_pass, $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_accepts_zero() {
+		$password = '0';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_unslashes_password() {
+		$password = "Correct 'Horse' \\ Battery";
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = wp_slash( $password );
+
+		bbp_user_maybe_convert_pass();
+
+		$user = wp_signon( array(), false );
+
+		$this->assertInstanceOf( 'WP_User', $user );
+		$this->assertSame( $user_id, $user->ID );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_does_not_replace_existing_password() {
+		$password = 'Current WordPress Password';
+		$user_id  = $this->create_imported_phpbb_user( 'Legacy phpBB Password' );
+		$user     = get_userdata( $user_id );
+
+		wp_set_password( $password, $user_id );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$user = get_userdata( $user_id );
+
+		$this->assertTrue( wp_check_password( $password, $user->user_pass, $user_id ) );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_rejects_non_scalar_input() {
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = array( $user->user_login );
+		$_POST['pwd'] = array( $password );
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * Create a user with imported phpBB password metadata.
+	 *
+	 * @param string $password Password to store in phpBB's imported format.
+	 * @return int User ID.
+	 */
+	private function create_imported_phpbb_user( $password ) {
+		global $wpdb;
+
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => 'phpbb-imported-' . wp_generate_password( 8, false ),
+				'user_email' => wp_generate_password( 8, false ) . '@example.org',
+				'user_pass'  => $password,
+			)
+		);
+
+		$wpdb->update(
+			$wpdb->users,
+			array( 'user_pass' => '' ),
+			array( 'ID' => $user_id )
+		);
+		clean_user_cache( $user_id );
+
+		add_user_meta(
+			$user_id,
+			'_bbp_password',
+			array(
+				'hash' => md5( $password ),
+				'salt' => '',
+			)
+		);
+		add_user_meta( $user_id, '_bbp_class', 'phpBB' );
+
+		return $user_id;
+	}
+
+	/**
 	 * Assert that a converter has not connected to its source database.
 	 *
 	 * The database handle is protected and has no public connection-state

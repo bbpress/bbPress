@@ -1231,21 +1231,23 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
  *
  * @since 2.1.0 bbPress (r3813)
  * @since 2.6.10 bbPress (r7244) Switched from direct query to get_user_by()
+ * @since 2.6.18 Improved input handling and email login support.
  */
 function bbp_user_maybe_convert_pass() {
 
 	// Sanitize login
-	$login = ! empty( $_POST['log'] )
+	$login = isset( $_POST['log'] ) && is_string( $_POST['log'] )
 		? sanitize_user( wp_unslash( $_POST['log'] ) )
 		: '';
 
 	// Sanitize password
-	$pass = ! empty( $_POST['pwd'] )
+	$wp_pass = isset( $_POST['pwd'] ) && is_string( $_POST['pwd'] )
 		? trim( $_POST['pwd'] )
 		: '';
+	$pass    = wp_unslash( $wp_pass );
 
 	// Bail if no username or password
-	if ( empty( $login ) || empty( $pass ) ) {
+	if ( '' === $login || '' === $pass ) {
 		return;
 	}
 
@@ -1283,6 +1285,6 @@ function bbp_user_maybe_convert_pass() {
 
 	// Try to call the password conversion callback method
 	if ( ( $converter instanceof BBP_Converter_Base ) && method_exists( $converter, 'callback_pass' ) ) {
-		$converter->callback_pass( $login, $pass );
+		$converter->callback_pass( $user->user_login, $pass, $wp_pass );
 	}
 }

@@ -80,6 +80,8 @@ Development for the next bbPress release is in progress. See the active
 
 - Allowed imported users to upgrade their passwords after the source database
   is no longer available.
+- Allowed imported-user first-login upgrades with email addresses, slashed
+  credentials, and the password `0` while rejecting malformed input.
 - Supported first-login password upgrades for phpBB imports that use bcrypt,
   Argon2, or combined phpass and bcrypt hashes.
 - Supported first-login password upgrades for MyBB imports.
