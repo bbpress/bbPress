@@ -507,10 +507,45 @@ class PHPFox3 extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => $row['salt']
+			'salt' => isset( $row['password_salt'] ) ? wp_slash( (string) $row['password_salt'] ) : ''
 		);
 
 		return $pass_array;
+	}
+
+	/**
+	 * Upgrade a phpFox password, recovering salts omitted by older imports.
+	 *
+	 * @param string      $username    WordPress user login.
+	 * @param string      $password    Submitted password.
+	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 */
+	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
+		$user = get_user_by( 'login', $username );
+
+		if ( ! empty( $user ) && '' === $user->user_pass ) {
+			$pass_array = get_user_meta( $user->ID, '_bbp_password', true );
+
+			if ( is_array( $pass_array ) && isset( $pass_array['hash'] ) && is_string( $pass_array['hash'] ) && ( ! isset( $pass_array['salt'] ) || ! is_string( $pass_array['salt'] ) || '' === $pass_array['salt'] ) ) {
+				$old_user_id = get_user_meta( $user->ID, '_bbp_old_user_id', true );
+
+				if ( ! empty( $old_user_id ) && ! empty( $this->opdb ) && $this->opdb->db_connect( false ) ) {
+					$salt = $this->opdb->get_var(
+						$this->opdb->prepare(
+							"SELECT password_salt FROM {$this->opdb->prefix}user WHERE user_id = %d LIMIT 1",
+							$old_user_id
+						)
+					);
+
+					if ( is_string( $salt ) && '' !== $salt ) {
+						$pass_array['salt'] = wp_slash( $salt );
+						update_user_meta( $user->ID, '_bbp_password', $pass_array );
+					}
+				}
+			}
+		}
+
+		parent::callback_pass( $username, $password, $wp_password );
 	}
 
 	/**
@@ -528,16 +563,19 @@ class PHPFox3 extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
-		);
+		$hash     = md5( md5( $password ) . md5( $pass_array['salt'] ) );
+		$old_hash = md5( md5( $password ) . $pass_array['salt'] );
+
+		// Retain support for metadata compatible with the historical verifier
+		$hash_matches     = hash_equals( $pass_array['hash'], $hash );
+		$old_hash_matches = hash_equals( $pass_array['hash'], $old_hash );
+
+		return $hash_matches || $old_hash_matches;
 	}
 
 	/**

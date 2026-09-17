@@ -78,6 +78,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected first-login password upgrades for phpFox 3 imports.
 - Corrected first-login password upgrades for IP.Board 3 punctuation passwords.
 - Corrected password salt storage for new and repeated vBulletin 3 imports.
 - Corrected password salt storage for new and repeated vBulletin 4 imports.
