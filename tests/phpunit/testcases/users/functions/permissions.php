@@ -21,6 +21,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 	}
 
 	public function tearDown(): void {
+		remove_filter( 'bbp_is_single_user', '__return_true' );
 		remove_filter( 'bbp_current_user_can_edit_user_field', '__return_true' );
 		remove_filter( 'bbp_current_user_can_edit_user_field', array( $this, 'deny_profile_field' ), 10 );
 		remove_filter( 'bbp_get_user_editable_forum_roles', array( $this, 'allow_all_forum_roles' ), 10 );
@@ -42,8 +43,11 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		set_current_screen( 'front' );
 
 		$wp_query                          = bbp_get_wp_query();
+		$wp_query->bbp_is_single_user      = false;
 		$wp_query->bbp_is_single_user_edit = false;
 		$wp_query->bbp_is_single_user_home = false;
+		$wp_query->bbp_is_single_user_profile = false;
+		$wp_query->bbp_is_single_user_subs = false;
 
 		$_POST    = array();
 		$_REQUEST = array();
@@ -68,11 +72,83 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 
 		$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
 		$this->assertTrue( current_user_can( 'promote_user', $target_id ) );
+		$this->assertTrue( bbp_current_user_can_edit_user_field( 'profile', $target_id ) );
 		$this->assertFalse( current_user_can( 'edit_users' ) );
 		$this->assertFalse( current_user_can( 'promote_users' ) );
 
 		set_current_screen( 'user-edit.php' );
 
+		$this->assertFalse( current_user_can( 'edit_user', $target_id ) );
+		$this->assertFalse( current_user_can( 'promote_user', $target_id ) );
+	}
+
+	public function test_super_moderator_capabilities_apply_on_profile_views() {
+		$moderator_id = $this->factory->user->create();
+		$keymaster_id = $this->factory->user->create();
+		$admin_id     = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$target_id    = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		update_option( '_bbp_allow_super_mods', 1 );
+		wp_set_current_user( $moderator_id );
+
+		$this->set_profile_view( $target_id );
+		bbp_get_wp_query()->bbp_is_single_user_profile = true;
+
+		// Profile templates ask for these to decide whether to link to the editor.
+		$this->assertTrue( bbp_is_single_user_profile() );
+		$this->assertFalse( bbp_is_user_home() );
+		$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
+		$this->assertTrue( current_user_can( 'promote_user', $target_id ) );
+		$this->assertFalse( current_user_can( 'edit_users' ) );
+		$this->assertFalse( current_user_can( 'promote_users' ) );
+
+		// Protected targets stay protected.
+		$this->assertFalse( current_user_can( 'edit_user', $keymaster_id ) );
+		$this->assertFalse( current_user_can( 'edit_user', $admin_id ) );
+
+		if ( is_multisite() ) {
+			$super_admin_id = $this->factory->user->create();
+			grant_super_admin( $super_admin_id );
+			$this->assertFalse( current_user_can( 'edit_user', $super_admin_id ) );
+			revoke_super_admin( $super_admin_id );
+		}
+
+		set_current_screen( 'user-edit.php' );
+
+		$this->assertFalse( current_user_can( 'edit_user', $target_id ) );
+		$this->assertFalse( current_user_can( 'promote_user', $target_id ) );
+	}
+
+	public function test_super_moderator_capabilities_apply_on_subscription_views() {
+		$moderator_id = $this->factory->user->create();
+		$target_id    = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		update_option( '_bbp_allow_super_mods', 1 );
+		wp_set_current_user( $moderator_id );
+
+		$this->set_profile_view( $target_id );
+		bbp_get_wp_query()->bbp_is_single_user_subs = true;
+
+		$this->assertTrue( bbp_is_subscriptions() );
+		$this->assertFalse( bbp_is_user_home() );
+		$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
+		$this->assertTrue( bbp_current_user_can_edit_user_field( 'profile', $target_id ) );
+	}
+
+	public function test_super_moderator_capabilities_ignore_filtered_non_bbp_user_contexts() {
+		$moderator_id = $this->factory->user->create();
+		$target_id    = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		update_option( '_bbp_allow_super_mods', 1 );
+		wp_set_current_user( $moderator_id );
+		add_filter( 'bbp_is_single_user', '__return_true' );
+
+		$this->assertTrue( bbp_is_single_user() );
+		$this->assertEmpty( bbp_get_wp_query()->bbp_is_single_user );
 		$this->assertFalse( current_user_can( 'edit_user', $target_id ) );
 		$this->assertFalse( current_user_can( 'promote_user', $target_id ) );
 	}
@@ -329,8 +405,15 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 	}
 
 	private function set_profile_editor( $user_id ) {
+		$this->set_profile_view( $user_id );
+
 		$wp_query                          = bbp_get_wp_query();
 		$wp_query->bbp_is_single_user_edit = true;
+	}
+
+	private function set_profile_view( $user_id ) {
+		$wp_query                          = bbp_get_wp_query();
+		$wp_query->bbp_is_single_user      = true;
 		bbpress()->displayed_user          = get_userdata( $user_id );
 	}
 
