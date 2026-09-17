@@ -1075,10 +1075,13 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Run password through wp_hash_password()
 	 *
-	 * @param string $username
-	 * @param string $password
+	 * @since 2.6.18 Added the `$wp_password` parameter.
+	 *
+	 * @param string      $username
+	 * @param string      $password
+	 * @param string|null $wp_password Optional slashed password for WordPress.
 	 */
-	public function callback_pass( $username = '', $password = '' ) {
+	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
 
 		// Get user – Bail if not found
 		$user = $this->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->users} WHERE user_login = %s AND user_pass = '' LIMIT 1", $username ) );
@@ -1108,7 +1111,7 @@ abstract class BBP_Converter_Base {
 		}
 
 		// Hash the password
-		$new_pass = wp_hash_password( $password );
+		$new_pass = wp_hash_password( is_null( $wp_password ) ? $password : $wp_password );
 
 		// Update
 		$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $new_pass, $user->ID ) );

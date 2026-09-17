@@ -73,6 +73,8 @@ Development for the next bbPress release is in progress. See the active
 
 - Allowed imported users to upgrade their passwords after the source database
   is no longer available.
+- Allowed imported-user first-login upgrades with email addresses, slashed
+  credentials, and the password `0` while rejecting malformed input.
 - Restored anonymous read capability mapping for public forum content.
 - Allowed moderators to mark trashed replies as spam from the front end.
 - Preserved forum visibility when restoring a forum from the trash.
