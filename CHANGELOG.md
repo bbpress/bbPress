@@ -16,6 +16,7 @@ Development for the next bbPress release is in progress. See the active
 ### Fixed
 
 - Restored Super Moderator edit links on front-end user screens.
+- Supported first-login password upgrades for native XenForo password formats.
 - Corrected first-login password upgrades for XMB imports.
 - Corrected first-login password upgrades for e107 v1 imports.
 - Corrected first-login password upgrades for Kunena 3 imports.
