@@ -8,7 +8,7 @@
  */
 
 /**
- * Implementation of Invision Power Board v3.x converter.
+ * Implementation of Invision Power Board v3.1-3.4 converter.
  *
  * @since 2.3.0 bbPress (r4713)
  *
@@ -522,14 +522,12 @@ class Invision extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method is to save the salt and password together.  That
-	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by WordPress.
+	 * Save the salt and password together for later authentication.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
 			'hash' => $field,
-			'salt' => $row['members_pass_salt']
+			'salt' => isset( $row['members_pass_salt'] ) ? (string) $row['members_pass_salt'] : ''
 		);
 	}
 
@@ -548,18 +546,51 @@ class Invision extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $pass_array['salt'] ) . md5( $this->to_char( $password ) ) )
-		);
+		$salt_hash = md5( $pass_array['salt'] );
+		$hash      = md5( $salt_hash . md5( $this->clean_password( $password ) ) );
+		$old_hash  = md5( $salt_hash . md5( $this->to_char( $password ) ) );
+
+		// Retain support for metadata compatible with the historical verifier
+		$hash_matches     = hash_equals( $pass_array['hash'], $hash );
+		$old_hash_matches = hash_equals( $pass_array['hash'], $old_hash );
+
+		return $hash_matches || $old_hash_matches;
 	}
 
+	/**
+	 * Apply IP.Board 3's password input cleaning.
+	 *
+	 * @param string $password Password in plain text.
+	 * @return string Cleaned password.
+	 */
+	private function clean_password( $password ) {
+		$password = str_replace( '&#032;', ' ', $password );
+		$password = str_replace( array( "\r\n", "\n\r", "\r" ), "\n", $password );
+		$password = str_replace( '&', '&amp;', $password );
+		$password = str_replace( '<!--', '&#60;&#33;--', $password );
+		$password = str_replace( '-->', '--&#62;', $password );
+		$password = str_ireplace( '<script', '&#60;script', $password );
+		$password = str_replace( '>', '&gt;', $password );
+		$password = str_replace( '<', '&lt;', $password );
+		$password = str_replace( '"', '&quot;', $password );
+		$password = str_replace( "\n", '<br />', $password );
+		$password = str_replace( '$', '&#036;', $password );
+		$password = str_replace( '!', '&#33;', $password );
+
+		return str_replace( "'", '&#39;', $password );
+	}
+
+	/**
+	 * Apply the historical bbPress Invision password transformation.
+	 *
+	 * @param string $input Password in plain text.
+	 * @return string Transformed password.
+	 */
 	private function to_char( $input ) {
 		$output = '';
 		$length = strlen( $input );
