@@ -743,9 +743,25 @@ class phpBB extends BBP_Converter_Base {
 			$serialized_pass,
 			array(
 				'allowed_classes' => false,
-				'max_depth'       => 1
+				'max_depth'       => 1,
 			)
 		);
+
+		// Bail if the password hash is invalid
+		if ( ! is_array( $pass_array ) || empty( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {
+			return false;
+		}
+
+		// Modern phpBB hashes use PHP's password hashing API
+		if ( ( strpos( $pass_array['hash'], '$2' ) === 0 ) || ( strpos( $pass_array['hash'], '$argon2' ) === 0 ) ) {
+			return password_verify( $password, $pass_array['hash'] );
+		}
+
+		// phpBB can wrap a legacy phpass hash in bcrypt
+		if ( preg_match( '#^\$([HP])\\\\(2[ay])\$([./0-9A-Za-z]{9})\$([0-9]{2})\\\\([./0-9A-Za-z]{22})\$([./0-9A-Za-z]{31})$#D', $pass_array['hash'], $matches ) ) {
+			return $this->authenticate_combined_pass( $password, $matches )
+				|| $this->authenticate_combined_pass( md5( $password ), $matches );
+		}
 
 		// Encrypted
 		if ( strlen( $pass_array['hash'] ) === 34 ) {
@@ -768,13 +784,28 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
+	 * Check a phpBB combined phpass and bcrypt password hash.
+	 *
+	 * @param string $password The password in plain text.
+	 * @param array  $matches  Parsed components of the combined hash.
+	 * @return bool True if the password is correct, false if not.
+	 */
+	private function authenticate_combined_pass( $password, $matches ) {
+		$itoa64      = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		$phpass_hash = $this->_hash_crypt_private( $password, '$' . $matches[1] . '$' . $matches[3], $itoa64 );
+		$bcrypt_hash = '$' . $matches[2] . '$' . $matches[4] . '$' . $matches[5] . $matches[6];
+
+		return password_verify( substr( $phpass_hash, 12 ), $bcrypt_hash );
+	}
+
+	/**
 	 * The crypt function/replacement
 	 */
 	private function _hash_crypt_private( $password, $setting, &$itoa64 ) {
 		$output = '*';
 
 		// Check for correct hash
-		if ( substr( $setting, 0, 3 ) !== '$H$' ) {
+		if ( ! in_array( substr( $setting, 0, 3 ), array( '$H$', '$P$' ), true ) ) {
 			return $output;
 		}
 

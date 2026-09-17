@@ -13,6 +13,11 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Fixed
+
+- Supported first-login password upgrades for phpBB imports that use bcrypt,
+  Argon2, or combined phpass and bcrypt hashes.
+
 ## 2.6.17 - 2026-09-16
 
 ### Added
