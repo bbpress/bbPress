@@ -19,6 +19,7 @@ Development for the next bbPress release is in progress. See the active
   Argon2, or combined phpass and bcrypt hashes.
 - Supported first-login password upgrades for MyBB imports.
 - Supported first-login password upgrades for FluxBB imports.
+- Supported first-login password upgrades for PunBB imports.
 
 ## 2.6.17 - 2026-09-16
 
