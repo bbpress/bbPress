@@ -398,7 +398,7 @@ class e107v1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_old_user_id'
 		);
 
-		// Store old user password (Stored in usermeta serialized with salt)
+		// Store old user password (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'user',
 			'from_fieldname'  => 'user_password',
@@ -474,17 +474,11 @@ class e107v1 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method is to save the salt and password together. That
-	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by WordPress.
+	 * Store the old password hash as an array. Array values are auto
+	 * sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array(
-			'hash' => $field,
-			'salt' => $row['salt']
-		);
-
-		return $pass_array;
+		return array( 'hash' => $field );
 	}
 
 	/**
@@ -502,16 +496,34 @@ class e107v1 extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {
 			return false;
 		}
 
-		// Return comparison
-		return hash_equals(
-			$pass_array['hash'],
-			md5( md5( $password ) . $pass_array['salt'] )
-		);
+		// Standard e107 v1 password comparison
+		if ( hash_equals( $pass_array['hash'], md5( $password ) ) ) {
+			return true;
+		}
+
+		// e107 also converted UTF-8 passwords for upgraded legacy sites
+		if ( function_exists( 'mb_convert_encoding' ) && function_exists( 'mb_substitute_character' ) ) {
+			$substitute_character = mb_substitute_character();
+
+			if ( false === $substitute_character || ! mb_substitute_character( 0x3F ) ) {
+				return false;
+			}
+
+			try {
+				$legacy_password = mb_convert_encoding( $password, 'ISO-8859-1', 'UTF-8' );
+			} finally {
+				mb_substitute_character( $substitute_character );
+			}
+
+			return hash_equals( $pass_array['hash'], md5( $legacy_password ) );
+		}
+
+		return false;
 	}
 
 	/**
