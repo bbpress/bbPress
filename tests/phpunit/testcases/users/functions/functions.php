@@ -8,6 +8,12 @@
  */
  class BBP_Tests_Users_Functions extends BBP_UnitTestCase {
 
+	public function tearDown(): void {
+		unset( $_POST['log'], $_POST['pwd'] );
+
+		parent::tearDown();
+	}
+
 	/**
 	 * @covers ::bbp_redirect_login
 	 * @todo   Implement test_bbp_redirect_login().
@@ -223,12 +229,145 @@
 
 	/**
 	 * @covers ::bbp_user_maybe_convert_pass
-	 * @todo   Implement test_bbp_user_maybe_convert_pass().
+	 * @ticket BBP3684
 	 */
 	public function test_bbp_user_maybe_convert_pass() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		global $wpdb;
+
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->factory->user->create(
+			array(
+				'user_login' => 'phpbb-imported-user',
+				'user_pass'  => $password,
+			)
 		);
+
+		$wpdb->update(
+			$wpdb->users,
+			array( 'user_pass' => '' ),
+			array( 'ID' => $user_id )
+		);
+		clean_user_cache( $user_id );
+
+		add_user_meta(
+			$user_id,
+			'_bbp_password',
+			array(
+				'hash' => md5( $password ),
+				'salt' => '',
+			)
+		);
+		add_user_meta( $user_id, '_bbp_class', 'phpBB' );
+
+		$converter = null;
+		$capture   = function( $new_converter ) use ( &$converter ) {
+			$converter = $new_converter;
+
+			return $new_converter;
+		};
+
+		add_filter( 'bbp_new_converter', $capture );
+
+		$_POST['log'] = 'phpbb-imported-user';
+		$_POST['pwd'] = $password;
+
+		try {
+			bbp_user_maybe_convert_pass();
+		} finally {
+			remove_filter( 'bbp_new_converter', $capture );
+		}
+
+		$user = get_userdata( $user_id );
+
+		$this->assertTrue( wp_check_password( $password, $user->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+
+		$this->assert_source_database_not_connected( $converter );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
+	public function test_bbp_user_maybe_convert_pass_with_incorrect_password() {
+		global $wpdb;
+
+		$password = 'Correct Horse Battery Staple';
+		$user_id  = $this->factory->user->create(
+			array(
+				'user_login' => 'phpbb-imported-user',
+				'user_pass'  => $password,
+			)
+		);
+
+		$wpdb->update(
+			$wpdb->users,
+			array( 'user_pass' => '' ),
+			array( 'ID' => $user_id )
+		);
+		clean_user_cache( $user_id );
+
+		add_user_meta(
+			$user_id,
+			'_bbp_password',
+			array(
+				'hash' => md5( $password ),
+				'salt' => '',
+			)
+		);
+		add_user_meta( $user_id, '_bbp_class', 'phpBB' );
+
+		$converter = null;
+		$capture   = function( $new_converter ) use ( &$converter ) {
+			$converter = $new_converter;
+
+			return $new_converter;
+		};
+
+		add_filter( 'bbp_new_converter', $capture );
+
+		$_POST['log'] = 'phpbb-imported-user';
+		$_POST['pwd'] = 'incorrect';
+
+		try {
+			bbp_user_maybe_convert_pass();
+		} finally {
+			remove_filter( 'bbp_new_converter', $capture );
+		}
+
+		$user = get_userdata( $user_id );
+
+		$this->assertSame( '', $user->user_pass );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+		$this->assert_source_database_not_connected( $converter );
+	}
+
+	/**
+	 * Assert that a converter has not connected to its source database.
+	 *
+	 * The database handle is protected and has no public connection-state
+	 * accessor, so inspect it directly for this regression test.
+	 *
+	 * @param BBP_Converter_Base $converter Converter object.
+	 */
+	private function assert_source_database_not_connected( $converter ) {
+		$get_source_db = Closure::bind(
+			function( $object ) {
+				return $object->opdb;
+			},
+			null,
+			'BBP_Converter_Base'
+		);
+		$get_db_handle = Closure::bind(
+			function( $object ) {
+				return $object->dbh;
+			},
+			null,
+			'wpdb'
+		);
+
+		$this->assertEmpty( $get_db_handle( $get_source_db( $converter ) ) );
 	}
 }
