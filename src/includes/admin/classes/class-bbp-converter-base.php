@@ -1203,8 +1203,8 @@ abstract class BBP_Converter_Base {
 
 		// Clean up
 		unset( $new_pass );
-		$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_password', $user->ID ) );
-		$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_class',    $user->ID ) );
+		delete_user_meta( $user->ID, '_bbp_password' );
+		delete_user_meta( $user->ID, '_bbp_class'    );
 
 		// Clean the cache for this user since their password was
 		// upgraded from the old platform to the new.
