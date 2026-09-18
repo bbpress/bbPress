@@ -618,7 +618,7 @@
 			array(
 				'user_login' => 'phpbb-imported-' . wp_generate_password( 8, false ),
 				'user_email' => wp_generate_password( 8, false ) . '@example.org',
-				'user_pass'  => $password,
+				'user_pass'  => 'Factory Setup Password',
 			)
 		);
 
