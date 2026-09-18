@@ -1240,9 +1240,9 @@ function bbp_user_maybe_convert_pass() {
 		? sanitize_user( wp_unslash( $_POST['log'] ) )
 		: '';
 
-	// Sanitize password
+	// Unslash password without changing its literal value
 	$wp_pass = isset( $_POST['pwd'] ) && is_string( $_POST['pwd'] )
-		? trim( $_POST['pwd'] )
+		? $_POST['pwd']
 		: '';
 	$pass    = wp_unslash( $wp_pass );
 

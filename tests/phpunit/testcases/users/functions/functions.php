@@ -567,6 +567,26 @@
 	 * @covers ::bbp_user_maybe_convert_pass
 	 * @ticket BBP3684
 	 */
+	public function test_bbp_user_maybe_convert_pass_preserves_whitespace() {
+		$password = ' Correct Horse Battery Staple ';
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$user = wp_signon( array(), false );
+
+		$this->assertInstanceOf( 'WP_User', $user );
+		$this->assertSame( $user_id, $user->ID );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @ticket BBP3684
+	 */
 	public function test_bbp_user_maybe_convert_pass_does_not_replace_existing_password() {
 		$password = 'Current WordPress Password';
 		$user_id  = $this->create_imported_phpbb_user( 'Legacy phpBB Password' );
