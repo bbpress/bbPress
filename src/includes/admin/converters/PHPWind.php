@@ -138,22 +138,22 @@ class PHPWind extends BBP_Converter_Base {
 		);
 		// Forum dates.
 		$this->field_map[] = array(
-			'to_type'      => 'bbs_forum',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
 			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'bbs_forum',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
 			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'bbs_forum',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
 			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'bbs_forum',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
 			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
@@ -553,30 +553,23 @@ class PHPWind extends BBP_Converter_Base {
 	 * Translate the post status from PHPWind v9.x numerics to WordPress's strings.
 	 *
 	 * @param int $status PHPWind v9.x numeric topic status
-	 * @return string WordPress safe
+	 * @return string WordPress topic status.
 	 */
-	public function callback_topic_status( $status = 2 ) {
-		switch ( $status ) {
-			case 1 :
-				$status = 'closed';
-				break;
+	public function callback_topic_status( $status = 0 ) {
+		// PHPWind stores locked (0b0001) and closed (0b0010) flags in tpcstatus. bbPress represents either state as closed.
+		$locked_or_closed_mask = 0b0011;
 
-			case 2  :
-			default :
-				$status = 'publish';
-				break;
-		}
-		return $status;
+		return ( (int) $status & $locked_or_closed_mask ) ? 'closed' : 'publish';
 	}
 
 	/**
 	 * Verify the topic/reply count.
 	 *
 	 * @param int $count PHPWind v9.x topic/reply counts
-	 * @return string WordPress safe
+	 * @return int Non-negative reply count.
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
-		$count = absint( (int) $count - 1 );
+		$count = absint( $count );
 		return $count;
 	}
 }

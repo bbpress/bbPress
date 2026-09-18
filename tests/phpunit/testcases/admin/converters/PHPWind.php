@@ -86,6 +86,85 @@ class BBP_Tests_Admin_Converters_PHPWind extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers PHPWind::setup_globals
+	 * @ticket BBP3686
+	 */
+	public function test_forum_date_mappings_target_forums() {
+		$this->converter->setup_globals();
+
+		$get_field_map = Closure::bind(
+			function( $converter ) {
+				return $converter->field_map;
+			},
+			null,
+			'BBP_Converter_Base'
+		);
+		$field_map     = $get_field_map( $this->converter );
+		$date_fields   = array( 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt' );
+
+		foreach ( $date_fields as $date_field ) {
+			$mapping = wp_filter_object_list(
+				$field_map,
+				array(
+					'to_type'      => 'forum',
+					'to_fieldname' => $date_field,
+				)
+			);
+
+			$this->assertCount( 1, $mapping, $date_field . ' does not target forums.' );
+			$this->assertArrayHasKey( 'default', reset( $mapping ) );
+		}
+	}
+
+	/**
+	 * @dataProvider topic_status_provider
+	 * @covers PHPWind::callback_topic_status
+	 * @ticket BBP3686
+	 */
+	public function test_callback_topic_status_handles_bit_flags( $status, $expected ) {
+		$this->assertSame( $expected, $this->converter->callback_topic_status( $status ) );
+	}
+
+	/**
+	 * @covers PHPWind::callback_topic_status
+	 * @ticket BBP3686
+	 */
+	public function test_callback_topic_status_defaults_to_publish() {
+		$this->assertSame( 'publish', $this->converter->callback_topic_status() );
+	}
+
+	public function topic_status_provider() {
+		return array(
+			'open'                         => array( 0, 'publish' ),
+			'locked'                       => array( 1, 'closed' ),
+			'closed'                       => array( 2, 'closed' ),
+			'locked and closed'            => array( 3, 'closed' ),
+			'unrelated flag'                => array( 4, 'publish' ),
+			'locked with unrelated flag'    => array( 5, 'closed' ),
+			'closed with unrelated flag'    => array( 6, 'closed' ),
+			'all flags'                     => array( 7, 'closed' ),
+			'numeric string'                => array( '3', 'closed' ),
+		);
+	}
+
+	/**
+	 * @dataProvider topic_reply_count_provider
+	 * @covers PHPWind::callback_topic_reply_count
+	 * @ticket BBP3686
+	 */
+	public function test_callback_topic_reply_count_preserves_count( $count, $expected ) {
+		$this->assertSame( $expected, $this->converter->callback_topic_reply_count( $count ) );
+	}
+
+	public function topic_reply_count_provider() {
+		return array(
+			'no replies'   => array( 0, 0 ),
+			'one reply'    => array( 1, 1 ),
+			'many replies' => array( 12, 12 ),
+		);
+	}
+
+	/**
 	 * @covers PHPWind::callback_savepass
 	 * @ticket BBP3684
 	 */
