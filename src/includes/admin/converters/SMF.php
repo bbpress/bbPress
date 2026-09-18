@@ -671,6 +671,9 @@ class SMF extends BBP_Converter_Base {
 	 * to a pass the user has typed in.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
+		if ( ! is_string( $serialized_pass ) ) {
+			return false;
+		}
 
 		// Unserialize the password, with safeguards
 		$pass_array = unserialize(
@@ -681,8 +684,8 @@ class SMF extends BBP_Converter_Base {
 			)
 		);
 
-		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['username'] ) ) {
+		// Bail if missing or invalid values
+		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['username'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['username'] ) ) {
 			return false;
 		}
 
