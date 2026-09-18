@@ -948,8 +948,10 @@ abstract class BBP_Converter_Base {
 					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = '' WHERE ID = %d", $value['user_id'] ) );
 				} else {
 					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $value['meta_value'], $value['user_id'] ) );
-					$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_password', $value['user_id'] ) );
+					delete_user_meta( $value['user_id'], '_bbp_password' );
 				}
+
+				clean_user_cache( $value['user_id'] );
 			}
 			$has_delete = true;
 		}
