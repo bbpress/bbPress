@@ -720,8 +720,8 @@ class phpBB extends BBP_Converter_Base {
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
-			'hash' => $field,
-			'salt' => $row['user_form_salt']
+			'hash' => wp_slash( (string) $field ),
+			'salt' => isset( $row['user_form_salt'] ) ? wp_slash( (string) $row['user_form_salt'] ) : ''
 		);
 	}
 
@@ -739,13 +739,7 @@ class phpBB extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if the password hash is invalid
 		if ( ! is_array( $pass_array ) || empty( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {

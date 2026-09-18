@@ -13,6 +13,10 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Changed
+
+- Raised the minimum supported PHP version to 7.2.
+
 ### Fixed
 
 - Corrected user and first-login password data for new and repeated PHPWind 9
@@ -26,12 +30,19 @@ Development for the next bbPress release is in progress. See the active
 - Corrected password salt storage for new and repeated vBulletin 4 imports.
 - Restored Super Moderator edit links on front-end user screens.
 - Supported first-login password upgrades for native XenForo password formats.
+- Corrected first-login password upgrades for Drupal 7 imports.
 - Corrected first-login password upgrades for XMB imports.
 - Corrected first-login password upgrades for e107 v1 imports.
 - Corrected first-login password upgrades for Kunena 3 imports.
 - Corrected first-login password upgrades for Kunena 2 imports.
 - Corrected first-login password upgrades for Kunena 1 imports.
 - Corrected first-login password upgrades for new and rerun AEF imports.
+- Recovered first-login password upgrades for existing imports missing
+  per-user converter metadata by using the saved importer platform.
+- Allowed imported users to upgrade their passwords after the source database
+  is no longer available.
+- Allowed imported-user first-login upgrades with email addresses, slashed
+  credentials, and the password `0` while rejecting malformed input.
 - Supported first-login password upgrades for phpBB imports that use bcrypt,
   Argon2, or combined phpass and bcrypt hashes.
 - Supported first-login password upgrades for MyBB imports.
@@ -88,12 +99,6 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
-- Recovered first-login password upgrades for existing imports missing
-  per-user converter metadata by using the saved importer platform.
-- Allowed imported users to upgrade their passwords after the source database
-  is no longer available.
-- Allowed imported-user first-login upgrades with email addresses, slashed
-  credentials, and the password `0` while rejecting malformed input.
 - Restored anonymous read capability mapping for public forum content.
 - Allowed moderators to mark trashed replies as spam from the front end.
 - Preserved forum visibility when restoring a forum from the trash.

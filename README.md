@@ -69,7 +69,7 @@ private reporting. Support questions belong in the channels listed in
 
 ## Development
 
-bbPress 2.6 requires WordPress 6.0 or newer and PHP 5.6.20 or newer at runtime. Local
+bbPress 2.6 requires WordPress 6.0 or newer and PHP 7.2 or newer at runtime. Local
 development also requires Node.js, npm, Composer, and Docker for the repository’s
 WordPress environment.
 

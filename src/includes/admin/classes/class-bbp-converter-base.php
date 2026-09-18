@@ -268,6 +268,13 @@ abstract class BBP_Converter_Base {
 	public function setup_globals() {}
 
 	/**
+	 * Setup fields that require an active source database connection.
+	 *
+	 * @since 2.6.18
+	 */
+	protected function setup_source_fields() {}
+
+	/**
 	 * Convert Forums
 	 */
 	public function convert_forums( $start = 1 ) {
@@ -339,6 +346,9 @@ abstract class BBP_Converter_Base {
 			$error = new WP_Error( 'bbp_converter_db_connection_failed', esc_html__( 'Database connection failed.', 'bbpress' ) );
 			wp_send_json_error( $error );
 		}
+
+		// Setup fields that depend on the connected source schema.
+		$this->setup_source_fields();
 
 		// Set some defaults
 		$has_insert     = false;
@@ -1071,6 +1081,81 @@ abstract class BBP_Converter_Base {
 	}
 
 	/** Callbacks *************************************************************/
+
+	/**
+	 * Unserialize imported password metadata as an array.
+	 *
+	 * @since 2.6.18
+	 *
+	 * @param string $serialized_pass Serialized password metadata.
+	 * @return array|false Password metadata, or false when invalid.
+	 */
+	protected function unserialize_pass( $serialized_pass = '' ) {
+		if ( ! is_string( $serialized_pass ) || ! is_serialized( $serialized_pass ) || $this->serialized_pass_has_object( $serialized_pass ) ) {
+			return false;
+		}
+
+		// Malformed source metadata may still warn after is_serialized().
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$pass_array = @unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1,
+			)
+		);
+
+		return is_array( $pass_array )
+			? $pass_array
+			: false;
+	}
+
+	/**
+	 * Check serialized password metadata for object tokens without instantiating it.
+	 *
+	 * Serialized strings are skipped by their declared byte length so object-like
+	 * text inside a hash or salt does not cause a false positive.
+	 *
+	 * @since 2.6.18
+	 *
+	 * @param string $serialized_pass Serialized password metadata.
+	 * @return bool True when the value contains an object or is unsafe to parse.
+	 */
+	private function serialized_pass_has_object( $serialized_pass = '' ) {
+		$length = strlen( $serialized_pass );
+
+		for ( $offset = 0; $offset < $length; ++$offset ) {
+			$token = $serialized_pass[ $offset ];
+
+			if ( in_array( $token, array( 'O', 'C', 'E' ), true ) && isset( $serialized_pass[ $offset + 1 ] ) && ':' === $serialized_pass[ $offset + 1 ] ) {
+				return true;
+			}
+
+			if ( 's' !== $token || ! isset( $serialized_pass[ $offset + 1 ] ) || ':' !== $serialized_pass[ $offset + 1 ] ) {
+				continue;
+			}
+
+			$length_end = strpos( $serialized_pass, ':"', $offset + 2 );
+			if ( false === $length_end ) {
+				return true;
+			}
+
+			$string_length = substr( $serialized_pass, $offset + 2, $length_end - $offset - 2 );
+			$string_start  = $length_end + 2;
+			if ( '' === $string_length || ! ctype_digit( $string_length ) || (int) $string_length > $length - $string_start ) {
+				return true;
+			}
+
+			$string_end = $string_start + (int) $string_length;
+			if ( ! isset( $serialized_pass[ $string_end ] ) || '"' !== $serialized_pass[ $string_end ] ) {
+				return true;
+			}
+
+			$offset = $string_end;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Run password through wp_hash_password()

@@ -45,10 +45,19 @@ class BBP_Tests_Admin_Converters_FluxBB extends BBP_UnitTestCase {
 	 */
 	public function test_legacy_salt_is_mapped_when_source_field_exists() {
 		$source_db = new class() {
-			public $prefix = 'flux_';
+			public $prefix      = 'flux_';
+			public $connected   = false;
+			public $connections = 0;
+
+			public function db_connect( $allow_bail = true ) {
+				$this->connected = true;
+				++$this->connections;
+
+				return true;
+			}
 
 			public function get_var( $query ) {
-				return "SHOW COLUMNS FROM flux_users LIKE 'salt'" === $query
+				return $this->connected && "SHOW COLUMNS FROM flux_users LIKE 'salt'" === $query
 					? 'salt'
 					: null;
 			}
@@ -63,12 +72,19 @@ class BBP_Tests_Admin_Converters_FluxBB extends BBP_UnitTestCase {
 		$set_opdb( $this->converter, $source_db );
 		$this->converter->setup_globals();
 
+		$field_map = $this->get_field_map( $this->converter );
+		$this->assertSame( 0, $source_db->connections );
+		$this->assertCount( 0, wp_filter_object_list( $field_map, array( 'from_fieldname' => 'salt' ) ) );
+
+		$this->converter->convert_table( 'tags', 1 );
+
 		$field_map    = $this->get_field_map( $this->converter );
 		$salt_mapping = wp_filter_object_list( $field_map, array( 'from_fieldname' => 'salt' ) );
 
 		$this->assertCount( 1, $salt_mapping );
 		$this->assertSame( 'user', reset( $salt_mapping )['to_type'] );
 		$this->assertSame( '', reset( $salt_mapping )['to_fieldname'] );
+		$this->assertSame( 1, $source_db->connections );
 	}
 
 	/**
@@ -79,12 +95,34 @@ class BBP_Tests_Admin_Converters_FluxBB extends BBP_UnitTestCase {
 		$this->assertSame(
 			array(
 				'hash' => '4da3e69b6b919a4f6e010aaac999a3de40d4f5d3',
-				'salt' => 'abc12345'
+				'salt' => "a\\\\b\\'",
 			),
 			$this->converter->callback_savepass(
 				'4da3e69b6b919a4f6e010aaac999a3de40d4f5d3',
-				array( 'salt' => 'abc12345' )
+				array( 'salt' => "a\\b'" )
 			)
+		);
+	}
+
+	/**
+	 * @covers FluxBB::callback_savepass
+	 * @ticket BBP3684
+	 */
+	public function test_callback_savepass_survives_user_meta_storage() {
+		$user_id  = $this->factory->user->create();
+		$metadata = $this->converter->callback_savepass(
+			'4da3e69b6b919a4f6e010aaac999a3de40d4f5d3',
+			array( 'salt' => "a\\b'" )
+		);
+
+		update_user_meta( $user_id, '_bbp_password', $metadata );
+
+		$this->assertSame(
+			array(
+				'hash' => '4da3e69b6b919a4f6e010aaac999a3de40d4f5d3',
+				'salt' => "a\\b'",
+			),
+			get_user_meta( $user_id, '_bbp_password', true )
 		);
 	}
 
