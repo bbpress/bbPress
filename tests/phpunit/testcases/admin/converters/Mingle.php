@@ -83,6 +83,53 @@ class BBP_Tests_Admin_Converters_Mingle extends BBP_UnitTestCase {
 	 * @covers BBP_Converter_Base::clean_passwords
 	 * @ticket BBP3684
 	 */
+	public function test_import_cleanup_does_not_skip_deleted_password_batches() {
+		$set_max_rows = Closure::bind(
+			function( $converter ) {
+				$converter->max_rows = 2;
+			},
+			null,
+			'BBP_Converter_Base'
+		);
+		$set_max_rows( $this->converter );
+
+		$user_ids = array();
+
+		for ( $i = 0; $i < 5; $i++ ) {
+			$user_id    = $this->factory->user->create();
+			$user_ids[] = $user_id;
+
+			update_user_meta( $user_id, '_bbp_password', wp_hash_password( "mingle-password-{$i}" ) );
+		}
+
+		$this->assertFalse( $this->converter->clean_passwords( 0 ) );
+		$this->assertFalse( $this->converter->clean_passwords( 2 ) );
+		$this->assertFalse( $this->converter->clean_passwords( 4 ) );
+		$this->assertTrue( $this->converter->clean_passwords( 6 ) );
+
+		foreach ( $user_ids as $user_id ) {
+			$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::clean_passwords
+	 * @ticket BBP3684
+	 */
+	public function test_import_cleanup_default_start_resets_stale_cursor() {
+		$user_id = $this->factory->user->create();
+
+		update_user_meta( $user_id, '_bbp_password', wp_hash_password( 'mingle-password' ) );
+		update_option( '_bbp_converter_passwords_cursor', PHP_INT_MAX, false );
+
+		$this->assertFalse( $this->converter->clean_passwords() );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::clean_passwords
+	 * @ticket BBP3684
+	 */
 	public function test_legacy_wordpress_md5_hash_uses_normal_login_upgrade() {
 		global $wpdb;
 

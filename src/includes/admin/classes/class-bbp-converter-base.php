@@ -935,11 +935,19 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method deletes passwords from the wp database.
 	 *
-	 * @param int $start Start row
+	 * @param int $start Current cleanup offset. Zero starts a new pass.
 	 */
-	public function clean_passwords( $start = 1 ) {
+	public function clean_passwords( $start = 0 ) {
 		$has_delete = false;
-		$query      = $this->wpdb->prepare( "SELECT user_id, meta_value FROM {$this->wpdb->usermeta} WHERE meta_key = %s LIMIT {$start}, {$this->max_rows}", '_bbp_password' );
+		$max_rows   = (int) $this->max_rows;
+
+		// Use an immutable cursor because native hashes are moved to user_pass and
+		// deleted from usermeta. An offset would skip rows as the result set shrinks.
+		$cursor = empty( $start )
+			? 0
+			: (int) get_option( '_bbp_converter_passwords_cursor', 0 );
+
+		$query      = $this->wpdb->prepare( "SELECT umeta_id, user_id, meta_value FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND umeta_id > %d ORDER BY umeta_id ASC LIMIT {$max_rows}", '_bbp_password', $cursor );
 		$converted  = $this->get_results( $query, ARRAY_A );
 
 		if ( ! empty( $converted ) ) {
@@ -952,8 +960,12 @@ abstract class BBP_Converter_Base {
 				}
 
 				clean_user_cache( $value['user_id'] );
+				$cursor = (int) $value['umeta_id'];
 			}
+			update_option( '_bbp_converter_passwords_cursor', $cursor, false );
 			$has_delete = true;
+		} else {
+			delete_option( '_bbp_converter_passwords_cursor' );
 		}
 
 		return ! $has_delete;
