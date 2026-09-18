@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented malformed SMF password metadata from causing first-login errors.
 - Supported first-login password upgrades for legacy plaintext Vanilla 2
   passwords in new and repeated imports.
 - Corrected first-login password upgrades for phpFox 3 imports.
