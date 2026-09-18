@@ -78,6 +78,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected user and first-login password data for new and repeated PHPWind 9
+  imports.
 - Prevented malformed SMF password metadata from causing first-login errors.
 - Supported first-login password upgrades for legacy plaintext Vanilla 2
   passwords in new and repeated imports.
