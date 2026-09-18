@@ -17,6 +17,12 @@
 class FluxBB extends BBP_Converter_Base {
 
 	/**
+	 * @var bool Whether source-dependent fields have been set up.
+	 * @since 2.6.18
+	 */
+	private $source_fields_setup = false;
+
+	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
@@ -445,16 +451,6 @@ class FluxBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_savepass'
 		);
 
-		// Store old user salt (This is only used for the SELECT row info for the above password save)
-		if ( $this->source_has_salt() ) {
-			$this->field_map[] = array(
-				'from_tablename' => 'users',
-				'from_fieldname' => 'salt',
-				'to_type'        => 'user',
-				'to_fieldname'   => ''
-			);
-		}
-
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
 			'to_type'      => 'user',
@@ -586,7 +582,31 @@ class FluxBB extends BBP_Converter_Base {
 	}
 
 	/**
+	 * Setup the optional legacy salt field after connecting to the source.
+	 *
+	 * @since 2.6.18
+	 */
+	protected function setup_source_fields() {
+		if ( $this->source_fields_setup ) {
+			return;
+		}
+
+		$this->source_fields_setup = true;
+
+		if ( $this->source_has_salt() ) {
+			$this->field_map[] = array(
+				'from_tablename' => 'users',
+				'from_fieldname' => 'salt',
+				'to_type'        => 'user',
+				'to_fieldname'   => ''
+			);
+		}
+	}
+
+	/**
 	 * Check whether the source users table retains the legacy FluxBB salt field.
+	 *
+	 * @since 2.6.18
 	 *
 	 * @return bool True when the salt field exists, false otherwise.
 	 */
@@ -599,14 +619,13 @@ class FluxBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method is to save the salt and password together.  That
-	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by WordPress.
+	 * Save the salt and password together. Pre-slash the salt because WordPress
+	 * removes one layer of slashes when storing user metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => isset( $row['salt'] ) ? (string) $row['salt'] : ''
+			'salt' => isset( $row['salt'] ) ? wp_slash( (string) $row['salt'] ) : ''
 		);
 
 		return $pass_array;
@@ -619,13 +638,7 @@ class FluxBB extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if missing or invalid values
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! array_key_exists( 'salt', $pass_array ) || ! is_string( $pass_array['hash'] ) || ( ! is_string( $pass_array['salt'] ) && ! is_null( $pass_array['salt'] ) ) ) {

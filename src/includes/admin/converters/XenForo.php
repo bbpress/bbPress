@@ -672,19 +672,7 @@ class XenForo extends BBP_Converter_Base {
 	 * @return array|bool Authentication metadata, or false if invalid.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = false;
-
-		if ( is_string( $field ) && is_serialized( $field ) ) {
-			// A malformed source blob can pass is_serialized() and still warn.
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			$pass_array = @unserialize(
-				$field,
-				array(
-					'allowed_classes' => false,
-					'max_depth'       => 1,
-				)
-			);
-		}
+		$pass_array = $this->unserialize_pass( $field );
 
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $row['scheme_class'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $row['scheme_class'] ) ) {
 			return false;
@@ -705,13 +693,7 @@ class XenForo extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if missing or invalid values
 		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['scheme'], $pass_array['hash'] ) || ! is_string( $pass_array['scheme'] ) || ! is_string( $pass_array['hash'] ) ) {

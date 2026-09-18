@@ -514,12 +514,13 @@ class Invision extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Save the salt and password together for later authentication.
+	 * Save the salt and password together. Pre-slash the salt because WordPress
+	 * removes one layer of slashes when storing user metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
 			'hash' => $field,
-			'salt' => isset( $row['members_pass_salt'] ) ? (string) $row['members_pass_salt'] : ''
+			'salt' => isset( $row['members_pass_salt'] ) ? wp_slash( (string) $row['members_pass_salt'] ) : ''
 		);
 	}
 
@@ -530,13 +531,7 @@ class Invision extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if missing or invalid values
 		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {

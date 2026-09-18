@@ -89,6 +89,7 @@ Development for the next bbPress release is in progress. See the active
 - Corrected password salt storage for new and repeated vBulletin 4 imports.
 - Restored Super Moderator edit links on front-end user screens.
 - Supported first-login password upgrades for native XenForo password formats.
+- Corrected first-login password upgrades for Drupal 7 imports.
 - Corrected first-login password upgrades for XMB imports.
 - Corrected first-login password upgrades for e107 v1 imports.
 - Corrected first-login password upgrades for Kunena 3 imports.

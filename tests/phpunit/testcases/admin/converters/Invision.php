@@ -70,12 +70,34 @@ class BBP_Tests_Admin_Converters_Invision extends BBP_UnitTestCase {
 		$this->assertSame(
 			array(
 				'hash' => 'f3f3c75110ea9a27a1c01e580676997f',
-				'salt' => 'Do."O',
+				'salt' => "a\\\\b\\'",
 			),
 			$this->converter->callback_savepass(
 				'f3f3c75110ea9a27a1c01e580676997f',
-				array( 'members_pass_salt' => 'Do."O' )
+				array( 'members_pass_salt' => "a\\b'" )
 			)
+		);
+	}
+
+	/**
+	 * @covers Invision::callback_savepass
+	 * @ticket BBP3684
+	 */
+	public function test_callback_savepass_survives_user_meta_storage() {
+		$user_id  = $this->factory->user->create();
+		$metadata = $this->converter->callback_savepass(
+			'f3f3c75110ea9a27a1c01e580676997f',
+			array( 'members_pass_salt' => "a\\b'" )
+		);
+
+		update_user_meta( $user_id, '_bbp_password', $metadata );
+
+		$this->assertSame(
+			array(
+				'hash' => 'f3f3c75110ea9a27a1c01e580676997f',
+				'salt' => "a\\b'",
+			),
+			get_user_meta( $user_id, '_bbp_password', true )
 		);
 	}
 

@@ -80,6 +80,26 @@ class BBP_Tests_Admin_Converters_SMF extends BBP_UnitTestCase {
 				array( 'member_name' => 'ForumAdmin' )
 			)
 		);
+		$this->assertSame(
+			array( 'hash' => 'hash', 'username' => '' ),
+			$this->converter->callback_savepass( 'hash', array() )
+		);
+	}
+
+	/**
+	 * @covers SMF::callback_savepass
+	 * @ticket BBP3684
+	 */
+	public function test_callback_savepass_survives_user_meta_storage() {
+		$user_id  = $this->factory->user->create();
+		$metadata = $this->converter->callback_savepass( 'hash', array( 'member_name' => "Forum\\Admin'" ) );
+
+		update_user_meta( $user_id, '_bbp_password', $metadata );
+
+		$this->assertSame(
+			array( 'hash' => 'hash', 'username' => "Forum\\Admin'" ),
+			get_user_meta( $user_id, '_bbp_password', true )
+		);
 	}
 
 	/**

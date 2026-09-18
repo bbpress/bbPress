@@ -23,6 +23,34 @@ class BBP_Tests_Admin_Converters_phpBB extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers phpBB::callback_savepass
+	 * @ticket BBP3683
+	 */
+	public function test_callback_savepass_normalizes_missing_salt() {
+		$this->assertSame(
+			array( 'hash' => 'hash', 'salt' => '' ),
+			$this->converter->callback_savepass( 'hash', array() )
+		);
+	}
+
+	/**
+	 * @covers phpBB::callback_savepass
+	 * @ticket BBP3683
+	 */
+	public function test_callback_savepass_survives_user_meta_storage() {
+		$user_id  = $this->factory->user->create();
+		$hash     = '$H\\2y$9abcdefgh$04\\abcdefghijklmnopqrstuu$zwZlBpR3wIKksRSWAqcp2Nu.yvp5IzW';
+		$metadata = $this->converter->callback_savepass( $hash, array( 'user_form_salt' => "a\\b'" ) );
+
+		update_user_meta( $user_id, '_bbp_password', $metadata );
+
+		$this->assertSame(
+			array( 'hash' => $hash, 'salt' => "a\\b'" ),
+			get_user_meta( $user_id, '_bbp_password', true )
+		);
+	}
+
+	/**
 	 * @covers phpBB::authenticate_pass
 	 * @ticket BBP3683
 	 */

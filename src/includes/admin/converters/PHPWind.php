@@ -507,13 +507,7 @@ class PHPWind extends BBP_Converter_Base {
 		}
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if missing values
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {

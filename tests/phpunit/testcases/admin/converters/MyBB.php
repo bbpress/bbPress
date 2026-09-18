@@ -59,6 +59,26 @@ class BBP_Tests_Admin_Converters_MyBB extends BBP_UnitTestCase {
 				array( 'salt' => 'abc12345' )
 			)
 		);
+		$this->assertSame(
+			array( 'hash' => 'hash', 'salt' => '' ),
+			$this->converter->callback_savepass( 'hash', array() )
+		);
+	}
+
+	/**
+	 * @covers MyBB::callback_savepass
+	 * @ticket BBP3684
+	 */
+	public function test_callback_savepass_survives_user_meta_storage() {
+		$user_id  = $this->factory->user->create();
+		$metadata = $this->converter->callback_savepass( 'hash', array( 'salt' => "a\\b'" ) );
+
+		update_user_meta( $user_id, '_bbp_password', $metadata );
+
+		$this->assertSame(
+			array( 'hash' => 'hash', 'salt' => "a\\b'" ),
+			get_user_meta( $user_id, '_bbp_password', true )
+		);
 	}
 
 	/**
@@ -128,4 +148,3 @@ class BBP_Tests_Admin_Converters_MyBB extends BBP_UnitTestCase {
 		$this->assertSame( '', get_user_meta( $user_id, '_bbp_class', true ) );
 	}
 }
-

@@ -660,7 +660,7 @@ class SMF extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash'     => $field,
-			'username' => $row['member_name']
+			'username' => isset( $row['member_name'] ) ? wp_slash( (string) $row['member_name'] ) : ''
 		);
 
 		return $pass_array;
@@ -676,13 +676,7 @@ class SMF extends BBP_Converter_Base {
 		}
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if missing or invalid values
 		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['username'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['username'] ) ) {

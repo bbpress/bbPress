@@ -447,13 +447,7 @@ class Kunena1 extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1,
-			)
-		);
+		$pass_array = $this->unserialize_pass( $serialized_pass );
 
 		// Bail if missing or invalid values
 		if ( ! is_string( $password ) || ! is_array( $pass_array ) || ! isset( $pass_array['hash'] ) || ! is_string( $pass_array['hash'] ) ) {
