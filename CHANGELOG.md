@@ -19,6 +19,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected PHPWind topic statuses, reply counts, and forum dates during
+  imports.
 - Corrected user and first-login password data for new and repeated PHPWind 9
   imports.
 - Prevented malformed SMF password metadata from causing first-login errors.
