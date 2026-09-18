@@ -408,7 +408,7 @@ class PHPWind extends BBP_Converter_Base {
 
 		// Store old user id (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'user',
+			'from_tablename' => 'windid_user',
 			'from_fieldname' => 'uid',
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_old_user_id'
@@ -416,21 +416,20 @@ class PHPWind extends BBP_Converter_Base {
 
 		// Store old user password (Stored in usermeta serialized with salt)
 		$this->field_map[] = array(
-			'from_tablename'  => 'user',
+			'from_tablename'  => 'windid_user',
 			'from_fieldname'  => 'password',
 			'to_type'         => 'user',
-			'to_fieldname'    => '_bbp_password'
-			//          'callback_method' => 'callback_savepass'
+			'to_fieldname'    => '_bbp_password',
+			'callback_method' => 'callback_savepass'
 		);
 
 		// Store old user salt (This is only used for the SELECT row info for the above password save)
-/*      $this->field_map[] = array(
-			'from_tablename' => 'user',
-			'from_fieldname' => 'pass',
+		$this->field_map[] = array(
+			'from_tablename' => 'windid_user',
+			'from_fieldname' => 'salt',
 			'to_type'        => 'user',
 			'to_fieldname'   => ''
 		);
-*/
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
 			'to_type'      => 'user',
@@ -440,7 +439,7 @@ class PHPWind extends BBP_Converter_Base {
 
 		// User name.
 		$this->field_map[] = array(
-			'from_tablename' => 'user',
+			'from_tablename' => 'windid_user',
 			'from_fieldname' => 'username',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_login'
@@ -448,7 +447,7 @@ class PHPWind extends BBP_Converter_Base {
 
 		// User nice name.
 		$this->field_map[] = array(
-			'from_tablename' => 'user',
+			'from_tablename' => 'windid_user',
 			'from_fieldname' => 'username',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_nicename'
@@ -456,7 +455,7 @@ class PHPWind extends BBP_Converter_Base {
 
 		// User email.
 		$this->field_map[] = array(
-			'from_tablename' => 'user',
+			'from_tablename' => 'windid_user',
 			'from_fieldname' => 'email',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_email'
@@ -464,7 +463,7 @@ class PHPWind extends BBP_Converter_Base {
 
 		// User registered.
 		$this->field_map[] = array(
-			'from_tablename'  => 'user',
+			'from_tablename'  => 'windid_user',
 			'from_fieldname'  => 'regdate',
 			'to_type'         => 'user',
 			'to_fieldname'    => 'user_registered',
@@ -473,10 +472,13 @@ class PHPWind extends BBP_Converter_Base {
 
 		// User display name.
 		$this->field_map[] = array(
-			'from_tablename' => 'user',
-			'from_fieldname' => 'realname',
-			'to_type'        => 'user',
-			'to_fieldname'   => 'display_name'
+			'from_tablename'  => 'windid_user_info',
+			'from_fieldname'  => 'realname',
+			'join_tablename'  => 'windid_user',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'ON windid_user.uid = windid_user_info.uid',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'display_name'
 		);
 	}
 
@@ -489,14 +491,14 @@ class PHPWind extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method is to save the salt and password together.  That
-	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by WordPress.
+	 * Save the salt and password together so both values are available during
+	 * authentication. Pre-slash the salt because WordPress removes one layer of
+	 * slashes when storing user metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => $row['salt']
+			'salt' => wp_slash( isset( $row['salt'] ) ? (string) $row['salt'] : '' )
 		);
 
 		return $pass_array;
@@ -507,18 +509,26 @@ class PHPWind extends BBP_Converter_Base {
 	 * to a pass the user has typed in.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
+		if ( ! is_string( $password ) || ! is_string( $serialized_pass ) ) {
+			return false;
+		}
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize(
-			$serialized_pass,
-			array(
-				'allowed_classes' => false,
-				'max_depth'       => 1
-			)
-		);
+		if ( PHP_VERSION_ID >= 70000 ) {
+			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.unserialize_optionsFound
+			$pass_array = unserialize(
+				$serialized_pass,
+				array(
+					'allowed_classes' => false,
+					'max_depth'       => 1,
+				)
+			);
+		} else {
+			$pass_array = unserialize( $serialized_pass );
+		}
 
 		// Bail if missing values
-		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) || ! is_string( $pass_array['hash'] ) || ! is_string( $pass_array['salt'] ) ) {
 			return false;
 		}
 
