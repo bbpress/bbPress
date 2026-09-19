@@ -634,7 +634,7 @@ abstract class BBP_Converter_Base {
 							/** Forum, Topic, Reply ***************************/
 
 							default :
-								$post_id = wp_insert_post( $insert_post, true );
+								$post_id = $this->insert_post( $insert_post );
 
 								if ( is_numeric( $post_id ) ) {
 									foreach ( $insert_postmeta as $key => $value ) {
@@ -689,6 +689,34 @@ abstract class BBP_Converter_Base {
 		}
 
 		return ! $has_insert;
+	}
+
+	/**
+	 * Insert a converted post without changing imported counts.
+	 *
+	 * Converter field maps include the source forum and topic counts. Prevent
+	 * post-status transition callbacks from incrementing those counts again as
+	 * each converted topic and reply is inserted.
+	 *
+	 * @since 2.6.18
+	 *
+	 * @param array $post_data Converted post data.
+	 * @return int|WP_Error Post ID on success, WP_Error on failure.
+	 */
+	protected function insert_post( $post_data = array() ) {
+		$suppress_count_updates = function () {
+			return false;
+		};
+
+		add_filter( 'bbp_pre_update_counts_on_transition_post_status', $suppress_count_updates );
+
+		try {
+			$post_id = wp_insert_post( $post_data, true );
+		} finally {
+			remove_filter( 'bbp_pre_update_counts_on_transition_post_status', $suppress_count_updates );
+		}
+
+		return $post_id;
 	}
 
 	/**

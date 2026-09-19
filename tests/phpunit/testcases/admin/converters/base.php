@@ -22,6 +22,10 @@ class BBP_Tests_Admin_Converters_Base_Converter extends BBP_Converter_Base {
 	public function get_pass_array( $value ) {
 		return $this->unserialize_pass( $value );
 	}
+
+	public function insert_converted_post( $post_data ) {
+		return $this->insert_post( $post_data );
+	}
 }
 
 class BBP_Tests_Admin_Converters_Base_Source_Database {
@@ -63,6 +67,30 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 		$converter->convert_table( 'connection_probe', 1 );
 
 		$this->assertSame( 1, $source_db->connections );
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::insert_post
+	 * @ticket BBP3686
+	 */
+	public function test_insert_post_does_not_increment_imported_counts() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$forum_id  = $this->factory->forum->create();
+
+		update_post_meta( $forum_id, '_bbp_topic_count', 4 );
+
+		$topic_id = $converter->insert_converted_post(
+			array(
+				'post_type'   => bbp_get_topic_post_type(),
+				'post_status' => bbp_get_public_status_id(),
+				'post_parent' => $forum_id,
+				'post_title'  => 'Converted topic',
+			)
+		);
+
+		$this->assertIsInt( $topic_id );
+		$this->assertSame( 4, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertNull( apply_filters( 'bbp_pre_update_counts_on_transition_post_status', null, 'publish', 'new', get_post( $topic_id ) ) );
 	}
 
 	/**
