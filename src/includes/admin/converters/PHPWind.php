@@ -296,7 +296,7 @@ class PHPWind extends BBP_Converter_Base {
 			'callback_method' => 'callback_datetime'
 		);
 
-		// Topic status (Open or Closed, PHPWind v9.x 0=no, 1=closed & 2=open)
+		// Topic status (PHPWind v9.x bitmask: 1=locked & 2=closed)
 		$this->field_map[] = array(
 			'from_tablename'  => 'bbs_threads',
 			'from_fieldname'  => 'tpcstatus',

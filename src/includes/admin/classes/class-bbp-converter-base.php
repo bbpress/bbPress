@@ -1348,7 +1348,7 @@ abstract class BBP_Converter_Base {
 	 * @return string
 	 */
 	private function callback_check_anonymous( $field ) {
-		$field = ( $this->callback_userid( $field ) == 0 )
+		$field = ! $this->callback_userid( $field )
 			? 'true'
 			: 'false';
 
