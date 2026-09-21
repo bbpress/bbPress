@@ -61,6 +61,38 @@ class BBP_Tests_Admin_Converters_SimplePress5 extends BBP_UnitTestCase {
 
 	/**
 	 * @covers SimplePress5::setup_globals
+	 * @ticket BBP3692
+	 */
+	public function test_forum_date_mappings_target_forums() {
+		$this->converter->setup_globals();
+
+		$get_field_map = Closure::bind(
+			function( $converter ) {
+				return $converter->field_map;
+			},
+			null,
+			'BBP_Converter_Base'
+		);
+		$field_map     = $get_field_map( $this->converter );
+		$date_fields   = array( 'post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt' );
+
+		foreach ( $date_fields as $date_field ) {
+			$mapping = wp_filter_object_list(
+				$field_map,
+				array(
+					'to_type'      => 'forum',
+					'to_fieldname' => $date_field,
+				)
+			);
+
+			$this->assertCount( 1, $mapping, $date_field . ' does not target forums.' );
+			$this->assertArrayHasKey( 'default', reset( $mapping ) );
+			$this->assertCount( 0, wp_filter_object_list( $field_map, array( 'to_type' => 'forums', 'to_fieldname' => $date_field ) ) );
+		}
+	}
+
+	/**
+	 * @covers SimplePress5::setup_globals
 	 * @ticket BBP3684
 	 */
 	public function test_password_mapping_uses_wordpress_users_table_hash() {
