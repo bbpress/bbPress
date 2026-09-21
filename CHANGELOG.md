@@ -54,6 +54,10 @@ Development for the next bbPress release is in progress. See the active
 - Supported first-login password upgrades for PunBB imports.
 - Supported first-login password upgrades for Phorum imports.
 
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-18/)
+
+[Release announcement](https://bbpress.org/blog/2026/09/bbpress-2-6-18-is-out/)
+
 ## 2.6.17 - 2026-09-16
 
 ### Added
