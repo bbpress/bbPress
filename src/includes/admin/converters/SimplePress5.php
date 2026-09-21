@@ -127,22 +127,22 @@ class SimplePress5 extends BBP_Converter_Base {
 
 		// Forum dates.
 		$this->field_map[] = array(
-			'to_type'      => 'forums',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
 			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'forums',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
 			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'forums',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
 			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'forums',
+			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
 			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
