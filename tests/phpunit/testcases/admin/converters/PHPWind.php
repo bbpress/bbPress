@@ -1,6 +1,44 @@
 <?php
 
 /**
+ * Minimal source database adapter for PHPWind converter tests.
+ */
+class BBP_Tests_PHPWind_Source_DB {
+
+	public $prefix;
+	public $connect_count = 0;
+	public $query_count   = 0;
+	public $last_error    = '';
+
+	private $wpdb;
+	private $connect_result;
+
+	public function __construct( $wpdb, $connect_result = true ) {
+		$this->wpdb           = $wpdb;
+		$this->prefix         = $wpdb->prefix;
+		$this->connect_result = $connect_result;
+	}
+
+	public function db_connect( $allow_bail = true ) {
+		++$this->connect_count;
+
+		return $this->connect_result;
+	}
+
+	public function prepare( $query, $user_id ) {
+		return $this->wpdb->prepare( $query, $user_id );
+	}
+
+	public function get_row( $query, $output ) {
+		++$this->query_count;
+		$row              = $this->wpdb->get_row( $query, $output );
+		$this->last_error = $this->wpdb->last_error;
+
+		return $row;
+	}
+}
+
+/**
  * Tests for the PHPWind converter.
  *
  * @group converters
@@ -22,6 +60,16 @@ class BBP_Tests_Admin_Converters_PHPWind extends BBP_UnitTestCase {
 	public function tearDown(): void {
 		unset( $_POST['log'], $_POST['pwd'] );
 		delete_option( '_bbp_converter_platform' );
+		delete_option( '_bbp_converter_db_user' );
+		delete_option( '_bbp_converter_db_pass' );
+		delete_option( '_bbp_converter_db_name' );
+		delete_option( '_bbp_converter_db_server' );
+		delete_option( '_bbp_converter_db_port' );
+		delete_option( '_bbp_converter_db_prefix' );
+		delete_transient( 'bbp_phpwind_source_connection_failed' );
+		global $wpdb;
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}user" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}windid_user" );
 
 		parent::tearDown();
 	}
@@ -316,5 +364,490 @@ class BBP_Tests_Admin_Converters_PHPWind extends BBP_UnitTestCase {
 		$this->assertSame( '', get_userdata( $user_id )->user_pass );
 		$this->assertSame( $meta, get_user_meta( $user_id, '_bbp_password', true ) );
 		$this->assertSame( 'PHPWind', get_user_meta( $user_id, '_bbp_class', true ) );
+	}
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_pass
+	 * @covers PHPWind::authenticate_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_upgrades_raw_metadata_from_interrupted_import_using_source_salt() {
+		global $wpdb;
+
+		$password = 'Correct Horse Battery Staple';
+		$token    = '073d73ef8d98047f1e3556faba272160';
+		$user_id  = $this->factory->user->create(
+			array(
+				'user_login' => 'phpwind-interrupted-' . wp_generate_password( 8, false ),
+			)
+		);
+		$user     = get_userdata( $user_id );
+
+		$wpdb->update( $wpdb->users, array( 'user_pass' => '' ), array( 'ID' => $user_id ) );
+		clean_user_cache( $user_id );
+		update_user_meta( $user_id, '_bbp_password', $token );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		$this->create_source_user( 42, $token, '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_pass
+	 * @covers PHPWind::authenticate_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_preserves_raw_metadata_after_failed_authentication() {
+		global $wpdb;
+
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => 'phpwind-interrupted-' . wp_generate_password( 8, false ),
+			)
+		);
+		$user     = get_userdata( $user_id );
+
+		$wpdb->update( $wpdb->users, array( 'user_pass' => '' ), array( 'ID' => $user_id ) );
+		clean_user_cache( $user_id );
+		update_user_meta( $user_id, '_bbp_password', $token );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		$this->create_source_user( 42, $token, '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'incorrect';
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertSame( $token, get_user_meta( $user_id, '_bbp_password', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_preserves_raw_metadata_when_source_token_does_not_match() {
+		global $wpdb;
+
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => 'phpwind-interrupted-' . wp_generate_password( 8, false ),
+			)
+		);
+		$user     = get_userdata( $user_id );
+
+		$wpdb->update( $wpdb->users, array( 'user_pass' => '' ), array( 'ID' => $user_id ) );
+		clean_user_cache( $user_id );
+		update_user_meta( $user_id, '_bbp_password', $token );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		$this->create_source_user( 42, md5( 'different source token' ), '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'Correct Horse Battery Staple';
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertSame( $token, get_user_meta( $user_id, '_bbp_password', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @covers PHPWind::authenticate_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_upgrades_hash_from_completed_import_using_source_salt() {
+		$password = 'Correct Horse Battery Staple';
+		$token    = '073d73ef8d98047f1e3556faba272160';
+		$user_id  = $this->create_completed_import_user( $token );
+		$user     = get_userdata( $user_id );
+
+		$this->create_source_user( 42, $token, '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @covers PHPWind::authenticate_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_uses_per_user_class_without_saved_platform() {
+		$password = 'Correct Horse Battery Staple';
+		$token    = '073d73ef8d98047f1e3556faba272160';
+		$user_id  = $this->create_completed_import_user( $token );
+		$user     = get_userdata( $user_id );
+
+		$this->create_source_user( 42, $token, '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_user_meta( $user_id, '_bbp_class', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @covers PHPWind::authenticate_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_preserves_completed_import_hash_after_failed_authentication() {
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->create_completed_import_user( $token );
+		$user     = get_userdata( $user_id );
+
+		$this->create_source_user( 42, $token, '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'incorrect';
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertSame( $token, get_userdata( $user_id )->user_pass );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_preserves_completed_import_hash_when_source_token_does_not_match() {
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->create_completed_import_user( $token );
+		$user     = get_userdata( $user_id );
+
+		$this->create_source_user( 42, md5( 'different source token' ), '032db847259044fac706099fbd5da562', 'a1B2c3' );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'Correct Horse Battery Staple';
+
+		$this->run_login_with_test_source_database();
+
+		$this->assertSame( $token, get_userdata( $user_id )->user_pass );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_preserves_interrupted_import_when_source_connection_fails() {
+		global $wpdb;
+
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => 'phpwind-interrupted-' . wp_generate_password( 8, false ),
+			)
+		);
+		$user     = get_userdata( $user_id );
+
+		$wpdb->update( $wpdb->users, array( 'user_pass' => '' ), array( 'ID' => $user_id ) );
+		clean_user_cache( $user_id );
+		update_user_meta( $user_id, '_bbp_password', $token );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'Correct Horse Battery Staple';
+
+		$source_database = new BBP_Tests_PHPWind_Source_DB( $wpdb, false );
+		$this->run_login_with_test_source_database( $source_database );
+		$this->run_login_with_test_source_database( $source_database );
+
+		$this->assertSame( 1, $source_database->connect_count );
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertSame( $token, get_user_meta( $user_id, '_bbp_password', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_preserves_completed_import_when_source_connection_fails() {
+		global $wpdb;
+
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->create_completed_import_user( $token );
+		$user     = get_userdata( $user_id );
+
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'Correct Horse Battery Staple';
+
+		$source_database = new BBP_Tests_PHPWind_Source_DB( $wpdb, false );
+		$this->run_login_with_test_source_database( $source_database );
+
+		$this->assertSame( 1, $source_database->connect_count );
+		$this->assertSame( $token, get_userdata( $user_id )->user_pass );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_backs_off_when_source_tables_are_missing() {
+		global $wpdb;
+
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->create_completed_import_user( $token );
+		$user    = get_userdata( $user_id );
+
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'Correct Horse Battery Staple';
+
+		$source_database = new BBP_Tests_PHPWind_Source_DB( $wpdb );
+		$this->run_login_with_test_source_database( $source_database );
+		$this->run_login_with_test_source_database( $source_database );
+
+		$this->assertSame( 1, $source_database->connect_count );
+		$this->assertSame( 1, $source_database->query_count );
+		$this->assertNotEmpty( $source_database->last_error );
+		$this->assertSame( $token, get_userdata( $user_id )->user_pass );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @dataProvider data_invalid_old_user_ids
+	 * @ticket BBP3691
+	 */
+	public function test_login_does_not_connect_without_valid_old_user_id( $old_user_id ) {
+		global $wpdb;
+
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->create_completed_import_user( $token );
+		$user     = get_userdata( $user_id );
+
+		if ( ! is_null( $old_user_id ) ) {
+			update_user_meta( $user_id, '_bbp_old_user_id', $old_user_id );
+		}
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'Correct Horse Battery Staple';
+
+		$source_database = new BBP_Tests_PHPWind_Source_DB( $wpdb );
+		$this->run_login_with_test_source_database( $source_database );
+
+		$this->assertSame( 0, $source_database->connect_count );
+		$this->assertSame( $token, get_userdata( $user_id )->user_pass );
+	}
+
+	/**
+	 * Values that cannot identify a PHPWind source user.
+	 */
+	public function data_invalid_old_user_ids() {
+		return array(
+			'missing' => array( null ),
+			'invalid' => array( 'invalid' ),
+		);
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_does_not_change_wordpress_md5_password() {
+		global $wpdb;
+
+		$password = 'Current WordPress Password';
+		$hash     = md5( $password );
+		$user_id  = $this->create_completed_import_user( $hash );
+		$user     = get_userdata( $user_id );
+
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		$source_database = new BBP_Tests_PHPWind_Source_DB( $wpdb );
+		$this->run_login_with_test_source_database( $source_database );
+
+		$stored_hash = get_userdata( $user_id )->user_pass;
+
+		$this->assertSame( 0, $source_database->connect_count );
+		if ( function_exists( 'wp_password_needs_rehash' ) ) {
+			$this->assertSame( $hash, $stored_hash );
+		}
+		$this->assertTrue( wp_check_password( $password, $stored_hash, $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers PHPWind::callback_user_pass
+	 * @ticket BBP3691
+	 */
+	public function test_login_does_not_change_password_recognized_by_plugin() {
+		global $wpdb;
+
+		$hash    = '032db847259044fac706099fbd5da562';
+		$user_id = $this->create_completed_import_user( $hash );
+		$user     = get_userdata( $user_id );
+
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		update_option( '_bbp_converter_platform', 'PHPWind' );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'password-recognized-by-plugin';
+
+		$recognize_password = function( $check, $password, $stored_hash, $checked_user_id ) use ( $hash, $user_id ) {
+			if ( ( 'password-recognized-by-plugin' === $password ) && ( $hash === $stored_hash ) && ( $user_id === $checked_user_id ) ) {
+				return true;
+			}
+
+			return $check;
+		};
+		$source_database   = new BBP_Tests_PHPWind_Source_DB( $wpdb );
+
+		add_filter( 'check_password', $recognize_password, 10, 4 );
+
+		try {
+			$this->run_login_with_test_source_database( $source_database );
+		} finally {
+			remove_filter( 'check_password', $recognize_password, 10 );
+		}
+
+		$this->assertSame( 0, $source_database->connect_count );
+		$this->assertSame( $hash, get_userdata( $user_id )->user_pass );
+	}
+
+	/**
+	 * Create a user with an exact value in wp_users.user_pass.
+	 *
+	 * @param string $hash Stored password hash.
+	 * @return int User ID.
+	 */
+	private function create_completed_import_user( $hash ) {
+		global $wpdb;
+
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => 'phpwind-completed-' . wp_generate_password( 8, false ),
+			)
+		);
+
+		$wpdb->update( $wpdb->users, array( 'user_pass' => $hash ), array( 'ID' => $user_id ) );
+		clean_user_cache( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Create a minimal PHPWind source user table and row.
+	 *
+	 * @param int    $user_id Source user ID.
+	 * @param string $token   Source synchronization token.
+	 * @param string $hash    Source login password hash.
+	 * @param string $salt    Source login password salt.
+	 */
+	private function create_source_user( $user_id, $token, $hash, $salt ) {
+		global $wpdb;
+
+		$legacy_table = $wpdb->prefix . 'user';
+		$windid_table = $wpdb->prefix . 'windid_user';
+		$created      = $wpdb->query( "CREATE TABLE {$legacy_table} ( uid bigint(20) unsigned NOT NULL, password char(32) NOT NULL, PRIMARY KEY (uid) )" );
+		$this->assertNotFalse( $created, $wpdb->last_error );
+		$created = $wpdb->query( "CREATE TABLE {$windid_table} ( uid bigint(20) unsigned NOT NULL, password char(32) NOT NULL, salt char(6) NOT NULL, PRIMARY KEY (uid) )" );
+		$this->assertNotFalse( $created, $wpdb->last_error );
+		$wpdb->insert(
+			$legacy_table,
+			array(
+				'uid'      => $user_id,
+				'password' => $token,
+			)
+		);
+		$wpdb->insert(
+			$windid_table,
+			array(
+				'uid'      => $user_id,
+				'password' => $hash,
+				'salt'     => $salt,
+			)
+		);
+
+		update_option( '_bbp_converter_db_prefix', $wpdb->prefix );
+		update_option( '_bbp_converter_db_user', DB_USER );
+		update_option( '_bbp_converter_db_pass', DB_PASSWORD );
+		update_option( '_bbp_converter_db_name', DB_NAME );
+		update_option( '_bbp_converter_db_server', DB_HOST );
+		delete_option( '_bbp_converter_db_port' );
+	}
+
+	/**
+	 * Run the login hook with the WordPress test database as the source.
+	 */
+	private function run_login_with_test_source_database( $source_database = null ) {
+		global $wpdb;
+		if ( is_null( $source_database ) ) {
+			$source_database = new BBP_Tests_PHPWind_Source_DB( $wpdb );
+		}
+
+		$use_test_database = function( $converter, $platform ) use ( $source_database ) {
+			if ( 'PHPWind' === $platform ) {
+				$set_opdb = Closure::bind(
+					function( $target, $database ) {
+						$target->opdb = $database;
+					},
+					null,
+					'BBP_Converter_Base'
+				);
+				$set_opdb( $converter, $source_database );
+			}
+
+			return $converter;
+		};
+
+		add_filter( 'bbp_new_converter', $use_test_database, 10, 2 );
+
+		try {
+			bbp_user_maybe_convert_pass();
+		} finally {
+			remove_filter( 'bbp_new_converter', $use_test_database, 10 );
+		}
 	}
 }

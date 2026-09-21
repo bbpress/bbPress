@@ -1276,15 +1276,15 @@ function bbp_user_maybe_convert_pass() {
 		$class = get_option( '_bbp_converter_platform' );
 	}
 
-	// Completed Drupal 7 imports stored the source hash directly in user_pass
-	// and removed the temporary password metadata. Use only the saved Drupal 7
-	// platform for this legacy storage shape.
+	// Completed Drupal 7 and PHPWind imports stored source data directly in
+	// user_pass and removed temporary password metadata. Their callbacks must
+	// verify the legacy value before changing the account.
 	if ( ! $has_password_meta ) {
-		if ( empty( $class ) && 'Drupal7' === get_option( '_bbp_converter_platform' ) ) {
-			$class = 'Drupal7';
+		if ( empty( $class ) && in_array( get_option( '_bbp_converter_platform' ), array( 'Drupal7', 'PHPWind' ), true ) ) {
+			$class = get_option( '_bbp_converter_platform' );
 		}
 
-		$user_pass_class = ( 'Drupal7' === $class );
+		$user_pass_class = in_array( $class, array( 'Drupal7', 'PHPWind' ), true );
 	}
 
 	// Bail if no converter class

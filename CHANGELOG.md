@@ -43,6 +43,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Recovered first-login password upgrades for older PHPWind imports when the
+  source database remains available.
 - Corrected forum date mappings for Simple:Press 5 imports.
 - Cache a distinct count of current-site forum-role holders for forum statistics,
   invalidating it when users or their capabilities change. Use the WordPress

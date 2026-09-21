@@ -522,6 +522,124 @@ class PHPWind extends BBP_Converter_Base {
 	}
 
 	/**
+	 * Upgrade password metadata written by earlier PHPWind imports.
+	 *
+	 * Earlier imports stored PHPWind's random synchronization token instead of
+	 * its login hash and salt. New imports use the parent callback and serialized
+	 * metadata containing the login hash and salt.
+	 *
+	 * @param string      $username    WordPress user login.
+	 * @param string      $password    Unslashed password for PHPWind.
+	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 */
+	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
+		$user = get_user_by( 'login', $username );
+
+		if ( ! empty( $user ) && '' === $user->user_pass ) {
+			$stored_hash = get_user_meta( $user->ID, '_bbp_password', true );
+
+			if ( is_string( $stored_hash ) && preg_match( '/^[a-f0-9]{32}$/i', $stored_hash ) ) {
+				$serialized_pass = $this->get_source_password( $user, $stored_hash );
+
+				if ( is_string( $serialized_pass ) && $this->authenticate_pass( $password, $serialized_pass ) ) {
+					$this->upgrade_user_pass( $user->ID, is_null( $wp_password ) ? $password : $wp_password );
+				}
+
+				return;
+			}
+		}
+
+		parent::callback_pass( $username, $password, $wp_password );
+	}
+
+	/**
+	 * Upgrade a PHPWind hash copied directly into wp_users by an old import.
+	 *
+	 * Those imports stored PHPWind's random synchronization token, not its login
+	 * hash. Match that token against the retained source row before retrieving
+	 * the login hash and salt from WindID.
+	 *
+	 * @param WP_User     $user        WordPress user.
+	 * @param string      $password    Unslashed password for PHPWind.
+	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 */
+	public function callback_user_pass( $user, $password, $wp_password = null ) {
+		if ( ! ( $user instanceof WP_User ) || ! is_string( $password ) || ! preg_match( '/^[a-f0-9]{32}$/i', $user->user_pass ) ) {
+			return;
+		}
+
+		$wp_password = is_null( $wp_password ) ? $password : $wp_password;
+
+		// Do not replace a password that WordPress or a password plugin already
+		// recognizes, regardless of the stored hash format.
+		if ( wp_check_password( $wp_password, $user->user_pass, $user->ID ) ) {
+			return;
+		}
+
+		$serialized_pass = $this->get_source_password( $user, $user->user_pass );
+
+		if ( is_string( $serialized_pass ) && $this->authenticate_pass( $password, $serialized_pass ) ) {
+			$this->upgrade_user_pass( $user->ID, $wp_password );
+		}
+	}
+
+	/**
+	 * Retrieve login metadata for a token written by an earlier import.
+	 *
+	 * @param WP_User $user        WordPress user.
+	 * @param string  $stored_hash Random token stored by the earlier import.
+	 * @return string|bool Serialized password metadata, or false on failure.
+	 */
+	private function get_source_password( $user, $stored_hash ) {
+		$old_user_id = (int) get_user_meta( $user->ID, '_bbp_old_user_id', true );
+		if ( $old_user_id < 1 || get_transient( 'bbp_phpwind_source_connection_failed' ) ) {
+			return false;
+		}
+
+		// Block concurrent login attempts while the source connection or query is pending.
+		// Keep the backoff when either fails, so an unavailable source cannot stall
+		// every login attempt for an imported username.
+		set_transient( 'bbp_phpwind_source_connection_failed', 1, 5 * MINUTE_IN_SECONDS );
+
+		if ( ! $this->opdb->db_connect( false ) ) {
+			return false;
+		}
+
+		$legacy_table = $this->opdb->prefix . 'user';
+		$windid_table = $this->opdb->prefix . 'windid_user';
+		$source_user = $this->opdb->get_row(
+			$this->opdb->prepare( "SELECT legacy.password AS legacy_password, windid.password, windid.salt FROM {$legacy_table} AS legacy INNER JOIN {$windid_table} AS windid ON windid.uid = legacy.uid WHERE legacy.uid = %d LIMIT 1", $old_user_id ),
+			ARRAY_A
+		);
+		if ( empty( $this->opdb->last_error ) ) {
+			delete_transient( 'bbp_phpwind_source_connection_failed' );
+		}
+
+		if ( ! is_array( $source_user ) || ! isset( $source_user['legacy_password'], $source_user['password'], $source_user['salt'] ) || ! is_string( $source_user['legacy_password'] ) || ! is_string( $source_user['password'] ) || ! is_string( $source_user['salt'] ) || ! hash_equals( $stored_hash, $source_user['legacy_password'] ) ) {
+			return false;
+		}
+
+		return serialize(
+			array(
+				'hash' => $source_user['password'],
+				'salt' => $source_user['salt'],
+			)
+		);
+	}
+
+	/**
+	 * Replace a verified PHPWind hash with a WordPress password.
+	 *
+	 * @param int    $user_id  WordPress user ID.
+	 * @param string $password Password to hash for WordPress.
+	 */
+	private function upgrade_user_pass( $user_id, $password ) {
+		wp_set_password( $password, $user_id );
+		delete_user_meta( $user_id, '_bbp_password' );
+		delete_user_meta( $user_id, '_bbp_class' );
+	}
+
+	/**
 	 * Translate the forum type from PHPWind v9.x Capitalised case to WordPress's non-capatilise case strings.
 	 *
 	 * @param int $status PHPWind v9.x numeric forum type
