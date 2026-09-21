@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Recovered first-login password upgrades for older PHPWind imports when the
+  source database remains available.
 - Corrected forum date mappings for Simple:Press 5 imports.
 
 ## 2.6.18 - 2026-09-21
