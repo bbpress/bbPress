@@ -13,6 +13,8 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+## 2.6.18 - 2026-09-21
+
 ### Changed
 
 - Raised the minimum supported PHP version to 7.2.
