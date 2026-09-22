@@ -236,8 +236,8 @@ function bbp_validate_registration_role( $to_validate = '' ) {
 	// Default return value
 	$retval = bbp_get_default_role();
 
-	// Conditionally handle posted values for capable users
-	if ( is_admin() && current_user_can( 'create_users' ) ) {
+	// Conditionally handle posted values for capable users. Only keymasters can assign keymasters.
+	if ( is_admin() && ( current_user_can( 'create_users' ) || current_user_can( 'promote_users' ) ) && ( bbp_is_user_keymaster() || ( bbp_get_keymaster_role() !== $to_validate ) ) ) {
 		$retval = $to_validate;
 	}
 
