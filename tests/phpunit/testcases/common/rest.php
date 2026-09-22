@@ -667,6 +667,28 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Participants cannot create forum posts through the generic REST route.
+	 *
+	 * @covers BBP_REST_Posts_Controller::create_item_permissions_check
+	 */
+	public function test_participant_cannot_create_topic_through_rest() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$before = wp_count_posts( bbp_get_topic_post_type() )->publish;
+
+		$response = $this->dispatch_request(
+			'POST',
+			'/wp/v2/' . bbp_get_topic_post_type(),
+			$user_id,
+			array( 'title' => 'REST topic', 'content' => 'REST content.' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_cannot_create', $response->get_data()['code'] );
+		$this->assertSame( $before, wp_count_posts( bbp_get_topic_post_type() )->publish );
+	}
+
+	/**
 	 * REST edits must honor the topic and reply edit lock.
 	 *
 	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check

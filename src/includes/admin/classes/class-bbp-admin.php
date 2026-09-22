@@ -1457,6 +1457,7 @@ class BBP_Admin {
 		// Taking action
 		switch ( $action ) {
 			case 'bbp-update' :
+				check_admin_referer( 'bbp-update' );
 
 				// Run the full updater
 				bbp_version_updater(); ?>
@@ -1473,7 +1474,7 @@ class BBP_Admin {
 			?>
 
 				<p><?php esc_html_e( 'You can update your forum through this page. Hit the link below to update.', 'bbpress' ); ?></p>
-				<p><a class="button" href="index.php?page=bbp-update&amp;action=bbp-update"><?php esc_html_e( 'Update Forum', 'bbpress' ); ?></a></p>
+				<p><a class="button" href="<?php echo esc_url( wp_nonce_url( 'index.php?page=bbp-update&action=bbp-update', 'bbp-update' ) ); ?>"><?php esc_html_e( 'Update Forum', 'bbpress' ); ?></a></p>
 
 			<?php break;
 
@@ -1502,6 +1503,7 @@ class BBP_Admin {
 		// Taking action
 		switch ( $action ) {
 			case 'bbpress-update' :
+				check_admin_referer( 'bbpress-update' );
 
 				// Site counter
 				$n = isset( $_GET['n'] ) ? intval( $_GET['n'] ) : 0;
@@ -1583,12 +1585,12 @@ class BBP_Admin {
 
 					<p>
 						<?php esc_html_e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:', 'bbpress' ); ?>
-						<a class="button" href="update-core.php?page=bbpress-update&amp;action=bbpress-update&amp;n=<?php echo ( $n + 5 ); ?>"><?php esc_html_e( 'Next Forums', 'bbpress' ); ?></a>
+						<a class="button" href="<?php echo esc_url( wp_nonce_url( 'update-core.php?page=bbpress-update&action=bbpress-update&n=' . ( $n + 5 ), 'bbpress-update' ) ); ?>"><?php esc_html_e( 'Next Forums', 'bbpress' ); ?></a>
 					</p>
 					<script type='text/javascript'>
 						<!--
 						function nextpage() {
-							location.href = 'update-core.php?page=bbpress-update&action=bbpress-update&n=<?php echo ( $n + 5 ); ?>';
+							location.href = '<?php echo esc_js( add_query_arg( '_wpnonce', wp_create_nonce( 'bbpress-update' ), 'update-core.php?page=bbpress-update&action=bbpress-update&n=' . ( $n + 5 ) ) ); ?>';
 						}
 						setTimeout( 'nextpage()', 250 );
 						//-->
@@ -1602,7 +1604,7 @@ class BBP_Admin {
 			default :
 			?>
 				<p><?php esc_html_e( 'You can update all the forums on your network through this page. It works by calling the update script of each site automatically. Hit the link below to update.', 'bbpress' ); ?></p>
-				<p><a class="button" href="update-core.php?page=bbpress-update&amp;action=bbpress-update"><?php esc_html_e( 'Update Forums', 'bbpress' ); ?></a></p>
+				<p><a class="button" href="<?php echo esc_url( wp_nonce_url( 'update-core.php?page=bbpress-update&action=bbpress-update', 'bbpress-update' ) ); ?>"><?php esc_html_e( 'Update Forums', 'bbpress' ); ?></a></p>
 
 			<?php break;
 

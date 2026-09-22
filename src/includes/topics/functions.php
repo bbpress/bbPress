@@ -4055,7 +4055,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 				<item>
 					<guid><?php bbp_topic_permalink(); ?></guid>
-					<title><![CDATA[<?php bbp_topic_title(); ?>]]></title>
+					<title><?php echo apply_filters( 'the_title_rss', bbp_get_topic_title() ); ?></title>
 					<link><?php bbp_topic_permalink(); ?></link>
 					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_meta( bbp_get_topic_id(), '_bbp_last_active_time', true ), false ); ?></pubDate>
 					<dc:creator><?php the_author(); ?></dc:creator>
@@ -4073,7 +4073,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 							);
 							?>
 						</p>
-						<?php bbp_topic_content(); ?>
+						<?php echo bbp_escape_feed_cdata( bbp_get_topic_content() ); ?>
 						]]>
 					</description>
 

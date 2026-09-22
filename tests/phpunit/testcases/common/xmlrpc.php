@@ -372,6 +372,62 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * XML-RPC edits must honor the bbPress edit window.
+	 *
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_participant_cannot_edit_topic_or_reply_after_lock() {
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $forum_id,
+				'post_date'     => '2020-01-01 00:00:00',
+				'post_date_gmt' => '2020-01-01 00:00:00',
+				'topic_meta'    => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $topic_id,
+				'post_date'     => '2020-01-01 00:00:00',
+				'post_date_gmt' => '2020-01-01 00:00:00',
+				'reply_meta'    => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		foreach ( array( $topic_id, $reply_id ) as $post_id ) {
+			$result = $this->edit_post( $post_id, array( 'post_content' => 'Late XML-RPC edit.' ) );
+			$this->assertInstanceOf( 'IXR_Error', $result );
+			$this->assertNotSame( 'Late XML-RPC edit.', get_post_field( 'post_content', $post_id ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_keymaster_can_edit_topic_after_lock() {
+		$user_id  = $this->create_keymaster();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $forum_id,
+				'post_date'     => '2020-01-01 00:00:00',
+				'post_date_gmt' => '2020-01-01 00:00:00',
+				'topic_meta'    => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		$result = $this->edit_post( $topic_id, array( 'post_content' => 'Keymaster XML-RPC edit.' ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'Keymaster XML-RPC edit.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_validate_xmlrpc_post
 	 */
 	public function test_participant_can_edit_topic_content_in_open_forum() {

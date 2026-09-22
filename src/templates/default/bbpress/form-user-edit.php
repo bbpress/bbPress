@@ -110,7 +110,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div>
 			<label for="email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" maxlength="100" class="regular-text" autocomplete="off" />
+			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" maxlength="100" class="regular-text" autocomplete="off" <?php disabled( ! bbp_current_user_can_edit_user_field( 'email', bbp_get_displayed_user_id() ) ); ?> />
 		</div>
 
 		<?php bbp_get_template_part( 'form', 'user-passwords' ); ?>

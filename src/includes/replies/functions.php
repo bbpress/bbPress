@@ -2329,7 +2329,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 					<item>
 						<guid><?php bbp_topic_permalink(); ?></guid>
-						<title><![CDATA[<?php bbp_topic_title(); ?>]]></title>
+						<title><?php echo apply_filters( 'the_title_rss', bbp_get_topic_title() ); ?></title>
 						<link><?php bbp_topic_permalink(); ?></link>
 						<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
 						<dc:creator><?php bbp_topic_author_display_name(); ?></dc:creator>
@@ -2345,7 +2345,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 								);
 								?>
 							</p>
-							<?php bbp_topic_content(); ?>
+							<?php echo bbp_escape_feed_cdata( bbp_get_topic_content() ); ?>
 							]]>
 						</description>
 
@@ -2366,14 +2366,14 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 				<item>
 					<guid><?php bbp_reply_url(); ?></guid>
-					<title><![CDATA[<?php bbp_reply_title(); ?>]]></title>
+					<title><?php echo apply_filters( 'the_title_rss', bbp_get_reply_title() ); ?></title>
 					<link><?php bbp_reply_url(); ?></link>
 					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
 					<dc:creator><?php bbp_reply_author_display_name(); ?></dc:creator>
 
 					<description>
 						<![CDATA[
-						<?php bbp_reply_content(); ?>
+						<?php echo bbp_escape_feed_cdata( bbp_get_reply_content() ); ?>
 						]]>
 					</description>
 
