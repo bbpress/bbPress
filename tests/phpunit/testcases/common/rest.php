@@ -639,4 +639,302 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 			$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves", $moderator_id )->get_status() );
 		}
 	}
+
+	/**
+	 * A participant cannot approve their own topic through REST.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_publish_pending_topic_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'status' => bbp_get_public_status_id() ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'bbp_rest_cannot_change_status', $response->get_data()['code'] );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $topic_id ) );
+	}
+
+	/**
+	 * REST edits must honor the topic and reply edit lock.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_edit_topic_or_reply_after_lock_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $forum_id,
+				'post_date'     => '2020-01-01 00:00:00',
+				'post_date_gmt' => '2020-01-01 00:00:00',
+				'topic_meta'    => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $topic_id,
+				'post_date'     => '2020-01-01 00:00:00',
+				'post_date_gmt' => '2020-01-01 00:00:00',
+				'reply_meta'    => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		foreach ( array( bbp_get_topic_post_type() => $topic_id, bbp_get_reply_post_type() => $reply_id ) as $post_type => $post_id ) {
+			$response = $this->update_item( $post_type, $post_id, $user_id, array( 'content' => 'Late edit.' ) );
+
+			$this->assertSame( 403, $response->get_status() );
+			$this->assertSame( 'bbp_rest_edit_lock', $response->get_data()['code'] );
+			$this->assertNotSame( 'Late edit.', get_post_field( 'post_content', $post_id ) );
+		}
+	}
+
+	/**
+	 * REST edits must use the bbPress disallowed words check.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_add_disallowed_content_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'  => $user_id,
+				'post_parent'  => $forum_id,
+				'post_content' => 'Original content.',
+				'topic_meta'   => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		update_option( 'disallowed_keys', 'blocked phrase' );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'A blocked phrase.' ) );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Original content.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * REST edits matching moderation keys must be held for review.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item
+	 */
+	public function test_participant_rest_edit_with_moderation_key_becomes_pending() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'  => $user_id,
+				'post_parent'  => $forum_id,
+				'post_content' => 'Original content.',
+				'topic_meta'   => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		update_option( 'moderation_keys', 'review phrase' );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'A review phrase.' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $topic_id ) );
+		$this->assertSame( 'A review phrase.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * Participants can still make ordinary REST edits within the edit window.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_can_edit_topic_within_lock_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'  => $user_id,
+				'post_parent'  => $forum_id,
+				'post_content' => 'Original content.',
+				'topic_meta'   => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'Updated content.' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Updated content.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * A moderator can approve pending topics through REST.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_moderator_can_publish_pending_topic_through_rest() {
+		$moderator_id = $this->factory->user->create();
+		$forum_id     = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $moderator_id, array( 'status' => bbp_get_public_status_id() ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+	}
+
+	/**
+	 * REST object fields must be checked using the raw text WordPress saves.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_add_disallowed_rest_object_fields() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_title' => 'Original title', 'post_content' => 'Original content.', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		update_option( 'disallowed_keys', 'blocked phrase' );
+
+		foreach ( array( 'title', 'content' ) as $field ) {
+			$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( $field => array( 'raw' => 'A blocked phrase.' ) ) );
+
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 'bbp_rest_disallowed_content', $response->get_data()['code'] );
+		}
+
+		$this->assertSame( 'Original title', get_post_field( 'post_title', $topic_id ) );
+		$this->assertSame( 'Original content.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * A pending topic's zero GMT date must not lock out its recent author.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_can_edit_recent_pending_topic_through_rest() {
+		update_option( 'timezone_string', 'America/Chicago' );
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_status' => bbp_get_pending_status_id(), 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		$this->assertSame( '0000-00-00 00:00:00', get_post_field( 'post_date_gmt', $topic_id ) );
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'Pending revision.' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Pending revision.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $topic_id ) );
+	}
+
+	/**
+	 * An author cannot extend the REST edit window by moving a post's date.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_change_topic_date_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$original = get_post_field( 'post_date_gmt', $topic_id );
+		$future   = gmdate( 'Y-m-d\\TH:i:s', time() + DAY_IN_SECONDS );
+
+		foreach ( array( 'date' => $future, 'date_gmt' => $future, 'date_gmt_null' => null ) as $field => $value ) {
+			$param    = ( 'date_gmt_null' === $field ) ? 'date_gmt' : $field;
+			$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( $param => $value ) );
+
+			$this->assertSame( 403, $response->get_status() );
+			$this->assertSame( 'bbp_rest_cannot_change_date', $response->get_data()['code'] );
+			$this->assertSame( $original, get_post_field( 'post_date_gmt', $topic_id ) );
+		}
+	}
+
+	/**
+	 * Sending unchanged status and dates must not block an ordinary edit.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_can_roundtrip_unchanged_status_and_date() {
+		update_option( 'timezone_string', 'America/Chicago' );
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$post     = get_post( $topic_id );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'status' => bbp_get_public_status_id(), 'date' => mysql_to_rfc3339( $post->post_date ), 'date_gmt' => mysql_to_rfc3339( $post->post_date_gmt ), 'content' => 'Updated content.' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Updated content.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * Raw REST object content must enter the reply moderation workflow.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item
+	 */
+	public function test_participant_rest_reply_object_content_becomes_pending() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id = $this->factory->reply->create( array( 'post_author' => $user_id, 'post_parent' => $topic_id, 'post_content' => 'Original content.', 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		update_option( 'moderation_keys', 'review phrase' );
+
+		$response = $this->update_item( bbp_get_reply_post_type(), $reply_id, $user_id, array( 'content' => array( 'raw' => 'A review phrase.' ) ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $reply_id ) );
+		$this->assertSame( 'A review phrase.', get_post_field( 'post_content', $reply_id ) );
+	}
+
+	/**
+	 * A recent pending reply can be edited without changing its status.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_can_edit_recent_pending_reply_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id = $this->factory->reply->create( array( 'post_author' => $user_id, 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id(), 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		$this->assertSame( '0000-00-00 00:00:00', get_post_field( 'post_date_gmt', $reply_id ) );
+		$response = $this->update_item( bbp_get_reply_post_type(), $reply_id, $user_id, array( 'content' => 'Pending reply revision.' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Pending reply revision.', get_post_field( 'post_content', $reply_id ) );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $reply_id ) );
+	}
 }
