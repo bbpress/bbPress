@@ -628,6 +628,7 @@ function bbp_get_user_replies_created( $args = array() ) {
 
 	// Parse arguments
 	$r = bbp_parse_args( $args, $defaults, 'get_user_replies_created' );
+	$r['_bbp_public_topic_replies'] = true;
 
 	// Get the replies
 	$query   = bbp_has_replies( $r );

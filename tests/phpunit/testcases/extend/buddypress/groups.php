@@ -14,6 +14,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_server;
 	protected $old_errors;
 	protected $old_allow_forum_mods;
+	protected $old_action_variables;
 	protected $group_extension;
 	protected $template_parts = array();
 
@@ -25,6 +26,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->old_server  = $_SERVER;
 		$this->old_errors  = bbpress()->errors;
 		$this->old_allow_forum_mods = get_option( '_bbp_allow_forum_mods', null );
+		$this->old_action_variables = buddypress()->action_variables;
 	}
 
 	public function tearDown(): void {
@@ -32,6 +34,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$_REQUEST         = $this->old_request;
 		$_SERVER          = $this->old_server;
 		bbpress()->errors = $this->old_errors;
+		buddypress()->action_variables = $this->old_action_variables;
 
 		if ( null === $this->old_allow_forum_mods ) {
 			delete_option( '_bbp_allow_forum_mods' );
@@ -374,6 +377,39 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 
 		$this->group_extension = new BBP_Forums_Group_Extension();
 		add_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99, 4 );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 */
+	public function test_group_reply_route_hides_reply_in_unapproved_topic() {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id   = $this->factory->reply->create( array( 'post_title' => 'Group reply sentinel 7140', 'post_parent' => $topic_id, 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) ) );
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		$this->set_current_user( 0 );
+		buddypress()->action_variables = array( $this->group_extension->reply_slug, get_post_field( 'post_name', $reply_id ) );
+		ob_start();
+		$this->group_extension->display_forums();
+		$public_html = ob_get_clean();
+		$this->assertStringContainsString( 'Group reply sentinel 7140', $public_html );
+
+		bbp_unapprove_topic( $topic_id );
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+		$this->template_parts = array();
+		add_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10, 3 );
+		ob_start();
+		$this->group_extension->display_forums();
+		$private_html = ob_get_clean();
+		remove_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10 );
+
+		$this->assertContains( 'feedback-no-replies', $this->template_parts );
+		$this->assertStringNotContainsString( 'Group reply sentinel 7140', $private_html );
 	}
 
 	protected function attach_forum_to_group( $forum_id, $group_id ) {

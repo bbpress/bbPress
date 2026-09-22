@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_breadcrumb(); ?>
 
-	<?php if ( is_user_logged_in() && current_user_can( 'edit_topic', bbp_get_topic_id() ) ) : ?>
+	<?php if ( bbp_current_user_can_access_topic_moderation() ) : ?>
 
 		<div id="split-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-split">
 

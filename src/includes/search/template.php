@@ -72,7 +72,10 @@ function bbp_has_search_results( $args = array() ) {
 
 	// Only call the search query if 's' is not empty
 	if ( ! empty( $r['s'] ) ) {
+		$r['_bbp_public_topic_replies'] = true;
+		add_filter( 'posts_where', 'bbp_public_topic_replies_where', 10, 2 );
 		$bbp->search_query = new WP_Query( $r );
+		remove_filter( 'posts_where', 'bbp_public_topic_replies_where', 10 );
 	}
 
 	// Maybe prime last active posts

@@ -1316,8 +1316,8 @@ function bbp_move_reply_handler( $action = '' ) {
 		return;
 	}
 
-	// Use cannot edit topic
-	if ( ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
+	// User must moderate and edit the source topic
+	if ( ! current_user_can( 'moderate', $source_topic->ID ) || ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
 		bbp_add_error( 'bbp_move_reply_source_permission', __( '<strong>Error</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 	}
 
@@ -1354,8 +1354,8 @@ function bbp_move_reply_handler( $action = '' ) {
 					bbp_add_error( 'bbp_move_reply_destination_not_found', __( '<strong>Error</strong>: The topic you want to move to was not found.', 'bbpress' ) );
 				}
 
-				// User cannot edit the destination topic
-				if ( ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
+				// User must moderate and edit the destination topic
+				if ( ! current_user_can( 'moderate', $destination_topic->ID ) || ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
 					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>Error</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 
@@ -2279,6 +2279,12 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 	if ( bbp_is_single_topic() && ! bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) {
 		return;
 	}
+	if ( bbp_is_single_topic() && ! bbp_is_topic_public() && ! current_user_can( 'read_topic', bbp_get_topic_id() ) ) {
+		return;
+	}
+
+	// Keep replies from non-public topics out of public feeds.
+	$replies_query['_bbp_public_topic_replies'] = true;
 
 	// Adjust the title based on context
 	if ( bbp_is_single_topic() ) {

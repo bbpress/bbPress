@@ -40,6 +40,12 @@ Development for the next bbPress release is in progress. See the active
 
 - Strengthened REST API checks for topic and reply edits.
 - Tightened permissions for moderation actions and forum role assignment.
+- Restricted topic merges, topic splits, and reply moves to moderators of the
+  affected content.
+- Restricted single-item shortcodes, the replies widget, and BuddyPress group
+  reply views to content the viewer can read.
+- Excluded replies in non-public topics from search results, public profiles,
+  and feeds.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 

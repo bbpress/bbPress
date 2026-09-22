@@ -1155,8 +1155,8 @@ function bbp_merge_topic_handler( $action = '' ) {
 		return;
 	}
 
-	// Cannot edit source topic
-	if ( ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
+	// User must moderate and edit the source topic
+	if ( ! current_user_can( 'moderate', $source_topic->ID ) || ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
 		bbp_add_error( 'bbp_merge_topic_source_permission', __( '<strong>Error</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 		return;
 	}
@@ -1178,8 +1178,8 @@ function bbp_merge_topic_handler( $action = '' ) {
 		bbp_add_error( 'bbp_merge_topic_destination_not_found', __( '<strong>Error</strong>: The topic you want to merge to was not found.', 'bbpress' ) );
 	}
 
-	// Cannot edit destination topic
-	if ( ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
+	// User must moderate and edit the destination topic
+	if ( ! current_user_can( 'moderate', $destination_topic->ID ) || ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_permission', __( '<strong>Error</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 	}
 
@@ -1449,8 +1449,8 @@ function bbp_split_topic_handler( $action = '' ) {
 		return;
 	}
 
-	// Use cannot edit topic
-	if ( ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
+	// User must moderate and edit the source topic
+	if ( ! current_user_can( 'moderate', $source_topic->ID ) || ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
 		bbp_add_error( 'bbp_split_topic_source_permission', __( '<strong>Error</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 	}
 
@@ -1487,8 +1487,8 @@ function bbp_split_topic_handler( $action = '' ) {
 					bbp_add_error( 'bbp_split_topic_destination_not_found', __( '<strong>Error</strong>: The topic you want to split to was not found.', 'bbpress' ) );
 				}
 
-				// User cannot edit the destination topic
-				if ( ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
+				// User must moderate and edit the destination topic
+				if ( ! current_user_can( 'moderate', $destination_topic->ID ) || ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
 					bbp_add_error( 'bbp_split_topic_destination_permission', __( '<strong>Error</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 

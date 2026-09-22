@@ -2485,6 +2485,27 @@ function bbp_current_user_can_access_create_reply_form() {
 }
 
 /**
+ * Check if the current user can access structural topic moderation actions.
+ *
+ * This covers topic merges, topic splits, and reply moves. Their handlers
+ * perform the same capability checks independently when processing a request.
+ *
+ * @since 2.6.19
+ *
+ * @param int $topic_id Optional. Topic ID.
+ * @return bool True if the current user can moderate and edit the topic.
+ */
+function bbp_current_user_can_access_topic_moderation( $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$retval   = ! empty( $topic_id )
+		&& current_user_can( 'moderate', $topic_id )
+		&& current_user_can( 'edit_topic', $topic_id );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_current_user_can_access_topic_moderation', $retval, $topic_id );
+}
+
+/**
  * Performs a series of checks to ensure the current user should see the
  * anonymous user form fields.
  *

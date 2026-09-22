@@ -343,7 +343,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
 		}
 
 		// Attempt to update group meta
-		$updated = $bbp_db->query( "UPDATE `{$groups_meta_table}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}'" );
+		$updated = $bbp_db->query( $bbp_db->prepare( "UPDATE `{$groups_meta_table}` SET `meta_value` = %d WHERE `meta_key` = %s AND `meta_value` = %s", $group_forums->ID, 'forum_id', $group_forums->meta_value ) );
 
 		// Bump the count
 		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
