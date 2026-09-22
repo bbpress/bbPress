@@ -37,6 +37,39 @@ function bbp_get_post_types( $args = array() ) {
 	return get_post_types( $r );
 }
 
+/**
+ * Exclude replies in non-public topics from public bbPress queries.
+ *
+ * The query flag scopes this SQL clause to listings that expose replies
+ * outside a single topic, so pagination counts match the visible results.
+ *
+ * @since 2.6.19
+ *
+ * @param string   $where       SQL WHERE clause.
+ * @param WP_Query $posts_query Posts query.
+ * @return string SQL WHERE clause.
+ */
+function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
+	if ( ! $posts_query instanceof WP_Query || ! $posts_query->get( '_bbp_public_topic_replies' ) ) {
+		return $where;
+	}
+
+	$bbp_db   = bbp_db();
+	$statuses = bbp_get_public_topic_statuses();
+
+	if ( empty( $statuses ) ) {
+		return $where . $bbp_db->prepare( " AND {$bbp_db->posts}.post_type <> %s", bbp_get_reply_post_type() );
+	}
+
+	$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+	$where .= $bbp_db->prepare(
+		" AND ( {$bbp_db->posts}.post_type <> %s OR EXISTS ( SELECT 1 FROM {$bbp_db->posts} AS bbp_parent_topic WHERE bbp_parent_topic.ID = {$bbp_db->posts}.post_parent AND bbp_parent_topic.post_type = %s AND bbp_parent_topic.post_status IN ({$placeholders}) ) )",
+		array_merge( array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ), $statuses )
+	);
+
+	return $where;
+}
+
 /** URLs **********************************************************************/
 
 /**

@@ -186,6 +186,53 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_move_reply_handler
 	 */
+	public function test_participant_cannot_move_another_users_reply_between_own_topics() {
+		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$other_user_id        = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_author' => $other_user_id, 'post_parent' => $source_topic_id, 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $source_topic_id ) ) );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'edit_topic', $source_topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate', $source_topic_id ) );
+		$this->submit_reply_move( $reply_id, 'existing', $destination_topic_id );
+
+		$this->assertContains( 'bbp_move_reply_source_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
+	 */
+	public function test_forum_moderator_cannot_move_reply_outside_moderated_forum() {
+		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$other_user_id        = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum_id      = $this->factory->forum->create();
+		$destination_forum_id = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_author' => $other_user_id, 'post_parent' => $source_forum_id, 'topic_meta' => array( 'forum_id' => $source_forum_id ) ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $destination_forum_id, 'topic_meta' => array( 'forum_id' => $destination_forum_id ) ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_author' => $other_user_id, 'post_parent' => $source_topic_id, 'reply_meta' => array( 'forum_id' => $source_forum_id, 'topic_id' => $source_topic_id ) ) );
+
+		bbp_add_moderator( $source_forum_id, $user_id );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'moderate', $source_topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate', $destination_topic_id ) );
+		$this->assertTrue( current_user_can( 'edit_topic', $destination_topic_id ) );
+		$this->submit_reply_move( $reply_id, 'existing', $destination_topic_id );
+
+		$this->assertContains( 'bbp_move_reply_destination_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
+	 */
 	public function test_participant_cannot_move_reply_into_another_users_topic() {
 		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$other_user_id        = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
@@ -368,8 +415,8 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_move_reply_handler
 	 */
-	public function test_participant_cannot_convert_reply_to_topic_with_long_title() {
-		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+	public function test_moderator_cannot_convert_reply_to_topic_with_long_title() {
+		$user_id         = $this->factory->user->create();
 		$forum_id        = $this->factory->forum->create();
 		$source_topic_id = $this->factory->topic->create(
 			array(
@@ -389,6 +436,7 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 			)
 		);
 
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
 		$this->set_current_user( $user_id );
 		bbpress()->errors = new WP_Error();
 

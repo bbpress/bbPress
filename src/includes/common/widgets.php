@@ -1189,14 +1189,20 @@ class BBP_Replies_Widget extends WP_Widget {
 
 			<?php while ( $widget_query->have_posts() ) :
 
-				$widget_query->the_post(); ?>
+				$widget_query->the_post();
+				$reply_id = bbp_get_reply_id( $widget_query->post->ID );
+				$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+				// Skip replies whose topic is not visible to the current user.
+				if ( ! bbp_is_topic_public( $topic_id ) && ! current_user_can( 'read_topic', $topic_id ) ) {
+					continue;
+				} ?>
 
 				<li>
 
 					<?php
 
 					// Verify the reply ID
-					$reply_id   = bbp_get_reply_id( $widget_query->post->ID );
 					$reply_link = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . esc_html( bbp_get_reply_topic_title( $reply_id ) ) . '</a>';
 					$time       = get_the_time( 'U', $reply_id );
 					$show_date  = '<time datetime="' . gmdate( 'Y-m-d H:i:s', $time ) . '">' . esc_html( bbp_get_time_since( $time ) ) . '</time>';

@@ -2899,8 +2899,8 @@ function bbp_get_topic_merge_link( $args = array() ) {
 	// Get topic
 	$topic = bbp_get_topic( $r['id'] );
 
-	// Bail if no topic or current user cannot moderate
-	if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
+	// Bail if no topic or current user cannot moderate and edit it
+	if ( empty( $topic ) || ! bbp_current_user_can_access_topic_moderation( $topic->ID ) ) {
 		return;
 	}
 

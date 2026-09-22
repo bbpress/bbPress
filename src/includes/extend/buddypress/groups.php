@@ -1340,8 +1340,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						)
 					);
 
+					// Check the reply and its topic before rendering either one.
+					$reply_visible = bbp_replies();
+					if ( $reply_visible ) {
+						$reply_id = bbp_get_reply_id( $bbp->reply_query->post->ID );
+						$topic_id = bbp_get_reply_topic_id( $reply_id );
+						$reply_visible = ( bbp_is_reply_public( $reply_id ) || current_user_can( 'read_reply', $reply_id ) ) && ( bbp_is_topic_public( $topic_id ) || current_user_can( 'read_topic', $topic_id ) );
+					}
+
 					// If no topic, 404
-					if ( ! bbp_replies() ) {
+					if ( ! $reply_visible ) {
 						bp_do_404( bbp_get_forum_permalink( $forum_id ) );
 
 						// Only wrap title in H2 if not empty

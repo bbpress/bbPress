@@ -893,7 +893,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		// Query for users
 		$option_key = $this->get_user_option_key( $meta_key, 0, true );
 		$bbp_db     = bbp_db();
-		$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}'" );
+		$user_ids   = $bbp_db->get_col( $bbp_db->prepare( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = %s", $option_key ) );
 		$u_count    = count( $user_ids );
 
 		// Count number of removals
@@ -939,7 +939,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		if ( false === $user_ids ) {
 			$option_key = $this->get_user_option_key( $meta_key, $object_id, true );
 			$bbp_db     = bbp_db();
-			$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}' and FIND_IN_SET('{$object_id}', meta_value) > 0" );
+			$user_ids   = $bbp_db->get_col( $bbp_db->prepare( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = %s AND FIND_IN_SET( %d, meta_value ) > 0", $option_key, $object_id ) );
 
 			// Always cache results (even if empty, to prevent multiple misses)
 			$this->cache_set( $meta_key, $object_id, $user_ids );

@@ -332,6 +332,11 @@ class BBP_Shortcodes {
 				return $content;
 			}
 
+			// Do not render a non-public topic for users who cannot read it.
+			if ( ! bbp_is_topic_public( $topic_id ) && ! current_user_can( 'read_topic', $topic_id ) ) {
+				return $content;
+			}
+
 			// Reset the queries if not in theme compat
 			if ( ! bbp_is_theme_compat_active() ) {
 
@@ -448,6 +453,12 @@ class BBP_Shortcodes {
 
 			// Bail if ID passed is not a reply
 			if ( ! bbp_is_reply( $reply_id ) ) {
+				return $content;
+			}
+
+			// Do not render a non-public reply or its parent topic to unauthorized users.
+			$topic_id = bbp_get_reply_topic_id( $reply_id );
+			if ( ( ! bbp_is_reply_public( $reply_id ) && ! current_user_can( 'read_reply', $reply_id ) ) || ( ! bbp_is_topic_public( $topic_id ) && ! current_user_can( 'read_topic', $topic_id ) ) ) {
 				return $content;
 			}
 

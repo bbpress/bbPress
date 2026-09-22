@@ -73,6 +73,70 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_split_topic_handler
 	 */
+	public function test_participant_cannot_split_another_users_reply_from_own_topic() {
+		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$other_user_id   = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id        = $this->factory->forum->create();
+		$source_topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id        = $this->factory->reply->create( array( 'post_author' => $other_user_id, 'post_parent' => $source_topic_id, 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $source_topic_id ) ) );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'edit_topic', $source_topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate', $source_topic_id ) );
+		$this->submit_topic_split( $reply_id, $source_topic_id, 'reply', 'Split reply' );
+
+		$this->assertContains( 'bbp_split_topic_source_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( bbp_get_reply_post_type(), get_post_type( $reply_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_merge_topic_handler
+	 */
+	public function test_participant_cannot_merge_own_topics() {
+		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$home_url             = wp_parse_url( home_url( '/' ) );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors       = new WP_Error();
+		$_SERVER['HTTP_HOST']    = $home_url['host'];
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+		$_SERVER['REQUEST_URI']  = $home_url['path'];
+		$_POST['bbp_topic_id']   = $source_topic_id;
+		$_POST['bbp_destination_topic'] = $destination_topic_id;
+		$_REQUEST['_wpnonce']   = wp_create_nonce( 'bbp-merge-topic_' . $source_topic_id );
+
+		$this->assertTrue( current_user_can( 'edit_topic', $source_topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate', $source_topic_id ) );
+
+		$prevent_redirect = function() {
+			throw new RuntimeException( 'Topic merge redirect.' );
+		};
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			bbp_merge_topic_handler( 'bbp-merge-topic' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'Topic merge redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+		}
+
+		remove_filter( 'wp_redirect', $prevent_redirect );
+
+		$this->assertContains( 'bbp_merge_topic_source_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( bbp_get_topic_post_type(), get_post_type( $source_topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_split_topic_handler
+	 */
 	public function test_participant_cannot_split_reply_when_source_topic_cannot_be_edited() {
 		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$other_user_id   = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );

@@ -199,7 +199,13 @@ function bbp_has_replies( $args = array() ) {
 	$bbp = bbpress();
 
 	// Call the query
+	if ( ! empty( $r['_bbp_public_topic_replies'] ) ) {
+		add_filter( 'posts_where', 'bbp_public_topic_replies_where', 10, 2 );
+	}
 	$bbp->reply_query = new WP_Query( $r );
+	if ( ! empty( $r['_bbp_public_topic_replies'] ) ) {
+		remove_filter( 'posts_where', 'bbp_public_topic_replies_where', 10 );
+	}
 
 	// Maybe prime the post author caches
 	if ( ! empty( $r['update_post_family_cache'] ) ) {
@@ -2170,8 +2176,8 @@ function bbp_get_reply_move_link( $args = array() ) {
 	$reply_id = bbp_get_reply_id( $r['id'] );
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-	// Bail if no reply ID or user cannot moderate
-	if ( empty( $reply_id ) || ! current_user_can( 'moderate', $topic_id ) ) {
+	// Bail if no reply ID or user cannot moderate and edit its topic
+	if ( empty( $reply_id ) || ! bbp_current_user_can_access_topic_moderation( $topic_id ) ) {
 		return;
 	}
 
@@ -2236,8 +2242,8 @@ function bbp_get_topic_split_link( $args = array() ) {
 	$reply_id = bbp_get_reply_id( $r['id'] );
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-	// Bail if no reply/topic ID, or user cannot moderate
-	if ( empty( $reply_id ) || empty( $topic_id ) || ! current_user_can( 'moderate', $topic_id ) ) {
+	// Bail if no reply/topic ID, or user cannot moderate and edit the topic
+	if ( empty( $reply_id ) || empty( $topic_id ) || ! bbp_current_user_can_access_topic_moderation( $topic_id ) ) {
 		return;
 	}
 
