@@ -369,6 +369,7 @@ function bbp_current_user_can_edit_user_field( $field = 'profile', $user_id = 0 
 
 	// Apply narrower defaults to sensitive field groups.
 	switch ( $field ) {
+		case 'email':
 		case 'password':
 			$retval = ! empty( $user_id )
 				&& ! empty( $current_user_id )

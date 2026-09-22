@@ -712,13 +712,66 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_statistics
-	 * @todo   Implement test_bbp_get_statistics().
 	 */
 	public function test_bbp_get_statistics() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$term = wp_insert_term( 'Unused tag', bbp_get_topic_tag_tax_id() );
+		$this->assertNotWPError( $term );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_hidden_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
 		);
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_hidden_status_id(),
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		wp_set_current_user( 0 );
+		$anonymous = bbp_get_statistics();
+		$this->assertSame( 0, $anonymous['empty_topic_tag_count_int'] );
+		$this->assertSame( 0, $anonymous['topic_count_hidden_int'] );
+		$this->assertSame( 0, $anonymous['reply_count_hidden_int'] );
+
+		$participant_id = $this->factory->user->create();
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		wp_set_current_user( $participant_id );
+		$participant = bbp_get_statistics();
+		$this->assertSame( 0, $participant['empty_topic_tag_count_int'] );
+		$this->assertSame( 0, $participant['topic_count_hidden_int'] );
+		$this->assertSame( 0, $participant['reply_count_hidden_int'] );
+
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		wp_set_current_user( $user_id );
+		$this->assertTrue( current_user_can( 'edit_topic_tags' ) );
+		$staff = bbp_get_statistics();
+		$this->assertSame( 1, $staff['empty_topic_tag_count_int'] );
+		$this->assertSame( 1, $staff['topic_count_hidden_int'] );
+		$this->assertSame( 1, $staff['reply_count_hidden_int'] );
+	}
+
+	/**
+	 * @covers ::bbp_escape_feed_cdata
+	 */
+	public function test_bbp_escape_feed_cdata_keeps_description_inside_cdata() {
+		if ( ! function_exists( 'simplexml_load_string' ) ) {
+			$this->markTestSkipped( 'SimpleXML is required to parse the feed fragment.' );
+		}
+
+		$content = 'Before ]]><p>After</p>';
+		$escaped = bbp_escape_feed_cdata( $content );
+		$xml     = simplexml_load_string( '<description><![CDATA[' . $escaped . ']]></description>' );
+
+		$this->assertInstanceOf( 'SimpleXMLElement', $xml );
+		$this->assertCount( 0, $xml->children() );
+		$this->assertSame( 'Before ]]&gt;<p>After</p>', (string) $xml );
+		$this->assertSame( '<p>Unchanged</p>', bbp_escape_feed_cdata( '<p>Unchanged</p>' ) );
 	}
 
 	/**

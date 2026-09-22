@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Hardened forum content editing, profile permissions, and update actions.
+- Corrected access to forum statistics and feed output.
 - Strengthened REST API checks for topic and reply edits.
 - Tightened permissions for moderation actions and forum role assignment.
 - Restricted topic merges, topic splits, and reply moves to moderators of the

@@ -163,10 +163,11 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		$this->set_profile_editor( $target_id );
 
 		$this->assertTrue( bbp_current_user_can_edit_user_field( 'profile', $target_id ) );
-		$this->assertTrue( bbp_current_user_can_edit_user_field( 'email', $target_id ) );
+		$this->assertFalse( bbp_current_user_can_edit_user_field( 'email', $target_id ) );
 		$this->assertTrue( bbp_current_user_can_edit_user_field( 'forum_role', $target_id ) );
 		$this->assertFalse( bbp_current_user_can_edit_user_field( 'password', $target_id ) );
 		$this->assertFalse( bbp_current_user_can_edit_user_field( 'site_role', $target_id ) );
+		$this->assertTrue( bbp_current_user_can_edit_user_field( 'email', $moderator_id ) );
 		$this->assertTrue( bbp_current_user_can_edit_user_field( 'password', $moderator_id ) );
 
 		$roles = bbp_get_user_editable_forum_roles( $target_id );
@@ -269,6 +270,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		add_filter( 'bbp_get_user_editable_forum_roles', array( $this, 'allow_all_forum_roles' ), 10, 1 );
 
 		$this->assertTrue( bbp_current_user_can_edit_user_field( 'password', $target_id ) );
+		$this->assertTrue( bbp_current_user_can_edit_user_field( 'email', $target_id ) );
 		$this->assertTrue( bbp_current_user_can_edit_user_field( 'site_role', $target_id ) );
 		$this->assertArrayHasKey( bbp_get_keymaster_role(), bbp_get_user_editable_forum_roles( $target_id ) );
 	}
@@ -299,7 +301,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		);
 
 		$this->assertSame( 'Updated', $data['first_name'] );
-		$this->assertSame( 'updated@example.org', $data['email'] );
+		$this->assertSame( 'existing@example.org', $data['email'] );
 		$this->assertArrayNotHasKey( 'pass1', $data );
 		$this->assertArrayNotHasKey( 'pass2', $data );
 		$this->assertArrayNotHasKey( 'role', $data );

@@ -516,7 +516,7 @@ function bbp_get_trash_days( $context = 'forum' ) {
  *  - count_private_topics:  Count private topics? (only counted if the current
  *                           user has read_private_topics cap)
  *  - count_hidden_topics:   Count hidden topics? (only counted if the current
- *                           user has read_hidden_topics cap)
+ *                           user has read_hidden_forums cap)
  *  - count_spam_topics:     Count spam topics? (only counted if the current
  *                           user has edit_others_topics cap)
  *  - count_trash_topics:    Count trash topics? (only counted if the current
@@ -528,7 +528,7 @@ function bbp_get_trash_days( $context = 'forum' ) {
  *  - count_private_replies: Count private replies? (only counted if the current
  *                           user has read_private_replies cap)
  *  - count_hidden_replies:  Count hidden replies? (only counted if the current
- *                           user has read_hidden_replies cap)
+ *                           user has read_hidden_forums cap)
  *  - count_spam_replies:    Count spam replies? (only counted if the current
  *                           user has edit_others_replies cap)
  *  - count_trash_replies:   Count trash replies? (only counted if the current
@@ -605,6 +605,7 @@ function bbp_get_statistics( $args = array() ) {
 	$caps = array(
 		'view_trash'           => false,
 		'read_private_topics'  => false,
+		'read_hidden_forums'   => false,
 		'edit_others_topics'   => false,
 		'read_private_replies' => false,
 		'edit_others_replies'  => false,
@@ -612,8 +613,8 @@ function bbp_get_statistics( $args = array() ) {
 	);
 
 	// Get capabilities
-	foreach ( $caps as $key => $cap ) {
-		$caps[ $key ] = current_user_can( $cap );
+	foreach ( array_keys( $caps ) as $cap ) {
+		$caps[ $cap ] = current_user_can( $cap );
 	}
 
 	// Topics
@@ -643,7 +644,7 @@ function bbp_get_statistics( $args = array() ) {
 		}
 
 		// Hidden
-		if ( ! empty( $r['count_hidden_topics'] ) && ! empty( $caps['read_hidden_topics'] ) ) {
+		if ( ! empty( $r['count_hidden_topics'] ) && ! empty( $caps['read_hidden_forums'] ) ) {
 			$topics[ $hidden ]       = bbp_number_not_negative( $all_topics->{$hidden} );
 			/* translators: %s: Number of hidden topics */
 			$topic_titles[ $hidden ] = sprintf( esc_html__( 'Hidden: %s', 'bbpress' ), bbp_number_format_i18n( $topics[ $hidden ] ) );
@@ -697,7 +698,7 @@ function bbp_get_statistics( $args = array() ) {
 		}
 
 		// Hidden
-		if ( ! empty( $r['count_hidden_replies'] ) && ! empty( $caps['read_hidden_replies'] ) ) {
+		if ( ! empty( $r['count_hidden_replies'] ) && ! empty( $caps['read_hidden_forums'] ) ) {
 			$replies[ $hidden ]      = bbp_number_not_negative( $all_replies->{$hidden} );
 			/* translators: %s: Number of hidden replies */
 			$reply_titles[ $hidden ] = sprintf( esc_html__( 'Hidden: %s', 'bbpress' ), bbp_number_format_i18n( $replies[ $hidden ] ) );
@@ -739,7 +740,7 @@ function bbp_get_statistics( $args = array() ) {
 		);
 
 		// Empty tags
-		if ( ! empty( $r['count_empty_tags'] ) && ! empty( 'edit_topic_tags' ) ) {
+		if ( ! empty( $r['count_empty_tags'] ) && ! empty( $caps['edit_topic_tags'] ) ) {
 			$empty_topic_tag_count = wp_count_terms( $tt_id ) - $topic_tag_count;
 		}
 	}
@@ -2672,6 +2673,21 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 }
 
 /** Feeds *********************************************************************/
+
+/**
+ * Escape CDATA terminators in bbPress feed content.
+ *
+ * Mirrors the handling in WordPress's get_the_content_feed() while preserving
+ * bbPress's topic and reply content filters.
+ *
+ * @since 2.6.18
+ *
+ * @param string $content Feed content.
+ * @return string Content safe to include in a CDATA section.
+ */
+function bbp_escape_feed_cdata( $content = '' ) {
+	return str_replace( ']]>', ']]&gt;', $content );
+}
 
 /**
  * This function is hooked into the WordPress 'request' action and is

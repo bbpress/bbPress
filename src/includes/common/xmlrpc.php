@@ -68,7 +68,20 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	$parent_changed = ( $post_parent !== (int) $post->post_parent );
 	$status_changed = isset( $post_data['post_status'] ) && ( $post_data['post_status'] !== $post->post_status );
 	$order_changed  = isset( $post_data['menu_order'] ) && ( (int) $post_data['menu_order'] !== (int) $post->menu_order );
-	$invalid        = false;
+	$invalid          = false;
+	$is_forum_content = in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true );
+
+	// XML-RPC does not set the front-end query flags used by the topic and
+	// reply capability mappings to enforce the author edit window.
+	if ( $is_forum_content && ( bbp_get_current_user_id() === (int) $post->post_author ) && ! current_user_can( 'moderate', $post_id ) ) {
+		$post_date_gmt = ( '0000-00-00 00:00:00' === $post->post_date_gmt )
+			? get_gmt_from_date( $post->post_date )
+			: $post->post_date_gmt;
+
+		if ( bbp_past_edit_lock( $post_date_gmt ) ) {
+			$invalid = true;
+		}
+	}
 
 	// Validate forum structure and visibility changes
 	if ( bbp_get_forum_post_type() === $post_type ) {
