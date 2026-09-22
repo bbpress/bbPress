@@ -260,10 +260,10 @@ function bbp_validate_registration_role( $to_validate = '' ) {
 
 	/**
 	 * Conditionally accept admin-area posted values for capable users. This is
-	 * to allow for Site/Network Admins to assign a default role when inviting
-	 * or creating a new User account.
+	 * to allow for Site/Network Admins to assign a forum role when inviting
+	 * or creating a new User account. Only keymasters can assign keymasters.
 	 */
-	if ( is_admin() && current_user_can( 'create_users' ) ) {
+	if ( is_admin() && ( current_user_can( 'create_users' ) || current_user_can( 'promote_users' ) ) && ( bbp_is_user_keymaster() || ( bbp_get_keymaster_role() !== $to_validate ) ) ) {
 		$retval = $to_validate;
 	}
 

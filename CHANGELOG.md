@@ -39,6 +39,7 @@ Development for the next bbPress release is in progress. See the active
 ### Security
 
 - Strengthened REST API checks for topic and reply edits.
+- Tightened permissions for moderation actions and forum role assignment.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 

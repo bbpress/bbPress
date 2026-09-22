@@ -1625,7 +1625,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	}
 
 	// What is the user doing here?
-	if ( ! current_user_can( 'edit_reply', $reply_id ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply_id ) ) ) {
+	if ( ! current_user_can( 'edit_reply', $reply_id ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply_id ) ) || ( 'bbp_toggle_reply_trash' !== $action && ! current_user_can( 'moderate', $reply_id ) ) ) {
 		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}

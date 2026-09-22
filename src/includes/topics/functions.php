@@ -2185,7 +2185,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
 	}
 
 	// What is the user doing here?
-	if ( ! current_user_can( 'edit_topic', $topic_id ) || ( 'bbp_toggle_topic_trash' === $action && ! current_user_can( 'delete_topic', $topic_id ) ) ) {
+	if ( ! current_user_can( 'edit_topic', $topic_id ) || ( 'bbp_toggle_topic_trash' === $action && ! current_user_can( 'delete_topic', $topic_id ) ) || ( 'bbp_toggle_topic_trash' !== $action && ! current_user_can( 'moderate', $topic_id ) ) ) {
 		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}
