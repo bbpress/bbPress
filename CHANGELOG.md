@@ -13,6 +13,10 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Security
+
+- Strengthened REST API checks for topic and reply edits.
+
 ### Fixed
 
 - Recovered first-login password upgrades for older PHPWind imports when the

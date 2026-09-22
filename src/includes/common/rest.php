@@ -41,6 +41,52 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			);
 		}
 
+		// REST requests do not use the front-end edit query flags that enforce
+		// bbPress's edit lock in the topic and reply capability mappings.
+		if ( ! empty( $post ) && $this->is_forum_content( $post ) ) {
+			$can_moderate = current_user_can( 'moderate', $post->ID );
+
+			if ( ! $can_moderate ) {
+				// Only moderators may change status or move the edit window.
+				if ( $request->has_param( 'status' ) && ( $request['status'] !== $post->post_status ) ) {
+					return new WP_Error(
+						'bbp_rest_cannot_change_status',
+						esc_html__( 'You are not allowed to change this forum content status.', 'bbpress' ),
+						array( 'status' => rest_authorization_required_code() )
+					);
+				}
+
+				if ( $this->is_post_date_changed( $request, $post ) ) {
+					return new WP_Error(
+						'bbp_rest_cannot_change_date',
+						esc_html__( 'You are not allowed to change this forum content date.', 'bbpress' ),
+						array( 'status' => rest_authorization_required_code() )
+					);
+				}
+
+				// Pending posts may have a zero GMT date even when they are recent.
+				$post_date_gmt = ( '0000-00-00 00:00:00' === $post->post_date_gmt )
+					? get_gmt_from_date( $post->post_date )
+					: $post->post_date_gmt;
+
+				if ( ( bbp_get_current_user_id() === (int) $post->post_author ) && bbp_past_edit_lock( $post_date_gmt ) ) {
+					return new WP_Error(
+						'bbp_rest_edit_lock',
+						esc_html__( 'You can no longer edit this forum content.', 'bbpress' ),
+						array( 'status' => rest_authorization_required_code() )
+					);
+				}
+			}
+
+			if ( ! bbp_check_for_moderation( array(), (int) $post->post_author, $this->get_moderation_title( $request, $post ), $this->get_moderation_content( $request, $post ), true ) ) {
+				return new WP_Error(
+					'bbp_rest_disallowed_content',
+					esc_html__( 'This forum content cannot be edited at this time.', 'bbpress' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
 		$forum_id = ! empty( $post ) ? bbp_get_forum_id( $post->ID ) : 0;
 		$forum    = bbp_get_forum( $forum_id );
 
@@ -69,6 +115,115 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		}
 
 		return $retval;
+	}
+
+	/**
+	 * Apply bbPress moderation to REST edits before WordPress saves the post.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response or error from WordPress.
+	 */
+	public function update_item( $request ) {
+		$post = isset( $request['id'] ) ? get_post( $request['id'] ) : null;
+
+		if ( ! empty( $post ) && $this->is_forum_content( $post ) && in_array( $post->post_status, bbp_get_public_topic_statuses(), true ) ) {
+			$title   = $this->get_moderation_title( $request, $post );
+			$content = $this->get_moderation_content( $request, $post );
+
+			if ( ! bbp_check_for_moderation( array(), (int) $post->post_author, $title, $content ) ) {
+				$request->set_param( 'status', bbp_get_pending_status_id() );
+			}
+		}
+
+		return parent::update_item( $request );
+	}
+
+	/**
+	 * Whether a post is a topic or reply.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param WP_Post $post Post to check.
+	 * @return bool Whether this is forum content.
+	 */
+	private function is_forum_content( $post ) {
+		return in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true );
+	}
+
+	/**
+	 * Whether a REST request changes a topic or reply publication date.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @param WP_Post         $post    Existing post.
+	 * @return bool Whether the date would change.
+	 */
+	private function is_post_date_changed( $request, $post ) {
+		$post_date_gmt = ( '0000-00-00 00:00:00' === $post->post_date_gmt )
+			? get_gmt_from_date( $post->post_date )
+			: $post->post_date_gmt;
+
+		foreach ( array(
+			'date'     => false,
+			'date_gmt' => true,
+		) as $field => $is_gmt ) {
+			if ( ! $request->has_param( $field ) ) {
+				continue;
+			}
+
+			$dates = is_string( $request[ $field ] ) ? rest_get_date_with_gmt( $request[ $field ], $is_gmt ) : false;
+
+			if ( empty( $dates ) || ( $post->post_date !== $dates[0] ) || ( $post_date_gmt !== $dates[1] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the title that bbPress moderation should check.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @param WP_Post         $post    Existing post.
+	 * @return string Title to check.
+	 */
+	private function get_moderation_title( $request, $post ) {
+		if ( ! $request->has_param( 'title' ) ) {
+			return $post->post_title;
+		}
+
+		$title = $request['title'];
+
+		return is_string( $title )
+			? $title
+			: ( ! empty( $title['raw'] ) ? $title['raw'] : $post->post_title );
+	}
+
+	/**
+	 * Get the content that bbPress moderation should check.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @param WP_Post         $post    Existing post.
+	 * @return string Content to check.
+	 */
+	private function get_moderation_content( $request, $post ) {
+		if ( ! $request->has_param( 'content' ) ) {
+			return $post->post_content;
+		}
+
+		$content = $request['content'];
+
+		return is_string( $content )
+			? $content
+			: ( isset( $content['raw'] ) ? $content['raw'] : $post->post_content );
 	}
 
 	/**
