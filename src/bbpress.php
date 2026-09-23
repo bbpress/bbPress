@@ -829,8 +829,8 @@ final class bbPress {
 			// Never allow counts to go negative
 			'sanitize_callback' => 'bbp_number_not_negative',
 
-			// All users may update count meta data
-			'auth_callback'     => '__return_true'
+			// Derived counts cannot be edited through metadata endpoints
+			'auth_callback'     => '__return_false'
 		);
 
 		/** Post **************************************************************/
@@ -867,7 +867,7 @@ final class bbPress {
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => 'bbp_number_not_negative',
-				'auth_callback'     => '__return_true'
+				'auth_callback'     => '__return_false'
 			)
 		);
 	}
