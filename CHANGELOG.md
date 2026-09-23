@@ -38,6 +38,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Prevented API edits to bbPress-maintained count and activity metadata.
 - Applied bbPress posting checks to API creation and restricted non-public
   count metadata.
 - Hardened forum content editing, profile permissions, and update actions.

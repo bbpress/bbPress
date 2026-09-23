@@ -994,6 +994,56 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Derived counts cannot be overwritten through REST post metadata.
+	 *
+	 * @coversNothing
+	 */
+	public function test_participant_cannot_write_topic_count_meta_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		add_post_type_support( bbp_get_topic_post_type(), 'custom-fields' );
+		bbpress()->register_meta();
+		$old_rest_server = isset( $GLOBALS['wp_rest_server'] ) ? $GLOBALS['wp_rest_server'] : null;
+		$GLOBALS['wp_rest_server'] = null;
+
+		$before   = (int) get_post_meta( $topic_id, '_bbp_reply_count', true );
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'meta' => array( '_bbp_reply_count' => 999 ) ) );
+
+		remove_post_type_support( bbp_get_topic_post_type(), 'custom-fields' );
+		$GLOBALS['wp_rest_server'] = $old_rest_server;
+
+		$this->assertNotSame( 999, (int) get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+		$this->assertSame( $before, (int) get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Derived user activity metadata cannot be overwritten through REST.
+	 *
+	 * @coversNothing
+	 */
+	public function test_participant_cannot_write_user_activity_meta_through_rest() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbpress()->register_meta();
+		$old_rest_server = isset( $GLOBALS['wp_rest_server'] ) ? $GLOBALS['wp_rest_server'] : null;
+		$GLOBALS['wp_rest_server'] = null;
+
+		foreach ( array( '_bbp_topic_count', '_bbp_reply_count', '_bbp_last_posted' ) as $meta_key ) {
+			$before   = (int) get_user_meta( $user_id, $meta_key, true );
+			$response = $this->dispatch_request( 'POST', '/wp/v2/users/' . $user_id, $user_id, array( 'meta' => array( $meta_key => 999 ) ) );
+
+			$this->assertSame( $before, (int) get_user_meta( $user_id, $meta_key, true ) );
+			$this->assertSame( 403, $response->get_status() );
+		}
+
+		$GLOBALS['wp_rest_server'] = $old_rest_server;
+	}
+
+	/**
 	 * @covers BBP_REST_Posts_Controller::create_item_permissions_check
 	 */
 	public function test_moderator_create_obeys_strict_block_list() {
