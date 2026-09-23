@@ -185,6 +185,7 @@ function bbp_get_paged() {
  *
  * @return array
  */
+// phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.arrayFound -- Preserve the public parameter name for PHP 8 named arguments.
 function bbp_get_unique_array_values( $array = array() ) {
 	return array_unique( array_filter( array_values( $array ) ) );
 }
@@ -1939,7 +1940,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 		$validated = wp_validate_redirect( $filtered, $forum_root );
 
 		// Assemble $redirect_to and add it (encoded) to full $url
-		$appended  = add_query_arg( array( 'loggedout'   => 'true'   ), $validated );
+		$appended  = add_query_arg( array( 'loggedout' => 'true' ), $validated );
 		$encoded   = urlencode( $appended );
 		$url       = add_query_arg( array( 'redirect_to' => $encoded ), $url       );
 	}
@@ -2614,7 +2615,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 
 	// Parse home_url() into pieces to remove query-strings, strange characters,
 	// and other funny things that plugins might to do to it.
-	$parsed_home = parse_url( home_url( '/', ( is_ssl() ? 'https' : 'http' ) ) );
+	$parsed_home = wp_parse_url( home_url( '/', ( is_ssl() ? 'https' : 'http' ) ) );
 
 	// Maybe include the port, if it's included
 	if ( isset( $parsed_home['port'] ) ) {

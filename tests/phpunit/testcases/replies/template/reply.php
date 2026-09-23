@@ -572,6 +572,22 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * A reply outside the requested topic has no position in that topic.
+	 *
+	 * @covers ::bbp_get_reply_position_raw
+	 */
+	public function test_bbp_get_reply_position_raw_returns_zero_for_other_topic() {
+		$forum_id = $this->factory->forum->create();
+		$topic_a  = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$topic_b  = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_a  = $this->factory->reply->create( array( 'post_parent' => $topic_a, 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_a ) ) );
+		$reply_b  = $this->factory->reply->create( array( 'post_parent' => $topic_b, 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_b ) ) );
+
+		$this->assertSame( 1, bbp_get_reply_position_raw( $reply_b, $topic_b ) );
+		$this->assertSame( 0, bbp_get_reply_position_raw( $reply_a, $topic_b ) );
+	}
+
+	/**
 	 * @covers ::bbp_reply_class
 	 * @covers ::bbp_get_reply_class
 	 * @todo   Implement test_bbp_get_reply_class().

@@ -121,7 +121,7 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 	// Setup cookie expiration
 	$lifetime = (int) apply_filters( 'comment_cookie_lifetime', 30000000 );
 	$expiry   = time() + $lifetime;
-	$secure   = ( 'https' === parse_url( home_url(), PHP_URL_SCHEME ) );
+	$secure   = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
 
 	// Set the cookies
 	setcookie( 'comment_author_'       . COOKIEHASH, $anonymous_data['bbp_anonymous_name'],    $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure );
