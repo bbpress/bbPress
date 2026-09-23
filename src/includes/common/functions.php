@@ -56,6 +56,9 @@ function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
 
 	$bbp_db   = bbp_db();
 	$statuses = bbp_get_public_topic_statuses();
+	if ( $posts_query->get( '_bbp_search_private_topic_replies' ) && current_user_can( 'read_private_topics' ) && ! is_feed() && ! $posts_query->is_feed() ) {
+		$statuses[] = bbp_get_private_status_id();
+	}
 
 	if ( empty( $statuses ) ) {
 		return $where . $bbp_db->prepare( " AND {$bbp_db->posts}.post_type <> %s", bbp_get_reply_post_type() );

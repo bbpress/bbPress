@@ -628,7 +628,8 @@ function bbp_get_user_replies_created( $args = array() ) {
 
 	// Parse arguments
 	$r = bbp_parse_args( $args, $defaults, 'get_user_replies_created' );
-	$r['_bbp_public_topic_replies'] = true;
+	$r['_bbp_public_topic_replies'] = ! bbp_get_view_all( 'edit_others_replies' );
+	unset( $r['_bbp_search_private_topic_replies'] );
 
 	// Get the replies
 	$query   = bbp_has_replies( $r );

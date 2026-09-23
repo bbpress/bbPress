@@ -38,6 +38,7 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( 'pre_option_enable_xmlrpc', '__return_true' );
+		$GLOBALS['bbp_xmlrpc_error_post_type'] = '';
 
 		parent::tearDown();
 	}
@@ -76,6 +77,25 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 		);
 
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+
+		return $user_id;
+	}
+
+	/**
+	 * Create a global moderator with XML-RPC credentials.
+	 *
+	 * @return int User ID.
+	 */
+	protected function create_moderator() {
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => $this->username,
+				'user_pass'  => $this->password,
+				'role'       => 'subscriber',
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
 
 		return $user_id;
 	}
@@ -347,6 +367,27 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $result );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_moderator_create_obeys_strict_block_list() {
+		$user_id = $this->create_moderator();
+		$forum_id = $this->factory->forum->create();
+		update_option( 'disallowed_keys', 'blocked phrase' );
+		$data = array(
+			'post_author'  => $user_id,
+			'post_parent'  => $forum_id,
+			'post_status'  => bbp_get_public_status_id(),
+			'post_type'    => bbp_get_topic_post_type(),
+			'post_title'   => 'XML-RPC topic',
+			'post_content' => 'A blocked phrase.',
+		);
+
+		$this->assertInstanceOf( 'IXR_Error', $this->new_post( $data ) );
+		$data['post_content'] = 'Clean moderator topic.';
+		$this->assertIsNumeric( $this->new_post( $data ) );
 	}
 
 	/**

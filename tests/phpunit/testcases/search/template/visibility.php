@@ -49,4 +49,22 @@ class BBP_Tests_Search_Template_Visibility extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_has_search_results( array( 's' => 'Private search sentinel 7138' ) ) );
 		$this->assertSame( 0, (int) bbpress()->search_query->found_posts );
 	}
+
+	/**
+	 * @covers ::bbp_has_search_results
+	 */
+	public function test_private_topic_reply_is_visible_only_to_authorized_search() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_status' => bbp_get_private_status_id(), 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_content' => 'Private search sentinel 9284', 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) ) );
+
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_has_search_results( array( 's' => 'Private search sentinel 9284' ) ) );
+
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		$this->assertTrue( bbp_has_search_results( array( 's' => 'Private search sentinel 9284' ) ) );
+		$this->assertContains( $reply_id, wp_list_pluck( bbpress()->search_query->posts, 'ID' ) );
+	}
 }

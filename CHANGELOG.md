@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Applied bbPress posting checks to API creation and restricted non-public
+  count metadata.
 - Hardened forum content editing, profile permissions, and update actions.
 - Corrected access to forum statistics and feed output.
 - Strengthened REST API checks for topic and reply edits.
@@ -28,6 +30,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Restored moderator access to eligible private-topic search results and
+  all-reply profile views.
 - Recovered first-login password upgrades for older PHPWind imports when the
   source database remains available.
 - Corrected forum date mappings for Simple:Press 5 imports.

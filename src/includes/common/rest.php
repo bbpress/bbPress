@@ -18,6 +18,32 @@ defined( 'ABSPATH' ) || exit;
 class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 	/**
+	 * Apply bbPress's strict block list before creating a topic or reply.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has access, WP_Error otherwise.
+	 */
+	public function create_item_permissions_check( $request ) {
+		$retval = parent::create_item_permissions_check( $request );
+
+		if ( is_wp_error( $retval ) || ! $retval || ! in_array( $this->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+			return $retval;
+		}
+
+		if ( ! bbp_check_for_moderation( array(), bbp_get_current_user_id(), $this->get_moderation_title( $request, null ), $this->get_moderation_content( $request, null ), true ) ) {
+			return new WP_Error(
+				'bbp_rest_disallowed_content',
+				esc_html__( 'This forum content cannot be created at this time.', 'bbpress' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $retval;
+	}
+
+	/**
 	 * Checks if a post can be updated.
 	 *
 	 * @since 2.6.17
@@ -190,19 +216,19 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * @since 2.6.19
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @param WP_Post         $post    Existing post.
+	 * @param WP_Post|null    $post    Existing post, or null when creating.
 	 * @return string Title to check.
 	 */
 	private function get_moderation_title( $request, $post ) {
 		if ( ! $request->has_param( 'title' ) ) {
-			return $post->post_title;
+			return empty( $post ) ? '' : $post->post_title;
 		}
 
 		$title = $request['title'];
 
 		return is_string( $title )
 			? $title
-			: ( ! empty( $title['raw'] ) ? $title['raw'] : $post->post_title );
+			: ( ! empty( $title['raw'] ) ? $title['raw'] : ( empty( $post ) ? '' : $post->post_title ) );
 	}
 
 	/**
@@ -211,19 +237,19 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * @since 2.6.19
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @param WP_Post         $post    Existing post.
+	 * @param WP_Post|null    $post    Existing post, or null when creating.
 	 * @return string Content to check.
 	 */
 	private function get_moderation_content( $request, $post ) {
 		if ( ! $request->has_param( 'content' ) ) {
-			return $post->post_content;
+			return empty( $post ) ? '' : $post->post_content;
 		}
 
 		$content = $request['content'];
 
 		return is_string( $content )
 			? $content
-			: ( isset( $content['raw'] ) ? $content['raw'] : $post->post_content );
+			: ( isset( $content['raw'] ) ? $content['raw'] : ( empty( $post ) ? '' : $post->post_content ) );
 	}
 
 	/**

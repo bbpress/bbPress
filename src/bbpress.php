@@ -823,7 +823,7 @@ final class bbPress {
 			// Counts are single values
 			'single'            => true,
 
-			// Counts should be made available in REST
+			// Public counts should be made available in REST
 			'show_in_rest'      => true,
 
 			// Never allow counts to go negative
@@ -842,10 +842,13 @@ final class bbPress {
 		register_meta( 'post', '_bbp_total_reply_count',        $count );
 		register_meta( 'post', '_bbp_voice_count',              $count );
 		register_meta( 'post', '_bbp_anonymous_reply_count',    $count );
-		register_meta( 'post', '_bbp_topic_count_hidden',       $count );
-		register_meta( 'post', '_bbp_reply_count_hidden',       $count );
-		register_meta( 'post', '_bbp_total_topic_count_hidden', $count );
-		register_meta( 'post', '_bbp_total_reply_count_hidden', $count );
+		// Hidden counts must stay private if custom fields are exposed in REST.
+		$hidden_count = $count;
+		$hidden_count['show_in_rest'] = false;
+		register_meta( 'post', '_bbp_topic_count_hidden',       $hidden_count );
+		register_meta( 'post', '_bbp_reply_count_hidden',       $hidden_count );
+		register_meta( 'post', '_bbp_total_topic_count_hidden', $hidden_count );
+		register_meta( 'post', '_bbp_total_reply_count_hidden', $hidden_count );
 		register_meta( 'post', '_bbp_forum_subforum_count',     $count );
 
 		/** User **************************************************************/
