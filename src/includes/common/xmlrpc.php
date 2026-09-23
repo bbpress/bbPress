@@ -19,9 +19,31 @@ defined( 'ABSPATH' ) || exit;
  * @param array  $args   XML-RPC method arguments.
  */
 function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
-	global $bbp_xmlrpc_error_post_id;
+	global $bbp_xmlrpc_error_post_id, $bbp_xmlrpc_error_post_type;
 
 	$bbp_xmlrpc_error_post_id = 0;
+	$bbp_xmlrpc_error_post_type = '';
+
+	// WordPress handles create permissions, but not bbPress's strict block list.
+	if ( 'wp.newPost' === $method ) {
+		if ( empty( $args[3] ) || ! is_array( $args[3] ) ) {
+			return;
+		}
+
+		$post_data = $args[3];
+		$post_type = isset( $post_data['post_type'] ) ? $post_data['post_type'] : '';
+		if ( ! in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+			return;
+		}
+
+		$title   = isset( $post_data['post_title'] ) ? wp_unslash( $post_data['post_title'] ) : '';
+		$content = isset( $post_data['post_content'] ) ? wp_unslash( $post_data['post_content'] ) : '';
+		if ( ! bbp_check_for_moderation( array(), bbp_get_current_user_id(), $title, $content, true ) ) {
+			$bbp_xmlrpc_error_post_type = $post_type;
+		}
+
+		return;
+	}
 
 	$is_restore = ( 'wp.restoreRevision' === $method );
 
@@ -163,11 +185,14 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
  * @return array Required capabilities.
  */
 function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
-	global $bbp_xmlrpc_error_post_id;
+	global $bbp_xmlrpc_error_post_id, $bbp_xmlrpc_error_post_type;
 
 	$edit_caps = array( 'edit_post', 'edit_topic', 'edit_reply' );
 
 	if ( ! empty( $bbp_xmlrpc_error_post_id ) && in_array( $cap, $edit_caps, true ) && ! empty( $args[0] ) && ( (int) $args[0] === $bbp_xmlrpc_error_post_id ) ) {
+		$caps[] = 'do_not_allow';
+	}
+	if ( ( ( bbp_get_topic_post_type() === $bbp_xmlrpc_error_post_type ) && ( 'edit_topics' === $cap ) ) || ( ( bbp_get_reply_post_type() === $bbp_xmlrpc_error_post_type ) && ( 'edit_replies' === $cap ) ) ) {
 		$caps[] = 'do_not_allow';
 	}
 

@@ -2285,6 +2285,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 	// Keep replies from non-public topics out of public feeds.
 	$replies_query['_bbp_public_topic_replies'] = true;
+	unset( $replies_query['_bbp_search_private_topic_replies'] );
 
 	// Adjust the title based on context
 	if ( bbp_is_single_topic() ) {

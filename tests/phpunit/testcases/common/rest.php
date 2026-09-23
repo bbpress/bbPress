@@ -959,4 +959,53 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 		$this->assertSame( 'Pending reply revision.', get_post_field( 'post_content', $reply_id ) );
 		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $reply_id ) );
 	}
+	/**
+	 * Hidden counts stay out of REST even when custom fields are enabled.
+	 *
+	 * @coversNothing
+	 */
+	public function test_hidden_counts_are_not_exposed_with_custom_fields_support() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		add_post_type_support( bbp_get_forum_post_type(), 'custom-fields' );
+		add_post_type_support( bbp_get_topic_post_type(), 'custom-fields' );
+		bbpress()->register_meta();
+		$old_rest_server = isset( $GLOBALS['wp_rest_server'] ) ? $GLOBALS['wp_rest_server'] : null;
+		$GLOBALS['wp_rest_server'] = null;
+
+		$response = $this->get_item( bbp_get_forum_post_type(), $forum_id );
+		$data     = $response->get_data();
+		$topic_response = $this->get_item( bbp_get_topic_post_type(), $topic_id );
+		$topic_data     = $topic_response->get_data();
+
+		remove_post_type_support( bbp_get_forum_post_type(), 'custom-fields' );
+		remove_post_type_support( bbp_get_topic_post_type(), 'custom-fields' );
+		$GLOBALS['wp_rest_server'] = $old_rest_server;
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertArrayHasKey( '_bbp_topic_count', $data['meta'] );
+		$this->assertArrayNotHasKey( '_bbp_topic_count_hidden', $data['meta'] );
+		$this->assertArrayNotHasKey( '_bbp_reply_count_hidden', $data['meta'] );
+		$this->assertArrayNotHasKey( '_bbp_total_topic_count_hidden', $data['meta'] );
+		$this->assertArrayNotHasKey( '_bbp_total_reply_count_hidden', $data['meta'] );
+		$this->assertSame( 200, $topic_response->get_status() );
+		$this->assertArrayHasKey( '_bbp_reply_count', $topic_data['meta'] );
+		$this->assertArrayNotHasKey( '_bbp_reply_count_hidden', $topic_data['meta'] );
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::create_item_permissions_check
+	 */
+	public function test_moderator_create_obeys_strict_block_list() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		update_option( 'disallowed_keys', 'blocked phrase' );
+
+		$response = $this->dispatch_request( 'POST', '/wp/v2/' . bbp_get_topic_post_type(), $user_id, array( 'title' => 'REST topic', 'content' => 'A blocked phrase.' ) );
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'bbp_rest_disallowed_content', $response->get_data()['code'] );
+
+		$response = $this->dispatch_request( 'POST', '/wp/v2/' . bbp_get_topic_post_type(), $user_id, array( 'title' => 'REST topic', 'content' => 'Clean moderator topic.' ) );
+		$this->assertSame( 201, $response->get_status() );
+	}
 }
