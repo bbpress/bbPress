@@ -2680,7 +2680,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
  * Mirrors the handling in WordPress's get_the_content_feed() while preserving
  * bbPress's topic and reply content filters.
  *
- * @since 2.6.18
+ * @since 2.6.19
  *
  * @param string $content Feed content.
  * @return string Content safe to include in a CDATA section.
