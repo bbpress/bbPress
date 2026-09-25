@@ -158,6 +158,11 @@ class BBP_BuddyPress_Activity {
 
 		// Link directly to the topic or reply
 		add_filter( 'bp_activity_get_permalink', array( $this, 'activity_get_permalink' ), 10, 2 );
+
+		// Check current forum visibility when activity is read, including older entries.
+		add_filter( 'bp_activity_get_where_conditions', array( $this, 'activity_get_where_conditions' ), 10, 2 );
+		add_filter( 'bp_activity_get',                  array( $this, 'activity_get'                  ), 10, 2 );
+		add_filter( 'bp_activity_user_can_read',       array( $this, 'activity_user_can_read'       ), 10, 3 );
 	}
 
 	/**
@@ -171,6 +176,156 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/** Methods ***************************************************************/
+
+	/**
+	 * Identify BuddyPress's REST single-item query, which checks access afterward.
+	 *
+	 * @param array $args BuddyPress activity query arguments.
+	 * @return bool Whether this is a single-item lookup.
+	 */
+	private function is_single_activity_lookup( $args ) {
+		return ! empty( $args['show_hidden'] )
+			&& ! empty( $args['display_comments'] )
+			&& empty( $args['per_page'] )
+			&& ! empty( $args['in'] )
+			&& 1 === count( wp_parse_id_list( $args['in'] ) );
+	}
+
+	/**
+	 * Check the single-item query shape when used through bp_activity_get().
+	 *
+	 * BuddyPress REST retrieves single items through bp_activity_get_specific(),
+	 * which performs its own can-read check. Other callers using the same query
+	 * shape must not inherit that query's visibility exception.
+	 *
+	 * @param array $result BuddyPress activity query result.
+	 * @param array $args BuddyPress activity query arguments.
+	 * @return array Filtered activity query result.
+	 */
+	public function activity_get( $result, $args ) {
+		if ( ! $this->is_single_activity_lookup( $args ) || empty( $result['activities'] ) ) {
+			return $result;
+		}
+
+		foreach ( $result['activities'] as $key => $activity ) {
+			if ( ! bp_activity_user_can_read( $activity, get_current_user_id() ) ) {
+				unset( $result['activities'][ $key ] );
+			}
+		}
+
+		$result['activities'] = array_values( $result['activities'] );
+		$result['total']      = count( $result['activities'] );
+
+		return $result;
+	}
+
+	/**
+	 * Exclude activity whose topic or reply is now in a restricted forum.
+	 *
+	 * Activity can outlive a forum visibility or parent change, so the stored
+	 * hide_sitewide value alone cannot protect previously public entries.
+	 *
+	 * @param array $where_conditions BuddyPress activity query conditions.
+	 * @param array $args BuddyPress activity query arguments.
+	 * @return array Filtered conditions.
+	 */
+	public function activity_get_where_conditions( $where_conditions, $args ) {
+		global $wpdb;
+
+		// The REST single-item lookup needs the object for BuddyPress's can-read check.
+		if ( $this->is_single_activity_lookup( $args ) ) {
+			return $where_conditions;
+		}
+
+		$forum_ids = array();
+		foreach ( wp_parse_id_list( bbp_get_excluded_forum_ids() ) as $forum_id ) {
+			if ( bbp_is_forum_restricted_for_user( $forum_id, get_current_user_id() ) ) {
+				$forum_ids[] = $forum_id;
+			}
+		}
+
+		if ( empty( $forum_ids ) ) {
+			return $where_conditions;
+		}
+
+		$excluded       = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
+		$group_component = bp_is_active( 'groups' ) ? buddypress()->groups->id : 'groups';
+
+		// Group activity stores the post ID in secondary_item_id instead.
+		$topic_sql = "
+			NOT (
+				a.type = %s
+				AND (
+					a.component = %s
+					OR a.component = %s
+				)
+				AND EXISTS (
+					SELECT 1
+					FROM {$wpdb->posts} AS bbp_topic
+					WHERE bbp_topic.ID = CASE
+						WHEN a.component = %s THEN a.secondary_item_id
+						ELSE a.item_id
+					END
+						AND bbp_topic.post_parent IN ({$excluded})
+				)
+			)";
+		$topic_values = array_merge( array( $this->topic_create, $this->component, $group_component, $group_component ), $forum_ids );
+		$where_conditions['bbpress_topic_visibility'] = $wpdb->prepare( $topic_sql, $topic_values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL contains only table names and generated integer placeholders.
+
+		// Reply activity points to the reply; follow its topic to the forum.
+		$reply_sql = "
+			NOT (
+				a.type = %s
+				AND (
+					a.component = %s
+					OR a.component = %s
+				)
+				AND EXISTS (
+					SELECT 1
+					FROM {$wpdb->posts} AS bbp_reply
+					INNER JOIN {$wpdb->posts} AS bbp_reply_topic
+						ON bbp_reply_topic.ID = bbp_reply.post_parent
+					WHERE bbp_reply.ID = CASE
+						WHEN a.component = %s THEN a.secondary_item_id
+						ELSE a.item_id
+					END
+						AND bbp_reply_topic.post_parent IN ({$excluded})
+				)
+			)";
+		$reply_values = array_merge( array( $this->reply_create, $this->component, $group_component, $group_component ), $forum_ids );
+		$where_conditions['bbpress_reply_visibility'] = $wpdb->prepare( $reply_sql, $reply_values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL contains only table names and generated integer placeholders.
+
+		return $where_conditions;
+	}
+
+	/**
+	 * Check the current forum before allowing direct access to activity.
+	 *
+	 * @param bool                 $can_read Whether BuddyPress permits access.
+	 * @param int                  $user_id  User requesting the activity.
+	 * @param BP_Activity_Activity $activity Activity being requested.
+	 * @return bool Whether the user may read the activity.
+	 */
+	public function activity_user_can_read( $can_read, $user_id, $activity ) {
+		$group_component = bp_is_active( 'groups' ) ? buddypress()->groups->id : 'groups';
+		if ( ! $can_read || ! in_array( $activity->component, array( $this->component, $group_component ), true ) ) {
+			return $can_read;
+		}
+
+		$post_id = ( $group_component === $activity->component )
+			? $activity->secondary_item_id
+			: $activity->item_id;
+
+		if ( $this->topic_create === $activity->type ) {
+			$forum_id = bbp_get_topic_forum_id( $post_id );
+		} elseif ( $this->reply_create === $activity->type ) {
+			$forum_id = bbp_get_reply_forum_id( $post_id );
+		} else {
+			return $can_read;
+		}
+
+		return ! empty( $forum_id ) && ! bbp_is_forum_restricted_for_user( $forum_id, $user_id );
+	}
 
 	/**
 	 * Register our activity actions with BuddyPress
@@ -428,7 +583,7 @@ class BBP_BuddyPress_Activity {
 				'item_id'           => $topic_id,
 				'secondary_item_id' => $forum_id,
 				'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
-				'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
+				'hide_sitewide'     => ! bbp_is_forum_public( $forum_id )
 			)
 		);
 
@@ -574,7 +729,7 @@ class BBP_BuddyPress_Activity {
 				'item_id'           => $reply_id,
 				'secondary_item_id' => $topic_id,
 				'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
-				'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
+				'hide_sitewide'     => ! bbp_is_forum_public( $forum_id )
 			)
 		);
 

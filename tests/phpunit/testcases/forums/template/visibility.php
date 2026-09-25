@@ -58,6 +58,23 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_is_forum_public
+	 */
+	public function test_public_forum_with_restricted_middle_ancestor_is_not_public() {
+		$grandparent = $this->factory->forum->create();
+		$parent      = $this->factory->forum->create( array(
+			'post_parent' => $grandparent,
+			'post_status' => bbp_get_private_status_id(),
+		) );
+		$child       = $this->factory->forum->create( array(
+			'post_parent' => $parent,
+		) );
+
+		$this->assertTrue( bbp_is_forum_public( $child, false ) );
+		$this->assertFalse( bbp_is_forum_public( $child ) );
+	}
+
+	/**
 	 * @covers ::bbp_is_forum_restricted
 	 */
 	public function test_bbp_is_forum_restricted() {
