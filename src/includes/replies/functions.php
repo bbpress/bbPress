@@ -960,8 +960,8 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			// Topic meta relating to most recent reply
 			} elseif ( bbp_is_topic( $ancestor ) ) {
 
-				// Only update if reply is published
-				if ( ! bbp_is_reply_pending( $reply_id ) ) {
+				// Only update if reply is public
+				if ( ( true === $refresh ) || bbp_is_reply_public( $reply_id ) ) {
 
 					// Last reply and active ID's
 					bbp_update_topic_last_reply_id ( $ancestor, $reply_id  );
@@ -986,8 +986,8 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			// Forum meta relating to most recent topic
 			} elseif ( bbp_is_forum( $ancestor ) ) {
 
-				// Only update if reply is published
-				if ( ! bbp_is_reply_pending( $reply_id ) && ! bbp_is_topic_pending( $topic_id ) ) {
+				// Only update if both reply and topic are public
+				if ( ( true === $refresh ) || ( bbp_is_reply_public( $reply_id ) && bbp_is_topic_public( $topic_id ) ) ) {
 
 					// Last topic and reply ID's
 					bbp_update_forum_last_topic_id( $ancestor, $topic_id );

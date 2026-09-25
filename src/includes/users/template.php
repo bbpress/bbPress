@@ -2116,6 +2116,11 @@ function bbp_get_author_link( $args = array() ) {
 		'get_author_link'
 	);
 
+	// An explicitly empty post ID must not fall back to the current loop post
+	if ( ( is_numeric( $args ) || ( is_array( $args ) && array_key_exists( 'post_id', $args ) ) ) && empty( $r['post_id'] ) ) {
+		return apply_filters( 'bbp_get_author_link', '-', $r, $args );
+	}
+
 	// Confirmed topic
 	if ( bbp_is_topic( $r['post_id'] ) ) {
 		return bbp_get_topic_author_link( $r );
