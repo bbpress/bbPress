@@ -1861,10 +1861,15 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 				if ( bbp_is_forum( $ancestor ) ) {
 
 					// Check the forum visibility
-					$retval = bbp_is_forum_visibility( $ancestor, $status_name, false );
-					if ( true === $retval ) {
+					$ancestor_matches = bbp_is_forum_visibility( $ancestor, $status_name, false );
+					if ( true === $ancestor_matches ) {
 						++$count;
 					}
+
+					// Combine visibility across the whole forum hierarchy.
+					$retval = ( 'OR' === $operator )
+						? ( $retval || $ancestor_matches )
+						: ( $retval && $ancestor_matches );
 				}
 
 				// Break when it reach the max count
