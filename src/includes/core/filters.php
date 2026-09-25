@@ -324,9 +324,9 @@ add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta',  
 add_filter( 'bbp_get_forum_reply_count',    'bbp_suppress_private_forum_meta',  10, 2 );
 add_filter( 'bbp_get_forum_post_count',     'bbp_suppress_private_forum_meta',  10, 2 );
 add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',  10, 6 );
-add_filter( 'bbp_get_author_link',          'bbp_suppress_private_author_link', 10, 2 );
-add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 10, 2 );
-add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 2 );
+add_filter( 'bbp_get_author_link',          'bbp_suppress_private_author_link', 10, 3 );
+add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 10, 3 );
+add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 3 );
 
 // Allow private & hidden forum details for moderators
 add_filter( 'bbp_get_excluded_forum_ids', 'bbp_allow_forums_of_user' );

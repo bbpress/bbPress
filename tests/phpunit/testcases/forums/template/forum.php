@@ -171,6 +171,197 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * A newly pending topic must not replace the public forum's last activity.
+	 *
+	 * @covers ::bbp_update_topic_walker
+	 */
+	public function test_pending_topic_does_not_replace_public_forum_freshness() {
+		$forum_id = $this->factory->forum->create();
+		$public_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_date'   => date( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ),
+			'post_title'  => 'Public topic',
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$pending_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'post_title'  => 'Pending topic',
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $pending_id ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( $public_id, bbp_get_forum_last_topic_id( $forum_id ) );
+		$this->assertSame( $public_id, bbp_get_forum_last_active_id( $forum_id ) );
+
+		wp_set_current_user( 0 );
+		$this->assertStringContainsString( 'Public topic', bbp_get_forum_freshness_link( $forum_id ) );
+		$this->assertStringNotContainsString( 'Pending topic', bbp_get_forum_freshness_link( $forum_id ) );
+
+		bbp_approve_topic( $pending_id );
+		$this->assertSame( 2, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( $pending_id, bbp_get_forum_last_topic_id( $forum_id ) );
+		$this->assertStringContainsString( 'Pending topic', bbp_get_forum_freshness_link( $forum_id ) );
+	}
+
+	/**
+	 * A newly spammed reply must not replace public topic or forum activity.
+	 *
+	 * @covers ::bbp_update_reply_walker
+	 */
+	public function test_spam_reply_does_not_replace_public_forum_freshness() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$public_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_title'  => 'Public reply',
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$spam_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_spam_status_id(),
+			'post_title'  => 'Spam reply',
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		$this->assertSame( bbp_get_spam_status_id(), get_post_status( $spam_id ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( $public_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $public_id, bbp_get_forum_last_reply_id( $forum_id ) );
+		$this->assertSame( $public_id, bbp_get_forum_last_active_id( $forum_id ) );
+
+		wp_set_current_user( 0 );
+		$this->assertStringContainsString( 'Public reply', bbp_get_forum_freshness_link( $forum_id ) );
+		$this->assertStringNotContainsString( 'Spam reply', bbp_get_forum_freshness_link( $forum_id ) );
+
+		bbp_unspam_reply( $spam_id );
+		$this->assertSame( 2, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( $spam_id, bbp_get_forum_last_reply_id( $forum_id ) );
+		$this->assertStringContainsString( 'Spam reply', bbp_get_forum_freshness_link( $forum_id ) );
+	}
+
+	/**
+	 * Non-public author links follow per-forum moderation permissions.
+	 *
+	 * @covers ::bbp_suppress_private_author_link
+	 */
+	public function test_non_public_author_links_follow_forum_moderation() {
+		$moderated_forum = $this->factory->forum->create();
+		$other_forum     = $this->factory->forum->create();
+		$author_id       = $this->factory->user->create( array( 'display_name' => 'Pending author sentinel' ) );
+		$moderator_id    = $this->factory->user->create();
+		bbp_set_user_role( $moderator_id, bbp_get_participant_role() );
+		bbp_add_moderator( $moderated_forum, $moderator_id );
+
+		$moderated_topic = $this->factory->topic->create( array(
+			'post_parent' => $moderated_forum,
+			'post_status' => bbp_get_pending_status_id(),
+			'post_author' => $author_id,
+			'topic_meta'  => array( 'forum_id' => $moderated_forum ),
+		) );
+		$other_topic = $this->factory->topic->create( array(
+			'post_parent' => $other_forum,
+			'post_status' => bbp_get_pending_status_id(),
+			'post_author' => $author_id,
+			'topic_meta'  => array( 'forum_id' => $other_forum ),
+		) );
+		$public_topic = $this->factory->topic->create( array(
+			'post_parent' => $moderated_forum,
+			'topic_meta'  => array( 'forum_id' => $moderated_forum ),
+		) );
+		$spam_reply = $this->factory->reply->create( array(
+			'post_parent' => $public_topic,
+			'post_status' => bbp_get_spam_status_id(),
+			'post_author' => $author_id,
+			'reply_meta'  => array( 'forum_id' => $moderated_forum, 'topic_id' => $public_topic ),
+		) );
+		$reply_in_pending_topic = $this->factory->reply->create( array(
+			'post_parent' => $moderated_topic,
+			'post_author' => $author_id,
+			'reply_meta'  => array( 'forum_id' => $moderated_forum, 'topic_id' => $moderated_topic ),
+		) );
+
+		wp_set_current_user( 0 );
+		$this->assertSame( '-', bbp_get_author_link( $moderated_topic ) );
+		$this->assertSame( '-', bbp_get_author_link( $spam_reply ) );
+		$this->assertSame( '-', bbp_get_author_link( $reply_in_pending_topic ) );
+
+		wp_set_current_user( $moderator_id );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+		$this->assertTrue( current_user_can( 'moderate', $moderated_topic ) );
+		$this->assertTrue( current_user_can( 'moderate', $spam_reply ) );
+		$this->assertFalse( current_user_can( 'moderate', $other_topic ) );
+		$this->assertStringContainsString( 'Pending author sentinel', bbp_get_author_link( $moderated_topic ) );
+		$this->assertStringContainsString( 'Pending author sentinel', bbp_get_reply_author_link( $spam_reply ) );
+		$this->assertStringContainsString( 'Pending author sentinel', bbp_get_author_link( $reply_in_pending_topic ) );
+		$this->assertSame( '-', bbp_get_author_link( $other_topic ) );
+		$this->assertSame( '-', bbp_get_author_link( 0 ) );
+	}
+
+	/**
+	 * Suppress non-public activity stored by an earlier bbPress version.
+	 *
+	 * @covers ::bbp_is_forum_activity_public
+	 * @covers ::bbp_get_forum_freshness_link
+	 */
+	public function test_stale_non_public_forum_activity_is_not_rendered() {
+		$this->assertFalse( bbp_is_forum_activity_public( 0 ) );
+
+		$forum_id = $this->factory->forum->create();
+		$author_id = $this->factory->user->create( array( 'display_name' => 'Pending author sentinel' ) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'post_title'  => 'Pending title sentinel',
+			'post_author' => $author_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		update_post_meta( $forum_id, '_bbp_last_topic_id', $topic_id );
+		update_post_meta( $forum_id, '_bbp_last_active_id', $topic_id );
+
+		wp_set_current_user( 0 );
+		$this->assertSame( '-', bbp_get_author_link( array( 'post_id' => 0, 'size' => 14 ) ) );
+		$this->assertSame( '-', bbp_get_author_link( 0 ) );
+		$this->assertSame( '-', bbp_get_author_link( array( 'post_id' => $topic_id, 'size' => 14 ) ) );
+		$this->assertSame( '-', bbp_get_topic_author_link( $topic_id ) );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+		$this->assertSame( '', bbp_get_forum_last_active_time( $forum_id ) );
+		$this->assertStringNotContainsString( 'Pending author sentinel', bbp_get_single_forum_description( array( 'forum_id' => $forum_id ) ) );
+
+		bbp_approve_topic( $topic_id );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_spam_status_id(),
+			'post_title'  => 'Spam title sentinel',
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
+		update_post_meta( $forum_id, '_bbp_last_active_id', $reply_id );
+
+		$this->assertSame( '-', bbp_get_author_link( array( 'post_id' => $reply_id, 'size' => 14 ) ) );
+		$this->assertSame( '-', bbp_get_reply_author_link( $reply_id ) );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+		$this->assertSame( '', bbp_get_forum_last_active_time( $forum_id ) );
+
+		delete_post_meta( $forum_id, '_bbp_last_active_id' );
+		delete_post_meta( $forum_id, '_bbp_last_active_time' );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+		$this->assertSame( '', bbp_get_forum_last_active_time( $forum_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_get_forum_freshness_link
 	 */
 	public function test_bbp_get_forum_freshness_link_with_unpublished_replies() {

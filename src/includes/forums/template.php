@@ -561,6 +561,16 @@ function bbp_get_forum_last_active_time( $forum_id = 0 ) {
 
 	// Verify forum and get last active meta
 	$forum_id    = bbp_get_forum_id( $forum_id );
+	$active_id   = bbp_get_forum_last_active_id( $forum_id );
+	if ( empty( $active_id ) ) {
+		$active_id = bbp_get_forum_last_reply_id( $forum_id );
+	}
+	if ( empty( $active_id ) ) {
+		$active_id = bbp_get_forum_last_topic_id( $forum_id );
+	}
+	if ( ! empty( $active_id ) && ! bbp_is_forum_activity_public( $active_id ) ) {
+		return apply_filters( 'bbp_get_forum_last_active', '', $forum_id );
+	}
 	$last_active = get_post_meta( $forum_id, '_bbp_last_active_time', true );
 
 	if ( empty( $last_active ) ) {
@@ -598,6 +608,31 @@ function bbp_forum_freshness_link( $forum_id = 0 ) {
 }
 
 /**
+ * Is a topic or reply eligible for public forum activity?
+ *
+ * @since 2.6.19 bbPress
+ *
+ * @param int $post_id Topic or reply ID.
+ * @return bool Whether the activity is public.
+ */
+function bbp_is_forum_activity_public( $post_id = 0 ) {
+	$post_id = (int) $post_id;
+	if ( empty( $post_id ) ) {
+		return false;
+	}
+
+	if ( bbp_is_topic( $post_id ) ) {
+		return bbp_is_topic_public( $post_id );
+	}
+
+	if ( bbp_is_reply( $post_id ) ) {
+		return bbp_is_reply_public( $post_id ) && bbp_is_topic_public( bbp_get_reply_topic_id( $post_id ) );
+	}
+
+	return false;
+}
+
+/**
  * Returns link to the most recent activity inside a forum.
  *
  * Returns a complete link with attributes and content.
@@ -617,6 +652,11 @@ function bbp_get_forum_freshness_link( $forum_id = 0 ) {
 
 	if ( empty( $active_id ) ) {
 		$active_id = bbp_get_forum_last_topic_id( $forum_id );
+	}
+
+	// Existing forum metadata may still point to non-public content
+	if ( ! empty( $active_id ) && ! bbp_is_forum_activity_public( $active_id ) ) {
+		return apply_filters( 'bbp_get_forum_freshness_link', '-', $forum_id, '', '', '', $active_id );
 	}
 
 	if ( bbp_is_topic( $active_id ) ) {
@@ -1986,33 +2026,42 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id, $time_since = '', 
  *
  * @param string $author_link
  * @param array $args
+ * @param array|int $original_args Original author-link arguments.
  *
  * @return string
  */
-function bbp_suppress_private_author_link( $author_link = '', $args = array() ) {
+function bbp_suppress_private_author_link( $author_link = '', $args = array(), $original_args = array() ) {
 
 	// Assume the author link is the return value
 	$retval = $author_link;
+	$post_id = ! empty( $args['post_id'] )
+		? (int) $args['post_id']
+		: ( is_numeric( $original_args ) ? (int) $original_args : 0 );
+
+	// Suppress non-public authors unless this user moderates their forum
+	if ( ! empty( $post_id ) && ( bbp_is_topic( $post_id ) || bbp_is_reply( $post_id ) ) && ! bbp_is_forum_activity_public( $post_id ) && ! current_user_can( 'moderate', $post_id ) ) {
+		$retval = '-';
+	}
 
 	// Show the normal author link
-	if ( ! empty( $args['post_id'] ) ) {
+	if ( ! empty( $post_id ) ) {
 
 		// What post type are we looking at?
-		switch ( get_post_type( $args['post_id'] ) ) {
+		switch ( get_post_type( $post_id ) ) {
 
 			// Topic
 			case bbp_get_topic_post_type() :
-				$forum_id = bbp_get_topic_forum_id( $args['post_id'] );
+				$forum_id = bbp_get_topic_forum_id( $post_id );
 				break;
 
 			// Reply
 			case bbp_get_reply_post_type() :
-				$forum_id = bbp_get_reply_forum_id( $args['post_id'] );
+				$forum_id = bbp_get_reply_forum_id( $post_id );
 				break;
 
 			// Post
 			default :
-				$forum_id = bbp_get_forum_id( $args['post_id'] );
+				$forum_id = bbp_get_forum_id( $post_id );
 				break;
 		}
 
@@ -2161,6 +2210,9 @@ function bbp_get_single_forum_description( $args = array() ) {
 	$topic_count = bbp_get_forum_topic_count( $forum_id, true, false );
 	$reply_count = bbp_get_forum_reply_count( $forum_id, true, false );
 	$last_active = bbp_get_forum_last_active_id( $forum_id );
+	if ( ! empty( $last_active ) && ! bbp_is_forum_activity_public( $last_active ) ) {
+		$last_active = 0;
+	}
 
 	// Has replies
 	if ( ! empty( $reply_count ) ) {

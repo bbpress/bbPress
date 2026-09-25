@@ -936,6 +936,11 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	// Topic status
 	$topic_status = get_post_status( $topic_id );
 
+	// Do not replace public forum activity with a non-public topic
+	if ( ( false === $refresh ) && ! bbp_is_topic_public( $topic_id ) ) {
+		return;
+	}
+
 	// If we want a full refresh, retain the resolved forum and query its values
 	if ( true === $refresh ) {
 		$topic_id = $reply_id = $active_id = $last_active_time = 0;
