@@ -1025,6 +1025,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		bbp_remove_forum_id_from_group( $group_id, $forum_id );
 		bbp_remove_group_id_from_forum( $forum_id, $group_id );
+
+		// A private group forum must not become a regular private forum when
+		// its last group relationship is removed.
+		if ( empty( bbp_get_forum_group_ids( $forum_id ) ) && bbp_is_forum_private( $forum_id, false ) ) {
+			bbp_hide_forum( $forum_id, bbp_get_private_status_id() );
+		}
 	}
 
 	/**
@@ -1049,17 +1055,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return;
 		}
 
-		// Get the first forum ID
-		$forum_id = (int) is_array( $forum_ids )
-			? $forum_ids[0]
-			: $forum_ids;
-
-		$this->remove_forum(
-			array(
-				'forum_id' => $forum_id,
-				'group_id' => $group_id
-			)
-		);
+		foreach ( (array) $forum_ids as $forum_id ) {
+			$this->remove_forum(
+				array(
+					'forum_id' => (int) $forum_id,
+					'group_id' => $group_id
+				)
+			);
+		}
 	}
 
 	/**

@@ -18,6 +18,33 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $group_extension;
 	protected $template_parts = array();
 
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::remove_forum
+	 * @covers ::BBP_Forums_Group_Extension::disconnect_forum_from_group
+	 */
+	public function test_disconnected_private_group_forums_stay_restricted() {
+		$creator_id = $this->factory->user->create();
+		$outsider_id = $this->factory->user->create();
+		$group_id = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_ids = $this->factory->forum->create_many( 2 );
+
+		bbp_set_user_role( $outsider_id, bbp_get_participant_role() );
+		foreach ( $forum_ids as $forum_id ) {
+			$this->attach_forum_to_group( $forum_id, $group_id );
+			bbp_privatize_forum( $forum_id );
+		}
+
+		$this->group_extension = new BBP_Forums_Group_Extension();
+		$this->assertFalse( user_can( $outsider_id, 'read_forum', $forum_ids[0] ) );
+		$this->group_extension->disconnect_forum_from_group( $group_id );
+
+		foreach ( $forum_ids as $forum_id ) {
+			$this->assertSame( array(), bbp_get_forum_group_ids( $forum_id ) );
+			$this->assertSame( bbp_get_hidden_status_id(), get_post_status( $forum_id ) );
+			$this->assertFalse( user_can( $outsider_id, 'read_forum', $forum_id ) );
+		}
+	}
+
 	public function setUp(): void {
 		parent::setUp();
 
