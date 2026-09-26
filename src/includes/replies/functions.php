@@ -941,7 +941,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 /**
  * Walk up the ancestor tree from the current reply, and update all the counts.
  *
- * @since 2.0.0 bbPress (r2884)
+ * @since 2.0.0 bbPress (r2895)
  *
  * @param int $reply_id Optional. Reply id.
  * @param string $last_active_time Optional. Last active time.
@@ -1052,7 +1052,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 /**
  * Update the reply with its forum id it is in.
  *
- * @since 2.0.0 bbPress (r2855)
+ * @since 2.0.0 bbPress (r2858)
  *
  * @param int $reply_id Optional. Reply id to update.
  * @param int $forum_id Optional. Forum id.
@@ -1095,7 +1095,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 /**
  * Update the reply with its topic id it is in.
  *
- * @since 2.0.0 bbPress (r2855)
+ * @since 2.0.0 bbPress (r2858)
  *
  * @param int $reply_id Optional. Reply id to update.
  * @param int $topic_id Optional. Topic id.
@@ -1269,7 +1269,7 @@ function bbp_update_reply_revision_log( $args = array() ) {
  *
  * Handles the front end move reply submission.
  *
- * @since 2.3.0 bbPress (r4521)
+ * @since 2.3.0 bbPress (r4522)
  *
  * @param string $action The requested action to compare this function to.
  */
@@ -1542,7 +1542,7 @@ function bbp_move_reply_handler( $action = '' ) {
  * When a reply is moved, update the counts of source and destination topic
  * and their forums.
  *
- * @since 2.3.0 bbPress (r4521)
+ * @since 2.3.0 bbPress (r4522)
  * @since 2.6.17 bbPress (r7467) Recount both forums and topic engagements.
  *
  * @param int $move_reply_id Move reply id.
@@ -1795,7 +1795,7 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
 /**
  * Return array of available reply toggle actions.
  *
- * @since 2.6.0 bbPress (r6133)
+ * @since 2.6.0 bbPress (r6134)
  *
  * @param int $reply_id Optional. Reply id.
  *
@@ -1818,7 +1818,7 @@ function bbp_get_reply_toggles( $reply_id = 0 ) {
 /**
  * Return array of public reply statuses.
  *
- * @since 2.6.0 bbPress (r6705)
+ * @since 2.6.0 bbPress (r6706)
  *
  * @return array
  */
@@ -2083,7 +2083,7 @@ function bbp_untrash_reply( $reply_id = 0 ) {
 /**
  * Called after deleting a reply.
  *
- * @since 2.0.0 bbPress (r2993)
+ * @since 2.0.0 bbPress (r2895)
  */
 function bbp_deleted_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2098,7 +2098,7 @@ function bbp_deleted_reply( $reply_id = 0 ) {
 /**
  * Called after trashing a reply.
  *
- * @since 2.0.0 bbPress (r2993)
+ * @since 2.0.0 bbPress (r2895)
  */
 function bbp_trashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2113,7 +2113,7 @@ function bbp_trashed_reply( $reply_id = 0 ) {
 /**
  * Called after untrashing (restoring) a reply.
  *
- * @since 2.0.0 bbPress (r2993)
+ * @since 2.0.0 bbPress (r2895)
  */
 function bbp_untrashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2130,7 +2130,7 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
 /**
  * Return the replies per page setting.
  *
- * @since 2.0.0 bbPress (r3540)
+ * @since 2.1.0 bbPress (r3572)
  *
  * @param int $default Default replies per page (15).
  * @return int
@@ -2152,7 +2152,7 @@ function bbp_get_replies_per_page( $default = 15 ) {
 /**
  * Return the replies per RSS page setting.
  *
- * @since 2.0.0 bbPress (r3540)
+ * @since 2.1.0 bbPress (r3572)
  *
  * @param int $default Default replies per page (25).
  * @return int
@@ -2176,7 +2176,7 @@ function bbp_get_replies_per_rss_page( $default = 25 ) {
 /**
  * Check if auto-embeds are enabled and hook them in if so.
  *
- * @since 2.1.0 bbPress (r3752)
+ * @since 2.1.0 bbPress (r3753)
  *
  * @global WP_Embed $wp_embed
  */
@@ -2196,7 +2196,7 @@ function bbp_reply_content_autoembed() {
  * This function filters the 'post_where' of the WP_Query, and changes the query
  * to include both the topic AND its children in the same loop.
  *
- * @since 2.1.0 bbPress (r4058)
+ * @since 2.1.0 bbPress (r4059)
  *
  * @param string $where
  * @param WP_Query $query
@@ -2403,7 +2403,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 /**
  * Redirect if unauthorized user is attempting to edit a reply.
  *
- * @since 2.1.0 bbPress (r3605)
+ * @since 2.1.0 bbPress (r3607)
  */
 function bbp_check_reply_edit() {
 
@@ -2428,7 +2428,7 @@ function bbp_check_reply_edit() {
  * freshness order. By updating the menu_order accordingly, we're able to
  * leverage core WordPress query ordering much more effectively.
  *
- * @since 2.1.0 bbPress (r3933)
+ * @since 2.1.0 bbPress (r3934)
  *
  * @param int $reply_id
  * @param int $reply_position
@@ -2483,7 +2483,7 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
  * Get the position of a reply by querying the DB directly for the replies
  * of a given topic.
  *
- * @since 2.1.0 bbPress (r3933)
+ * @since 2.1.0 bbPress (r3934)
  *
  * @param int $reply_id
  * @param int $topic_id
@@ -2622,7 +2622,7 @@ function bbp_list_replies( $args = array() ) {
  * @see https://bbpress.trac.wordpress.org/ticket/2588
  * @see https://bbpress.trac.wordpress.org/ticket/2586
  *
- * @since 2.5.4 bbPress (r5377)
+ * @since 2.6.0 bbPress (r5378)
  *
  * @param int $reply_to
  * @param int $reply_id

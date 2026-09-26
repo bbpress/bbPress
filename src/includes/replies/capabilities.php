@@ -21,7 +21,7 @@ function bbp_get_reply_caps() {
 	/**
 	 * Filters the reply capabilities.
 	 *
-	 * @since 2.2.0 bbPress (r4244)
+	 * @since 2.0.0 bbPress (r2593)
 	 *
 	 * @param array $caps An array of reply capabilities with keys mapping to WordPress capabilities.
 	 */
@@ -41,7 +41,7 @@ function bbp_get_reply_caps() {
 /**
  * Maps topic capabilities.
  *
- * @since 2.2.0 bbPress (r4242)
+ * @since 2.2.0 bbPress (r4244)
  *
  * @param array  $caps    Capabilities for meta capability.
  * @param string $cap     Capability name.
@@ -257,7 +257,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 	/**
 	 * Filters the Reply meta capabilities.
 	 *
-	 * @since 2.2.0 bbPress (r4242)
+	 * @since 2.2.0 bbPress (r4244)
 	 *
 	 * @param array  $caps    The current capabilities being checked.
 	 * @param string $cap     The capability being checked.
