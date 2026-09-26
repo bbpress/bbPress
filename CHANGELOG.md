@@ -53,6 +53,7 @@ Development for the next bbPress release is in progress. See the active
   and feeds.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
+- Restricted front-end favorites and subscriptions to post objects, and checked read permissions when adding them.
 
 ### Fixed
 

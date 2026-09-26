@@ -251,7 +251,10 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
 		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] ) : 0;
-		$type    = ! empty( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'post';
+		$type    = 'post';
+		if ( ! empty( $_POST['type'] ) ) {
+			$type = is_string( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : '';
+		}
 
 		// Bail if user cannot add favorites for this user
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
@@ -259,12 +262,15 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Get the object
-		if ( 'post' === $type ) {
-			$object = get_post( $id );
-		}
+		$object = get_post( $id );
 
-		// Bail if topic cannot be found
-		if ( empty( $object ) ) {
+		// Validate the object before checking its favorite state
+		if ( empty( $object ) || ! bbp_current_user_can_toggle_engagement( $object->ID, $type, 'favorite', 'remove' ) ) {
+			bbp_ajax_response( false, esc_html__( 'Favorite failed.', 'bbpress' ), 303 );
+		}
+		$is_favorite = bbp_is_user_favorite( $user_id, $object->ID );
+		$toggle_action = $is_favorite ? 'remove' : 'add';
+		if ( ! bbp_current_user_can_toggle_engagement( $object->ID, $type, 'favorite', $toggle_action ) ) {
 			bbp_ajax_response( false, esc_html__( 'Favorite failed.', 'bbpress' ), 303 );
 		}
 
@@ -274,7 +280,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Take action
-		$status = bbp_is_user_favorite( $user_id, $object->ID )
+		$status = $is_favorite
 			? bbp_remove_user_favorite( $user_id, $object->ID )
 			: bbp_add_user_favorite( $user_id, $object->ID );
 
@@ -314,7 +320,10 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
 		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] ) : 0;
-		$type    = ! empty( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'post';
+		$type    = 'post';
+		if ( ! empty( $_POST['type'] ) ) {
+			$type = is_string( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : '';
+		}
 
 		// Bail if user cannot add favorites for this user
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
@@ -322,22 +331,25 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Get the object
-		if ( 'post' === $type ) {
-			$object = get_post( $id );
-		}
+		$object = get_post( $id );
 
-		// Bail if topic cannot be found
-		if ( empty( $object ) ) {
+		// Validate the object before checking its subscription state
+		if ( empty( $object ) || ! bbp_current_user_can_toggle_engagement( $object->ID, $type, 'subscription', 'remove' ) ) {
+			bbp_ajax_response( false, esc_html__( 'Subscription failed.', 'bbpress' ), 303 );
+		}
+		$is_subscribed = bbp_is_user_subscribed( $user_id, $object->ID, $type );
+		$toggle_action = $is_subscribed ? 'remove' : 'add';
+		if ( ! bbp_current_user_can_toggle_engagement( $object->ID, $type, 'subscription', $toggle_action ) ) {
 			bbp_ajax_response( false, esc_html__( 'Subscription failed.', 'bbpress' ), 303 );
 		}
 
 		// Bail if user did not take this action
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $object->ID ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ( ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_post_' . $object->ID ) && ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $object->ID ) ) ) {
 			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 
 		// Take action
-		$status = bbp_is_user_subscribed( $user_id, $object->ID )
+		$status = $is_subscribed
 			? bbp_remove_user_subscription( $user_id, $object->ID )
 			: bbp_add_user_subscription( $user_id, $object->ID );
 

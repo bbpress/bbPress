@@ -448,6 +448,49 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
 	return bbp_add_user_engagement( $author_id, $topic_id );
 }
 
+/** Engagement Toggles ********************************************************/
+
+/**
+ * Check whether the current user can toggle a favorite or subscription.
+ *
+ * Only topics may be favorited. Topics and forums may be subscribed to, and
+ * the user must be able to read both a topic and its containing forum when
+ * adding an engagement. Existing engagements may be removed after visibility
+ * changes.
+ *
+ * @since 2.6.19
+ *
+ * @param int    $object_id   Post ID.
+ * @param string $object_type Metadata object type; only post is supported.
+ * @param string $engagement  Favorite or subscription.
+ * @param string $action      Add or remove.
+ * @return bool Whether the current user can toggle the engagement.
+ */
+function bbp_current_user_can_toggle_engagement( $object_id = 0, $object_type = 'post', $engagement = 'subscription', $action = 'add' ) {
+	if ( ( 'post' !== $object_type ) || ! in_array( $action, array( 'add', 'remove' ), true ) ) {
+		return false;
+	}
+
+	$post = get_post( $object_id );
+
+	if ( empty( $post ) ) {
+		return false;
+	}
+
+	if ( bbp_get_topic_post_type() === $post->post_type ) {
+		$forum_id = bbp_get_topic_forum_id( $post->ID );
+
+		return ! empty( $forum_id )
+			&& bbp_is_forum( $forum_id )
+			&& in_array( $engagement, array( 'favorite', 'subscription' ), true )
+			&& ( ( 'remove' === $action ) || ( current_user_can( 'read_topic', $post->ID ) && current_user_can( 'read_forum', $forum_id ) ) );
+	}
+
+	return ( 'subscription' === $engagement )
+		&& ( bbp_get_forum_post_type() === $post->post_type )
+		&& ( ( 'remove' === $action ) || current_user_can( 'read_forum', $post->ID ) );
+}
+
 /** Favorites *****************************************************************/
 
 /**
@@ -613,9 +656,10 @@ function bbp_favorites_handler( $action = '' ) {
 	// What action is taking place?
 	$topic_id = bbp_get_topic_id( $_GET['object_id'] );
 	$user_id  = bbp_get_user_id( 0, true, true );
+	$toggle_action = ( 'bbp_favorite_remove' === $action ) ? 'remove' : 'add';
 
 	// Check for empty topic
-	if ( empty( $topic_id ) ) {
+	if ( empty( $topic_id ) || ! bbp_current_user_can_toggle_engagement( $topic_id, 'post', 'favorite', $toggle_action ) ) {
 		bbp_add_error( 'bbp_favorite_topic_id', __( '<strong>Error</strong>: No topic was found. Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
 
 	// Check nonce
@@ -851,16 +895,18 @@ function bbp_subscriptions_handler( $action = '' ) {
 	// Get required data
 	$user_id     = bbp_get_current_user_id();
 	$object_id   = absint( $_GET['object_id'] );
-	$object_type = ! empty( $_GET['object_type'] )
-		? sanitize_key( $_GET['object_type'] )
-		: 'post';
+	$object_type = 'post';
+	if ( ! empty( $_GET['object_type'] ) ) {
+		$object_type = is_string( $_GET['object_type'] ) ? sanitize_key( $_GET['object_type'] ) : '';
+	}
+	$toggle_action = ( 'bbp_unsubscribe' === $action ) ? 'remove' : 'add';
 
 	// Check for empty topic
-	if ( empty( $object_id ) ) {
+	if ( empty( $object_id ) || ! bbp_current_user_can_toggle_engagement( $object_id, $object_type, 'subscription', $toggle_action ) ) {
 		bbp_add_error( 'bbp_subscription_object_id', __( '<strong>Error</strong>: Not found. What are you subscribing/unsubscribing to?', 'bbpress' ) );
 
 	// Check nonce
-	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_' . $object_id ) ) {
+	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_post_' . $object_id ) && ! bbp_verify_nonce_request( 'toggle-subscription_' . $object_id ) ) {
 		bbp_add_error( 'bbp_subscription_object_id', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
