@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * A wrapper for wp_insert_post() that also includes the necessary meta values
  * for the topic to function properly.
  *
- * @since 2.0.0 bbPress (r3349)
+ * @since 2.0.0 bbPress (r2970)
  *
  * @param array $topic_data Forum post data
  * @param array $topic_meta Forum meta data
@@ -869,7 +869,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
  * manual queries against the database to get their results. As such, this
  * function can be costly to run but is necessary to keep everything accurate.
  *
- * @since 2.0.0 bbPress (r2800)
+ * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id
  * @param string $last_active_time Optional. Last active time
@@ -1759,7 +1759,7 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 /**
  * Handles the front end tag management (renaming, merging, destroying)
  *
- * @since 2.0.0 bbPress (r2768)
+ * @since 2.1.0 bbPress (r3671)
  *
  * @param string $action The requested action to compare this function to
  */
@@ -1965,7 +1965,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 /**
  * Return an associative array of available topic statuses
  *
- * @since 2.4.0 bbPress (r5059)
+ * @since 2.4.0 bbPress (r5060)
  *
  * @param int $topic_id   Optional. Topic id.
  *
@@ -1990,7 +1990,7 @@ function bbp_get_topic_statuses( $topic_id = 0 ) {
 /**
  * Return an associative array of topic sticky types
  *
- * @since 2.4.0 bbPress (r5059)
+ * @since 2.4.0 bbPress (r5060)
  *
  * @param int $topic_id   Optional. Topic id.
  *
@@ -2013,7 +2013,7 @@ function bbp_get_topic_types( $topic_id = 0 ) {
 /**
  * Return array of available topic toggle actions
  *
- * @since 2.6.0 bbPress (r6133)
+ * @since 2.6.0 bbPress (r6142)
  *
  * @param int $topic_id   Optional. Topic id.
  *
@@ -2038,7 +2038,7 @@ function bbp_get_topic_toggles( $topic_id = 0 ) {
 /**
  * Return array of public topic statuses.
  *
- * @since 2.6.0 bbPress (r6383)
+ * @since 2.6.0 bbPress (r6384)
  *
  * @return array
  */
@@ -2055,7 +2055,7 @@ function bbp_get_public_topic_statuses() {
 /**
  * Return array of non-public topic statuses.
  *
- * @since 2.6.0 bbPress (r6642)
+ * @since 2.6.0 bbPress (r6644)
  *
  * @return array
  */
@@ -2197,7 +2197,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
  * within that context, so if you need to call this function directly, make sure
  * you're also doing what the handler does too.
  *
- * @since 2.6.0  bbPress (r6133)
+ * @since 2.6.0  bbPress (r6142)
  * @access private
  *
  * @param array $args
@@ -2386,7 +2386,7 @@ function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
 /**
  * Remove a deleted topic from all user subscriptions
  *
- * @since 2.0.0 bbPress (r2652)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $topic_id Get the topic id to remove
  */
@@ -2412,7 +2412,7 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 /**
  * Bump the total reply count of a topic
  *
- * @since 2.1.0 bbPress (r3825)
+ * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7468) Use atomic metadata writes and non-negative counts.
  *
  * @param int $topic_id   Optional. Topic id.
@@ -2506,7 +2506,7 @@ function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
 /**
  * Bump the total hidden reply count of a topic
  *
- * @since 2.1.0 bbPress (r3825)
+ * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7468) Use atomic metadata writes and non-negative counts.
  *
  * @param int $topic_id   Optional. Topic id.
@@ -2624,7 +2624,7 @@ function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
 /**
  * Update the topic's forum id
  *
- * @since 2.0.0 bbPress (r2855)
+ * @since 2.0.0 bbPress (r2858)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $forum_id Optional. Forum id
@@ -2652,7 +2652,7 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 /**
  * Update the topic's topic id
  *
- * @since 2.0.0 bbPress (r2954)
+ * @since 2.0.0 bbPress (r2955)
  *
  * @param int $topic_id Optional. Topic id to update
  * @return int Topic id
@@ -2668,7 +2668,7 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
 /**
  * Adjust the total reply count of a topic
  *
- * @since 2.0.0 bbPress (r2467)
+ * @since 2.0.0 bbPress (r2485)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_count Optional. Set the reply count manually.
@@ -2696,7 +2696,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = false ) {
  * Adjust the total hidden reply count of a topic (hidden includes trashed,
  * spammed and pending replies)
  *
- * @since 2.0.0 bbPress (r2740)
+ * @since 2.0.0 bbPress (r3349)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_count Optional. Set the reply count manually
@@ -2723,7 +2723,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = fals
 /**
  * Update the topic with the last active post ID
  *
- * @since 2.0.0 bbPress (r2888)
+ * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $active_id Optional. active id
@@ -2758,7 +2758,7 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 /**
  * Update the topics last active date/time (aka freshness)
  *
- * @since 2.0.0 bbPress (r2680)
+ * @since 2.0.0 bbPress (r2895)
  *
  * @param int    $topic_id Optional. Topic id.
  * @param string $new_time Optional. New time in mysql format.
@@ -2788,7 +2788,7 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 /**
  * Update the topic with the most recent reply ID
  *
- * @since 2.0.0 bbPress (r2625)
+ * @since 2.0.0 bbPress (r2627)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_id Optional. Reply id
@@ -2857,7 +2857,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 /**
  * Adjust the total anonymous reply count of a topic
  *
- * @since 2.0.0 bbPress (r2567)
+ * @since 2.0.0 bbPress (r2918)
  *
  * @param int $topic_id Optional. Topic id to update
  * @return int Anonymous reply count
@@ -3098,7 +3098,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3153,7 +3153,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3244,7 +3244,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this after the topic is unspammed.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3279,7 +3279,7 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is unmarked as spam.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3520,7 +3520,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is deleted.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3584,7 +3584,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3651,7 +3651,7 @@ function bbp_untrash_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this after the topic is unspammed.
  *
- * @since 2.6.0 bbPress (r5405)
+ * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id
  */
@@ -3686,7 +3686,7 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 /**
  * Called after deleting a topic
  *
- * @since 2.0.0 bbPress (r2993)
+ * @since 2.0.0 bbPress (r2895)
  */
 function bbp_deleted_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -3701,7 +3701,7 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 /**
  * Called after trashing a topic
  *
- * @since 2.0.0 bbPress (r2993)
+ * @since 2.0.0 bbPress (r2895)
  */
 function bbp_trashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -3716,7 +3716,7 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 /**
  * Called after untrashing a topic
  *
- * @since 2.0.0 bbPress (r2993)
+ * @since 2.0.0 bbPress (r2895)
  */
 function bbp_untrashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -3733,7 +3733,7 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
 /**
  * Return the topics per page setting
  *
- * @since 2.0.0 bbPress (r3540)
+ * @since 2.1.0 bbPress (r3572)
  * @return int
  */
 function bbp_get_topics_per_page( $default = 15 ) {
@@ -3753,7 +3753,7 @@ function bbp_get_topics_per_page( $default = 15 ) {
 /**
  * Return the topics per RSS page setting
  *
- * @since 2.0.0 bbPress (r3540)
+ * @since 2.1.0 bbPress (r3572)
  *
  * @param int $default Default replies per page (25)
  * @return int
@@ -3777,7 +3777,7 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 /**
  * Get topic tags for a specific topic ID
  *
- * @since 2.6.0 bbPress (r5836)
+ * @since 2.6.0 bbPress (r5837)
  *
  * @param int $topic_id
  *
@@ -3795,7 +3795,7 @@ function bbp_get_topic_tags( $topic_id = 0 ) {
 /**
  * Get topic tags for a specific topic ID
  *
- * @since 2.2.0 bbPress (r4165)
+ * @since 2.2.0 bbPress (r4166)
  *
  * @param int    $topic_id
  * @param string $sep
@@ -3866,7 +3866,7 @@ function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $us
  * @see https://bbpress.trac.wordpress.org/ticket/3043
  * @access private
  *
- * @since 2.6.0 bbPress (r6253)
+ * @since 2.6.0 bbPress (r6254)
  *
  * @param array  $terms    List of Term taxonomy IDs.
  * @param object $taxonomy Current taxonomy object of terms.
@@ -3922,7 +3922,7 @@ function bbp_update_topic_tag_count( $terms, $taxonomy ) {
 /**
  * Check if autoembeds are enabled and hook them in if so
  *
- * @since 2.1.0 bbPress (r3752)
+ * @since 2.1.0 bbPress (r3753)
  *
  * @global WP_Embed $wp_embed
  */
@@ -4031,7 +4031,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 /**
  * Redirect if unauthorized user is attempting to edit a topic
  *
- * @since 2.1.0 bbPress (r3605)
+ * @since 2.1.0 bbPress (r3607)
  */
 function bbp_check_topic_edit() {
 
@@ -4049,7 +4049,7 @@ function bbp_check_topic_edit() {
 /**
  * Redirect if unauthorized user is attempting to edit a topic tag
  *
- * @since 2.1.0 bbPress (r3605)
+ * @since 2.1.0 bbPress (r3607)
  */
 function bbp_check_topic_tag_edit() {
 
