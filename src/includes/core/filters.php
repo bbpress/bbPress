@@ -105,6 +105,9 @@ add_filter( 'bbp_request', 'bbp_request_feed_trap' );
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
 
+add_filter( 'redirect_canonical', 'bbp_do_not_redirect_restricted_posts', 11, 2 );
+add_filter( 'oembed_request_post_id', 'bbp_filter_oembed_request_post_id' );
+
 // Filter bbPress template locations
 add_filter( 'bbp_get_template_stack', 'bbp_add_template_stack_locations' );
 

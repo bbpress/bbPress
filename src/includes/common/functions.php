@@ -2952,7 +2952,12 @@ function bbp_get_page_by_path( $path = '' ) {
 
 		// Pretty permalinks are on so path might exist
 		if ( get_option( 'permalink_structure' ) ) {
-			$retval = get_page_by_path( $path );
+			$page = get_page_by_path( $path );
+
+			// Only public pages can provide archive titles and content.
+			if ( ! empty( $page ) && ( 'page' === $page->post_type ) && is_post_publicly_viewable( $page ) && empty( $page->post_password ) ) {
+				$retval = $page;
+			}
 		}
 	}
 

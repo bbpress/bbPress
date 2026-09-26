@@ -2744,8 +2744,8 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
-	// Bail to prevent unintended wp-admin post_row overrides
-	if ( is_admin() && isset( $_REQUEST['post_status'] ) ) {
+	// Preserve the main post list query without exempting admin-ajax queries
+	if ( is_admin() && ! wp_doing_ajax() && isset( $_REQUEST['post_status'] ) && isset( $GLOBALS['pagenow'] ) && ( 'edit.php' === $GLOBALS['pagenow'] ) && $posts_query->is_main_query() && current_user_can( 'moderate' ) ) {
 		return;
 	}
 

@@ -564,6 +564,11 @@ function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
 		return $post_title;
 	}
 
+	// Do not use an unreadable parent's title as the reply title.
+	if ( ! bbp_user_can_embed_post( $post_id ) ) {
+		return apply_filters( 'bbp_get_reply_title_fallback', esc_html__( 'Reply', 'bbpress' ), $post_id, '' );
+	}
+
 	// Get reply topic title.
 	$topic_title = bbp_get_reply_topic_title( $post_id );
 
@@ -599,9 +604,10 @@ function bbp_reply_content( $reply_id = 0 ) {
 	function bbp_get_reply_content( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		// Check if password is required
-		if ( post_password_required( $reply_id ) ) {
-			return get_the_password_form();
+		// Check the reply and its topic and forum ancestors.
+		$password_id = bbp_get_reply_password_required_id( $reply_id );
+		if ( ! empty( $password_id ) ) {
+			return get_the_password_form( $password_id );
 		}
 
 		$content = get_post_field( 'post_content', $reply_id );
@@ -609,6 +615,33 @@ function bbp_reply_content( $reply_id = 0 ) {
 		// Filter & return
 		return apply_filters( 'bbp_get_reply_content', $content, $reply_id );
 	}
+
+/**
+ * Get the reply or ancestor post whose password is still required.
+ *
+ * @since 2.6.19
+ *
+ * @param int $reply_id Reply ID.
+ * @return int Protected post ID, or zero if all passwords are satisfied.
+ */
+function bbp_get_reply_password_required_id( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$topic_id = bbp_get_reply_topic_id( $reply_id );
+	$forum_id = bbp_get_reply_forum_id( $reply_id );
+	$post_ids = array( $reply_id, $topic_id, $forum_id );
+
+	if ( ! empty( $forum_id ) ) {
+		$post_ids = array_merge( $post_ids, bbp_get_forum_ancestors( $forum_id ) );
+	}
+
+	foreach ( array_unique( array_filter( $post_ids ) ) as $post_id ) {
+		if ( post_password_required( $post_id ) ) {
+			return (int) $post_id;
+		}
+	}
+
+	return 0;
+}
 
 /**
  * Output the excerpt of the reply
@@ -634,7 +667,10 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$length   = (int) $length;
-		$excerpt  = get_post_field( 'post_excerpt', $reply_id );
+		$password_id = bbp_get_reply_password_required_id( $reply_id );
+		$excerpt = ! empty( $password_id )
+			? get_the_password_form( $password_id )
+			: get_post_field( 'post_excerpt', $reply_id );
 
 		if ( empty( $excerpt ) ) {
 			$excerpt = bbp_get_reply_content( $reply_id );
