@@ -57,7 +57,7 @@ function bbp_get_topic_tag_caps() {
 /**
  * Maps topic capabilities.
  *
- * @since 2.2.0 bbPress (r4242)
+ * @since 2.2.0 bbPress (r4244)
  *
  * @param array  $caps    Capabilities for meta capability.
  * @param string $cap     Capability name.
@@ -281,7 +281,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 /**
  * Maps topic tag capabilities.
  *
- * @since 2.2.0 bbPress (r4242)
+ * @since 2.2.0 bbPress (r4244)
  *
  * @param array $caps Capabilities for meta capability.
  * @param string $cap Capability name.
