@@ -138,6 +138,7 @@ class BBP_Tests_Admin_Converters_MyBB extends BBP_UnitTestCase {
 		);
 		update_user_meta( $user_id, '_bbp_class', 'MyBB' );
 		clean_user_cache( $user_id );
+		update_option( '_bbp_converter_query', 'previous import query' );
 
 		$this->converter->callback_pass( 'mybb-imported-user', $password );
 
@@ -146,5 +147,7 @@ class BBP_Tests_Admin_Converters_MyBB extends BBP_UnitTestCase {
 		$this->assertTrue( wp_check_password( $password, $user->user_pass, $user_id ) );
 		$this->assertSame( '', get_user_meta( $user_id, '_bbp_password', true ) );
 		$this->assertSame( '', get_user_meta( $user_id, '_bbp_class', true ) );
+		$this->assertStringNotContainsString( $user->user_pass, get_option( '_bbp_converter_query' ) );
+		$this->assertSame( 'previous import query', get_option( '_bbp_converter_query' ) );
 	}
 }

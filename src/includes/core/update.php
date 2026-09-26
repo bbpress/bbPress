@@ -300,6 +300,10 @@ function bbp_version_updater() {
 
 	// Only run updater if previous installation exists
 	if ( ! empty( $raw_db_version ) ) {
+		// Discard converter progress SQL saved by older password upgrades.
+		if ( $raw_db_version < 264 ) {
+			delete_option( '_bbp_converter_query' );
+		}
 
 		/** 2.0 Branch ********************************************************/
 

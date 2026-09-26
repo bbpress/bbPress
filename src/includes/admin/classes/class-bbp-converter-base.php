@@ -1003,9 +1003,9 @@ abstract class BBP_Converter_Base {
 		if ( ! empty( $converted ) ) {
 			foreach ( $converted as $value ) {
 				if ( is_serialized( $value['meta_value'] ) ) {
-					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = '' WHERE ID = %d", $value['user_id'] ) );
+					$this->update_password( $value['user_id'], '' );
 				} else {
-					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $value['meta_value'], $value['user_id'] ) );
+					$this->update_password( $value['user_id'], $value['meta_value'] );
 					delete_user_meta( $value['user_id'], '_bbp_password' );
 				}
 
@@ -1098,6 +1098,20 @@ abstract class BBP_Converter_Base {
 	 */
 	private function query( $query = '' ) {
 		$this->update_query( $query );
+
+		return $this->wpdb->query( $query ); // phpcs:ignore
+	}
+
+	/**
+	 * Update a converted password without saving its hash in the last query option.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param int    $user_id  User ID.
+	 * @param string $password Password hash or an empty string.
+	 */
+	private function update_password( $user_id, $password ) {
+		$query = $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $password, $user_id );
 
 		return $this->wpdb->query( $query ); // phpcs:ignore
 	}
@@ -1232,14 +1246,17 @@ abstract class BBP_Converter_Base {
 	 */
 	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
 
+		// Password upgrades run during login, outside of converter progress.
+		// Avoid writing these lookups to the last query option on every attempt.
+
 		// Get user – Bail if not found
-		$user = $this->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->users} WHERE user_login = %s AND user_pass = '' LIMIT 1", $username ) );
+		$user = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->users} WHERE user_login = %s AND user_pass = '' LIMIT 1", $username ) ); // phpcs:ignore
 		if ( empty( $user ) ) {
 			return;
 		}
 
 		// Get usermeta – Bail if not found
-		$usermeta = $this->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d LIMIT 1", '_bbp_password', $user->ID ) );
+		$usermeta = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d LIMIT 1", '_bbp_password', $user->ID ) ); // phpcs:ignore
 		if ( empty( $usermeta ) ) {
 			return;
 		}
@@ -1263,7 +1280,7 @@ abstract class BBP_Converter_Base {
 		$new_pass = wp_hash_password( is_null( $wp_password ) ? $password : $wp_password );
 
 		// Update
-		$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $new_pass, $user->ID ) );
+		$this->update_password( $user->ID, $new_pass );
 
 		// Clean up
 		unset( $new_pass );
