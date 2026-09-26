@@ -120,27 +120,22 @@ class BBP_Akismet {
 		$user_data['total_posts'] = (int) bbp_get_user_post_count( $post_data['post_author'] );
 
 		// Get user data
-		$userdata       = get_userdata( $post_data['post_author'] );
-		$anonymous_data = bbp_filter_anonymous_post_data();
+		$userdata = get_userdata( $post_data['post_author'] );
 
-		// Author is anonymous
-		if ( ! bbp_has_errors() ) {
-			$user_data['name']    = $anonymous_data['bbp_anonymous_name'];
-			$user_data['email']   = $anonymous_data['bbp_anonymous_email'];
-			$user_data['website'] = $anonymous_data['bbp_anonymous_website'];
-
-		// Author is logged in
-		} elseif ( ! empty( $userdata ) ) {
+		// Author has a WordPress account
+		if ( ! empty( $userdata ) ) {
 			$user_data['name']       = $userdata->display_name;
 			$user_data['email']      = $userdata->user_email;
 			$user_data['website']    = $userdata->user_url;
 			$user_data['registered'] = $userdata->user_registered;
 
-		// Missing author data, so set some empty strings
 		} else {
-			$user_data['name']    = '';
-			$user_data['email']   = '';
-			$user_data['website'] = '';
+			$anonymous_data = bbp_filter_anonymous_post_data();
+			$valid_anonymous = ! bbp_has_errors();
+
+			$user_data['name']    = $valid_anonymous ? $anonymous_data['bbp_anonymous_name'] : '';
+			$user_data['email']   = $valid_anonymous ? $anonymous_data['bbp_anonymous_email'] : '';
+			$user_data['website'] = $valid_anonymous ? $anonymous_data['bbp_anonymous_website'] : '';
 		}
 
 		/** Post **************************************************************/
@@ -184,7 +179,9 @@ class BBP_Akismet {
 		// Set the results (from maybe_spam() above)
 		$post_data['bbp_akismet_result_headers'] = $_post['bbp_akismet_result_headers'];
 		$post_data['bbp_akismet_result']         = $_post['bbp_akismet_result'];
-		$post_data['bbp_post_as_submitted']      = $_post;
+		// Intentionally retain extra form and server fields for later Akismet reports.
+		// Third-party plugins may add fields that help identify spam.
+		$post_data['bbp_post_as_submitted'] = $_post;
 
 		// Avoid recursion by unsetting results from post-as-submitted
 		unset(
@@ -474,7 +471,7 @@ class BBP_Akismet {
 		$post_data['referrer']     = wp_get_raw_referer();
 		$post_data['user_agent']   = bbp_current_author_ua();
 
-		// Loop through _POST args and rekey strings
+		// Keep all form fields, including third-party fields, as Akismet signals.
 		if ( ! empty( $_POST ) && is_countable( $_POST ) ) {
 			foreach ( $_POST as $key => $value ) {
 				if ( is_string( $value ) ) {
@@ -483,19 +480,11 @@ class BBP_Akismet {
 			}
 		}
 
-		// Loop through _SERVER args and remove allowed keys
+		// Keep server fields for third-party signals, but omit known credential keys.
 		if ( ! empty( $_SERVER ) && is_countable( $_SERVER ) ) {
-
-			// Keys to ignore
-			$ignore = array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'PHP_AUTH_PW' );
-
 			foreach ( $_SERVER as $key => $value ) {
-
-				// Key should not be ignored
-				if ( ! in_array( $key, $ignore, true ) && is_string( $value ) ) {
+				if ( is_string( $value ) && ! $this->is_sensitive_server_key( $key ) ) {
 					$post_data[ $key ] = $value;
-
-				// Key should be ignored
 				} else {
 					$post_data[ $key ] = '';
 				}
@@ -538,6 +527,28 @@ class BBP_Akismet {
 
 		// Return the post data, with the results of the external Akismet request
 		return $post_data;
+	}
+
+	/**
+	 * Check whether a server key may contain credentials.
+	 *
+	 * @since 2.6.19
+	 *
+	 * @param string $key Server key.
+	 * @return bool Whether the key should be omitted.
+	 */
+	private function is_sensitive_server_key( $key = '' ) {
+		$sensitive = (bool) preg_match( '/(?:^|_)(?:AUTH(?:ORIZATION)?|COOKIE[0-9]*|PASS(?:WORD|WD)?|PRIVATE|SECRET|TOKEN|NONCE|CREDENTIALS?|KEY)(?:_|$)/i', $key );
+
+		/**
+		 * Filters whether a server field is omitted from Akismet requests.
+		 *
+		 * @since 2.6.19
+		 *
+		 * @param bool $sensitive Whether the field may contain credentials.
+		 * @param string $key Server key.
+		 */
+		return (bool) apply_filters( 'bbp_akismet_is_sensitive_server_key', $sensitive, $key );
 	}
 
 	/**
@@ -584,18 +595,15 @@ class BBP_Akismet {
 			do_action( 'bbp_akismet_before_update_post_meta', $post_id, $_post );
 
 			// Get user data
-			$userdata       = get_userdata( $_post->post_author );
-			$anonymous_data = bbp_filter_anonymous_post_data();
-
-			// Which name?
-			$name = ! empty( $anonymous_data['bbp_anonymous_name'] )
-				? $anonymous_data['bbp_anonymous_name']
-				: $userdata->display_name;
-
-			// Which email?
-			$email = ! empty( $anonymous_data['bbp_anonymous_email'] )
-				? $anonymous_data['bbp_anonymous_email']
-				: $userdata->user_email;
+			$userdata = get_userdata( $_post->post_author );
+			if ( ! empty( $userdata ) ) {
+				$name  = $userdata->display_name;
+				$email = $userdata->user_email;
+			} else {
+				$anonymous_data = bbp_filter_anonymous_post_data();
+				$name  = ! empty( $anonymous_data['bbp_anonymous_name'] ) ? $anonymous_data['bbp_anonymous_name'] : '';
+				$email = ! empty( $anonymous_data['bbp_anonymous_email'] ) ? $anonymous_data['bbp_anonymous_email'] : '';
+			}
 
 			// More checks
 			if (
