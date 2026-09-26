@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return array of bbPress registered post types
  *
- * @since 2.6.0 bbPress (r6813)
+ * @since 2.6.0 bbPress (r6814)
  *
  * @param array $args Array of arguments to pass into `get_post_types()`
  *
@@ -96,7 +96,7 @@ function bbp_get_redirect_to() {
 /**
  * Append 'view=all' to query string if it's already there from referer
  *
- * @since 2.0.0 bbPress (r3325)
+ * @since 2.0.0 bbPress (r2957)
  *
  * @param string $original_link Original Link to be modified
  * @param bool $force Override bbp_get_view_all() check
@@ -149,7 +149,7 @@ function bbp_get_view_all( $cap = 'moderate' ) {
 /**
  * Assist pagination by returning correct page number
  *
- * @since 2.0.0 bbPress (r2628)
+ * @since 2.0.0 bbPress (r2634)
  *
  * @return int Current page number
  */
@@ -258,7 +258,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  * Fixes an issue since WordPress 5.6.0. See
  * {@link https://bbpress.trac.wordpress.org/ticket/3433}.
  *
- * @since 2.6.10 bbPress (r7233)
+ * @since 2.6.10 bbPress (r7234)
  *
  * @param string $new_status      New status to use when untrashing. Default: 'draft'
  * @param int    $post_id         Post ID
@@ -412,7 +412,7 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
  * It is recommended to leave $utc set to true and to work with UTC/GMT dates.
  * Turning this off will use the WordPress offset which is likely undesirable.
  *
- * @since 2.0.0 bbPress (r3133)
+ * @since 2.0.0 bbPress (r3134)
  * @since 2.6.0 bbPress (r6868) Inverted some logic and added unit tests
  *
  * @param string  $datetime Gets run through strtotime()
@@ -471,7 +471,7 @@ function bbp_past_edit_lock( $datetime = '', $utc = true ) {
  * up by WordPress Cron. If set to 0, items will skip trash and be deleted
  * immediately.
  *
- * @since 2.6.0 bbPress (r6424)
+ * @since 2.6.0 bbPress (r6432)
  *
  * @param string $context Provide context for additional filtering
  * @return int Number of days items remain in trash
@@ -1155,7 +1155,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	/**
 	 * Filters the bbPress moderation keys.
 	 *
-	 * @since 2.6.0 bbPress (r6050)
+	 * @since 2.6.0 bbPress (r6855)
 	 *
 	 * @param string $moderation List of moderation keys. One per new line.
 	 */
@@ -1239,7 +1239,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 /**
  * Deprecated. Use bbp_check_for_moderation() with strict flag set.
  *
- * @since 2.0.0 bbPress (r3446)
+ * @since 2.0.0 bbPress (r3447)
  * @since 2.6.0 bbPress (r6854)
  * @deprecated 2.6.0 Use bbp_check_for_moderation() with strict flag set
  */
@@ -1758,7 +1758,7 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 /**
  * Return an array of user email addresses from an array of user IDs
  *
- * @since 2.6.0 bbPress (r6722)
+ * @since 2.6.0 bbPress (r6725)
  *
  * @param array $user_ids
  * @return array
@@ -1832,7 +1832,7 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
  * desired. A future version of bbPress will introduce a setting to more easily
  * tune this.
  *
- * @since 2.6.0 bbPress (r6918)
+ * @since 2.6.0 bbPress (r6919)
  *
  * @param array $args Original arguments passed to wp_mail().
  * @return array
@@ -1906,7 +1906,7 @@ function bbp_get_email_header() {
  *
  * See: `wp_logout_url()`
  *
- * @since 2.1.0 bbPress (r2815)
+ * @since 2.0.0 bbPress (r2815)
  *
  * @param string $url URL used to log out
  * @param string $redirect_to Where to redirect to?
@@ -1959,7 +1959,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  * it allows for arguments to be passively or aggressively filtered using the
  * optional $filter_key parameter.
  *
- * @since 2.1.0 bbPress (r3839)
+ * @since 2.1.0 bbPress (r3840)
  *
  * @param string|array $args Value to merge with $defaults
  * @param array $defaults Array that serves as the defaults.
@@ -1999,7 +1999,7 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 /**
  * Adds ability to include or exclude specific post_parent ID's
  *
- * @since 2.0.0 bbPress (r2996)
+ * @since 2.0.0 bbPress (r2997)
  *
  * @deprecated 2.5.8 bbPress (r5814)
  *
@@ -2111,7 +2111,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the database for child counts, grouped by type & status
  *
- * @since 2.6.0 bbPress (r6826)
+ * @since 2.6.0 bbPress (r6827)
  *
  * @param int $parent_id
  */
@@ -2182,7 +2182,7 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 /**
  * Filter a list of child counts, from `bbp_get_child_counts()`
  *
- * @since 2.6.0 bbPress (r6826)
+ * @since 2.6.0 bbPress (r6827)
  *
  * @param int    $parent_id  ID of post to get child counts from
  * @param array  $types      Optional. An array of post types to filter by
@@ -2268,7 +2268,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get a count of public children
  *
- * @since 2.0.0 bbPress (r2868)
+ * @since 2.6.0 bbPress (r6827)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
  * @param int    $parent_id Parent id.
@@ -2319,7 +2319,7 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get the child id's of public children
  *
- * @since 2.0.0 bbPress (r2868)
+ * @since 2.0.0 bbPress (r2891)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
  * @param int    $parent_id Parent id.
@@ -2455,7 +2455,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * Also see: bbp_update_post_author_caches()
  *
- * @since 2.6.0 bbPress (r6699)
+ * @since 2.6.0 bbPress (r6700)
  *
  * @param array $objects Array of objects, fresh from a query
  *
@@ -2528,7 +2528,7 @@ function bbp_update_post_family_caches( $objects = array() ) {
  *
  * This is triggered when a `update_post_author_cache` argument is set to true.
  *
- * @since 2.6.0 bbPress (r6699)
+ * @since 2.6.0 bbPress (r6700)
  *
  * @param array $objects Array of objects, fresh from a query
  *
@@ -2579,7 +2579,7 @@ function bbp_update_post_author_caches( $objects = array() ) {
  *
  * Used most frequently when editing a forum/topic/reply
  *
- * @since 2.1.0 bbPress (r3694)
+ * @since 2.1.0 bbPress (r3702)
  *
  * @param string $field Name of the key
  * @param string $context How to sanitize - raw|edit|db|display|attribute|js
@@ -2604,7 +2604,7 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  *
  * To avoid security exploits within the theme.
  *
- * @since 2.1.0 bbPress (r4022)
+ * @since 2.1.0 bbPress (r4023)
  *
  * @param string $action Action nonce
  * @param string $query_arg where to look for nonce in $_REQUEST
@@ -3030,7 +3030,7 @@ function bbp_set_200() {
  * Some conditions (like private/hidden forums and edits) have their own checks
  * on `bbp_template_redirect` and are not currently 404s.
  *
- * @since 2.6.0 bbPress (r6555)
+ * @since 2.6.0 bbPress (r6554)
  *
  * @param bool $override Whether to override the default handler
  * @param WP_Query $wp_query The posts query being referenced
@@ -3063,7 +3063,7 @@ function bbp_pre_handle_404( $override = false, $wp_query = false ) {
  * This effectively short-circuits the default query for posts, which is
  * currently only used to avoid calling the main query when it's not necessary.
  *
- * @since 2.6.0 bbPress (r6580)
+ * @since 2.6.0 bbPress (r6583)
  *
  * @param mixed $posts Default null. Array of posts (possibly empty)
  * @param WP_Query $wp_query
@@ -3084,7 +3084,7 @@ function bbp_posts_pre_query( $posts = null, $wp_query = false ) {
 /**
  * Get scheme for a URL based on is_ssl() results.
  *
- * @since 2.6.0 bbPress (r6759)
+ * @since 2.6.0 bbPress (r6760)
  *
  * @return string https:// if is_ssl(), otherwise http://
  */
@@ -3102,7 +3102,7 @@ function bbp_get_url_scheme() {
  * Uses mb_strlen() in `8bit` mode to treat strings as raw. This matches the
  * behavior present in Comments, PHPMailer, RandomCompat, and others.
  *
- * @since 2.6.0 bbPress (r6783)
+ * @since 2.6.0 bbPress (r6784)
  *
  * @param string $title
  * @return bool

@@ -26,7 +26,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * Registers the login widget
 	 *
-	 * @since 2.0.0 bbPress (r2827)
+	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters(
@@ -44,7 +44,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since 2.0.0 bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3391)
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Login_Widget' );
@@ -195,7 +195,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */
@@ -226,7 +226,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * Registers the view widget
 	 *
-	 * @since 2.0.0 bbPress (r3020)
+	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters(
@@ -244,7 +244,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since 2.0.0 bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3391)
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Views_Widget' );
@@ -338,7 +338,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */
@@ -462,7 +462,7 @@ class BBP_Search_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */
@@ -491,7 +491,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * Registers the forum widget
 	 *
-	 * @since 2.0.0 bbPress (r2653)
+	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters(
@@ -509,7 +509,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since 2.0.0 bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3391)
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Forums_Widget' );
@@ -645,7 +645,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */
@@ -675,7 +675,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * Registers the topic widget
 	 *
-	 * @since 2.0.0 bbPress (r2653)
+	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters(
@@ -693,7 +693,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since 2.0.0 bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3391)
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Topics_Widget' );
@@ -950,7 +950,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */
@@ -975,7 +975,7 @@ class BBP_Topics_Widget extends WP_Widget {
  *
  * Adds a widget which displays the forum statistics
  *
- * @since 2.3.0 bbPress (r4509)
+ * @since 2.3.0 bbPress (r4510)
  */
 class BBP_Stats_Widget extends WP_Widget {
 
@@ -984,7 +984,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * Registers the statistics widget
 	 *
-	 * @since 2.3.0 bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4510)
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters(
@@ -1002,7 +1002,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since 2.3.0 bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4510)
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Stats_Widget' );
@@ -1011,7 +1011,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the statistics
 	 *
-	 * @since 2.3.0 bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4510)
 	 *
 	 * @param array $args     Arguments
 	 * @param array $instance Instance
@@ -1041,7 +1041,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Update the statistics widget options
 	 *
-	 * @since 2.3.0 bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4510)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -1058,7 +1058,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Output the statistics widget options form
 	 *
-	 * @since 2.3.0 bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4510)
 	 *
 	 * @param $instance
 	 *
@@ -1081,7 +1081,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */
@@ -1110,7 +1110,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * Registers the replies widget
 	 *
-	 * @since 2.0.0 bbPress (r2653)
+	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters(
@@ -1128,7 +1128,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since 2.0.0 bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3391)
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Replies_Widget' );
@@ -1307,7 +1307,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since 2.3.0 bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param $instance Instance
 	 */

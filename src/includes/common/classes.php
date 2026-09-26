@@ -22,7 +22,7 @@ if ( ! class_exists( 'BBP_Component' ) ) :
  * @package bbPress
  * @subpackage Classes
  *
- * @since 2.0.0 bbPress (r2688)
+ * @since 2.0.0 bbPress (r2700)
  */
 class BBP_Component {
 
@@ -58,7 +58,7 @@ class BBP_Component {
 	/**
 	 * bbPress Component loader
 	 *
-	 * @since 2.0.0 bbPress (r2700)
+	 * @since 2.1.0 bbPress (r3829)
 	 *
 	 * @param array $args Required. Supports these args:
 	 *  - name: Unique name (for internal identification)
@@ -80,7 +80,7 @@ class BBP_Component {
 	/**
 	 * Component global variables
 	 *
-	 * @since 2.0.0 bbPress (r2700)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -93,7 +93,7 @@ class BBP_Component {
 	/**
 	 * Include required files
 	 *
-	 * @since 2.0.0 bbPress (r2700)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -104,7 +104,7 @@ class BBP_Component {
 	/**
 	 * Setup the actions
 	 *
-	 * @since 2.0.0 bbPress (r2700)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -193,7 +193,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * Set the tree_type
 	 *
-	 * @since 2.0.0 bbPress (r2746)
+	 * @since 2.1.0 bbPress (r3829)
 	 */
 	public function __construct() {
 		$this->tree_type = bbp_get_forum_post_type();

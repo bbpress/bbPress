@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return the strategy used for storing user engagements
  *
- * @since 2.6.0 bbPress (r6722)
+ * @since 2.6.0 bbPress (r6723)
  *
  * @param string $rel_key  The key used to index this relationship
  * @param string $rel_type The type of meta to look in
@@ -31,14 +31,14 @@ function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
  * Base strategy class for interfacing with User Engagements, which other
  * classes will extend.
  *
- * @since 2.6.0 bbPress (r6722)
+ * @since 2.6.0 bbPress (r6739)
  */
 class BBP_User_Engagements_Base {
 
 	/**
 	 * Type of strategy being used.
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @var string
 	 */
@@ -47,7 +47,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Add a user id to an object
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -64,7 +64,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Remove a user id from an object
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -80,7 +80,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Remove a user id from all objects
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $user_id   The user id
 	 * @param string $meta_key  The relationship key
@@ -95,7 +95,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Remove an object from all users
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -111,7 +111,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Remove all users from all objects
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
@@ -125,7 +125,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Get users of an object
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param string $meta_key  The key used to index this relationship
@@ -140,7 +140,7 @@ class BBP_User_Engagements_Base {
 	/**
 	 * Get the part of the query responsible for JOINing objects to relationships.
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param array  $args
 	 * @param string $meta_key
@@ -156,14 +156,14 @@ class BBP_User_Engagements_Base {
 /**
  * Meta strategy for interfacing with User Engagements
  *
- * @since 2.6.0 bbPress (r6722)
+ * @since 2.6.0 bbPress (r6723)
  */
 class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 
 	/**
 	 * Type of strategy being used.
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @var string
 	 */
@@ -172,7 +172,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Add a user id to an object
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -189,7 +189,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Remove a user id from an object
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -205,7 +205,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Remove a user id from all objects
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param int    $user_id   The user id
 	 * @param string $meta_key  The relationship key
@@ -220,7 +220,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Remove an object from all users
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -236,7 +236,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Remove all users from all objects
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
@@ -250,7 +250,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Get users of an object
 	 *
-	 * @since 2.6.0 bbPress (r6722)
+	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param int    $object_id The object id
 	 * @param string $meta_key  The key used to index this relationship
@@ -265,7 +265,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	/**
 	 * Get the part of the query responsible for JOINing objects to relationships.
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param array  $args
 	 * @param string $meta_key
@@ -307,14 +307,14 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 /**
  * Term strategy for interfacing with User Engagements
  *
- * @since 2.6.0 bbPress (r6737)
+ * @since 2.6.0 bbPress (r6739)
  */
 class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 
 	/**
 	 * Type of strategy being used.
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @var string
 	 */
@@ -323,7 +323,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Register an engagement taxonomy just-in-time for immediate use
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param string $tax_key
 	 * @param string $object_type
@@ -367,7 +367,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Add a user id to an object
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -388,7 +388,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Remove a user id from an object
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param int    $user_id   The user id
@@ -408,7 +408,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Remove a user id from all objects
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $user_id   The user id
 	 * @param string $meta_key  The relationship key
@@ -428,7 +428,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Remove an object from all users
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 * @since 2.6.17 bbPress (r7468) Limit removal to the requested relationship taxonomy.
 	 *
 	 * @param int    $object_id The object id
@@ -448,7 +448,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Remove all users from all objects
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
@@ -462,7 +462,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Get users of an object
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param int    $object_id The object id
 	 * @param string $meta_key  The key used to index this relationship
@@ -498,7 +498,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	/**
 	 * Get the part of the query responsible for JOINing objects to relationships.
 	 *
-	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.0 bbPress (r6739)
 	 *
 	 * @param array  $args
 	 * @param string $meta_key
@@ -552,14 +552,14 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
  * it needs to do weird things to maintain the 2.5 status-quo. Do not use this
  * strategy as an example when building your own.
  *
- * @since 2.6.0 bbPress (r6844)
+ * @since 2.6.0 bbPress (r6876)
  */
 class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 	/**
 	 * Type of strategy being used.
 	 *
-	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.0 bbPress (r6876)
 	 *
 	 * @var string
 	 */
@@ -568,7 +568,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	/**
 	 * Private function to map 2.6 meta keys to 2.5 user-option keys.
 	 *
-	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.0 bbPress (r6876)
 	 *
 	 * @param string $meta_key
 	 * @param int    $object_id
@@ -620,7 +620,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * This method exists to provide backwards compatibility with bbPress 2.5,
 	 * which had caching surrounding the FIND_IN_SET usermeta queries.
 	 *
-	 * @since 2.6.3 bbPress (r6991)
+	 * @since 2.6.3 bbPress (r6992)
 	 *
 	 * @param string $meta_key
 	 * @param int    $object_id
@@ -671,7 +671,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * This method exists to provide backwards compatibility with bbPress 2.5,
 	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
 	 *
-	 * @since 2.6.3 bbPress (r6991)
+	 * @since 2.6.3 bbPress (r6992)
 	 *
 	 * @param string $meta_key
 	 * @param int    $object_id
@@ -690,7 +690,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * This method exists to provide backwards compatibility with bbPress 2.5,
 	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
 	 *
-	 * @since 2.6.3 bbPress (r6991)
+	 * @since 2.6.3 bbPress (r6992)
 	 *
 	 * @param string $meta_key
 	 * @param int    $object_id
@@ -710,7 +710,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * This method exists to provide backwards compatibility with bbPress 2.5,
 	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
 	 *
-	 * @since 2.6.3 bbPress (r6991)
+	 * @since 2.6.3 bbPress (r6992)
 	 *
 	 * @param string $meta_key
 	 * @param int    $object_id
@@ -726,7 +726,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	/**
 	 * Turn a comma-separated string into an array of integers
 	 *
-	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.0 bbPress (r6876)
 	 *
 	 * @param string $results
 	 * @return array

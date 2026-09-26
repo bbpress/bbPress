@@ -14,7 +14,7 @@ if ( ! class_exists( 'BBP_Shortcodes' ) ) :
 /**
  * bbPress Shortcode Class
  *
- * @since 2.0.0 bbPress (r3031)
+ * @since 2.0.0 bbPress (r3032)
  */
 class BBP_Shortcodes {
 
@@ -30,7 +30,7 @@ class BBP_Shortcodes {
 		/**
 		 * Add the register_shortcodes action to bbp_init
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3143)
 		 *
 		 */
 		public function __construct() {
@@ -41,7 +41,7 @@ class BBP_Shortcodes {
 		/**
 		 * Shortcode globals
 		 *
-		 * @since 2.0.0 bbPress (r3143)
+		 * @since 2.0.0 bbPress (r3344)
 		 *
 		 * @access private
 		 */
@@ -103,7 +103,7 @@ class BBP_Shortcodes {
 		/**
 		 * Register the bbPress shortcodes
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3344)
 		 */
 		private function add_shortcodes() {
 			foreach ( (array) $this->codes as $code => $function ) {
@@ -114,7 +114,7 @@ class BBP_Shortcodes {
 		/**
 		 * Unset some globals in the $bbp object that hold query related info
 		 *
-		 * @since 2.0.0 bbPress (r3034)
+		 * @since 2.0.0 bbPress (r3344)
 		 */
 		private function unset_globals() {
 			$bbp = bbpress();
@@ -145,7 +145,7 @@ class BBP_Shortcodes {
 		 * than outputting the HTML at run-time. This allows shortcodes to appear
 		 * in the correct location in the_content() instead of when it's created.
 		 *
-		 * @since 2.0.0 bbPress (r3079)
+		 * @since 2.0.0 bbPress (r3344)
 		 *
 		 * @param string $query_name
 		 */
@@ -161,7 +161,7 @@ class BBP_Shortcodes {
 		/**
 		 * Return the contents of the output buffer and flush its contents.
 		 *
-		 * @since 2.0.0 bbPress (r3079)
+		 * @since 2.0.0 bbPress (r3344)
 		 *
 		 * @return string Contents of output buffer.
 		 */
@@ -182,7 +182,7 @@ class BBP_Shortcodes {
 			/**
 			 * Filters the contents of the output buffer before returning.
 			 *
-			 * @since 2.0.0 bbPress (r3079)
+			 * @since 2.6.0 bbPress (r6438)
 			 *
 			 * @param string $output     The contents of the output buffer.
 			 * @param string $query_name The query name used for this output.
@@ -196,7 +196,7 @@ class BBP_Shortcodes {
 		 * Display an index of all visible root level forums in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3032)
 		 *
 		 * @return string
 		 */
@@ -218,7 +218,7 @@ class BBP_Shortcodes {
 		 * Display the contents of a specific forum ID in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3032)
 		 *
 		 * @param array $attr
 		 * @param string $content
@@ -279,7 +279,7 @@ class BBP_Shortcodes {
 		 * Display an index of all visible root level topics in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3032)
 		 *
 		 * @return string
 		 */
@@ -307,7 +307,7 @@ class BBP_Shortcodes {
 		 * Display the contents of a specific topic ID in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3032)
 		 *
 		 * @param array $attr
 		 * @param string $content
@@ -377,7 +377,7 @@ class BBP_Shortcodes {
 		 * forum. This currently has styling issues from not being wrapped in
 		 * <div id="bbpress-forums" class="bbpress-wrapper"></div> which will need to be sorted out later.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3042)
 		 *
 		 * @param array $attr
 		 * @param string $content
@@ -431,7 +431,7 @@ class BBP_Shortcodes {
 		 * Display the contents of a specific reply ID in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.1.0 bbPress (r3634)
 		 *
 		 * @param array $attr
 		 * @param string $content
@@ -498,7 +498,7 @@ class BBP_Shortcodes {
 		 * Display the reply form in an output buffer and return to ensure
 		 * post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3042)
 		 */
 		public function display_reply_form() {
 
@@ -518,7 +518,7 @@ class BBP_Shortcodes {
 		 * Display a tag cloud of all topic tags in an output buffer and return to
 		 * ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3110)
+		 * @since 2.0.0 bbPress (r3132)
 		 *
 		 * @return string
 		 */
@@ -548,7 +548,7 @@ class BBP_Shortcodes {
 		 * Display the contents of a specific topic tag in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3110)
+		 * @since 2.0.0 bbPress (r3132)
 		 *
 		 * @param array $attr
 		 * @param string $content
@@ -586,7 +586,7 @@ class BBP_Shortcodes {
 		 * Display the contents of a specific topic tag in an output buffer
 		 * and return to ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3346)
+		 * @since 2.0.0 bbPress (r3348)
 		 *
 		 * @return string
 		 */
@@ -611,7 +611,7 @@ class BBP_Shortcodes {
 		 * Display the contents of a specific view in an output buffer and return to
 		 * ensure that post/page contents are displayed first.
 		 *
-		 * @since 2.0.0 bbPress (r3031)
+		 * @since 2.0.0 bbPress (r3167)
 		 *
 		 * @param array $attr
 		 * @param string $content
@@ -652,7 +652,7 @@ class BBP_Shortcodes {
 		 * Display the search form in an output buffer and return to ensure
 		 * post/page contents are displayed first.
 		 *
-		 * @since 2.3.0 bbPress (r4585)
+		 * @since 2.3.0 bbPress (r4586)
 		 */
 		public function display_search_form() {
 
@@ -806,7 +806,7 @@ class BBP_Shortcodes {
 		/**
 		 * Display forum statistics
 		 *
-		 * @since 2.3.0 bbPress (r4509)
+		 * @since 2.3.0 bbPress (r4510)
 		 *
 		 * @return string
 		 */
