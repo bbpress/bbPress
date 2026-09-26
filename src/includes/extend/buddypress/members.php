@@ -14,7 +14,7 @@ if ( ! class_exists( 'BBP_Forums_Members' ) ) :
 /**
  * Member profile modifications.
  *
- * @since 2.2.0 bbPress (r4395)
+ * @since 2.2.0 bbPress (r4397)
  * @since 2.6.0 bbPress (r6320) Add engagements support
  *
  * @package bbPress
@@ -25,7 +25,7 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Main constructor for modifying bbPress profile links.
 	 *
-	 * @since 2.2.0 bbPress (r4395)
+	 * @since 2.2.0 bbPress (r4397)
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -36,7 +36,7 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Setup the actions.
 	 *
-	 * @since 2.2.0 bbPress (r4395)
+	 * @since 2.2.0 bbPress (r4397)
 	 *
 	 * @access private
 	 */
@@ -61,7 +61,7 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Setup the filters.
 	 *
-	 * @since 2.2.0 bbPress (r4395)
+	 * @since 2.2.0 bbPress (r4397)
 	 * @since 2.6.0 bbPress (r6320) Add engagements support
 	 *
 	 * @access private
@@ -90,7 +90,7 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Override bbPress profile URL with BuddyPress profile URL.
 	 *
-	 * @since 2.0.0 bbPress (r3401)
+	 * @since 2.6.0 bbPress (r6804)
 	 * @since 2.6.0 bbPress (r6320) Add engagements support
 	 *
 	 * @param int $user_id
@@ -103,8 +103,8 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Override bbPress topics created URL with BuddyPress profile URL.
 	 *
-	 * @since 2.6.0 bbPress (r3721)
-	 * @since 2.6.0 bbPress (r6803) Use private method
+	 * @since 2.6.0 bbPress (r6804)
+	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id
 	 * @return string
@@ -116,8 +116,8 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Override bbPress replies created URL with BuddyPress profile URL.
 	 *
-	 * @since 2.6.0 bbPress (r3721)
-	 * @since 2.6.0 bbPress (r6803) Use private method
+	 * @since 2.6.0 bbPress (r6804)
+	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id
 	 * @return string
@@ -129,8 +129,8 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Override bbPress favorites URL with BuddyPress profile URL.
 	 *
-	 * @since 2.1.0 bbPress (r3721)
-	 * @since 2.6.0 bbPress (r6803) Use private method
+	 * @since 2.2.0 bbPress (r4397)
+	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id
 	 * @return string
@@ -142,8 +142,8 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Override bbPress subscriptions URL with BuddyPress profile URL.
 	 *
-	 * @since 2.1.0 bbPress (r3721)
-	 * @since 2.6.0 bbPress (r6803) Use private method
+	 * @since 2.2.0 bbPress (r4397)
+	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id
 	 * @return string
@@ -155,7 +155,7 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Override bbPress engagements URL with BuddyPress profile URL.
 	 *
-	 * @since 2.6.0 bbPress (r6320)
+	 * @since 2.6.0 bbPress (r6321)
 	 *
 	 * @param int $user_id
 	 * @return string
@@ -168,7 +168,7 @@ class BBP_BuddyPress_Members {
 	 * Set favorites and subscriptions query variables if viewing member profile
 	 * pages.
 	 *
-	 * @since 2.3.0 bbPress (r4615)
+	 * @since 2.3.0 bbPress (r4616)
 	 * @since 2.6.0 bbPress (r6320) Support all profile sections
 	 *
 	 * @global WP_Query $wp_query
@@ -211,7 +211,7 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Private method used to concatenate user IDs and slugs into URLs.
 	 *
-	 * @since 2.6.0 bbPress (r6803)
+	 * @since 2.6.0 bbPress (r6804)
 	 *
 	 * @param int    $user_id
 	 * @param string $slug
