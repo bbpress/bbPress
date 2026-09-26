@@ -159,8 +159,25 @@ function bbp_version_bump() {
  * Setup the bbPress updater.
  *
  * @since 2.0.0 bbPress (r3419)
+ * @since 2.6.19 bbPress Moved to "bbp_current_screen" hook
+ *
+ * @param WP_Screen|null $current_screen Current admin screen.
  */
-function bbp_setup_updater() {
+function bbp_setup_updater( $current_screen = null ) {
+	global $pagenow;
+
+	// Only run during a real site or network admin screen
+	if ( ! $current_screen instanceof WP_Screen ||
+		( ! $current_screen->in_admin( 'site' ) && ! $current_screen->in_admin( 'network' ) ) ||
+		wp_doing_ajax() ||
+		in_array( $pagenow, array( 'admin-ajax.php', 'admin-post.php' ), true ) ) {
+		return;
+	}
+
+	// Only forum keymasters and site administrators may start an upgrade
+	if ( ! current_user_can( 'bbp_tools_upgrade_page' ) && ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
 	// Bail if no update needed
 	if ( ! bbp_is_update() ) {

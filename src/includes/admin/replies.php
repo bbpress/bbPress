@@ -1145,6 +1145,11 @@ endif; // class_exists check
  */
 function bbp_admin_replies( $current_screen ) {
 
+	// Bail if not in site admin
+	if ( ! is_blog_admin() ) {
+		return;
+	}
+
 	// Bail if not a forum screen
 	if ( empty( $current_screen->post_type ) || ( bbp_get_reply_post_type() !== $current_screen->post_type ) ) {
 		return;

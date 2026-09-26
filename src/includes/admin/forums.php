@@ -864,6 +864,11 @@ endif; // class_exists check
  */
 function bbp_admin_forums( $current_screen ) {
 
+	// Bail if not in site admin
+	if ( ! is_blog_admin() ) {
+		return;
+	}
+
 	// Bail if not a forum screen
 	if ( empty( $current_screen->post_type ) || ( bbp_get_forum_post_type() !== $current_screen->post_type ) ) {
 		return;
