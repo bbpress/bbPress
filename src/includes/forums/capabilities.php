@@ -36,7 +36,7 @@ function bbp_get_forum_caps() {
 /**
  * Maps forum capabilities
  *
- * @since 2.2.0 bbPress (r4242)
+ * @since 2.2.0 bbPress (r4244)
  *
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
@@ -254,7 +254,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 /**
  * Can a user moderate a forum?
  *
- * @since 2.6.0 bbPress (r5834)
+ * @since 2.6.0 bbPress (r6056)
  *
  * @param int $user_id User id.
  * @param int $forum_id Forum id.
@@ -281,7 +281,7 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
  * - `bbp_get_private_forum_ids()`
  * - `bbp_get_hidden_forum_ids()`
  *
- * @since 2.6.0 bbPress (r6426)
+ * @since 2.6.0 bbPress (r6425)
  *
  * @param array $forum_ids Forum IDs to check if the user ID is a moderator of
  * @param int   $user_id   User ID to check if is a moderator of forums

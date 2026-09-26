@@ -691,7 +691,7 @@ function bbp_filter_admin_forum_post_data( $data = array(), $postarr = array() )
 /**
  * Handle the saving of core forum metadata (Status, Visibility, and Type)
  *
- * @since 2.1.0 bbPress (r3678)
+ * @since 2.1.0 bbPress (r3679)
  *
  * @param int $forum_id
  * @return If forum ID is empty
@@ -763,7 +763,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 		/**
 		 * Allow custom forum visibility save actions
 		 *
-		 * @since 2.6.0 bbPress (r5855)
+		 * @since 2.6.0 bbPress (r5856)
 		 *
 		 * @param int    $forum_id       The forum ID
 		 * @param string $old_visibility The current forum visibility
@@ -1155,7 +1155,7 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
 /**
  * Bump the total topic count of a forum
  *
- * @since 2.1.0 bbPress (r3825)
+ * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7468) Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
@@ -1278,7 +1278,7 @@ function bbp_decrease_forum_topic_count( $forum_id = 0 ) {
 /**
  * Bump the total topic count of a forum
  *
- * @since 2.1.0 bbPress (r3825)
+ * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7468) Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
@@ -1402,7 +1402,7 @@ function bbp_decrease_forum_topic_count_hidden( $forum_id = 0 ) {
 /**
  * Bump the total topic count of a forum
  *
- * @since 2.1.0 bbPress (r3825)
+ * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7468) Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
@@ -1462,7 +1462,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 /**
  * Bump the total topic count of a forum
  *
- * @since 2.6.0 bbPress (r6922)
+ * @since 2.6.0 bbPress (r6923)
  * @since 2.6.17 bbPress (r7468) Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
@@ -1642,7 +1642,7 @@ function bbp_decrease_forum_reply_count( $forum_id = 0 ) {
 /**
  * Increase the total hidden reply count of a forum by one.
  *
- * @since 2.6.0 bbPress (r6036)
+ * @since 2.6.0 bbPress (r6923)
  *
  * @param int $forum_id The forum id.
  *
@@ -1674,7 +1674,7 @@ function bbp_increase_forum_reply_count_hidden( $forum_id = 0 ) {
 /**
  * Decrease the total hidden reply count of a forum by one.
  *
- * @since 2.6.0 bbPress (r6036)
+ * @since 2.6.0 bbPress (r6923)
  *
  * @param int $forum_id The forum id.
  *
@@ -1736,7 +1736,7 @@ function bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id = 0 )
 /**
  * Update the forum last topic id
  *
- * @since 2.0.0 bbPress (r2625)
+ * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $topic_id Optional. Topic id.
@@ -1795,7 +1795,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 /**
  * Update the forum last reply id
  *
- * @since 2.0.0 bbPress (r2625)
+ * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $reply_id Optional. Reply id.
@@ -1851,7 +1851,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 /**
  * Update the forum last active post id
  *
- * @since 2.0.0 bbPress (r2860)
+ * @since 2.0.0 bbPress (r2870)
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $active_id Optional. Active post id.
@@ -1909,7 +1909,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 /**
  * Update the forums last active date/time (aka freshness)
  *
- * @since 2.0.0 bbPress (r2680)
+ * @since 2.0.0 bbPress (r2870)
  *
  * @param int    $forum_id Optional. Topic id.
  * @param string $new_time Optional. New time in mysql format.
@@ -1936,7 +1936,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 /**
  * Update the forum sub-forum count
  *
- * @since 2.0.0 bbPress (r2625)
+ * @since 2.0.0 bbPress (r2627)
  * @since 2.6.17 bbPress (r7454) Count supported forum visibilities from the post hierarchy.
  *
  * @param int      $forum_id Optional. Forum ID.
@@ -2147,7 +2147,7 @@ function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false 
  * Adjust the total hidden topic count of a forum (hidden includes trashed,
  * spammed and pending topics).
  *
- * @since 2.0.0 bbPress (r2888)
+ * @since 2.0.0 bbPress (r3349)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  * @since 2.6.17 bbPress (r7468) Optionally update ancestor forum totals.
  *
@@ -2232,7 +2232,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 /**
  * Adjust the total reply count of a forum.
  *
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r2615)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects.
  * @since 2.6.17 bbPress (r7468) Count replies only when their parent topics are public.
  * @since 2.6.17 bbPress (r7468) Optionally update ancestor forum totals.
@@ -2314,7 +2314,7 @@ function bbp_update_forum_reply_count( $forum_id = 0, $update_ancestors = false 
 /**
  * Adjust the total hidden reply count of a forum.
  *
- * @since 2.6.0 bbPress (r6922)
+ * @since 2.6.0 bbPress (r6923)
  * @since 2.6.17 bbPress (r7468) Optionally update ancestor forum totals.
  *
  * @param int  $forum_id Optional. Forum id or topic id. It is checked whether it
@@ -2368,7 +2368,7 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
  * database to get their results. As such, this function can be costly to run
  * but is necessary to keep everything accurate.
  *
- * @since 2.0.0 bbPress (r2908)
+ * @since 2.0.0 bbPress (r2907)
  *
  * @param array $args Supports these arguments:
  *  - forum_id: Forum id
@@ -2467,7 +2467,7 @@ function bbp_update_forum_walker( $args = array() ) {
  * Developers note: these statuses are actually stored as meta data, and
  * Visibilities are stored in post_status.
  *
- * @since 2.4.0 bbPress (r5059)
+ * @since 2.4.0 bbPress (r5060)
  *
  * @param int $forum_id   Optional. Forum id.
  *
@@ -2489,7 +2489,7 @@ function bbp_get_forum_statuses( $forum_id = 0 ) {
 /**
  * Return an associative array of forum types
  *
- * @since 2.4.0 bbPress (r5059)
+ * @since 2.4.0 bbPress (r5060)
  *
  * @param int $forum_id   Optional. Forum id.
  *
@@ -2514,7 +2514,7 @@ function bbp_get_forum_types( $forum_id = 0 ) {
  * Developers note: these visibilities are actually stored in post_status, and
  * Statuses are stored in meta data.
  *
- * @since 2.4.0 bbPress (r5059)
+ * @since 2.4.0 bbPress (r5060)
  *
  * @param int $forum_id   Optional. Forum id.
  *
@@ -2537,7 +2537,7 @@ function bbp_get_forum_visibilities( $forum_id = 0 ) {
 /**
  * Return array of public forum statuses.
  *
- * @since 2.6.0 bbPress (r6921)
+ * @since 2.6.0 bbPress (r6922)
  *
  * @return array
  */
@@ -2553,7 +2553,7 @@ function bbp_get_public_forum_statuses() {
 /**
  * Return array of non-public forum statuses.
  *
- * @since 2.6.0 bbPress (r6921)
+ * @since 2.6.0 bbPress (r6922)
  *
  * @return array
  */
@@ -2588,7 +2588,7 @@ function bbp_get_countable_forum_statuses() {
  *
  * Only hidden forum ids are returned. Public and private ids are not.
  *
- * @since 2.0.0 bbPress (r3007)
+ * @since 2.0.0 bbPress (r3008)
  */
 function bbp_get_hidden_forum_ids() {
 	$forum_ids = get_option( '_bbp_hidden_forums', array() );
@@ -2605,7 +2605,7 @@ function bbp_get_hidden_forum_ids() {
  *
  * Only private forum ids are returned. Public and hidden ids are not.
  *
- * @since 2.0.0 bbPress (r3007)
+ * @since 2.0.0 bbPress (r3008)
  */
 function bbp_get_private_forum_ids() {
 	$forum_ids = get_option( '_bbp_private_forums', array() );
@@ -2628,7 +2628,7 @@ function bbp_get_private_forum_ids() {
  * If you have a need to filter these results based on your own custom
  * engagements API usages, please see: bbp_allow_forums_of_user()
  *
- * @since 2.6.0 bbPress (r6425)
+ * @since 2.6.0 bbPress (r6426)
  *
  * @return array Forum IDs to exclude, or an empty array
  */
@@ -2673,7 +2673,7 @@ function bbp_get_excluded_forum_ids() {
  * Returns a meta_query that either includes or excludes hidden forum IDs
  * from a query.
  *
- * @since 2.0.0 bbPress (r3291)
+ * @since 2.0.0 bbPress (r3085)
  *
  * @param string Optional. The type of value to return. (string|array|meta_query)
  */
@@ -2726,7 +2726,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  * to hardcode this logic into each query. It also protects forum content for
  * plugins that might be doing their own queries.
  *
- * @since 2.0.0 bbPress (r3291)
+ * @since 2.3.0 bbPress (r4808)
  *
  * @param WP_Query $posts_query
  *
@@ -3012,7 +3012,7 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
  *
  * Only topics with published and closed statuses are returned
  *
- * @since 2.0.0 bbPress (r2908)
+ * @since 2.0.0 bbPress (r2895)
  *
  * @param int $forum_id Forum id
  */
@@ -3028,7 +3028,7 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  *
  * Only forums with countable statuses are returned.
  *
- * @since 2.0.0 bbPress (r2908)
+ * @since 2.0.0 bbPress (r2895)
  * @since 2.6.17 bbPress (r7468) Restrict results to countable statuses instead of using
  *               bbp_get_all_child_ids().
  *
@@ -3075,7 +3075,7 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 /**
  * Returns the forum's last reply id
  *
- * @since 2.0.0 bbPress (r2908)
+ * @since 2.0.0 bbPress (r2895)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
  * @param int $forum_id Forum id.
@@ -3126,7 +3126,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
  * Check if it's a hidden forum or a topic or reply of a hidden forum and if
  * the user can't view it, then sets a 404
  *
- * @since 2.0.0 bbPress (r2996)
+ * @since 2.0.0 bbPress (r3430)
  */
 function bbp_forum_enforce_hidden() {
 
@@ -3171,7 +3171,7 @@ function bbp_forum_enforce_hidden() {
  * Check if it's a private forum or a topic or reply of a private forum and if
  * the user can't view it, then sets a 404
  *
- * @since 2.0.0 bbPress (r2996)
+ * @since 2.0.0 bbPress (r3430)
  */
 function bbp_forum_enforce_private() {
 
@@ -3235,7 +3235,7 @@ function bbp_check_forum_edit() {
 /**
  * Delete all topics (and their replies) for a specific forum ID
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  *
  * @param int $forum_id
  * @return If forum is not valid
@@ -3286,7 +3286,7 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 /**
  * Trash all topics inside a forum
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  *
  * @param int $forum_id
  * @return If forum is not valid
@@ -3354,7 +3354,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 /**
  * Untrash all topics inside a forum
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  *
  * @param int $forum_id
  * @return If forum is not valid
@@ -3395,7 +3395,7 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
  * handled by WordPress core API functions. It is used to clean up after
  * a forum that is being deleted.
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  */
 function bbp_delete_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3414,7 +3414,7 @@ function bbp_delete_forum( $forum_id = 0 ) {
  * handled by WordPress core API functions. It is used to clean up after
  * a forum that is being trashed.
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  */
 function bbp_trash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3429,7 +3429,7 @@ function bbp_trash_forum( $forum_id = 0 ) {
 /**
  * Called before untrashing a forum
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  */
 function bbp_untrash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3449,8 +3449,8 @@ function bbp_untrash_forum( $forum_id = 0 ) {
  * Try not to use this action. All meta & taxonomy terms have already been
  * deleted, making them impossible to use.
  *
- * @since 2.1.0 bbPress (r3668)
- * @since 2.6.0 bbPress (r6526) Not recommend for usage
+ * @since 2.1.0 bbPress (r3669)
+ * @since 2.6.0 bbPress (r6529) Not recommend for usage
  * @since 2.6.17 bbPress (r7454) Added the `$forum` parameter and passed it to the action.
  *
  * @param int          $forum_id Forum ID.
@@ -3473,7 +3473,7 @@ function bbp_deleted_forum( $forum_id = 0, $forum = false ) {
 /**
  * Called after trashing a forum
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  */
 function bbp_trashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3488,7 +3488,7 @@ function bbp_trashed_forum( $forum_id = 0 ) {
 /**
  * Called after untrashing a forum
  *
- * @since 2.1.0 bbPress (r3668)
+ * @since 2.1.0 bbPress (r3669)
  */
 function bbp_untrashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
