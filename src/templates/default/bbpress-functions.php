@@ -5,7 +5,7 @@
  *
  * @package bbPress
  * @subpackage BBP_Theme_Compat
- * @since 2.1.0 bbPress (r3732)
+ * @since 2.1.0 bbPress (r3734)
  */
 
 // Exit if accessed directly
@@ -27,7 +27,7 @@ if ( ! class_exists( 'BBP_Default' ) ) :
  *
  * See @link BBP_Theme_Compat() for more.
  *
- * @since 2.1.0 bbPress (r3732)
+ * @since 2.1.0 bbPress (r3734)
  *
  * @package bbPress
  * @subpackage BBP_Theme_Compat
@@ -39,7 +39,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * The main bbPress (Default) Loader
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function __construct( $properties = array() ) {
 
@@ -63,7 +63,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * Setup the theme hooks
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 *
 	 * @access private
 	 */
@@ -91,7 +91,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Inserts HTML at the top of the main content area to be compatible with
 	 * the Twenty Twelve theme.
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function before_main_content() {
 	?>
@@ -106,7 +106,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Inserts HTML at the bottom of the main content area to be compatible with
 	 * the Twenty Twelve theme.
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function after_main_content() {
 	?>
@@ -120,7 +120,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * Load the theme CSS
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function enqueue_styles() {
 
@@ -152,7 +152,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * Enqueue the required JavaScript files
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function enqueue_scripts() {
 
@@ -213,7 +213,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * These localizations require information that may not be loaded even by init.
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function localize_topic_script() {
 
@@ -234,7 +234,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * AJAX handler to add or remove a topic from a user's favorites
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function ajax_favorite() {
 
@@ -303,7 +303,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * AJAX handler to Subscribe/Unsubscribe a user from a topic
 	 *
-	 * @since 2.1.0 bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3734)
 	 */
 	public function ajax_subscription() {
 
