@@ -54,3 +54,28 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-audit-") as directory:
     assert "@since 2.6.19 bbPress\n" in (source / "dirty.php").read_text()
 
 print("Safe auto-healing fixture passed.")
+
+with tempfile.TemporaryDirectory(prefix="bbp-since-svn-") as directory:
+    root = Path(directory)
+    repository = root / "repo"
+    run(root, "svnadmin", "create", str(repository))
+    url = repository.as_uri() + "/trunk"
+    run(root, "svn", "mkdir", url, "-m", "Create trunk.")
+    checkout = root / "checkout"
+    run(root, "svn", "checkout", url, str(checkout))
+    source = checkout / "src"
+    source.mkdir()
+    file = source / "example.php"
+    file.write_text("<?php\n")
+    run(checkout, "svn", "add", "src")
+    run(checkout, "svn", "commit", "-m", "Add source file.")
+    file.write_text("<?php\n * @since 2.6.19 bbPress Added behavior.\n")
+    run(checkout, "svn", "commit", "-m", "Add annotation.")
+    output = run(checkout, "python3", str(HELPER), "--fix", "--dry-run", "--format", "json")
+    rows = json.loads(output)
+    assert len(rows) == 1 and rows[0]["candidate_revision"] == "3", rows
+    assert rows[0]["action"] == "would fix", rows
+    run(checkout, "python3", str(HELPER), "--fix")
+    assert "@since 2.6.19 bbPress (r3)" in file.read_text()
+
+print("Subversion revision fixture passed.")

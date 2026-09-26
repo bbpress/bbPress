@@ -114,7 +114,12 @@ def audit(root, vcs, version_filter, min_revision):
 
 def latest_revision(root, vcs):
     if vcs == "svn":
-        return command(root, "svn", "info", "--show-item", "last-changed-revision", ".").strip()
+        info = ET.fromstring(command(root, "svn", "info", "--recursive", "--xml", "."))
+        revisions = [
+            int(commit.attrib["revision"])
+            for commit in info.findall(".//commit")
+        ]
+        return str(max(revisions)) if revisions else ""
     commit = command(root, "git", "rev-parse", "HEAD").strip()
     return git_svn_revision(root, commit, {})
 
