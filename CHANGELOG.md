@@ -29,6 +29,7 @@ Development for the next bbPress release is in progress. See the active
 - Excluded replies in non-public topics from search results, public profiles,
   and feeds.
 - Restricted front-end favorites and subscriptions to post objects, and checked read permissions when adding them.
+- Limited automatic forum upgrades to capable users viewing administration screens.
 
 ### Fixed
 

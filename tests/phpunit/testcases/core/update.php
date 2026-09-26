@@ -64,13 +64,59 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_setup_updater
-	 * @todo   Implement test_bbp_setup_updater().
 	 */
 	public function test_bbp_setup_updater() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		global $pagenow;
+
+		require_once ABSPATH . 'wp-admin/includes/admin.php';
+		require_once bbpress()->includes_dir . 'admin/actions.php';
+
+		$this->assertFalse( has_action( 'bbp_admin_init', 'bbp_setup_updater' ) );
+		$this->assertSame( 999, has_action( 'bbp_current_screen', 'bbp_setup_updater' ) );
+
+		$screen         = WP_Screen::get( 'dashboard' );
+		$front_screen   = WP_Screen::get( 'front' );
+		$participant_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$keymaster_id   = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$site_admin_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		update_option( '_bbp_db_version', 263 );
+		update_option( '_bbp_converter_query', 'saved progress' );
+
+		$this->set_current_user( 0 );
+		$this->assertTrue( bbp_is_update() );
+		bbp_setup_updater( $screen );
+		$this->assertSame( 263, (int) bbp_get_db_version_raw() );
+
+		$this->set_current_user( $participant_id );
+		bbp_setup_updater( $screen );
+		$this->assertSame( 263, (int) bbp_get_db_version_raw() );
+
+		$this->set_current_user( $keymaster_id );
+		bbp_setup_updater( $front_screen );
+		$this->assertSame( 263, (int) bbp_get_db_version_raw() );
+
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		bbp_setup_updater( $screen );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$this->assertSame( 263, (int) bbp_get_db_version_raw() );
+
+		$old_pagenow = $pagenow;
+		$pagenow     = 'admin-post.php';
+		bbp_setup_updater( $screen );
+		$pagenow = $old_pagenow;
+		$this->assertSame( 263, (int) bbp_get_db_version_raw() );
+
+		do_action( 'current_screen', $screen );
+		$this->assertSame( 264, (int) bbp_get_db_version_raw() );
+		$this->assertFalse( get_option( '_bbp_converter_query' ) );
+
+		update_option( '_bbp_db_version', 263 );
+		$this->set_current_user( $site_admin_id );
+		$this->assertTrue( current_user_can( 'manage_options' ) );
+		bbp_setup_updater( $screen );
+		$this->assertSame( 264, (int) bbp_get_db_version_raw() );
 	}
 
 	/**
