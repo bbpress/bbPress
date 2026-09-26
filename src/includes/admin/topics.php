@@ -1128,7 +1128,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Sort row actions by key.
 	 *
-	 * @since 2.6.0
+	 * @since 2.6.0 bbPress (r6772)
 	 *
 	 * @param array $actions
 	 *

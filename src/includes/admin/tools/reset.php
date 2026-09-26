@@ -148,7 +148,7 @@ function bbp_admin_reset_query_feedback( $args = array() ) {
 /**
  * Perform a bbPress database reset.
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6750)
  */
 function bbp_admin_reset_database() {
 

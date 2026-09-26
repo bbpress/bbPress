@@ -207,7 +207,7 @@ function bbp_user_add_role_on_activate( $user_id = 0, $password = '', $meta = ar
  * user registration, but also when adding an existing user to a site in
  * Multisite installations.
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7086)
  *
  * @param string $to_validate A role ID to validate.
  *
@@ -236,7 +236,7 @@ function bbp_validate_signup_role( $to_validate = '' ) {
 	/**
 	 * Filters the validated signup role.
 	 *
-	 * @since 2.6.5
+	 * @since 2.6.5 bbPress (r7086)
 	 *
 	 * @param string $retval The valid role ID if validation passes; otherwise, an empty string.
 	 * @param string $to_validate The role ID that was validated.
@@ -247,7 +247,7 @@ function bbp_validate_signup_role( $to_validate = '' ) {
 /**
  * Validate the Forum role during the registration process.
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7086)
  *
  * @param string $to_validate A role ID to validate.
  *
@@ -280,7 +280,7 @@ function bbp_validate_registration_role( $to_validate = '' ) {
  * Note: this will not fire inside of wp-activate.php unless it is hooked in
  * during sunrise.php, and is considered an advanced use-case.
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7086)
  *
  * @param string $to_validate A role ID to validate.
  *

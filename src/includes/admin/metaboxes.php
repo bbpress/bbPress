@@ -97,7 +97,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	/**
 	 * Filters the "at a glance" dashboard items.
 	 *
-	 * @since 2.6.0
+	 * @since 2.6.0 bbPress (r5268)
 	 *
 	 * @param array $elements The existing "at a glance" dashboard items.
 	 * @param array $r        The statistics array.

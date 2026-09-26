@@ -735,7 +735,7 @@ class BBP_Admin {
 		/**
 		 * Filters the mapped Settings capabilities.
 		 *
-		 * @since 2.2.0
+		 * @since 2.2.0 bbPress (r4244)
 		 *
 		 * @param array  $caps    The capabilities for meta capability.
 		 * @param string $cap     Capability name.
@@ -988,7 +988,7 @@ class BBP_Admin {
 	 * calls inside of a list-table loop. This is less precise but should work
 	 * well-enough for most installations.
 	 *
-	 * @since 2.7.0
+	 * @since 2.7.0 bbPress (r7278)
 	 *
 	 * @param array       $post_states
 	 * @param int|WP_Post $post

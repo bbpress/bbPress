@@ -1960,7 +1960,7 @@ function bbp_topic_last_reply_title( $topic_id = 0 ) {
  * Return the title of the last reply inside a topic.
  *
  * @since 2.0.0 bbPress (r2753)
- * @since 2.6.0 bbPress https://bbpress.trac.wordpress.org/ticket/3039
+ * @since 2.6.0 bbPress (r6244) https://bbpress.trac.wordpress.org/ticket/3039
  *
  * @param int $topic_id Optional. Topic id.
  * @return string Topic last reply title.

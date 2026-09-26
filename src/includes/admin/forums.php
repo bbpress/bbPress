@@ -249,7 +249,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Add the forum moderators meta-box.
 	 *
-	 * @since 2.6.0 bbPress
+	 * @since 2.6.0 bbPress (r5834)
 	 */
 	public function moderators_metabox() {
 
@@ -733,7 +733,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Sort row actions by key.
 	 *
-	 * @since 2.6.0
+	 * @since 2.6.0 bbPress (r6772)
 	 *
 	 * @param array $actions.
 	 *

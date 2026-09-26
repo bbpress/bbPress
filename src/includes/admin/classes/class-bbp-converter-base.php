@@ -115,7 +115,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Initialize the converter
 	 *
-	 * @since 2.1.0
+	 * @since 2.6.0 bbPress (r6456)
 	 */
 	private function init() {
 
@@ -270,7 +270,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Setup fields that require an active source database connection.
 	 *
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7589)
 	 */
 	protected function setup_source_fields() {}
 
@@ -333,7 +333,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Convert Table.
 	 *
-	 * @since 2.6.18 Connects to the source database when conversion begins.
+	 * @since 2.6.18 bbPress (r7545) Connects to the source database when conversion begins.
 	 *
 	 * @param string $to_type The destination type
 	 * @param int $start Start row
@@ -705,7 +705,7 @@ abstract class BBP_Converter_Base {
 	 * post-status transition callbacks from incrementing those counts again as
 	 * each converted topic and reply is inserted.
 	 *
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7601)
 	 *
 	 * @param array $post_data Converted post data.
 	 * @return int|WP_Error Post ID on success, WP_Error on failure.
@@ -1105,7 +1105,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update a converted password without saving its hash in the last query option.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7640)
 	 *
 	 * @param int    $user_id  User ID.
 	 * @param string $password Password hash or an empty string.
@@ -1163,7 +1163,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Unserialize imported password metadata as an array.
 	 *
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7589)
 	 *
 	 * @param string $serialized_pass Serialized password metadata.
 	 * @return array|false Password metadata, or false when invalid.
@@ -1194,7 +1194,7 @@ abstract class BBP_Converter_Base {
 	 * Serialized strings are skipped by their declared byte length so object-like
 	 * text inside a hash or salt does not cause a false positive.
 	 *
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7589)
 	 *
 	 * @param string $serialized_pass Serialized password metadata.
 	 * @return bool True when the value contains an object or is unsafe to parse.
@@ -1238,7 +1238,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Run password through wp_hash_password().
 	 *
-	 * @since 2.6.18 Added the `$wp_password` parameter.
+	 * @since 2.6.18 bbPress (r7547) Added the `$wp_password` parameter.
 	 *
 	 * @param string $username
 	 * @param string      $password

@@ -532,7 +532,7 @@ class BBP_Akismet {
 	/**
 	 * Check whether a server key may contain credentials.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7638)
 	 *
 	 * @param string $key Server key.
 	 * @return bool Whether the key should be omitted.
@@ -543,7 +543,7 @@ class BBP_Akismet {
 		/**
 		 * Filters whether a server field is omitted from Akismet requests.
 		 *
-		 * @since 2.6.19
+		 * @since 2.6.19 bbPress (r7638)
 		 *
 		 * @param bool $sensitive Whether the field may contain credentials.
 		 * @param string $key Server key.
@@ -848,7 +848,7 @@ class BBP_Akismet {
 	/**
 	 * Handles the repeated calls to wp_remote_post(), including SSL support.
 	 *
-	 * @since 2.6.7 (bbPress r7194)
+	 * @since 2.6.7 bbPress (r7195)
 	 *
 	 * @param string $host_and_path Scheme-less URL.
 	 * @param array  $http_args     Array of arguments for wp_remote_post().

@@ -5,7 +5,7 @@
  *
  * @package    bbPress
  * @subpackage Administration
- * @since      2.6.0
+ * @since      2.6.0 bbPress (r5886)
  * @access     private
  *
  * @see WP_Posts_List_Table
@@ -327,7 +327,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Generates content for a single row of the table.
 	 *
-	 * @since 2.6.0
+	 * @since 2.6.0 bbPress (r6546)
 	 * @access public
 	 *
 	 * @param object $item The current item.

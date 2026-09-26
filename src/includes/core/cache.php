@@ -153,7 +153,7 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 	/**
 	 * Fires immediately after the given post cache is cleaned.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 bbPress (r4041)
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.
@@ -173,7 +173,7 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 /**
  * Invalidate cached forum-user counts across sites sharing the users table.
  *
- * @since 2.7.0
+ * @since 2.7.0 bbPress (r7447)
  */
 function bbp_clean_user_count_cache() {
 	wp_cache_set( 'bbp_forum_users_last_changed', microtime(), 'users' );
@@ -182,7 +182,7 @@ function bbp_clean_user_count_cache() {
 /**
  * Invalidate forum-user counts after capabilities metadata changes.
  *
- * @since 2.7.0
+ * @since 2.7.0 bbPress (r7447)
  *
  * @param int|array $meta_id  Metadata ID or IDs.
  * @param int       $user_id User ID.

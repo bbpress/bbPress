@@ -67,7 +67,7 @@ function bbp_get_converters() {
  * It is basically a dynamic loader that will load in the platform conversion
  * of your choice.
  *
- * @since 2.0.0
+ * @since 2.1.0 bbPress (r3816)
  *
  * @param string $platform Name of valid platform class.
  *
@@ -107,7 +107,7 @@ function bbp_new_converter( $platform = '' ) {
 	/**
 	 * Filters the newly created converter object.
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.0 bbPress (r6788)
 	 *
 	 * @param mixed  $converter The converter object if it exists, null otherwise.
 	 * @param string $platform  Name of the platform class used for conversion.

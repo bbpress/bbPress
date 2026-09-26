@@ -937,7 +937,7 @@ final class bbPress {
 	/**
 	 * Initialize forum-specific roles.
 	 *
-	 * @since 2.6.0
+	 * @since 2.6.0 bbPress (r6118)
 	 */
 	public function roles_init() {
 

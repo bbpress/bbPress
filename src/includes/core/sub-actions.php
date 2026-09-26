@@ -117,7 +117,7 @@ function bbp_init() {
 /**
  * Initialize the bbPress REST API.
  *
- * @since 2.7.0
+ * @since 2.7.0 bbPress (r7481)
  */
 function bbp_rest_api_init() {
 	do_action( 'bbp_rest_api_init' );
@@ -126,7 +126,7 @@ function bbp_rest_api_init() {
 /**
  * Pass an XML-RPC request through bbPress.
  *
- * @since 2.7.0 bbPress
+ * @since 2.7.0 bbPress (r7485)
  *
  * @param string            $method XML-RPC method name.
  * @param array             $args   XML-RPC method arguments.
@@ -323,7 +323,7 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
 /**
  * Add the bbPress-specific post updated action.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7453)
  *
  * @param int     $post_id     Post ID.
  * @param WP_Post $post_after  Post object following the update.
@@ -610,7 +610,7 @@ function bbp_mail( $args = array() ) {
  * @see redirect_canonical()
  *
  * @since 2.0.0 bbPress (r2628)
- * @since 2.7.0 bbPress {r7345) Converted to a sub-action.
+ * @since 2.7.0 bbPress (r7348) Converted to a sub-action.
  *
  * @param string $redirect_url  The redirect URL.
  * @param string $requested_url The requested URL.
@@ -627,7 +627,7 @@ function bbp_redirect_canonical( $redirect_url = '', $requested_url = '' ) {
 /**
  * Check whether bbPress metadata can be exposed in an oEmbed response.
  *
- * @since 2.6.19
+ * @since 2.6.19 bbPress (r7633)
  *
  * @param int $post_id bbPress post ID.
  * @return bool Whether the post can be embedded for the current visitor.
@@ -660,7 +660,7 @@ function bbp_user_can_embed_post( $post_id = 0 ) {
 /**
  * Prevent object-by-ID oEmbed requests from disclosing restricted posts.
  *
- * @since 2.6.19
+ * @since 2.6.19 bbPress (r7633)
  *
  * @param int $post_id Resolved post ID.
  * @return int Resolved post ID, or zero when access is denied.
@@ -677,7 +677,7 @@ function bbp_filter_oembed_request_post_id( $post_id = 0 ) {
 /**
  * Prevent canonical redirects from exposing restricted bbPress permalinks.
  *
- * @since 2.6.19
+ * @since 2.6.19 bbPress (r7633)
  *
  * @param string $redirect_url Proposed redirect URL.
  * @param string $requested_url Requested URL.

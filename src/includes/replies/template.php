@@ -624,7 +624,7 @@ function bbp_get_reply_content( $reply_id = 0 ) {
 /**
  * Get the reply or ancestor post whose password is still required.
  *
- * @since 2.6.19
+ * @since 2.6.19 bbPress (r7633)
  *
  * @param int $reply_id Reply ID.
  * @return int Protected post ID, or zero if all passwords are satisfied.
