@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Output the forum-role field when adding a new user.
  *
- * @since 2.6.0 bbPress (r6674)
+ * @since 2.6.0 bbPress (r6675)
  */
 function bbp_add_user_form_role_field() {
 
@@ -62,7 +62,7 @@ function bbp_add_user_form_role_field() {
 /**
  * Maybe add forum role to signup meta array.
  *
- * @since 2.6.0 bbPress (r6674)
+ * @since 2.6.0 bbPress (r6675)
  *
  * @param array $meta The signup meta.
  *
@@ -98,7 +98,7 @@ function bbp_user_add_role_to_signup_meta( $meta = array() ) {
 /**
  * Add forum meta data when inviting a user to a site.
  *
- * @since 2.6.0 bbPress (r6674)
+ * @since 2.6.0 bbPress (r6675)
  *
  * @param int    $user_id     The invited user's ID.
  * @param array  $role        The role of invited user.
@@ -142,7 +142,7 @@ function bbp_user_add_role_on_invite( $user_id = '', $role = '', $newuser_key = 
 /**
  * Single-site handler for adding a new user.
  *
- * @since 2.6.0 bbPress (r6674)
+ * @since 2.6.0 bbPress (r6675)
  *
 * @param int $user_id The user ID.
  *
@@ -170,7 +170,7 @@ function bbp_user_add_role_on_register( $user_id = '' ) {
 /**
  * Multi-site handler for adding a new user.
  *
- * @since 2.6.0 bbPress (r6674)
+ * @since 2.6.0 bbPress (r6675)
  *
  * @param int    $user_id  User ID.
  * @param string $password User password.

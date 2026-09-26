@@ -15,14 +15,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Extension of WP_User_Query to allow easy looping.
  *
- * @since 2.6.0 bbPress (r6330)
+ * @since 2.6.0 bbPress (r6332)
  */
 class BBP_User_Query extends WP_User_Query {
 
 	/**
 	 * The amount of users for the current query.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 * @var int
 	 */
@@ -31,7 +31,7 @@ class BBP_User_Query extends WP_User_Query {
 	/**
 	 * Index of the current item in the loop.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 * @var int
 	 */
@@ -40,7 +40,7 @@ class BBP_User_Query extends WP_User_Query {
 	/**
 	 * Whether the loop has started and the caller is in the loop.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 * @var bool
 	 */
@@ -49,7 +49,7 @@ class BBP_User_Query extends WP_User_Query {
 	/**
 	 * The current user.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 * @var WP_User
 	 */
@@ -58,7 +58,7 @@ class BBP_User_Query extends WP_User_Query {
 	/**
 	 * PHP5 constructor.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6334)
 	 * @access public
 	 *
 	 * @param null|string|array $query Optional. The query variables.
@@ -73,7 +73,7 @@ class BBP_User_Query extends WP_User_Query {
 	/**
 	 * Set up the next user and iterate current user index.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 *
 	 * @return WP_User Next user.
@@ -91,7 +91,7 @@ class BBP_User_Query extends WP_User_Query {
 	 * Retrieves the next user, sets up the user, sets the 'in the loop'
 	 * property to true.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 *
 	 * @global WP_User $user
@@ -105,7 +105,7 @@ class BBP_User_Query extends WP_User_Query {
 			/**
 			 * Fires once the loop is started.
 			 *
-			 * @since 2.6.0 bbPress (r6330)
+			 * @since 2.6.0 bbPress (r6332)
 			 *
 			 * @param WP_Query &$this The WP_Query instance (passed by reference).
 			 */
@@ -120,7 +120,7 @@ class BBP_User_Query extends WP_User_Query {
 	 *
 	 * Calls the {@see 'loop_end'} action when the loop is complete.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 *
 	 * @return bool True if users are available, false if end of loop.
@@ -133,7 +133,7 @@ class BBP_User_Query extends WP_User_Query {
 			/**
 			 * Fires once the loop has ended.
 			 *
-			 * @since 2.6.0 bbPress (r6330)
+			 * @since 2.6.0 bbPress (r6332)
 			 *
 			 * @param WP_Query &$this The WP_Query instance (passed by reference).
 			 */
@@ -151,7 +151,7 @@ class BBP_User_Query extends WP_User_Query {
 	/**
 	 * Rewind the users and reset user index.
 	 *
-	 * @since 2.6.0 bbPress (r6330)
+	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
 	 */
 	public function rewind_users() {
@@ -166,7 +166,7 @@ class BBP_User_Query extends WP_User_Query {
 /**
  * The main user loop.
  *
- * @since 2.6.0 bbPress (r6330)
+ * @since 2.6.0 bbPress (r6332)
  *
  * @param array $args All the arguments supported by {@link WP_User_Query}.
  * @return object Multidimensional array of user information.
@@ -197,7 +197,7 @@ function bbp_has_users( $args = array() ) {
 /**
  * Whether there are more users available in the loop.
  *
- * @since 2.6.0 bbPress (r2464)
+ * @since 2.6.0 bbPress (r6332)
  *
  * @return object User information.
  */
@@ -208,7 +208,7 @@ function bbp_users() {
 /**
  * Loads up the current user in the loop.
  *
- * @since 2.6.0 bbPress (r2464)
+ * @since 2.6.0 bbPress (r6332)
  *
  * @return object User information.
  */
@@ -320,7 +320,7 @@ function bbp_get_displayed_user_id() {
  * the field value that it finds. Since it uses the WP_User object's magic
  * __get() method, it can also be used to get user_meta values.
  *
- * @since 2.0.0 bbPress (r2688)
+ * @since 2.1.0 bbPress (r3634)
  *
  * @param string $field Field to get.
  * @param string $filter How to filter the field value (null|raw|db|display|edit).
@@ -481,7 +481,7 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
 /**
  * Output a users nicename to the screen.
  *
- * @since 2.3.0 bbPress (r4671)
+ * @since 2.3.0 bbPress (r4672)
  *
  * @param int $user_id User ID whose nicename to get.
  * @param array $args before|after|user_id|force.
@@ -493,7 +493,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 /**
  * Return a users nicename to the screen.
  *
- * @since 2.3.0 bbPress (r4671)
+ * @since 2.3.0 bbPress (r4672)
  *
  * @param int $user_id User ID whose nicename to get.
  * @param array $args before|after|user_id|force.
@@ -864,7 +864,7 @@ function bbp_get_author_ip( $args = array() ) {
  * This might happen if a user was deleted but their content was retained, or
  * if something went wrong during saving anonymous user data to the database.
  *
- * @since 2.6.0 bbPress (r6561)
+ * @since 2.6.0 bbPress (r6562)
  *
  * @param int $object_id For additional context only, usually a post ID.
  *
@@ -884,7 +884,7 @@ function bbp_get_fallback_display_name( $object_id = 0 ) {
  * and correct filters are executed. Used primarily to display topic
  * and reply author information in the anonymous form template-part.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
  */
@@ -899,7 +899,7 @@ function bbp_author_display_name( $post_id = 0 ) {
  * and correct filters are executed. Used primarily to display topic
  * and reply author information in the anonymous form template-part.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
  *
@@ -934,7 +934,7 @@ function bbp_get_author_display_name( $post_id = 0 ) {
  * and correct filters are executed. Used primarily to display topic
  * and reply author information in the anonymous user form template-part.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
  */
@@ -949,7 +949,7 @@ function bbp_author_email( $post_id = 0 ) {
  * and correct filters are executed. Used primarily to display topic
  * and reply author information in the anonymous user form template-part.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
 *
@@ -984,7 +984,7 @@ function bbp_get_author_email( $post_id = 0 ) {
  * and correct filters are executed. Used primarily to display topic
  * and reply author information in the anonymous user form template-part.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
  */
@@ -999,7 +999,7 @@ function bbp_author_url( $post_id = 0 ) {
  * and correct filters are executed. Used primarily to display topic
  * and reply author information in the anonymous user form template-part.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
  *
@@ -1032,7 +1032,7 @@ function bbp_get_author_url( $post_id = 0 ) {
 /**
  * Output the link to the user's favorites page (profile page).
  *
- * @since 2.0.0 bbPress (r2652)
+ * @since 2.0.0 bbPress (r2660)
  * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id.
@@ -1044,7 +1044,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 /**
  * Return the link to the user's favorites page (profile page).
  *
- * @since 2.0.0 bbPress (r2652)
+ * @since 2.0.0 bbPress (r2660)
  * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id.
@@ -1108,7 +1108,7 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
  * Output the link to make a topic favorite/remove a topic from favorites.
  *
  * @since 2.0.0 bbPress (r2652)
- * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
+ * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args See {@link bbp_get_user_favorites_link()}.
  * @param int $user_id Optional. User id.
@@ -1125,7 +1125,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
  * favorites.
  *
  * @since 2.0.0 bbPress (r2652)
- * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
+ * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args This function supports these arguments:
  *  - subscribe: Favorite text
@@ -1320,7 +1320,7 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
  * Output the link to subscribe/unsubscribe from a topic.
  *
  * @since 2.0.0 bbPress (r2668)
- * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
+ * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args See {@link bbp_get_user_subscribe_link()}.
  * @param int $user_id Optional. User id.
@@ -1334,7 +1334,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
  * Return the link to subscribe/unsubscribe from a forum or topic.
  *
  * @since 2.0.0 bbPress (r2668)
- * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
+ * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args This function supports these arguments:
  *  - subscribe: Subscribe text
@@ -1471,7 +1471,7 @@ function bbp_notice_edit_user_success() {
 /**
  * Display pending email change notice on user edit page.
  *
- * @since 2.6.0 bbPress (r5660)
+ * @since 2.6.0 bbPress (r5661)
  */
 function bbp_notice_edit_user_pending_email() {
 
@@ -1588,7 +1588,7 @@ function bbp_edit_user_display_name() {
 /**
  * Output blog role selector (for user edit).
  *
- * @since 2.0.0 bbPress (r2688)
+ * @since 2.2.0 bbPress (r4288)
  */
 function bbp_edit_user_blog_role() {
 
@@ -1620,7 +1620,7 @@ function bbp_edit_user_blog_role() {
 /**
  * Output forum role selector (for user edit).
  *
- * @since 2.2.0 bbPress (r4284)
+ * @since 2.2.0 bbPress (r4288)
  */
 function bbp_edit_user_forums_role() {
 
@@ -1685,7 +1685,7 @@ function bbp_edit_user_contact_methods() {
 /**
  * Output the language chooser (for user edit).
  *
- * @since 2.6.0 bbPress (r6488)
+ * @since 2.6.0 bbPress (r6489)
  *
  * @param array $args See wp_dropdown_languages().
  * @return string
@@ -1748,7 +1748,7 @@ function bbp_is_user_profile_form_post_request( $user_id = 0 ) {
 /**
  * Output the link to the user's topics.
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
  */
@@ -1759,7 +1759,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 /**
  * Return the link to the user's topics.
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
  * @return string Permanent link to user profile page.
@@ -1805,7 +1805,7 @@ function bbp_get_user_topics_created_url( $user_id = 0 ) {
 /**
  * Output the link to the user's replies.
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
  */
@@ -1816,7 +1816,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 /**
  * Return the link to the user's replies.
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
  * @return string Permanent link to user profile page.
@@ -1919,7 +1919,7 @@ function bbp_get_user_engagements_url( $user_id = 0 ) {
 /**
  * Output the select element used to save a user's language.
  *
- * @since 2.6.0 bbPress (r6488)
+ * @since 2.6.0 bbPress (r6489)
  *
  * @param array $args See wp_dropdown_languages().
  */
@@ -1930,7 +1930,7 @@ function bbp_user_languages_dropdown( $args = array() ) {
 /**
  * Return the select element used to save a user's language.
  *
- * @since 2.6.0 bbPress (r6488)
+ * @since 2.6.0 bbPress (r6489)
  *
  * @param array $args See wp_dropdown_languages().
  * @return string
@@ -2118,7 +2118,7 @@ function bbp_user_lost_pass_fields() {
 /**
  * Output the author link of a post.
  *
- * @since 2.0.0 bbPress (r2875)
+ * @since 2.0.0 bbPress (r2874)
  *
  * @param array $args Optional. If it is an integer, it is used as post id.
  */
@@ -2129,7 +2129,7 @@ function bbp_author_link( $args = array() ) {
 /**
  * Return the author link of the post.
  *
- * @since 2.0.0 bbPress (r2875)
+ * @since 2.0.0 bbPress (r2874)
  *
  * @param array $args Optional. If an integer, it is used as reply id.
  * @return string Author link of reply.
@@ -2239,7 +2239,7 @@ function bbp_get_author_link( $args = array() ) {
 /**
  * Check if the user can access a specific forum.
  *
- * @since 2.0.0 bbPress (r3127)
+ * @since 2.0.0 bbPress (r3057)
  *
  * @return bool
  */
@@ -2285,7 +2285,7 @@ function bbp_user_can_view_forum( $args = array() ) {
 /**
  * Check if the current user can publish topics.
  *
- * @since 2.0.0 bbPress (r3127)
+ * @since 2.0.0 bbPress (r3366)
  *
  * @return bool
  */
@@ -2339,7 +2339,7 @@ function bbp_current_user_can_publish_forums() {
 /**
  * Check if the current user can publish replies.
  *
- * @since 2.0.0 bbPress (r3127)
+ * @since 2.0.0 bbPress (r3366)
  *
  * @return bool
  */
@@ -2469,7 +2469,7 @@ function bbp_current_user_can_access_create_topic_form() {
 /**
  * Performs a series of checks to ensure the current user can create replies.
  *
- * @since 2.0.0 bbPress (r3127)
+ * @since 2.0.0 bbPress (r3366)
  *
  * @return bool
  */
@@ -2524,7 +2524,7 @@ function bbp_current_user_can_access_topic_moderation( $topic_id = 0 ) {
  * Performs a series of checks to ensure the current user should see the
  * anonymous user form fields.
  *
- * @since 2.5.0 bbPress (r5119)
+ * @since 2.5.0 bbPress (r5120)
  *
  * @return bool
  */

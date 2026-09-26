@@ -12,7 +12,7 @@
 /**
  * Maps primary capabilities.
  *
- * @since 2.2.0 bbPress (r4242)
+ * @since 2.2.0 bbPress (r4244)
  *
  * @param array  $caps Capabilities for meta capability.
  * @param string $cap Capability name.
@@ -149,7 +149,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 /**
  * Set a user's role in the forums.
  *
- * @since 2.1.0 bbPress (r3860)
+ * @since 2.2.0 bbPress (r4289)
  *
  * @param int $user_id User id.
  *
@@ -234,7 +234,7 @@ function bbp_get_user_role( $user_id = 0 ) {
 /**
  * Return a user's blog role.
  *
- * @since 2.3.0 bbPress (r4446)
+ * @since 2.3.0 bbPress (r4447)
  *
  * @param int $user_id User id.
  *
@@ -272,7 +272,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
  * Helper function hooked to 'bbp_profile_update' action to save or
  * update user roles and capabilities.
  *
- * @since 2.2.0 bbPress (r4235)
+ * @since 2.2.0 bbPress (r4330)
  *
  * @param int $user_id User id.
  */
@@ -433,7 +433,7 @@ function bbp_is_valid_role( $role = '' ) {
  * This function will bail if the forum is not global in a multisite
  * installation of WordPress, or if the user is marked as spam or deleted.
  *
- * @since 2.0.0 bbPress (r3380)
+ * @since 2.2.0 bbPress (r4185)
  *
  * @return If not multisite, not global, or user is deleted/spammed.
  */
@@ -508,7 +508,7 @@ function bbp_set_current_user_default_role() {
  * appropriate bbPress roles to WordPress users that wouldn't already have a
  * role in the forums. Also guarantees WordPress admins get the Keymaster role.
  *
- * @since 2.2.0 bbPress (r4334)
+ * @since 2.2.0 bbPress (r4335)
  *
  * @return array Filtered array of WordPress roles to bbPress roles.
  */
@@ -535,7 +535,7 @@ function bbp_get_user_role_map() {
 /**
  * Checks if the user has been marked as a spammer.
  *
- * @since 2.0.0 bbPress (r3355)
+ * @since 2.0.0 bbPress (r3356)
  *
  * @param int $user_id int The ID for the user.
  * @return bool True if spammer, False if not.
@@ -574,7 +574,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 /**
  * Mark a users topics and replies as spam when the user is marked as spam.
  *
- * @since 2.0.0 bbPress (r3405)
+ * @since 2.0.0 bbPress (r3410)
  *
  * @param int $user_id Optional. User ID to spam. Defaults to displayed user.
  *
@@ -661,7 +661,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 /**
  * Mark a users topics and replies as spam when the user is marked as spam.
  *
- * @since 2.0.0 bbPress (r3405)
+ * @since 2.0.0 bbPress (r3410)
  *
  * @param int $user_id Optional. User ID to unspam. Defaults to displayed user.
  *
@@ -752,7 +752,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 /**
  * Checks if the user has been marked as deleted.
  *
- * @since 2.0.0 bbPress (r3355)
+ * @since 2.0.0 bbPress (r3356)
  *
  * @param int $user_id int The ID for the user.
  * @return bool True if deleted, False if not.
@@ -791,7 +791,7 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 /**
  * Checks if user is active.
  *
- * @since 2.0.0 bbPress (r3502)
+ * @since 2.0.0 bbPress (r3504)
  *
  * @param int $user_id The user ID to check.
  * @return bool True if public, false if not.
@@ -821,7 +821,7 @@ function bbp_is_user_active( $user_id = 0 ) {
 /**
  * Checks if user is not active.
  *
- * @since 2.0.0 bbPress (r3502)
+ * @since 2.0.0 bbPress (r3504)
  *
  * @param int $user_id The user ID to check. Defaults to current user ID.
  * @return bool True if inactive, false if active.
@@ -849,7 +849,7 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
 /**
  * Does a user have a profile for the current site.
  *
- * @since 2.2.0 bbPress (r4362)
+ * @since 2.2.0 bbPress (r4363)
  *
  * @param int $user_id User ID to check.
  *
