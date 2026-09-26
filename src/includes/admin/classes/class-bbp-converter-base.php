@@ -130,7 +130,7 @@ abstract class BBP_Converter_Base {
 		/** Sanitize Options **************************************************/
 
 		$this->clean         = ! empty( $_POST['_bbp_converter_clean'] );
-		$this->convert_users = (bool) get_option( '_bbp_converter_convert_users', false );
+		$this->convert_users = current_user_can( 'bbp_tools_import_users' ) && (bool) get_option( '_bbp_converter_convert_users', false );
 		$this->halt          = (bool) get_option( '_bbp_converter_halt',          0     );
 		$this->max_rows      = (int) get_option( '_bbp_converter_rows',          100   );
 
@@ -339,6 +339,10 @@ abstract class BBP_Converter_Base {
 	 * @param int $start Start row
 	 */
 	public function convert_table( $to_type, $start ) {
+		// Without account import, do not create users or user engagements.
+		if ( ! $this->convert_users && in_array( $to_type, array( 'user', 'forum_subscriptions', 'topic_subscriptions', 'favorites' ), true ) ) {
+			return true;
+		}
 
 		// Connect to the source database only when conversion begins. This keeps
 		// first-login password upgrades independent of the source database.
@@ -464,15 +468,18 @@ abstract class BBP_Converter_Base {
 							// This row has a destination that matches one of the
 							// columns in this table.
 							if ( in_array( $row['to_fieldname'], $tablefield_array, true ) ) {
+								// Source user IDs must not claim existing WordPress accounts.
+								if ( ( 'post_author' === $row['to_fieldname'] ) && ! $this->convert_users ) {
+									$insert_post['post_author'] = 0;
 
 								// Allows us to set default fields.
-								if ( isset( $row['default'] ) ) {
+								} elseif ( isset( $row['default'] ) ) {
 									$insert_post[ $row['to_fieldname'] ] = $row['default'];
 
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
 									if ( ( 'callback_userid' === $row['callback_method'] ) && ( false === $this->convert_users ) ) {
-										$insert_post[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
+										$insert_post[ $row['to_fieldname'] ] = 0;
 									} else {
 										$insert_post[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
 									}
@@ -493,7 +500,7 @@ abstract class BBP_Converter_Base {
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
 									if ( ( 'callback_userid' === $row['callback_method'] ) && ( false === $this->convert_users ) ) {
-										$insert_postmeta[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
+										$insert_postmeta[ $row['to_fieldname'] ] = 0;
 									} else {
 										$insert_postmeta[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
 									}
@@ -704,6 +711,16 @@ abstract class BBP_Converter_Base {
 	 * @return int|WP_Error Post ID on success, WP_Error on failure.
 	 */
 	protected function insert_post( $post_data = array() ) {
+		// Keep safe source formatting without trusting imported HTML.
+		foreach ( array( 'post_content', 'post_excerpt' ) as $field ) {
+			if ( isset( $post_data[ $field ] ) ) {
+				$post_data[ $field ] = wp_kses_post( $post_data[ $field ] );
+			}
+		}
+		if ( isset( $post_data['post_title'] ) ) {
+			$post_data['post_title'] = wp_strip_all_tags( $post_data['post_title'] );
+		}
+
 		$suppress_count_updates = function () {
 			return false;
 		};
@@ -933,6 +950,11 @@ abstract class BBP_Converter_Base {
 					$has_delete = true;
 				}
 			}
+		}
+
+		// Imported accounts are network-wide and cannot be owned by one site.
+		if ( is_multisite() ) {
+			return ! $has_delete;
 		}
 
 		/** Delete users ******************************************************/
@@ -1322,6 +1344,11 @@ abstract class BBP_Converter_Base {
 	 * @return string
 	 */
 	private function callback_userid( $field ) {
+		// Source IDs must never resolve to unrelated network users.
+		if ( ! $this->convert_users ) {
+			return 0;
+		}
+
 		if ( ! isset( $this->map_userid[ $field ] ) ) {
 			$row = ! empty( $this->sync_table )
 				? $this->get_row( $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) )
@@ -1397,7 +1424,7 @@ abstract class BBP_Converter_Base {
 			$bbcode->{$prop} = $value;
 		}
 
-		return html_entity_decode( $bbcode->Parse( $field ) );
+		return $bbcode->Parse( $field );
 	}
 
 	protected function callback_null( $field ) {

@@ -368,6 +368,11 @@ class BBP_Converter {
 				: ''
 		);
 
+		// Saving site-level converter settings must not change the account option.
+		if ( ! current_user_can( 'bbp_tools_import_users' ) ) {
+			unset( $options['_bbp_converter_convert_users'] );
+		}
+
 		// Update/delete options
 		foreach ( $options as $key => $value ) {
 			update_option( $key, $value );

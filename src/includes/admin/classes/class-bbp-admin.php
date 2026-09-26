@@ -673,6 +673,13 @@ class BBP_Admin {
 				$caps = array( bbp_admin()->minimum_capability );
 				break;
 
+			// On multisite, use a grantable capability for network user imports.
+			case 'bbp_tools_import_users' :
+				$caps = is_multisite()
+					? array( $cap )
+					: array( bbp_setup_admin()->minimum_capability );
+				break;
+
 			// Extend - BuddyPress
 			case 'bbp_settings_buddypress' :
 				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) && bp_is_root_blog() ) && is_super_admin() ) {
