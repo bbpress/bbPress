@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * If there is no raw DB version, this is the first installation
  *
- * @since 2.1.0 bbPress (r3764)
+ * @since 2.1.0 bbPress (r3765)
  *
  * @return bool True if update, False if not
  */
@@ -184,7 +184,7 @@ function bbp_setup_updater( $current_screen = null ) {
  * Runs when a new site is created in a multisite network, and bbPress is active
  * on that site (hooked to `bbp_new_site`)
  *
- * @since 2.6.0 bbPress (r6779)
+ * @since 2.6.0 bbPress (r6780)
  */
 function bbp_setup_new_site( $site_id = 0 ) {
 
@@ -207,7 +207,7 @@ function bbp_setup_new_site( $site_id = 0 ) {
 /**
  * Create a default forum, topic, and reply
  *
- * @since 2.1.0 bbPress (r3767)
+ * @since 2.1.0 bbPress (r3768)
  *
  * @param array $args Array of arguments to override default values
  */
@@ -298,7 +298,7 @@ function bbp_create_initial_content( $args = array() ) {
  * This is most-often used when the data schema changes, but should also be used
  * to correct issues with bbPress meta-data silently on software update.
  *
- * @since 2.2.0 bbPress (r4104)
+ * @since 2.2.0 bbPress (r4105)
  */
 function bbp_version_updater() {
 
@@ -443,7 +443,7 @@ function bbp_version_updater() {
 /**
  * Redirect user to the "What's New" page on activation
  *
- * @since 2.2.0 bbPress (r4389)
+ * @since 2.2.0 bbPress (r4390)
  *
  * @internal Used internally to redirect bbPress to the about page on activation
  *
@@ -463,7 +463,7 @@ function bbp_add_activation_redirect() {
 /**
  * Redirect user to "What's New" page on activation
  *
- * @since 2.2.0 bbPress (r4389)
+ * @since 2.2.0 bbPress (r4390)
  *
  * @internal Used internally to redirect bbPress to the about page on activation
  *
@@ -550,7 +550,7 @@ function bbp_make_current_user_keymaster() {
 /**
  * Return the number of pending upgrades
  *
- * @since 2.6.0 bbPress (r6895)
+ * @since 2.6.0 bbPress (r6896)
  *
  * @param string $type Type of pending upgrades (upgrade|repair|empty)
  *
@@ -563,7 +563,7 @@ function bbp_get_pending_upgrade_count( $type = '' ) {
 /**
  * Return an array of pending upgrades
  *
- * @since 2.6.0 bbPress (r6895)
+ * @since 2.6.0 bbPress (r6896)
  *
  * @param string $type Type of pending upgrades (upgrade|repair|empty)
  *
@@ -587,7 +587,7 @@ function bbp_get_pending_upgrades( $type = '' ) {
 /**
  * Add an upgrade ID to pending upgrades array
  *
- * @since 2.6.0 bbPress (r6895)
+ * @since 2.6.0 bbPress (r6896)
  *
  * @param string $upgrade_id
  */
@@ -608,7 +608,7 @@ function bbp_add_pending_upgrade( $upgrade_id = '' ) {
 /**
  * Add an upgrade ID to pending upgrades array
  *
- * @since 2.6.0 bbPress (r6895)
+ * @since 2.6.0 bbPress (r6896)
  *
  * @param string $upgrade_id
  */
@@ -632,7 +632,7 @@ function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
 /**
  * Delete all pending upgrades
  *
- * @since 2.6.0 bbPress (r6895)
+ * @since 2.6.0 bbPress (r6896)
  */
 function bbp_clear_pending_upgrades() {
 	return delete_option( '_bbp_db_pending_upgrades' );
@@ -641,7 +641,7 @@ function bbp_clear_pending_upgrades() {
 /**
  * Maybe append an upgrade count to a string
  *
- * @since 2.6.0 bbPress (r6896)
+ * @since 2.6.0 bbPress (r6897)
  *
  * @param string $string Text to append count to
  * @param string $type   Type of pending upgrades (upgrade|repair|empty)

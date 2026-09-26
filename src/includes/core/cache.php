@@ -127,7 +127,7 @@ class BBP_Skip_Children {
  *
  * Will call to clean the term object cache associated with the post ID.
  *
- * @since 2.1.0 bbPress (r4040)
+ * @since 2.1.0 bbPress (r4041)
  * @since 2.6.0 bbPress (r6053) Introduced the `$post_id` parameter.
  *
  * @param int     $post_id The post id.

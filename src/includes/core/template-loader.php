@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Note that the _edit() checks are ahead of their counterparts, to prevent them
  * from being stomped on accident.
  *
- * @since 2.0.0 bbPress (r3032)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @param string $template
  *
@@ -127,7 +127,7 @@ function bbp_is_template_included() {
  * Attempt to load a custom bbPress functions file, similar to each themes
  * functions.php file.
  *
- * @since 2.1.0 bbPress (r3732)
+ * @since 2.1.0 bbPress (r3734)
  *
  * @global string $pagenow
  */
@@ -188,7 +188,7 @@ function bbp_get_single_user_edit_template() {
 /**
  * Get the user favorites template
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @return string Path to template file
  */
@@ -209,7 +209,7 @@ function bbp_get_favorites_template() {
 /**
  * Get the user subscriptions template
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @return string Path to template file
  */
@@ -403,7 +403,7 @@ function bbp_get_reply_edit_template() {
 /**
  * Get the reply move template
  *
- * @since 2.3.0 bbPress (r4521)
+ * @since 2.3.0 bbPress (r4522)
  *
  * @return string Path to template file
  */
@@ -417,7 +417,7 @@ function bbp_get_reply_move_template() {
 /**
  * Get the topic template
  *
- * @since 2.0.0 bbPress (r3311)
+ * @since 2.0.0 bbPress (r3422)
  *
  * @return string Path to template file
  */
@@ -434,7 +434,7 @@ function bbp_get_topic_tag_template() {
 /**
  * Get the topic edit template
  *
- * @since 2.0.0 bbPress (r3311)
+ * @since 2.0.0 bbPress (r3348)
  *
  * @return string Path to template file
  */

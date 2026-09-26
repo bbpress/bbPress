@@ -25,7 +25,7 @@
 /**
  * Runs on bbPress activation
  *
- * @since 2.0.0 bbPress (r2509)
+ * @since 2.0.0 bbPress (r2464)
  */
 function bbp_activation() {
 	do_action( 'bbp_activation' );
@@ -34,7 +34,7 @@ function bbp_activation() {
 /**
  * Runs on bbPress deactivation
  *
- * @since 2.0.0 bbPress (r2509)
+ * @since 2.0.0 bbPress (r2464)
  */
 function bbp_deactivation() {
 	do_action( 'bbp_deactivation' );
@@ -43,7 +43,7 @@ function bbp_deactivation() {
 /**
  * Runs when uninstalling bbPress
  *
- * @since 2.0.0 bbPress (r2509)
+ * @since 2.0.0 bbPress (r2599)
  */
 function bbp_uninstall() {
 	do_action( 'bbp_uninstall' );
@@ -99,7 +99,7 @@ function bbp_setup_globals() {
 /**
  * Register any objects before anything is initialized
  *
- * @since 2.2.0 bbPress (r4180)
+ * @since 2.2.0 bbPress (r4181)
  */
 function bbp_register() {
 	do_action( 'bbp_register' );
@@ -150,7 +150,7 @@ function bbp_roles_init( $wp_roles ) {
 /**
  * Initialize widgets
  *
- * @since 2.0.0 bbPress (r3389)
+ * @since 2.0.0 bbPress (r3391)
  */
 function bbp_widgets_init() {
 	do_action( 'bbp_widgets_init' );
@@ -162,7 +162,7 @@ function bbp_widgets_init() {
  * @link https://bbpress.trac.wordpress.org/ticket/2309
  * @link https://core.trac.wordpress.org/ticket/24169
  *
- * @since 2.0.0 bbPress (r2695)
+ * @since 2.0.0 bbPress (r2697)
  */
 function bbp_setup_current_user() {
 	do_action( 'bbp_setup_current_user' );
@@ -171,7 +171,7 @@ function bbp_setup_current_user() {
 /**
  * Setup the user engagements strategy
  *
- * @since 2.6.0 bbPress (r6875)
+ * @since 2.6.0 bbPress (r6876)
  */
 function bbp_setup_engagements() {
 	do_action( 'bbp_setup_engagements' );
@@ -182,7 +182,7 @@ function bbp_setup_engagements() {
 /**
  * Load translations for current language
  *
- * @since 2.0.0 bbPress (r2599)
+ * @since 2.0.0 bbPress (r3344)
  */
 function bbp_load_textdomain() {
 	do_action( 'bbp_load_textdomain' );
@@ -191,7 +191,7 @@ function bbp_load_textdomain() {
 /**
  * Setup the post types
  *
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r2599)
  */
 function bbp_register_post_types() {
 	do_action( 'bbp_register_post_types' );
@@ -209,7 +209,7 @@ function bbp_register_post_statuses() {
 /**
  * Register the built in bbPress taxonomies
  *
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r2599)
  */
 function bbp_register_taxonomies() {
 	do_action( 'bbp_register_taxonomies' );
@@ -227,7 +227,7 @@ function bbp_register_views() {
 /**
  * Register the default bbPress shortcodes
  *
- * @since 2.2.0 bbPress (r4211)
+ * @since 2.0.0 bbPress (r3032)
  */
 function bbp_register_shortcodes() {
 	do_action( 'bbp_register_shortcodes' );
@@ -236,7 +236,7 @@ function bbp_register_shortcodes() {
 /**
  * Register the default bbPress meta-data
  *
- * @since 2.6.0 bbPress (r46300)
+ * @since 2.6.0 bbPress (r6302)
  */
 function bbp_register_meta() {
 	do_action( 'bbp_register_meta' );
@@ -245,7 +245,7 @@ function bbp_register_meta() {
 /**
  * Enqueue bbPress specific CSS and JS
  *
- * @since 2.0.0 bbPress (r3373)
+ * @since 2.0.0 bbPress (r3374)
  */
 function bbp_enqueue_scripts() {
 	do_action( 'bbp_enqueue_scripts' );
@@ -281,7 +281,7 @@ function bbp_add_permastructs() {
 /**
  * Add the bbPress-specific login forum action
  *
- * @since 2.0.0 bbPress (r2753)
+ * @since 2.1.0 bbPress (r4072)
  */
 function bbp_login_form_login() {
 	do_action( 'bbp_login_form_login' );
@@ -337,7 +337,7 @@ function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = fal
 /**
  * The main action for hooking into when a user account is updated
  *
- * @since 2.2.0 bbPress (r4304)
+ * @since 2.2.0 bbPress (r4305)
  *
  * @param int $user_id ID of user being edited
  * @param array $old_user_data The old, unmodified user data
@@ -349,7 +349,7 @@ function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
 /**
  * The main action for hooking into a user being registered
  *
- * @since 2.2.0 bbPress (r4304)
+ * @since 2.2.0 bbPress (r4305)
  *
  * @param int $user_id ID of user being edited
  */
@@ -374,7 +374,7 @@ function bbp_ready() {
  * The main action used for redirecting bbPress theme actions that are not
  * permitted by the current_user
  *
- * @since 2.1.0 bbPress (r3605)
+ * @since 2.1.0 bbPress (r3607)
  */
 function bbp_template_redirect() {
 	do_action( 'bbp_template_redirect' );
@@ -385,7 +385,7 @@ function bbp_template_redirect() {
 /**
  * The main action used for executing code before the theme has been setup
  *
- * @since 2.1.0 bbPress (r3829)
+ * @since 2.1.0 bbPress (r3830)
  */
 function bbp_register_theme_packages() {
 	do_action( 'bbp_register_theme_packages' );
@@ -394,7 +394,7 @@ function bbp_register_theme_packages() {
 /**
  * The main action used for executing code before the theme has been setup
  *
- * @since 2.1.0 bbPress (r3732)
+ * @since 2.1.0 bbPress (r3754)
  */
 function bbp_setup_theme() {
 	do_action( 'bbp_setup_theme' );
@@ -403,7 +403,7 @@ function bbp_setup_theme() {
 /**
  * The main action used for executing code after the theme has been setup
  *
- * @since 2.1.0 bbPress (r3732)
+ * @since 2.1.0 bbPress (r3733)
  */
 function bbp_after_setup_theme() {
 	do_action( 'bbp_after_setup_theme' );
@@ -412,7 +412,7 @@ function bbp_after_setup_theme() {
 /**
  * The main action used for handling theme-side POST requests
  *
- * @since 2.3.0 bbPress (r4550)
+ * @since 2.3.0 bbPress (r4551)
  */
 function bbp_post_request() {
 
@@ -445,7 +445,7 @@ function bbp_post_request() {
 /**
  * The main action used for handling theme-side GET requests
  *
- * @since 2.3.0 bbPress (r4550)
+ * @since 2.3.0 bbPress (r4551)
  */
 function bbp_get_request() {
 
@@ -480,7 +480,7 @@ function bbp_get_request() {
 /**
  * Filter the plugin locale and domain.
  *
- * @since 2.2.0 bbPress (r4213)
+ * @since 2.2.0 bbPress (r4214)
  *
  * @param string $locale
  * @param string $domain
@@ -494,7 +494,7 @@ function bbp_plugin_locale( $locale = '', $domain = '' ) {
 /**
  * Piggy back filter for WordPress's 'request' filter
  *
- * @since 2.1.0 bbPress (r3758)
+ * @since 2.1.0 bbPress (r3759)
  *
  * @param array $query_vars
  * @return array
@@ -509,7 +509,7 @@ function bbp_request( $query_vars = array() ) {
  * The main filter used for theme compatibility and displaying custom bbPress
  * theme files.
  *
- * @since 2.0.0 bbPress (r3311)
+ * @since 2.0.0 bbPress (r3032)
  *
  * @param string $template
  * @return string Template file to use
@@ -569,7 +569,7 @@ function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = ar
 /**
  * Filter the arguments used by wp_mail for bbPress specific emails
  *
- * @since 2.6.0 bbPress (r6918)
+ * @since 2.6.0 bbPress (r6919)
  *
  * @param array $args A compacted array of wp_mail() arguments, including the "to" email,
  *                    subject, message, headers, and attachments values.

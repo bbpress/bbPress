@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  * This is only intended to be extended, and is included here as a basic guide
  * for future Template Packs to use. @link bbp_setup_theme_compat()
  *
- * @since 2.0.0 bbPress (r3506)
+ * @since 2.0.0 bbPress (r3507)
  */
 class BBP_Theme_Compat {
 
@@ -51,7 +51,7 @@ class BBP_Theme_Compat {
 	/**
 	 * Pass the $properties to the object on creation.
 	 *
-	 * @since 2.1.0 bbPress (r3926)
+	 * @since 2.1.0 bbPress (r3927)
 	 *
 	 * @param array $properties
 	 */
@@ -62,7 +62,7 @@ class BBP_Theme_Compat {
 	/**
 	 * Set a theme's property.
 	 *
-	 * @since 2.1.0 bbPress (r3926)
+	 * @since 2.1.0 bbPress (r3927)
 	 *
 	 * @param string $property
 	 * @param mixed $value
@@ -75,7 +75,7 @@ class BBP_Theme_Compat {
 	/**
 	 * Get a theme's property.
 	 *
-	 * @since 2.1.0 bbPress (r3926)
+	 * @since 2.1.0 bbPress (r3927)
 	 *
 	 * @param string $property
 	 * @param mixed $value
@@ -90,7 +90,7 @@ class BBP_Theme_Compat {
 	/**
 	 * Return the template directory.
 	 *
-	 * @since 2.6.0 bbPress (r6548)
+	 * @since 2.6.0 bbPress (r6551)
 	 *
 	 * @return string
 	 */
@@ -104,7 +104,7 @@ class BBP_Theme_Compat {
 /**
  * Setup the active template pack and register it's directory in the stack.
  *
- * @since 2.0.0 bbPress (r3311)
+ * @since 2.0.0 bbPress (r3028)
  *
  * @param BBP_Theme_Compat $theme
  */
@@ -133,7 +133,7 @@ function bbp_setup_theme_compat( $theme = 'default' ) {
 /**
  * Get the current template pack package.
  *
- * @since 2.6.0 bbPress (r6548)
+ * @since 2.6.0 bbPress (r6551)
  *
  * @return BBP_Theme_Compat
  */
@@ -155,7 +155,7 @@ function bbp_get_current_template_pack() {
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
  *
- * @since 2.0.0 bbPress (r3506)
+ * @since 2.1.0 bbPress (r3830)
  *
  * @return string
  */
@@ -171,7 +171,7 @@ function bbp_get_theme_compat_id() {
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
  *
- * @since 2.0.0 bbPress (r3506)
+ * @since 2.0.0 bbPress (r3507)
  *
  * @return string
  */
@@ -187,7 +187,7 @@ function bbp_get_theme_compat_name() {
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
  *
- * @since 2.0.0 bbPress (r3506)
+ * @since 2.0.0 bbPress (r3507)
  *
  * @return string
  */
@@ -203,7 +203,7 @@ function bbp_get_theme_compat_version() {
  * or set manually. Tricky theme authors can override the default and include
  * their own bbPress compatibility layers for their themes.
  *
- * @since 2.0.0 bbPress (r3032)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @return string
  */
@@ -219,7 +219,7 @@ function bbp_get_theme_compat_dir() {
  * or set manually. Tricky theme authors can override the default and include
  * their own bbPress compatibility layers for their themes.
  *
- * @since 2.0.0 bbPress (r3032)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @return string
  */
@@ -232,7 +232,7 @@ function bbp_get_theme_compat_url() {
 /**
  * Gets true/false if page is currently inside theme compatibility
  *
- * @since 2.0.0 bbPress (r3265)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @return bool
  */
@@ -249,7 +249,7 @@ function bbp_is_theme_compat_active() {
 /**
  * Sets true/false if page is currently inside theme compatibility
  *
- * @since 2.0.0 bbPress (r3265)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @param bool $set
  * @return bool
@@ -294,7 +294,7 @@ function bbp_set_theme_compat_template( $template = '' ) {
  * Stash the original template file for the current query. Useful for checking
  * if bbPress was able to find a more appropriate template.
  *
- * @since 2.1.0 bbPress (r3926)
+ * @since 2.1.0 bbPress (r3927)
  */
 function bbp_set_theme_compat_original_template( $template = '' ) {
 	bbpress()->theme_compat->original_template = $template;
@@ -308,7 +308,7 @@ function bbp_set_theme_compat_original_template( $template = '' ) {
  * Stash the original template file for the current query. Useful for checking
  * if bbPress was able to find a more appropriate template.
  *
- * @since 2.1.0 bbPress (r3926)
+ * @since 2.1.0 bbPress (r3927)
  */
 function bbp_is_theme_compat_original_template( $template = '' ) {
 	$bbp = bbpress();
@@ -324,7 +324,7 @@ function bbp_is_theme_compat_original_template( $template = '' ) {
 /**
  * Register a new bbPress theme package to the active theme packages array
  *
- * @since 2.1.0 bbPress (r3829)
+ * @since 2.1.0 bbPress (r3830)
  *
  * @param array $theme
  */
@@ -478,7 +478,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * Reset main query vars and filter 'the_content' to output a bbPress
  * template part as needed.
  *
- * @since 2.0.0 bbPress (r3032)
+ * @since 2.0.0 bbPress (r3311)
  * @since 2.6.17 bbPress (r7425) Added support for Block Themes
  *
  * @param string $template
@@ -888,7 +888,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 /**
  * Remove the canonical redirect to allow pretty pagination
  *
- * @since 2.0.0 bbPress (r2628)
+ * @since 2.0.0 bbPress (r2634)
  *
  * @param string $redirect_url Redirect url
  *
@@ -1081,7 +1081,7 @@ function bbp_force_comment_status( $open = false, $post_id = 0 ) {
  * In this function, we remove these links when on a bbPress page. This also
  * prevents additional, unnecessary queries from running.
  *
- * @since 2.6.0 bbPress (r7071)
+ * @since 2.6.5 bbPress (r7073)
  */
 function bbp_remove_adjacent_posts() {
 

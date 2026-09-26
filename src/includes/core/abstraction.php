@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * be setup to convert the passwords of users that were migrated from another
  * forum platform.
  *
- * @since 2.6.0 bbPress (r2596)
+ * @since 2.6.0 bbPress (r6601)
  */
 function bbp_setup_admin() {
 	$bbp = bbpress();
@@ -51,7 +51,7 @@ function bbp_setup_admin() {
  * be setup to convert the passwords of users that were migrated from another
  * forum platform.
  *
- * @since 2.6.0 bbPress (r2596)
+ * @since 2.6.0 bbPress (r6601)
  */
 function bbp_setup_converter() {
 	$bbp_admin = bbp_setup_admin();
@@ -80,7 +80,7 @@ function bbp_setup_converter() {
 /**
  * Lookup and return a global variable
  *
- * @since 2.5.8 bbPress (r5814)
+ * @since 2.6.0 bbPress (r5826)
  *
  * @param  string  $name     Name of global variable
  * @param  string  $type     Type of variable to check with `is_a()`
@@ -114,7 +114,7 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 /**
  * Get the `$wp_query` global without needing to declare it everywhere
  *
- * @since 2.6.0 bbPress (r6582)
+ * @since 2.6.0 bbPress (r6583)
  *
  * @return WP_Roles
  */
@@ -140,7 +140,7 @@ function bbp_get_wp_roles() {
  * class. bbPress supports WordPress's `$wpdb` global by default, and can be
  * filtered to support other configurations if needed.
  *
- * @since 2.5.8 bbPress (r5814)
+ * @since 2.6.0 bbPress (r5826)
  *
  * @return object
  */
@@ -405,7 +405,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
  * rules class. bbPress supports WordPress's `$wp_rewrite` by default, but can
  * be filtered to support other configurations if needed.
  *
- * @since 2.5.8 bbPress (r5814)
+ * @since 2.6.0 bbPress (r5826)
  *
  * @return object
  */
@@ -423,7 +423,7 @@ function bbp_rewrite() {
 /**
  * Get the root URL
  *
- * @since 2.5.8 bbPress (r5814)
+ * @since 2.6.0 bbPress (r5823)
  *
  * @return string
  */
@@ -445,7 +445,7 @@ function bbp_get_root_url() {
 /**
  * Get the slug used for paginated requests
  *
- * @since 2.4.0 bbPress (r4926)
+ * @since 2.4.0 bbPress (r4927)
  *
  * @return string
  */
@@ -467,7 +467,7 @@ function bbp_get_paged_slug() {
 /**
  * Is the environment using pretty URLs?
  *
- * @since 2.5.8 bbPress (r5814)
+ * @since 2.6.0 bbPress (r5826)
  *
  * @global object $wp_rewrite The WP_Rewrite object
  *
@@ -496,7 +496,7 @@ function bbp_use_pretty_urls() {
  * never have pagination appended to the end of it, regardless of what the other
  * functions have decided for us.
  *
- * @since 2.6.0 bbPress (r6678)
+ * @since 2.6.0 bbPress (r6680)
  *
  * @param string $pagination_links The HTML links used for pagination
  *
@@ -522,7 +522,7 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
  * A convenient wrapper for common calls to paginate_links(), complete with
  * support for parameters that aren't used internally by bbPress.
  *
- * @since 2.6.0 bbPress (r6679)
+ * @since 2.6.0 bbPress (r6680)
  *
  * @param array $args
  *
@@ -586,7 +586,7 @@ function bbp_get_major_wp_version() {
 /**
  * Is this a large bbPress installation?
  *
- * @since 2.6.0 bbPress (r6242)
+ * @since 2.6.0 bbPress (r6243)
  *
  * @return bool True if more than 10000 users, false not
  */
@@ -621,7 +621,7 @@ function bbp_get_total_users() {
  *
  * If not a multisite installation, no switching will occur.
  *
- * @since 2.6.0 bbPress (r6733)
+ * @since 2.6.0 bbPress (r6734)
  *
  * @param int $site_id
  */
@@ -638,7 +638,7 @@ function bbp_switch_to_site( $site_id = 0 ) {
  *
  * If not a multisite installation, no switching will occur.
  *
- * @since 2.6.0 bbPress (r6733)
+ * @since 2.6.0 bbPress (r6734)
  */
 function bbp_restore_current_site() {
 
@@ -737,7 +737,7 @@ function bbp_maybe_intercept( $action = '', $args = array() ) {
 /**
  * Get an empty datetime value.
  *
- * @since 2.6.6 bbPress (r7094)
+ * @since 2.6.6 bbPress (r7100)
  *
  * @return string
  */
