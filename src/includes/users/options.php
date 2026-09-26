@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Get the default user options and their values
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  *
  * @return array Filtered user option names and values
  */
@@ -35,7 +35,7 @@ function bbp_get_default_user_options() {
  *
  * This is destructive, so existing bbPress user options will be overridden.
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  */
 function bbp_add_user_options( $user_id = 0 ) {
 
@@ -60,7 +60,7 @@ function bbp_add_user_options( $user_id = 0 ) {
  * Hooked to bbp_uninstall, it is only called once when bbPress is uninstalled.
  * This is destructive, so existing bbPress user options will be destroyed.
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  */
 function bbp_delete_user_options( $user_id = 0 ) {
 
@@ -83,7 +83,7 @@ function bbp_delete_user_options( $user_id = 0 ) {
  * Add filters to each bbPress option and allow them to be overloaded from
  * inside the $bbp->options array.
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  */
 function bbp_setup_user_option_filters() {
 
@@ -100,7 +100,7 @@ function bbp_setup_user_option_filters() {
  * Filter default options and allow them to be overloaded from inside the
  * $bbp->user_options array.
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  *
  * @param bool $value Optional. Default value false
  * @return mixed false if not overloaded, mixed if set
@@ -326,7 +326,7 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
 /**
  * Update a users last posted time, for use with post throttling
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  *
  * @param int $user_id User ID to update
  * @param int $time Time in time() format
@@ -351,7 +351,7 @@ function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
 /**
  * Output the raw value of the last posted time.
  *
- * @since 2.1.0 bbPress (r3910)
+ * @since 2.1.0 bbPress (r3911)
  *
  * @param int $user_id User ID to retrieve value for
  */
@@ -362,7 +362,7 @@ function bbp_user_last_posted( $user_id = 0 ) {
 	/**
 	 * Return the raw value of the last posted time.
 	 *
-	 * @since 2.1.0 bbPress (r3910)
+	 * @since 2.1.0 bbPress (r3911)
 	 *
 	 * @param int $user_id User ID to retrieve value for
 	 * @return mixed False if no user, time() format if exists

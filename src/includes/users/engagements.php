@@ -56,7 +56,7 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $rel_key = '
 /**
  * Remove a user id from all objects
  *
- * @since 2.6.0 bbPress (r6109)
+ * @since 2.6.0 bbPress (r6517)
  *
  * @param int    $user_id  The user id
  * @param string $rel_key  The relationship key
@@ -75,7 +75,7 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $rel_key = '', $rel_typ
 /**
  * Remove an object from all users
  *
- * @since 2.6.0 bbPress (r6109)
+ * @since 2.6.0 bbPress (r6544)
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
@@ -95,7 +95,7 @@ function bbp_remove_object_from_all_users( $object_id = 0, $rel_key = '', $rel_t
 /**
  * Remove all users from all objects
  *
- * @since 2.6.0 bbPress (r6109)
+ * @since 2.6.0 bbPress (r6520)
  *
  * @param string $rel_key  The relationship key
  * @param string $rel_type The relationship type (usually 'post')
@@ -153,7 +153,7 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
 /**
  * Get the query part responsible for JOINing objects to user IDs
  *
- * @since 2.6.0 bbPress (r6747)
+ * @since 2.6.0 bbPress (r6739)
  *
  * @param array  $args      Default query arguments
  * @param string $context   Additional context
@@ -174,7 +174,7 @@ function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '
 /**
  * Get the users who have engaged in a topic
  *
- * @since 2.6.0 bbPress (r6320)
+ * @since 2.6.0 bbPress (r6311)
  *
  * @param int $topic_id Optional. Topic id
  *
@@ -241,8 +241,8 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 /**
  * Get a user's topic engagements
  *
- * @since 2.6.0 bbPress (r6320)
- * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
+ * @since 2.6.0 bbPress (r6311)
+ * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
  * @param array $args Optional. Arguments to pass into bbp_has_replies()
  *
@@ -259,7 +259,7 @@ function bbp_get_user_engagements( $args = array() ) {
 /**
  * Check if a user is engaged in a topic or not
  *
- * @since 2.6.0 bbPress (r6320)
+ * @since 2.6.0 bbPress (r6311)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -283,7 +283,7 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
  * frequently used within a loop, those verifications were moved upstream to
  * improve performance on topics with many engaged users.
  *
- * @since 2.6.0 bbPress (r6320)
+ * @since 2.6.0 bbPress (r6311)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -315,7 +315,7 @@ function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
 /**
  * Remove a topic from user's engagements
  *
- * @since 2.6.0 bbPress (r6320)
+ * @since 2.6.0 bbPress (r6311)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -406,7 +406,7 @@ function bbp_recalculate_topic_engagements( $topic_id = 0, $force = false ) {
  * Hooked to 'bbp_new_topic' and 'bbp_new_reply', this gets the post author and
  * if not anonymous, passes it into bbp_add_user_engagement().
  *
- * @since 2.6.0 bbPress (r6526)
+ * @since 2.6.0 bbPress (r6529)
  *
  * @param int $topic_id
  */
@@ -496,7 +496,7 @@ function bbp_current_user_can_toggle_engagement( $object_id = 0, $object_type = 
 /**
  * Get the users who have made the topic favorite
  *
- * @since 2.0.0 bbPress (r2658)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $topic_id Optional. Topic id
  *
@@ -514,7 +514,7 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * Get a user's favorite topics
  *
  * @since 2.0.0 bbPress (r2652)
- * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
+ * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
  * @param array $args Optional. Arguments to pass into bbp_has_topics()
  *
@@ -720,7 +720,7 @@ function bbp_favorites_handler( $action = '' ) {
 /**
  * Get the users who have subscribed
  *
- * @since 2.6.0 bbPress (r5156)
+ * @since 2.6.0 bbPress (r6544)
  *
  * @param int $object_id Optional. ID of object (forum, topic, or something else)
  */
@@ -734,8 +734,8 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 /**
  * Get a user's subscribed topics
  *
- * @since 2.0.0 bbPress (r2668)
- * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
+ * @since 2.5.0 bbPress (r5156)
+ * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
  * @param array $args Optional. Arguments to pass into bbp_has_topics()
  *
@@ -755,7 +755,7 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
  * Get a user's subscribed forums
  *
  * @since 2.5.0 bbPress (r5156)
- * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
+ * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
  * @param array $args Optional. Arguments to pass into bbp_has_forums()
  *
@@ -774,7 +774,7 @@ function bbp_get_user_forum_subscriptions( $args = array() ) {
 /**
  * Check if an object (forum or topic) is in user's subscription list or not
  *
- * @since 2.5.0 bbPress (r5156)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Object id
@@ -791,7 +791,7 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) 
 /**
  * Add a user subscription
  *
- * @since 2.5.0 bbPress (r5156)
+ * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6544) Added $type parameter
  *
  * @param int    $user_id   Optional. User id
@@ -825,7 +825,7 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0, $type = 'post'
 /**
  * Remove a user subscription
  *
- * @since 2.5.0 bbPress (r5156)
+ * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6544) Added $type parameter
  *
  * @param int    $user_id   Optional. User id
@@ -859,8 +859,8 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'po
 /**
  * Handles the front end toggling of user subscriptions
  *
- * @since 2.0.0 bbPress (r2790)
- * @since 2.6.l bbPress (r6543)
+ * @since 2.0.0 bbPress (r2668)
+ * @since 2.6.0 bbPress (r6544)
  *
  * @param string $action The requested action to compare this function to
  */
@@ -976,7 +976,7 @@ function bbp_subscriptions_handler( $action = '' ) {
  * it is available here for your convenience, using the most efficient query
  * parameters available inside of the various query APIs.
  *
- * @since 2.6.0 bbPress (r6606)
+ * @since 2.6.0 bbPress (r6607)
  *
  * @param int    $user_id   The user id
  * @param string $rel_key   The relationship key
@@ -1068,7 +1068,7 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 /**
  * Get a user's engaged topic ids
  *
- * @since 2.6.0 bbPress (r6320)
+ * @since 2.6.0 bbPress (r6311)
  *
  * @param int $user_id Optional. User id
  *
@@ -1277,7 +1277,7 @@ function bbp_add_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
  * frequently used within a loop, those verifications were moved upstream to
  * improve performance on topics with many engaged users.
  *
- * @since 2.0.0 bbPress (r2668)
+ * @since 2.5.0 bbPress (r5156)
  * @deprecated 2.6.0 bbPress (r6543)
  *
  * @param int $user_id Optional. User id

@@ -41,7 +41,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 /**
  * Is an anonymous topic/reply being made?
  *
- * @since 2.0.0 bbPress (r2688)
+ * @since 2.0.0 bbPress (r2670)
  *
  * @return bool True if anonymous is allowed and user is not logged in, false if
  *               anonymous is not allowed or user is logged in
@@ -154,7 +154,7 @@ function bbp_current_author_ip() {
 /**
  * Get the poster user agent
  *
- * @since 2.0.0 bbPress (r3446)
+ * @since 2.0.0 bbPress (r3447)
  *
  * @return string
  */
@@ -245,7 +245,7 @@ function bbp_user_email_change_requires_confirmation( $user_id = 0 ) {
 /**
  * Handles the front end user editing from POST requests
  *
- * @since 2.0.0 bbPress (r2790)
+ * @since 2.0.0 bbPress (r2688)
  *
  * @param string $action The requested action to compare this function to
  */
@@ -367,7 +367,7 @@ function bbp_edit_user_handler( $action = '' ) {
 /**
  * Handles user email address updating from GET requests
  *
- * @since 2.6.0 bbPress (r5660)
+ * @since 2.6.0 bbPress (r5663)
  *
  * @param string $action
  */
@@ -467,7 +467,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 /**
  * Sends an email when an email address change occurs on POST requests
  *
- * @since 2.6.0 bbPress (r5660)
+ * @since 2.6.0 bbPress (r5663)
  *
  * @see send_confirmation_on_profile_email()
  */
@@ -553,7 +553,7 @@ The %4$s Team
  * output actions if they don't want any unexpected junk to appear there, and
  * also avoids needing to pollute the templates with additional logic and actions.
  *
- * @since 2.2.0 bbPress (r4273)
+ * @since 2.2.0 bbPress (r4274)
  */
 function bbp_user_edit_after() {
 	$action = bbp_is_user_home_edit() ? 'show_user_profile' : 'edit_user_profile';
@@ -567,7 +567,7 @@ function bbp_user_edit_after() {
  * Get the topics that a user created
  *
  * @since 2.0.0 bbPress (r2660)
- * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
+ * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
  * @param array $args    Optional. Arguments to pass into bbp_has_topics()
  *
@@ -601,8 +601,8 @@ function bbp_get_user_topics_started( $args = array() ) {
 /**
  * Get the replies that a user created
  *
- * @since 2.2.0 bbPress (r4225)
- * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
+ * @since 2.2.0 bbPress (r4228)
+ * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
  * @param array $args Optional. Arguments to pass into bbp_has_replies()
  *
@@ -1097,7 +1097,7 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
  * met, we assume a user cannot perform this task, and look for ways they can
  * earn the ability to access this template.
  *
- * @since 2.1.0 bbPress (r3605)
+ * @since 2.1.0 bbPress (r3607)
  */
 function bbp_check_user_edit() {
 
@@ -1142,7 +1142,7 @@ function bbp_check_user_edit() {
 /**
  * Check if a user is blocked, or cannot spectate the forums.
  *
- * @since 2.0.0 bbPress (r2996)
+ * @since 2.2.0 bbPress (r4316)
  */
 function bbp_forum_enforce_blocked() {
 
@@ -1174,7 +1174,7 @@ function bbp_forum_enforce_blocked() {
  *    a backwards compatible approach like this one was necessary to protect
  *    existing installations that may have custom template parts.
  *
- * @since 2.6.0 bbPress (r5368)
+ * @since 2.6.0 bbPress (r5369)
  *
  * @param string $value
  * @param string $field
@@ -1231,8 +1231,8 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
 /**
  * Convert passwords from previous platform encryption to WordPress encryption.
  *
- * @since 2.1.0 bbPress (r3813)
- * @since 2.6.10 bbPress (r7244) Switched from direct query to get_user_by()
+ * @since 2.1.0 bbPress (r4072)
+ * @since 2.6.10 bbPress (r7245) Switched from direct query to get_user_by()
  * @since 2.6.18 bbPress (r7546) Improved input handling and email login support.
  */
 function bbp_user_maybe_convert_pass() {
