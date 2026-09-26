@@ -14,7 +14,7 @@ if ( ! class_exists( 'BBP_Akismet' ) ) :
 /**
  * Loads Akismet extension
  *
- * @since 2.0.0 bbPress (r3277)
+ * @since 2.0.0 bbPress (r3278)
  *
  * @package bbPress
  * @subpackage Akismet
@@ -24,7 +24,7 @@ class BBP_Akismet {
 	/**
 	 * The last post checked by Akismet.
 	 *
-	 * @since 2.0.0 bbPress (r3277)
+	 * @since 2.6.10 bbPress (r7252)
 	 *
 	 * @var array $last_post Default empty array.
 	 */
@@ -33,7 +33,7 @@ class BBP_Akismet {
 	/**
 	 * The main bbPress Akismet loader
 	 *
-	 * @since 2.0.0 bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3278)
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -42,7 +42,7 @@ class BBP_Akismet {
 	/**
 	 * Setup the admin hooks
 	 *
-	 * @since 2.0.0 bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -91,7 +91,7 @@ class BBP_Akismet {
 	/**
 	 * Converts topic/reply data into Akismet comment checking format
 	 *
-	 * @since 2.0.0 bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3278)
 	 *
 	 * @param array $post_data
 	 *
@@ -202,7 +202,7 @@ class BBP_Akismet {
 	 * never have their posts marked as spam. This is because they are "trusted"
 	 * users. However, their posts are still sent to Akismet to be checked.
 	 *
-	 * @since 2.6.0 bbPress (r6873)
+	 * @since 2.6.0 bbPress (r6874)
 	 *
 	 * @param array $post_data
 	 *
@@ -263,7 +263,7 @@ class BBP_Akismet {
 	/**
 	 * Submit a post for spamming or hamming
 	 *
-	 * @since 2.0.0 bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 *
@@ -429,7 +429,7 @@ class BBP_Akismet {
 	/**
 	 * Ping Akismet service and check for spam/ham response
 	 *
-	 * @since 2.0.0 bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3278)
 	 *
 	 * @param array $post_data
 	 * @param string $check Accepts check|submit
@@ -772,7 +772,7 @@ class BBP_Akismet {
 	 * This code is directly taken from the akismet_http_post() function and
 	 * documented to bbPress 2.0 standard.
 	 *
-	 * @since 2.0.0 bbPress (r3466)
+	 * @since 2.0.0 bbPress (r3467)
 	 *
 	 * @param string $request The request we are sending
 	 * @param string $host The host to send our request to
@@ -817,7 +817,7 @@ class BBP_Akismet {
 	/**
 	 * Handles the repeated calls to wp_remote_post(), including SSL support.
 	 *
-	 * @since 2.6.7 bbPress (r7196)
+	 * @since 2.6.7 bbPress (r7195)
 	 *
 	 * @param string $host_and_path Scheme-less URL
 	 * @param array  $http_args     Array of arguments for wp_remote_post()
@@ -887,7 +887,7 @@ class BBP_Akismet {
 	/**
 	 * Return a user's roles on this site (including super_admin)
 	 *
-	 * @since 2.3.0 bbPress (r4812)
+	 * @since 2.3.0 bbPress (r4813)
 	 *
 	 * @param int $user_id
 	 *
@@ -922,7 +922,7 @@ class BBP_Akismet {
 	/**
 	 * Add Aksimet History meta-boxes to topics and replies
 	 *
-	 * @since 2.4.0 bbPress (r5049)
+	 * @since 2.4.0 bbPress (r5050)
 	 */
 	public function add_metaboxes() {
 
@@ -950,7 +950,7 @@ class BBP_Akismet {
 	/**
 	 * Output for Akismet History meta-box
 	 *
-	 * @since 2.4.0 bbPress (r5049)
+	 * @since 2.4.0 bbPress (r5050)
 	 */
 	public function history_metabox() {
 
@@ -995,7 +995,7 @@ class BBP_Akismet {
 	/**
 	 * Get the number of rows to delete in a single clean-up query.
 	 *
-	 * @since 2.6.9 bbPress (r7225)
+	 * @since 2.6.9 bbPress (r7227)
 	 *
 	 * @param string $filter The name of the filter to run.
 	 * @return int
@@ -1021,7 +1021,7 @@ class BBP_Akismet {
 	/**
 	 * Get the interval (in days) for spam to remain in the queue.
 	 *
-	 * @since 2.6.9 bbPress (r7225)
+	 * @since 2.6.9 bbPress (r7227)
 	 *
 	 * @param string $filter The name of the filter to run.
 	 * @return int
@@ -1285,7 +1285,7 @@ class BBP_Akismet {
 	/**
 	 * Maybe OPTIMIZE the _postmeta database table.
 	 *
-	 * @since 2.7.0 bbPress (r7203)
+	 * @since 2.6.7 bbPress (r7203)
 	 *
 	 * @global wpdb $wpdb
 	 */

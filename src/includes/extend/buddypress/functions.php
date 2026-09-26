@@ -291,7 +291,7 @@ function bbp_member_forums_subscriptions_content() {
 /**
  * Clean up the group root setting if the forum is being deleted
  *
- * @since 2.6.0 bbPress (r6479)
+ * @since 2.6.0 bbPress (r6485)
  *
  * @param int $forum_id The forum ID being deleted
  */
@@ -315,7 +315,7 @@ function bbp_maybe_delete_group_forum_root( $forum_id = 0 ) {
 /**
  * Handle the new group forum root creation
  *
- * @since 2.6.0 bbPress (r6479)
+ * @since 2.6.0 bbPress (r6485)
  *
  * @return
  */
@@ -373,7 +373,7 @@ function bbp_maybe_create_group_forum_root() {
 /**
  * Get forum ID's for a group
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -402,7 +402,7 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 /**
  * Get group ID's for a forum
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $forum_id
  */
@@ -431,7 +431,7 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 /**
  * Get forum ID's for a group
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -452,7 +452,7 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 /**
  * Update group ID's for a forum
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $forum_id
  */
@@ -469,7 +469,7 @@ function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 /**
  * Add a group to a forum
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -496,7 +496,7 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 /**
  * Remove a forum from a group
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -523,7 +523,7 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 /**
  * Remove a group from a forum
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -550,7 +550,7 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 /**
  * Remove a forum from a group
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -577,7 +577,7 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 /**
  * Remove a group from all forums
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $group_id
  */
@@ -600,7 +600,7 @@ function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 /**
  * Remove a forum from all groups
  *
- * @since 2.1.0 bbPress (r3653)
+ * @since 2.1.0 bbPress (r3654)
  *
  * @param int $forum_id
  */
@@ -619,7 +619,7 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 /**
  * Return true if a forum is a group forum
  *
- * @since 2.3.0 bbPress (r4571)
+ * @since 2.3.0 bbPress (r4572)
  *
  * @param int $forum_id
  * @return bool True if it is a group forum, false if not
@@ -644,7 +644,7 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 /**
  * Is the current user an admin of the current group
  *
- * @since 2.3.0 bbPress (r4632)
+ * @since 2.3.0 bbPress (r4633)
  *
  * @return bool If current user is an admin of the current group
  */
@@ -669,7 +669,7 @@ function bbp_group_is_admin() {
 /**
  * Is the current user a moderator of the current group
  *
- * @since 2.3.0 bbPress (r4632)
+ * @since 2.3.0 bbPress (r4633)
  *
  * @return bool If current user is a moderator of the current group
  */
@@ -694,7 +694,7 @@ function bbp_group_is_mod() {
 /**
  * Is the current user a member of the current group
  *
- * @since 2.3.0 bbPress (r4632)
+ * @since 2.3.0 bbPress (r4633)
  *
  * @return bool If current user is a member of the current group
  */
@@ -719,7 +719,7 @@ function bbp_group_is_member() {
 /**
  * Is the current user banned from the current group
  *
- * @since 2.3.0 bbPress (r4632)
+ * @since 2.3.0 bbPress (r4633)
  *
  * @return bool If current user is banned from the current group
  */
@@ -744,7 +744,7 @@ function bbp_group_is_banned() {
 /**
  * Is the current user the creator of the current group
  *
- * @since 2.3.0 bbPress (r4632)
+ * @since 2.3.0 bbPress (r4633)
  *
  * @return bool If current user the creator of the current group
  */

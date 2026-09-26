@@ -139,7 +139,7 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
  * Hooked into the new reply function, this notification action is responsible
  * for notifying topic and hierarchical reply authors of topic replies.
  *
- * @since 2.5.0 bbPress (r5156)
+ * @since 2.5.0 bbPress (r5155)
  *
  * @param int $reply_id
  * @param int $topic_id

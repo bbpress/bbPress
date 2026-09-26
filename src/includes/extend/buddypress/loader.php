@@ -143,7 +143,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Setup the actions
 	 *
-	 * @since 2.0.0 bbPress (r3395)
+	 * @since 2.2.0 bbPress (r4397)
 	 *
 	 * @access private
 	 * @link https://bbpress.trac.wordpress.org/ticket/2176
@@ -159,7 +159,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Instantiate classes for BuddyPress integration
 	 *
-	 * @since 2.0.0 bbPress (r3395)
+	 * @since 2.6.0 bbPress (r5271)
 	 */
 	public function setup_components() {
 
@@ -181,7 +181,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * Allow the variables, actions, and filters to be modified by third party
 	 * plugins and themes.
 	 *
-	 * @since 2.1.0 bbPress (r3902)
+	 * @since 2.6.0 bbPress (r5271)
 	 */
 	private function fully_loaded() {
 		do_action_ref_array( 'bbp_buddypress_loaded', array( $this ) );
