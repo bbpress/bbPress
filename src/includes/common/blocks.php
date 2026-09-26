@@ -14,7 +14,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 	/**
 	 * BbPress shortcode class.
 	 *
-	 * @since 2.0.0 bbPress (r3031)
+	 * @since 2.7.0 bbPress (r7383)
 	 */
 	class BBP_Blocks {
 
@@ -32,7 +32,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Add the register_blocks action to bbp_init.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 */
 		public function __construct() {
 			$this->setup_globals();
@@ -43,7 +43,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Block globals.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 */
 		private function setup_globals() {
 
@@ -54,7 +54,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Register blocks from block.json files.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 */
 		public function register_blocks() {
 
@@ -109,7 +109,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Setup actions & filters.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 */
 		private function setup_hooks() {
 
@@ -126,7 +126,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Enqueue block editor assets and localize script data.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 */
 		public function enqueue_block_editor_assets() {
 
@@ -162,7 +162,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Get block metadata from block.json files for JavaScript registration.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 *
 		 * @return array Array of block metadata objects.
 		 */
@@ -197,7 +197,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Reuse shortcode callbacks to render equivalent block output.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 *
 		 * @param array       $attributes Block attributes.
 		 * @param string|null $content    Optional block content.
@@ -229,7 +229,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Register custom "Forums" block category.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 *
 		 * @param array                   $categories Array of block categories.
 		 * @param WP_Block_Editor_Context $context Block editor context.
@@ -254,7 +254,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Get data for localizing to block scripts.
 		 *
-		 * @since 2.7.0 bbPress (r7382)
+		 * @since 2.7.0 bbPress (r7383)
 		 *
 		 * @param string $data Data key to retrieve.
 		 * @return array|null Localized data or null when unavailable.

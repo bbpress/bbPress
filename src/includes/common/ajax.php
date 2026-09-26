@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Output the URL to use for theme-side bbPress AJAX requests.
  *
- * @since 2.3.0 bbPress (r4543)
+ * @since 2.3.0 bbPress (r4548)
  */
 function bbp_ajax_url() {
 	echo esc_url( bbp_get_ajax_url() );
@@ -25,7 +25,7 @@ function bbp_ajax_url() {
 /**
  * Return the URL to use for theme-side bbPress AJAX requests.
  *
- * @since 2.3.0 bbPress (r4543)
+ * @since 2.3.0 bbPress (r4548)
  *
  * @global WP $wp
  * @return string
@@ -41,7 +41,7 @@ function bbp_get_ajax_url() {
 	/**
 	 * Filters the URL used for theme-side bbPress AJAX requests.
 	 *
-	 * @since 2.3.0 bbPress (r4543)
+	 * @since 2.3.0 bbPress (r4548)
 	 *
 	 * @param string $ajaxurl The URL for bbPress AJAX requests.
 	 * @return string The filtered URL for bbPress AJAX requests.
@@ -52,7 +52,7 @@ function bbp_get_ajax_url() {
 /**
  * Is this a bbPress AJAX request?
  *
- * @since 2.3.0 bbPress (r4543)
+ * @since 2.3.0 bbPress (r4548)
  *
  * @return bool Looking for bbp-ajax.
  */
@@ -67,7 +67,7 @@ function bbp_is_ajax() {
  * This is largely taken from admin-ajax.php, but adapted specifically for
  * theme-side bbPress-only AJAX requests.
  *
- * @since 2.3.0 bbPress (r4543)
+ * @since 2.3.0 bbPress (r4548)
  *
  * @param string $action Sanitized action from bbp_post_request/bbp_get_request.
  *
@@ -117,7 +117,7 @@ function bbp_do_ajax( $action = '' ) {
  * This was abstracted from bbp_do_ajax() for use in custom theme-side AJAX
  * implementations.
  *
- * @since 2.6.0 bbPress (r6757)
+ * @since 2.6.0 bbPress (r6758)
  */
 function bbp_ajax_headers() {
 
@@ -135,7 +135,7 @@ function bbp_ajax_headers() {
 /**
  * Helper method to return JSON response for bbPress AJAX calls.
  *
- * @since 2.3.0 bbPress (r4542)
+ * @since 2.3.0 bbPress (r4543)
  *
  * @param bool $success
  * @param string $content
