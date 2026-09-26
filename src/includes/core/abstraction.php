@@ -174,7 +174,7 @@ function bbp_db() {
  * intended for uniquely keyed numeric count metadata; WordPress metadata tables
  * do not enforce uniqueness during simultaneous first-time inserts.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7468)
  *
  * @see https://bbpress.trac.wordpress.org/ticket/3678
  *
@@ -201,7 +201,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 	 *
 	 * Returning a non-null value prevents the normal metadata update.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7468)
 	 *
 	 * @param null|bool $check      Whether to short-circuit the metadata update.
 	 * @param string    $meta_type  Type of object metadata is for.
@@ -218,7 +218,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 	/**
 	 * Filters the metadata types that support atomic count updates.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7468)
 	 *
 	 * @param array  $meta_types Supported metadata types.
 	 * @param string $meta_type  Requested metadata type.
@@ -246,7 +246,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 	/**
 	 * Filters the maximum number of conditional metadata write attempts.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7468)
 	 *
 	 * @param int    $max_attempts Maximum number of attempts.
 	 * @param string $meta_type    Type of object metadata is for.
@@ -653,7 +653,7 @@ function bbp_restore_current_site() {
 /**
  * Generate a default intercept value.
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6751)
  *
  * @staticvar mixed $rand Null by default, random string on first call
  *
@@ -686,7 +686,7 @@ function bbp_default_intercept() {
 /**
  * Whether a value has been intercepted
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6751)
  *
  * @param bool $value
  */
@@ -697,7 +697,7 @@ function bbp_is_intercepted( $value = '' ) {
 /**
  * Allow interception of a method or function call.
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6751)
  *
  * @param string $action Typically the name of the caller function
  * @param array  $args   Typically the results of caller function func_get_args()

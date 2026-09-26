@@ -34,7 +34,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * BuddyPress Members component shim
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.14 bbPress (r7306)
 	 *
 	 * @var void|BBP_BuddyPress_Members
 	 */
@@ -43,7 +43,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * BuddyPress Activity component shim
 	 *
-	 * @since 2.0.0
+	 * @since 2.6.14 bbPress (r7306)
 	 *
 	 * @var void|BBP_BuddyPress_Members
 	 */

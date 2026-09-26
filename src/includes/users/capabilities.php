@@ -329,7 +329,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
 /**
  * Return the forum roles the current user may assign to another user.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7514)
  *
  * @param int $user_id User being edited. Defaults to the displayed user.
  * @return array Filtered array of editable forum roles.
@@ -353,7 +353,7 @@ function bbp_get_user_editable_forum_roles( $user_id = 0 ) {
 /**
  * Return whether the current user may edit a user-profile field.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7514)
  *
  * @param string $field   Profile field group: profile, email, password,
  *                        site_role, or forum_role.
@@ -396,7 +396,7 @@ function bbp_current_user_can_edit_user_field( $field = 'profile', $user_id = 0 
 /**
  * Check if a role string is valid
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7087)
  *
  * @param string $role
  *

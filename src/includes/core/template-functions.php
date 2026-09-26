@@ -117,7 +117,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *
  * See: https://bbpress.trac.wordpress.org/ticket/3218
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6862)
  *
  * @param string $file
  *
@@ -166,7 +166,7 @@ function bbp_locate_enqueueable( $file = '' ) {
 /**
  * Convert an enqueueable file path to a URL
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6862)
  * @param string $file
  *
  * @return string

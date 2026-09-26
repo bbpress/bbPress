@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @see translate_user_role()
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6118)
  *
  * @param string $name The role name.
  * @return string Translated role name on success, original name on failure.
@@ -36,7 +36,7 @@ function bbp_translate_user_role( $name ) {
 /**
  * Dummy gettext calls to get strings in the catalog.
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6118)
  */
 function bbp_dummy_role_names() {
 

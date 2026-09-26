@@ -18,7 +18,7 @@ class FluxBB extends BBP_Converter_Base {
 
 	/**
 	 * @var bool Whether source-dependent fields have been set up.
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7588)
 	 */
 	private $source_fields_setup = false;
 
@@ -592,7 +592,7 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Setup the optional legacy salt field after connecting to the source.
 	 *
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7588)
 	 */
 	protected function setup_source_fields() {
 		if ( $this->source_fields_setup ) {
@@ -614,7 +614,7 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Check whether the source users table retains the legacy FluxBB salt field.
 	 *
-	 * @since 2.6.18
+	 * @since 2.6.18 bbPress (r7588)
 	 *
 	 * @return bool True when the salt field exists, false otherwise.
 	 */

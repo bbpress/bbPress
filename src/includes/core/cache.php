@@ -150,7 +150,7 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 	/**
 	 * Fires immediately after the given post cache is cleaned.
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 bbPress (r4041)
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.

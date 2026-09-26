@@ -290,7 +290,7 @@ function bbp_register_admin_styles() {
 	/**
 	 * Action used to register the admin styling
 	 *
-	 * @since 2.1.0
+	 * @since 2.1.0 bbPress (r3766)
 	 * @deprecated 2.6.0
 	 */
 	do_action( 'bbp_register_admin_style' );
@@ -298,7 +298,7 @@ function bbp_register_admin_styles() {
 	/**
 	 * Action used to register all admin styling
 	 *
-	 * @since 2.6.0
+	 * @since 2.6.0 bbPress (r6913)
 	 */
 	do_action( 'bbp_register_admin_styles' );
 }

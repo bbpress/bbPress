@@ -13,14 +13,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API controller for bbPress post types.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7482)
  */
 class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 	/**
 	 * Apply bbPress's strict block list before creating a topic or reply.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7624)
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has access, WP_Error otherwise.
@@ -46,7 +46,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Checks if a post can be updated.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7490)
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
@@ -146,7 +146,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Apply bbPress moderation to REST edits before WordPress saves the post.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7614)
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response or error from WordPress.
@@ -169,7 +169,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Whether a post is a topic or reply.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7614)
 	 *
 	 * @param WP_Post $post Post to check.
 	 * @return bool Whether this is forum content.
@@ -181,7 +181,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Whether a REST request changes a topic or reply publication date.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7614)
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @param WP_Post         $post    Existing post.
@@ -213,7 +213,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Get the title that bbPress moderation should check.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7614)
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @param WP_Post|null    $post    Existing post, or null when creating.
@@ -234,7 +234,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Get the content that bbPress moderation should check.
 	 *
-	 * @since 2.6.19
+	 * @since 2.6.19 bbPress (r7614)
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @param WP_Post|null    $post    Existing post, or null when creating.
@@ -258,7 +258,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * bbPress posts may be attachment parents even when their own REST routes
 	 * are disabled.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7482)
 	 *
 	 * @param WP_Post_Type|string $post_type Post type object or name.
 	 * @return bool Whether the post type is allowed.
@@ -280,7 +280,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * Checks if a post can be read.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7482)
 	 *
 	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be read.
@@ -333,14 +333,14 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 /**
  * REST API controller for attachments to bbPress post types.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7482)
  */
 class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
 
 	/**
 	 * Checks if an attachment can be read.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7482)
 	 *
 	 * @param WP_Post $post Attachment post object.
 	 * @return bool Whether the attachment can be read.
@@ -370,7 +370,7 @@ class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
 /**
  * Use the bbPress controller for attachments when Core's is unchanged.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7482)
  */
 function bbp_register_rest_attachment_controller() {
 	$post_type = get_post_type_object( 'attachment' );

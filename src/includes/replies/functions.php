@@ -1511,7 +1511,7 @@ function bbp_move_reply_handler( $action = '' ) {
  * and their forums.
  *
  * @since 2.3.0 bbPress (r4521)
- * @since 2.6.17 Recount both forums and topic engagements.
+ * @since 2.6.17 bbPress (r7468) Recount both forums and topic engagements.
  *
  * @param int $move_reply_id Move reply id
  * @param int $source_topic_id Source topic id

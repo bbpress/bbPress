@@ -1632,7 +1632,7 @@ function bbp_edit_user_forums_role() {
 /**
  * Filter whether password fields are displayed on a bbPress user profile.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7514)
  *
  * @param bool    $show         Whether to show the password fields.
  * @param WP_User $profile_user User being edited.
@@ -2480,7 +2480,7 @@ function bbp_current_user_can_access_create_reply_form() {
  * This covers topic merges, topic splits, and reply moves. Their handlers
  * perform the same capability checks independently when processing a request.
  *
- * @since 2.6.19
+ * @since 2.6.19 bbPress (r7618)
  *
  * @param int $topic_id Optional. Topic ID.
  * @return bool True if the current user can moderate and edit the topic.
@@ -2530,7 +2530,7 @@ function bbp_current_user_can_access_anonymous_user_form() {
 /**
  * Output the moderators of a forum
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6056)
  *
  * @param int   $forum_id Optional. Topic id
  * @param array $args     See {@link bbp_get_moderator_list()}
@@ -2542,7 +2542,7 @@ function bbp_moderator_list( $forum_id = 0, $args = array() ) {
 	/**
 	 * Return the moderators for an object
 	 *
-	 * @since 2.6.0 bbPress
+	 * @since 2.6.0 bbPress (r6056)
 	 *
 	 * @param int   $object_id Optional. Object id
 	 * @param array $args     This function supports these arguments:

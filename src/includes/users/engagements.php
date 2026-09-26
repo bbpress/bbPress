@@ -194,7 +194,7 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
  * See: https://bbpress.trac.wordpress.org/ticket/3083
  *
  * @since 2.6.0 bbPress (r6522)
- * @since 2.6.17 Honor filtered public reply statuses.
+ * @since 2.6.17 bbPress (r7468) Honor filtered public reply statuses.
  *
  * @param int $topic_id
  *
@@ -458,7 +458,7 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
  * adding an engagement. Existing engagements may be removed after visibility
  * changes.
  *
- * @since 2.6.19
+ * @since 2.6.19 bbPress (r7643)
  *
  * @param int    $object_id   Post ID.
  * @param string $object_type Metadata object type; only post is supported.

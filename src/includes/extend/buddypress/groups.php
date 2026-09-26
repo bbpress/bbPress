@@ -168,7 +168,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Check whether a user can view a private or hidden group forum.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7494)
 	 *
 	 * @param int $user_id  User ID.
 	 * @param int $forum_id Forum ID.
@@ -203,7 +203,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Map read access for private and hidden group forums in every request.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7496)
 	 *
 	 * @param array  $caps    Capabilities for the meta capability.
 	 * @param string $cap     Capability name.
@@ -236,7 +236,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Exclude private and hidden group forums a user cannot view.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7496)
 	 *
 	 * @param array $forum_ids Forum IDs already excluded.
 	 * @return array Forum IDs the user cannot view.
@@ -281,7 +281,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Unlike the request-specific capability mapping, this check accepts an
 	 * explicit user ID so it can validate subscription recipients.
 	 *
-	 * @since 2.6.17
+	 * @since 2.6.17 bbPress (r7496)
 	 *
 	 * @param bool $retval   Whether the user can view the forum.
 	 * @param int  $user_id  User ID.
@@ -505,7 +505,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * If all checks fail, an error gets added to prevent the topic from saving.
 	 *
-	 * @since 2.6.14
+	 * @since 2.6.14 bbPress (r7059)
 	 *
 	 * @param int $topic_id
 	 */
@@ -566,7 +566,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * If all checks fail, an error gets added to prevent the reply from saving.
 	 *
-	 * @since 2.6.14
+	 * @since 2.6.14 bbPress (r7059)
 	 *
 	 * @param int $reply_id
 	 */
@@ -1653,7 +1653,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Get the URL for a group.
 	 *
-	 * @since 2.6.14
+	 * @since 2.6.14 bbPress (r7317)
 	 *
 	 * @param int $group_id
 	 * @return string
@@ -1679,7 +1679,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Get the management URL for a group.
 	 *
-	 * @since 2.6.14
+	 * @since 2.6.14 bbPress (r7317)
 	 *
 	 * @param int $group_id
 	 * @return string
@@ -1904,7 +1904,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Required for compatibility with BuddyPress > 12.0, where the /groups/
 	 * rewrite rule will be caught before bbPress's /page/ rule.
 	 *
-	 * @since 2.6.14
+	 * @since 2.6.14 bbPress (r7317)
 	 *
 	 * @param  object object  Verified object
 	 * @param  string $type   Type of variable to check with `is_a()`

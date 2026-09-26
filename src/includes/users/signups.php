@@ -194,7 +194,7 @@ function bbp_user_add_role_on_activate( $user_id = 0, $password = '', $meta = ar
  * user registration, but also when adding an existing user to a site in
  * Multisite installations.
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7087)
  *
  * @param string $to_validate A role ID to validate
  * @return string A valid role ID, or empty string on error
@@ -226,7 +226,7 @@ function bbp_validate_signup_role( $to_validate = '' ) {
 /**
  * Validate the Forum role during the registration process
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7087)
  *
  * @param string $to_validate A well-formed (string) role ID to validate
  * @return string A valid role ID, or empty string on error
@@ -251,7 +251,7 @@ function bbp_validate_registration_role( $to_validate = '' ) {
  * This function exists simply for parity with registrations, and to maintain an
  * intentional layer of abstraction from the more generic function it uses.
  *
- * @since 2.6.5
+ * @since 2.6.5 bbPress (r7087)
  *
  * @param string $to_validate A well-formed (string) role ID to validate
  * @return string A valid role ID, or empty string on error

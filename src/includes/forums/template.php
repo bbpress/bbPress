@@ -566,7 +566,7 @@ function bbp_forum_freshness_link( $forum_id = 0 ) {
 /**
  * Is a topic or reply eligible for public forum activity?
  *
- * @since 2.6.19 bbPress
+ * @since 2.6.19 bbPress (r7630)
  *
  * @param int $post_id Topic or reply ID.
  * @return bool Whether the activity is public.
@@ -1740,7 +1740,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Is the forum private or hidden?
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7474)
  *
  * @param int  $forum_id Optional. Forum id.
  * @param bool $check_ancestors Whether to check the forum ancestors.
@@ -1760,7 +1760,7 @@ function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
  * Checks the forum and its ancestors for private or hidden visibility, and
  * whether the user is a forum moderator or can otherwise read the forum.
  *
- * @since 2.6.17
+ * @since 2.6.17 bbPress (r7504)
  *
  * @param int $forum_id Optional. Forum ID.
  * @param int $user_id  Optional. User ID. Defaults to 0.

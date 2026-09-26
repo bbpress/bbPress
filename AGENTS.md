@@ -239,9 +239,13 @@ cause or document the incompatibility and obtain review for a scoped adjustment.
 - Use the actual first shipped version in new `@since` annotations. If a feature
   is backported before release, reconcile trunk annotations too.
 - For major new concepts, include the canonical Subversion revision in `@since`.
-  The revision is only known after a commit: run `tests/ci/audit-since-revisions.py`
-  with `--fix --dry-run`, review its candidates, then use `--fix` and commit
-  the annotation updates. Check trunk and maintenance branches separately.
+  For committed work, `svn info --show-item last-changed-revision PATH` works
+  with a file in a checkout or its URL; verify that revision is the intended
+  changeset. For new work, read the repository HEAD with
+  `svn info --show-item revision URL` and use the next revision in the patch.
+  Verify the assigned revision after committing and correct any mismatch. Use
+  `tests/ci/audit-since-revisions.py --fix --dry-run` to find omissions, and
+  check trunk and maintenance branches separately.
 
 ## Version Metadata
 
