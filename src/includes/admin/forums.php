@@ -16,7 +16,7 @@ if ( ! class_exists( 'BBP_Forums_Admin' ) ) :
  *
  * @package bbPress
  * @subpackage Administration
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r3095)
  */
 class BBP_Forums_Admin {
 
@@ -32,7 +32,7 @@ class BBP_Forums_Admin {
 	/**
 	 * The main bbPress forums admin loader
 	 *
-	 * @since 2.0.0 bbPress (r2515)
+	 * @since 2.0.0 bbPress (r3095)
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -42,7 +42,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Setup the admin hooks, actions and filters
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -78,7 +78,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Admin globals
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -91,7 +91,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Contextual help for bbPress forum edit page
 	 *
-	 * @since 2.0.0 bbPress (r3119)
+	 * @since 2.1.0 bbPress (r3686)
 	 */
 	public function edit_help() {
 
@@ -158,7 +158,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Contextual help for bbPress forum edit page
 	 *
-	 * @since 2.0.0 bbPress (r3119)
+	 * @since 2.1.0 bbPress (r3686)
 	 */
 	public function new_help() {
 
@@ -222,7 +222,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Add the forum attributes meta-box
 	 *
-	 * @since 2.0.0 bbPress (r2746)
+	 * @since 2.0.0 bbPress (r3097)
 	 */
 	public function attributes_metabox() {
 
@@ -244,7 +244,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Add the forum moderators meta-box
 	 *
-	 * @since 2.6.0 bbPress (r5834)
+	 * @since 2.6.0 bbPress (r6056)
 	 */
 	public function moderators_metabox() {
 
@@ -309,7 +309,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Pass the forum attributes for processing
 	 *
-	 * @since 2.0.0 bbPress (r2746)
+	 * @since 2.6.0 bbPress (r6056)
 	 *
 	 * @param int $forum_id Forum id
 	 * @return int Forum id
@@ -505,7 +505,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Returns an array of keys used to sort row actions
 	 *
-	 * @since 2.6.0 bbPress (r6771)
+	 * @since 2.6.0 bbPress (r6772)
 	 *
 	 * @return array
 	 */
@@ -514,7 +514,7 @@ class BBP_Forums_Admin {
 		/**
 		 * Filters the row action sort order.
 		 *
-		 * @since 2.6.0 bbPress (r6771)
+		 * @since 2.6.0 bbPress (r6772)
 		 *
 		 * @param array $order The default sort order.
 		 */
@@ -534,7 +534,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Returns an array of notice toggles
 	 *
-	 * @since 2.6.0 bbPress (r6396)
+	 * @since 2.6.0 bbPress (r6397)
 	 *
 	 * @return array
 	 */
@@ -553,7 +553,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Returns an array of notice toggles
 	 *
-	 * @since 2.6.0 bbPress (r6396)
+	 * @since 2.6.0 bbPress (r6397)
 	 *
 	 * @return array
 	 */
@@ -562,7 +562,7 @@ class BBP_Forums_Admin {
 		/**
 		 * Filters the allowed action toggles.
 		 *
-		 * @since 2.6.0 bbPress (r6396)
+		 * @since 2.6.0 bbPress (r6397)
 		 *
 		 * @param array $toggles The default action toggles.
 		 */
@@ -577,7 +577,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Manage the column headers for the forums page
 	 *
-	 * @since 2.0.0 bbPress (r2485)
+	 * @since 2.0.0 bbPress (r3097)
 	 *
 	 * @param array $columns The columns
 	 *
@@ -609,7 +609,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Print extra columns for the forums page
 	 *
-	 * @since 2.0.0 bbPress (r2485)
+	 * @since 2.0.0 bbPress (r3097)
 	 *
 	 * @param string $column Column
 	 * @param int $forum_id Forum id
@@ -667,7 +667,7 @@ class BBP_Forums_Admin {
 	 * Remove the quick-edit action link and display the description under
 	 * the forum title and add the open/close links
 	 *
-	 * @since 2.0.0 bbPress (r2577)
+	 * @since 2.0.0 bbPress (r3097)
 	 *
 	 * @param array  $actions Actions
 	 * @param object $forum   Forum object
@@ -745,7 +745,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Custom user feedback messages for forum post type
 	 *
-	 * @since 2.0.0 bbPress (r3080)
+	 * @since 2.0.0 bbPress (r3097)
 	 *
 	 * @global int $post_ID
 	 *
@@ -841,7 +841,7 @@ endif; // class_exists check
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
  *
- * @since 2.0.0 bbPress (r2596)
+ * @since 2.0.0 bbPress (r3343)
  *
  * @param WP_Screen $current_screen Current screen object
  */

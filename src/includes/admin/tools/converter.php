@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return an array of available converters
  *
- * @since 2.6.0 bbPress (r6447)
+ * @since 2.6.0 bbPress (r6448)
  *
  * @return array
  */

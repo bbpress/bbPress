@@ -10,7 +10,7 @@
 /**
  * Implementation of XMB Forum converter.
  *
- * @since 2.5.0 bbPress (r5143)
+ * @since 2.5.0 bbPress (r5144)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/xmb
  */

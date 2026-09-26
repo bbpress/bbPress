@@ -109,7 +109,7 @@ class BBP_Admin {
 	/**
 	 * The main bbPress admin loader
 	 *
-	 * @since 2.0.0 bbPress (r2515)
+	 * @since 2.0.0 bbPress (r3071)
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -120,7 +120,7 @@ class BBP_Admin {
 	/**
 	 * Admin globals
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3338)
 	 *
 	 * @access private
 	 */
@@ -141,7 +141,7 @@ class BBP_Admin {
 	/**
 	 * Include required files
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3338)
 	 *
 	 * @access private
 	 */
@@ -169,7 +169,7 @@ class BBP_Admin {
 	/**
 	 * Setup the admin hooks, actions and filters
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3338)
 	 *
 	 * @access private
 	 */
@@ -233,7 +233,7 @@ class BBP_Admin {
 	/**
 	 * Setup general admin area notices.
 	 *
-	 * @since 2.6.0 bbPress (r6701)
+	 * @since 2.6.0 bbPress (r6705)
 	 */
 	public function setup_notices() {
 
@@ -275,7 +275,7 @@ class BBP_Admin {
 	/**
 	 * Handle hiding of general admin area notices.
 	 *
-	 * @since 2.6.0 bbPress (r6701)
+	 * @since 2.6.0 bbPress (r6705)
 	 */
 	public function hide_notices() {
 
@@ -426,7 +426,7 @@ class BBP_Admin {
 	/**
 	 * Maybe append the pending upgrade count to the "Tools" menu.
 	 *
-	 * @since 2.6.0 bbPress (r6896)
+	 * @since 2.6.0 bbPress (r6897)
 	 *
 	 * @global menu $menu
 	 */
@@ -551,7 +551,7 @@ class BBP_Admin {
 	/**
 	 * Add the network admin menus
 	 *
-	 * @since 2.1.0 bbPress (r3689)
+	 * @since 2.1.0 bbPress (r3731)
 	 */
 	public function network_admin_menus() {
 
@@ -634,7 +634,7 @@ class BBP_Admin {
 	/**
 	 * Maps settings capabilities
 	 *
-	 * @since 2.2.0 bbPress (r4242)
+	 * @since 2.2.0 bbPress (r4244)
 	 *
 	 * @param array $caps Capabilities for meta capability
 	 * @param string $cap Capability name
@@ -708,7 +708,7 @@ class BBP_Admin {
 	/**
 	 * Register the importers
 	 *
-	 * @since 2.0.0 bbPress (r2737)
+	 * @since 2.0.0 bbPress (r3194)
 	 */
 	public function register_importers() {
 
@@ -742,7 +742,7 @@ class BBP_Admin {
 	/**
 	 * Add Settings link to plugins area
 	 *
-	 * @since 2.0.0 bbPress (r2737)
+	 * @since 2.2.0 bbPress (r4159)
 	 *
 	 * @param array $links Links array in which we would prepend our link
 	 * @param string $file Current plugin basename
@@ -775,7 +775,7 @@ class BBP_Admin {
 	/**
 	 * Enqueue any admin scripts we might need
 	 *
-	 * @since 2.2.0 bbPress (r4260)
+	 * @since 2.2.0 bbPress (r4261)
 	 */
 	public function enqueue_scripts() {
 
@@ -815,7 +815,7 @@ class BBP_Admin {
 	/**
 	 * Enqueue any admin scripts we might need
 	 *
-	 * @since 2.6.0 bbPress (r5224)
+	 * @since 2.6.0 bbPress (r5225)
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( 'bbp-admin-css' );
@@ -845,7 +845,7 @@ class BBP_Admin {
 	 * Because wp-content can exist outside of the WordPress root, there is no
 	 * way to be certain what the relative path of admin images is.
 	 *
-	 * @since 2.6.0 bbPress (r2521)
+	 * @since 2.6.0 bbPress (r6913)
 	 */
 	public function register_admin_styles() {
 
@@ -898,7 +898,7 @@ class BBP_Admin {
 	 * way to be certain what the relative path of the admin images is.
 	 * We are including the two most common configurations here, just in case.
 	 *
-	 * @since 2.6.0 bbPress (r2521)
+	 * @since 2.6.0 bbPress (r6913)
 	 */
 	public function register_admin_scripts() {
 
@@ -990,7 +990,7 @@ class BBP_Admin {
 	/**
 	 * Ajax action for facilitating the topic and reply author auto-suggest
 	 *
-	 * @since 2.4.0 bbPress (r5014)
+	 * @since 2.4.0 bbPress (r5015)
 	 */
 	public function suggest_user() {
 
@@ -1310,7 +1310,7 @@ class BBP_Admin {
 	/**
 	 * Update all bbPress forums across all sites
 	 *
-	 * @since 2.1.0 bbPress (r3689)
+	 * @since 2.1.0 bbPress (r3731)
 	 */
 	public static function update_screen() {
 
@@ -1354,7 +1354,7 @@ class BBP_Admin {
 	/**
 	 * Update all bbPress forums across all sites
 	 *
-	 * @since 2.1.0 bbPress (r3689)
+	 * @since 2.1.0 bbPress (r3731)
 	 */
 	public static function network_update_screen() {
 		$bbp_db = bbp_db();

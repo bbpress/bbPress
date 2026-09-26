@@ -118,8 +118,8 @@ add_action( 'user_new_form', 'bbp_add_user_form_role_field', 10, 1 );
 /**
  * Setup bbPress admin
  *
- * @since 2.0.0 bbPress (r1000)
- * @since 2.6.0 bbPress (r6598) Moved to actions.php
+ * @since 2.0.0 bbPress (r2515)
+ * @since 2.6.0 bbPress (r6601) Moved to actions.php
  */
 function bbp_admin() {
 	return bbp_setup_admin();
@@ -129,7 +129,7 @@ function bbp_admin() {
  * When a new site is created in a multisite installation, run the activation
  * routine on that site
  *
- * @since 2.0.0 bbPress (r3283)
+ * @since 2.0.0 bbPress (r3284)
  *
  * @param int $blog_id
  * @param int $user_id
@@ -213,7 +213,7 @@ function bbp_filter_column_headers( $columns = array() ) {
 /**
  * Filter sample permalinks so that certain languages display properly.
  *
- * @since 2.0.0 bbPress (r3336)
+ * @since 2.0.0 bbPress (r3337)
  *
  * @param string $post_link Custom post type permalink
  * @param object $_post Post data object
@@ -265,7 +265,7 @@ function bbp_admin_head() {
 /**
  * Piggy back admin_notices action
  *
- * @since 2.1.0 bbPress (r3766)
+ * @since 2.0.0 bbPress (r2615)
  */
 function bbp_admin_notices() {
 	do_action( 'bbp_admin_notices' );
@@ -283,7 +283,7 @@ function bbp_register_importers() {
 /**
  * Dedicated action to register admin styles
  *
- * @since 2.6.0 bbPress (r6912)
+ * @since 2.6.0 bbPress (r6913)
  */
 function bbp_register_admin_styles() {
 
@@ -306,7 +306,7 @@ function bbp_register_admin_styles() {
 /**
  * Dedicated action to register admin scripts
  *
- * @since 2.6.0 bbPress (r6912)
+ * @since 2.6.0 bbPress (r6913)
  */
 function bbp_register_admin_scripts() {
 	do_action( 'bbp_register_admin_scripts' );
@@ -324,7 +324,7 @@ function bbp_register_admin_settings() {
 /**
  * Dedicated action to output admin tools.php sections
  *
- * @since 2.6.0 bbPress (r6273)
+ * @since 2.6.0 bbPress (r6274)
  */
 function bbp_admin_tool_box() {
 	do_action( 'bbp_admin_tool_box' );
@@ -333,7 +333,7 @@ function bbp_admin_tool_box() {
 /**
  * Dedicated action to hook into the current screen
  *
- * @since 2.6.0 bbPress (r6185)
+ * @since 2.6.0 bbPress (r6186)
  *
  * @param WP_Screen $current_screen
  */

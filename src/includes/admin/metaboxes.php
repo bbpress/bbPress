@@ -12,7 +12,7 @@
 /**
  * Filter the Dashboard "at a glance" items and append bbPress elements to it.
  *
- * @since 2.6.0 bbPress (r5268)
+ * @since 2.6.0 bbPress (r5269)
  *
  * @param array $elements
  * @return array
@@ -334,7 +334,7 @@ function bbp_dashboard_widget_right_now() {
  *
  * The meta-box that holds all of the additional forum information
  *
- * @since 2.0.0 bbPress (r2744)
+ * @since 2.0.0 bbPress (r2746)
  */
 function bbp_forum_metabox( $post ) {
 
@@ -508,7 +508,7 @@ function bbp_topic_metabox( $post ) {
  *
  * The meta-box that holds all of the additional reply information
  *
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r2614)
  */
 function bbp_reply_metabox( $post ) {
 
@@ -649,7 +649,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
 /**
  * Anonymous user information meta-box
  *
- * @since 2.0.0 bbPress (r2828)
+ * @since 2.0.0 bbPress (r3120)
  *
  * @param WP_Post $post The current post object
  */
@@ -700,7 +700,7 @@ function bbp_author_metabox( $post ) {
 /**
  * Moderator assignment meta-box
  *
- * @since 2.6.0 bbPress (r2828)
+ * @since 2.6.0 bbPress (r6056)
  */
 function bbp_moderator_assignment_metabox( $post ) {
 
@@ -723,7 +723,7 @@ function bbp_moderator_assignment_metabox( $post ) {
 /**
  * See who engaged with a topic
  *
- * @since 2.6.0 bbPress (r6333)
+ * @since 2.6.0 bbPress (r6334)
  */
 function bbp_topic_engagements_metabox( $post ) {
 
@@ -756,7 +756,7 @@ function bbp_topic_engagements_metabox( $post ) {
  * See who marked a topic as a favorite
  *
  * @since 2.6.0 bbPress (r6197)
- * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
+ * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
  */
 function bbp_topic_favorites_metabox( $post ) {
 
@@ -789,7 +789,7 @@ function bbp_topic_favorites_metabox( $post ) {
  * See who is subscribed to a topic
  *
  * @since 2.6.0 bbPress (r6197)
- * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
+ * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
  */
 function bbp_topic_subscriptions_metabox( $post ) {
 
@@ -829,7 +829,7 @@ function bbp_topic_subscriptions_metabox( $post ) {
  * See who is subscribed to a forum
  *
  * @since 2.6.0 bbPress (r6197)
- * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
+ * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
  */
 function bbp_forum_subscriptions_metabox( $post ) {
 
@@ -864,7 +864,7 @@ function bbp_forum_subscriptions_metabox( $post ) {
  * Developers Note: This function may change in a future release to include
  * additional actions, so do not use this function in any third party plugin.
  *
- * @since 2.6.0 bbPress (r6913)
+ * @since 2.6.0 bbPress (r6914)
  */
 function bbp_metabox_user_links() {
 

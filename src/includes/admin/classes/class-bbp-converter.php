@@ -99,7 +99,7 @@ class BBP_Converter {
 	/**
 	 * The main bbPress Converter loader
 	 *
-	 * @since 2.1.0 bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3816)
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -109,7 +109,7 @@ class BBP_Converter {
 	/**
 	 * Admin globals
 	 *
-	 * @since 2.6.0 bbPress (r6598)
+	 * @since 2.6.0 bbPress (r6601)
 	 */
 	public function setup_globals() {
 		$this->converters_dir = bbp_setup_admin()->admin_dir . 'converters/';
@@ -118,7 +118,7 @@ class BBP_Converter {
 	/**
 	 * Setup the default actions
 	 *
-	 * @since 2.1.0 bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3816)
 	 */
 	public function setup_actions() {
 
@@ -132,7 +132,7 @@ class BBP_Converter {
 	/**
 	 * Admin scripts
 	 *
-	 * @since 2.1.0 bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3816)
 	 */
 	public function admin_head() {
 
@@ -191,7 +191,7 @@ class BBP_Converter {
 	/**
 	 * Callback processor
 	 *
-	 * @since 2.1.0 bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3816)
 	 */
 	public function process_callback() {
 
@@ -211,7 +211,7 @@ class BBP_Converter {
 	/**
 	 * Wrap the converter output in HTML, so styling can be applied
 	 *
-	 * @since 2.1.0 bbPress (r4052)
+	 * @since 2.6.0 bbPress (r6601)
 	 *
 	 * @param string $output
 	 */
@@ -305,7 +305,7 @@ class BBP_Converter {
 	/**
 	 * Maybe update options
 	 *
-	 * @since 2.6.0 bbPress (r6637)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function maybe_update_options() {
 
@@ -517,7 +517,7 @@ class BBP_Converter {
 	/**
 	 * Maybe clean the sync table
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_sync_table() {
 		if ( true === $this->converter->clean ) {
@@ -551,7 +551,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert users
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_users() {
 		if ( true === $this->converter->convert_users ) {
@@ -575,7 +575,7 @@ class BBP_Converter {
 	/**
 	 * Maybe clean up passwords
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_passwords() {
 		if ( true === $this->converter->convert_users ) {
@@ -599,7 +599,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert forums
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_forums() {
 		if ( $this->converter->convert_forums( $this->start ) ) {
@@ -618,7 +618,7 @@ class BBP_Converter {
 	/**
 	 * Maybe walk the forum hierarchy
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_forum_hierarchy() {
 		if ( $this->converter->convert_forum_parents( $this->start ) ) {
@@ -637,7 +637,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert forum subscriptions
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_forum_subscriptions() {
 		if ( $this->converter->convert_forum_subscriptions( $this->start ) ) {
@@ -656,7 +656,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert topics
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_topics() {
 		if ( $this->converter->convert_topics( $this->start ) ) {
@@ -675,7 +675,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert topic authors (anonymous)
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_topics_authors() {
 		if ( $this->converter->convert_anonymous_topic_authors( $this->start ) ) {
@@ -694,7 +694,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert sticky topics (not super stickies)
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_stickies() {
 		if ( $this->converter->convert_topic_stickies( $this->start ) ) {
@@ -713,7 +713,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert super-sticky topics (not per-forum)
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_super_stickies() {
 		if ( $this->converter->convert_topic_super_stickies( $this->start ) ) {
@@ -732,7 +732,7 @@ class BBP_Converter {
 	/**
 	 * Maybe close converted topics
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_closed_topics() {
 		if ( $this->converter->convert_topic_closed_topics( $this->start ) ) {
@@ -751,7 +751,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert topic tags
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_topic_tags() {
 		if ( $this->converter->convert_tags( $this->start ) ) {
@@ -770,7 +770,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert topic subscriptions
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_topic_subscriptions() {
 		if ( $this->converter->convert_topic_subscriptions( $this->start ) ) {
@@ -789,7 +789,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert topic favorites
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_topic_favorites() {
 		if ( $this->converter->convert_favorites( $this->start ) ) {
@@ -808,7 +808,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert replies
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_replies() {
 		if ( $this->converter->convert_replies( $this->start ) ) {
@@ -827,7 +827,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert reply authors (anonymous)
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_reply_authors() {
 		if ( $this->converter->convert_anonymous_reply_authors( $this->start ) ) {
@@ -846,7 +846,7 @@ class BBP_Converter {
 	/**
 	 * Maybe convert the threaded reply hierarchy
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_reply_hierarchy() {
 		if ( $this->converter->convert_reply_to_parents( $this->start ) ) {
@@ -865,7 +865,7 @@ class BBP_Converter {
 	/**
 	 * Done!
 	 *
-	 * @since 2.6.0 bbPress (r6513)
+	 * @since 2.6.0 bbPress (r6514)
 	 */
 	private function step_done() {
 		$this->reset();
@@ -877,7 +877,7 @@ class BBP_Converter {
 	/**
 	 * Create Tables for fast syncing
 	 *
-	 * @since 2.1.0 bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3816)
 	 */
 	public static function sync_table( $drop = false ) {
 

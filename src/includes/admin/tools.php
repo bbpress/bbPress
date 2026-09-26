@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Output a bbPress specific tools box
  *
- * @since 2.6.0 bbPress (r6273)
+ * @since 2.6.0 bbPress (r6274)
  */
 function bbp_admin_tools_box() {
 
@@ -565,7 +565,7 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 /**
  * Return possible tools pages
  *
- * @since 2.6.0 bbPress (r6273)
+ * @since 2.6.0 bbPress (r6274)
  *
  * @return array
  */
@@ -577,7 +577,7 @@ function bbp_get_tools_admin_pages() {
 	/**
 	 * Filters the tools admin pages.
 	 *
-	 * @since 2.6.0 bbPress (r6273)
+	 * @since 2.1.0 bbPress (r3872)
 	 *
 	 * @param array $pages The default array of tools pages.
 	 */

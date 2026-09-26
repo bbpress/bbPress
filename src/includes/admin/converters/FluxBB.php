@@ -10,7 +10,7 @@
 /**
  * Implementation of FluxBB Forum converter.
  *
- * @since 2.5.0 bbPress (r5138)
+ * @since 2.5.0 bbPress (r5139)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/fluxbb
  */
@@ -614,7 +614,7 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Check whether the source users table retains the legacy FluxBB salt field.
 	 *
-	 * @since 2.6.18 bbPress (r7588)
+	 * @since 2.6.18 bbPress (r7538)
 	 *
 	 * @return bool True when the salt field exists, false otherwise.
 	 */

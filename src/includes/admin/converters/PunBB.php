@@ -10,7 +10,7 @@
 /**
  * Implementation of PunBB v1.4.2 Forum converter.
  *
- * @since 2.5.0 bbPress (r5153)
+ * @since 2.5.0 bbPress (r5154)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/punbb
  */

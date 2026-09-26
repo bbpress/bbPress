@@ -10,7 +10,7 @@
 /**
  * Implementation of Kunena v2.x Forums for Joomla Forum converter.
  *
- * @since 2.5.0 bbPress (r5144)
+ * @since 2.5.0 bbPress (r5145)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/kunena/
  */

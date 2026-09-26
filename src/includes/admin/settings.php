@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Get the Forums settings sections.
  *
- * @since 2.1.0 bbPress (r4001)
+ * @since 2.1.0 bbPress (r4002)
  *
  * @return array
  */
@@ -98,7 +98,7 @@ function bbp_admin_get_settings_sections() {
 /**
  * Get all of the settings fields.
  *
- * @since 2.1.0 bbPress (r4001)
+ * @since 2.1.0 bbPress (r4002)
  *
  * @return array
  */
@@ -616,7 +616,7 @@ function bbp_admin_get_settings_fields() {
 /**
  * Get settings fields by section.
  *
- * @since 2.1.0 bbPress (r4001)
+ * @since 2.1.0 bbPress (r4002)
  *
  * @param string $section_id ID of the section to get fields for
  * @staticvar array $fields All of the available fields
@@ -652,7 +652,7 @@ function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 /**
  * User settings section description for the settings page
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.4.0 bbPress (r4968)
  */
 function bbp_admin_setting_callback_user_section() {
 ?>
@@ -786,7 +786,7 @@ function bbp_admin_setting_callback_global_access() {
 /**
  * Features settings section description for the settings page
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.4.0 bbPress (r4968)
  */
 function bbp_admin_setting_callback_features_section() {
 ?>
@@ -827,7 +827,7 @@ function bbp_admin_setting_callback_subscriptions() {
 /**
  * Allow engagements setting field
  *
- * @since 2.0.0 bbPress (r2737)
+ * @since 2.6.0 bbPress (r6321)
  */
 function bbp_admin_setting_callback_engagements() {
 ?>
@@ -841,7 +841,7 @@ function bbp_admin_setting_callback_engagements() {
 /**
  * Allow topic tags setting field
  *
- * @since 2.4.0 bbPress (r4944)
+ * @since 2.2.0 bbPress (r4098)
  */
 function bbp_admin_setting_callback_topic_tags() {
 ?>
@@ -870,7 +870,7 @@ function bbp_admin_setting_callback_forum_mods() {
 /**
  * Allow super-mods setting field
  *
- * @since 2.6.0 bbPress (r6562)
+ * @since 2.6.0 bbPress (r6563)
  */
 function bbp_admin_setting_callback_super_mods() {
 ?>
@@ -885,7 +885,7 @@ function bbp_admin_setting_callback_super_mods() {
 /**
  * Allow forum wide search
  *
- * @since 2.4.0 bbPress (r4970)
+ * @since 2.4.0 bbPress (r4971)
  */
 function bbp_admin_setting_callback_search() {
 ?>
@@ -941,7 +941,7 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 /**
  * Allow topic and reply revisions
  *
- * @since 2.0.0 bbPress (r3412)
+ * @since 2.0.0 bbPress (r3416)
  */
 function bbp_admin_setting_callback_revisions() {
 ?>
@@ -969,7 +969,7 @@ function bbp_admin_setting_callback_use_wp_editor() {
 /**
  * Main subtheme section
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.1.0 bbPress (r3830)
  */
 function bbp_admin_setting_callback_subtheme_section() {
 ?>
@@ -982,7 +982,7 @@ function bbp_admin_setting_callback_subtheme_section() {
 /**
  * Use the WordPress editor setting field
  *
- * @since 2.1.0 bbPress (r3586)
+ * @since 2.1.0 bbPress (r3830)
  */
 function bbp_admin_setting_callback_subtheme_id() {
 
@@ -1014,7 +1014,7 @@ function bbp_admin_setting_callback_subtheme_id() {
 /**
  * Allow oEmbed in replies
  *
- * @since 2.1.0 bbPress (r3752)
+ * @since 2.1.0 bbPress (r3753)
  */
 function bbp_admin_setting_callback_use_autoembed() {
 ?>
@@ -1073,7 +1073,7 @@ function bbp_admin_setting_callback_replies_per_page() {
 /**
  * Per page settings section description for the settings page
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.0.0 bbPress (r3170)
  */
 function bbp_admin_setting_callback_per_rss_page_section() {
 ?>
@@ -1086,7 +1086,7 @@ function bbp_admin_setting_callback_per_rss_page_section() {
 /**
  * Topics per RSS page setting field
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.0.0 bbPress (r3170)
  */
 function bbp_admin_setting_callback_topics_per_rss_page() {
 ?>
@@ -1100,7 +1100,7 @@ function bbp_admin_setting_callback_topics_per_rss_page() {
 /**
  * Replies per RSS page setting field
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.0.0 bbPress (r3170)
  */
 function bbp_admin_setting_callback_replies_per_rss_page() {
 ?>
@@ -1116,7 +1116,7 @@ function bbp_admin_setting_callback_replies_per_rss_page() {
 /**
  * Slugs settings section description for the settings page
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.0.0 bbPress (r3170)
  */
 function bbp_admin_setting_callback_root_slug_section() {
 
@@ -1162,7 +1162,7 @@ function bbp_admin_setting_callback_include_root() {
 /**
  * Include root slug setting field
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.4.0 bbPress (r4932)
  */
 function bbp_admin_setting_callback_show_on_root() {
 
@@ -1211,7 +1211,7 @@ function bbp_admin_setting_callback_show_on_root() {
 /**
  * Slugs settings section description for the settings page
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.4.0 bbPress (r4932)
  */
 function bbp_admin_setting_callback_user_slug_section() {
 ?>
@@ -1239,7 +1239,7 @@ function bbp_admin_setting_callback_user_slug() {
 /**
  * Topic archive slug setting field
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.0.0 bbPress (r3186)
  */
 function bbp_admin_setting_callback_topic_archive_slug() {
 ?>
@@ -1316,7 +1316,7 @@ function bbp_admin_setting_callback_user_engagements_slug() {
 /**
  * Slugs settings section description for the settings page
  *
- * @since 2.0.0 bbPress (r2786)
+ * @since 2.0.0 bbPress (r3170)
  */
 function bbp_admin_setting_callback_single_slug_section() {
 ?>
@@ -1420,7 +1420,7 @@ function bbp_admin_setting_callback_search_slug() {
 /**
  * Edit slug setting field
  *
- * @since 2.6.2 bbPress (r6965)
+ * @since 2.6.2 bbPress (r6966)
  */
 function bbp_admin_setting_callback_edit_slug() {
 ?>
@@ -1557,7 +1557,7 @@ function bbp_admin_setting_callback_akismet() {
 /**
  * The main settings page
  *
- * @since 2.0.0 bbPress (r2643)
+ * @since 2.0.0 bbPress (r2594)
  */
 function bbp_admin_settings() {
 ?>
@@ -1586,7 +1586,7 @@ function bbp_admin_settings() {
 /**
  * Main settings section description for the settings page
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_main_section() {
 ?>
@@ -1599,7 +1599,7 @@ function bbp_converter_setting_callback_main_section() {
 /**
  * Edit Platform setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_platform() {
 
@@ -1622,7 +1622,7 @@ function bbp_converter_setting_callback_platform() {
 /**
  * Edit Database Server setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_dbserver() {
 ?>
@@ -1640,7 +1640,7 @@ function bbp_converter_setting_callback_dbserver() {
 /**
  * Edit Database Server Port setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_dbport() {
 	?>
@@ -1659,7 +1659,7 @@ function bbp_converter_setting_callback_dbport() {
 /**
  * Edit Database User setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_dbuser() {
 ?>
@@ -1673,7 +1673,7 @@ function bbp_converter_setting_callback_dbuser() {
 /**
  * Edit Database Pass setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_dbpass() {
 ?>
@@ -1693,7 +1693,7 @@ function bbp_converter_setting_callback_dbpass() {
 /**
  * Edit Database Name setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_dbname() {
 ?>
@@ -1707,7 +1707,7 @@ function bbp_converter_setting_callback_dbname() {
 /**
  * Main settings section description for the settings page
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3872)
  */
 function bbp_converter_setting_callback_options_section() {
 ?>
@@ -1720,7 +1720,7 @@ function bbp_converter_setting_callback_options_section() {
 /**
  * Edit Table Prefix setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_dbprefix() {
 ?>
@@ -1738,7 +1738,7 @@ function bbp_converter_setting_callback_dbprefix() {
 /**
  * Edit Rows Limit setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_rows() {
 ?>
@@ -1753,7 +1753,7 @@ function bbp_converter_setting_callback_rows() {
 /**
  * Edit Delay Time setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_delay_time() {
 ?>
@@ -1768,7 +1768,7 @@ function bbp_converter_setting_callback_delay_time() {
 /**
  * Edit Halt setting field
  *
- * @since 2.6.0 bbPress (r6599)
+ * @since 2.6.0 bbPress (r6600)
  */
 function bbp_converter_setting_callback_halt() {
 ?>
@@ -1784,7 +1784,7 @@ function bbp_converter_setting_callback_halt() {
 /**
  * Edit Restart setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_restart() {
 ?>
@@ -1799,7 +1799,7 @@ function bbp_converter_setting_callback_restart() {
 /**
  * Edit Clean setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_clean() {
 ?>
@@ -1814,7 +1814,7 @@ function bbp_converter_setting_callback_clean() {
 /**
  * Edit Convert Users setting field
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 function bbp_converter_setting_callback_convert_users() {
 	$network_users_only = ! current_user_can( 'bbp_tools_import_users' );
@@ -1836,7 +1836,7 @@ function bbp_converter_setting_callback_convert_users() {
 /**
  * The main settings page
  *
- * @since 2.1.0 bbPress (r3186)
+ * @since 2.6.0 bbPress (r6277)
  */
 function bbp_converter_settings_page() {
 
@@ -2021,7 +2021,7 @@ function bbp_admin_settings_help() {
 /**
  * Disable a settings field if it is forcibly set in the global options array.
  *
- * @since 2.2.0 bbPress (r4347)
+ * @since 2.2.0 bbPress (r4348)
  *
  * @param string $option_key
  */

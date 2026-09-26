@@ -18,7 +18,7 @@ if ( ! class_exists( 'BBP_Converter_Base' ) ) :
  *
  * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
  *
- * @since 2.1.0 bbPress (r3813)
+ * @since 2.1.0 bbPress (r3816)
  */
 abstract class BBP_Converter_Base {
 
@@ -333,7 +333,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Convert Table
 	 *
-	 * @since 2.6.18 bbPress (r7544) Connects to the source database when conversion begins.
+	 * @since 2.1.0 bbPress (r3816) Connects to the source database when conversion begins.
 	 *
 	 * @param string $to_type The destination type
 	 * @param int $start Start row
@@ -925,7 +925,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method deletes data from the wp database.
 	 *
-	 * @since 2.6.0 bbPress (r6456)
+	 * @since 2.1.0 bbPress (r3816)
 	 */
 	public function clean() {
 
@@ -1119,7 +1119,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query ran
 	 *
-	 * @since 2.6.0 bbPress (r6637)
+	 * @since 2.6.0 bbPress (r6638)
 	 *
 	 * @param string $query The literal MySQL query
 	 * @return bool
@@ -1131,7 +1131,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the number of rows in the current step
 	 *
-	 * @since 2.6.0 bbPress (r6637)
+	 * @since 2.6.0 bbPress (r6681)
 	 *
 	 * @param string $query The literal MySQL query
 	 * @return array
@@ -1147,7 +1147,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the number of rows in the current step
 	 *
-	 * @since 2.6.0 bbPress (r6637)
+	 * @since 2.6.0 bbPress (r6681)
 	 *
 	 * @param string $table_name The literal MySQL query
 	 * @return bool
@@ -1238,7 +1238,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Run password through wp_hash_password()
 	 *
-	 * @since 2.6.18 bbPress (r7546) Added the `$wp_password` parameter.
+	 * @since 2.1.0 bbPress (r3866) Added the `$wp_password` parameter.
 	 *
 	 * @param string      $username
 	 * @param string      $password

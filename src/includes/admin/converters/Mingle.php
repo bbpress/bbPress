@@ -10,7 +10,7 @@
 /**
  * Implementation of Mingle Forums converter.
  *
- * @since 2.3.0 bbPress (r4691)
+ * @since 2.3.0 bbPress (r4692)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/mingle
  */

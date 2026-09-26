@@ -16,7 +16,7 @@ if ( ! class_exists( 'BBP_Topics_Admin' ) ) :
  *
  * @package bbPress
  * @subpackage Administration
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r3095)
  */
 class BBP_Topics_Admin {
 
@@ -32,7 +32,7 @@ class BBP_Topics_Admin {
 	/**
 	 * The main bbPress topics admin loader
 	 *
-	 * @since 2.0.0 bbPress (r2515)
+	 * @since 2.0.0 bbPress (r3095)
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -42,7 +42,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Setup the admin hooks, actions and filters
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3376)
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
 	 *
 	 * @access private
@@ -96,7 +96,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Admin globals
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -109,7 +109,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Contextual help for bbPress topic edit page
 	 *
-	 * @since 2.0.0 bbPress (r3119)
+	 * @since 2.1.0 bbPress (r3686)
 	 */
 	public function edit_help() {
 
@@ -181,7 +181,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Contextual help for bbPress topic edit page
 	 *
-	 * @since 2.0.0 bbPress (r3119)
+	 * @since 2.1.0 bbPress (r3686)
 	 */
 	public function new_help() {
 
@@ -357,7 +357,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Add the topic attributes meta-box
 	 *
-	 * @since 2.0.0 bbPress (r2744)
+	 * @since 2.1.0 bbPress (r3749)
 	 */
 	public function attributes_metabox() {
 		add_meta_box(
@@ -373,7 +373,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Add the author info meta-box
 	 *
-	 * @since 2.0.0 bbPress (r2828)
+	 * @since 2.0.0 bbPress (r3120)
 	 */
 	public function author_metabox() {
 
@@ -424,7 +424,7 @@ class BBP_Topics_Admin {
 	 *
 	 * Allows viewing of users who have engaged in a topic.
 	 *
-	 * @since 2.6.0 bbPress (r6333)
+	 * @since 2.6.0 bbPress (r6334)
 	 */
 	public function engagements_metabox() {
 
@@ -524,7 +524,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Pass the topic attributes for processing
 	 *
-	 * @since 2.0.0 bbPress (r2746)
+	 * @since 2.6.0 bbPress (r6056)
 	 *
 	 * @param int $topic_id Topic id
 	 * @return int Parent id
@@ -580,7 +580,7 @@ class BBP_Topics_Admin {
 	 * Handles the admin-side opening/closing, sticking/unsticking and
 	 * spamming/unspamming of topics
 	 *
-	 * @since 2.0.0 bbPress (r2727)
+	 * @since 2.0.0 bbPress (r3095)
 	 */
 	public function toggle_topic() {
 
@@ -699,7 +699,7 @@ class BBP_Topics_Admin {
 	 * Display the success/error notices from
 	 * {@link BBP_Admin::toggle_topic()}
 	 *
-	 * @since 2.0.0 bbPress (r2727)
+	 * @since 2.0.0 bbPress (r3095)
 	 */
 	public function toggle_topic_notice() {
 
@@ -818,7 +818,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Returns an array of keys used to sort row actions
 	 *
-	 * @since 2.6.0 bbPress (r6771)
+	 * @since 2.6.0 bbPress (r6772)
 	 *
 	 * @return array
 	 */
@@ -846,7 +846,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Returns an array of notice toggles
 	 *
-	 * @since 2.6.0 bbPress (r6396)
+	 * @since 2.6.0 bbPress (r6397)
 	 *
 	 * @return array
 	 */
@@ -872,7 +872,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Returns an array of notice toggles
 	 *
-	 * @since 2.6.0 bbPress (r6396)
+	 * @since 2.6.0 bbPress (r6397)
 	 *
 	 * @return array
 	 */
@@ -893,7 +893,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Manage the column headers for the topics page
 	 *
-	 * @since 2.0.0 bbPress (r2485)
+	 * @since 2.4.0 bbPress (r4991)
 	 *
 	 * @param array $columns The columns
 	 *
@@ -918,7 +918,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Print extra columns for the topics page
 	 *
-	 * @since 2.0.0 bbPress (r2485)
+	 * @since 2.4.0 bbPress (r4991)
 	 *
 	 * @param string $column Column
 	 * @param int $topic_id Topic id
@@ -1001,7 +1001,7 @@ class BBP_Topics_Admin {
 	 * Remove the quick-edit action link under the topic title and add the
 	 * content and close/stick/spam links
 	 *
-	 * @since 2.0.0 bbPress (r2485)
+	 * @since 2.4.0 bbPress (r4991)
 	 *
 	 * @param array  $actions Actions
 	 * @param object $topic   Topic object
@@ -1152,7 +1152,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Add forum dropdown to topic and reply list table filters
 	 *
-	 * @since 2.0.0 bbPress (r2991)
+	 * @since 2.0.0 bbPress (r3095)
 	 *
 	 * @return bool False. If post type is not topic or reply
 	 */
@@ -1203,7 +1203,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Adjust the request query and include the forum id
 	 *
-	 * @since 2.0.0 bbPress (r2991)
+	 * @since 2.0.0 bbPress (r3095)
 	 *
 	 * @param array $query_vars Query variables from {@link WP_Query}
 	 * @return array Processed Query Vars
@@ -1224,7 +1224,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Custom user feedback messages for topic post type
 	 *
-	 * @since 2.0.0 bbPress (r3080)
+	 * @since 2.0.0 bbPress (r3097)
 	 *
 	 * @global int $post_ID
 	 *
@@ -1320,7 +1320,7 @@ endif; // class_exists check
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
  *
- * @since 2.0.0 bbPress (r2596)
+ * @since 2.0.0 bbPress (r3343)
  *
  * @param WP_Screen $current_screen Current screen object
  */
