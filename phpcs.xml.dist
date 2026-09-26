@@ -126,6 +126,7 @@
 				<element value="bbp_settings_page" />
 				<element value="bbp_tools_page" />
 				<element value="bbp_tools_import_page" />
+				<element value="bbp_tools_import_users" />
 				<element value="bbp_tools_upgrade_page" />
 
 				<!-- Primary bbPress Role caps -->

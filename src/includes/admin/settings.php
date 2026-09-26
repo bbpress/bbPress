@@ -1848,11 +1848,16 @@ function bbp_converter_setting_callback_clean() {
  * @since 2.1.0 bbPress (r3813)
  */
 function bbp_converter_setting_callback_convert_users() {
+	$network_users_only = ! current_user_can( 'bbp_tools_import_users' );
 ?>
 
-	<input name="_bbp_converter_convert_users" id="_bbp_converter_convert_users" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_convert_users', false ) ); ?> <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_convert_users' ); ?> />
+	<input name="_bbp_converter_convert_users" id="_bbp_converter_convert_users" type="checkbox" value="1" <?php checked( ! $network_users_only && get_option( '_bbp_converter_convert_users', false ) ); ?> <?php disabled( $network_users_only || isset( bbpress()->options['_bbp_converter_convert_users'] ) ); ?> />
 	<label for="_bbp_converter_convert_users"><?php esc_html_e( 'Import user accounts from previous forums', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'Passwords remain encrypted, and are converted as individual users log in.', 'bbpress' ); ?></p>
+	<?php if ( $network_users_only ) : ?>
+		<p class="description"><?php esc_html_e( 'A network administrator is required to import user accounts.', 'bbpress' ); ?></p>
+	<?php else : ?>
+		<p class="description"><?php esc_html_e( 'Passwords remain encrypted, and are converted as individual users log in.', 'bbpress' ); ?></p>
+	<?php endif; ?>
 
 <?php
 }

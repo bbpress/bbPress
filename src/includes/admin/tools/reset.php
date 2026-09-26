@@ -42,6 +42,7 @@ function bbp_admin_reset_page() {
 							<?php esc_html_e( 'Importer Helper Data', 'bbpress' ); ?><br />
 						</td>
 					</tr>
+					<?php if ( ! is_multisite() ) : ?>
 					<tr valign="top">
 						<th scope="row"><?php esc_html_e( 'Delete imported users?', 'bbpress' ); ?></th>
 						<td>
@@ -52,6 +53,7 @@ function bbp_admin_reset_page() {
 							</fieldset>
 						</td>
 					</tr>
+					<?php endif; ?>
 					<tr valign="top">
 						<th scope="row"><?php esc_html_e( 'Do you really want to do this?', 'bbpress' ); ?></th>
 						<td>
@@ -222,40 +224,37 @@ function bbp_admin_reset_database() {
 	// User
 
 	// First, if we're deleting previously imported users, delete them now
-	if ( ! empty( $_POST['bbpress-delete-imported-users'] ) ) {
-		$sql_users = $bbp_db->get_results( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_old_user_id'", OBJECT_K );
+	if ( ! is_multisite() && ! empty( $_POST['bbpress-delete-imported-users'] ) ) {
+		$sql_users = array_unique( array_map( 'intval', $bbp_db->get_col( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_old_user_id'" ) ) );
 
 		if ( ! empty( $sql_users ) ) {
-			$sql_meta = array();
-			foreach ( $sql_users as $key => $value ) {
-				$sql_meta[] = $key;
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+			$deleted = true;
+			foreach ( $sql_users as $user_id ) {
+				if ( ! wp_delete_user( (int) $user_id ) ) {
+					$deleted = false;
+				}
 			}
 
-			// Users
-			$sql_meta   = implode( "', '", $sql_meta );
-			$messages[] = bbp_admin_reset_query_feedback(
-				array(
-					'query'   => "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}')",
-					/* translators: %s: Status of the user deletion process */
-					'message' => esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' )
-				)
-			);
-
-			// User meta
-			$messages[] = bbp_admin_reset_query_feedback(
-				array(
-					'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}')",
-					/* translators: %s: Status of the user meta deletion process */
-					'message' => esc_html__( 'Deleting Imported User Meta&hellip; %s', 'bbpress' )
-				)
+			$messages[] = sprintf(
+				/* translators: %s: Status of the user deletion process */
+				esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' ),
+				$deleted ? esc_html__( 'Success!', 'bbpress' ) : esc_html__( 'Failed!', 'bbpress' )
 			);
 		}
 	}
 
-	// Next, if we still have users that were not imported delete that meta data
+	// Remove only this site's user options on multisite. Converter metadata is global.
+	$meta_key = is_multisite()
+		? $bbp_db->get_blog_prefix() . '_bbp_'
+		: '_bbp_';
+	$like = is_multisite()
+		? $bbp_db->esc_like( $meta_key ) . '%'
+		: '%' . $bbp_db->esc_like( $meta_key ) . '%';
+
 	$messages[] = bbp_admin_reset_query_feedback(
 		array(
-			'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%'",
+			'query'   => $bbp_db->prepare( "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE %s", $like ),
 			/* translators: %s: Status of the user meta deletion process */
 			'message' => esc_html__( 'Deleting bbPress Specific User Meta&hellip; %s', 'bbpress' )
 		)
