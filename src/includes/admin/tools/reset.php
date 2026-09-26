@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Admin reset page.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.6.0 bbPress (r6277)
  */
 function bbp_admin_reset_page() {
 ?>
@@ -80,7 +80,7 @@ function bbp_admin_reset_page() {
 /**
  * Handle a bbPress admin area reset request.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  */
 function bbp_admin_reset_handler() {
 
@@ -104,7 +104,7 @@ function bbp_admin_reset_handler() {
 /**
  * Wrapper for determining admin reset query feedback presented to a user.
  *
- * @since 2.6.0 bbPress (r6758)
+ * @since 2.6.0 bbPress (r6759)
  *
  * @param array $args Array of query, message, and possible responses.
  *

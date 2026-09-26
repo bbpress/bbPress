@@ -10,7 +10,7 @@
 /**
  * Implementation of phpBB v3 Converter.
  *
- * @since 2.3.0 bbPress (r4689)
+ * @since 2.2.0 bbPress (r4101)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/phpbb
  */

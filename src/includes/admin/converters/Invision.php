@@ -10,7 +10,7 @@
 /**
  * Implementation of Invision Power Board v3.1-3.4 converter.
  *
- * @since 2.3.0 bbPress (r4713)
+ * @since 2.1.0 bbPress (r3816)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/invision
  */

@@ -10,7 +10,7 @@
 /**
  * Implementation of vBulletin v3.x Converter.
  *
- * @since 2.5.0 bbPress (r5151)
+ * @since 2.5.0 bbPress (r5152)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/vbulletin
  */

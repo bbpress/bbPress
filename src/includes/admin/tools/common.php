@@ -107,7 +107,7 @@ function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 /**
  * Assemble the admin notices.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}
  * @param string          $class          Optional. A class to be added to the message div
@@ -122,7 +122,7 @@ function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = t
 /**
  * Handle the processing and feedback of the admin tools page.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  */
 function bbp_admin_repair_handler() {
@@ -212,7 +212,7 @@ function bbp_get_admin_repair_tools( $type = '' ) {
 /**
  * Return array of components from the array of registered tools.
  *
- * @since 2.5.0 bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @return array
  */
@@ -269,7 +269,7 @@ function bbp_admin_repair_list_search_form() {
 /**
  * Output a select drop-down of components to filter by.
  *
- * @since 2.5.0 bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  */
 function bbp_admin_repair_list_components_filter() {
 
@@ -355,7 +355,7 @@ function bbp_get_admin_repair_tool_registered_versions() {
 /**
  * Output a select drop-down of versions to filter by.
  *
- * @since 2.5.0 bbPress (r6894)
+ * @since 2.6.0 bbPress (r6894)
  */
 function bbp_admin_repair_list_versions_filter() {
 
@@ -392,7 +392,7 @@ function bbp_admin_repair_list_versions_filter() {
 /**
  * Maybe translate a repair tool overhead name.
  *
- * @since 2.6.0 bbPress (r6177)
+ * @since 2.6.0 bbPress (r6176)
  *
  * @param string $overhead
  * @return string
@@ -501,7 +501,7 @@ function bbp_admin_repair_tool_translate_version( $version = '' ) {
  * Uses known filters to reduce the registered results down to the most finite
  * set of tools.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array Repair list of options.
  */
@@ -688,7 +688,7 @@ function bbp_get_admin_repair_tool_version( $item = array() ) {
 /**
  * Get filter links for overhead for a specific admin repair tool.
  *
- * @since 2.6.0 bbPress (r5885)
+ * @since 2.6.0 bbPress (r6176)
  *
  * @param array $item
  * @return array
@@ -861,7 +861,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 /**
  * Output filter links for statuses.
  *
- * @since 2.6.0 bbPress (r6925)
+ * @since 2.6.0 bbPress (r6926)
  *
  * @param array $args
  */
@@ -872,7 +872,7 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
 /**
  * Get filter links for statuses.
  *
- * @since 2.6.0 bbPress (r5885)
+ * @since 2.6.0 bbPress (r6926)
  *
  * @param array $args
  * @return array

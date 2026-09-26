@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return an array of available converters.
  *
- * @since 2.6.0 bbPress (r6447)
+ * @since 2.6.0 bbPress (r6448)
  *
  * @return array
  */
@@ -55,7 +55,7 @@ function bbp_get_converters() {
 	/**
 	 * Filters the array of available converters.
 	 *
-	 * @since 2.6.0 bbPress (r6447)
+	 * @since 2.6.0 bbPress (r6448)
 	 *
 	 * @param array $files Array of available converters with names as keys and file paths as values.
 	 */

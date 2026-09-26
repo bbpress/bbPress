@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Add a separator to the WordPress admin menus.
  *
- * @since 2.0.0 bbPress (r2957)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @global array $menu WordPress admin menu entries.
  */
@@ -50,7 +50,7 @@ function bbp_admin_separator() {
 /**
  * Tell WordPress we have a custom menu order.
  *
- * @since 2.0.0 bbPress (r2957)
+ * @since 2.0.0 bbPress (r2958)
  *
  * @param bool $menu_order Menu order.
  * @return bool True when the bbPress separator is shown; otherwise the original value.
@@ -66,7 +66,7 @@ function bbp_admin_custom_menu_order( $menu_order = false ) {
 /**
  * Move our custom separator above our custom post types.
  *
- * @since 2.0.0 bbPress (r2957)
+ * @since 2.0.0 bbPress (r2958)
  *
  * @param array $menu_order Menu Order.
  * @return array Modified menu order.
@@ -119,7 +119,7 @@ function bbp_admin_menu_order( $menu_order ) {
 /**
  * Sanitize permalink slugs when saving the settings page.
  *
- * @since 2.6.0 bbPress (r5364)
+ * @since 2.6.0 bbPress (r5365)
  *
  * @param string $slug Optional. Permalink slug to sanitize. Default empty.
  * @return string Sanitized slug without leading or trailing slashes.
@@ -145,7 +145,7 @@ function bbp_sanitize_slug( $slug = '' ) {
 	/**
 	 * Filters the sanitized slug value.
 	 *
-	 * @since 2.6.0 bbPress (r5364)
+	 * @since 2.6.0 bbPress (r5365)
 	 *
 	 * @param string $value The sanitized slug.
 	 * @param string $slug  The original slug value.
@@ -156,7 +156,7 @@ function bbp_sanitize_slug( $slug = '' ) {
 /**
  * Uninstall all bbPress options and capabilities from a specific site.
  *
- * @since 2.1.0 bbPress (r3765)
+ * @since 2.1.0 bbPress (r3766)
  *
  * @param int $site_id Optional. Site ID to uninstall. Defaults to the current site.
  */
@@ -180,7 +180,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
  * The conditional prevents the override when the user is viewing settings or
  * any third-party plugins.
  *
- * @since 2.1.0 bbPress (r3888)
+ * @since 2.1.0 bbPress (r3894)
  *
  * @global string $plugin_page  Current plugin admin page.
  * @global string $submenu_file Submenu item to highlight.

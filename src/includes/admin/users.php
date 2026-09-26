@@ -16,14 +16,14 @@ if ( ! class_exists( 'BBP_Users_Admin' ) ) :
  *
  * @package bbPress
  * @subpackage Administration
- * @since 2.0.0 bbPress (r2464)
+ * @since 2.0.0 bbPress (r3095)
  */
 class BBP_Users_Admin {
 
 	/**
 	 * The bbPress users admin loader.
 	 *
-	 * @since 2.0.0 bbPress (r2515)
+	 * @since 2.0.0 bbPress (r3095)
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -32,7 +32,7 @@ class BBP_Users_Admin {
 	/**
 	 * Setup the admin hooks, actions and filters.
 	 *
-	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
 	 */
@@ -75,7 +75,7 @@ class BBP_Users_Admin {
 	/**
 	 * Default interface for setting a forum role.
 	 *
-	 * @since 2.2.0 bbPress (r4285)
+	 * @since 2.2.0 bbPress (r4301)
 	 *
 	 * @param WP_User $profileuser User data
 	 * @return bool Always false
@@ -136,7 +136,7 @@ class BBP_Users_Admin {
 	/**
 	 * Add bulk forums role dropdown to the WordPress users table.
 	 *
-	 * @since 2.2.0 bbPress (r4360)
+	 * @since 2.2.0 bbPress (r4365)
 	 * @since 2.6.0 bbPress (r6055) Introduced the `$which` parameter.
 	 *
 	 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
@@ -269,7 +269,7 @@ class BBP_Users_Admin {
 	 * Add Forum Role column to the WordPress Users table, and change the
 	 * core role title to "Site Role".
 	 *
-	 * @since 2.2.0 bbPress (r4337)
+	 * @since 2.2.0 bbPress (r4338)
 	 *
 	 * @param array $columns Users table columns.
 	 * @return array $columns
@@ -296,7 +296,7 @@ class BBP_Users_Admin {
 	/**
 	 * Return user's forums role for display in the WordPress Users list table.
 	 *
-	 * @since 2.2.0 bbPress (r4337)
+	 * @since 2.2.0 bbPress (r4338)
 	 *
 	 * @param string $retval
 	 * @param string $column_name
@@ -330,7 +330,7 @@ class BBP_Users_Admin {
 	 * Ensures forum roles are only displayed under the Forum Role list in the
 	 * WordPress Users list table.
 	 *
-	 * @since 2.6.0 bbPress (r6051)
+	 * @since 2.6.0 bbPress (r6052)
 	 *
 	 * @return array $roles
 	 */

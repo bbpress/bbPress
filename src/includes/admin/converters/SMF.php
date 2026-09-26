@@ -10,7 +10,7 @@
 /**
  * Implementation of SMF Forum converter.
  *
- * @since 2.5.0 bbPress (r5189)
+ * @since 2.5.0 bbPress (r5191)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/smf
  */

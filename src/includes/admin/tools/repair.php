@@ -35,7 +35,7 @@ function bbp_admin_repair_clean_post_meta_cache( $post_type = '' ) {
 /**
  * Admin repair page.
  *
- * @since 2.0.0 bbPress (r2613) Converted from bbPress 1.2
+ * @since 2.6.0 bbPress (r6277) Converted from bbPress 1.2
  * @since 2.6.0 bbPress (r5885) Upgraded to list-table UI
  *
  * @todo Use a real list table
@@ -250,7 +250,7 @@ function bbp_admin_repair_page() {
 /**
  * Recount topic replies.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -302,7 +302,7 @@ function bbp_admin_repair_topic_reply_count() {
 /**
  * Recount topic voices.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -376,7 +376,7 @@ function bbp_admin_repair_topic_voice_count() {
 /**
  * Recount non-public replies per topic (pending/spammed/trashed).
  *
- * @since 2.0.0 bbPress (r2747)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -426,7 +426,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 /**
  * Recount forum topics.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -524,7 +524,7 @@ function bbp_admin_repair_topic_tag_count() {
 /**
  * Recount forum replies.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -573,8 +573,8 @@ function bbp_admin_repair_forum_reply_count() {
 /**
  * Recount non-public forum replies.
  *
- * @since 2.6.0 bbPress (r6922)
- * @since 2.6.0 bbPress (r6932) Rename to match the topic reply recount function
+ * @since 2.6.0 bbPress (r6933)
+ * @since 2.6.0 bbPress (r6933) Rename to match the topic reply recount function
  *
  * @return array An array of the status code and the message.
  */
@@ -623,7 +623,7 @@ function bbp_admin_repair_forum_hidden_reply_count() {
 /**
  * Recount topics by the users.
  *
- * @since 2.1.0 bbPress (r3889)
+ * @since 2.1.0 bbPress (r3890)
  *
  * @return array An array of the status code and the message.
  */
@@ -690,7 +690,7 @@ function bbp_admin_repair_user_topic_count() {
 /**
  * Recount topic replied by the users.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -757,7 +757,7 @@ function bbp_admin_repair_user_reply_count() {
 /**
  * Repair user favorites.
  *
- * @since 2.0.0 bbPress (r2613)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -828,7 +828,7 @@ function bbp_admin_repair_user_favorites() {
 /**
  * Clean the user topic subscriptions.
  *
- * @since 2.0.0 bbPress (r2668)
+ * @since 2.5.0 bbPress (r5157)
  *
  * @return array An array of the status code and the message.
  */
@@ -898,7 +898,7 @@ function bbp_admin_repair_user_topic_subscriptions() {
 /**
  * Clean the user forum subscriptions.
  *
- * @since 2.5.0 bbPress (r5155)
+ * @since 2.5.0 bbPress (r5157)
  *
  * @return array An array of the status code and the message.
  */
@@ -970,7 +970,7 @@ function bbp_admin_repair_user_forum_subscriptions() {
  * forums role. By default, Admins will be Keymasters, and every other role
  * will be the default role defined in Settings > Forums (Participant).
  *
- * @since 2.2.0 bbPress (r4340)
+ * @since 2.2.0 bbPress (r4341)
  */
 function bbp_admin_repair_user_roles() {
 	/* translators: %s: Status of the repair process */
@@ -1090,7 +1090,7 @@ function bbp_admin_repair_user_roles() {
 /**
  * Repair the last post in every topic and forum.
  *
- * @since 2.0.0 bbPress (r3040)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -1359,7 +1359,7 @@ function bbp_admin_repair_closed_topics() {
 /**
  * Repair the private and hidden forums.
  *
- * @since 2.2.0 bbPress (r4104)
+ * @since 2.2.0 bbPress (r4105)
  *
  * @return array An array of the status code and the message.
  */
@@ -1380,7 +1380,7 @@ function bbp_admin_repair_forum_visibility() {
 /**
  * Repair the parent forum meta for each topic and reply.
  *
- * @since 2.1.0 bbPress (r3876)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -1455,7 +1455,7 @@ function bbp_admin_repair_forum_meta() {
 /**
  * Repair the topic for each post.
  *
- * @since 2.1.0 bbPress (r3876)
+ * @since 2.1.0 bbPress (r3884)
  *
  * @return array An array of the status code and the message.
  */
@@ -1515,7 +1515,7 @@ function bbp_admin_repair_topic_meta() {
 /**
  * Recalculate reply menu order.
  *
- * @since 2.5.4 bbPress (r5367)
+ * @since 2.6.0 bbPress (r5368)
  *
  * @return array An array of the status code and the message.
  */

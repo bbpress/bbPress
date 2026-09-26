@@ -10,7 +10,7 @@
 /**
  * Implementation of Vanilla 2.0.18.1 Converter
  *
- * @since 2.3.0 bbPress (r4717)
+ * @since 2.3.0 bbPress (r4718)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/vanilla
  */

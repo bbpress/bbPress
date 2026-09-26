@@ -14,7 +14,7 @@ if ( ! class_exists( 'BBP_Converter_DB' ) && class_exists( 'wpdb' ) ) :
 /**
  * bbPress Converter Database Access Abstraction Object.
  *
- * @since 2.6.0 bbPress (r6784)
+ * @since 2.6.0 bbPress (r6785)
  */
 class BBP_Converter_DB extends wpdb {
 
@@ -22,7 +22,7 @@ class BBP_Converter_DB extends wpdb {
 	 * Sets up the credentials used to connect to the database server, but does
 	 * not actually connect to the database on construct.
 	 *
-	 * @since 2.6.0 bbPress (r6784)
+	 * @since 2.6.0 bbPress (r6785)
 	 *
 	 * @param string $dbuser     MySQL database user
 	 * @param string $dbpassword MySQL database password

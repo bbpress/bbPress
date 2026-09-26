@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Admin repair page.
  *
- * @since 2.6.0 bbPress (r6278)
+ * @since 2.6.0 bbPress (r6279)
  */
 function bbp_admin_upgrade_page() {
 
@@ -296,7 +296,7 @@ function bbp_admin_upgrade_user_engagements() {
  *
  * Previously named: bbp_admin_repair_group_forum_relationships().
  *
- * @since 2.6.0 bbPress (r4395)
+ * @since 2.6.0 bbPress (r6496)
  *
  * @return If a wp_error() occurs and no converted forums are found.
  */
@@ -447,7 +447,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
 /**
  * Upgrade user favorites for bbPress 2.6 and higher.
  *
- * @since 2.6.0 bbPress (r6174)
+ * @since 2.6.0 bbPress (r6176)
  *
  * @return array An array of the status code and the message.
  */
@@ -509,7 +509,7 @@ function bbp_admin_upgrade_user_favorites() {
 /**
  * Upgrade user topic subscriptions for bbPress 2.6 and higher.
  *
- * @since 2.6.0 bbPress (r6174)
+ * @since 2.6.0 bbPress (r6193)
  *
  * @return array An array of the status code and the message.
  */

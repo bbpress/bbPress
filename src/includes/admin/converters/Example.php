@@ -10,7 +10,7 @@
 /**
  * Example converter base impoprter template for bbPress
  *
- * @since 2.3.0 bbPress (r4689)
+ * @since 2.4.0 bbPress (r5014)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/custom-import
  */
