@@ -186,6 +186,19 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_version_updater
+	 */
+	public function test_version_updater_removes_saved_converter_query() {
+		update_option( '_bbp_db_version', 263 );
+		update_option( '_bbp_converter_query', 'UPDATE users SET user_pass = saved_hash' );
+
+		bbp_version_updater();
+
+		$this->assertFalse( get_option( '_bbp_converter_query' ) );
+		$this->assertSame( 264, (int) bbp_get_db_version_raw() );
+	}
+
+	/**
 	 * @covers ::bbp_add_activation_redirect
 	 * @todo   Implement test_bbp_add_activation_redirect().
 	 */

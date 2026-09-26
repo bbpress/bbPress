@@ -148,6 +148,7 @@ class BBP_Tests_Admin_Converters_SimplePress5 extends BBP_UnitTestCase {
 
 		$this->assert_password_metadata_removed( $user_id );
 		$this->assertSame( 0, $this->source_db->connect_calls );
+		$this->assertStringNotContainsString( $hash, get_option( '_bbp_converter_query' ) );
 	}
 
 	/**
