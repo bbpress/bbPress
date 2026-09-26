@@ -623,3 +623,78 @@ function bbp_redirect_canonical( $redirect_url = '', $requested_url = '' ) {
 	// Filter & return
 	return (string) apply_filters( 'bbp_redirect_canonical', $redirect_url, $requested_url );
 }
+
+/**
+ * Check whether bbPress metadata can be exposed in an oEmbed response.
+ *
+ * @since 2.6.19
+ *
+ * @param int $post_id bbPress post ID.
+ * @return bool Whether the post can be embedded for the current visitor.
+ */
+function bbp_user_can_embed_post( $post_id = 0 ) {
+	$post = get_post( $post_id );
+	if ( empty( $post ) || ! bbp_is_custom_post_type( $post ) || ! is_post_publicly_viewable( $post ) || bbp_is_password_protected( $post->ID ) ) {
+		return false;
+	}
+
+	if ( bbp_is_forum( $post->ID ) ) {
+		$forum_id = $post->ID;
+	} elseif ( bbp_is_topic( $post->ID ) ) {
+		$forum_id = bbp_get_topic_forum_id( $post->ID );
+	} else {
+		$topic_id = bbp_get_reply_topic_id( $post->ID );
+		if ( ! $topic_id || ! is_post_publicly_viewable( $topic_id ) ) {
+			return false;
+		}
+		$forum_id = bbp_get_reply_forum_id( $post->ID );
+	}
+
+	if ( ! $forum_id || ! in_array( get_post_status( $forum_id ), array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ), true ) ) {
+		return false;
+	}
+
+	return ! bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() );
+}
+
+/**
+ * Prevent object-by-ID oEmbed requests from disclosing restricted posts.
+ *
+ * @since 2.6.19
+ *
+ * @param int $post_id Resolved post ID.
+ * @return int Resolved post ID, or zero when access is denied.
+ */
+function bbp_filter_oembed_request_post_id( $post_id = 0 ) {
+	$post = get_post( $post_id );
+	if ( $post && bbp_is_custom_post_type( $post ) && ! bbp_user_can_embed_post( $post_id ) ) {
+		return 0;
+	}
+
+	return $post_id;
+}
+
+/**
+ * Prevent canonical redirects from exposing restricted bbPress permalinks.
+ *
+ * @since 2.6.19
+ *
+ * @param string $redirect_url Proposed redirect URL.
+ * @param string $requested_url Requested URL.
+ * @return string|false Redirect URL, or false when access is denied.
+ */
+function bbp_do_not_redirect_restricted_posts( $redirect_url = '', $requested_url = '' ) {
+	$query = wp_parse_url( $requested_url, PHP_URL_QUERY );
+	if ( empty( $query ) ) {
+		return $redirect_url;
+	}
+
+	wp_parse_str( $query, $args );
+	$post_id = ! empty( $args['p'] ) ? absint( $args['p'] ) : 0;
+	$post = get_post( $post_id );
+	if ( $post && bbp_is_custom_post_type( $post ) && ! bbp_user_can_embed_post( $post_id ) ) {
+		return false;
+	}
+
+	return $redirect_url;
+}
