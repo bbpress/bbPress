@@ -159,7 +159,7 @@ function bbp_version_bump() {
  * Setup the bbPress updater.
  *
  * @since 2.0.0 bbPress (r3419)
- * @since 2.6.19 bbPress Moved to "bbp_current_screen" hook
+ * @since 2.6.19 bbPress (r7644) Moved to "bbp_current_screen" hook
  *
  * @param WP_Screen|null $current_screen Current admin screen.
  */

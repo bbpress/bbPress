@@ -238,6 +238,10 @@ cause or document the incompatibility and obtain review for a scoped adjustment.
   surface the inconsistency rather than choosing one silently.
 - Use the actual first shipped version in new `@since` annotations. If a feature
   is backported before release, reconcile trunk annotations too.
+- For major new concepts, include the canonical Subversion revision in `@since`.
+  The revision is only known after a commit: run `tests/ci/audit-since-revisions.py`
+  with `--fix --dry-run`, review its candidates, then use `--fix` and commit
+  the annotation updates. Check trunk and maintenance branches separately.
 
 ## Version Metadata
 
