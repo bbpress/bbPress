@@ -355,7 +355,7 @@ function bbp_get_search_terms( $passed_terms = '' ) {
 /**
  * Return the base URL used inside of pagination links
  *
- * @since 2.6.0 bbPress (r6679)
+ * @since 2.6.0 bbPress (r6680)
  *
  * @return string
  */

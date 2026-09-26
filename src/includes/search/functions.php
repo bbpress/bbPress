@@ -56,7 +56,7 @@ function bbp_get_search_query_args() {
 /**
  * Redirect to search results page if needed
  *
- * @since 2.4.0 bbPress (r4928)
+ * @since 2.4.0 bbPress (r4997)
  *
  * @return If a redirect is not needed
  */
