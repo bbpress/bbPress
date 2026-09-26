@@ -35,7 +35,7 @@ function bbp_get_version() {
 /**
  * Output the bbPress asset version.
  *
- * @since 2.6.7 bbPress (r7188)
+ * @since 2.6.7 bbPress (r7190)
  */
 function bbp_asset_version() {
 	echo bbp_get_asset_version();
@@ -44,7 +44,7 @@ function bbp_asset_version() {
 /**
  * Return the bbPress asset version.
  *
- * @since 2.6.7 bbPress (r7188)
+ * @since 2.6.7 bbPress (r7190)
  *
  * @return string The bbPress asset version.
  */
@@ -77,7 +77,7 @@ function bbp_get_db_version() {
 /**
  * Output the bbPress database version directly from the database.
  *
- * @since 2.0.0 bbPress (r3468)
+ * @since 2.1.0 bbPress (r3764)
  */
 function bbp_db_version_raw() {
 	echo bbp_get_db_version_raw();
@@ -86,7 +86,7 @@ function bbp_db_version_raw() {
 /**
  * Return the bbPress database version directly from the database.
  *
- * @since 2.0.0 bbPress (r3468)
+ * @since 2.1.0 bbPress (r3764)
  *
  * @return string The current bbPress version.
  */
@@ -156,7 +156,7 @@ function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 /**
  * Update the reply-to meta ID of a post.
  *
- * @since 2.6.0 bbPress (r5735)
+ * @since 2.6.0 bbPress (r5736)
  *
  * @param int $post_id  The post to update.
  * @param int $reply_id The reply id.
@@ -306,7 +306,7 @@ function bbp_get_view_query_args( $view = '' ) {
 /**
  * Adds an error message to later be output in the theme.
  *
- * @since 2.0.0 bbPress (r3381)
+ * @since 2.0.0 bbPress (r3382)
  *
  * @see WP_Error()
  *
@@ -321,7 +321,7 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
 /**
  * Check if error messages exist in queue.
  *
- * @since 2.0.0 bbPress (r3381)
+ * @since 2.0.0 bbPress (r3382)
  *
  * @see WP_Error()
  */
@@ -341,7 +341,7 @@ function bbp_has_errors() {
  * Moved into its own function to allow filtering of the regex pattern
  * anywhere mentions might be used.
  *
- * @since 2.4.0 bbPress (r4997)
+ * @since 2.4.0 bbPress (r4998)
  * @deprecated 2.6.0 bbp_make_clickable()
  *
  * @return string Pattern to match usernames with.
@@ -420,7 +420,7 @@ function bbp_mention_filter( $content = '' ) {
 /**
  * Return the public post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -442,7 +442,7 @@ function bbp_get_pending_status_id() {
 /**
  * Return the private post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -453,7 +453,7 @@ function bbp_get_private_status_id() {
 /**
  * Return the hidden post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -464,7 +464,7 @@ function bbp_get_hidden_status_id() {
 /**
  * Return the closed post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -475,7 +475,7 @@ function bbp_get_closed_status_id() {
 /**
  * Return the spam post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -486,7 +486,7 @@ function bbp_get_spam_status_id() {
 /**
  * Return the trash post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -497,7 +497,7 @@ function bbp_get_trash_status_id() {
 /**
  * Return the orphan post status ID.
  *
- * @since 2.0.0 bbPress (r3504)
+ * @since 2.0.0 bbPress (r3505)
  *
  * @return string
  */
@@ -565,7 +565,7 @@ function bbp_get_user_replies_rewrite_id() {
 /**
  * Return the unique ID for user favorites rewrite rules.
  *
- * @since 2.2.0 bbPress (r4181)
+ * @since 2.2.0 bbPress (r4189)
  *
  * @return string
  */
@@ -576,7 +576,7 @@ function bbp_get_user_favorites_rewrite_id() {
 /**
  * Return the unique ID for user subscriptions rewrite rules.
  *
- * @since 2.2.0 bbPress (r4181)
+ * @since 2.2.0 bbPress (r4189)
  *
  * @return string
  */
@@ -611,7 +611,7 @@ function bbp_get_view_rewrite_id() {
 /**
  * Get the id used for paginated requests.
  *
- * @since 2.4.0 bbPress (r4926)
+ * @since 2.4.0 bbPress (r4927)
  *
  * @return string
  */
@@ -634,7 +634,7 @@ function bbp_delete_rewrite_rules() {
 /**
  * Return true|false if this is a POST request.
  *
- * @since 2.3.0 bbPress (r4790)
+ * @since 2.3.0 bbPress (r4791)
  *
  * @return bool
  */
@@ -645,7 +645,7 @@ function bbp_is_post_request() {
 /**
  * Return true|false if this is a GET request.
  *
- * @since 2.3.0 bbPress (r4790)
+ * @since 2.3.0 bbPress (r4791)
  *
  * @return bool
  */
@@ -690,7 +690,7 @@ function bbp_redirect( $location = '', $status = 302 ) {
 /**
  * Return if debugging scripts or not.
  *
- * @since 2.6.7 (r7188)
+ * @since 2.6.7 (r7190)
  *
  * @return bool True if debugging scripts. False if not debugging scripts.
  */
@@ -701,7 +701,7 @@ function bbp_doing_script_debug() {
 /**
  * Return if auto-saving or not.
  *
- * @since 2.6.7 (r7188)
+ * @since 2.6.7 (r7190)
  *
  * @return bool True if mid auto-save. False if not mid auto-save.
  */

@@ -398,7 +398,7 @@ add_filter( 'bbp_make_clickable', 'bbp_make_mentions_clickable',  8 ); // @jjj
 /**
  * Deprecated locale filter.
  *
- * @since 2.2.0 bbPress (r4213)
+ * @since 2.2.0 bbPress (r4214)
  *
  * @param string $locale
  * @return string $domain

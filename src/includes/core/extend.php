@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Loads Akismet inside the bbPress global class.
  *
- * @since 2.0.0 bbPress (r3277)
+ * @since 2.0.0 bbPress (r3278)
  *
  * @return If bbPress is not active.
  */
@@ -54,7 +54,7 @@ function bbp_setup_buddypress() {
 		/**
 		 * Helper for BuddyPress 1.6 and earlier
 		 *
-		 * @since 2.2.0 bbPress (r4395)
+		 * @since 2.2.0 bbPress (r4396)
 		 *
 		 * @return BuddyPress
 		 */

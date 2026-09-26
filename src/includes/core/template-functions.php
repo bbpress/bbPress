@@ -49,7 +49,7 @@ function bbp_get_template_part( $slug, $name = null ) {
  * inherit from a parent theme can just overload one file. If the template is
  * not found in either of those, it looks in the theme-compat folder last.
  *
- * @since 2.1.0 bbPress (r3618)
+ * @since 2.1.0 bbPress (r3623)
  *
  * @param string|array $template_names Template file(s) to search for, in order.
  * @param bool $load If true the template file will be loaded if it is found.
@@ -194,7 +194,7 @@ function bbp_urlize_enqueueable( $file = '' ) {
  *
  * Registers the style if file provided (does NOT overwrite) and enqueues.
  *
- * @since 2.5.0 bbPress (r5180)
+ * @since 2.5.0 bbPress (r5181)
  *
  * @param string      $handle Name of the stylesheet.
  * @param string|bool $file   Relative path to stylesheet. Example: '/css/mystyle.css'.
@@ -239,7 +239,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  *
  * Registers the style if file provided (does NOT overwrite) and enqueues.
  *
- * @since 2.5.0 bbPress (r5180)
+ * @since 2.5.0 bbPress (r5181)
  *
  * @param string      $handle    Name of the script.
  * @param string|bool $file      Relative path to the script. Example: '/js/myscript.js'.
@@ -286,7 +286,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
  * relationship, to allow for custom template locations. Used in conjunction
  * with bbp_locate_template(), this allows for easy template overrides.
  *
- * @since 2.2.0 bbPress (r4323)
+ * @since 2.2.0 bbPress (r4324)
  *
  * @param string $location_callback Callback function that returns the
  * @param int $priority
@@ -305,7 +305,7 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
 /**
  * Deregisters a previously registered template stack location.
  *
- * @since 2.3.0 bbPress (r4652)
+ * @since 2.3.0 bbPress (r4653)
  *
  * @param string $location_callback Callback function that returns the.
  * @param int $priority
@@ -326,7 +326,7 @@ function bbp_deregister_template_stack( $location_callback = '', $priority = 10 
  * Call the functions added to the 'bbp_template_stack' filter hook, and return
  * an array of the template locations.
  *
- * @since 2.2.0 bbPress (r4323)
+ * @since 2.2.0 bbPress (r4324)
  * @since 2.6.0 bbPress (r5944) Added support for `WP_Hook`
  *
  * @global array $wp_filter Stores all of the filters.
@@ -458,7 +458,7 @@ function bbp_get_query_template( $type, $templates = array() ) {
 /**
  * Get the possible subdirectories to check for templates in.
  *
- * @since 2.1.0 bbPress (r3738)
+ * @since 2.1.0 bbPress (r3739)
  *
  * @param array $templates Templates we are looking for.
  * @return array Possible subdirectories to look in.
@@ -477,7 +477,7 @@ function bbp_get_template_locations( $templates = array() ) {
 /**
  * Add template locations to template files being searched for.
  *
- * @since 2.1.0 bbPress (r3738)
+ * @since 2.3.0 bbPress (r4762)
  *
  * @param array $stacks
  * @return array()
@@ -521,7 +521,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  * If it's a view page, WP_Query::bbp_is_view is set to true.
  * If it's a search page, WP_Query::bbp_is_search is set to true.
  *
- * @since 2.0.0 bbPress (r2688)
+ * @since 2.1.0 bbPress (r3646)
  *
  * @param WP_Query $posts_query
  */

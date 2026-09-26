@@ -312,7 +312,7 @@ function bbp_add_forums_roles( $wp_roles = null ) {
 /**
  * Helper function to add filter to option_wp_user_roles.
  *
- * @since 2.2.0 bbPress (r4363)
+ * @since 2.2.0 bbPress (r4364)
  * @deprecated 2.6.0 bbPress (r6105)
  *
  * @see _bbp_reinit_dynamic_roles()
@@ -339,7 +339,7 @@ function bbp_filter_user_roles_option() {
  * @see bbp_restore_current_site()
  * @see WP_Roles::_init()
  *
- * @since 2.2.0 bbPress (r4363)
+ * @since 2.2.0 bbPress (r4364)
  * @deprecated 2.6.0 bbPress (r6105)
  *
  * @internal Used by bbPress to reinitialize dynamic roles on blog switch.
@@ -367,8 +367,8 @@ function _bbp_reinit_dynamic_roles( $roles = array() ) {
  * only editors or authors. This filter allows admins to delegate
  * user management.
  *
- * @since 2.2.0 bbPress (r4284)
- * @since 2.6.0 bbPress (r6117) Use bbpress()->roles
+ * @since 2.2.0 bbPress (r4352)
+ * @since 2.6.0 bbPress (r6118) Use bbpress()->roles
  *
  * @return array
  */
@@ -390,8 +390,8 @@ function bbp_get_dynamic_roles() {
 /**
  * Gets a translated role name from a role ID.
  *
- * @since 2.3.0 bbPress (r4792)
- * @since 2.6.0 bbPress (r6117) Use bbp_translate_user_role()
+ * @since 2.3.0 bbPress (r4793)
+ * @since 2.6.0 bbPress (r6118) Use bbp_translate_user_role()
  *
  * @param string $role_id
  * @return string Translated role name.
@@ -412,7 +412,7 @@ function bbp_get_dynamic_role_name( $role_id = '' ) {
  * This used to use array_diff_assoc() but it randomly broke before 2.2 release.
  * Need to research what happened, and if there's a way to speed this up.
  *
- * @since 2.2.0 bbPress (r4303)
+ * @since 2.2.0 bbPress (r4304)
  *
  * @param array $all_roles All registered roles.
  * @return array
@@ -438,7 +438,7 @@ function bbp_filter_blog_editable_roles( $all_roles = array() ) {
 /**
  * The keymaster role for bbPress users.
  *
- * @since 2.2.0 bbPress (r4284)
+ * @since 2.2.0 bbPress (r4290)
  *
  * @return string
  */
@@ -451,7 +451,7 @@ function bbp_get_keymaster_role() {
 /**
  * The moderator role for bbPress users.
  *
- * @since 2.0.0 bbPress (r3410)
+ * @since 2.0.0 bbPress (r3413)
  *
  * @return string
  */
@@ -464,7 +464,7 @@ function bbp_get_moderator_role() {
 /**
  * The participant role for registered user that can participate in forums.
  *
- * @since 2.0.0 bbPress (r3410)
+ * @since 2.0.0 bbPress (r3413)
  *
  * @return string
  */
@@ -477,7 +477,7 @@ function bbp_get_participant_role() {
 /**
  * The spectator role is for registered users without any capabilities.
  *
- * @since 2.1.0 bbPress (r3860)
+ * @since 2.2.0 bbPress (r4290)
  *
  * @return string
  */
@@ -490,7 +490,7 @@ function bbp_get_spectator_role() {
 /**
  * The blocked role is for registered users that cannot spectate or participate.
  *
- * @since 2.2.0 bbPress (r4284)
+ * @since 2.2.0 bbPress (r4290)
  *
  * @return string
  */

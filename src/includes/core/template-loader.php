@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Note that the _edit() checks are ahead of their counterparts, to prevent them
  * from being stomped on accident.
  *
- * @since 2.0.0 bbPress (r3032)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @param string $template
  *
@@ -66,7 +66,7 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	/**
 	 * Filters the path to the template file that is being used.
 	 *
-	 * @since 2.0.0 bbPress (r3032)
+	 * @since 2.0.0 bbPress (r3311)
 	 *
 	 * @param string $retval   Path to the filtered template file.
 	 * @param string $template Path to the original template file.
@@ -105,7 +105,7 @@ function bbp_is_template_included() {
  * Attempt to load a custom bbPress functions file, similar to each themes
  * functions.php file.
  *
- * @since 2.1.0 bbPress (r3732)
+ * @since 2.1.0 bbPress (r3734)
  *
  * @global string $pagenow The filename of the current screen.
  */
@@ -166,7 +166,7 @@ function bbp_get_single_user_edit_template() {
 /**
  * Get the user favorites template.
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @return string Path to template file.
  */
@@ -187,7 +187,7 @@ function bbp_get_favorites_template() {
 /**
  * Get the user subscriptions template.
  *
- * @since 2.2.0 bbPress (r4225)
+ * @since 2.2.0 bbPress (r4228)
  *
  * @return string Path to template file.
  */
@@ -381,7 +381,7 @@ function bbp_get_reply_edit_template() {
 /**
  * Get the reply move template.
  *
- * @since 2.3.0 bbPress (r4521)
+ * @since 2.3.0 bbPress (r4522)
  *
  * @return string Path to template file.
  */
@@ -395,7 +395,7 @@ function bbp_get_reply_move_template() {
 /**
  * Get the topic template.
  *
- * @since 2.0.0 bbPress (r3311)
+ * @since 2.0.0 bbPress (r3422)
  *
  * @return string Path to template file.
  */
@@ -412,7 +412,7 @@ function bbp_get_topic_tag_template() {
 /**
  * Get the topic edit template.
  *
- * @since 2.0.0 bbPress (r3311)
+ * @since 2.0.0 bbPress (r3348)
  *
  * @return string Path to template file.
  */
@@ -429,7 +429,7 @@ function bbp_get_topic_tag_edit_template() {
 /**
  * Get the template to use as the wrapper for bbPress template parts.
  *
- * @since 2.7.0 bbPress (r7393)
+ * @since 2.7.0 bbPress (r7394)
  *
  * @return string Path to template file.
  */
@@ -451,7 +451,7 @@ function bbp_get_theme_compat_template() {
 /**
  * Get the theme canvas template, used for Block Themes.
  *
- * @since 2.6.17 bbPress (r7424)
+ * @since 2.6.17 bbPress (r7394)
  *
  * @return string Path to canvas file.
  */
@@ -470,7 +470,7 @@ function bbp_get_theme_canvas_template() {
  * This function abstracts the template checkers & getters to allow third-party
  * plugins to add their own bbPress component functionality more easily.
  *
- * @since 2.7.0 bbPress (r7393)
+ * @since 2.7.0 bbPress (r7394)
  *
  * @return array Key => Value array of checkers & getters.
  */

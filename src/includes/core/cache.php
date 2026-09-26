@@ -130,7 +130,7 @@ class BBP_Skip_Children {
  * Recurses through parent posts and updates the bbpress_posts last_changed
  * cache value when the forum root is reached. Runs on clean_post_cache.
  *
- * @since 2.1.0 bbPress (r4040)
+ * @since 2.1.0 bbPress (r4041)
  * @since 2.6.0 bbPress (r6053) Introduced the `$post_id` parameter.
  *
  * @param int     $post_id ID supplied by clean_post_cache. The post object supplies the ID used here.
