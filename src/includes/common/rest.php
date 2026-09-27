@@ -47,6 +47,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * Checks if a post can be updated.
 	 *
 	 * @since 2.7.0 bbPress (r7489)
+	 * @since 2.6.19 bbPress (r7683) Check the topic forum on edits.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
@@ -65,6 +66,19 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 				esc_html__( 'You are not allowed to edit this forum content.', 'bbpress' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
+		}
+
+		// Match the front-end topic edit checks for category and closed forums.
+		if ( ! empty( $post ) && ( bbp_get_topic_post_type() === $post->post_type ) ) {
+			$topic_forum_id = bbp_get_topic_forum_id( $post->ID );
+
+			if ( bbp_is_forum_category( $topic_forum_id ) || ( bbp_is_forum_closed( $topic_forum_id ) && ! current_user_can( 'edit_forum', $topic_forum_id ) ) ) {
+				return new WP_Error(
+					'bbp_rest_cannot_edit_topic_forum',
+					esc_html__( 'You are not allowed to edit this topic in its forum.', 'bbpress' ),
+					array( 'status' => rest_authorization_required_code() )
+				);
+			}
 		}
 
 		// REST requests do not use the front-end edit query flags that enforce

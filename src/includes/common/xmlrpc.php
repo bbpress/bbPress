@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * Validate an XML-RPC edit against bbPress posting rules.
  *
  * @since 2.7.0 bbPress (r7485)
+ * @since 2.6.19 bbPress (r7683) Validate publication and date changes.
  *
  * @param string $method XML-RPC method name.
  * @param array  $args   XML-RPC method arguments.
@@ -40,6 +41,19 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 		$content = isset( $post_data['post_content'] ) ? wp_unslash( $post_data['post_content'] ) : '';
 		if ( ! bbp_check_for_moderation( array(), bbp_get_current_user_id(), $title, $content, true ) ) {
 			$bbp_xmlrpc_error_post_type = $post_type;
+		}
+
+		return;
+	}
+
+	// mt.publishPost sets a post status without bbPress lifecycle handling
+	if ( 'mt.publishPost' === $method ) {
+		$post_id = ! empty( $args[0] ) ? (int) $args[0] : 0;
+		$post    = get_post( $post_id );
+		$types   = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+
+		if ( ! empty( $post ) && in_array( $post->post_type, $types, true ) && ( 'publish' !== $post->post_status ) ) {
+			$bbp_xmlrpc_error_post_id = $post_id;
 		}
 
 		return;
@@ -92,10 +106,16 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	$order_changed  = isset( $post_data['menu_order'] ) && ( (int) $post_data['menu_order'] !== (int) $post->menu_order );
 	$invalid          = false;
 	$is_forum_content = in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true );
+	$can_moderate     = current_user_can( 'moderate', $post_id );
+
+	// Keep non-moderators from moving the edit window through XML-RPC dates
+	if ( $is_forum_content && ! $can_moderate && bbp_xmlrpc_post_date_changed( $post_data, $post ) ) {
+		$invalid = true;
+	}
 
 	// XML-RPC does not set the front-end query flags used by the topic and
 	// reply capability mappings to enforce the author edit window.
-	if ( $is_forum_content && ( bbp_get_current_user_id() === (int) $post->post_author ) && ! current_user_can( 'moderate', $post_id ) ) {
+	if ( $is_forum_content && ( bbp_get_current_user_id() === (int) $post->post_author ) && ! $can_moderate ) {
 		$post_date_gmt = ( '0000-00-00 00:00:00' === $post->post_date_gmt )
 			? get_gmt_from_date( $post->post_date )
 			: $post->post_date_gmt;
@@ -171,6 +191,39 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	if ( $invalid ) {
 		$bbp_xmlrpc_error_post_id = $post_id;
 	}
+}
+
+/**
+ * Check whether XML-RPC date fields would change a post's publication date.
+ *
+ * Match the date conversion used by WordPress's wp.editPost method.
+ *
+ * @since 2.6.19 bbPress (r7683)
+ *
+ * @param array   $post_data Submitted post fields.
+ * @param WP_Post $post      Existing post.
+ * @return bool Whether the publication date would change.
+ */
+function bbp_xmlrpc_post_date_changed( $post_data, $post ) {
+	if ( ! isset( $post_data['post_date'] ) && ! isset( $post_data['post_date_gmt'] ) ) {
+		return false;
+	}
+
+	if ( ! empty( $post_data['post_date_gmt'] ) && ( $post_data['post_date_gmt'] instanceof IXR_Date ) ) {
+		$iso_date = rtrim( $post_data['post_date_gmt']->getIso(), 'Z' ) . 'Z';
+	} elseif ( ! empty( $post_data['post_date'] ) && ( $post_data['post_date'] instanceof IXR_Date ) ) {
+		$iso_date = $post_data['post_date']->getIso();
+	} else {
+		return true;
+	}
+
+	$local = ! empty( $iso_date ) ? iso8601_to_datetime( $iso_date ) : false;
+	$gmt   = ! empty( $iso_date ) ? iso8601_to_datetime( $iso_date, 'gmt' ) : false;
+	$post_date_gmt = ( '0000-00-00 00:00:00' === $post->post_date_gmt )
+		? get_gmt_from_date( $post->post_date )
+		: $post->post_date_gmt;
+
+	return empty( $local ) || empty( $gmt ) || ( $post->post_date !== $local ) || ( $post_date_gmt !== $gmt );
 }
 
 /**

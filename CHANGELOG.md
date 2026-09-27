@@ -38,6 +38,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Restricted XML-RPC publication and date changes, and REST topic edits in closed or category forums.
 - Respected topic visibility for replies and their attachments in REST responses.
 - Enforced edit windows on topic and reply form submissions.
 - Respected BuddyPress group forum restrictions in descendant queries.

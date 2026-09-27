@@ -63,6 +63,25 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Create a WordPress Author with a bbPress Participant role.
+	 *
+	 * @return int User ID.
+	 */
+	protected function create_author_participant() {
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login' => $this->username,
+				'user_pass'  => $this->password,
+				'role'       => 'author',
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		return $user_id;
+	}
+
+	/**
 	 * Create a keymaster with XML-RPC credentials.
 	 *
 	 * @return int User ID.
@@ -137,6 +156,65 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 		return $this->xmlrpc_server->wp_newPost(
 			array( 1, $this->username, $this->password, $data )
 		);
+	}
+
+	/**
+	 * mt.publishPost must not change a bbPress post status directly.
+	 *
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_mt_publish_post_cannot_publish_nonpublic_topic() {
+		$user_id  = $this->create_author_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$closed_topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_closed_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$public_topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$post_id = $this->factory->post->create(
+			array(
+				'post_author' => $user_id,
+				'post_status' => 'draft',
+			)
+		);
+
+		$topic_result = $this->xmlrpc_server->mt_publishPost( array( $topic_id, $this->username, $this->password ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $topic_result );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $topic_id ) );
+
+		$closed_result = $this->xmlrpc_server->mt_publishPost( array( $closed_topic_id, $this->username, $this->password ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $closed_result );
+		$this->assertSame( bbp_get_closed_status_id(), get_post_status( $closed_topic_id ) );
+
+		$public_result = $this->xmlrpc_server->mt_publishPost( array( $public_topic_id, $this->username, $this->password ) );
+
+		$this->assertSame( $public_topic_id, $public_result );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $public_topic_id ) );
+
+		$post_result = $this->xmlrpc_server->mt_publishPost( array( $post_id, $this->username, $this->password ) );
+
+		$this->assertSame( $post_id, $post_result );
+		$this->assertSame( 'publish', get_post_status( $post_id ) );
 	}
 
 	/**
@@ -447,6 +525,45 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * XML-RPC clients cannot move the author edit window by changing dates.
+	 *
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_participant_cannot_change_topic_or_reply_date() {
+		update_option( 'timezone_string', 'America/Chicago' );
+
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		foreach ( array( $topic_id => 'post_date', $reply_id => 'post_date_gmt' ) as $post_id => $field ) {
+			$original = get_post_field( $field, $post_id );
+			$result   = $this->edit_post( $post_id, array( $field => new IXR_Date( strtotime( '+1 day' ) ) ) );
+
+			$this->assertInstanceOf( 'IXR_Error', $result );
+			$this->assertSame( $original, get_post_field( $field, $post_id ) );
+		}
+
+		$unchanged = new IXR_Date( mysql2date( 'Ymd\TH:i:s', get_post_field( 'post_date', $topic_id ), false ) );
+		$result    = $this->edit_post( $topic_id, array( 'post_date' => $unchanged ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+	}
+
+	/**
 	 * @covers ::bbp_validate_xmlrpc_post
 	 */
 	public function test_keymaster_can_edit_topic_after_lock() {
@@ -466,6 +583,11 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertSame( 'Keymaster XML-RPC edit.', get_post_field( 'post_content', $topic_id ) );
+
+		$date_result = $this->edit_post( $topic_id, array( 'post_date_gmt' => new IXR_Date( '20200102T00:00:00' ) ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $date_result );
+		$this->assertSame( '2020-01-02 00:00:00', get_post_field( 'post_date_gmt', $topic_id ) );
 	}
 
 	/**
