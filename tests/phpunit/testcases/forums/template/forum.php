@@ -140,6 +140,37 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_forum_content
+	 */
+	public function test_bbp_get_forum_content_requires_ancestor_password() {
+		$parent_forum_id = $this->factory->forum->create( array(
+			'post_password' => 'parent-secret',
+		) );
+		$forum_id = $this->factory->forum->create( array(
+			'post_content' => 'Protected forum marker',
+			'post_parent'  => $parent_forum_id,
+		) );
+
+		$this->assertStringNotContainsString( 'Protected forum marker', bbp_get_forum_content( $forum_id ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher = new PasswordHash( 8, true );
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'parent-secret' );
+
+		try {
+			$this->assertStringContainsString( 'Protected forum marker', bbp_get_forum_content( $forum_id ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_forum_freshness_link
 	 * @covers ::bbp_get_forum_freshness_link
 	 */

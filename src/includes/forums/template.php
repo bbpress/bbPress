@@ -488,9 +488,10 @@ function bbp_forum_content( $forum_id = 0 ) {
 function bbp_get_forum_content( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Check if password is required
-	if ( post_password_required( $forum_id ) ) {
-		return get_the_password_form();
+	// Check the forum and its ancestors.
+	$password_id = bbp_get_password_required_id( $forum_id );
+	if ( ! empty( $password_id ) ) {
+		return get_the_password_form( $password_id );
 	}
 
 	$content = get_post_field( 'post_content', $forum_id );
