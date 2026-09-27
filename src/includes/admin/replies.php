@@ -27,6 +27,8 @@ class BBP_Replies_Admin {
 	 */
 	private $post_type = '';
 
+	private $accepted_topic_moves = array();
+
 	/** Functions *************************************************************/
 
 	/**
@@ -71,6 +73,7 @@ class BBP_Replies_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'author_metabox'     ) );
 		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'   ) );
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'filter_post_data' ), 20, 2 );
 
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php', array( $this, 'toggle_reply'        ) );
@@ -416,6 +419,15 @@ class BBP_Replies_Admin {
 	 * @return int Parent id.
 	 */
 	public function save_meta_boxes( $reply_id ) {
+		$accepted_move = isset( $this->accepted_topic_moves[ $reply_id ] )
+			? $this->accepted_topic_moves[ $reply_id ]
+			: array();
+		unset( $this->accepted_topic_moves[ $reply_id ] );
+
+		// Revisions can also fire save_post with the metabox nonce.
+		if ( ! bbp_is_reply( $reply_id ) ) {
+			return $reply_id;
+		}
 
 		// Bail if doing an autosave
 		if ( bbp_doing_autosave() ) {
@@ -438,14 +450,19 @@ class BBP_Replies_Admin {
 		}
 
 		// Bail if current user cannot edit this reply
-		if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
+		if ( ! current_user_can( 'edit_reply', $reply_id ) && empty( $accepted_move ) ) {
 			return $reply_id;
 		}
 
-		// Get the reply meta post values
-		$topic_id = ! empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id'] : 0;
-		$forum_id = ! empty( $_POST['bbp_forum_id'] ) ? (int) $_POST['bbp_forum_id'] : bbp_get_topic_forum_id( $topic_id );
-		$reply_to = ! empty( $_POST['bbp_reply_to'] ) ? (int) $_POST['bbp_reply_to'] : 0;
+		// Use the accepted topic and its forum, rather than independent form values.
+		$topic_id = ! empty( $accepted_move )
+			? $accepted_move['new']
+			: bbp_get_reply_topic_id( $reply_id );
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
+		$reply_to = ! empty( $_POST['bbp_reply_to'] ) ? bbp_validate_reply_to( (int) $_POST['bbp_reply_to'], $reply_id ) : 0;
+		if ( ! empty( $reply_to ) && ( bbp_get_reply_topic_id( $reply_to ) !== $topic_id || ! current_user_can( 'read_reply', $reply_to ) ) ) {
+			$reply_to = 0;
+		}
 
 		// Get reply author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
@@ -454,12 +471,85 @@ class BBP_Replies_Admin {
 
 		// Formally update the reply
 		bbp_update_reply( $reply_id, $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit, $reply_to );
+		if ( ! empty( $accepted_move['old'] ) ) {
+			bbp_update_reply_position( $reply_id );
+			bbp_move_reply_count( $reply_id, $accepted_move['old'], $accepted_move['new'] );
+		}
 
 		// Allow other fun things to happen
 		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $topic_id, $forum_id, $reply_to );
 		do_action( 'bbp_author_metabox_save',           $reply_id, $anonymous_data                 );
 
 		return $reply_id;
+	}
+
+	/**
+	 * Keep admin reply moves within topics the current user may moderate.
+	 *
+	 * @since 2.6.19 bbPress (r7687)
+	 *
+	 * @param array $data    Sanitized post data.
+	 * @param array $postarr Unprocessed post data.
+	 * @return array Filtered post data.
+	 */
+	public function filter_post_data( $data, $postarr ) {
+
+		// Only filter administration saves of existing replies.
+		if ( ! is_admin() || empty( $postarr['ID'] ) || ( bbp_get_reply_post_type() !== $data['post_type'] ) ) {
+			return $data;
+		}
+
+		$reply = bbp_get_reply( $postarr['ID'] );
+		if ( empty( $reply ) || (int) $reply->post_parent === (int) $data['post_parent'] ) {
+			return $data;
+		}
+
+		$old_topic_id = (int) $reply->post_parent;
+		$new_topic_id = (int) $data['post_parent'];
+		$new_topic    = bbp_get_topic( $new_topic_id );
+		$new_forum_id = bbp_get_topic_forum_id( $new_topic_id );
+		$is_new       = ( 'auto-draft' === $reply->post_status );
+		$is_editor    = ! empty( $_POST['action'] ) && ( 'editpost' === $_POST['action'] );
+
+		// Other admin save paths cannot complete a bbPress reply move.
+		if ( ! $is_editor && ! $is_new ) {
+			$data['post_parent'] = $reply->post_parent;
+			return $data;
+		}
+
+		// Match the reply move checks before WordPress changes post_parent.
+		if (
+			! $is_editor
+			|| empty( $_POST['bbp_reply_metabox'] )
+			|| ! is_string( $_POST['bbp_reply_metabox'] )
+			|| ! wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' )
+			|| ! current_user_can( 'edit_reply', $reply->ID )
+			|| ( $is_new && ! current_user_can( 'publish_replies' ) )
+			|| ( ! $is_new && ! empty( $old_topic_id ) && ( ! current_user_can( 'moderate', $old_topic_id ) || ! current_user_can( 'edit_topic', $old_topic_id ) ) )
+			|| empty( $new_topic )
+			|| ( $is_new && ( ! current_user_can( 'read_topic', $new_topic_id ) || ( bbp_is_topic_closed( $new_topic_id ) && ! current_user_can( 'edit_topic', $new_topic_id ) ) ) )
+			|| ( $is_new && ( ! current_user_can( 'read_forum', $new_forum_id ) || ( bbp_is_forum_closed( $new_forum_id ) && ! current_user_can( 'edit_forum', $new_forum_id ) ) ) )
+			|| ( ! $is_new && ( ! current_user_can( 'moderate', $new_topic_id ) || ! current_user_can( 'edit_topic', $new_topic_id ) ) )
+		) {
+			if ( $is_new ) {
+				wp_die(
+					esc_html__( 'The selected topic is not available for this reply.', 'bbpress' ),
+					'',
+					array(
+						'response'  => 403,
+						'back_link' => true,
+					)
+				);
+			}
+			$data['post_parent'] = $reply->post_parent;
+		} else {
+			$this->accepted_topic_moves[ $reply->ID ] = array(
+				'old' => $old_topic_id,
+				'new' => $new_topic_id,
+			);
+		}
+
+		return $data;
 	}
 
 	/**

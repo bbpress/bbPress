@@ -27,6 +27,8 @@ class BBP_Topics_Admin {
 	 */
 	private $post_type = '';
 
+	private $accepted_forum_moves = array();
+
 	/** Functions *************************************************************/
 
 	/**
@@ -75,6 +77,7 @@ class BBP_Topics_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'subscriptions_metabox' ) );
 		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'       ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'filter_post_data' ), 20, 2 );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_topic'        ) );
@@ -535,6 +538,15 @@ class BBP_Topics_Admin {
 	 * @return int Parent id.
 	 */
 	public function save_meta_boxes( $topic_id ) {
+		$accepted_move = isset( $this->accepted_forum_moves[ $topic_id ] )
+			? $this->accepted_forum_moves[ $topic_id ]
+			: array();
+		unset( $this->accepted_forum_moves[ $topic_id ] );
+
+		// Revisions can also fire save_post with the metabox nonce.
+		if ( ! bbp_is_topic( $topic_id ) ) {
+			return $topic_id;
+		}
 
 		// Bail if doing an autosave
 		if ( bbp_doing_autosave() ) {
@@ -557,12 +569,14 @@ class BBP_Topics_Admin {
 		}
 
 		// Bail if current user cannot edit this topic
-		if ( ! current_user_can( 'edit_topic', $topic_id ) ) {
+		if ( ! current_user_can( 'edit_topic', $topic_id ) && empty( $accepted_move ) ) {
 			return $topic_id;
 		}
 
-		// Get the forum ID
-		$forum_id = ! empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : 0;
+		// Use the parent accepted by WordPress and the destination filter.
+		$forum_id = ! empty( $accepted_move )
+			? $accepted_move['new']
+			: bbp_get_topic_forum_id( $topic_id );
 
 		// Get topic author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
@@ -571,12 +585,82 @@ class BBP_Topics_Admin {
 
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
+		if ( ! empty( $accepted_move['old'] ) ) {
+			bbp_move_topic_handler( $topic_id, $accepted_move['old'], $accepted_move['new'] );
+		}
 
 		// Allow other fun things to happen
 		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $forum_id       );
 		do_action( 'bbp_author_metabox_save',           $topic_id, $anonymous_data );
 
 		return $topic_id;
+	}
+
+	/**
+	 * Keep admin topic moves within forums the current user may use.
+	 *
+	 * @since 2.6.19 bbPress (r7687)
+	 *
+	 * @param array $data    Sanitized post data.
+	 * @param array $postarr Unprocessed post data.
+	 * @return array Filtered post data.
+	 */
+	public function filter_post_data( $data, $postarr ) {
+
+		// Only filter administration saves of existing topics.
+		if ( ! is_admin() || empty( $postarr['ID'] ) || ( bbp_get_topic_post_type() !== $data['post_type'] ) ) {
+			return $data;
+		}
+
+		$topic = bbp_get_topic( $postarr['ID'] );
+		if ( empty( $topic ) || (int) $topic->post_parent === (int) $data['post_parent'] ) {
+			return $data;
+		}
+
+		$old_forum_id = (int) $topic->post_parent;
+		$new_forum_id = (int) $data['post_parent'];
+		$is_new       = ( 'auto-draft' === $topic->post_status );
+		$is_editor    = ! empty( $_POST['action'] ) && ( 'editpost' === $_POST['action'] );
+
+		// Other admin save paths cannot complete a bbPress topic move.
+		if ( ! $is_editor && ! $is_new ) {
+			$data['post_parent'] = $topic->post_parent;
+			return $data;
+		}
+
+		// Match the front-end topic move checks before WordPress changes post_parent.
+		if (
+			! $is_editor
+			|| empty( $_POST['bbp_topic_metabox'] )
+			|| ! is_string( $_POST['bbp_topic_metabox'] )
+			|| ! wp_verify_nonce( $_POST['bbp_topic_metabox'], 'bbp_topic_metabox_save' )
+			|| ! current_user_can( 'edit_topic', $topic->ID )
+			|| ( $is_new && ! current_user_can( 'publish_topics' ) )
+			|| ( ! empty( $old_forum_id ) && ! current_user_can( 'edit_forum', $old_forum_id ) )
+			|| ! bbp_get_forum( $new_forum_id )
+			|| bbp_is_forum_category( $new_forum_id )
+			|| ! current_user_can( 'read_forum', $new_forum_id )
+			|| ( bbp_is_forum_closed( $new_forum_id ) && ! current_user_can( 'edit_forum', $new_forum_id ) )
+		) {
+			if ( $is_new ) {
+				wp_die(
+					esc_html__( 'The selected forum is not available for this topic.', 'bbpress' ),
+					'',
+					array(
+						'response'  => 403,
+						'back_link' => true,
+					)
+				);
+			}
+			$data['post_parent'] = $topic->post_parent;
+		} else {
+			$this->accepted_forum_moves[ $topic->ID ] = array(
+				'old' => $old_forum_id,
+				'new' => $new_forum_id,
+			);
+		}
+
+		return $data;
 	}
 
 	/**
