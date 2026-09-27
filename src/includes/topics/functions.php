@@ -437,6 +437,8 @@ function bbp_new_topic_handler( $action = '' ) {
 /**
  * Handles the front end edit topic submission.
  *
+ * @since 2.6.19 bbPress (r7679) Enforce the edit lock on submissions.
+ *
  * @param string $action The requested action to compare this function to.
  */
 function bbp_edit_topic_handler( $action = '' ) {
@@ -472,6 +474,11 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	// User cannot edit this topic
 	} elseif ( ! current_user_can( 'edit_topic', $topic_id ) ) {
+		bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
+		return;
+
+	// Authors cannot bypass the edit lock by submitting from another page
+	} elseif ( ( bbp_get_current_user_id() === (int) $topic->post_author ) && ! current_user_can( 'moderate', $topic_id ) && bbp_past_edit_lock( $topic->post_date_gmt ) ) {
 		bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
 		return;
 

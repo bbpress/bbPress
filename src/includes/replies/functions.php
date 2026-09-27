@@ -523,6 +523,8 @@ function bbp_new_reply_handler( $action = '' ) {
 /**
  * Handles the front end edit reply submission.
  *
+ * @since 2.6.19 bbPress (r7679) Enforce the edit lock on submissions.
+ *
  * @param string $action The requested action to compare this function to
  *                       id, anonymous data, reply author, bool true (for edit),
  *                       and the reply to id.
@@ -566,6 +568,11 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// User cannot edit this reply
 	} elseif ( ! current_user_can( 'edit_reply', $reply_id ) ) {
+		bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+		return;
+
+	// Authors cannot bypass the edit lock by submitting from another page
+	} elseif ( ( bbp_get_current_user_id() === (int) $reply->post_author ) && ! current_user_can( 'moderate', $reply_id ) && bbp_past_edit_lock( $reply->post_date_gmt ) ) {
 		bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
 		return;
 
