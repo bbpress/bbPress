@@ -237,6 +237,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Exclude private and hidden group forums a user cannot view.
 	 *
 	 * @since 2.7.0 bbPress (r7495)
+	 * @since 2.6.19 bbPress (r7677) Exclude unreadable descendants.
 	 *
 	 * @param array $forum_ids Forum IDs already excluded.
 	 * @return array Forum IDs the user cannot view.
@@ -253,7 +254,34 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			}
 
 			if ( ! user_can( $user_id, 'read_forum', $forum_id ) ) {
+				// Exclude descendants too, except those this user can read.
+				$parents    = array( $forum_id );
+				$seen       = array( $forum_id => true );
+				$readable   = array();
 				$forum_ids[] = $forum_id;
+
+				while ( ! empty( $parents ) ) {
+					$parent_id = array_shift( $parents );
+
+					foreach ( bbp_forum_query_subforum_ids( $parent_id ) as $child_id ) {
+						$child_id = (int) $child_id;
+
+						if ( isset( $seen[ $child_id ] ) ) {
+							continue;
+						}
+
+						$seen[ $child_id ] = true;
+						$parents[]         = $child_id;
+
+						if ( user_can( $user_id, 'read_forum', $child_id ) ) {
+							$readable[] = $child_id;
+						} else {
+							$forum_ids[] = $child_id;
+						}
+					}
+				}
+
+				$forum_ids = array_diff( $forum_ids, $readable );
 				continue;
 			}
 

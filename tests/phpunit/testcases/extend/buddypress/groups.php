@@ -163,6 +163,53 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids
+	 */
+	public function test_private_group_forum_excludes_descendants_from_non_members() {
+		$creator_id   = $this->factory->user->create();
+		$member_id    = $this->factory->user->create();
+		$outsider_id  = $this->factory->user->create();
+		$moderator_id = $this->factory->user->create();
+		$group_id     = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id    = $this->factory->forum->create();
+		$child_id    = $this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+		$grandchild_id = $this->factory->forum->create( array( 'post_parent' => $child_id ) );
+		$topic_id    = $this->factory->topic->create(
+			array(
+				'post_parent' => $grandchild_id,
+				'topic_meta'  => array( 'forum_id' => $grandchild_id ),
+			)
+		);
+
+		foreach ( array( $creator_id, $member_id, $outsider_id, $moderator_id ) as $user_id ) {
+			bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		}
+		groups_join_group( $group_id, $member_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		bbp_privatize_forum( $forum_id );
+		bbp_add_moderator( $grandchild_id, $moderator_id );
+		$this->group_extension = new BBP_Forums_Group_Extension();
+
+		$this->set_current_user( $outsider_id );
+		$this->assertFalse( user_can( $outsider_id, 'read_forum', $grandchild_id ) );
+		$excluded = bbp_get_excluded_forum_ids();
+		$this->assertContains( $forum_id, $excluded );
+		$this->assertContains( $child_id, $excluded );
+		$this->assertContains( $grandchild_id, $excluded );
+
+		bbp_has_topics( array( 'post_parent' => 'any', 'posts_per_page' => -1, 'show_stickies' => false ) );
+		$this->assertNotContains( $topic_id, wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+
+		$this->set_current_user( $member_id );
+		$this->assertTrue( user_can( $member_id, 'read_forum', $grandchild_id ) );
+		$this->assertNotContains( $grandchild_id, bbp_get_excluded_forum_ids() );
+
+		$this->set_current_user( $moderator_id );
+		$this->assertTrue( user_can( $moderator_id, 'read_forum', $grandchild_id ) );
+		$this->assertNotContains( $grandchild_id, bbp_get_excluded_forum_ids() );
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
 	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids
 	 * @covers ::BBP_Forums_Group_Extension::subscription_user_can_view_forum
