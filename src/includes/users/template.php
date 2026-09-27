@@ -2240,6 +2240,7 @@ function bbp_get_author_link( $args = array() ) {
  * Check if the user can access a specific forum.
  *
  * @since 2.0.0 bbPress (r3057)
+ * @since 2.6.19 bbPress (r7675) Check forum ancestors by default.
  *
  * @return bool
  */
@@ -2251,7 +2252,7 @@ function bbp_user_can_view_forum( $args = array() ) {
 		array(
 			'user_id'         => bbp_get_current_user_id(),
 			'forum_id'        => bbp_get_forum_id(),
-			'check_ancestors' => false
+			'check_ancestors' => true
 		),
 		'user_can_view_forum'
 	);
