@@ -189,6 +189,51 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Published replies inherit the read permission of their parent topic.
+	 *
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 */
+	public function test_rest_hides_published_replies_in_unapproved_topics() {
+		$public    = $this->create_forum_content();
+		$unapproved = $this->create_forum_content();
+
+		bbp_unapprove_topic( $unapproved['topic_id'] );
+
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $unapproved['topic_id'] ) );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $unapproved['reply_id'] ) );
+		$this->assertSame( 200, $this->get_item( bbp_get_reply_post_type(), $public['reply_id'] )->get_status() );
+		$this->assertSame( 401, $this->get_item( bbp_get_topic_post_type(), $unapproved['topic_id'] )->get_status() );
+		$this->assertSame( 401, $this->get_item( bbp_get_reply_post_type(), $unapproved['reply_id'] )->get_status() );
+		$this->assertSame( 401, $this->get_item( 'media', $this->create_attachment( $unapproved['reply_id'] ) )->get_status() );
+
+		$replies   = $this->get_items( bbp_get_reply_post_type() );
+		$reply_ids = wp_list_pluck( $replies->get_data(), 'id' );
+
+		$this->assertSame( 200, $replies->get_status() );
+		$this->assertContains( $public['reply_id'], $reply_ids );
+		$this->assertNotContains( $unapproved['reply_id'], $reply_ids );
+
+		$participant_id = $this->factory->user->create();
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+
+		$this->assertSame( 403, $this->get_item( bbp_get_topic_post_type(), $unapproved['topic_id'], $participant_id )->get_status() );
+		$this->assertSame( 403, $this->get_item( bbp_get_reply_post_type(), $unapproved['reply_id'], $participant_id )->get_status() );
+
+		$moderator_id = $this->factory->user->create();
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		$this->assertSame( 200, $this->get_item( bbp_get_topic_post_type(), $unapproved['topic_id'], $moderator_id )->get_status() );
+		$this->assertSame( 200, $this->get_item( bbp_get_reply_post_type(), $unapproved['reply_id'], $moderator_id )->get_status() );
+
+		$forum_moderator_id = $this->factory->user->create();
+		bbp_set_user_role( $forum_moderator_id, bbp_get_participant_role() );
+		bbp_add_moderator( $unapproved['forum_id'], $forum_moderator_id );
+
+		$this->assertSame( 200, $this->get_item( bbp_get_topic_post_type(), $unapproved['topic_id'], $forum_moderator_id )->get_status() );
+		$this->assertSame( 200, $this->get_item( bbp_get_reply_post_type(), $unapproved['reply_id'], $forum_moderator_id )->get_status() );
+	}
+
+	/**
 	 * @covers BBP_REST_Posts_Controller::check_read_permission
 	 */
 	public function test_anonymous_user_cannot_read_private_forum_content() {
