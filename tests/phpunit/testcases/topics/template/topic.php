@@ -217,6 +217,45 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_topic_content
+	 * @covers ::bbp_get_topic_excerpt
+	 */
+	public function test_bbp_get_topic_content_and_excerpt_require_ancestor_password() {
+		$parent_forum_id = $this->factory->forum->create( array(
+			'post_password' => 'parent-secret',
+		) );
+		$forum_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_forum_id,
+		) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_content' => 'Protected topic marker',
+			'post_excerpt' => 'Protected excerpt marker',
+			'post_parent'  => $forum_id,
+			'topic_meta'   => array( 'forum_id' => $forum_id ),
+		) );
+
+		$this->assertStringNotContainsString( 'Protected topic marker', bbp_get_topic_content( $topic_id ) );
+		$this->assertStringNotContainsString( 'Protected excerpt marker', bbp_get_topic_excerpt( $topic_id ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher = new PasswordHash( 8, true );
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'parent-secret' );
+
+		try {
+			$this->assertStringContainsString( 'Protected topic marker', bbp_get_topic_content( $topic_id ) );
+			$this->assertStringContainsString( 'Protected excerpt marker', bbp_get_topic_excerpt( $topic_id ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_topic_excerpt
 	 * @covers ::bbp_get_topic_excerpt
 	 */

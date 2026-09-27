@@ -3993,7 +3993,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_meta( bbp_get_topic_id(), '_bbp_last_active_time', true ), false ); ?></pubDate>
 					<dc:creator><?php the_author(); ?></dc:creator>
 
-					<?php if ( ! post_password_required() ) : ?>
+					<?php if ( ! bbp_get_password_required_id( bbp_get_topic_id() ) ) : ?>
 
 					<description>
 						<![CDATA[

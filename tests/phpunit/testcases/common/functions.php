@@ -1704,6 +1704,54 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_password_required_id
+	 */
+	public function test_bbp_get_password_required_id() {
+		$parent_forum_id = $this->factory->forum->create( array(
+			'post_password' => 'parent-secret',
+		) );
+		$forum_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_forum_id,
+		) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$post_id = $this->factory->post->create( array(
+			'post_password' => 'post-secret',
+		) );
+
+		$this->assertSame( $parent_forum_id, bbp_get_password_required_id( $parent_forum_id ) );
+		$this->assertSame( $parent_forum_id, bbp_get_password_required_id( $forum_id ) );
+		$this->assertSame( $parent_forum_id, bbp_get_password_required_id( $topic_id ) );
+		$this->assertSame( $parent_forum_id, bbp_get_password_required_id( $reply_id ) );
+		$this->assertSame( 0, bbp_get_password_required_id( $post_id ) );
+		$this->assertSame( 0, bbp_get_password_required_id( 999999 ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher = new PasswordHash( 8, true );
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'parent-secret' );
+
+		try {
+			$this->assertSame( 0, bbp_get_password_required_id( $forum_id ) );
+			$this->assertSame( 0, bbp_get_password_required_id( $topic_id ) );
+			$this->assertSame( 0, bbp_get_password_required_id( $reply_id ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_do_not_guess_404_permalink
 	 */
 	public function test_bbp_do_not_guess_404_permalink() {

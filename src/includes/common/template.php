@@ -508,6 +508,55 @@ function bbp_is_password_protected( $object_id = 0, $object_type = 'post' ) {
 }
 
 /**
+ * Get the bbPress object or ancestor whose password is still required.
+ *
+ * @since 2.6.19 bbPress (r7669)
+ *
+ * @param int $object_id Optional. Object ID. Defaults to the current post.
+ * @return int Protected post ID, or zero if all passwords are satisfied.
+ */
+function bbp_get_password_required_id( $object_id = 0 ) {
+	$post     = get_post( $object_id );
+	$post_ids = array();
+	$forum_id = 0;
+
+	// Include the object
+	if ( ! empty( $post ) && bbp_is_custom_post_type( $post ) ) {
+		$object_id = $post->ID;
+		$post_ids  = array( $object_id );
+
+		// Include the topic and forum for replies
+		if ( bbp_is_reply( $object_id ) ) {
+			$post_ids[] = bbp_get_reply_topic_id( $object_id );
+			$forum_id   = bbp_get_reply_forum_id( $object_id );
+
+		// Include the forum for topics
+		} elseif ( bbp_is_topic( $object_id ) ) {
+			$forum_id = bbp_get_topic_forum_id( $object_id );
+
+		// Include the forum itself
+		} elseif ( bbp_is_forum( $object_id ) ) {
+			$forum_id = $object_id;
+		}
+
+		// Include the forum and its ancestors
+		if ( ! empty( $forum_id ) ) {
+			$post_ids[] = $forum_id;
+			$post_ids   = array_merge( $post_ids, bbp_get_forum_ancestors( $forum_id ) );
+		}
+	}
+
+	// Check the object and its parents
+	foreach ( array_unique( array_filter( $post_ids ) ) as $post_id ) {
+		if ( post_password_required( $post_id ) ) {
+			return (int) $post_id;
+		}
+	}
+
+	return 0;
+}
+
+/**
  * Check if current page is a bbPress reply
  *
  * @since 2.0.0 bbPress (r2553)

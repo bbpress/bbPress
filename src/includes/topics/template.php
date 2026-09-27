@@ -684,9 +684,10 @@ function bbp_topic_content( $topic_id = 0 ) {
 	function bbp_get_topic_content( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		// Check if password is required
-		if ( post_password_required( $topic_id ) ) {
-			return get_the_password_form();
+		// Check the topic and its forum ancestors.
+		$password_id = bbp_get_password_required_id( $topic_id );
+		if ( ! empty( $password_id ) ) {
+			return get_the_password_form( $password_id );
 		}
 
 		$content = get_post_field( 'post_content', $topic_id );
@@ -717,9 +718,12 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	 * @return string topic Excerpt
 	 */
 	function bbp_get_topic_excerpt( $topic_id = 0, $length = 100 ) {
-		$topic_id = bbp_get_topic_id( $topic_id );
-		$length   = (int) $length;
-		$excerpt  = get_post_field( 'post_excerpt', $topic_id );
+		$topic_id    = bbp_get_topic_id( $topic_id );
+		$length      = (int) $length;
+		$password_id = bbp_get_password_required_id( $topic_id );
+		$excerpt     = ! empty( $password_id )
+			? get_the_password_form( $password_id )
+			: get_post_field( 'post_excerpt', $topic_id );
 
 		if ( empty( $excerpt ) ) {
 			$excerpt = bbp_get_topic_content( $topic_id );
