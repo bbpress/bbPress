@@ -38,6 +38,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Respected topic visibility for replies and their attachments in REST responses.
 - Enforced edit windows on topic and reply form submissions.
 - Respected BuddyPress group forum restrictions in descendant queries.
 - Respected parent-forum restrictions in embedded content and feeds.

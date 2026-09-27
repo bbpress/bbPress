@@ -281,6 +281,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * Checks if a post can be read.
 	 *
 	 * @since 2.7.0 bbPress (r7481)
+	 * @since 2.6.19 bbPress (r7681) Check the parent topic for replies.
 	 *
 	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be read.
@@ -326,7 +327,21 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			return false;
 		}
 
-		return ! bbp_is_forum_restricted_for_user( $forum_id, $user_id );
+		if ( bbp_is_forum_restricted_for_user( $forum_id, $user_id ) ) {
+			return false;
+		}
+
+		// A public reply cannot expose an unreadable topic
+		if ( bbp_get_reply_post_type() === $post->post_type ) {
+			$topic_id = bbp_get_reply_topic_id( $post->ID );
+			$topic    = ! empty( $topic_id ) ? bbp_get_topic( $topic_id ) : null;
+
+			if ( empty( $topic ) || ! $this->check_read_permission( $topic ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
 
