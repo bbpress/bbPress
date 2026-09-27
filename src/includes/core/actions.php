@@ -288,6 +288,7 @@ add_action( 'bbp_approved_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unapproved_reply', 'bbp_update_reply_walker' );
 
 // Update counts from persisted post status changes
+add_action( 'bbp_transition_post_status', 'bbp_update_forum_visibility_on_transition_post_status', 5, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_counts_on_transition_post_status', 10, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_forum_subforum_count_on_transition_post_status', 10, 3 );
 

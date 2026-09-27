@@ -393,46 +393,53 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_repair_forum_visibility
-	 * @todo   Implement test_bbp_repair_forum_visibility().
 	 */
 	public function test_bbp_repair_forum_visibility() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$private_id = $this->factory->forum->create( array(
+			'post_status' => bbp_get_private_status_id(),
+		) );
+		$hidden_id = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+
+		delete_option( '_bbp_private_forums' );
+		delete_option( '_bbp_hidden_forums' );
+
+		$this->assertTrue( bbp_repair_forum_visibility() );
+		$this->assertSame( array( $private_id ), bbp_get_private_forum_ids() );
+		$this->assertSame( array( $hidden_id ), bbp_get_hidden_forum_ids() );
 	}
 
 	/**
 	 * @covers ::bbp_get_forum_visibilities
-	 * @todo   Implement test_bbp_get_forum_visibilities().
 	 */
 	public function test_bbp_get_forum_visibilities() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$this->assertSame(
+			array(
+				bbp_get_public_status_id()  => 'Public',
+				bbp_get_private_status_id() => 'Private',
+				bbp_get_hidden_status_id()  => 'Hidden',
+			),
+			bbp_get_forum_visibilities()
 		);
 	}
 
 	/**
 	 * @covers ::bbp_get_hidden_forum_ids
-	 * @todo   Implement test_bbp_get_hidden_forum_ids().
 	 */
 	public function test_bbp_get_hidden_forum_ids() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		update_option( '_bbp_hidden_forums', array( 3, '4', 3 ) );
+
+		$this->assertSame( array( 3, 4 ), bbp_get_hidden_forum_ids() );
 	}
 
 	/**
 	 * @covers ::bbp_get_private_forum_ids
-	 * @todo   Implement test_bbp_get_private_forum_ids().
 	 */
 	public function test_bbp_get_private_forum_ids() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		update_option( '_bbp_private_forums', array( 5, '6', 5 ) );
+
+		$this->assertSame( array( 5, 6 ), bbp_get_private_forum_ids() );
 	}
 
 	/**
