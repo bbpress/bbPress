@@ -330,6 +330,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
  * Return the forum roles the current user may assign to another user.
  *
  * @since 2.6.17 bbPress (r7514)
+ * @since 2.6.19 bbPress (r7686) Allow site administrators to assign staff roles.
  *
  * @param int $user_id User being edited. Defaults to the displayed user.
  * @return array Filtered array of editable forum roles.
@@ -338,8 +339,8 @@ function bbp_get_user_editable_forum_roles( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
 	$roles   = bbp_get_dynamic_roles();
 
-	// Moderators may assign non-staff roles by default.
-	if ( ! bbp_is_user_keymaster() ) {
+	// Only keymasters and site administrators may assign staff roles.
+	if ( ! bbp_is_user_keymaster() && ! current_user_can( 'manage_options' ) ) {
 		unset(
 			$roles[ bbp_get_keymaster_role() ],
 			$roles[ bbp_get_moderator_role() ]

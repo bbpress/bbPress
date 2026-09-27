@@ -71,6 +71,7 @@ class BBP_Users_Admin {
 	 * Default interface for setting a forum role
 	 *
 	 * @since 2.2.0 bbPress (r4301)
+	 * @since 2.6.19 bbPress (r7686) Show only assignable roles.
 	 *
 	 * @param WP_User $profileuser User data
 	 * @return bool Always false
@@ -82,13 +83,8 @@ class BBP_Users_Admin {
 			return;
 		}
 
-		// Get the roles
-		$dynamic_roles = bbp_get_dynamic_roles();
-
-		// Only keymasters can set other keymasters
-		if ( ! bbp_is_user_keymaster() ) {
-			unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
-		} ?>
+		// Get the roles this user may assign.
+		$dynamic_roles = bbp_get_user_editable_forum_roles( $profileuser->ID ); ?>
 
 		<h2><?php esc_html_e( 'Forums', 'bbpress' ); ?></h2>
 
@@ -133,6 +129,7 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4365)
 	 * @since 2.6.0 bbPress (r6055) Introduced the `$which` parameter.
+	 * @since 2.6.19 bbPress (r7686) Show only assignable roles.
 	 *
 	 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 	 */
@@ -150,12 +147,7 @@ class BBP_Users_Admin {
 		}
 
 		// Get the roles
-		$dynamic_roles = bbp_get_dynamic_roles();
-
-		// Only keymasters can set other keymasters
-		if ( ! bbp_is_user_keymaster() ) {
-			unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
-		}
+		$dynamic_roles = bbp_get_user_editable_forum_roles();
 
 		$select_id = 'bottom' === $which ? 'bbp-new-role2' : 'bbp-new-role';
 		$button_id = 'bottom' === $which ? 'bbp-change-role2' : 'bbp-change-role';
@@ -177,6 +169,7 @@ class BBP_Users_Admin {
 	 * Table
 	 *
 	 * @since 2.2.0 bbPress (r4365)
+	 * @since 2.6.19 bbPress (r7686) Check each user and assignable role.
 	 *
 	 * @return bool Always false
 	 */
@@ -200,6 +193,7 @@ class BBP_Users_Admin {
 		}
 
 		// Check that the new role exists
+		$new_role = is_string( $new_role ) ? sanitize_text_field( wp_unslash( $new_role ) ) : '';
 		$dynamic_roles = bbp_get_dynamic_roles();
 		if ( ! $new_role || empty( $dynamic_roles[ $new_role ] ) ) {
 			return;
@@ -225,12 +219,21 @@ class BBP_Users_Admin {
 				continue;
 			}
 
+			// Only change roles for users on this site who the current user may promote.
+			if ( ! is_user_member_of_blog( $user_id ) || ! bbp_current_user_can_edit_user_field( 'forum_role', $user_id ) || ! current_user_can( 'promote_user', $user_id ) ) {
+				continue;
+			}
+
 			// Set up user and role data
 			$user_role = bbp_get_user_role( $user_id );
-			$new_role  = sanitize_text_field( $new_role );
 
-			// Only keymasters can set other keymasters
-			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ), true ) && ! bbp_is_user_keymaster() ) {
+			// Check the roles allowed for this target user.
+			if ( ! array_key_exists( $new_role, bbp_get_user_editable_forum_roles( $user_id ) ) ) {
+				continue;
+			}
+
+			// Only keymasters and site administrators can change keymaster roles.
+			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ), true ) && ! bbp_is_user_keymaster() && ! current_user_can( 'manage_options' ) ) {
 				continue;
 			}
 
