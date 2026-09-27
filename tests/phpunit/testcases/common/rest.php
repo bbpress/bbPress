@@ -828,6 +828,33 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Topic edits through REST must honor the destination forum's type and status.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_edit_topic_in_closed_or_category_forum_through_rest() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_content' => 'Original content.', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_close_forum( $forum_id );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'REST edit.' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'Original content.', get_post_field( 'post_content', $topic_id ) );
+
+		bbp_open_forum( $forum_id );
+		bbp_categorize_forum( $forum_id );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'REST edit.' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'Original content.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
 	 * A moderator can approve pending topics through REST.
 	 *
 	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
