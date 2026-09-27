@@ -1248,6 +1248,11 @@ function bbp_user_maybe_convert_pass() {
 		: '';
 	$pass    = wp_unslash( $wp_pass );
 
+	// Match WordPress's default password limit before invoking a legacy converter.
+	if ( strlen( $wp_pass ) > 4096 ) {
+		return;
+	}
+
 	// Bail if no username or password
 	if ( '' === $login || '' === $pass ) {
 		return;

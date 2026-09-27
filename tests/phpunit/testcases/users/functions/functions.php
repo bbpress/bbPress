@@ -626,6 +626,58 @@
 	}
 
 	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 */
+	public function test_bbp_user_maybe_convert_pass_skips_oversized_password() {
+		$user_id = $this->create_imported_phpbb_user( 'Correct Horse Battery Staple' );
+		$user    = get_userdata( $user_id );
+		$called  = false;
+		$capture = function() use ( &$called ) {
+			$called = true;
+
+			return null;
+		};
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = 'incorrect';
+
+		add_filter( 'bbp_new_converter', $capture );
+
+		try {
+			bbp_user_maybe_convert_pass();
+			$this->assertTrue( $called );
+
+			$called       = false;
+			$_POST['pwd'] = str_repeat( 'x', 4097 );
+
+			bbp_user_maybe_convert_pass();
+			$this->assertFalse( $called );
+		} finally {
+			remove_filter( 'bbp_new_converter', $capture );
+		}
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 */
+	public function test_bbp_user_maybe_convert_pass_accepts_maximum_password_length() {
+		$password = str_repeat( 'x', 4096 );
+		$user_id  = $this->create_imported_phpbb_user( $password );
+		$user     = get_userdata( $user_id );
+
+		$_POST['log'] = $user->user_login;
+		$_POST['pwd'] = $password;
+
+		bbp_user_maybe_convert_pass();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+	}
+
+	/**
 	 * Create a user with imported phpBB password metadata.
 	 *
 	 * @param string $password Password to store in phpBB's imported format.
