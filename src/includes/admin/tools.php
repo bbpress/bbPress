@@ -43,7 +43,7 @@ function bbp_admin_tools_box() {
 			}
 
 			// Add link to array
-			$links[] = sprintf( '<a href="%s">%s</a>', esc_url( add_query_arg( array( 'page' => $tool['page'] ), admin_url( 'tools.php' ) ) ), $tool['name'] );
+			$links[] = sprintf( '<a href="%s">%s</a>', esc_url( add_query_arg( array( 'page' => $tool['page'] ), admin_url( 'tools.php' ) ) ), wp_kses_post( $tool['name'] ) );
 		}
 
 		// Output links
@@ -558,8 +558,8 @@ function bbp_get_tools_admin_tabs( $active_tab = '' ) {
 		$tab_class  = $is_current ? $active_class : $idle_class;
 		$tab_url    = add_query_arg( array( 'page' => $tab['page'] ), admin_url( 'tools.php' ) );
 
-		// Tab name is not escaped - may contain HTML
-		$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . $tab['name'] . '</a>';
+		// Allow safe markup for the pending-upgrade count
+		$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . wp_kses_post( $tab['name'] ) . '</a>';
 	}
 
 	// Output the tabs

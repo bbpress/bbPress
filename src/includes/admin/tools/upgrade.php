@@ -160,8 +160,8 @@ function bbp_admin_upgrade_page() {
 											aria-label="<?php
 											printf(
 												/* translators: %s: Repair tool title */
-												esc_html__( 'Run %s', 'bbpress' ),
-												$item['title']
+												esc_attr__( 'Run %s', 'bbpress' ),
+												esc_attr( $item['title'] )
 											);
 											?>">
 												<?php esc_html_e( 'Run', 'bbpress' ); ?>

@@ -498,11 +498,12 @@ class BBP_Admin {
 		// Loop through tools and check
 		if ( ! empty( $tools ) ) {
 			foreach ( $tools as $tool ) {
+				$name = wp_kses_post( $tool['name'] );
 
 				// Try to add the admin page
 				$page = add_management_page(
-					$tool['name'],
-					$tool['name'],
+					$name,
+					$name,
 					$tool['cap'],
 					$tool['page'],
 					$tool['func']
