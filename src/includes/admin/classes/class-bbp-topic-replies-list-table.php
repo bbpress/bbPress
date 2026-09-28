@@ -118,9 +118,9 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 */
 	public function column_bbp_topic_reply_author( $item = '' ) {
 		bbp_reply_author_avatar( $item->ID, 50 );
-		bbp_reply_author_display_name( $item->ID );
+		echo esc_html( bbp_get_reply_author_display_name( $item->ID ) );
 		echo '<br>';
-		bbp_reply_author_email( $item->ID );
+		echo esc_html( bbp_get_reply_author_email( $item->ID ) );
 		echo '<br>';
 		bbp_author_ip( array( 'post_id' => $item->ID ) );
 	}
@@ -146,12 +146,12 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 		// Define actions array
 		$actions = array(
-			'view' => '<a href="' . bbp_get_reply_url( $item->ID )  . '">' . esc_html__( 'View', 'bbpress' ) . '</a>'
+			'view' => '<a href="' . esc_url( bbp_get_reply_url( $item->ID ) ) . '">' . esc_html__( 'View', 'bbpress' ) . '</a>'
 		);
 
 		// Prepend `edit` link
 		if ( current_user_can( 'edit_reply', $item->ID ) ) {
-			$actions['edit'] = '<a href="' . get_edit_post_link( $item->ID ) . '">' . esc_html__( 'Edit', 'bbpress' ) . '</a>';
+			$actions['edit'] = '<a href="' . esc_url( get_edit_post_link( $item->ID ) ) . '">' . esc_html__( 'Edit', 'bbpress' ) . '</a>';
 			$actions         = array_reverse( $actions );
 		}
 
