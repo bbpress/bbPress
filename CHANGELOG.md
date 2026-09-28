@@ -38,6 +38,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Excluded restricted forums from explicit forum ID queries.
 - Limited super moderator profile edits to site members and protected peer
   forum roles.
 - Checked destinations when topics and replies are moved in administration.

@@ -2713,6 +2713,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  * plugins that might be doing their own queries.
  *
  * @since 2.3.0 bbPress (r4808)
+ * @since 2.6.19 bbPress (r7691) Exclude restricted forum IDs from post__in queries.
  *
  * @param WP_Query $posts_query
  *
@@ -2833,6 +2834,13 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			if ( ! empty( $forum_id ) && in_array( $forum_id, $forum_ids, true ) ) {
 				$posts_query->set( 'p', 0 );
 				$posts_query->set( 'post__in', array( 0 ) );
+			}
+
+			// WordPress ignores post__not_in when post__in has IDs.
+			$post_in = wp_parse_id_list( $posts_query->get( 'post__in' ) );
+			if ( ! empty( $post_in ) ) {
+				$post_in = array_values( array_diff( $post_in, $forum_ids ) );
+				$posts_query->set( 'post__in', ! empty( $post_in ) ? $post_in : array( 0 ) );
 			}
 
 			// Get any existing not-in queries
