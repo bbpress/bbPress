@@ -1208,25 +1208,35 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_do_not_reply_address
 	 */
 	public function test_bbp_get_do_not_reply_address() {
+		$server_name = isset( $_SERVER['SERVER_NAME'] ) ? $_SERVER['SERVER_NAME'] : null;
+		$home_url    = 'https://www.example.org/forums/';
+		$filter      = function() use ( &$home_url ) { return $home_url; };
+		$site        = function() { return 'https://site.example.org/'; };
 
-		$_SERVER['SERVER_NAME'] = 'example.org';
-		$address = bbp_get_do_not_reply_address();
-		$this->assertEquals( 'noreply@example.org', $address );
+		add_filter( 'home_url', $filter );
+		add_filter( 'site_url', $site );
+		$_SERVER['SERVER_NAME'] = 'attacker.example';
 
-		$_SERVER['SERVER_NAME'] = 'www.example.org';
-		$address = bbp_get_do_not_reply_address();
-		$this->assertEquals( 'noreply@example.org', $address );
+		try {
+			$this->assertSame( 'noreply@example.org', bbp_get_do_not_reply_address() );
 
-		$_SERVER['SERVER_NAME'] = 'subdomain.example.org';
-		$address = bbp_get_do_not_reply_address();
-		$this->assertEquals( 'noreply@subdomain.example.org', $address );
+			$home_url = 'https://subdomain.example.org:8443/forums/';
+			$this->assertSame( 'noreply@subdomain.example.org', bbp_get_do_not_reply_address() );
 
-		$_SERVER['SERVER_NAME'] = 'www.subdomain.example.org';
-		$address = bbp_get_do_not_reply_address();
-		$this->assertEquals( 'noreply@subdomain.example.org', $address );
+			$home_url = 'https://www.subdomain.example.org/forums/';
+			$this->assertSame( 'noreply@subdomain.example.org', bbp_get_do_not_reply_address() );
 
-		// Reset server name.
-		$_SERVER['SERVER_NAME'] = 'example.org';
+			$home_url = '/forums/';
+			$this->assertSame( 'noreply@site.example.org', bbp_get_do_not_reply_address() );
+		} finally {
+			remove_filter( 'home_url', $filter );
+			remove_filter( 'site_url', $site );
+			if ( null === $server_name ) {
+				unset( $_SERVER['SERVER_NAME'] );
+			} else {
+				$_SERVER['SERVER_NAME'] = $server_name;
+			}
+		}
 	}
 
 	/**

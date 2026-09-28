@@ -1287,9 +1287,8 @@ function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $ti
  * available to customize this address further. In the future, we may consider
  * using `admin_email` instead, though this is not normally publicized.
  *
- * We use `$_SERVER['SERVER_NAME']` here to mimic similar functionality in
- * WordPress core. Previously, we used `get_home_url()` to use already validated
- * user input, but it was causing issues in some installations.
+ * Use the parsed home URL host to preserve mapped domains without including
+ * paths or relying on a request-supplied server name.
  *
  * @since 2.6.0 bbPress (r5409)
  *
@@ -1300,7 +1299,11 @@ function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $ti
  * @return string
  */
 function bbp_get_do_not_reply_address() {
-	$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+	$sitename = wp_parse_url( home_url(), PHP_URL_HOST );
+	if ( empty( $sitename ) ) {
+		$sitename = wp_parse_url( site_url(), PHP_URL_HOST );
+	}
+	$sitename = strtolower( (string) $sitename );
 	if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 		$sitename = substr( $sitename, 4 );
 	}
