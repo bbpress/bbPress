@@ -758,27 +758,33 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( ! empty( $forum_ids ) ) {
 
 			// Loop through forums, and make sure they exist
-			foreach ( $forum_ids as $forum_id ) {
+			foreach ( $forum_ids as $index => $forum_id ) {
 
 				// Look for forum
 				$forum = bbp_get_forum( $forum_id );
 
 				// No forum exists, so break the relationship
 				if ( empty( $forum ) ) {
-					$this->remove_forum( array( 'forum_id' => $forum_id ) );
-					unset( $forum_ids[ $forum_id ] );
+					$this->remove_forum(
+						array(
+							'forum_id' => $forum_id,
+							'group_id' => $group_id
+						)
+					);
+					unset( $forum_ids[ $index ] );
 				}
 			}
 
 			// No support for multiple forums yet
-			$forum_id = (int) ( is_array( $forum_ids )
-				? $forum_ids[0]
-				: $forum_ids );
+			$forum_ids = array_values( $forum_ids );
+			$forum_id  = ! empty( $forum_ids ) ? (int) $forum_ids[0] : 0;
 		}
 
 		// Update the group ID and forum ID relationships
 		bbp_update_group_forum_ids( $group_id, (array) $forum_ids );
-		bbp_update_forum_group_ids( $forum_id, (array) $group_id  );
+		if ( ! empty( $forum_id ) ) {
+			bbp_update_forum_group_ids( $forum_id, (array) $group_id );
+		}
 
 		// Update the group forum setting
 		$group = $this->toggle_group_forum( $group_id, $edit_forum );
