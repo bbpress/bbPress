@@ -73,6 +73,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Restored content and title filters after subscription emails, including canceled sends.
 - Restored moderator access to eligible private-topic search results and
   all-reply profile views.
 - Recovered first-login password upgrades for older PHPWind imports when the

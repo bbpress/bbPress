@@ -1549,12 +1549,18 @@ Login and visit the topic to unsubscribe from these emails.',
 	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id );
 	if ( empty( $message ) ) {
+		bbp_restore_all_filters( 'bbp_get_reply_content' );
+		bbp_restore_all_filters( 'bbp_get_topic_title'   );
+		bbp_restore_all_filters( 'the_title'             );
 		return;
 	}
 
 	// For plugins to filter titles per reply/topic/user
 	$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $forum_title . '] ' . $topic_title, $reply_id, $topic_id );
 	if ( empty( $subject ) ) {
+		bbp_restore_all_filters( 'bbp_get_reply_content' );
+		bbp_restore_all_filters( 'bbp_get_topic_title'   );
+		bbp_restore_all_filters( 'the_title'             );
 		return;
 	}
 
@@ -1593,7 +1599,7 @@ Login and visit the topic to unsubscribe from these emails.',
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
 	// Restore previously removed filters
-	bbp_restore_all_filters( 'bbp_get_topic_content' );
+	bbp_restore_all_filters( 'bbp_get_reply_content' );
 	bbp_restore_all_filters( 'bbp_get_topic_title'   );
 	bbp_restore_all_filters( 'the_title'             );
 
@@ -1748,12 +1754,18 @@ Login and visit the topic to unsubscribe from these emails.',
 	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );
 	if ( empty( $message ) ) {
+		bbp_restore_all_filters( 'bbp_get_topic_content' );
+		bbp_restore_all_filters( 'bbp_get_topic_title'   );
+		bbp_restore_all_filters( 'the_title'             );
 		return;
 	}
 
 	// For plugins to filter titles per reply/topic/user
 	$subject = apply_filters( 'bbp_forum_subscription_mail_title', '[' . $forum_title . '] ' . $topic_title, $topic_id, $forum_id, $user_id );
 	if ( empty( $subject ) ) {
+		bbp_restore_all_filters( 'bbp_get_topic_content' );
+		bbp_restore_all_filters( 'bbp_get_topic_title'   );
+		bbp_restore_all_filters( 'the_title'             );
 		return;
 	}
 
