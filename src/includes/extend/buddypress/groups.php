@@ -528,7 +528,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.3.0 bbPress (r4717)
 	 */
 	public function remove_group_forum_meta_cap_map() {
-		remove_filter( 'bbp_map_meta_caps', array( $this, 'map_group_forum_meta_caps' ), 99, 4 );
+		remove_filter( 'bbp_map_meta_caps', array( $this, 'map_group_forum_meta_caps' ), 10 );
 	}
 
 	/**

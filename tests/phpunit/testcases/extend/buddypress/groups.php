@@ -87,6 +87,27 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::BBP_Forums_Group_Extension::remove_group_forum_meta_cap_map
+	 */
+	public function test_group_forum_cap_map_is_removed_after_display() {
+		$user_id  = $this->factory->user->create();
+		$group_id = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		buddypress()->is_single_item = true;
+		$this->set_group_context( $group_id, $user_id );
+		remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99 );
+
+		$this->assertSame( 10, has_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ) ) );
+		$this->assertTrue( current_user_can( 'moderate' ) );
+
+		do_action( 'bbp_after_group_forum_display' );
+
+		$this->assertFalse( has_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ) ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::user_can_view_group_forum
 	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
 	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids
