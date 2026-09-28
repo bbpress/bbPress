@@ -1556,7 +1556,7 @@ function bbp_edit_user_display_name() {
 
 	<?php foreach ( $public_display as $id => $item ) : ?>
 
-		<option id="<?php echo $id; ?>" value="<?php echo esc_attr( $item ); ?>"<?php selected( $bbp->displayed_user->display_name, $item ); ?>><?php echo $item; ?></option>
+		<option id="<?php echo esc_attr( $id ); ?>" value="<?php echo esc_attr( $item ); ?>"<?php selected( $bbp->displayed_user->display_name, $item ); ?>><?php echo esc_html( $item ); ?></option>
 
 	<?php endforeach; ?>
 
