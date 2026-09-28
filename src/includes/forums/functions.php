@@ -2635,12 +2635,12 @@ function bbp_get_excluded_forum_ids() {
 		? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
 		: array();
 
-	// Include descendants of private and hidden forums
+	// Include every descendant, even below a forum with a non-countable status
 	$parents = $forum_ids;
 	while ( ! empty( $parents ) ) {
 		$parent_id = array_shift( $parents );
 
-		foreach ( bbp_forum_query_subforum_ids( $parent_id ) as $forum_id ) {
+		foreach ( bbp_forum_query_all_subforum_ids( $parent_id ) as $forum_id ) {
 			if ( ! in_array( $forum_id, $forum_ids, true ) ) {
 				$forum_ids[] = $forum_id;
 				$parents[]   = $forum_id;
@@ -2653,6 +2653,43 @@ function bbp_get_excluded_forum_ids() {
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden );
+}
+
+/**
+ * Return all direct child forum IDs for visibility checks.
+ *
+ * A non-countable forum can still have public descendants. Traversing only
+ * countable children would expose those descendants in public queries.
+ *
+ * @since 2.6.19 bbPress (r7693)
+ *
+ * @param int $forum_id Parent forum ID.
+ * @return int[] Child forum IDs.
+ */
+function bbp_forum_query_all_subforum_ids( $forum_id ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) ) {
+		return array();
+	}
+
+	$key        = md5( serialize( array( $forum_id, bbp_get_forum_post_type(), 'all' ) ) );
+	$cache_key  = "bbp_child_ids:{$key}:" . wp_cache_get_last_changed( 'bbpress_posts' );
+	$forum_ids  = wp_cache_get( $cache_key, 'bbpress_posts' );
+
+	if ( false === $forum_ids ) {
+		$bbp_db    = bbp_db();
+		$query     = $bbp_db->prepare(
+			"SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s ORDER BY ID DESC",
+			$forum_id,
+			bbp_get_forum_post_type()
+		);
+		$forum_ids = (array) $bbp_db->get_col( $query );
+
+		wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+	}
+
+	return wp_parse_id_list( $forum_ids );
 }
 
 /**

@@ -127,19 +127,31 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 
 		// Only filter for single group forum topics
 		if ( bp_is_group_forum_topic() || bp_is_group_forum_topic_edit() ) {
+			if ( ! bp_group_is_visible( bp_get_current_group_id() ) ) {
+				return $new_title;
+			}
 
-			// Get the topic
+			$forum_ids = bbp_get_group_forum_ids();
+
+			if ( empty( $forum_ids ) ) {
+				return $new_title;
+			}
+
+			// Get a topic belonging to the current group's forums
 			$topic = get_posts(
 				array(
-					'name'        => bp_action_variable( 1 ),
-					'post_status' => array_keys( bbp_get_topic_statuses() ),
-					'post_type'   => bbp_get_topic_post_type(),
-					'numberposts' => 1
+					'name'            => bp_action_variable( 1 ),
+					'post_parent__in' => $forum_ids,
+					'post_status'     => array_keys( bbp_get_topic_statuses() ),
+					'post_type'       => bbp_get_topic_post_type(),
+					'numberposts'     => 1
 				)
 			);
 
-			// Add the topic title to the <title>
-			$new_title .= bbp_get_topic_title( $topic[0]->ID ) . ' ' . $sep . ' ';
+			// Add the title only when the topic and its forum are readable
+			if ( ! empty( $topic ) && bbp_user_can_view_forum( array( 'forum_id' => $topic[0]->post_parent ) ) && ( bbp_is_topic_public( $topic[0]->ID ) || current_user_can( 'read_topic', $topic[0]->ID ) ) ) {
+				$new_title .= bbp_get_topic_title( $topic[0]->ID ) . ' ' . $sep . ' ';
+			}
 		}
 	}
 

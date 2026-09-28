@@ -81,6 +81,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		buddypress()->current_component = '';
 		buddypress()->current_item      = '';
 		buddypress()->current_action    = '';
+		unset( buddypress()->is_single_item );
 
 		parent::tearDown();
 	}
@@ -207,6 +208,30 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->set_current_user( $moderator_id );
 		$this->assertTrue( user_can( $moderator_id, 'read_forum', $grandchild_id ) );
 		$this->assertNotContains( $grandchild_id, bbp_get_excluded_forum_ids() );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids
+	 */
+	public function test_private_group_forum_excludes_descendants_below_trashed_forum() {
+		$creator_id   = $this->factory->user->create();
+		$outsider_id  = $this->factory->user->create();
+		$group_id     = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id     = $this->factory->forum->create();
+		$child_id     = $this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+		$grandchild_id = $this->factory->forum->create( array( 'post_parent' => $child_id ) );
+
+		bbp_set_user_role( $outsider_id, bbp_get_participant_role() );
+		get_user_by( 'id', $outsider_id )->add_cap( 'read_private_forums' );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		bbp_privatize_forum( $forum_id );
+		wp_trash_post( $child_id );
+		$this->group_extension = new BBP_Forums_Group_Extension();
+		$this->set_current_user( $outsider_id );
+
+		$this->assertTrue( current_user_can( 'read_private_forums' ) );
+		$this->assertFalse( current_user_can( 'read_forum', $forum_id ) );
+		$this->assertContains( $grandchild_id, bbp_get_excluded_forum_ids() );
 	}
 
 	/**
@@ -451,6 +476,75 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 
 		$this->group_extension = new BBP_Forums_Group_Extension();
 		add_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99, 4 );
+	}
+
+	/**
+	 * @covers ::bbp_filter_modify_page_title
+	 */
+	public function test_group_topic_page_title_only_uses_visible_topics_in_current_group() {
+		$creator_id    = $this->factory->user->create();
+		$group_id      = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id      = $this->factory->forum->create();
+		$other_forum   = $this->factory->forum->create();
+		$visible_topic = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Visible group topic', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$other_topic   = $this->factory->topic->create( array( 'post_parent' => $other_forum, 'post_title' => 'Other forum topic', 'topic_meta' => array( 'forum_id' => $other_forum ) ) );
+		$spam_topic    = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Spam group topic', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$trash_topic   = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Trash group topic', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$pending_topic = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Pending group topic', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		$this->set_current_user( 0 );
+		buddypress()->is_single_item = true;
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $visible_topic ) );
+		$this->assertContains( $forum_id, bbp_get_group_forum_ids() );
+		$this->assertTrue( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) );
+		$this->assertTrue( bbp_is_topic_public( $visible_topic ) );
+
+		$this->assertSame( 'GroupVisible group topic | ', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+
+		wp_update_post( array( 'ID' => $spam_topic, 'post_status' => bbp_get_spam_status_id() ) );
+		wp_trash_post( $trash_topic );
+		wp_update_post( array( 'ID' => $pending_topic, 'post_status' => bbp_get_pending_status_id() ) );
+
+		foreach ( array( $other_topic, $spam_topic, $trash_topic, $pending_topic ) as $topic_id ) {
+			buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $topic_id ) );
+			$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+		}
+
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, 'missing-group-topic' );
+		$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+
+		bbp_privatize_forum( $forum_id );
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $visible_topic ) );
+		$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		$this->set_current_user( $creator_id );
+		$this->assertSame( 'GroupVisible group topic | ', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_modify_page_title
+	 */
+	public function test_private_group_topic_page_title_requires_group_access() {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id, 'status' => 'private' ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Private group topic', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		buddypress()->is_single_item   = true;
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $topic_id ) );
+
+		$this->set_current_user( 0 );
+		$this->assertTrue( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) );
+		$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		$this->set_current_user( $creator_id );
+		$this->assertSame( 'GroupPrivate group topic | ', bbp_filter_modify_page_title( 'Group', '', '|' ) );
 	}
 
 	/**
