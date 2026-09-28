@@ -981,7 +981,7 @@ class BBP_Admin {
 		// If we found some topics, loop through and display them
 		if ( ! empty( $topics ) ) {
 			foreach ( (array) $topics as $post ) {
-				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) . "\n" );
+				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), esc_html( bbp_get_topic_title( $post->ID ) ) . "\n" );
 			}
 		}
 		die();
@@ -1061,7 +1061,7 @@ class BBP_Admin {
 		// If we found some users, loop through and output them to the AJAX
 		if ( ! empty( $users_query->results ) ) {
 			foreach ( (array) $users_query->results as $user ) {
-				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_user_id( $user->ID ), bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n" );
+				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_user_id( $user->ID ), esc_html( bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) ) . "\n" );
 			}
 		}
 		die();
