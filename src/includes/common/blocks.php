@@ -281,6 +281,10 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 					);
 
 					foreach ( $forums as $forum ) {
+						if ( ! bbp_user_can_view_forum( array( 'forum_id' => $forum->ID ) ) ) {
+							continue;
+						}
+
 						$return[] = array(
 							'value' => (int) $forum->ID,
 							'label' => $forum->post_title,
@@ -354,6 +358,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 * Query terms directly to avoid loading every topic into the block editor.
 		 *
 		 * @since 2.7.0 bbPress (r7695)
+		 * @since 2.7.0 bbPress (r7708) Check live forum visibility.
 		 * @todo Explore WP_Term_Query with terms_clauses after requiring
 		 *       WordPress 6.4. Use cache_results=false until updates to
 		 *       _bbp_forum_id invalidate the term query cache.
@@ -366,31 +371,29 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 				return array();
 			}
 
-			$bbp_db       = bbp_db();
-			$forum_ids    = wp_parse_id_list( bbp_get_excluded_forum_ids() );
-			$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
-			$values       = array_merge( array( bbp_get_topic_tag_tax_id(), bbp_get_topic_post_type() ), $statuses );
-			$query        = "SELECT DISTINCT tt.term_id
+			// Use visible forum choices so cached visibility IDs cannot expose tags.
+			$forum_ids = array_filter( wp_parse_id_list( wp_list_pluck( self::get_localize_script_data( 'forums' ), 'value' ) ) );
+			if ( empty( $forum_ids ) ) {
+				return array();
+			}
+
+			$bbp_db             = bbp_db();
+			$placeholders       = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+			$forum_placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
+			$values             = array_merge( array( bbp_get_topic_tag_tax_id(), bbp_get_topic_post_type() ), $statuses, $forum_ids, $forum_ids, $forum_ids );
+			$query              = "SELECT DISTINCT tt.term_id
 				FROM {$bbp_db->term_taxonomy} AS tt
 				INNER JOIN {$bbp_db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id
 				INNER JOIN {$bbp_db->posts} AS p ON p.ID = tr.object_id
-				WHERE tt.taxonomy = %s AND p.post_type = %s AND p.post_status IN ({$placeholders})";
-
-			if ( ! empty( $forum_ids ) ) {
-				$forum_placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
-				$query .= " AND p.post_parent NOT IN ({$forum_placeholders})
-					AND EXISTS (
-						SELECT 1 FROM {$bbp_db->postmeta} AS fm
-						WHERE fm.post_id = p.ID AND fm.meta_key = '_bbp_forum_id'
-					)
+				INNER JOIN {$bbp_db->postmeta} AS fm ON fm.post_id = p.ID AND fm.meta_key = '_bbp_forum_id'
+				WHERE tt.taxonomy = %s AND p.post_type = %s AND p.post_status IN ({$placeholders})
+					AND p.post_parent IN ({$forum_placeholders})
+					AND CAST( fm.meta_value AS UNSIGNED ) IN ({$forum_placeholders})
 					AND NOT EXISTS (
 						SELECT 1 FROM {$bbp_db->postmeta} AS excluded_fm
 						WHERE excluded_fm.post_id = p.ID AND excluded_fm.meta_key = '_bbp_forum_id'
-							AND CAST( excluded_fm.meta_value AS UNSIGNED ) IN ({$forum_placeholders})
+						AND CAST( excluded_fm.meta_value AS UNSIGNED ) NOT IN ({$forum_placeholders})
 					)";
-				$values = array_merge( $values, $forum_ids, $forum_ids );
-			}
-
 			$term_ids = $bbp_db->get_col( $bbp_db->prepare( $query, $values ) );
 
 			return wp_parse_id_list( $term_ids );

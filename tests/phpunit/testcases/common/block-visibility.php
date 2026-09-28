@@ -32,6 +32,25 @@ class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 		$this->assertNotContains( $private_id, $ids );
 		$this->assertNotContains( $hidden_id, $ids );
 		$this->assertNotContains( $child_id, $ids );
+
+		// Cached visibility IDs can lag behind live forum statuses.
+		update_option( '_bbp_private_forums', array() );
+		update_option( '_bbp_hidden_forums', array() );
+		$ids = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'forums' ), 'value' );
+		$this->assertNotContains( $private_id, $ids );
+		$this->assertNotContains( $hidden_id, $ids );
+		$this->assertNotContains( $child_id, $ids );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( 0 );
+		$this->set_current_user( $user_id );
+		$ids = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'forums' ), 'value' );
+		$this->assertContains( $private_id, $ids );
+		$this->assertNotContains( $hidden_id, $ids );
+
+		bbp_add_moderator( $hidden_id, $user_id );
+		$ids = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'forums' ), 'value' );
+		$this->assertContains( $hidden_id, $ids );
 	}
 
 	/**
@@ -61,6 +80,16 @@ class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 		$this->assertNotContains( 'hidden-block-tag', $labels );
 		$this->assertNotContains( 'pending-block-tag', $labels );
 		$this->assertContains( 'private-block-tag', wp_list_pluck( get_terms( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'hide_empty' => false ) ), 'name' ) );
+
+		$private_ids = get_option( '_bbp_private_forums', array() );
+		$hidden_ids  = get_option( '_bbp_hidden_forums', array() );
+		update_option( '_bbp_private_forums', array() );
+		update_option( '_bbp_hidden_forums', array() );
+		$labels = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'topic_tags' ), 'label' );
+		$this->assertNotContains( 'private-block-tag', $labels );
+		$this->assertNotContains( 'hidden-block-tag', $labels );
+		update_option( '_bbp_private_forums', $private_ids );
+		update_option( '_bbp_hidden_forums', $hidden_ids );
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
 		$labels = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'topic_tags' ), 'label' );
