@@ -47,6 +47,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected topic edit-lock owner detection.
 - Stopped prefilling login password fields from request data.
 - Derived subscription email addresses from the configured site host.
 - Restored content and title filters after subscription emails, including canceled sends.
