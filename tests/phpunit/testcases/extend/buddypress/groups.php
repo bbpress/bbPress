@@ -108,6 +108,59 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::BBP_Forums_Group_Extension::edit_screen_save
+	 */
+	public function test_group_forum_save_discards_missing_forum_ids() {
+		$user_id  = $this->factory->user->create();
+		$group_id = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id = $this->factory->forum->create();
+		$missing  = 999999999;
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_update_group_forum_ids( $group_id, array( $missing, $forum_id ) );
+		bbp_update_forum_group_ids( $forum_id, array( $group_id ) );
+		$this->set_group_context( $group_id, $user_id );
+
+		$_SERVER['REQUEST_METHOD']     = 'POST';
+		$_SERVER['HTTP_HOST']          = wp_parse_url( home_url(), PHP_URL_HOST );
+		$_SERVER['REQUEST_URI']        = '/';
+		$_REQUEST['_wpnonce']          = wp_create_nonce( 'groups_edit_save_forum' );
+		$_POST['bbp-edit-group-forum'] = '1';
+
+		$this->group_extension->edit_screen_save( $group_id );
+
+		$this->assertSame( array( $forum_id ), bbp_get_group_forum_ids( $group_id ) );
+		$this->assertSame( array( $group_id ), bbp_get_forum_group_ids( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::edit_screen_save
+	 */
+	public function test_group_forum_save_replaces_only_missing_forum() {
+		$user_id  = $this->factory->user->create();
+		$group_id = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$missing  = 999999999;
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_update_group_forum_ids( $group_id, array( $missing ) );
+		$this->set_group_context( $group_id, $user_id );
+
+		$_SERVER['REQUEST_METHOD']     = 'POST';
+		$_SERVER['HTTP_HOST']          = wp_parse_url( home_url(), PHP_URL_HOST );
+		$_SERVER['REQUEST_URI']        = '/';
+		$_REQUEST['_wpnonce']          = wp_create_nonce( 'groups_edit_save_forum' );
+		$_POST['bbp-edit-group-forum'] = '1';
+
+		$this->group_extension->edit_screen_save( $group_id );
+
+		$forum_ids = bbp_get_group_forum_ids( $group_id );
+		$this->assertCount( 1, $forum_ids );
+		$this->assertNotContains( $missing, $forum_ids );
+		$this->assertTrue( bbp_is_forum( $forum_ids[0] ) );
+		$this->assertSame( array( $group_id ), bbp_get_forum_group_ids( $forum_ids[0] ) );
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::user_can_view_group_forum
 	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
 	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids
