@@ -516,6 +516,37 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_new_reply_handler
 	 */
+	public function test_new_reply_action_excludes_parent_from_another_topic() {
+		$forum_id  = $this->factory->forum->create();
+		$topic_ids = $this->factory->topic->create_many( 2, array( 'post_parent' => $forum_id ) );
+		$parent_id = $this->factory->reply->create( array( 'post_parent' => $topic_ids[1] ) );
+		$user_id   = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$reply_to  = null;
+		$callback  = function( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author, $is_edit, $parent_id ) use ( &$reply_to ) {
+			$reply_to = $parent_id;
+		};
+
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$_REQUEST['bbp_reply_to'] = $parent_id;
+		add_action( 'bbp_new_reply', $callback, 1, 7 );
+
+		$did_redirect = $this->submit_reply( $topic_ids[0], $forum_id, 'A reply with a cross-topic parent.' );
+
+		remove_action( 'bbp_new_reply', $callback, 1 );
+
+		$reply_ids = $this->get_reply_ids( $topic_ids[0] );
+		$this->assertCount( 1, $reply_ids );
+		$this->assertSame( 0, bbp_get_reply_to( $reply_ids[0] ) );
+		$this->assertSame( 0, $reply_to );
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
+	 */
 	public function test_participant_cannot_spoof_forum_id_to_reply_to_hidden_topic() {
 		$public_forum_id = $this->factory->forum->create();
 		$hidden_forum_id = $this->factory->forum->create(

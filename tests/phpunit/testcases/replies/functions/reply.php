@@ -205,13 +205,18 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_update_reply_to
-	 * @todo   Implement test_bbp_update_reply_to().
 	 */
 	public function test_bbp_update_reply_to() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$forum_id  = $this->factory->forum->create();
+		$topic_ids = $this->factory->topic->create_many( 2, array( 'post_parent' => $forum_id ) );
+		$parent_id = $this->factory->reply->create( array( 'post_parent' => $topic_ids[0] ) );
+		$reply_id  = $this->factory->reply->create( array( 'post_parent' => $topic_ids[0] ) );
+		$other_id  = $this->factory->reply->create( array( 'post_parent' => $topic_ids[1] ) );
+
+		$this->assertSame( $parent_id, bbp_update_reply_to( $reply_id, $parent_id ) );
+		$this->assertSame( $parent_id, bbp_get_reply_to( $reply_id ) );
+		$this->assertSame( 0, bbp_update_reply_to( $reply_id, $other_id ) );
+		$this->assertSame( 0, bbp_get_reply_to( $reply_id ) );
 	}
 
 	/**
@@ -550,12 +555,18 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_validate_reply_to
-	 * @todo   Implement test_bbp_validate_reply_to().
 	 */
 	public function test_bbp_validate_reply_to() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$forum_id  = $this->factory->forum->create();
+		$topic_ids = $this->factory->topic->create_many( 2, array( 'post_parent' => $forum_id ) );
+		$parent_id = $this->factory->reply->create( array( 'post_parent' => $topic_ids[0] ) );
+		$reply_id  = $this->factory->reply->create( array( 'post_parent' => $topic_ids[0] ) );
+		$other_id  = $this->factory->reply->create( array( 'post_parent' => $topic_ids[1] ) );
+
+		$this->assertSame( $parent_id, bbp_validate_reply_to( $parent_id, $reply_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( $reply_id, $reply_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( (string) $reply_id, $reply_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( $other_id, $reply_id ) );
+		$this->assertSame( $other_id, bbp_validate_reply_to( $other_id ) );
 	}
 }
