@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Prevented profile saves from silently changing multisite super admin privileges.
 - Tightened forum and BuddyPress group topic visibility checks.
 - Excluded restricted forums from explicit forum ID queries.
 - Limited super moderator profile edits to site members and protected peer

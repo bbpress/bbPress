@@ -243,6 +243,33 @@ function bbp_user_email_change_requires_confirmation( $user_id = 0 ) {
 }
 
 /**
+ * Update a user's network role when the profile form submitted that field.
+ *
+ * A missing checkbox is ambiguous unless the form also submits its presence
+ * marker. Continue accepting checked boxes from older custom templates.
+ *
+ * @since 2.6.19 bbPress (r7696)
+ *
+ * @param int   $user_id User being edited.
+ * @param array $data    Submitted profile fields.
+ */
+function bbp_maybe_update_user_super_admin( $user_id = 0, $data = array() ) {
+	if ( ! is_multisite() || bbp_is_user_home_edit() || ! current_user_can( 'manage_network_options' ) || ! is_super_admin() ) {
+		return;
+	}
+
+	if ( ! isset( $data['bbp_super_admin_present'] ) && ! isset( $data['super_admin'] ) ) {
+		return;
+	}
+
+	if ( empty( $data['super_admin'] ) ) {
+		revoke_super_admin( $user_id );
+	} else {
+		grant_super_admin( $user_id );
+	}
+}
+
+/**
  * Handles the front end user editing from POST requests
  *
  * @since 2.0.0 bbPress (r2688)
@@ -349,11 +376,7 @@ function bbp_edit_user_handler( $action = '' ) {
 	} elseif ( is_integer( $edit_user ) ) {
 
 		// Maybe update super admin ability
-		if ( is_multisite() && ! bbp_is_user_home_edit() && current_user_can( 'manage_network_options' ) && is_super_admin() ) {
-			empty( $_POST['super_admin'] )
-				? revoke_super_admin( $edit_user )
-				: grant_super_admin( $edit_user );
-		}
+		bbp_maybe_update_user_super_admin( $edit_user, $_POST );
 
 		// Redirect
 		$args     = array( 'updated' => 'true' );

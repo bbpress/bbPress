@@ -139,6 +139,7 @@ defined( 'ABSPATH' ) || exit;
 
 				<div>
 					<label for="super_admin"><?php esc_html_e( 'Network Role', 'bbpress' ); ?></label>
+					<input type="hidden" name="bbp_super_admin_present" value="1" />
 					<label>
 						<input class="checkbox" type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( bbp_get_displayed_user_id() ) ); ?> />
 						<?php esc_html_e( 'Grant this user super admin privileges for the Network.', 'bbpress' ); ?>
