@@ -157,6 +157,11 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 		return;
 	}
 
+	// Bail if the reply is not published
+	if ( ! bbp_is_reply_published( $reply_id ) ) {
+		return;
+	}
+
 	// Get author information
 	$topic_author_id   = bbp_get_topic_author_id( $topic_id );
 	$secondary_item_id = $author_id;
