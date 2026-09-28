@@ -546,6 +546,58 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
 	 */
+	public function test_bbp_pre_get_posts_normalize_forum_visibility_with_or_meta_query() {
+		$posts           = $this->create_visibility_test_posts();
+		$second_topic    = $this->factory->topic->create( array(
+			'post_parent' => $posts['public_forum'],
+			'topic_meta'  => array( 'forum_id' => $posts['public_forum'] ),
+		) );
+		$unmatched_topic = $this->factory->topic->create( array(
+			'post_parent' => $posts['public_forum'],
+			'topic_meta'  => array( 'forum_id' => $posts['public_forum'] ),
+		) );
+
+		foreach ( array( 'public', 'private', 'hidden' ) as $visibility ) {
+			update_post_meta( $posts[ "{$visibility}_topic" ], 'bbp_visibility_test', 'match' );
+			update_post_meta( $posts[ "{$visibility}_reply" ], 'bbp_visibility_test', 'match' );
+		}
+		update_post_meta( $second_topic, 'bbp_visibility_other', 'missing' );
+
+		$this->set_current_user( 0 );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'post_status'    => bbp_get_public_status_id(),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'    => array(
+					'relation' => 'OR',
+					array(
+						'key'   => 'bbp_visibility_test',
+						'value' => 'match',
+					),
+					array(
+						'key'   => 'bbp_visibility_other',
+						'value' => 'missing',
+					),
+				),
+			)
+		);
+
+		$this->assertContains( $posts['public_topic'], $query->posts );
+		$this->assertContains( $posts['public_reply'], $query->posts );
+		$this->assertContains( $second_topic, $query->posts );
+		$this->assertNotContains( $unmatched_topic, $query->posts );
+		$this->assertNotContains( $posts['private_topic'], $query->posts );
+		$this->assertNotContains( $posts['private_reply'], $query->posts );
+		$this->assertNotContains( $posts['hidden_topic'], $query->posts );
+		$this->assertNotContains( $posts['hidden_reply'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
 	public function test_bbp_pre_get_posts_normalize_forum_visibility_with_mixed_bbp_post_types() {
 		$posts = $this->create_status_test_posts();
 
