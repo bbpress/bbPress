@@ -514,13 +514,25 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_edit_user_display_name
-	 * @todo   Implement test_bbp_edit_user_display_name().
 	 */
 	public function test_bbp_edit_user_display_name() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$old_displayed_user = bbpress()->displayed_user;
+		bbpress()->displayed_user = (object) array(
+			'user_login'  => 'test-user',
+			'nickname'    => '<script>alert(1)</script>',
+			'first_name'  => '',
+			'last_name'   => '',
+			'display_name' => 'test-user',
 		);
+
+		ob_start();
+		bbp_edit_user_display_name();
+		$output = ob_get_clean();
+		bbpress()->displayed_user = $old_displayed_user;
+
+		$this->assertStringContainsString( 'value="&lt;script&gt;alert(1)&lt;/script&gt;"', $output );
+		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;</option>', $output );
+		$this->assertStringNotContainsString( '<script>', $output );
 	}
 
 	/**

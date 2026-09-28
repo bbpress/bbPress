@@ -1232,7 +1232,7 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
 		case 'display_name' :
 		case 'first_name'   :
 		case 'last_name'    :
-		case 'nick_name'    :
+		case 'nickname'     :
 			$filter = ( 'edit' === $context ) ? 'esc_attr' : 'esc_html';
 			break;
 

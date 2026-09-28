@@ -219,13 +219,10 @@
 
 	/**
 	 * @covers ::bbp_sanitize_displayed_user_field
-	 * @todo   Implement test_bbp_sanitize_displayed_user_field().
 	 */
 	public function test_bbp_sanitize_displayed_user_field() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '&lt;script&gt;', bbp_sanitize_displayed_user_field( '<script>', 'nickname', 'display' ) );
+		$this->assertSame( '&lt;script&gt;', bbp_sanitize_displayed_user_field( '<script>', 'nickname', 'edit' ) );
 	}
 
 	/**
