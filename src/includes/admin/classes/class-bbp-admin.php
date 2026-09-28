@@ -1104,7 +1104,7 @@ class BBP_Admin {
 		if ( ! empty( $topics ) ) {
 			foreach ( (array) $topics as $post ) {
 				/* translators: 1: Topic ID, 2: Topic title */
-				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) . "\n" );
+				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), esc_html( bbp_get_topic_title( $post->ID ) ) . "\n" );
 			}
 		}
 		die();
@@ -1190,7 +1190,7 @@ class BBP_Admin {
 					/* translators: 1: User ID, 2: User nicename */
 					esc_html__( '%1$s - %2$s', 'bbpress' ),
 					bbp_get_user_id( $user->ID ),
-					bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n"
+					esc_html( bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) ) . "\n"
 				);
 			}
 		}
