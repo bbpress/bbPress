@@ -263,7 +263,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				while ( ! empty( $parents ) ) {
 					$parent_id = array_shift( $parents );
 
-					foreach ( bbp_forum_query_subforum_ids( $parent_id ) as $child_id ) {
+					foreach ( bbp_forum_query_all_subforum_ids( $parent_id ) as $child_id ) {
 						$child_id = (int) $child_id;
 
 						if ( isset( $seen[ $child_id ] ) ) {

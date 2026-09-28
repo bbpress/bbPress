@@ -442,15 +442,30 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_get_excluded_forum_ids
 	 */
-	public function test_bbp_get_excluded_forum_ids_ignores_non_countable_descendants() {
-		$posts = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+	public function test_bbp_get_excluded_forum_ids_traverses_non_countable_descendants() {
+		foreach ( array( 'trash', 'pending', 'draft' ) as $status ) {
+			$posts = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
 
-		wp_trash_post( $posts['child_id'] );
-		$this->set_current_user( 0 );
+			wp_update_post( array(
+				'ID'          => $posts['child_id'],
+				'post_status' => $status,
+			) );
+			$this->set_current_user( 0 );
 
-		$this->assertContains( $posts['parent_id'], bbp_get_excluded_forum_ids() );
-		$this->assertNotContains( $posts['child_id'], bbp_get_excluded_forum_ids() );
-		$this->assertNotContains( $posts['grandchild_id'], bbp_get_excluded_forum_ids() );
+			$this->assertEqualSets(
+				array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] ),
+				array_intersect( bbp_get_excluded_forum_ids(), array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] ) )
+			);
+
+			$query = new WP_Query( array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+
+			$this->assertNotContains( $posts['topic_id'], $query->posts );
+			$this->assertNotContains( $posts['reply_id'], $query->posts );
+		}
 	}
 
 	/**
