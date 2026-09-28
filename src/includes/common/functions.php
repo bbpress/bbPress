@@ -38,6 +38,37 @@ function bbp_get_post_types( $args = array() ) {
 }
 
 /**
+ * Exclude bbPress content from WordPress public author discovery.
+ *
+ * WordPress counts published posts without checking their forum visibility.
+ * A published topic or reply may belong to a private or hidden forum.
+ *
+ * @since 2.6.19 bbPress (r7709)
+ *
+ * @param array                $args    User query arguments.
+ * @param WP_REST_Request|null $request Optional REST request.
+ * @return array Filtered user query arguments.
+ */
+function bbp_exclude_forum_posts_from_user_query( $args, $request = null ) {
+	if ( $request instanceof WP_REST_Request && current_user_can( 'list_users' ) ) {
+		return $args;
+	}
+
+	if ( empty( $args['has_published_posts'] ) || ! is_array( $args['has_published_posts'] ) ) {
+		return $args;
+	}
+
+	$args['has_published_posts'] = array_values( array_diff( $args['has_published_posts'], bbp_get_post_types() ) );
+
+	// An empty post-type list would otherwise remove the author restriction.
+	if ( empty( $args['has_published_posts'] ) ) {
+		$args['include'] = array( 0 );
+	}
+
+	return $args;
+}
+
+/**
  * Exclude replies in non-public topics from public bbPress queries.
  *
  * The query flag scopes this SQL clause to listings that expose replies

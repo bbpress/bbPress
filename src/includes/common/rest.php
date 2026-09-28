@@ -11,6 +11,49 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Check single-user REST reads against non-forum published posts.
+ *
+ * WordPress counts all published REST post types without checking whether
+ * bbPress topics and replies belong to restricted forums.
+ *
+ * @since 2.6.19 bbPress (r7709)
+ *
+ * @param mixed           $response Current REST response.
+ * @param array           $handler  Matched route handler.
+ * @param WP_REST_Request $request  REST request.
+ * @return mixed REST response or error.
+ */
+function bbp_filter_rest_user_discovery( $response, $handler, $request ) {
+	$callback = isset( $handler['callback'] ) ? $handler['callback'] : null;
+
+	if ( null !== $response || ! is_array( $callback ) || ! isset( $callback[0], $callback[1] ) ) {
+		return $response;
+	}
+
+	if ( ! $callback[0] instanceof WP_REST_Users_Controller || 'get_item' !== $callback[1] || ! in_array( $request->get_method(), array( 'GET', 'HEAD' ), true ) ) {
+		return $response;
+	}
+
+	$user_id = (int) $request->get_param( 'id' );
+
+	if ( $user_id <= 0 || get_current_user_id() === $user_id || current_user_can( 'list_users' ) || current_user_can( 'edit_user', $user_id ) ) {
+		return $response;
+	}
+
+	$post_types = array_values( array_diff( get_post_types( array( 'show_in_rest' => true ), 'names' ), bbp_get_post_types() ) );
+
+	if ( ! empty( $post_types ) && count_user_posts( $user_id, $post_types ) ) {
+		return $response;
+	}
+
+	return new WP_Error(
+		'rest_user_cannot_view',
+		esc_html__( 'Sorry, you are not allowed to list users.', 'bbpress' ),
+		array( 'status' => rest_authorization_required_code() )
+	);
+}
+
+/**
  * REST API controller for bbPress post types.
  *
  * @since 2.7.0 bbPress (r7481)
