@@ -2945,8 +2945,16 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		// Get any existing meta queries
 		$meta_query   = (array) $posts_query->get( 'meta_query', array() );
 
-		// Add our meta query to existing
-		$meta_query[] = $forum_meta_query;
+		// Keep the exclusion required when existing clauses use OR
+		if ( isset( $meta_query['relation'] ) && ( 'OR' === strtoupper( $meta_query['relation'] ) ) ) {
+			$meta_query = array(
+				'relation' => 'AND',
+				$meta_query,
+				$forum_meta_query
+			);
+		} else {
+			$meta_query[] = $forum_meta_query;
+		}
 
 		// Set the new meta_query val
 		$posts_query->set( 'meta_query', $meta_query );

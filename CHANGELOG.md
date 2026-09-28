@@ -47,6 +47,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept forum exclusions active in topic and reply queries using OR metadata conditions.
 - Corrected topic edit-lock owner detection.
 - Stopped prefilling login password fields from request data.
 - Derived subscription email addresses from the configured site host.
