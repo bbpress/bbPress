@@ -38,6 +38,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Limited super moderator profile edits to site members and protected peer
+  forum roles.
 - Checked destinations when topics and replies are moved in administration.
 - Checked each target and assignable role in bulk forum role changes, while
   allowing site administrators to assign staff roles.

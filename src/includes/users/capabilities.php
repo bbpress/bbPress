@@ -13,6 +13,7 @@
  * Maps primary capabilities.
  *
  * @since 2.2.0 bbPress (r4244)
+ * @since 2.6.19 bbPress (r7689) Limit super moderator edits to site members and protect peer roles.
  *
  * @param array  $caps Capabilities for meta capability.
  * @param string $cap Capability name.
@@ -128,11 +129,13 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 				// Users can always edit themselves, so only map for others.
 				if ( ! empty( $_user_id ) && ( $_user_id !== $user_id ) ) {
 
-					// Super moderators cannot edit keymasters or site administrators.
+					// Limit edits to site members and protect staff roles from peers.
 					if (
-						! bbp_is_user_keymaster( $_user_id )
+						( ! is_multisite() || is_user_member_of_blog( $_user_id ) )
+						&& ! bbp_is_user_keymaster( $_user_id )
 						&& ! user_can( $_user_id, 'manage_options' )
 						&& ! is_super_admin( $_user_id )
+						&& ( ( 'edit_user' === $cap ) || ! user_can( $_user_id, 'moderate' ) )
 					) {
 						$caps = array( 'moderate' );
 					}

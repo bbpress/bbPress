@@ -82,6 +82,47 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertFalse( current_user_can( 'promote_user', $target_id ) );
 	}
 
+	public function test_super_moderator_cannot_demote_another_moderator() {
+		$moderator_id = $this->factory->user->create();
+		$target_id    = $this->factory->user->create();
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $target_id, bbp_get_moderator_role() );
+		update_option( '_bbp_allow_super_mods', 1 );
+		wp_set_current_user( $moderator_id );
+		$this->set_profile_editor( $target_id );
+		$this->set_profile_request( $target_id, bbp_get_participant_role() );
+
+		$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
+		$this->assertFalse( current_user_can( 'promote_user', $target_id ) );
+		bbp_profile_update_role( $target_id );
+		$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $target_id ) );
+	}
+
+	public function test_super_moderator_cannot_edit_user_outside_current_site() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Current-site membership requires multisite.' );
+		}
+
+		$moderator_id = $this->factory->user->create();
+		$target_id    = $this->factory->user->create();
+		$site_id      = get_current_blog_id();
+		$other_site   = $this->factory->blog->create();
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		add_user_to_blog( $other_site, $target_id, 'administrator' );
+		update_option( '_bbp_allow_super_mods', 1 );
+		wp_set_current_user( $moderator_id );
+		$this->set_profile_editor( $target_id );
+
+		$this->assertTrue( current_user_can( 'edit_user', $target_id ) );
+		remove_user_from_blog( $target_id, $site_id );
+		$this->assertFalse( is_user_member_of_blog( $target_id, $site_id ) );
+		$this->assertTrue( is_user_member_of_blog( $target_id, $other_site ) );
+		$this->assertFalse( current_user_can( 'edit_user', $target_id ) );
+		$this->assertFalse( current_user_can( 'promote_user', $target_id ) );
+	}
+
 	public function test_super_moderator_capabilities_apply_on_profile_views() {
 		$moderator_id = $this->factory->user->create();
 		$keymaster_id = $this->factory->user->create();
