@@ -38,6 +38,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Limited block editor topic-tag choices to public discussions in accessible forums.
 - Tightened forum and BuddyPress group topic visibility checks.
 - Excluded restricted forums from explicit forum ID queries.
 - Limited super moderator profile edits to site members and protected peer

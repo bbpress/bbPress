@@ -312,18 +312,24 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 					return $return;
 
 				case 'topic_tags':
-					$terms = get_terms(
-						array(
-							'taxonomy'   => bbp_get_topic_tag_tax_id(),
-							'hide_empty' => false,
-						)
-					);
-
-					$return = array(
+					$term_ids = self::get_visible_topic_tag_ids();
+					$return   = array(
 						array(
 							'value' => 0,
 							'label' => __( 'Select a Topic Tag', 'bbpress' ),
 						),
+					);
+
+					if ( empty( $term_ids ) ) {
+						return $return;
+					}
+
+					$terms = get_terms(
+						array(
+							'taxonomy'   => bbp_get_topic_tag_tax_id(),
+							'include'    => $term_ids,
+							'hide_empty' => false,
+						)
 					);
 
 					if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
@@ -340,6 +346,54 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 				default:
 					return null;
 			}
+		}
+
+		/**
+		 * Get IDs of topic tags attached to public topics in accessible forums.
+		 *
+		 * Query terms directly to avoid loading every topic into the block editor.
+		 *
+		 * @since 2.7.0 bbPress (r7695)
+		 * @todo Explore WP_Term_Query with terms_clauses after requiring
+		 *       WordPress 6.4. Use cache_results=false until updates to
+		 *       _bbp_forum_id invalidate the term query cache.
+		 *
+		 * @return int[] Visible topic tag IDs.
+		 */
+		private static function get_visible_topic_tag_ids() {
+			$statuses = bbp_get_public_topic_statuses();
+			if ( empty( $statuses ) ) {
+				return array();
+			}
+
+			$bbp_db       = bbp_db();
+			$forum_ids    = wp_parse_id_list( bbp_get_excluded_forum_ids() );
+			$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+			$values       = array_merge( array( bbp_get_topic_tag_tax_id(), bbp_get_topic_post_type() ), $statuses );
+			$query        = "SELECT DISTINCT tt.term_id
+				FROM {$bbp_db->term_taxonomy} AS tt
+				INNER JOIN {$bbp_db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				INNER JOIN {$bbp_db->posts} AS p ON p.ID = tr.object_id
+				WHERE tt.taxonomy = %s AND p.post_type = %s AND p.post_status IN ({$placeholders})";
+
+			if ( ! empty( $forum_ids ) ) {
+				$forum_placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
+				$query .= " AND p.post_parent NOT IN ({$forum_placeholders})
+					AND EXISTS (
+						SELECT 1 FROM {$bbp_db->postmeta} AS fm
+						WHERE fm.post_id = p.ID AND fm.meta_key = '_bbp_forum_id'
+					)
+					AND NOT EXISTS (
+						SELECT 1 FROM {$bbp_db->postmeta} AS excluded_fm
+						WHERE excluded_fm.post_id = p.ID AND excluded_fm.meta_key = '_bbp_forum_id'
+							AND CAST( excluded_fm.meta_value AS UNSIGNED ) IN ({$forum_placeholders})
+					)";
+				$values = array_merge( $values, $forum_ids, $forum_ids );
+			}
+
+			$term_ids = $bbp_db->get_col( $bbp_db->prepare( $query, $values ) );
+
+			return wp_parse_id_list( $term_ids );
 		}
 	}
 endif;
