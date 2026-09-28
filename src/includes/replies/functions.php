@@ -468,6 +468,9 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
+		// Validate the parent now that the new reply has a topic
+		$reply_to = bbp_validate_reply_to( $reply_to, $reply_id );
+
 		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_data['post_author'], false, $reply_to );
 
 		/** Additional Actions (After Save) ***********************************/
@@ -2580,9 +2583,10 @@ function bbp_list_replies( $args = array() ) {
 /**
  * Validate a `reply_to` field for hierarchical replies
  *
- * Checks for 2 scenarios:
+ * Checks for 3 scenarios:
  * -- The reply to ID is actually a reply
  * -- The reply to ID does not match the current reply
+ * -- The reply to ID belongs to the same topic as the current reply
  *
  * @see https://bbpress.trac.wordpress.org/ticket/2588
  * @see https://bbpress.trac.wordpress.org/ticket/2586
@@ -2602,8 +2606,16 @@ function bbp_validate_reply_to( $reply_to = 0, $reply_id = 0 ) {
 	}
 
 	// The parent reply cannot be itself
-	if ( $reply_id === $reply_to ) {
+	if ( (int) $reply_id === (int) $reply_to ) {
 		$reply_to = 0;
+	}
+
+	// The parent reply must belong to the same topic
+	if ( ! empty( $reply_id ) && ! empty( $reply_to ) ) {
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+		if ( empty( $topic_id ) || ( bbp_get_reply_topic_id( $reply_to ) !== $topic_id ) ) {
+			$reply_to = 0;
+		}
 	}
 
 	return (int) $reply_to;
