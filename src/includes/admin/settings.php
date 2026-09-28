@@ -115,7 +115,7 @@ function bbp_admin_get_settings_fields() {
 
 				// Default role setting
 				'_bbp_default_role' => array(
-					'sanitize_callback' => 'sanitize_text_field',
+					'sanitize_callback' => 'bbp_admin_sanitize_default_role',
 					'args'              => array()
 				),
 
@@ -272,7 +272,7 @@ function bbp_admin_get_settings_fields() {
 				'_bbp_theme_package_id' => array(
 					'title'             => esc_html__( 'Current Package', 'bbpress' ),
 					'callback'          => 'bbp_admin_setting_callback_subtheme_id',
-					'sanitize_callback' => 'esc_sql',
+					'sanitize_callback' => 'bbp_admin_sanitize_theme_package_id',
 					'args'              => array()
 				)
 			),
@@ -611,6 +611,50 @@ function bbp_admin_get_settings_fields() {
 			)
 		)
 	);
+}
+
+/**
+ * Keep the default forum role within the roles offered by bbPress.
+ *
+ * @since 2.6.19 bbPress (r7707)
+ *
+ * @param mixed $role Submitted role ID.
+ * @return string Valid role ID.
+ */
+function bbp_admin_sanitize_default_role( $role ) {
+	$roles = bbp_get_dynamic_roles();
+
+	if ( is_string( $role ) && isset( $roles[ $role ] ) ) {
+		return $role;
+	}
+
+	$current = get_option( '_bbp_default_role', bbp_get_participant_role() );
+
+	return is_string( $current ) && isset( $roles[ $current ] )
+		? $current
+		: bbp_get_participant_role();
+}
+
+/**
+ * Keep the active theme package within the registered packages.
+ *
+ * @since 2.6.19 bbPress (r7707)
+ *
+ * @param mixed $package Submitted package ID.
+ * @return string Valid package ID.
+ */
+function bbp_admin_sanitize_theme_package_id( $package ) {
+	$packages = (array) bbpress()->theme_compat->packages;
+
+	if ( is_string( $package ) && isset( $packages[ $package ] ) ) {
+		return $package;
+	}
+
+	$current = get_option( '_bbp_theme_package_id', 'default' );
+
+	return is_string( $current ) && isset( $packages[ $current ] )
+		? $current
+		: 'default';
 }
 
 /**
