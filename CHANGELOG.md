@@ -73,6 +73,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Derived subscription email addresses from the configured site host.
 - Restored content and title filters after subscription emails, including canceled sends.
 - Restored moderator access to eligible private-topic search results and
   all-reply profile views.
