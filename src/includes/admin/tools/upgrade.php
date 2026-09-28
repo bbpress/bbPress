@@ -144,8 +144,8 @@ function bbp_admin_upgrade_page() {
 										<span class="run">
 											<a href="<?php bbp_admin_repair_tool_run_url( $item ); ?>" aria-label="<?php                                            printf(
 												/* translators: %s: Repair tool title */
-												esc_html__( 'Run %s', 'bbpress' ),
-												$item['title']
+												esc_attr__( 'Run %s', 'bbpress' ),
+												esc_attr( $item['title'] )
 											);
 											?>" id="<?php echo esc_attr( $item['id'] ); ?>" ><?php esc_html_e( 'Run', 'bbpress' ); ?></a>
 										</span>
