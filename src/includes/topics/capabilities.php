@@ -283,6 +283,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  * Maps topic tag capabilities
  *
  * @since 2.2.0 bbPress (r4244)
+ * @since 2.6.19 bbPress (r7741) Keep term IDs separate from post moderation.
  *
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
@@ -301,9 +302,8 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'assign_topic_tags' :
 
 			// Get post
-			$post_id = ! empty( $args[0] )
-				? get_post( $args[0] )->ID
-				: 0;
+			$_post   = ! empty( $args[0] ) ? get_post( $args[0] ) : null;
+			$post_id = ! empty( $_post ) ? $_post->ID : 0;
 
 			// Add 'do_not_allow' cap if user is spam or deleted
 			if ( bbp_is_user_inactive( $user_id ) ) {
@@ -373,15 +373,15 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'edit_topic_tag' :
 
 			// Get the term
-			$_tag = get_term( $args[0], bbp_get_topic_tag_tax_id() );
-			if ( ! empty( $_tag ) ) {
+			$_tag = ! empty( $args[0] ) ? get_term( $args[0], bbp_get_topic_tag_tax_id() ) : false;
+			if ( $_tag instanceof WP_Term ) {
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps = array( 'do_not_allow' );
 
 				// Moderators can always edit topic tags
-				} elseif ( user_can( $user_id, 'moderate', $_tag->term_id ) ) {
+				} elseif ( user_can( $user_id, 'moderate' ) ) {
 					$caps = array( 'spectate' );
 
 				// Fallback to edit_terms.
@@ -389,6 +389,8 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 					$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
 					$caps     = array( $taxonomy->cap->edit_terms );
 				}
+			} else {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;
@@ -407,22 +409,24 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'delete_topic_tag' :
 
 			// Get the term
-			$_tag = get_term( $args[0], bbp_get_topic_tag_tax_id() );
-			if ( ! empty( $_tag ) ) {
+			$_tag = ! empty( $args[0] ) ? get_term( $args[0], bbp_get_topic_tag_tax_id() ) : false;
+			if ( $_tag instanceof WP_Term ) {
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps = array( 'do_not_allow' );
 
 				// Moderators can always delete topic tags
-				} elseif ( user_can( $user_id, 'moderate', $_tag->term_id ) ) {
+				} elseif ( user_can( $user_id, 'moderate' ) ) {
 					$caps = array( 'spectate' );
 
 				// Fallback to delete_terms.
 				} else {
-					$taxonomy = get_taxonomy( $_tag->post_type );
+					$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
 					$caps     = array( $taxonomy->cap->delete_terms );
 				}
+			} else {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;
