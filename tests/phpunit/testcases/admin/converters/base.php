@@ -232,23 +232,69 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	public function test_converter_preserves_database_password_when_saving_options() {
 		$old_post     = $_POST;
 		$old_password = get_option( '_bbp_converter_db_pass', false );
+		$old_autoload = array_key_exists( '_bbp_converter_db_pass', wp_load_alloptions( true ) );
 		$save_options = new ReflectionMethod( 'BBP_Converter', 'maybe_update_options' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$save_options->setAccessible( true );
 		}
 
 		try {
+			delete_option( '_bbp_converter_db_pass' );
+			$_POST = array( '_bbp_converter_db_pass' => '' );
+			$save_options->invoke( new BBP_Converter() );
+			$this->assertSame( '', get_option( '_bbp_converter_db_pass' ) );
+			$this->assertArrayNotHasKey( '_bbp_converter_db_pass', wp_load_alloptions( true ) );
+
 			foreach ( array( 'spaces %20 <tag> \\ end', '0' ) as $password ) {
 				$_POST = array( '_bbp_converter_db_pass' => wp_slash( $password ) );
 				$save_options->invoke( new BBP_Converter() );
 				$this->assertSame( $password, get_option( '_bbp_converter_db_pass' ) );
+				$this->assertArrayNotHasKey( '_bbp_converter_db_pass', wp_load_alloptions( true ) );
 			}
+
+			$_POST = array( '_bbp_converter_db_pass' => '' );
+			$save_options->invoke( new BBP_Converter() );
+			$this->assertSame( '0', get_option( '_bbp_converter_db_pass' ) );
+
+			$_POST = array( '_bbp_converter_db_pass_clear' => '1' );
+			$save_options->invoke( new BBP_Converter() );
+			$this->assertSame( '', get_option( '_bbp_converter_db_pass' ) );
 		} finally {
 			$_POST = $old_post;
 			if ( false === $old_password ) {
 				delete_option( '_bbp_converter_db_pass' );
 			} else {
-				update_option( '_bbp_converter_db_pass', $old_password );
+				delete_option( '_bbp_converter_db_pass' );
+				add_option( '_bbp_converter_db_pass', $old_password, '', $old_autoload );
+			}
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter::admin_head
+	 */
+	public function test_converter_password_does_not_autoload_or_render() {
+		$old_password = get_option( '_bbp_converter_db_pass', false );
+		$old_autoload = array_key_exists( '_bbp_converter_db_pass', wp_load_alloptions( true ) );
+
+		try {
+			delete_option( '_bbp_converter_db_pass' );
+			add_option( '_bbp_converter_db_pass', 'saved secret', '', true );
+
+			if ( function_exists( 'wp_set_option_autoload_values' ) ) {
+				( new BBP_Converter() )->admin_head();
+				$this->assertArrayNotHasKey( '_bbp_converter_db_pass', wp_load_alloptions( true ) );
+			}
+
+			ob_start();
+			bbp_converter_setting_callback_dbpass();
+			$output = ob_get_clean();
+			$this->assertStringNotContainsString( 'saved secret', $output );
+			$this->assertStringContainsString( 'value=""', $output );
+		} finally {
+			delete_option( '_bbp_converter_db_pass' );
+			if ( false !== $old_password ) {
+				add_option( '_bbp_converter_db_pass', $old_password, '', $old_autoload );
 			}
 		}
 	}

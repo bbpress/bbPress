@@ -10,6 +10,7 @@ jQuery( document ).ready( function ( $ ) {
 		spinner  = $( '#bbp-converter-spinner'  ),
 		settings = $( '#bbp-converter-settings' ),
 		password = $( '#_bbp_converter_db_pass' ),
+		password_clear = $( '#_bbp_converter_db_pass_clear' ),
 		toggle   = $( '.bbp-db-pass-toggle'     ),
 		step_p   = $( '#bbp-converter-step-percentage'  ),
 		total_p  = $( '#bbp-converter-total-percentage' ),
@@ -33,6 +34,18 @@ jQuery( document ).ready( function ( $ ) {
 
 		e.preventDefault();
 	});
+
+	password.on( 'input', function() {
+		if ( password.val() ) {
+			password_clear.prop( 'checked', false );
+		}
+	} );
+
+	password_clear.on( 'change', function() {
+		if ( password_clear.prop( 'checked' ) ) {
+			password.val( '' );
+		}
+	} );
 
 	/**
 	 * Start button click
