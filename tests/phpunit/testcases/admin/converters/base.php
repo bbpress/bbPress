@@ -116,6 +116,33 @@ class BBP_Tests_Admin_Converters_Base_Source_Database {
  */
 class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	/**
+	 * @covers BBP_Converter::maybe_update_options
+	 */
+	public function test_converter_preserves_database_password_when_saving_options() {
+		$old_post     = $_POST;
+		$old_password = get_option( '_bbp_converter_db_pass', false );
+		$save_options = new ReflectionMethod( 'BBP_Converter', 'maybe_update_options' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$save_options->setAccessible( true );
+		}
+
+		try {
+			foreach ( array( 'spaces %20 <tag> \\ end', '0' ) as $password ) {
+				$_POST = array( '_bbp_converter_db_pass' => wp_slash( $password ) );
+				$save_options->invoke( new BBP_Converter() );
+				$this->assertSame( $password, get_option( '_bbp_converter_db_pass' ) );
+			}
+		} finally {
+			$_POST = $old_post;
+			if ( false === $old_password ) {
+				delete_option( '_bbp_converter_db_pass' );
+			} else {
+				update_option( '_bbp_converter_db_pass', $old_password );
+			}
+		}
+	}
+
+	/**
 	 * @covers BBP_Converter_Base::clean
 	 */
 	public function test_clean_without_sync_table_only_deletes_imported_forum_posts() {
