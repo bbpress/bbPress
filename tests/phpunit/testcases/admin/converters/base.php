@@ -116,6 +116,40 @@ class BBP_Tests_Admin_Converters_Base_Source_Database {
  */
 class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	/**
+	 * @covers BBP_Converter_Base::clean
+	 */
+	public function test_clean_without_sync_table_only_deletes_imported_forum_posts() {
+		$native_forum_id   = $this->factory->forum->create();
+		$native_topic_id   = $this->factory->topic->create( array( 'post_parent' => $native_forum_id ) );
+		$native_reply_id   = $this->factory->reply->create( array( 'post_parent' => $native_topic_id ) );
+		$import_forum_id   = $this->factory->forum->create();
+		$import_topic_id   = $this->factory->topic->create( array( 'post_parent' => $import_forum_id ) );
+		$import_reply_id   = $this->factory->reply->create( array( 'post_parent' => $import_topic_id ) );
+		$unrelated_post_id = $this->factory->post->create();
+
+		add_post_meta( $native_forum_id, '_bbp_test_native', 'yes' );
+		add_post_meta( $native_topic_id, '_bbp_test_native', 'yes' );
+		add_post_meta( $native_reply_id, '_bbp_test_native', 'yes' );
+		add_post_meta( $import_forum_id, '_bbp_old_forum_id', 11 );
+		add_post_meta( $import_topic_id, '_bbp_old_topic_id', 22 );
+		add_post_meta( $import_reply_id, '_bbp_old_reply_id', 33 );
+		add_post_meta( $unrelated_post_id, '_bbp_old_topic_id', 44 );
+
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$converter->sync_table = false;
+
+		$this->assertFalse( $converter->clean() );
+		$this->assertNull( get_post( $import_forum_id ) );
+		$this->assertNull( get_post( $import_topic_id ) );
+		$this->assertNull( get_post( $import_reply_id ) );
+		$this->assertNotNull( get_post( $native_forum_id ) );
+		$this->assertNotNull( get_post( $native_topic_id ) );
+		$this->assertNotNull( get_post( $native_reply_id ) );
+		$this->assertNotNull( get_post( $unrelated_post_id ) );
+		$this->assertTrue( $converter->clean() );
+	}
+
+	/**
 	 * @covers BBP_Converter_Base::convert_table
 	 */
 	public function test_imported_topic_without_account_import_has_anonymous_author() {
