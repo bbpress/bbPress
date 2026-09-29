@@ -372,8 +372,8 @@ class BBP_Converter {
 				: '',
 
 			// DB Password
-			'_bbp_converter_db_pass' => ! empty( $_POST['_bbp_converter_db_pass'] )
-				? sanitize_text_field( $_POST['_bbp_converter_db_pass'] )
+			'_bbp_converter_db_pass' => isset( $_POST['_bbp_converter_db_pass'] ) && is_string( $_POST['_bbp_converter_db_pass'] )
+				? wp_unslash( $_POST['_bbp_converter_db_pass'] )
 				: '',
 
 			// DB Name
