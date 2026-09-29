@@ -70,6 +70,145 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		return $did_redirect;
 	}
 
+	protected function submit_topic_merge( $source_topic_id, $destination_topic_id = null ) {
+		$home_url             = wp_parse_url( home_url( '/' ) );
+		$_SERVER['HTTP_HOST'] = $home_url['host'];
+
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		$_POST['bbp_topic_id']  = $source_topic_id;
+		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bbp-merge-topic_' . $source_topic_id );
+
+		if ( null !== $destination_topic_id ) {
+			$_POST['bbp_destination_topic'] = $destination_topic_id;
+		} else {
+			unset( $_POST['bbp_destination_topic'] );
+		}
+
+		$did_redirect     = false;
+		$prevent_redirect = function() use ( &$did_redirect ) {
+			$did_redirect = true;
+			throw new RuntimeException( 'Topic merge redirect.' );
+		};
+
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			bbp_merge_topic_handler( 'bbp-merge-topic' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'Topic merge redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+		}
+
+		remove_filter( 'wp_redirect', $prevent_redirect );
+
+		return $did_redirect;
+	}
+
+	/**
+	 * @covers ::bbp_merge_topic_handler
+	 */
+	public function test_moderator_cannot_merge_topic_into_itself() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$did_run  = false;
+		$callback = function() use ( &$did_run ) {
+			$did_run = true;
+			throw new RuntimeException( 'Unexpected topic merge.' );
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		add_action( 'bbp_merge_topic', $callback, 1 );
+
+		try {
+			$did_redirect = $this->submit_topic_merge( $topic_id, $topic_id );
+		} finally {
+			remove_action( 'bbp_merge_topic', $callback, 1 );
+		}
+
+		$this->assertContains( 'bbp_merge_topic_destination_same', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( $did_run );
+		$this->assertFalse( $did_redirect );
+		$this->assertSame( bbp_get_topic_post_type(), get_post_type( $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_merge_topic_handler
+	 */
+	public function test_moderator_cannot_merge_without_destination_topic() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$warnings = array();
+		set_error_handler( function( $severity, $message ) use ( &$warnings ) {
+			if ( E_WARNING === $severity ) {
+				$warnings[] = $message;
+				return true;
+			}
+			return false;
+		} );
+
+		try {
+			$did_redirect = $this->submit_topic_merge( $topic_id );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertContains( 'bbp_merge_topic_destination_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( array(), $warnings );
+		$this->assertFalse( $did_redirect );
+		$this->assertSame( bbp_get_topic_post_type(), get_post_type( $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_merge_topic_handler
+	 */
+	public function test_moderator_can_merge_into_another_topic() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$did_redirect = $this->submit_topic_merge( $source_topic_id, $destination_topic_id );
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertSame( bbp_get_reply_post_type(), get_post_type( $source_topic_id ) );
+		$this->assertSame( $destination_topic_id, wp_get_post_parent_id( $source_topic_id ) );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_merge_topic_handler
+	 */
+	public function test_missing_merge_topics_collect_both_errors() {
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$did_redirect = $this->submit_topic_merge( 999999 );
+
+		$this->assertContains( 'bbp_merge_topic_source_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertContains( 'bbp_merge_topic_destination_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( $did_redirect );
+	}
+
 	/**
 	 * @covers ::bbp_split_topic_handler
 	 */
@@ -254,5 +393,123 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
 		$this->assertSame( $source_topic_id, bbp_get_reply_topic_id( $reply_id ) );
 		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_split_topic_handler
+	 */
+	public function test_moderator_cannot_split_reply_into_its_own_topic() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$did_run  = false;
+		$callback = function() use ( &$did_run ) {
+			$did_run = true;
+			throw new RuntimeException( 'Unexpected topic split.' );
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$_POST['bbp_destination_topic'] = $topic_id;
+		add_action( 'bbp_pre_split_topic', $callback, 1 );
+
+		try {
+			$did_redirect = $this->submit_topic_split( $reply_id, $topic_id, 'existing' );
+		} finally {
+			remove_action( 'bbp_pre_split_topic', $callback, 1 );
+		}
+
+		$this->assertContains( 'bbp_split_topic_destination_same', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( $did_run );
+		$this->assertFalse( $did_redirect );
+		$this->assertSame( $topic_id, wp_get_post_parent_id( $reply_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_split_topic_handler
+	 */
+	public function test_moderator_cannot_split_reply_without_destination_topic() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		unset( $_POST['bbp_destination_topic'] );
+		$warnings = array();
+		set_error_handler( function( $severity, $message ) use ( &$warnings ) {
+			if ( E_WARNING === $severity ) {
+				$warnings[] = $message;
+				return true;
+			}
+			return false;
+		} );
+
+		try {
+			$did_redirect = $this->submit_topic_split( $reply_id, $topic_id, 'existing' );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertContains( 'bbp_split_topic_destination_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( array(), $warnings );
+		$this->assertFalse( $did_redirect );
+		$this->assertSame( $topic_id, wp_get_post_parent_id( $reply_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_split_topic_handler
+	 */
+	public function test_moderator_cannot_split_missing_reply() {
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$warnings = array();
+		set_error_handler( function( $severity, $message ) use ( &$warnings ) {
+			if ( E_WARNING === $severity ) {
+				$warnings[] = $message;
+				return true;
+			}
+			return false;
+		} );
+
+		try {
+			$did_redirect = $this->submit_topic_split( 999999, 0, 'existing' );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertContains( 'bbp_split_topic_r_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertContains( 'bbp_split_topic_destination_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( array(), $warnings );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_split_topic_handler
+	 */
+	public function test_moderator_can_split_reply_into_another_topic() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$_POST['bbp_destination_topic'] = $destination_topic_id;
+
+		$did_redirect = $this->submit_topic_split( $reply_id, $source_topic_id, 'existing' );
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertSame( $destination_topic_id, wp_get_post_parent_id( $reply_id ) );
+		$this->assertTrue( $did_redirect );
 	}
 }
