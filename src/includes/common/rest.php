@@ -349,21 +349,25 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			return false;
 		}
 
-		$can_read = parent::check_read_permission( $post );
-		$user_id  = bbp_get_current_user_id();
+		$can_read           = parent::check_read_permission( $post );
+		$user_id            = bbp_get_current_user_id();
+		$password_parent_id = 0;
 
 		// Get the forum ID for this post
 		switch ( $post->post_type ) {
 			case bbp_get_forum_post_type() :
-				$forum_id = $post->ID;
+				$forum_id          = $post->ID;
+				$password_parent_id = bbp_get_forum_parent_id( $post->ID );
 				break;
 
 			case bbp_get_topic_post_type() :
-				$forum_id = bbp_get_topic_forum_id( $post->ID );
+				$forum_id          = bbp_get_topic_forum_id( $post->ID );
+				$password_parent_id = $forum_id;
 				break;
 
 			case bbp_get_reply_post_type() :
-				$forum_id = bbp_get_reply_forum_id( $post->ID );
+				$forum_id          = bbp_get_reply_forum_id( $post->ID );
+				$password_parent_id = bbp_get_reply_topic_id( $post->ID );
 				break;
 
 			default :
@@ -385,6 +389,12 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		}
 
 		if ( bbp_is_forum_restricted_for_user( $forum_id, $user_id ) ) {
+			return false;
+		}
+
+		// WordPress checks only the requested object's password. bbPress forum
+		// content also inherits password requirements from its parents.
+		if ( ! empty( $password_parent_id ) && bbp_get_password_required_id( $password_parent_id ) ) {
 			return false;
 		}
 
@@ -429,6 +439,10 @@ class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
 			$types  = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 
 			if ( ! empty( $parent ) && in_array( $parent->post_type, $types, true ) ) {
+				if ( bbp_get_password_required_id( $parent->ID ) ) {
+					return false;
+				}
+
 				$controller = new BBP_REST_Posts_Controller( $parent->post_type );
 
 				return $controller->check_read_permission( $parent );

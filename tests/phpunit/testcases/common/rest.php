@@ -189,6 +189,82 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Public forum content inherits a password from its forum ancestors.
+	 *
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 * @covers BBP_REST_Attachments_Controller::check_read_permission
+	 */
+	public function test_rest_requires_ancestor_forum_password() {
+		$parent_id = $this->factory->forum->create(
+			array(
+				'post_password' => 'parent-secret',
+			)
+		);
+		$posts     = $this->create_forum_content( bbp_get_public_status_id(), $parent_id );
+		$media_ids = array();
+
+		foreach ( $posts as $post_id ) {
+			$media_ids[] = $this->create_attachment( $post_id );
+		}
+
+		$this->assert_item_status( 401, $posts );
+		foreach ( $media_ids as $media_id ) {
+			$this->assertSame( 401, $this->get_item( 'media', $media_id )->get_status() );
+		}
+
+		$this->assertNotContains( $posts['forum_id'], wp_list_pluck( $this->get_items( bbp_get_forum_post_type() )->get_data(), 'id' ) );
+		$this->assertNotContains( $posts['topic_id'], wp_list_pluck( $this->get_items( bbp_get_topic_post_type() )->get_data(), 'id' ) );
+		$this->assertNotContains( $posts['reply_id'], wp_list_pluck( $this->get_items( bbp_get_reply_post_type() )->get_data(), 'id' ) );
+		$this->assertEmpty( array_intersect( $media_ids, wp_list_pluck( $this->get_items( 'media' )->get_data(), 'id' ) ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher     = new PasswordHash( 8, true );
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'parent-secret' );
+
+		try {
+			$this->assert_item_status( 200, $posts );
+			foreach ( $media_ids as $media_id ) {
+				$this->assertSame( 200, $this->get_item( 'media', $media_id )->get_status() );
+			}
+
+			$this->assertContains( $posts['forum_id'], wp_list_pluck( $this->get_items( bbp_get_forum_post_type() )->get_data(), 'id' ) );
+			$this->assertContains( $posts['topic_id'], wp_list_pluck( $this->get_items( bbp_get_topic_post_type() )->get_data(), 'id' ) );
+			$this->assertContains( $posts['reply_id'], wp_list_pluck( $this->get_items( bbp_get_reply_post_type() )->get_data(), 'id' ) );
+			$this->assertEmpty( array_diff( $media_ids, wp_list_pluck( $this->get_items( 'media' )->get_data(), 'id' ) ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
+	 * WordPress retains responsibility for a requested object's own password.
+	 *
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 */
+	public function test_rest_preserves_core_handling_for_object_password() {
+		$posts = $this->create_forum_content();
+		wp_update_post(
+			array(
+				'ID'            => $posts['topic_id'],
+				'post_password' => 'topic-secret',
+			)
+		);
+
+		$response = $this->get_item( bbp_get_topic_post_type(), $posts['topic_id'] );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $data['content']['protected'] );
+		$this->assertSame( '', $data['content']['rendered'] );
+	}
+
+	/**
 	 * Published replies inherit the read permission of their parent topic.
 	 *
 	 * @covers BBP_REST_Posts_Controller::check_read_permission

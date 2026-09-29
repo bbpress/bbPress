@@ -192,6 +192,87 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
+	 * Check whether an activity query can contain bbPress topic or reply activity.
+	 *
+	 * @param array $args BuddyPress activity query arguments.
+	 * @return bool Whether bbPress visibility conditions may be needed.
+	 */
+	private function query_can_include_forum_activity( $args ) {
+		if ( empty( $args['filter'] ) || ! is_array( $args['filter'] ) ) {
+			return true;
+		}
+
+		$filter = $args['filter'];
+
+		if ( ! empty( $filter['action'] ) ) {
+			$actions = wp_parse_list( $filter['action'] );
+			if ( ! array_intersect( $actions, array( $this->topic_create, $this->reply_create ) ) ) {
+				return false;
+			}
+		}
+
+		if ( ! empty( $filter['object'] ) ) {
+			$objects         = wp_parse_list( $filter['object'] );
+			$group_component = bp_is_active( 'groups' ) ? buddypress()->groups->id : 'groups';
+			if ( ! array_intersect( $objects, array( $this->component, $group_component ) ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get password-protected bbPress posts that the current visitor cannot read.
+	 *
+	 * @return array[] Post IDs keyed by post type.
+	 */
+	private function get_password_restricted_post_ids() {
+		$post_types = bbp_get_post_types();
+		$post_ids   = array_fill_keys( $post_types, array() );
+		$protected  = get_posts(
+			array(
+				'has_password'          => true,
+				'no_found_rows'         => true,
+				'numberposts'           => -1,
+				'orderby'               => 'none',
+				'post_status'           => 'any',
+				'post_type'             => $post_types,
+				'suppress_filters'      => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		foreach ( $protected as $post ) {
+			if ( post_password_required( $post ) ) {
+				$post_ids[ $post->post_type ][] = (int) $post->ID;
+			}
+		}
+
+		// A password on a forum also protects every descendant forum.
+		$forum_type = bbp_get_forum_post_type();
+		$parents    = $post_ids[ $forum_type ];
+		$seen       = array_fill_keys( $parents, true );
+		$index      = 0;
+		while ( isset( $parents[ $index ] ) ) {
+			$parent_id = $parents[ $index ];
+			++$index;
+
+			foreach ( bbp_forum_query_subforum_ids( $parent_id ) as $forum_id ) {
+				$forum_id = (int) $forum_id;
+				if ( ! isset( $seen[ $forum_id ] ) ) {
+					$seen[ $forum_id ]         = true;
+					$post_ids[ $forum_type ][] = $forum_id;
+					$parents[]                  = $forum_id;
+				}
+			}
+		}
+
+		return $post_ids;
+	}
+
+	/**
 	 * Check the single-item query shape when used through bp_activity_get().
 	 *
 	 * BuddyPress REST retrieves single items through bp_activity_get_specific(),
@@ -237,6 +318,10 @@ class BBP_BuddyPress_Activity {
 			return $where_conditions;
 		}
 
+		if ( ! $this->query_can_include_forum_activity( $args ) ) {
+			return $where_conditions;
+		}
+
 		$forum_ids = array();
 		foreach ( wp_parse_id_list( bbp_get_excluded_forum_ids() ) as $forum_id ) {
 			if ( bbp_is_forum_restricted_for_user( $forum_id, get_current_user_id() ) ) {
@@ -244,15 +329,31 @@ class BBP_BuddyPress_Activity {
 			}
 		}
 
-		if ( empty( $forum_ids ) ) {
+		$password_ids = $this->get_password_restricted_post_ids();
+		$forum_ids   = wp_parse_id_list( array_merge( $forum_ids, $password_ids[ bbp_get_forum_post_type() ] ) );
+		$topic_ids   = wp_parse_id_list( $password_ids[ bbp_get_topic_post_type() ] );
+		$reply_ids   = wp_parse_id_list( $password_ids[ bbp_get_reply_post_type() ] );
+
+		if ( empty( $forum_ids ) && empty( $topic_ids ) && empty( $reply_ids ) ) {
 			return $where_conditions;
 		}
 
-		$excluded       = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
 		$group_component = bp_is_active( 'groups' ) ? buddypress()->groups->id : 'groups';
 
 		// Group activity stores the post ID in secondary_item_id instead.
-		$topic_sql = "
+		$topic_restrictions = array();
+		$topic_values       = array( $this->topic_create, $this->component, $group_component, $group_component );
+		if ( ! empty( $forum_ids ) ) {
+			$topic_restrictions[] = 'bbp_topic.post_parent IN (' . implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) ) . ')';
+			$topic_values         = array_merge( $topic_values, $forum_ids );
+		}
+		if ( ! empty( $topic_ids ) ) {
+			$topic_restrictions[] = 'bbp_topic.ID IN (' . implode( ', ', array_fill( 0, count( $topic_ids ), '%d' ) ) . ')';
+			$topic_values         = array_merge( $topic_values, $topic_ids );
+		}
+
+		if ( ! empty( $topic_restrictions ) ) {
+			$topic_sql = "
 			NOT (
 				a.type = %s
 				AND (
@@ -266,14 +367,30 @@ class BBP_BuddyPress_Activity {
 						WHEN a.component = %s THEN a.secondary_item_id
 						ELSE a.item_id
 					END
-						AND bbp_topic.post_parent IN ({$excluded})
+						AND (" . implode( ' OR ', $topic_restrictions ) . ')
 				)
-			)";
-		$topic_values = array_merge( array( $this->topic_create, $this->component, $group_component, $group_component ), $forum_ids );
-		$where_conditions['bbpress_topic_visibility'] = $wpdb->prepare( $topic_sql, $topic_values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL contains only table names and generated integer placeholders.
+			)';
+			$where_conditions['bbpress_topic_visibility'] = $wpdb->prepare( $topic_sql, $topic_values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL contains only table names and generated integer placeholders.
+		}
 
 		// Reply activity points to the reply; follow its topic to the forum.
-		$reply_sql = "
+		$reply_restrictions = array();
+		$reply_values       = array( $this->reply_create, $this->component, $group_component, $group_component );
+		if ( ! empty( $forum_ids ) ) {
+			$reply_restrictions[] = 'bbp_reply_topic.post_parent IN (' . implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) ) . ')';
+			$reply_values         = array_merge( $reply_values, $forum_ids );
+		}
+		if ( ! empty( $topic_ids ) ) {
+			$reply_restrictions[] = 'bbp_reply_topic.ID IN (' . implode( ', ', array_fill( 0, count( $topic_ids ), '%d' ) ) . ')';
+			$reply_values         = array_merge( $reply_values, $topic_ids );
+		}
+		if ( ! empty( $reply_ids ) ) {
+			$reply_restrictions[] = 'bbp_reply.ID IN (' . implode( ', ', array_fill( 0, count( $reply_ids ), '%d' ) ) . ')';
+			$reply_values         = array_merge( $reply_values, $reply_ids );
+		}
+
+		if ( ! empty( $reply_restrictions ) ) {
+			$reply_sql = "
 			NOT (
 				a.type = %s
 				AND (
@@ -289,11 +406,11 @@ class BBP_BuddyPress_Activity {
 						WHEN a.component = %s THEN a.secondary_item_id
 						ELSE a.item_id
 					END
-						AND bbp_reply_topic.post_parent IN ({$excluded})
+						AND (" . implode( ' OR ', $reply_restrictions ) . ')
 				)
-			)";
-		$reply_values = array_merge( array( $this->reply_create, $this->component, $group_component, $group_component ), $forum_ids );
-		$where_conditions['bbpress_reply_visibility'] = $wpdb->prepare( $reply_sql, $reply_values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL contains only table names and generated integer placeholders.
+			)';
+			$where_conditions['bbpress_reply_visibility'] = $wpdb->prepare( $reply_sql, $reply_values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL contains only table names and generated integer placeholders.
+		}
 
 		return $where_conditions;
 	}
@@ -324,7 +441,9 @@ class BBP_BuddyPress_Activity {
 			return $can_read;
 		}
 
-		return ! empty( $forum_id ) && ! bbp_is_forum_restricted_for_user( $forum_id, $user_id );
+		return ! empty( $forum_id )
+			&& ! bbp_is_forum_restricted_for_user( $forum_id, $user_id )
+			&& ! bbp_get_password_required_id( $post_id );
 	}
 
 	/**
