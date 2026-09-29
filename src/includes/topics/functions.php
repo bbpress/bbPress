@@ -853,7 +853,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 	if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ), true ) ) {
 
 		// What's the caps?
-		if ( current_user_can( 'moderate', $topic_id ) ) {
+		if ( current_user_can( 'moderate', $topic_id ) && ( current_user_can( 'moderate' ) || ( 'super' !== $_POST['bbp_stick_topic'] && ! bbp_is_topic_super_sticky( $topic_id ) ) ) ) {
 
 			// What's the haps?
 			switch ( $_POST['bbp_stick_topic'] ) {
@@ -2206,6 +2206,12 @@ function bbp_toggle_topic_handler( $action = '' ) {
 
 	// What is the user doing here?
 	if ( ! current_user_can( 'edit_topic', $topic_id ) || ( 'bbp_toggle_topic_trash' === $action && ! current_user_can( 'delete_topic', $topic_id ) ) || ( 'bbp_toggle_topic_trash' !== $action && ! current_user_can( 'moderate', $topic_id ) ) ) {
+		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
+		return;
+	}
+
+	// Super stickies affect every forum and require global moderation
+	if ( ( 'bbp_toggle_topic_stick' === $action ) && ! current_user_can( 'moderate' ) && ( bbp_is_topic_super_sticky( $topic_id ) || ( ! bbp_is_topic_sticky( $topic_id ) && ! empty( $_GET['super'] ) && ( '1' === $_GET['super'] ) ) ) ) {
 		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}

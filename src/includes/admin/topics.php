@@ -695,6 +695,11 @@ class BBP_Topics_Admin {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'bbpress' ) );
 		}
 
+		// Super stickies affect every forum and require global moderation
+		if ( ( 'bbp_toggle_topic_stick' === $action ) && ! current_user_can( 'moderate' ) && ( bbp_is_topic_super_sticky( $topic_id ) || ( ! bbp_is_topic_sticky( $topic_id ) && ! empty( $_GET['super'] ) && ( '1' === $_GET['super'] ) ) ) ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'bbpress' ) );
+		}
+
 		// Defaults
 		$post_data = array( 'ID' => $topic_id );
 		$message   = '';
@@ -1157,7 +1162,7 @@ class BBP_Topics_Admin {
 
 			// Sticky
 			// Dont show sticky if topic is spam, trash or pending
-			if ( ! bbp_is_topic_spam( $topic->ID ) && ! bbp_is_topic_trash( $topic->ID ) && ! bbp_is_topic_pending( $topic->ID ) ) {
+			if ( ! bbp_is_topic_spam( $topic->ID ) && ! bbp_is_topic_trash( $topic->ID ) && ! bbp_is_topic_pending( $topic->ID ) && ( ! bbp_is_topic_super_sticky( $topic->ID ) || current_user_can( 'moderate' ) ) ) {
 				$args = array(
 					'topic_id' => $topic->ID,
 					'action'   => 'bbp_toggle_topic_stick'
@@ -1166,13 +1171,16 @@ class BBP_Topics_Admin {
 				if ( bbp_is_topic_sticky( $topic->ID ) ) {
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . esc_html__( 'Unstick', 'bbpress' ) . '</a>';
 				} else {
-					$args = array(
-						'topic_id' => $topic->ID,
-						'action'   => 'bbp_toggle_topic_stick',
-						'super'    => '1'
-					);
-					$super_uri        = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
-					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . esc_html__( 'Stick', 'bbpress' ) . '</a> <a href="' . esc_url( $super_uri ) . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . esc_html__( '(to front)', 'bbpress' ) . '</a>';
+					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . esc_html__( 'Stick', 'bbpress' ) . '</a>';
+					if ( current_user_can( 'moderate' ) ) {
+						$args = array(
+							'topic_id' => $topic->ID,
+							'action'   => 'bbp_toggle_topic_stick',
+							'super'    => '1'
+						);
+						$super_uri        = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+						$actions['stick'] .= ' <a href="' . esc_url( $super_uri ) . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . esc_html__( '(to front)', 'bbpress' ) . '</a>';
+					}
 				}
 			}
 

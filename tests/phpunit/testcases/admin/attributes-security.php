@@ -34,6 +34,54 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		parent::tearDown();
 	}
 
+	/**
+	 * @covers BBP_Topics_Admin::toggle_topic
+	 * @covers BBP_Topics_Admin::row_actions
+	 */
+	public function test_forum_moderator_cannot_toggle_global_topic_stickiness() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$old_get  = $_GET;
+
+		bbp_add_moderator( $forum_id, $user_id );
+		$this->set_current_user( $user_id );
+		$this->assertTrue( current_user_can( 'moderate', $topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET = array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic_id, 'super' => '1' );
+		$admin = new BBP_Topics_Admin();
+
+		try {
+			$actions = $admin->row_actions( array(), get_post( $topic_id ) );
+			$this->assertStringNotContainsString( '(to front)', $actions['stick'] );
+			$admin->toggle_topic();
+			$this->fail( 'A forum moderator should not be able to super-stick a topic.' );
+		} catch ( WPDieException $error ) {
+			$this->assertStringContainsString( 'permission', $error->getMessage() );
+		} finally {
+			$_GET = $old_get;
+		}
+
+		$this->assertFalse( bbp_is_topic_super_sticky( $topic_id ) );
+
+		bbp_stick_topic( $topic_id, true );
+		$_GET = array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic_id );
+
+		try {
+			$actions = $admin->row_actions( array(), get_post( $topic_id ) );
+			$this->assertArrayNotHasKey( 'stick', $actions );
+			$admin->toggle_topic();
+			$this->fail( 'A forum moderator should not be able to globally unstick a topic.' );
+		} catch ( WPDieException $error ) {
+			$this->assertStringContainsString( 'permission', $error->getMessage() );
+		} finally {
+			$_GET = $old_get;
+		}
+
+		$this->assertTrue( bbp_is_topic_super_sticky( $topic_id ) );
+	}
+
 	public function test_forum_moderator_cannot_move_topic_into_category() {
 		$user_id     = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$forum_id    = $this->factory->forum->create();

@@ -2870,6 +2870,11 @@ function bbp_get_topic_stick_link( $args = array() ) {
 		return;
 	}
 
+	// Per-forum moderators cannot unstick a topic from every forum
+	if ( bbp_is_topic_super_sticky( $topic->ID ) && ! current_user_can( 'moderate' ) ) {
+		return;
+	}
+
 	$is_sticky = bbp_is_topic_sticky( $topic->ID );
 
 	$stick_uri = add_query_arg(
@@ -2885,7 +2890,7 @@ function bbp_get_topic_stick_link( $args = array() ) {
 		: $r['stick_text'];
 	$stick_display = '<a href="' . esc_url( $stick_uri ) . '" class="bbp-topic-sticky-link">' . $stick_display . '</a>';
 
-	if ( empty( $is_sticky ) ) {
+	if ( empty( $is_sticky ) && current_user_can( 'moderate' ) ) {
 		$super_uri = add_query_arg(
 			array(
 				'action'   => 'bbp_toggle_topic_stick',
@@ -3376,12 +3381,21 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
 		}
 	}
 
+	// Per-forum moderators cannot change a super sticky or make one
+	$topic_types = bbp_get_topic_types( $r['topic_id'] );
+	if ( ! current_user_can( 'moderate' ) ) {
+		if ( ! empty( $r['topic_id'] ) && bbp_is_topic_super_sticky( $r['topic_id'] ) ) {
+			return apply_filters( 'bbp_get_form_topic_type_dropdown', '', $r, $args );
+		}
+		unset( $topic_types['super'] );
+	}
+
 	// Start an output buffer, we'll finish it after the select loop
 	ob_start(); ?>
 
 	<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
-		<?php foreach ( bbp_get_topic_types( $r['topic_id'] ) as $key => $label ) : ?>
+		<?php foreach ( $topic_types as $key => $label ) : ?>
 
 			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
