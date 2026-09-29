@@ -38,10 +38,40 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Limited block editor topic-tag choices to public discussions in accessible forums.
+- Prevented users from creating or moving forums, topics, and replies into
+  parent content they cannot read.
+
+### Fixed
+
+- Cache a distinct count of current-site forum-role holders for forum statistics,
+  invalidating it when users or their capabilities change. Use the WordPress
+  installation count for large-installation upgrade decisions.
+- Show an ellipsis for long topic metadata in the default templates, revealing
+  the full text when a link receives focus.
+- Restored the Forums administration menu for moderators.
+- Used the selected WordPress Page title for topic archives.
+- Prevented duplicate forum-root breadcrumbs on archive subpages.
+- Applied filtered topic permalinks in subscriptions and topic pagination.
+- Prevented anonymous topics from incorrectly appearing empty.
+- Respected filtered Keymaster checks in administration user suggestions.
+- Scoped registered forum, topic, and reply metadata to the correct post type.
+- Counted multibyte title characters correctly and improved UTF-8 display-name
+  handling on modern WordPress and PHP versions.
+- Prevented warnings when building BuddyPress member URLs and when bbPress
+  runtime data is accessed before initialization.
+- Prevented PHP warnings when building logout URLs without expected server
+  variables.
+- Prevented PHP deprecation notices in Akismet history and reply-position
+  calculations.
+
+## 2.6.19 - 2026-09-29
+
+### Security
+
 - Respected inherited forum passwords in REST responses and BuddyPress activity.
 - Kept WordPress author discovery aligned with non-forum public posts.
 - Prevented profile saves from silently changing multisite super admin privileges.
-- Limited block editor topic-tag choices to public discussions in accessible forums.
 - Tightened forum and BuddyPress group topic visibility checks.
 - Excluded restricted forums from explicit forum ID queries.
 - Limited super moderator profile edits to site members and protected peer
@@ -67,8 +97,6 @@ Development for the next bbPress release is in progress. See the active
   reply views to content the viewer can read.
 - Excluded replies in non-public topics from search results, public profiles,
   and feeds.
-- Prevented users from creating or moving forums, topics, and replies into
-  parent content they cannot read.
 - Restricted front-end favorites and subscriptions to post objects, and checked read permissions when adding them.
 - Limited automatic forum upgrades to capable users viewing administration screens.
 
@@ -79,31 +107,12 @@ Development for the next bbPress release is in progress. See the active
 - Stopped prefilling login password fields from request data.
 - Derived subscription email addresses from the configured site host.
 - Restored content and title filters after subscription emails, including canceled sends.
+- Prevented replies from receiving a position in an unrelated topic.
 - Restored moderator access to eligible private-topic search results and
   all-reply profile views.
 - Recovered first-login password upgrades for older PHPWind imports when the
   source database remains available.
 - Corrected forum date mappings for Simple:Press 5 imports.
-- Cache a distinct count of current-site forum-role holders for forum statistics,
-  invalidating it when users or their capabilities change. Use the WordPress
-  installation count for large-installation upgrade decisions.
-- Show an ellipsis for long topic metadata in the default templates, revealing
-  the full text when a link receives focus.
-- Restored the Forums administration menu for moderators.
-- Used the selected WordPress Page title for topic archives.
-- Prevented duplicate forum-root breadcrumbs on archive subpages.
-- Applied filtered topic permalinks in subscriptions and topic pagination.
-- Prevented anonymous topics from incorrectly appearing empty.
-- Respected filtered Keymaster checks in administration user suggestions.
-- Scoped registered forum, topic, and reply metadata to the correct post type.
-- Counted multibyte title characters correctly and improved UTF-8 display-name
-  handling on modern WordPress and PHP versions.
-- Prevented warnings when building BuddyPress member URLs and when bbPress
-  runtime data is accessed before initialization.
-- Prevented PHP warnings when building logout URLs without expected server
-  variables.
-- Prevented PHP deprecation notices in Akismet history and reply-position
-  calculations.
 
 ## 2.6.18 - 2026-09-21
 

@@ -24,7 +24,7 @@
  * Requires PHP:      5.6.20
  * Requires at least: 6.0
  * Tested up to:      7.1
- * Version:           2.7.0-alpha-3
+ * Version:           2.7.0-alpha-4
  */
 
 // Exit if accessed directly

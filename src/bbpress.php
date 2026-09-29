@@ -24,7 +24,7 @@
  * Requires PHP:      7.2
  * Requires at least: 6.0
  * Tested up to:      7.1
- * Version:           2.7.0-alpha-3
+ * Version:           2.7.0-alpha-4
  */
 
 // Exit if accessed directly
@@ -238,7 +238,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.7.0-alpha-3';
+		$this->version    = '2.7.0-alpha-4';
 		$this->db_version = '264';
 
 		/** Paths *************************************************************/
