@@ -10,6 +10,7 @@
 class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 
 	protected $old_post;
+	protected $old_get;
 	protected $old_request;
 	protected $old_server;
 	protected $old_errors;
@@ -18,6 +19,7 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		parent::setUp();
 
 		$this->old_post    = $_POST;
+		$this->old_get     = $_GET;
 		$this->old_request = $_REQUEST;
 		$this->old_server  = $_SERVER;
 		$this->old_errors  = bbpress()->errors;
@@ -25,6 +27,7 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 
 	public function tearDown(): void {
 		$_POST            = $this->old_post;
+		$_GET             = $this->old_get;
 		$_REQUEST         = $this->old_request;
 		$_SERVER          = $this->old_server;
 		bbpress()->errors = $this->old_errors;
@@ -511,5 +514,75 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
 		$this->assertSame( $destination_topic_id, wp_get_post_parent_id( $reply_id ) );
 		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_update_topic
+	 * @covers ::bbp_get_topic_stick_link
+	 * @covers ::bbp_get_form_topic_type_dropdown
+	 */
+	public function test_forum_moderator_can_stick_locally_but_not_globally() {
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$local_id   = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$global_id  = $this->factory->user->create();
+
+		bbp_add_moderator( $forum_id, $local_id );
+		bbp_set_user_role( $global_id, bbp_get_moderator_role() );
+		$this->set_current_user( $local_id );
+		$this->assertTrue( current_user_can( 'moderate', $topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+
+		$_POST['bbp_stick_topic'] = 'super';
+		bbp_update_topic( $topic_id, $forum_id, array(), $local_id, true );
+		$this->assertFalse( bbp_is_topic_super_sticky( $topic_id ) );
+
+		$_POST['bbp_stick_topic'] = 'stick';
+		bbp_update_topic( $topic_id, $forum_id, array(), $local_id, true );
+		$this->assertTrue( bbp_is_topic_sticky( $topic_id, false ) );
+		$this->assertStringNotContainsString( 'bbp-topic-super-sticky-link', bbp_get_topic_stick_link( array( 'id' => $topic_id ) ) );
+		$this->assertStringNotContainsString( 'value="super"', bbp_get_form_topic_type_dropdown( array( 'topic_id' => $topic_id ) ) );
+
+		$this->set_current_user( $global_id );
+		$this->assertTrue( current_user_can( 'moderate' ) );
+		$_POST['bbp_stick_topic'] = 'super';
+		bbp_update_topic( $topic_id, $forum_id, array(), $global_id, true );
+		$this->assertTrue( bbp_is_topic_super_sticky( $topic_id ) );
+
+		$this->set_current_user( $local_id );
+		$_POST['bbp_stick_topic'] = 'unstick';
+		bbp_update_topic( $topic_id, $forum_id, array(), $local_id, true );
+		$this->assertTrue( bbp_is_topic_super_sticky( $topic_id ) );
+		$this->assertEmpty( bbp_get_topic_stick_link( array( 'id' => $topic_id ) ) );
+		$this->assertEmpty( bbp_get_form_topic_type_dropdown( array( 'topic_id' => $topic_id ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_toggle_topic_handler
+	 */
+	public function test_forum_moderator_cannot_toggle_global_stickiness() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$local_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+
+		bbp_add_moderator( $forum_id, $local_id );
+		$this->set_current_user( $local_id );
+		bbpress()->errors = new WP_Error();
+		$_GET['topic_id'] = $topic_id;
+		$_GET['super'] = '1';
+
+		bbp_toggle_topic_handler( 'bbp_toggle_topic_stick' );
+
+		$this->assertContains( 'bbp_toggle_topic_permission', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( bbp_is_topic_super_sticky( $topic_id ) );
+
+		bbp_stick_topic( $topic_id, true );
+		bbpress()->errors = new WP_Error();
+		unset( $_GET['super'] );
+
+		bbp_toggle_topic_handler( 'bbp_toggle_topic_stick' );
+
+		$this->assertContains( 'bbp_toggle_topic_permission', bbpress()->errors->get_error_codes() );
+		$this->assertTrue( bbp_is_topic_super_sticky( $topic_id ) );
 	}
 }
