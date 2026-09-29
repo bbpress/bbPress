@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Respected inherited forum passwords in REST responses and BuddyPress activity.
 - Kept WordPress author discovery aligned with non-forum public posts.
 - Prevented profile saves from silently changing multisite super admin privileges.
 - Tightened forum and BuddyPress group topic visibility checks.
