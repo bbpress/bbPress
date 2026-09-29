@@ -131,7 +131,7 @@ jQuery( document ).ready( function ( $ ) {
 
 				// Failure
 				} else {
-					bbp_converter_stop();
+					bbp_converter_stop( null, data && data.message );
 				}
 
 			} catch( e ) {

@@ -116,6 +116,117 @@ class BBP_Tests_Admin_Converters_Base_Source_Database {
  */
 class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	/**
+	 * @covers BBP_Converter::process_callback
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_invalid_source_prefix_is_rejected_before_import() {
+		defined( 'DOING_AJAX' ) || define( 'DOING_AJAX', true );
+		bbp_setup_converter();
+
+		// The admin capability mapping is unavailable in this test bootstrap.
+		remove_filter( 'map_meta_cap', 'bbp_map_meta_caps', 10 );
+		add_filter( 'map_meta_cap', function( $caps, $cap ) {
+			return 'bbp_tools_import_page' === $cap ? array( 'exist' ) : $caps;
+		}, 10, 2 );
+		add_filter( 'wp_die_ajax_handler', function() {
+			return function() {
+				throw new Exception( 'AJAX response complete' );
+			};
+		} );
+
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$this->set_current_user( $user_id );
+		$_POST = array(
+			'_bbp_converter_db_prefix' => 'wp-bb_',
+			'_ajax_nonce'             => wp_create_nonce( 'bbp_converter_process' )
+		);
+		$_REQUEST = $_POST;
+
+		ob_start();
+		try {
+			( new BBP_Converter() )->process_callback();
+			$this->fail( 'Expected an invalid prefix to be rejected.' );
+		} catch ( Exception $error ) {
+			$response = json_decode( ob_get_contents(), true );
+			$this->assertFalse( $response['success'] );
+			$this->assertSame( 'Invalid source database table prefix.', $response['data']['message'] );
+		} finally {
+			ob_end_clean();
+		}
+	}
+
+	/**
+	 * @covers ::bbp_is_valid_converter_prefix
+	 * @covers ::bbp_new_converter
+	 */
+	public function test_invalid_source_prefix_prevents_converter_loading() {
+		$old_prefix = get_option( '_bbp_converter_db_prefix', false );
+
+		$this->assertTrue( bbp_is_valid_converter_prefix( '' ) );
+		$this->assertTrue( bbp_is_valid_converter_prefix( 'wp_bb_2' ) );
+		$this->assertFalse( bbp_is_valid_converter_prefix( 'wp-bb_' ) );
+		$this->assertFalse( bbp_is_valid_converter_prefix( array( 'wp_' ) ) );
+
+		try {
+			update_option( '_bbp_converter_db_prefix', 'wp_; SELECT' );
+			$this->assertNull( bbp_new_converter( 'MyBB' ) );
+			update_option( '_bbp_converter_db_prefix', 'wp_bb_2' );
+			$this->assertInstanceOf( 'MyBB', bbp_new_converter( 'MyBB' ) );
+		} finally {
+			if ( false === $old_prefix ) {
+				delete_option( '_bbp_converter_db_prefix' );
+			} else {
+				update_option( '_bbp_converter_db_prefix', $old_prefix );
+			}
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter::setup_options
+	 * @covers BBP_Converter::maybe_update_options
+	 */
+	public function test_valid_prefix_can_replace_an_invalid_saved_prefix() {
+		$old_post     = $_POST;
+		$old_prefix   = get_option( '_bbp_converter_db_prefix', false );
+		$old_platform = get_option( '_bbp_converter_platform', false );
+		$setup        = new ReflectionMethod( 'BBP_Converter', 'setup_options' );
+		$save         = new ReflectionMethod( 'BBP_Converter', 'maybe_update_options' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$setup->setAccessible( true );
+			$save->setAccessible( true );
+		}
+
+		try {
+			update_option( '_bbp_converter_db_prefix', 'invalid-prefix' );
+			update_option( '_bbp_converter_platform', 'MyBB' );
+			$converter = new BBP_Converter();
+			$setup->invoke( $converter );
+			$this->assertNull( $converter->converter );
+
+			$_POST = array(
+				'_bbp_converter_db_prefix' => 'wp_bb_2',
+				'_bbp_converter_platform'  => 'MyBB'
+			);
+			$save->invoke( $converter );
+			$setup->invoke( $converter );
+			$this->assertInstanceOf( 'MyBB', $converter->converter );
+		} finally {
+			$_POST = $old_post;
+			if ( false === $old_prefix ) {
+				delete_option( '_bbp_converter_db_prefix' );
+			} else {
+				update_option( '_bbp_converter_db_prefix', $old_prefix );
+			}
+			if ( false === $old_platform ) {
+				delete_option( '_bbp_converter_platform' );
+			} else {
+				update_option( '_bbp_converter_platform', $old_platform );
+			}
+		}
+	}
+
+	/**
 	 * @covers BBP_Converter::maybe_update_options
 	 */
 	public function test_converter_preserves_database_password_when_saving_options() {
