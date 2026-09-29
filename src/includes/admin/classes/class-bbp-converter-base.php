@@ -937,7 +937,20 @@ abstract class BBP_Converter_Base {
 		$esc_like = $this->wpdb->esc_like( '_bbp_' ) . '%';
 		$query    = ! empty( $this->sync_table )
 			? $this->wpdb->prepare( "SELECT value_id FROM {$this->sync_table_name} INNER JOIN {$this->wpdb->posts} ON(value_id = ID) WHERE meta_key LIKE %s AND value_type = %s GROUP BY value_id ORDER BY value_id DESC LIMIT {$this->max_rows}", $esc_like, 'post' )
-			: $this->wpdb->prepare( "SELECT post_id AS value_id FROM {$this->wpdb->postmeta} WHERE meta_key LIKE %s GROUP BY post_id ORDER BY post_id DESC LIMIT {$this->max_rows}", $esc_like );
+			: $this->wpdb->prepare( "SELECT postmeta.post_id AS value_id
+				FROM {$this->wpdb->postmeta} AS postmeta
+					INNER JOIN {$this->wpdb->posts} AS posts ON ( postmeta.post_id = posts.ID )
+				WHERE ( posts.post_type = %s AND postmeta.meta_key = %s )
+					OR ( posts.post_type = %s AND postmeta.meta_key = %s )
+					OR ( posts.post_type = %s AND postmeta.meta_key = %s )
+				GROUP BY postmeta.post_id ORDER BY postmeta.post_id DESC LIMIT {$this->max_rows}",
+				bbp_get_forum_post_type(),
+				'_bbp_old_forum_id',
+				bbp_get_topic_post_type(),
+				'_bbp_old_topic_id',
+				bbp_get_reply_post_type(),
+				'_bbp_old_reply_id'
+			);
 
 		$posts = $this->get_results( $query, ARRAY_A );
 
