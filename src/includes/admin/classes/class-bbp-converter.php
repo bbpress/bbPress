@@ -133,8 +133,13 @@ class BBP_Converter {
 	 * Admin scripts
 	 *
 	 * @since 2.1.0 bbPress (r3816)
+	 * @since 2.6.19 bbPress (r7739) Stop autoloading the saved source password.
 	 */
 	public function admin_head() {
+		// WordPress 6.4+ can stop autoloading an existing option without changing it.
+		if ( function_exists( 'wp_set_option_autoload_values' ) ) {
+			wp_set_option_autoload_values( array( '_bbp_converter_db_pass' => false ) );
+		}
 
 		// Enqueue scripts
 		wp_enqueue_script( 'bbp-converter' );
@@ -320,6 +325,7 @@ class BBP_Converter {
 	 * Maybe update options
 	 *
 	 * @since 2.6.0 bbPress (r6514)
+	 * @since 2.6.19 bbPress (r7739) Keep or explicitly clear a saved source password.
 	 */
 	private function maybe_update_options() {
 
@@ -356,11 +362,6 @@ class BBP_Converter {
 				? sanitize_text_field( $_POST['_bbp_converter_db_user'] )
 				: '',
 
-			// DB Password
-			'_bbp_converter_db_pass' => isset( $_POST['_bbp_converter_db_pass'] ) && is_string( $_POST['_bbp_converter_db_pass'] )
-				? wp_unslash( $_POST['_bbp_converter_db_pass'] )
-				: '',
-
 			// DB Name
 			'_bbp_converter_db_name' => ! empty( $_POST['_bbp_converter_db_name'] )
 				? sanitize_text_field( $_POST['_bbp_converter_db_name'] )
@@ -390,6 +391,13 @@ class BBP_Converter {
 		// Update/delete options
 		foreach ( $options as $key => $value ) {
 			update_option( $key, $value );
+		}
+
+		// A blank password keeps the saved value; clearing it is explicit.
+		if ( isset( $_POST['_bbp_converter_db_pass'] ) && is_string( $_POST['_bbp_converter_db_pass'] ) && '' !== $_POST['_bbp_converter_db_pass'] ) {
+			update_option( '_bbp_converter_db_pass', wp_unslash( $_POST['_bbp_converter_db_pass'] ), false );
+		} elseif ( ! empty( $_POST['_bbp_converter_db_pass_clear'] ) || false === get_option( '_bbp_converter_db_pass', false ) ) {
+			update_option( '_bbp_converter_db_pass', '', false );
 		}
 	}
 

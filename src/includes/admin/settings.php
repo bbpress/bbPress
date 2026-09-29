@@ -1718,18 +1718,23 @@ function bbp_converter_setting_callback_dbuser() {
  * Edit Database Pass setting field
  *
  * @since 2.1.0 bbPress (r3816)
+ * @since 2.6.19 bbPress (r7739) Stop displaying the saved source password.
  */
 function bbp_converter_setting_callback_dbpass() {
 ?>
 
 	<span class="bbp-converter-db-password-wrapper">
-		<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" class="bbp-converter-db-pass code" type="password" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
+		<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" class="bbp-converter-db-pass code" type="password" value="" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
 		<button type="button" class="bbp-db-pass-toggle password">
 			<span class="screen-reader-text"><?php esc_html_e( 'Toggle', 'bbpress' ); ?></span>
 			<span class="toggle-indicator" aria-hidden="true"></span>
 		</button>
 	</span>
-	<p class="description"><?php esc_html_e( 'Password for the above database user', 'bbpress' ); ?></p>
+	<p class="description"><?php esc_html_e( 'Leave blank to keep the saved password.', 'bbpress' ); ?></p>
+	<label for="_bbp_converter_db_pass_clear">
+		<input name="_bbp_converter_db_pass_clear" id="_bbp_converter_db_pass_clear" type="checkbox" value="1" />
+		<?php esc_html_e( 'Clear the saved password to use no password.', 'bbpress' ); ?>
+	</label>
 
 <?php
 }
