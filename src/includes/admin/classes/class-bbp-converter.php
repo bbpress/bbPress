@@ -197,10 +197,24 @@ class BBP_Converter {
 
 		// Ready the converter
 		$this->check_access();
+
+		// Reject unsafe source table names before saving options or importing.
+		$db_prefix = isset( $_POST['_bbp_converter_db_prefix'] )
+			? wp_unslash( $_POST['_bbp_converter_db_prefix'] )
+			: '';
+		if ( ! bbp_is_valid_converter_prefix( $db_prefix ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Invalid source database table prefix.', 'bbpress' ) ) );
+		}
+
 		$this->maybe_set_memory();
 		$this->maybe_restart();
 		$this->setup_options();
 		$this->maybe_update_options();
+
+		// A valid submitted prefix may repair an invalid saved prefix.
+		if ( empty( $this->converter ) ) {
+			$this->setup_options();
+		}
 
 		// Bail if no converter
 		if ( ! empty( $this->converter ) ) {

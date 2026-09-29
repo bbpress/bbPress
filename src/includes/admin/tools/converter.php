@@ -55,6 +55,18 @@ function bbp_get_converters() {
 }
 
 /**
+ * Check a source database table prefix before using it in converter queries.
+ *
+ * @since 2.6.19 bbPress (r7737)
+ *
+ * @param mixed $prefix Source database table prefix.
+ * @return bool Whether the prefix contains only valid table-prefix characters.
+ */
+function bbp_is_valid_converter_prefix( $prefix ) {
+	return is_string( $prefix ) && ( 0 === preg_match( '|[^a-z0-9_]|i', $prefix ) );
+}
+
+/**
  * This is a function that is purposely written to look like a "new" statement.
  * It is basically a dynamic loader that will load in the platform conversion
  * of your choice.
@@ -72,6 +84,11 @@ function bbp_new_converter( $platform = '' ) {
 
 	// Bail if no platform
 	if ( empty( $platform ) ) {
+		return $converter;
+	}
+
+	// Never build source-table queries with an invalid saved prefix.
+	if ( ! bbp_is_valid_converter_prefix( get_option( '_bbp_converter_db_prefix', '' ) ) ) {
 		return $converter;
 	}
 
