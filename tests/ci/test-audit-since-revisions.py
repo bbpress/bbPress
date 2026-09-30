@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise safe auto-healing against a small local Git mirror fixture."""
+"""Exercise pre-commit @since revision fixes against local repositories."""
 
 import json
 import subprocess
@@ -11,49 +11,73 @@ HELPER = Path(__file__).with_name("audit-since-revisions.py")
 
 
 def run(root, *args):
-    return subprocess.run(args, cwd=root, text=True, stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE, check=True).stdout
+    return subprocess.run(
+        args, cwd=root, text=True, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, check=True,
+    ).stdout
 
 
 with tempfile.TemporaryDirectory(prefix="bbp-since-audit-") as directory:
     root = Path(directory)
-    run(root, "git", "init", "-q")
-    run(root, "git", "config", "user.name", "bbPress test")
-    run(root, "git", "config", "user.email", "test@example.invalid")
-    run(root, "git", "config", "commit.gpgsign", "false")
-    source = root / "src"
+    repository = root / "repo"
+    run(root, "svnadmin", "create", str(repository))
+    svn_url = repository.as_uri() + "/trunk"
+    run(root, "svn", "mkdir", svn_url, "-m", "Create trunk.")
+
+    mirror = root / "mirror"
+    mirror.mkdir()
+    run(mirror, "git", "init", "-q")
+    run(mirror, "git", "config", "user.name", "bbPress test")
+    run(mirror, "git", "config", "user.email", "test@example.invalid")
+    run(mirror, "git", "config", "commit.gpgsign", "false")
+    source = mirror / "src"
     source.mkdir()
     (source / "new.php").write_text("<?php\n")
-    (source / "changed.php").write_text("<?php\n * @since 2.6.0 bbPress\n")
-    (source / "dirty.php").write_text("<?php\n")
+    (source / "changed.php").write_text("<?php\n")
     (source / "plain.php").write_text("<?php\n")
-    run(root, "git", "add", "src")
-    run(root, "git", "commit", "-qm", "Initial.\n\ngit-svn-id: https://example.invalid/trunk@100 1234")
+    (source / "committed.php").write_text(
+        "<?php\n * @since 2.6.18 bbPress Existing omission.\n"
+    )
+    run(mirror, "git", "add", "src")
+    run(
+        mirror, "git", "commit", "-qm",
+        "Initial.\n\ngit-svn-id: {}@1 test".format(svn_url),
+    )
 
-    (source / "new.php").write_text("<?php\n * @since 2.6.19 bbPress Added behavior.\n")
-    (source / "changed.php").write_text("<?php\n * @since 2.6.19 bbPress\n")
-    (source / "dirty.php").write_text("<?php\n * @since 2.6.19 bbPress\n")
+    (source / "new.php").write_text(
+        "<?php\n * @since 2.6.19 bbPress Added behavior.\n"
+    )
+    (source / "changed.php").write_text(
+        "<?php\n * @since 2.6.19 bbPress\n"
+    )
     (source / "plain.php").write_text("<?php\n * @since 2.6.19\n")
-    run(root, "git", "add", "src")
-    run(root, "git", "commit", "-qm", "Update.\n\ngit-svn-id: https://example.invalid/trunk@101 1234")
-    (source / "dirty.php").write_text("<?php\n * @since 2.6.19 bbPress\n// Local edit.\n")
 
-    output = run(root, "python3", str(HELPER), "--fix", "--dry-run", "--format", "json")
-    actions = {row["path"]: row["action"] for row in json.loads(output)}
-    assert actions == {
-        "src/new.php": "would fix",
-        "src/changed.php": "skipped: annotation may have been changed or moved",
-        "src/dirty.php": "skipped: file has local changes",
-        "src/plain.php": "would fix",
-    }, actions
-    output = run(root, "python3", str(HELPER), "--fix", "--format", "json")
-    assert any(row["action"] == "fixed" for row in json.loads(output))
-    assert "@since 2.6.19 bbPress (r101) Added behavior." in (source / "new.php").read_text()
-    assert "@since 2.6.19 bbPress\n" in (source / "changed.php").read_text()
-    assert "@since 2.6.19 (r101)" in (source / "plain.php").read_text()
-    assert "@since 2.6.19 bbPress\n" in (source / "dirty.php").read_text()
+    output = run(
+        mirror, "python3", str(HELPER), "--fix", "--dry-run",
+        "--format", "json",
+    )
+    rows = json.loads(output)
+    assert {row["path"] for row in rows} == {
+        "src/new.php", "src/changed.php", "src/plain.php",
+    }, rows
+    assert all(row["target_url"] == svn_url for row in rows), rows
+    assert all(row["remote_revision"] == "1" for row in rows), rows
+    assert all(row["candidate_revision"] == "2" for row in rows), rows
+    assert all(row["action"] == "would fix" for row in rows), rows
 
-print("Safe auto-healing fixture passed.")
+    run(mirror, "python3", str(HELPER), "--fix")
+    assert "@since 2.6.19 bbPress (r2) Added behavior." in (
+        source / "new.php"
+    ).read_text()
+    assert "@since 2.6.19 bbPress (r2)" in (
+        source / "changed.php"
+    ).read_text()
+    assert "@since 2.6.19 (r2)" in (source / "plain.php").read_text()
+    assert "@since 2.6.18 bbPress Existing omission." in (
+        source / "committed.php"
+    ).read_text()
+
+print("Git pre-commit fixture passed.")
 
 with tempfile.TemporaryDirectory(prefix="bbp-since-svn-") as directory:
     root = Path(directory)
@@ -70,12 +94,19 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-svn-") as directory:
     run(checkout, "svn", "add", "src")
     run(checkout, "svn", "commit", "-m", "Add source file.")
     file.write_text("<?php\n * @since 2.6.19 bbPress Added behavior.\n")
-    run(checkout, "svn", "commit", "-m", "Add annotation.")
-    output = run(checkout, "python3", str(HELPER), "--fix", "--dry-run", "--format", "json")
+
+    output = run(
+        checkout, "python3", str(HELPER), "--fix", "--dry-run",
+        "--format", "json",
+    )
     rows = json.loads(output)
-    assert len(rows) == 1 and rows[0]["candidate_revision"] == "3", rows
+    assert len(rows) == 1, rows
+    assert rows[0]["target_url"] == url, rows
+    assert rows[0]["remote_revision"] == "2", rows
+    assert rows[0]["candidate_revision"] == "3", rows
     assert rows[0]["action"] == "would fix", rows
+
     run(checkout, "python3", str(HELPER), "--fix")
     assert "@since 2.6.19 bbPress (r3)" in file.read_text()
 
-print("Subversion revision fixture passed.")
+print("Subversion pre-commit fixture passed.")

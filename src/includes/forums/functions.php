@@ -892,7 +892,7 @@ function bbp_normalize_forum( $forum_id = 0 ) {
  * This function only synchronizes the private and hidden forum ID options. It
  * does not update the forum post status or fire any status transition actions.
  *
- * @since 2.6.19 bbPress
+ * @since 2.6.19 bbPress (r7671)
  *
  * @param int    $forum_id  Optional. Forum ID.
  * @param string $visibility Optional. Forum visibility.
@@ -946,7 +946,7 @@ function bbp_update_forum_visibility_options( $forum_id = 0, $visibility = '' ) 
 /**
  * Synchronize forum visibility options after a post status transition.
  *
- * @since 2.6.19 bbPress
+ * @since 2.6.19 bbPress (r7671)
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.

@@ -71,6 +71,10 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once bbpress()->includes_dir . 'admin/actions.php';
 
+		// WordPress may restore hooks from before the admin actions were loaded.
+		add_action( 'current_screen', 'bbp_current_screen' );
+		add_action( 'bbp_current_screen', 'bbp_setup_updater', 999 );
+
 		$this->assertFalse( has_action( 'bbp_admin_init', 'bbp_setup_updater' ) );
 		$this->assertSame( 999, has_action( 'bbp_current_screen', 'bbp_setup_updater' ) );
 
