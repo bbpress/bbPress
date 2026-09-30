@@ -70,9 +70,15 @@ Development for the next bbPress release is in progress. See the active
 ### Security
 
 - Respected inherited forum passwords in REST responses and BuddyPress activity.
+- Applied inherited forum passwords to topic feeds, excerpts, and indirect
+  forum content lookups.
+- Kept non-public forum content out of public freshness metadata.
 - Kept WordPress author discovery aligned with non-forum public posts.
 - Prevented profile saves from silently changing multisite super admin privileges.
 - Tightened forum and BuddyPress group topic visibility checks.
+- Kept private BuddyPress group forums restricted when their group associations
+  are removed.
+- Removed BuddyPress group-specific capability mapping after group display.
 - Excluded restricted forums from explicit forum ID queries.
 - Limited super moderator profile edits to site members and protected peer
   forum roles.
@@ -85,12 +91,22 @@ Development for the next bbPress release is in progress. See the active
 - Respected BuddyPress group forum restrictions in descendant queries.
 - Respected parent-forum restrictions in embedded content and feeds.
 - Prevented API edits to bbPress-maintained count and activity metadata.
+- Kept imported user creation opt-in, preserved network users during reset, and
+  sanitized converted forum markup.
+- Kept converted password hashes out of saved importer queries and protected
+  source database credentials in converter settings.
+- Used account identity for Akismet checks and omitted credential-named server
+  fields while preserving extension-provided form and server data.
+- Limited legacy password conversion to WordPress's submitted-password size
+  boundary.
 - Applied bbPress posting checks to API creation and restricted non-public
   count metadata.
 - Hardened forum content editing, profile permissions, and update actions.
 - Corrected access to forum statistics and feed output.
 - Strengthened REST API checks for topic and reply edits.
 - Tightened permissions for moderation actions and forum role assignment.
+- Limited global super stickies and topic-tag management to the appropriate
+  moderators.
 - Restricted topic merges, topic splits, and reply moves to moderators of the
   affected content.
 - Restricted single-item shortcodes, the replies widget, and BuddyPress group
@@ -99,6 +115,11 @@ Development for the next bbPress release is in progress. See the active
   and feeds.
 - Restricted front-end favorites and subscriptions to post objects, and checked read permissions when adding them.
 - Limited automatic forum upgrades to capable users viewing administration screens.
+- Escaped filtered profile and administration labels, links, and attributes,
+  and validated registered forum-role and theme-package settings.
+- Validated reply parents and topic merge and split destinations before
+  changing content.
+- Validated source database prefixes before import and legacy password checks.
 
 ### Fixed
 
@@ -113,6 +134,16 @@ Development for the next bbPress release is in progress. See the active
 - Recovered first-login password upgrades for older PHPWind imports when the
   source database remains available.
 - Corrected forum date mappings for Simple:Press 5 imports.
+- Kept converter cleanup limited to imported forum posts.
+- Preserved special characters in source database passwords saved for imports.
+- Synchronized forum visibility options after changes.
+- Corrected BuddyPress group forum associations and limited reply notifications
+  to published replies.
+
+Thanks to [thewindghost](https://hackerone.com/thewindghost),
+[ngonhuy](https://hackerone.com/ngonhuy), and
+[moltenbit](https://hackerone.com/moltenbit) for responsibly reporting issues
+addressed in this release.
 
 ## 2.6.18 - 2026-09-21
 
