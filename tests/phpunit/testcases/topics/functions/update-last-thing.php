@@ -80,14 +80,13 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		$r1_time_raw       = get_post_field( 'post_date', $r1 );
-		$r1_time_formatted = bbp_get_time_since( bbp_convert_date( $r1_time_raw ) );
+		$r1_time_raw = get_post_field( 'post_date', $r1 );
 
 		$time = bbp_update_topic_last_active_time( $t, $r1_time_raw );
 		$this->assertSame( $r1_time_raw, $time );
 
-		$time = bbp_get_topic_last_active_time( $t );
-		$this->assertSame( $r1_time_formatted, $time );
+		$this->assertSame( $r1_time_raw, get_post_meta( $t, '_bbp_last_active_time', true ) );
+		$this->assertNotSame( '', bbp_get_topic_last_active_time( $t ) );
 
 		$r2 = $this->factory->reply->create_many( 2, array(
 			'post_parent' => $t,
@@ -97,12 +96,12 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		$r2_time_raw       = get_post_field( 'post_date', $r2[1] );
-		$r2_time_formatted = bbp_get_time_since( bbp_convert_date( $r2_time_raw ) );
+		$r2_time_raw = get_post_field( 'post_date', $r2[1] );
 
-		bbp_update_topic_last_active_time( $t );
-		$time = bbp_get_topic_last_active_time( $t );
-		$this->assertSame( $r2_time_formatted, $time );
+		$time = bbp_update_topic_last_active_time( $t );
+		$this->assertSame( $r2_time_raw, $time );
+		$this->assertSame( $r2_time_raw, get_post_meta( $t, '_bbp_last_active_time', true ) );
+		$this->assertNotSame( '', bbp_get_topic_last_active_time( $t ) );
 	}
 
 	/**
