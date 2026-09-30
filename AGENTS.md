@@ -387,7 +387,10 @@ URL, checksum, test result, and manual approval.
 9. Publish the Codex version page and Releases row, bbPress.org post, Downloads
    update, and any warranted support announcement. Publication is a separate
    explicit public mutation even when drafts were prepared earlier.
-10. Confirm canonical branches/tags, Plugin SVN branches/trunk/tags, public ZIP,
+10. Publish a new release topic in the Development & Updates forum, make it
+    Super Sticky, and unstick the previous release topic if needed. Verify the
+    new topic, its links, and its Super Sticky status on the live site.
+11. Confirm canonical branches/tags, Plugin SVN branches/trunk/tags, public ZIP,
     GitHub mirror refs, and Actions. Clean temporary checkouts and credentials.
 
 Never infer that a release completed from one green surface. Source tagging,
