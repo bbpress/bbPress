@@ -93,6 +93,10 @@ Thanks to [thewindghost](https://hackerone.com/thewindghost),
 [moltenbit](https://hackerone.com/moltenbit) for responsibly reporting issues
 addressed in this release.
 
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-19/)
+
+[Release announcement](https://bbpress.org/blog/2026/09/bbpress-2-6-19-is-out/)
+
 ## 2.6.18 - 2026-09-21
 
 ### Changed
