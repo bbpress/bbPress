@@ -214,6 +214,9 @@ fail only when the workflow says so; still inspect and report their failures.
 
 Never weaken, skip, or silence a failing check merely to obtain green CI. Fix the
 cause or document the incompatibility and obtain review for a scoped adjustment.
+Any unit-test failure takes priority over release and feature work. Stop other
+work, reproduce and diagnose the failure, fix its cause, and rerun the affected
+suite and applicable matrix before resuming.
 
 ## Coding and Compatibility Guidance
 
