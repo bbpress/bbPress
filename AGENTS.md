@@ -243,9 +243,10 @@ cause or document the incompatibility and obtain review for a scoped adjustment.
   with a file in a checkout or its URL; verify that revision is the intended
   changeset. For new work, read the repository HEAD with
   `svn info --show-item revision URL` and use the next revision in the patch.
-  Verify the assigned revision after committing and correct any mismatch. Use
-  `tests/ci/audit-since-revisions.py --fix --dry-run` to find omissions, and
-  check trunk and maintenance branches separately.
+  Before committing, run `tests/ci/audit-since-revisions.py --fix --dry-run`,
+  review the remote revision and proposed edits, then run it with `--fix`.
+  Verify the assigned revision after committing and correct any mismatch. Check
+  trunk and maintenance branches separately.
 
 ## Version Metadata
 
@@ -384,10 +385,23 @@ URL, checksum, test result, and manual approval.
    its checksum and file manifest with the candidate.
 7. Verify activation and a front-end forum from the public ZIP.
 8. Confirm Translate WordPress recognizes the source and the bundled POT exists.
-9. Publish the Codex version page and Releases row, bbPress.org post, Downloads
+9. Complete the Trac administration for the release. Audit the release milestone
+   and `Awaiting Review` for tickets whose changes shipped in the release. Move
+   any such tickets into the release milestone and confirm their resolutions
+   before closing it. Move genuinely unresolved release-milestone tickets to the
+   correct future milestone. Add the released version with its release date,
+   mark the release milestone completed with that date, and create the next
+   maintenance milestone with an accurate description and due date, or
+   explicitly leave the date unset. Verify the roadmap, completed milestone,
+   and Version and Milestone fields on a new ticket, then record their URLs in
+   the release log.
+10. Publish the Codex version page and Releases row, bbPress.org post, Downloads
    update, and any warranted support announcement. Publication is a separate
    explicit public mutation even when drafts were prepared earlier.
-10. Confirm canonical branches/tags, Plugin SVN branches/trunk/tags, public ZIP,
+11. Publish a new release topic in the Development & Updates forum, make it
+    Super Sticky, and unstick the previous release topic if needed. Verify the
+    new topic, its links, and its Super Sticky status on the live site.
+12. Confirm canonical branches/tags, Plugin SVN branches/trunk/tags, public ZIP,
     GitHub mirror refs, and Actions. Clean temporary checkouts and credentials.
 
 Never infer that a release completed from one green surface. Source tagging,

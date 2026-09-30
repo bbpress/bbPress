@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Report bbPress @since annotations needing Subversion revision review.
+"""Report or fix bbPress @since annotations needing Subversion revisions.
 
-The revision is where the annotation line last changed. It is a candidate,
-not proof that the documented behavior originated in that revision.
+Fix mode is a pre-commit operation. It inspects uncommitted annotation lines,
+reads the current revision from the remote canonical Subversion URL, and uses
+the next revision in the patch. Verify the assigned revision after committing
+in case another changeset landed between the remote check and the commit.
 
-Use --min-revision with --check after a Subversion commit to catch new
-annotations before updating their revision references in a follow-up commit.
+Audit mode uses blame history to report committed annotations. Use
+--min-revision with --check after a Subversion commit to verify the result.
 """
 
 import argparse
@@ -22,10 +24,12 @@ SINCE = re.compile(r"@since\s+(\S+)")
 STANDARD_REVISION = re.compile(r"\(r\d+\)")
 ANY_REVISION = re.compile(r"\br\d+\b")
 GIT_SVN_REVISION = re.compile(r"git-svn-id:\s+\S+@(\d+)\b")
+GIT_SVN_ID = re.compile(r"git-svn-id:\s+(\S+)@(\d+)\b")
 GIT_BLAME_HEADER = re.compile(r"^([0-9a-f]{40}) \d+ (\d+)(?: \d+)?$")
+DIFF_HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 FIELDS = (
-    "path", "line", "version", "status", "candidate_revision",
-    "source_commit", "annotation", "action",
+    "path", "line", "version", "status", "target_url", "remote_revision",
+    "candidate_revision", "source_commit", "annotation", "action",
 )
 
 
@@ -112,48 +116,87 @@ def audit(root, vcs, version_filter, min_revision):
     return rows
 
 
-def latest_revision(root, vcs):
+def svn_target_url(root, vcs, override):
+    if override:
+        return override.rstrip("/")
     if vcs == "svn":
-        info = ET.fromstring(command(root, "svn", "info", "--recursive", "--xml", "."))
-        revisions = [
-            int(commit.attrib["revision"])
-            for commit in info.findall(".//commit")
-        ]
-        return str(max(revisions)) if revisions else ""
-    commit = command(root, "git", "rev-parse", "HEAD").strip()
-    return git_svn_revision(root, commit, {})
+        return command(root, "svn", "info", "--show-item", "url", ".").strip()
+    message = command(
+        root, "git", "log", "-1", "--format=%B", "--grep=git-svn-id:",
+    )
+    match = GIT_SVN_ID.search(message)
+    if not match:
+        raise RuntimeError(
+            "cannot infer the canonical Subversion URL from Git history; "
+            "pass --svn-url"
+        )
+    return match.group(1)
 
 
-def changed_lines(root, vcs, revision, path):
-    if vcs == "svn":
-        diff = command(root, "svn", "diff", "-c", revision, "--", path)
-    else:
-        diff = command(root, "git", "show", "--format=", "--unified=0", "HEAD", "--", path)
+def next_remote_revision(root, target_url):
+    current = command(
+        root, "svn", "info", "--show-item", "revision", target_url,
+    ).strip()
+    if not current.isdigit():
+        raise RuntimeError("remote Subversion revision is not numeric: {}".format(current))
+    return current, str(int(current) + 1)
+
+
+def diff_added_lines(diff):
     added = set()
-    removed_annotation = False
+    new_line = None
     for line in diff.splitlines():
-        if line.startswith("+") and not line.startswith("+++"):
-            added.add(line[1:])
-        elif line.startswith("-") and not line.startswith("---") and SINCE.search(line):
-            removed_annotation = True
-    return added, removed_annotation
+        hunk = DIFF_HUNK.match(line)
+        if hunk:
+            new_line = int(hunk.group(1))
+        elif new_line is None or line.startswith("\\"):
+            continue
+        elif line.startswith("+") and not line.startswith("+++"):
+            added.add(new_line)
+            new_line += 1
+        elif line.startswith("-") and not line.startswith("---"):
+            continue
+        else:
+            new_line += 1
+    return added
 
 
-def heal(root, vcs, rows, revision, dry_run):
+def working_added_lines(root, vcs, path):
+    if vcs == "svn":
+        status = command(root, "svn", "status", "--", path)
+        if status.startswith("?"):
+            return set(range(1, len((root / path).read_text().splitlines()) + 1))
+        diff = command(root, "svn", "diff", "--", path)
+    else:
+        status = command(root, "git", "status", "--porcelain", "--", path)
+        if status.startswith("??"):
+            return set(range(1, len((root / path).read_text().splitlines()) + 1))
+        diff = command(root, "git", "diff", "HEAD", "--unified=0", "--", path)
+    return diff_added_lines(diff)
+
+
+def precommit_rows(root, vcs, version_filter, target_url, remote_revision, candidate_revision):
+    rows = []
+    for path, file_rows in annotations(root, version_filter).items():
+        added_lines = working_added_lines(root, vcs, path)
+        for row in file_rows:
+            if row["line"] not in added_lines:
+                continue
+            row["target_url"] = target_url
+            row["remote_revision"] = remote_revision
+            row["candidate_revision"] = candidate_revision
+            row["source_commit"] = ""
+            rows.append(row)
+    return rows
+
+
+def heal(root, rows, revision, dry_run):
     for path in sorted({row["path"] for row in rows}):
         file_rows = [row for row in rows if row["path"] == path]
-        dirty = command(root, "svn", "status", "--", path) if vcs == "svn" else command(root, "git", "status", "--porcelain", "--", path)
-        if dirty:
-            for row in file_rows:
-                row["action"] = "skipped: file has local changes"
-            continue
-        added, removed_annotation = changed_lines(root, vcs, revision, path)
         lines = (root / path).read_text(encoding="utf-8").splitlines(keepends=True)
         for row in file_rows:
-            if row["status"] != "missing" or row["candidate_revision"] != revision:
-                row["action"] = "skipped: not a missing annotation from latest revision"
-            elif removed_annotation or lines[row["line"] - 1].rstrip("\r\n") not in added:
-                row["action"] = "skipped: annotation may have been changed or moved"
+            if row["status"] != "missing":
+                row["action"] = "skipped: annotation has a nonstandard revision"
             else:
                 index = row["line"] - 1
                 lines[index] = re.sub(
@@ -173,9 +216,10 @@ def main():
     parser.add_argument("--vcs", choices=("auto", "git", "svn"), default="auto")
     parser.add_argument("--version", help="only report this @since version")
     parser.add_argument("--min-revision", type=int, help="only annotations last changed at or after this revision")
+    parser.add_argument("--svn-url", help="canonical Subversion target URL for pre-commit fix mode")
     parser.add_argument("--format", choices=("csv", "json"), default="csv")
     parser.add_argument("--check", action="store_true", help="exit nonzero when the report contains any rows")
-    parser.add_argument("--fix", action="store_true", help="add revision references for annotations introduced in the latest changeset")
+    parser.add_argument("--fix", action="store_true", help="add the next remote Subversion revision to uncommitted annotations")
     parser.add_argument("--dry-run", action="store_true", help="preview --fix without writing files")
     args = parser.parse_args()
     if args.dry_run and not args.fix:
@@ -183,7 +227,9 @@ def main():
     if args.fix and args.check:
         parser.error("--fix and --check cannot be combined")
     if args.fix and args.min_revision:
-        parser.error("--fix always targets the latest changeset; omit --min-revision")
+        parser.error("--fix targets uncommitted changes; omit --min-revision")
+    if args.svn_url and not args.fix:
+        parser.error("--svn-url requires --fix")
     root = args.root.resolve()
     if not (root / "src").is_dir():
         parser.error("checkout has no src/ directory")
@@ -193,13 +239,15 @@ def main():
     if not vcs:
         parser.error("checkout must have .svn or .git metadata")
     try:
-        revision = latest_revision(root, vcs) if args.fix else ""
-        if args.fix and not revision:
-            parser.error("latest commit has no Subversion revision")
-        minimum = int(revision) if args.fix else args.min_revision
-        rows = audit(root, vcs, args.version, minimum)
         if args.fix:
-            heal(root, vcs, rows, revision, args.dry_run)
+            target_url = svn_target_url(root, vcs, args.svn_url)
+            remote_revision, revision = next_remote_revision(root, target_url)
+            rows = precommit_rows(
+                root, vcs, args.version, target_url, remote_revision, revision,
+            )
+            heal(root, rows, revision, args.dry_run)
+        else:
+            rows = audit(root, vcs, args.version, args.min_revision)
     except RuntimeError as error:
         parser.exit(1, "{}\n".format(error))
     if args.format == "json":
