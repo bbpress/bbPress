@@ -89,7 +89,7 @@ Check out the [releases page](https://codex.bbpress.org/releases/)
 
 = 2.6.19 =
 
-Strengthens forum access checks across APIs, feeds, and BuddyPress, tightens moderation and role permissions, and improves importer credential handling. No database upgrade is required.
+Strengthens forum access checks across APIs, feeds, and BuddyPress, tightens moderation and role permissions, and improves importer credential handling. The automatic database version 264 upgrade clears saved converter query SQL from older password upgrades.
 
 = 2.6.18 =
 
