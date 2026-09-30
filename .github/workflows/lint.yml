@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -27,6 +27,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Install Subversion tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends subversion
 
       - name: Test pre-commit revision fixes
         run: python3 tests/ci/test-audit-since-revisions.py
