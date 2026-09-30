@@ -8,12 +8,15 @@
 class BBP_Tests_Admin_Topic_Replies_List_Table extends BBP_UnitTestCase {
 
 	private $screen;
+	private $hook_suffix;
 	private $reply;
 
 	public function setUp(): void {
 		parent::setUp();
 
 		$this->screen = isset( $GLOBALS['current_screen'] ) ? $GLOBALS['current_screen'] : null;
+		$this->hook_suffix = isset( $GLOBALS['hook_suffix'] ) ? $GLOBALS['hook_suffix'] : null;
+		$GLOBALS['hook_suffix'] = 'edit-topic';
 		set_current_screen( 'edit-topic' );
 		require_once BBP_PLUGIN_DIR . 'includes/admin/classes/class-bbp-topic-replies-list-table.php';
 
@@ -33,6 +36,11 @@ class BBP_Tests_Admin_Topic_Replies_List_Table extends BBP_UnitTestCase {
 		remove_filter( 'bbp_get_reply_url', array( $this, 'unsafe_url' ) );
 		remove_filter( 'get_edit_post_link', array( $this, 'unsafe_url' ) );
 		$GLOBALS['current_screen'] = $this->screen;
+		if ( null === $this->hook_suffix ) {
+			unset( $GLOBALS['hook_suffix'] );
+		} else {
+			$GLOBALS['hook_suffix'] = $this->hook_suffix;
+		}
 
 		parent::tearDown();
 	}

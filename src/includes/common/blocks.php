@@ -262,13 +262,14 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		public static function get_localize_script_data( $data = '' ) {
 			switch ( $data ) {
 				case 'forums':
-					$forums = get_pages(
+					$forums = get_posts(
 						array(
-							'post_type'   => bbp_get_forum_post_type(),
-							'numberposts' => -1,
-							'post_status' => array(
-								'publish',
-								'private',
+							'post_type'      => bbp_get_forum_post_type(),
+							'posts_per_page' => -1,
+							'post_status'    => array(
+								bbp_get_public_status_id(),
+								bbp_get_private_status_id(),
+								bbp_get_hidden_status_id(),
 							),
 						)
 					);

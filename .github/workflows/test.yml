@@ -99,6 +99,18 @@ jobs:
           mkdir -p "${WP_DEVELOP_DIR}/src/wp-content/plugins"
           mv plugin-src "${WP_DEVELOP_DIR}/src/wp-content/plugins/${PLUGIN_SLUG}"
 
+      - name: Set up WordPress build tools
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: wordpress-develop/.nvmrc
+          package-manager-cache: false
+
+      - name: Build WordPress test assets
+        working-directory: ${{ env.WP_DEVELOP_DIR }}
+        run: |
+          npm ci
+          npm run build:dev
+
       - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
@@ -221,6 +233,18 @@ jobs:
         run: |
           mkdir -p "${WP_DEVELOP_DIR}/src/wp-content/plugins"
           mv plugin-src "${WP_DEVELOP_DIR}/src/wp-content/plugins/${PLUGIN_SLUG}"
+
+      - name: Set up WordPress build tools
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: wordpress-develop/.nvmrc
+          package-manager-cache: false
+
+      - name: Build WordPress test assets
+        working-directory: ${{ env.WP_DEVELOP_DIR }}
+        run: |
+          npm ci
+          npm run build:dev
 
       - name: Set up PHP 8.4
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2

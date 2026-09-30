@@ -23,7 +23,7 @@ class BBP_Tests_Users_Functions_Engagement_Permissions extends BBP_UnitTestCase 
 		$home_url          = wp_parse_url( home_url( '/' ) );
 
 		bbpress()->errors       = new WP_Error();
-		$_SERVER['HTTP_HOST']   = $home_url['host'];
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
 		$_SERVER['REQUEST_URI'] = $home_url['path'];
 	}
 

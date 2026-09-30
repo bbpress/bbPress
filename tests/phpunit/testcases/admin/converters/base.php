@@ -117,23 +117,25 @@ class BBP_Tests_Admin_Converters_Base_Source_Database {
 class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	/**
 	 * @covers BBP_Converter::process_callback
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
 	public function test_invalid_source_prefix_is_rejected_before_import() {
-		defined( 'DOING_AJAX' ) || define( 'DOING_AJAX', true );
 		bbp_setup_converter();
+		$old_post    = $_POST;
+		$old_request = $_REQUEST;
 
 		// The admin capability mapping is unavailable in this test bootstrap.
 		remove_filter( 'map_meta_cap', 'bbp_map_meta_caps', 10 );
-		add_filter( 'map_meta_cap', function( $caps, $cap ) {
+		$map_meta_cap = function( $caps, $cap ) {
 			return 'bbp_tools_import_page' === $cap ? array( 'exist' ) : $caps;
-		}, 10, 2 );
-		add_filter( 'wp_die_ajax_handler', function() {
+		};
+		$wp_die_ajax_handler = function() {
 			return function() {
 				throw new Exception( 'AJAX response complete' );
 			};
-		} );
+		};
+		add_filter( 'map_meta_cap', $map_meta_cap, 10, 2 );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
 
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$this->set_current_user( $user_id );
@@ -153,6 +155,12 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 			$this->assertSame( 'Invalid source database table prefix.', $response['data']['message'] );
 		} finally {
 			ob_end_clean();
+			$_POST    = $old_post;
+			$_REQUEST = $old_request;
+			remove_filter( 'map_meta_cap', $map_meta_cap, 10 );
+			add_filter( 'map_meta_cap', 'bbp_map_meta_caps', 10, 4 );
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
 		}
 	}
 
