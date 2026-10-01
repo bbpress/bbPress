@@ -64,25 +64,40 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_displayed_user_id
 	 * @covers ::bbp_get_displayed_user_id
-	 * @todo   Implement test_bbp_get_displayed_user_id().
 	 */
 	public function test_bbp_get_displayed_user_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+
+		try {
+			$this->assertSame( $this->keymaster_id, bbp_get_displayed_user_id() );
+			$this->expectOutputString( (string) $this->keymaster_id );
+			bbp_displayed_user_id();
+		} finally {
+			bbpress()->displayed_user = $old_displayed_user;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_displayed_user_field
 	 * @covers ::bbp_get_displayed_user_field
-	 * @todo   Implement test_bbp_get_displayed_user_field().
 	 */
 	public function test_bbp_get_displayed_user_field() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+		$old_filter              = $this->keymaster_userdata->filter;
+
+		try {
+			$expected_display_name = sanitize_user_field( 'display_name', $this->keymaster_userdata->display_name, $this->keymaster_id, 'display' );
+			$this->assertSame( $expected_display_name, bbp_get_displayed_user_field( 'display_name' ) );
+			$this->assertSame( $old_filter, $this->keymaster_userdata->filter );
+			$this->assertSame( $this->keymaster_userdata->user_email, bbp_get_displayed_user_field( 'user_email', 'raw' ) );
+			$this->assertSame( $old_filter, $this->keymaster_userdata->filter );
+			$this->expectOutputString( $expected_display_name );
+			bbp_displayed_user_field( 'display_name' );
+		} finally {
+			bbpress()->displayed_user = $old_displayed_user;
+		}
 	}
 
 	/**
@@ -334,37 +349,31 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_author_display_name
 	 * @covers ::bbp_get_author_display_name
-	 * @todo   Implement test_bbp_get_author_display_name().
 	 */
 	public function test_bbp_get_author_display_name() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '', bbp_get_author_display_name() );
+		$this->expectOutputString( '' );
+		bbp_author_display_name();
 	}
 
 	/**
 	 * @covers ::bbp_author_email
 	 * @covers ::bbp_get_author_email
-	 * @todo   Implement test_bbp_get_author_email().
 	 */
 	public function test_bbp_get_author_email() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '', bbp_get_author_email() );
+		$this->expectOutputString( '' );
+		bbp_author_email();
 	}
 
 	/**
 	 * @covers ::bbp_author_url
 	 * @covers ::bbp_get_author_url
-	 * @todo   Implement test_bbp_get_author_url().
 	 */
 	public function test_bbp_get_author_url() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '', bbp_get_author_url() );
+		$this->expectOutputString( '' );
+		bbp_author_url();
 	}
 
  	/**
@@ -414,13 +423,11 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_user_favorites_link
 	 * @covers ::bbp_get_user_favorites_link
-	 * @todo   Implement test_bbp_get_user_favorites_link().
 	 */
 	public function test_bbp_get_user_favorites_link() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertFalse( bbp_get_user_favorites_link( array( 'object_id' => 0 ) ) );
+		$this->expectOutputString( '' );
+		bbp_user_favorites_link( array( 'object_id' => 0 ) );
 	}
 
  	/**
@@ -470,46 +477,65 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_user_subscribe_link
 	 * @covers ::bbp_get_user_subscribe_link
-	 * @todo   Implement test_bbp_get_user_subscribe_link().
 	 */
 	public function test_bbp_get_user_subscribe_link() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertFalse( bbp_get_user_subscribe_link( array( 'object_id' => 0 ) ) );
+		$this->expectOutputString( '' );
+		bbp_user_subscribe_link( array( 'object_id' => 0 ) );
 	}
 
 	/**
 	 * @covers ::bbp_notice_edit_user_success
-	 * @todo   Implement test_bbp_notice_edit_user_success().
 	 */
 	public function test_bbp_notice_edit_user_success() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_notice_edit_user_success();
+		$this->assertSame( '', ob_get_clean() );
+
+		$_GET['updated'] = '1';
+		add_filter( 'bbp_is_single_user_edit', '__return_true' );
+		try {
+			ob_start();
+			bbp_notice_edit_user_success();
+			$this->assertStringContainsString( 'User updated.', ob_get_clean() );
+		} finally {
+			remove_filter( 'bbp_is_single_user_edit', '__return_true' );
+			unset( $_GET['updated'] );
+		}
 	}
 
 	/**
 	 * @covers ::bbp_notice_edit_user_pending_email
-	 * @todo   Implement test_bbp_notice_edit_user_pending_email().
 	 */
 	public function test_bbp_notice_edit_user_pending_email() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_notice_edit_user_pending_email();
+		$this->assertSame( '', ob_get_clean() );
+
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+		add_filter( 'bbp_is_user_home_edit', '__return_true' );
+		update_user_meta( $this->keymaster_id, '_new_email', array( 'newemail' => 'new@example.org' ) );
+		try {
+			ob_start();
+			bbp_notice_edit_user_pending_email();
+			$output = ob_get_clean();
+			$this->assertStringContainsString( '<code>new@example.org</code>', $output );
+			$this->assertStringContainsString( 'Cancel', $output );
+		} finally {
+			delete_user_meta( $this->keymaster_id, '_new_email' );
+			remove_filter( 'bbp_is_user_home_edit', '__return_true' );
+			bbpress()->displayed_user = $old_displayed_user;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_notice_edit_user_is_super_admin
-	 * @todo   Implement test_bbp_notice_edit_user_is_super_admin().
 	 */
 	public function test_bbp_notice_edit_user_is_super_admin() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_notice_edit_user_is_super_admin();
+		$this->assertSame( '', ob_get_clean() );
 	}
 
 	/**
@@ -537,35 +563,62 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_edit_user_blog_role
-	 * @todo   Implement test_bbp_edit_user_blog_role().
 	 */
 	public function test_bbp_edit_user_blog_role() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_edit_user_blog_role();
+		$this->assertSame( '', ob_get_clean() );
+
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+		add_filter( 'bbp_is_single_user_edit', '__return_true' );
+		try {
+			ob_start();
+			bbp_edit_user_blog_role();
+			$output = ob_get_clean();
+			$this->assertStringContainsString( '<select name="role" id="role">', $output );
+			$this->assertStringContainsString( 'value="administrator"', $output );
+		} finally {
+			remove_filter( 'bbp_is_single_user_edit', '__return_true' );
+			bbpress()->displayed_user = $old_displayed_user;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_edit_user_forums_role
-	 * @todo   Implement test_bbp_edit_user_forums_role().
 	 */
 	public function test_bbp_edit_user_forums_role() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_edit_user_forums_role();
+		$this->assertSame( '', ob_get_clean() );
+
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+		add_filter( 'bbp_is_single_user_edit', '__return_true' );
+		try {
+			ob_start();
+			bbp_edit_user_forums_role();
+			$output = ob_get_clean();
+			$this->assertStringContainsString( '<select name="bbp-forums-role" id="bbp-forums-role">', $output );
+			$this->assertStringContainsString( 'value="bbp_keymaster"', $output );
+		} finally {
+			remove_filter( 'bbp_is_single_user_edit', '__return_true' );
+			bbpress()->displayed_user = $old_displayed_user;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_edit_user_contact_methods
-	 * @todo   Implement test_bbp_edit_user_contact_methods().
 	 */
 	public function test_bbp_edit_user_contact_methods() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+
+		try {
+			$this->assertSame( wp_get_user_contact_methods( $this->keymaster_userdata ), bbp_edit_user_contact_methods() );
+		} finally {
+			bbpress()->displayed_user = $old_displayed_user;
+		}
 	}
 
 	/**
@@ -658,57 +711,68 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_login_notices
-	 * @todo   Implement test_bbp_login_notices().
 	 */
 	public function test_bbp_login_notices() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_errors       = bbpress()->errors;
+		bbpress()->errors = new WP_Error();
+
+		try {
+			bbp_login_notices();
+			$this->assertFalse( bbp_has_errors() );
+
+			$_GET['loggedout'] = 'true';
+			bbp_login_notices();
+			$this->assertSame( 'message', bbpress()->errors->get_error_data( 'loggedout' ) );
+			$this->assertSame( 'You are now logged out.', bbpress()->errors->get_error_message( 'loggedout' ) );
+		} finally {
+			unset( $_GET['loggedout'] );
+			bbpress()->errors = $old_errors;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_logged_in_redirect
-	 * @todo   Implement test_bbp_logged_in_redirect().
 	 */
 	public function test_bbp_logged_in_redirect() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->set_current_user( 0 );
+		$this->assertNull( bbp_logged_in_redirect( 'https://example.org/' ) );
 	}
 
 	/**
 	 * @covers ::bbp_user_login_fields
-	 * @todo   Implement test_bbp_user_login_fields().
 	 */
 	public function test_bbp_user_login_fields() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_user_login_fields();
+		$output = ob_get_clean();
+		$this->assertStringContainsString( 'name="user-cookie" value="1"', $output );
+		$this->assertStringContainsString( 'name="_wpnonce"', $output );
+		$this->assertStringContainsString( 'name="_wp_http_referer"', $output );
 	}
 
 	/**
 	 * @covers ::bbp_user_register_fields
-	 * @todo   Implement test_bbp_user_register_fields().
 	 */
 	public function test_bbp_user_register_fields() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_user_register_fields();
+		$output = ob_get_clean();
+		$this->assertStringContainsString( 'name="action"      value="register"', $output );
+		$this->assertStringContainsString( 'name="user-cookie" value="1"', $output );
+		$this->assertStringContainsString( 'name="_wpnonce"', $output );
+		$this->assertStringContainsString( 'checkemail=registered', $output );
 	}
 
 	/**
 	 * @covers ::bbp_user_lost_pass_fields
-	 * @todo   Implement test_bbp_user_lost_pass_fields().
 	 */
 	public function test_bbp_user_lost_pass_fields() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		ob_start();
+		bbp_user_lost_pass_fields();
+		$output = ob_get_clean();
+		$this->assertStringContainsString( 'name="user-cookie" value="1"', $output );
+		$this->assertStringContainsString( 'name="_wpnonce"', $output );
+		$this->assertStringContainsString( 'checkemail=confirm', $output );
 	}
 
 	/**
@@ -753,100 +817,99 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_user_can_view_forum
-	 * @todo   Implement test_bbp_user_can_view_forum().
 	 */
 	public function test_bbp_user_can_view_forum() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$public_id  = $this->factory->forum->create();
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$hidden_id  = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $hidden_id ) );
+
+		$participant_id = $this->factory->user->create();
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		$moderator_id = $this->factory->user->create();
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		$this->assertTrue( bbp_user_can_view_forum( array( 'user_id' => 0, 'forum_id' => $public_id ) ) );
+		$this->assertFalse( bbp_user_can_view_forum( array( 'user_id' => 0, 'forum_id' => $private_id ) ) );
+		$this->assertFalse( bbp_user_can_view_forum( array( 'user_id' => $participant_id, 'forum_id' => $hidden_id ) ) );
+		$this->assertFalse( bbp_user_can_view_forum( array( 'user_id' => 0, 'forum_id' => $child_id ) ) );
+		$this->assertTrue( bbp_user_can_view_forum( array( 'user_id' => 0, 'forum_id' => $child_id, 'check_ancestors' => false ) ) );
+		$this->assertTrue( bbp_user_can_view_forum( array( 'user_id' => $moderator_id, 'forum_id' => $private_id ) ) );
+		$this->assertTrue( bbp_user_can_view_forum( array( 'user_id' => $moderator_id, 'forum_id' => $hidden_id ) ) );
+		$this->assertTrue( bbp_user_can_view_forum( array( 'user_id' => $this->keymaster_id, 'forum_id' => $hidden_id ) ) );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_publish_forums
-	 * @todo   Implement test_bbp_current_user_can_publish_forums().
 	 */
 	public function test_bbp_current_user_can_publish_forums() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertTrue( bbp_current_user_can_publish_forums() );
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_current_user_can_publish_forums() );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_publish_topics
-	 * @todo   Implement test_bbp_current_user_can_publish_topics().
 	 */
 	public function test_bbp_current_user_can_publish_topics() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertTrue( bbp_current_user_can_publish_topics() );
+		$this->set_current_user( 0 );
+		$this->assertSame( bbp_allow_anonymous(), bbp_current_user_can_publish_topics() );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_publish_replies
-	 * @todo   Implement test_bbp_current_user_can_publish_replies().
 	 */
 	public function test_bbp_current_user_can_publish_replies() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertTrue( bbp_current_user_can_publish_replies() );
+		$this->set_current_user( 0 );
+		$this->assertSame( bbp_allow_anonymous(), bbp_current_user_can_publish_replies() );
 	}
 
 	/**
 	 * @covers ::bbp_get_forums_for_current_user
-	 * @todo   Implement test_bbp_get_forums_for_current_user().
 	 */
 	public function test_bbp_get_forums_for_current_user() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertFalse( bbp_get_forums_for_current_user() );
+		$forum_id = $this->factory->forum->create();
+		$forums   = bbp_get_forums_for_current_user();
+		$this->assertCount( 1, $forums );
+		$this->assertSame( $forum_id, $forums[0]->ID );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_access_create_forum_form
-	 * @todo   Implement test_bbp_current_user_can_access_create_forum_form().
 	 */
 	public function test_bbp_current_user_can_access_create_forum_form() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertTrue( bbp_current_user_can_access_create_forum_form() );
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_current_user_can_access_create_forum_form() );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_access_create_topic_form
-	 * @todo   Implement test_bbp_current_user_can_access_create_topic_form().
 	 */
 	public function test_bbp_current_user_can_access_create_topic_form() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertTrue( bbp_current_user_can_access_create_topic_form() );
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_current_user_can_access_create_topic_form() );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_access_create_reply_form
-	 * @todo   Implement test_bbp_current_user_can_access_create_reply_form().
 	 */
 	public function test_bbp_current_user_can_access_create_reply_form() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertTrue( bbp_current_user_can_access_create_reply_form() );
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_current_user_can_access_create_reply_form() );
 	}
 
 	/**
 	 * @covers ::bbp_current_user_can_access_anonymous_user_form
-	 * @todo   Implement test_bbp_current_user_can_access_anonymous_user_form().
 	 */
 	public function test_bbp_current_user_can_access_anonymous_user_form() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertFalse( bbp_current_user_can_access_anonymous_user_form() );
+		$this->set_current_user( 0 );
+		$this->assertSame( bbp_allow_anonymous(), bbp_current_user_can_access_anonymous_user_form() );
 	}
 }

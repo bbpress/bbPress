@@ -14,35 +14,27 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_number_format
-	 * @todo   Implement test_bbp_number_format().
 	 */
 	public function test_bbp_number_format() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '1,234', bbp_number_format( 1234 ) );
+		$this->assertSame( '1 234,50', bbp_number_format( 1234.5, 2, ',', ' ' ) );
+		$this->assertSame( '0', bbp_number_format( 'not a number' ) );
 	}
 
 	/**
 	 * @covers ::bbp_number_format_i18n
-	 * @todo   Implement test_bbp_number_format_i18n().
 	 */
 	public function test_bbp_number_format_i18n() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( number_format_i18n( 1234.5, 2 ), bbp_number_format_i18n( 1234.5, 2 ) );
+		$this->assertSame( number_format_i18n( 0 ), bbp_number_format_i18n( 'not a number' ) );
 	}
 
 	/**
 	 * @covers ::bbp_convert_date
-	 * @todo   Implement test_bbp_convert_date().
 	 */
 	public function test_bbp_convert_date() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '2020-01-02', bbp_convert_date( '2020-01-02 03:04:05', 'Y-m-d' ) );
+		$this->assertSame( mysql2date( 'U', '2020-01-02 03:04:05' ), bbp_convert_date( '2020-01-02 03:04:05' ) );
 	}
 
 	/**
@@ -561,79 +553,102 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_format_revision_reason
-	 * @todo   Implement test_bbp_format_revision_reason().
 	 */
 	public function test_bbp_format_revision_reason() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( '', bbp_format_revision_reason() );
+		$this->assertSame( 'Correct typo', bbp_format_revision_reason( '  Correct typo...  ' ) );
+		$this->assertSame( 'Correct typo', bbp_format_revision_reason( 'Correct typo...' ) );
 	}
 
 	/**
 	 * @covers ::bbp_get_redirect_to
-	 * @todo   Implement test_bbp_get_redirect_to().
 	 */
 	public function test_bbp_get_redirect_to() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_request = $_REQUEST;
+		try {
+			unset( $_REQUEST['redirect_to'] );
+			$this->assertSame( '', bbp_get_redirect_to() );
+			$_REQUEST['redirect_to'] = '/forums/';
+			$this->assertSame( '/forums/', bbp_get_redirect_to() );
+		} finally {
+			$_REQUEST = $old_request;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_add_view_all
-	 * @todo   Implement test_bbp_add_view_all().
 	 */
 	public function test_bbp_add_view_all() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$url = 'https://example.org/forums/?paged=2';
+		$this->assertSame( $url, bbp_add_view_all( $url ) );
+		$this->assertSame( 'https://example.org/forums/?paged=2&view=all', bbp_add_view_all( $url, true ) );
 	}
 
 	/**
 	 * @covers ::bbp_remove_view_all
-	 * @todo   Implement test_bbp_remove_view_all().
 	 */
 	public function test_bbp_remove_view_all() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertSame( 'https://example.org/forums/?paged=2', bbp_remove_view_all( 'https://example.org/forums/?paged=2&view=all' ) );
+		$this->assertSame( 'https://example.org/forums/', bbp_remove_view_all( 'https://example.org/forums/' ) );
 	}
 
 	/**
 	 * @covers ::bbp_get_view_all
-	 * @todo   Implement test_bbp_get_view_all().
 	 */
 	public function test_bbp_get_view_all() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_get  = $_GET;
+		$old_user = get_current_user_id();
+		try {
+			$_GET['view'] = 'all';
+			wp_set_current_user( 0 );
+			$this->assertFalse( bbp_get_view_all() );
+			$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+			bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+			wp_set_current_user( $user_id );
+			$this->assertTrue( current_user_can( 'moderate' ) );
+			$this->assertTrue( bbp_get_view_all() );
+			$_GET['view'] = 'single';
+			$this->assertFalse( bbp_get_view_all() );
+		} finally {
+			$_GET = $old_get;
+			wp_set_current_user( $old_user );
+		}
 	}
 
 	/**
 	 * @covers ::bbp_get_paged
-	 * @todo   Implement test_bbp_get_paged().
 	 */
 	public function test_bbp_get_paged() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$wp_query      = bbp_get_wp_query();
+		$old_query     = $wp_query->query;
+		$old_query_var = get_query_var( 'paged' );
+		try {
+			unset( $wp_query->query['paged'] );
+			set_query_var( 'paged', 0 );
+			$this->assertSame( 1, bbp_get_paged() );
+			$wp_query->query['paged'] = '3';
+			$this->assertSame( 3, bbp_get_paged() );
+			set_query_var( 'paged', '2' );
+			$this->assertSame( 2, bbp_get_paged() );
+		} finally {
+			$wp_query->query = $old_query;
+			set_query_var( 'paged', $old_query_var );
+		}
 	}
 
 	/**
 	 * @covers ::bbp_fix_post_author
-	 * @todo   Implement test_bbp_fix_post_author().
 	 */
 	public function test_bbp_fix_post_author() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$author_id = $this->factory->user->create();
+		$topic_id  = $this->factory->topic->create( array( 'post_author' => 0 ) );
+		$data      = array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => $author_id );
+		$this->assertSame( 0, bbp_fix_post_author( $data, array( 'ID' => $topic_id ) )['post_author'] );
+		$this->assertSame( $data, bbp_fix_post_author( $data, array() ) );
+		$authored_topic = $this->factory->topic->create( array( 'post_author' => $author_id ) );
+		$this->assertSame( $data, bbp_fix_post_author( $data, array( 'ID' => $authored_topic ) ) );
+		$non_bbp_data = array( 'post_type' => 'post', 'post_author' => $author_id );
+		$this->assertSame( $non_bbp_data, bbp_fix_post_author( $non_bbp_data, array( 'ID' => $this->factory->post->create() ) ) );
 	}
 
 	/**
@@ -780,35 +795,66 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_filter_anonymous_post_data
-	 * @todo   Implement test_bbp_filter_anonymous_post_data().
 	 */
 	public function test_bbp_filter_anonymous_post_data() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$error_messages = bbpress()->errors->get_error_messages();
+		$result = bbp_filter_anonymous_post_data( array(
+			'bbp_anonymous_name'    => 'Forum Visitor',
+			'bbp_anonymous_email'   => 'visitor@example.org',
+			'bbp_anonymous_website' => '',
+		) );
+		$this->assertSame( 'Forum Visitor', $result['bbp_anonymous_name'] );
+		$this->assertSame( 'visitor@example.org', $result['bbp_anonymous_email'] );
+		$this->assertSame( '', $result['bbp_anonymous_website'] );
+		$this->assertSame( $error_messages, bbpress()->errors->get_error_messages() );
 	}
 
 	/**
 	 * @covers ::bbp_check_for_duplicate
-	 * @todo   Implement test_bbp_check_for_duplicate().
 	 */
 	public function test_bbp_check_for_duplicate() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$author_id = $this->factory->user->create();
+		$topic_id  = $this->factory->topic->create( array(
+			'post_author'  => $author_id,
+			'post_content' => 'Duplicate topic text',
+			'post_status'  => 'publish',
+		) );
+		$post_data = array(
+			'post_author'  => $author_id,
+			'post_type'    => bbp_get_topic_post_type(),
+			'post_content' => 'Duplicate topic text',
 		);
+		$this->assertFalse( bbp_check_for_duplicate( $post_data ) );
+		$post_data['post_content'] = 'A different topic';
+		$this->assertTrue( bbp_check_for_duplicate( $post_data ) );
+		$this->assertSame( $author_id, (int) get_post_field( 'post_author', $topic_id ) );
 	}
 
 	/**
 	 * @covers ::bbp_check_for_flood
-	 * @todo   Implement test_bbp_check_for_flood().
 	 */
 	public function test_bbp_check_for_flood() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_throttle = get_option( '_bbp_throttle_time', null );
+		$key          = '_bbp_' . bbp_current_author_ip() . '_last_posted';
+		$old_posted   = get_transient( $key );
+		try {
+			update_option( '_bbp_throttle_time', 60 );
+			set_transient( $key, time() );
+			$this->assertFalse( bbp_check_for_flood( array( 'bbp_anonymous_email' => 'visitor@example.org' ) ) );
+			set_transient( $key, time() - 120 );
+			$this->assertTrue( bbp_check_for_flood( array( 'bbp_anonymous_email' => 'visitor@example.org' ) ) );
+		} finally {
+			if ( is_null( $old_throttle ) ) {
+				delete_option( '_bbp_throttle_time' );
+			} else {
+				update_option( '_bbp_throttle_time', $old_throttle );
+			}
+			if ( false === $old_posted ) {
+				delete_transient( $key );
+			} else {
+				set_transient( $key, $old_posted );
+			}
+		}
 	}
 
 	/**
@@ -1554,79 +1600,114 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_notify_subscribers
-	 * @todo   Implement test_bbp_notify_subscribers().
 	 */
 	public function test_bbp_notify_subscribers() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertFalse( bbp_notify_subscribers() );
 	}
 
 	/**
 	 * @covers ::bbp_logout_url
-	 * @todo   Implement test_bbp_logout_url().
 	 */
 	public function test_bbp_logout_url() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$url      = 'https://example.org/logout/';
+		$redirect = home_url( '/forums/' );
+		$result   = bbp_logout_url( $url, $redirect );
+		$query    = array();
+		wp_parse_str( wp_parse_url( $result, PHP_URL_QUERY ), $query );
+
+		$this->assertSame( $redirect . '?loggedout=true', $query['redirect_to'] );
+		$this->assertSame( $url . '?redirect_to=already-set', bbp_logout_url( $url . '?redirect_to=already-set', $redirect ) );
 	}
 
 	/**
 	 * @covers ::bbp_parse_args
-	 * @todo   Implement test_bbp_parse_args().
 	 */
 	public function test_bbp_parse_args() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$defaults = array( 'count' => 1, 'order' => 'ASC' );
+		$this->assertSame( array( 'count' => 2, 'order' => 'ASC' ), bbp_parse_args( array( 'count' => 2 ), $defaults ) );
+		$this->assertSame( array( 'count' => '3', 'order' => 'DESC' ), bbp_parse_args( 'count=3&order=DESC', $defaults ) );
+
+		$before = function( $args ) {
+			$args['count'] = 4;
+			return $args;
+		};
+		$after = function( $args ) {
+			$args['order'] = 'DESC';
+			return $args;
+		};
+		add_filter( 'bbp_before_common_test_parse_args', $before );
+		add_filter( 'bbp_after_common_test_parse_args', $after );
+		try {
+			$this->assertSame( array( 'count' => 4, 'order' => 'DESC' ), bbp_parse_args( array(), $defaults, 'common_test' ) );
+		} finally {
+			remove_filter( 'bbp_before_common_test_parse_args', $before );
+			remove_filter( 'bbp_after_common_test_parse_args', $after );
+		}
 	}
 
 	/**
 	 * @covers ::bbp_get_global_post_field
-	 * @todo   Implement test_bbp_get_global_post_field().
 	 */
 	public function test_bbp_get_global_post_field() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		global $post;
+		$old_post = $post;
+		$post_id  = $this->factory->post->create( array( 'post_title' => 'Global field title' ) );
+		try {
+			$post = get_post( $post_id );
+			$this->assertSame( $post_id, bbp_get_global_post_field() );
+			$this->assertSame( 'Global field title', bbp_get_global_post_field( 'post_title', 'raw' ) );
+			$this->assertSame( '', bbp_get_global_post_field( 'not_a_field' ) );
+		} finally {
+			$post = $old_post;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_verify_nonce_request
-	 * @todo   Implement test_bbp_verify_nonce_request().
 	 */
 	public function test_bbp_verify_nonce_request() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_request = $_REQUEST;
+		$action      = 'common-functions-nonce';
+		$match       = function() {
+			return home_url( '/forums/' );
+		};
+		add_filter( 'bbp_verify_nonce_request_url', $match );
+		try {
+			$_REQUEST['_wpnonce'] = wp_create_nonce( $action );
+			$this->assertNotFalse( bbp_verify_nonce_request( $action ) );
+			$this->assertFalse( bbp_verify_nonce_request( 'wrong-action' ) );
+			unset( $_REQUEST['_wpnonce'] );
+			$this->assertFalse( bbp_verify_nonce_request( $action ) );
+		} finally {
+			remove_filter( 'bbp_verify_nonce_request_url', $match );
+			$_REQUEST = $old_request;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_request_feed_trap
-	 * @todo   Implement test_bbp_request_feed_trap().
 	 */
 	public function test_bbp_request_feed_trap() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$query_vars = array( 'post_type' => bbp_get_topic_post_type(), 'paged' => 2 );
+		$this->assertSame( $query_vars, bbp_request_feed_trap( $query_vars ) );
+		$this->assertSame( array( 'feed' => 'rss2', 'post_type' => 'post' ), bbp_request_feed_trap( array( 'feed' => 'rss2', 'post_type' => 'post' ) ) );
 	}
 
 	/**
 	 * @covers ::bbp_get_page_by_path
-	 * @todo   Implement test_bbp_get_page_by_path().
 	 */
 	public function test_bbp_get_page_by_path() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		global $wp_rewrite;
+		$old_permalinks = $wp_rewrite->permalink_structure;
+		$wp_rewrite->set_permalink_structure( '/%postname%/' );
+		$slug = 'common-test-page';
+		try {
+			$this->assertFalse( bbp_get_page_by_path( $slug ) );
+			$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_name' => $slug, 'post_status' => 'publish' ) );
+			$this->assertSame( $page_id, bbp_get_page_by_path( $slug )->ID );
+		} finally {
+			$wp_rewrite->set_permalink_structure( $old_permalinks );
+		}
 	}
 
 	/**
@@ -1788,12 +1869,10 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_set_404
-	 * @todo   Implement test_bbp_set_404().
 	 */
 	public function test_bbp_set_404() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$query = new WP_Query();
+		bbp_set_404( $query );
+		$this->assertTrue( $query->is_404() );
 	}
 }

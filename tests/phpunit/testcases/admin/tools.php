@@ -29,80 +29,144 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair
-	 * @todo   Implement test_bbp_admin_repair().
+	 * @covers ::bbp_admin_repair_page
 	 */
 	public function test_bbp_admin_repair() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$original_get   = $_GET;
+		$original_tools = bbp_admin()->tools;
+		$_GET           = array( 'page' => 'bbp-repair' );
+		bbp_register_default_repair_tools();
+
+		try {
+			ob_start();
+			bbp_admin_repair_page();
+			$output = ob_get_clean();
+
+			$this->assertStringContainsString( 'name="page" value="bbp-repair"', $output );
+			$this->assertStringContainsString( 'name="checked[]"', $output );
+			$this->assertStringContainsString( 'name="_wpnonce"', $output );
+		} finally {
+			$_GET              = $original_get;
+			bbp_admin()->tools = $original_tools;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_admin_repair_handler
-	 * @todo   Implement test_bbp_admin_repair_handler().
+	 * @ticket 3695
 	 */
 	public function test_bbp_admin_repair_handler() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$original_get             = $_GET;
+		$original_method          = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$_GET                     = array( 'action' => 'not-run' );
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		try {
+			$this->assertNull( bbp_admin_repair_handler() );
+		} finally {
+			$_GET = $original_get;
+			if ( is_null( $original_method ) ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $original_method;
+			}
+		}
 	}
 
 	/**
 	 * @covers ::bbp_admin_tools_repair_help
-	 * @todo   Implement test_bbp_admin_tools_repair_help().
+	 * @ticket 3695
 	 */
 	public function test_bbp_admin_tools_repair_help() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$previous = get_current_screen();
+		set_current_screen( 'tools_page_bbp-repair' );
+
+		try {
+			bbp_admin_tools_repair_help();
+			$tabs = get_current_screen()->get_help_tabs();
+			$this->assertArrayHasKey( 'repair_forums', $tabs );
+			$this->assertStringContainsString( 'bbPress: Repair Forums', $tabs['repair_forums']['content'] );
+			$this->assertStringContainsString( 'bbPress Documentation', get_current_screen()->get_help_sidebar() );
+		} finally {
+			$GLOBALS['current_screen'] = $previous;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_admin_tools_reset_help
-	 * @todo   Implement test_bbp_admin_tools_reset_help().
+	 * @ticket 3695
 	 */
 	public function test_bbp_admin_tools_reset_help() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$previous = get_current_screen();
+		set_current_screen( 'tools_page_bbp-reset' );
+
+		try {
+			bbp_admin_tools_reset_help();
+			$tabs = get_current_screen()->get_help_tabs();
+			$this->assertArrayHasKey( 'reset_forums', $tabs );
+			$this->assertStringContainsString( 'bbPress: Reset Forums', $tabs['reset_forums']['content'] );
+		} finally {
+			$GLOBALS['current_screen'] = $previous;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_admin_tools_converter_help
-	 * @todo   Implement test_bbp_admin_tools_converter_help().
+	 * @ticket 3695
 	 */
 	public function test_bbp_admin_tools_converter_help() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$previous = get_current_screen();
+		set_current_screen( 'tools_page_bbp-converter' );
+
+		try {
+			bbp_admin_tools_converter_help();
+			$tabs = get_current_screen()->get_help_tabs();
+			$this->assertSame( array( 'overview', 'database_settings', 'importer_options' ), array_keys( $tabs ) );
+			$this->assertStringContainsString( 'bbPress: Import Forums', $tabs['overview']['content'] );
+		} finally {
+			$GLOBALS['current_screen'] = $previous;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_admin_tools_feedback
-	 * @todo   Implement test_bbp_admin_tools_feedback().
+	 * @ticket 3695
 	 */
 	public function test_bbp_admin_tools_feedback() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$notices = bbp_admin()->notices;
+
+		try {
+			bbp_admin_tools_feedback( 'Repair complete', 'success', false );
+			$this->assertStringContainsString( 'notice success', end( bbp_admin()->notices ) );
+			$this->assertStringContainsString( '<p>Repair complete</p>', end( bbp_admin()->notices ) );
+			$this->assertStringNotContainsString( 'is-dismissible', end( bbp_admin()->notices ) );
+			$this->assertFalse( bbp_admin_tools_feedback( array( 'invalid' ) ) );
+		} finally {
+			bbp_admin()->notices = $notices;
+		}
 	}
 
 	/**
 	 * @covers ::bbp_admin_repair_list
-	 * @todo   Implement test_bbp_admin_repair_list().
+	 * @ticket 3695
 	 */
 	public function test_bbp_admin_repair_list() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$original_get   = $_GET;
+		$original_tools = bbp_admin()->tools;
+		$_GET           = array( 's' => 'Recount' );
+		bbp_register_default_repair_tools();
+
+		try {
+			$list = bbp_admin_repair_list();
+			$this->assertNotEmpty( $list );
+			foreach ( $list as $tool ) {
+				$this->assertSame( 'repair', $tool['type'] );
+				$this->assertStringContainsString( 'recount', strtolower( $tool['title'] ) );
+			}
+		} finally {
+			$_GET              = $original_get;
+			bbp_admin()->tools = $original_tools;
+		}
 	}
 
 	/**
