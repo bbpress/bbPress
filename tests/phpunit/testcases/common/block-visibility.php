@@ -10,6 +10,44 @@
 class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::BBP_Blocks::enqueue_block_editor_assets
+	 */
+	public function test_editor_choices_only_load_for_registered_admin_script() {
+		$forum_id = $this->factory->forum->create();
+		$this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$scripts     = wp_scripts();
+		$registered  = isset( $scripts->registered['bbp-admin-blocks'] ) ? $scripts->registered['bbp-admin-blocks'] : null;
+		$query_count = 0;
+		$count_query = function( $query ) use ( &$query_count ) {
+			if ( false !== strpos( $query, 'SELECT DISTINCT tt.term_id' ) ) {
+				++$query_count;
+			}
+			return $query;
+		};
+
+		wp_deregister_script( 'bbp-admin-blocks' );
+		add_filter( 'query', $count_query );
+
+		try {
+			$this->assertNotFalse( has_action( 'enqueue_block_editor_assets', array( bbpress()->blocks, 'enqueue_block_editor_assets' ) ) );
+			do_action( 'enqueue_block_editor_assets' );
+			$this->assertSame( 0, $query_count );
+			$this->assertFalse( $scripts->get_data( 'bbp-admin-blocks', 'data' ) );
+
+			wp_register_script( 'bbp-admin-blocks', false );
+			bbpress()->blocks->enqueue_block_editor_assets();
+			$this->assertGreaterThan( 0, $query_count );
+			$this->assertStringContainsString( 'bbpBlocksJS', $scripts->get_data( 'bbp-admin-blocks', 'data' ) );
+		} finally {
+			remove_filter( 'query', $count_query );
+			wp_deregister_script( 'bbp-admin-blocks' );
+			if ( null !== $registered ) {
+				$scripts->registered['bbp-admin-blocks'] = $registered;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::BBP_Blocks::get_localize_script_data
 	 */
 	public function test_forum_options_respect_editor_visibility() {
@@ -119,6 +157,14 @@ class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 		update_post_meta( $public_topic, '_bbp_forum_id', $public_forum );
 		$labels = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'topic_tags' ), 'label' );
 		$this->assertContains( 'public-block-tag', $labels );
+
+		delete_post_meta( $public_topic, '_bbp_forum_id' );
+		$labels = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'topic_tags' ), 'label' );
+		$this->assertNotContains( 'public-block-tag', $labels );
+
+		update_post_meta( $public_topic, '_bbp_forum_id', 'not-a-forum' );
+		$labels = wp_list_pluck( BBP_Blocks::get_localize_script_data( 'topic_tags' ), 'label' );
+		$this->assertNotContains( 'public-block-tag', $labels );
 
 		wp_update_post( array( 'ID' => $public_topic, 'post_parent' => $private_forum ) );
 		update_post_meta( $public_topic, '_bbp_forum_id', $private_forum );

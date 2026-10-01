@@ -130,6 +130,11 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 */
 		public function enqueue_block_editor_assets() {
 
+			// Bail if the script receiving this data is unavailable.
+			if ( ! wp_script_is( 'bbp-admin-blocks', 'registered' ) ) {
+				return;
+			}
+
 			// Localize script data for the block editor (script is loaded via block.json).
 			wp_localize_script(
 				'bbp-admin-blocks',
@@ -381,7 +386,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 			$bbp_db             = bbp_db();
 			$placeholders       = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
 			$forum_placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
-			$values             = array_merge( array( bbp_get_topic_tag_tax_id(), bbp_get_topic_post_type() ), $statuses, $forum_ids, $forum_ids, $forum_ids );
+			$values             = array_merge( array( bbp_get_topic_tag_tax_id(), bbp_get_topic_post_type() ), $statuses, $forum_ids );
 			$query              = "SELECT DISTINCT tt.term_id
 				FROM {$bbp_db->term_taxonomy} AS tt
 				INNER JOIN {$bbp_db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id
@@ -389,12 +394,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 				INNER JOIN {$bbp_db->postmeta} AS fm ON fm.post_id = p.ID AND fm.meta_key = '_bbp_forum_id'
 				WHERE tt.taxonomy = %s AND p.post_type = %s AND p.post_status IN ({$placeholders})
 					AND p.post_parent IN ({$forum_placeholders})
-					AND CAST( fm.meta_value AS UNSIGNED ) IN ({$forum_placeholders})
-					AND NOT EXISTS (
-						SELECT 1 FROM {$bbp_db->postmeta} AS excluded_fm
-						WHERE excluded_fm.post_id = p.ID AND excluded_fm.meta_key = '_bbp_forum_id'
-						AND CAST( excluded_fm.meta_value AS UNSIGNED ) NOT IN ({$forum_placeholders})
-					)";
+					AND CAST( fm.meta_value AS UNSIGNED ) = p.post_parent";
 			$term_ids = $bbp_db->get_col( $bbp_db->prepare( $query, $values ) );
 
 			return wp_parse_id_list( $term_ids );
