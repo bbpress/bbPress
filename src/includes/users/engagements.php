@@ -857,6 +857,60 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'po
 }
 
 /**
+ * Apply a topic form's subscription choice for its author.
+ *
+ * @since 2.6.20 bbPress (r7766)
+ *
+ * @param int $author_id Topic or reply author ID.
+ * @param int $topic_id Topic ID.
+ */
+function bbp_update_user_topic_subscription( $author_id = 0, $topic_id = 0 ) {
+
+	// Bail if subscriptions are disabled or the form has no valid target
+	if ( ! bbp_is_subscriptions_active() || empty( $author_id ) || empty( $topic_id ) ) {
+		return;
+	}
+
+	$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
+	$subscheck  = ! empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' === $_POST['bbp_topic_subscription'] );
+
+	if ( $subscribed && ! $subscheck ) {
+		bbp_remove_user_subscription( $author_id, $topic_id );
+	} elseif ( ! $subscribed && $subscheck ) {
+		bbp_add_user_subscription( $author_id, $topic_id );
+	}
+}
+
+/**
+ * Apply a topic form's subscription choice after saving the topic.
+ *
+ * @since 2.6.20 bbPress (r7766)
+ *
+ * @param int   $topic_id Topic ID.
+ * @param int   $forum_id Forum ID.
+ * @param array $anonymous_data Anonymous author data.
+ * @param int   $author_id Topic author ID.
+ */
+function bbp_update_topic_subscription( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0 ) {
+	bbp_update_user_topic_subscription( $author_id, $topic_id );
+}
+
+/**
+ * Apply a reply form's subscription choice after saving the reply.
+ *
+ * @since 2.6.20 bbPress (r7766)
+ *
+ * @param int   $reply_id Reply ID.
+ * @param int   $topic_id Topic ID.
+ * @param int   $forum_id Forum ID.
+ * @param array $anonymous_data Anonymous author data.
+ * @param int   $author_id Reply author ID.
+ */
+function bbp_update_reply_subscription( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0 ) {
+	bbp_update_user_topic_subscription( $author_id, $topic_id );
+}
+
+/**
  * Handles the front end toggling of user subscriptions
  *
  * @since 2.0.0 bbPress (r2668)
