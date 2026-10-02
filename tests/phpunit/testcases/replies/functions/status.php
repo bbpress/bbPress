@@ -11,13 +11,97 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_reply_statuses
-	 * @todo   Implement test_bbp_get_reply_statuses().
 	 */
 	public function test_bbp_get_reply_statuses() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$statuses = array(
+			bbp_get_public_status_id()  => _x( 'Publish', 'Publish the reply', 'bbpress' ),
+			bbp_get_spam_status_id()    => _x( 'Spam', 'Spam the reply', 'bbpress' ),
+			bbp_get_trash_status_id()   => _x( 'Trash', 'Trash the reply', 'bbpress' ),
+			bbp_get_pending_status_id() => _x( 'Pending', 'Mark reply as pending', 'bbpress' ),
 		);
+		$this->assertSame( $statuses, bbp_get_reply_statuses() );
+
+		$reply_id = 123;
+		$filter   = function( $available, $id ) use ( $reply_id ) {
+			$this->assertSame( $reply_id, $id );
+			$available['archived'] = 'Archived';
+			return $available;
+		};
+		add_filter( 'bbp_get_reply_statuses', $filter, 10, 2 );
+		try {
+			$statuses['archived'] = 'Archived';
+			$this->assertSame( $statuses, bbp_get_reply_statuses( $reply_id ) );
+		} finally {
+			remove_filter( 'bbp_get_reply_statuses', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_reply_toggles
+	 */
+	public function test_bbp_get_reply_toggles() {
+		$toggles = array(
+			'bbp_toggle_reply_spam',
+			'bbp_toggle_reply_trash',
+			'bbp_toggle_reply_approve',
+		);
+		$this->assertSame( $toggles, bbp_get_reply_toggles() );
+
+		$reply_id = 123;
+		$filter   = function( $available, $id ) use ( $reply_id ) {
+			$this->assertSame( $reply_id, $id );
+			$available[] = 'bbp_toggle_reply_archive';
+			return $available;
+		};
+		add_filter( 'bbp_get_toggle_reply_actions', $filter, 10, 2 );
+		try {
+			$toggles[] = 'bbp_toggle_reply_archive';
+			$this->assertSame( $toggles, bbp_get_reply_toggles( $reply_id ) );
+		} finally {
+			remove_filter( 'bbp_get_toggle_reply_actions', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_public_reply_statuses
+	 */
+	public function test_bbp_get_public_reply_statuses() {
+		$this->assertSame( array( bbp_get_public_status_id() ), bbp_get_public_reply_statuses() );
+
+		$filter = function( $statuses ) {
+			$statuses[] = 'archived';
+			return $statuses;
+		};
+		add_filter( 'bbp_get_public_reply_statuses', $filter );
+		try {
+			$this->assertSame( array( bbp_get_public_status_id(), 'archived' ), bbp_get_public_reply_statuses() );
+		} finally {
+			remove_filter( 'bbp_get_public_reply_statuses', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_non_public_reply_statuses
+	 */
+	public function test_bbp_get_non_public_reply_statuses() {
+		$statuses = array(
+			bbp_get_trash_status_id(),
+			bbp_get_spam_status_id(),
+			bbp_get_pending_status_id(),
+		);
+		$this->assertSame( $statuses, bbp_get_non_public_reply_statuses() );
+
+		$filter = function( $available ) {
+			$available[] = 'archived';
+			return $available;
+		};
+		add_filter( 'bbp_get_non_public_reply_statuses', $filter );
+		try {
+			$statuses[] = 'archived';
+			$this->assertSame( $statuses, bbp_get_non_public_reply_statuses() );
+		} finally {
+			remove_filter( 'bbp_get_non_public_reply_statuses', $filter );
+		}
 	}
 
 	/**
