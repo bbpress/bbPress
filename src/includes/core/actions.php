@@ -212,6 +212,8 @@ add_action( 'bbp_forum_attributes_metabox_save', 'bbp_save_forum_extras', 2 );
 // New/Edit Reply
 add_action( 'bbp_new_reply',  'bbp_update_reply', 10, 7 );
 add_action( 'bbp_edit_reply', 'bbp_update_reply', 10, 7 );
+add_action( 'bbp_new_reply',  'bbp_update_reply_subscription', 10, 5 );
+add_action( 'bbp_edit_reply', 'bbp_update_reply_subscription', 10, 5 );
 
 // Before Delete/Trash/Untrash Reply
 add_action( 'wp_trash_post',      'bbp_trash_reply'   );
@@ -227,6 +229,8 @@ add_action( 'deleted_post',   'bbp_deleted_reply'   );
 // New/Edit Topic
 add_action( 'bbp_new_topic',  'bbp_update_topic', 10, 5 );
 add_action( 'bbp_edit_topic', 'bbp_update_topic', 10, 5 );
+add_action( 'bbp_new_topic',  'bbp_update_topic_subscription', 10, 4 );
+add_action( 'bbp_edit_topic', 'bbp_update_topic_subscription', 10, 4 );
 
 // Split/Merge Topic
 add_action( 'bbp_merged_topic',     'bbp_merge_topic_count', 1, 3 );

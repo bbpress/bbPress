@@ -907,27 +907,6 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		}
 	}
 
-	// Handle Subscription Checkbox
-	if ( bbp_is_subscriptions_active() && ! empty( $author_id ) && ! empty( $topic_id ) ) {
-
-		// Check if subscribed
-		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
-
-		// Check for action
-		$subscheck  = ( ! empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' === $_POST['bbp_topic_subscription'] ) )
-			? true
-			: false;
-
-		// Subscribed and unsubscribing
-		if ( ( true === $subscribed ) && ( false === $subscheck ) ) {
-			bbp_remove_user_subscription( $author_id, $topic_id );
-
-		// Not subscribed and subscribing
-		} elseif ( ( false === $subscribed ) && ( true === $subscheck ) ) {
-			bbp_add_user_subscription( $author_id, $topic_id );
-		}
-	}
-
 	// Update associated topic values if this is a new reply
 	if ( empty( $is_edit ) ) {
 

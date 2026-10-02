@@ -44,6 +44,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved topic subscriptions when topics and replies are edited in administration.
 - Cache a distinct count of current-site forum-role holders for forum statistics,
   invalidating it when users or their capabilities change. Use the WordPress
   installation count for large-installation upgrade decisions.
