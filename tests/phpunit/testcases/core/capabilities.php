@@ -142,6 +142,92 @@ class BBP_Tests_Core_Capabilities extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider data_object_capabilities
+	 *
+	 * @covers ::bbp_get_forum_caps
+	 * @covers ::bbp_get_topic_caps
+	 * @covers ::bbp_get_reply_caps
+	 * @covers ::bbp_get_topic_tag_caps
+	 */
+	public function test_object_capabilities_are_complete_and_filterable( $function, $filter_name, $expected_caps ) {
+		$received_caps = null;
+		$filter        = static function( $caps ) use ( &$received_caps ) {
+			$received_caps = $caps;
+
+			return (object) array( 'custom_capability' => 'custom_mapping' );
+		};
+
+		$this->assertEqualsCanonicalizing( $expected_caps, $function() );
+
+		add_filter( $filter_name, $filter );
+		try {
+			$this->assertSame( array( 'custom_capability' => 'custom_mapping' ), $function() );
+			$this->assertEqualsCanonicalizing( $expected_caps, $received_caps );
+		} finally {
+			remove_filter( $filter_name, $filter );
+		}
+	}
+
+	/**
+	 * Data provider for test_object_capabilities_are_complete_and_filterable().
+	 */
+	public function data_object_capabilities() {
+		return array(
+			'forums' => array(
+				'bbp_get_forum_caps',
+				'bbp_get_forum_caps',
+				array(
+					'create_posts'        => 'create_forums',
+					'edit_posts'          => 'edit_forums',
+					'edit_others_posts'   => 'edit_others_forums',
+					'publish_posts'       => 'publish_forums',
+					'read_private_posts'  => 'read_private_forums',
+					'read_hidden_posts'   => 'read_hidden_forums',
+					'delete_posts'        => 'delete_forums',
+					'delete_others_posts' => 'delete_others_forums',
+				),
+			),
+			'topics' => array(
+				'bbp_get_topic_caps',
+				'bbp_get_topic_caps',
+				array(
+					'create_posts'        => 'create_topics',
+					'edit_posts'          => 'edit_topics',
+					'edit_others_posts'   => 'edit_others_topics',
+					'publish_posts'       => 'publish_topics',
+					'read_private_posts'  => 'read_private_topics',
+					'read_hidden_posts'   => 'read_hidden_topics',
+					'delete_posts'        => 'delete_topics',
+					'delete_others_posts' => 'delete_others_topics',
+				),
+			),
+			'replies' => array(
+				'bbp_get_reply_caps',
+				'bbp_get_reply_caps',
+				array(
+					'create_posts'        => 'create_replies',
+					'edit_posts'          => 'edit_replies',
+					'edit_others_posts'   => 'edit_others_replies',
+					'publish_posts'       => 'publish_replies',
+					'read_private_posts'  => 'read_private_replies',
+					'delete_posts'        => 'delete_replies',
+					'delete_others_posts' => 'delete_others_replies',
+				),
+			),
+			'topic tags' => array(
+				'bbp_get_topic_tag_caps',
+				'bbp_get_topic_tag_caps',
+				array(
+					'manage_terms' => 'manage_topic_tags',
+					'edit_terms'   => 'edit_topic_tags',
+					'delete_terms' => 'delete_topic_tags',
+					'assign_terms' => 'assign_topic_tags',
+				),
+			),
+		);
+	}
+
+	/**
 	 * @covers ::bbp_get_caps_for_role
 	 */
 	public function test_role_capabilities_are_filterable_with_the_requested_role() {
