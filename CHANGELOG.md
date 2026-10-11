@@ -28,6 +28,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Allowed authors to edit existing topics and replies after their topic or
+  forum is closed and kept closed topics publicly readable, preserving the
+  established new-content meaning of closing.
 - Allowed multilingual plugins to filter Recent Topics widget queries for all forums.
 - Handled malformed and numeric topic-view identifiers without PHP errors or
   broken view links.

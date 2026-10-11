@@ -35,6 +35,134 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		parent::tearDown();
 	}
 
+	protected function submit_topic_edit( $topic_id, $forum_id, $content ) {
+		$home_url             = wp_parse_url( home_url( '/' ) );
+		$_SERVER['HTTP_HOST'] = $home_url['host'];
+
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+
+		$_SERVER['REQUEST_URI']     = $home_url['path'];
+		$_POST['bbp_topic_id']      = $topic_id;
+		$_POST['bbp_forum_id']      = $forum_id;
+		$_POST['bbp_topic_title']   = bbp_get_topic_title( $topic_id );
+		$_POST['bbp_topic_content'] = $content;
+		$_REQUEST['_wpnonce']       = wp_create_nonce( 'bbp-edit-topic_' . $topic_id );
+
+		$did_redirect     = false;
+		$prevent_redirect = function() use ( &$did_redirect ) {
+			$did_redirect = true;
+			throw new RuntimeException( 'Topic edit redirect.' );
+		};
+
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			bbp_edit_topic_handler( 'bbp-edit-topic' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'Topic edit redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+		} finally {
+			remove_filter( 'wp_redirect', $prevent_redirect );
+		}
+
+		return $did_redirect;
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_participant_can_edit_own_closed_topic_in_closed_forum_theme_side() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_close_topic( $topic_id );
+		bbp_close_forum( $forum_id );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertFalse( current_user_can( 'edit_forum', $forum_id ) );
+
+		$did_redirect = $this->submit_topic_edit( $topic_id, $forum_id, 'Participant edit in closed content.' );
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Participant edit in closed content.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_forum_moderator_can_edit_closed_topic_in_closed_forum_theme_side() {
+		$user_id        = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$topic_owner_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id       = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create(
+			array(
+				'post_author' => $topic_owner_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_add_moderator( $forum_id, $user_id );
+		bbp_close_topic( $topic_id );
+		bbp_close_forum( $forum_id );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'moderate', $topic_id ) );
+		$this->assertTrue( current_user_can( 'edit_forum', $forum_id ) );
+
+		$did_redirect = $this->submit_topic_edit( $topic_id, $forum_id, 'Forum moderator edit in closed content.' );
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Forum moderator edit in closed content.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_forum_moderator_cannot_move_topic_to_closed_forum() {
+		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$topic_owner_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum_id = $this->factory->forum->create();
+		$closed_forum_id = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create(
+			array(
+				'post_author' => $topic_owner_id,
+				'post_parent' => $source_forum_id,
+				'topic_meta'  => array( 'forum_id' => $source_forum_id ),
+			)
+		);
+
+		bbp_add_moderator( $source_forum_id, $user_id );
+		bbp_close_forum( $closed_forum_id );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'edit_forum', $source_forum_id ) );
+		$this->assertFalse( current_user_can( 'edit_forum', $closed_forum_id ) );
+
+		$did_redirect = $this->submit_topic_edit( $topic_id, $closed_forum_id, 'Move to closed forum.' );
+
+		$this->assertContains( 'bbp_edit_topic_forum_closed', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_forum_id, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertFalse( $did_redirect );
+	}
+
+
 	/**
 	 * @covers ::bbp_new_topic_handler
 	 */

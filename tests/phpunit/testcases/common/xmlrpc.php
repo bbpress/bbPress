@@ -657,9 +657,10 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_validate_xmlrpc_post
 	 */
-	public function test_participant_cannot_edit_topic_in_closed_forum() {
-		$user_id  = $this->create_participant();
-		$forum_id = $this->factory->forum->create(
+	public function test_participant_can_edit_topic_and_reply_in_closed_forum() {
+		$user_id        = $this->create_participant();
+		$topic_owner_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id       = $this->factory->forum->create(
 			array( 'forum_meta' => array( 'status' => 'closed' ) )
 		);
 		$topic_id = $this->factory->topic->create(
@@ -669,11 +670,36 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 				'topic_meta'  => array( 'forum_id' => $forum_id ),
 			)
 		);
+		$reply_topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $topic_owner_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $reply_topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $reply_topic_id,
+				),
+			)
+		);
+
+		bbp_close_topic( $topic_id );
+		bbp_close_topic( $reply_topic_id );
 
 		$result = $this->edit_post( $topic_id, array( 'post_content' => 'Updated topic content.' ) );
 
-		$this->assertInstanceOf( 'IXR_Error', $result );
-		$this->assertNotSame( 'Updated topic content.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'Updated topic content.', get_post_field( 'post_content', $topic_id ) );
+
+		$result = $this->edit_post( $reply_id, array( 'post_content' => 'Updated reply content.' ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'Updated reply content.', get_post_field( 'post_content', $reply_id ) );
 	}
 
 	/**

@@ -160,7 +160,7 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	if ( bbp_get_topic_post_type() === $post_type ) {
 		if ( empty( $post_parent ) || bbp_is_forum_category( $post_parent ) ) {
 			$invalid = true;
-		} elseif ( ! current_user_can( 'edit_forum', $post_parent ) && bbp_is_forum_closed( $post_parent ) ) {
+		} elseif ( $parent_changed && ! current_user_can( 'edit_forum', $post_parent ) && bbp_is_forum_closed( $post_parent ) ) {
 			$invalid = true;
 		} elseif ( ! current_user_can( 'read_forum', $post_parent ) ) {
 			$invalid = true;

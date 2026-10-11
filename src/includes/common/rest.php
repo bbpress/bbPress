@@ -119,11 +119,11 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			);
 		}
 
-		// Match the front-end topic edit checks for category and closed forums.
+		// Match the front-end topic edit check for category forums.
 		if ( ! empty( $post ) && ( bbp_get_topic_post_type() === $post->post_type ) ) {
 			$topic_forum_id = bbp_get_topic_forum_id( $post->ID );
 
-			if ( bbp_is_forum_category( $topic_forum_id ) || ( bbp_is_forum_closed( $topic_forum_id ) && ! current_user_can( 'edit_forum', $topic_forum_id ) ) ) {
+			if ( bbp_is_forum_category( $topic_forum_id ) ) {
 				return new WP_Error(
 					'bbp_rest_cannot_edit_topic_forum',
 					esc_html__( 'You are not allowed to edit this topic in its forum.', 'bbpress' ),
