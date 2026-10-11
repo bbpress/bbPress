@@ -284,6 +284,8 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_post_date
 	 * @covers ::bbp_get_topic_post_date
+	 *
+	 * @ticket BBP3427
 	 */
 	public function test_bbp_get_topic_post_date() {
 		$f = $this->factory->forum->create();
@@ -320,6 +322,32 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 		// Humanized string using GMT formatted date, 4 days, 4 hours ago.
 		$datetime = bbp_get_topic_post_date( $t, true, true );
 		$this->assertSame( '4 days, 4 hours ago', $datetime );
+	}
+
+	/**
+	 * @covers ::bbp_topic_post_date
+	 * @covers ::bbp_get_topic_post_date
+	 *
+	 * @ticket BBP3427
+	 */
+	public function test_bbp_get_topic_post_date_with_custom_format() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date'   => '2012-08-04 14:37:00',
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$date   = get_post_time( 'Y-m-d', false, $t, true );
+		$time   = get_post_time( get_option( 'time_format' ), false, $t, true );
+		$result = sprintf( '%1$s at %2$s', $date, $time );
+
+		$this->assertSame( '2012-08-04', $date );
+		$this->assertSame( $result, bbp_get_topic_post_date( $t, false, false, 'Y-m-d' ) );
+		$this->expectOutputString( $result );
+		bbp_topic_post_date( $t, false, false, 'Y-m-d' );
 	}
 
 	/**

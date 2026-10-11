@@ -677,27 +677,34 @@ function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
  * Output the post date and time of a reply.
  *
  * @since 2.2.0 bbPress (r4156)
+ * @since 2.6.20 bbPress (r7972) Added the `$date_format` parameter.
  *
  * @param int $reply_id Optional. Reply id.
  * @param bool $humanize Optional. Humanize output using time_since.
  * @param bool $gmt Optional. Use GMT.
+ * @param string $date_format Optional. PHP date format. Defaults to the WordPress date format.
+ *                            Ignored when `$humanize` is true.
  */
-function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
-	echo bbp_get_reply_post_date( $reply_id, $humanize, $gmt );
+function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false, $date_format = '' ) {
+	echo bbp_get_reply_post_date( $reply_id, $humanize, $gmt, $date_format );
 }
 
 /**
  * Return the post date and time of a reply.
  *
  * @since 2.2.0 bbPress (r4156)
+ * @since 2.6.20 bbPress (r7972) Added the `$date_format` parameter.
  *
  * @param int $reply_id Optional. Reply id.
  * @param bool $humanize Optional. Humanize output using time_since.
  * @param bool $gmt Optional. Use GMT.
+ * @param string $date_format Optional. PHP date format. Defaults to the WordPress date format.
+ *                            Ignored when `$humanize` is true.
  * @return string
  */
-function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
-	$reply_id = bbp_get_reply_id( $reply_id );
+function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false, $date_format = '' ) {
+	$reply_id    = bbp_get_reply_id( $reply_id );
+	$date_format = ! empty( $date_format ) ? $date_format : get_option( 'date_format' );
 
 	// 4 days, 4 hours ago
 	if ( ! empty( $humanize ) ) {
@@ -708,14 +715,14 @@ function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false
 
 	// August 4, 2012 at 2:37 pm
 	} else {
-		$date   = get_post_time( get_option( 'date_format' ), $gmt, $reply_id, true );
+		$date   = get_post_time( $date_format, $gmt, $reply_id, true );
 		$time   = get_post_time( get_option( 'time_format' ), $gmt, $reply_id, true );
 		/* translators: 1: Date, 2: Time */
 		$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_reply_post_date', $result, $reply_id, $humanize, $gmt, $date, $time );
+	return apply_filters( 'bbp_get_reply_post_date', $result, $reply_id, $humanize, $gmt, $date, $time, $date_format );
 }
 
 /**
