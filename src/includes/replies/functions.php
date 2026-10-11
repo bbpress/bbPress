@@ -121,6 +121,25 @@ function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id
 	}
 }
 
+/** Validation ***************************************************************/
+
+/**
+ * Validate a reply title.
+ *
+ * Reply titles are optional, so empty titles are valid.
+ *
+ * @since 2.6.20 bbPress (r7977)
+ *
+ * @param string $reply_title Reply title.
+ */
+function bbp_validate_reply_title( $reply_title = '' ) {
+
+	// Title too long
+	if ( bbp_is_title_too_long( $reply_title ) ) {
+		bbp_add_error( 'bbp_reply_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
+	}
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -322,10 +341,8 @@ function bbp_new_reply_handler( $action = '' ) {
 	// Filter and sanitize
 	$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
 
-	// Title too long
-	if ( bbp_is_title_too_long( $reply_title ) ) {
-		bbp_add_error( 'bbp_reply_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-	}
+	// Validate the reply title
+	bbp_validate_reply_title( $reply_title );
 
 	/** Reply Content *********************************************************/
 
@@ -686,10 +703,8 @@ function bbp_edit_reply_handler( $action = '' ) {
 	// Filter and sanitize
 	$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
 
-	// Title too long
-	if ( bbp_is_title_too_long( $reply_title ) ) {
-		bbp_add_error( 'bbp_reply_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-	}
+	// Validate the reply title
+	bbp_validate_reply_title( $reply_title );
 
 	/** Reply Content *********************************************************/
 
