@@ -2190,20 +2190,13 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 		// Get the forum root, to maybe use as a default
 		$forum_root = bbp_get_root_url();
 
-		// No redirect passed, so check referer and fallback to request uri
+		// No redirect passed, so use the current request when available
 		if ( empty( $redirect_to ) ) {
-
-			// Check for a valid referer
-			$redirect_to = wp_get_referer();
-
-			// Maybe use current host
-			if ( ( false === $redirect_to ) && ! empty( $_SERVER['HTTP_HOST'] ) ) {
+			if ( ! empty( $_SERVER['HTTP_HOST'] ) && ! empty( $_SERVER['REQUEST_URI'] ) ) {
 				$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'];
-
-				// Maybe also use request URI
-				if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
-					$redirect_to .= $_SERVER['REQUEST_URI'];
-				}
+				$redirect_to .= $_SERVER['REQUEST_URI'];
+			} else {
+				$redirect_to = $forum_root;
 			}
 		}
 

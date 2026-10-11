@@ -115,6 +115,8 @@ Development for the next bbPress release is in progress. See the active
   runtime data is accessed before initialization.
 - Prevented PHP warnings when building logout URLs without expected server
   variables.
+- Made default logout links return to the current page instead of the
+  previous page.
 - Prevented PHP deprecation notices in Akismet history and reply-position
   calculations.
 
