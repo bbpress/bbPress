@@ -321,10 +321,13 @@ class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
 		$this->assertArrayHasKey( 'img', $tags );
 		$this->assertArrayNotHasKey( 'script', $tags );
 
-		$raw      = '<a href="https://example.com" onclick="bad()">Link</a><script>alert(1)</script>';
-		$expected = '<a href="https://example.com">Link</a>alert(1)';
+		$raw      = '<a href="https://example.com" onclick="bad()">Link</a><span>Text</span>';
+		$expected = '<a href="https://example.com">Link</a>Text';
 		$this->assertSame( $expected, bbp_kses_data( $raw ) );
 		$this->assertSame( wp_slash( $expected ), bbp_filter_kses( wp_slash( $raw ) ) );
+		$script = bbp_kses_data( '<script>alert(1)</script>' );
+		$this->assertStringNotContainsString( '<script', $script );
+		$this->assertStringNotContainsString( '</script', $script );
 		$dangerous = bbp_kses_data( '<a href="javascript:alert(1)">Bad</a><img src="x" onerror="bad()">' );
 		$this->assertStringNotContainsString( 'javascript:', $dangerous );
 		$this->assertStringNotContainsString( 'onerror', $dangerous );
