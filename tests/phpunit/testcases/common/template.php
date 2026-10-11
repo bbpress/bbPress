@@ -1091,6 +1091,40 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_tab_index
+	 * @covers ::bbp_get_tab_index
+	 */
+	public function test_tab_index_increments_filters_and_outputs_value() {
+		$bbp       = bbpress();
+		$old_index = isset( $bbp->tab_index ) ? $bbp->tab_index : null;
+		$had_index = isset( $bbp->tab_index );
+		$filter    = function( $index ) {
+			$this->assertSame( 4, $index );
+
+			return 9;
+		};
+
+		$bbp->tab_index = 3;
+
+		try {
+			$this->assertSame( 3, bbp_get_tab_index( false ) );
+			$this->assertSame( 3, bbp_get_tab_index( 1 ) );
+			add_filter( 'bbp_get_tab_index', $filter );
+			$this->assertSame( 9, bbp_get_tab_index() );
+			$this->assertSame( 4, $bbp->tab_index );
+			$this->expectOutputString( '9' );
+			bbp_tab_index( false );
+		} finally {
+			remove_filter( 'bbp_get_tab_index', $filter );
+			if ( $had_index ) {
+				$bbp->tab_index = $old_index;
+			} else {
+				unset( $bbp->tab_index );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_dropdown
 	 * @covers ::bbp_get_dropdown
 	 */
@@ -1658,6 +1692,300 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 			} else {
 				unset( $wp_query->query_vars[ $rewrite_id ] );
 			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_swap_no_js_body_class
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_swap_no_js_body_class_outputs_script_once() {
+		$level = ob_get_level();
+
+		try {
+			ob_start();
+			bbp_swap_no_js_body_class();
+			bbp_swap_no_js_body_class();
+			$output = ob_get_clean();
+		} finally {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+		}
+
+		$this->assertSame( 1, substr_count( $output, 'id="bbp-swap-no-js-body-class"' ) );
+		$this->assertStringContainsString( "replace( 'bbp-no-js', 'bbp-js' )", $output );
+	}
+
+	/**
+	 * @covers ::bbp_allowed_tags
+	 * @covers ::bbp_get_allowed_tags
+	 */
+	public function test_allowed_tags_formats_filters_and_outputs_encoded_markup() {
+		$allowed_tags = function() {
+			return array(
+				'a'      => array(
+					'href'  => true,
+					'title' => true,
+				),
+				'strong' => array(),
+			);
+		};
+		$filter       = function( $allowed ) {
+			$this->assertSame( '&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;strong&gt; ', $allowed );
+
+			return $allowed . 'filtered';
+		};
+
+		add_filter( 'bbp_kses_allowed_tags', $allowed_tags );
+		add_filter( 'bbp_get_allowed_tags', $filter );
+
+		try {
+			$this->assertSame( '&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;strong&gt; filtered', bbp_get_allowed_tags() );
+			$this->expectOutputString( '&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;strong&gt; filtered' );
+			bbp_allowed_tags();
+		} finally {
+			remove_filter( 'bbp_kses_allowed_tags', $allowed_tags );
+			remove_filter( 'bbp_get_allowed_tags', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_template_notices
+	 */
+	public function test_template_notices_separates_errors_and_messages() {
+		$bbp         = bbpress();
+		$old_errors  = $bbp->errors;
+		$level       = ob_get_level();
+		$bbp->errors = new WP_Error();
+
+		try {
+			ob_start();
+			bbp_template_notices();
+			$this->assertSame( '', ob_get_clean() );
+
+			$bbp->errors->add( 'first-error', 'First error' );
+			$bbp->errors->add( 'second-error', 'Second error' );
+			$bbp->errors->add( 'first-message', 'First message', 'message' );
+
+			ob_start();
+			bbp_template_notices();
+			$output = ob_get_clean();
+
+			$this->assertSame( 1, substr_count( $output, 'class="bbp-template-notice error"' ) );
+			$this->assertSame( 1, substr_count( $output, 'class="bbp-template-notice"' ) );
+			$this->assertStringContainsString( 'role="alert"', $output );
+			$this->assertStringContainsString( "<li>First error</li>\n<li>Second error</li>", $output );
+			$this->assertStringContainsString( '<li>First message</li>', $output );
+			$this->assertLessThan( strpos( $output, 'First message' ), strpos( $output, 'First error' ) );
+		} finally {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+			$bbp->errors = $old_errors;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_logout_link
+	 * @covers ::bbp_get_logout_link
+	 */
+	public function test_logout_link_builds_filters_and_outputs_link() {
+		$redirect = home_url( '/after-logout/?first=1&second=2' );
+		$expected = '<a href="' . wp_logout_url( $redirect ) . '" class="button logout-link">Log Out</a>';
+		$filter   = function( $link, $filtered_redirect ) use ( $expected, $redirect ) {
+			$this->assertSame( $expected, $link );
+			$this->assertSame( $redirect, $filtered_redirect );
+
+			return str_replace( 'logout-link', 'logout-link filtered', $link );
+		};
+
+		add_filter( 'bbp_get_logout_link', $filter, 10, 2 );
+
+		try {
+			$filtered = str_replace( 'logout-link', 'logout-link filtered', $expected );
+			$this->assertSame( $filtered, bbp_get_logout_link( $redirect ) );
+			$this->expectOutputString( $filtered );
+			bbp_logout_link( $redirect );
+		} finally {
+			remove_filter( 'bbp_get_logout_link', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_forum_form_fields
+	 * @covers ::bbp_topic_form_fields
+	 * @covers ::bbp_reply_form_fields
+	 * @covers ::bbp_edit_user_form_fields
+	 */
+	public function test_form_field_helpers_render_actions_ids_and_nonces() {
+		$bbp                = bbpress();
+		$old_forum_id       = isset( $bbp->current_forum_id ) ? $bbp->current_forum_id : null;
+		$old_topic_id       = isset( $bbp->current_topic_id ) ? $bbp->current_topic_id : null;
+		$old_reply_id       = isset( $bbp->current_reply_id ) ? $bbp->current_reply_id : null;
+		$old_displayed_user = isset( $bbp->displayed_user ) ? $bbp->displayed_user : null;
+		$old_user_id        = get_current_user_id();
+		$capture            = function( $callback ) {
+			$level = ob_get_level();
+
+			try {
+				ob_start();
+				$callback();
+				return ob_get_clean();
+			} finally {
+				while ( ob_get_level() > $level ) {
+					ob_end_clean();
+				}
+			}
+		};
+		$assert_field       = function( $output, $name, $value ) {
+			$pattern = '/name="' . preg_quote( $name, '/' ) . '"[^>]*value="' . preg_quote( (string) $value, '/' ) . '"/';
+			$this->assertSame( 1, preg_match( $pattern, $output ) );
+		};
+		$assert_nonce       = function( $output, $action ) {
+			$this->assertSame( 1, preg_match( '/name="_wpnonce" value="([^"]+)"/', $output, $matches ) );
+			$this->assertSame( 1, wp_verify_nonce( $matches[1], $action ) );
+		};
+		$true               = '__return_true';
+
+		$bbp->current_forum_id = $this->factory->forum->create();
+		$bbp->current_topic_id = $this->factory->topic->create( array( 'post_parent' => $bbp->current_forum_id ) );
+		$bbp->current_reply_id = $this->factory->reply->create( array( 'post_parent' => $bbp->current_topic_id ) );
+		$bbp->displayed_user   = get_userdata( $this->factory->user->create() );
+		wp_set_current_user( 0 );
+
+		try {
+			add_filter( 'bbp_is_forum_edit', $true );
+			$output = $capture( 'bbp_forum_form_fields' );
+			$this->assertStringContainsString( 'value="bbp-edit-forum"', $output );
+			$assert_field( $output, 'bbp_forum_id', $bbp->current_forum_id );
+			$assert_nonce( $output, 'bbp-edit-forum_' . $bbp->current_forum_id );
+			remove_filter( 'bbp_is_forum_edit', $true );
+
+			add_filter( 'bbp_is_topic_edit', $true );
+			$output = $capture( 'bbp_topic_form_fields' );
+			$this->assertStringContainsString( 'value="bbp-edit-topic"', $output );
+			$assert_field( $output, 'bbp_topic_id', $bbp->current_topic_id );
+			$assert_nonce( $output, 'bbp-edit-topic_' . $bbp->current_topic_id );
+			remove_filter( 'bbp_is_topic_edit', $true );
+
+			add_filter( 'bbp_is_reply_edit', $true );
+			$output = $capture( 'bbp_reply_form_fields' );
+			$this->assertStringContainsString( 'value="bbp-edit-reply"', $output );
+			$assert_field( $output, 'bbp_reply_id', $bbp->current_reply_id );
+			$assert_nonce( $output, 'bbp-edit-reply_' . $bbp->current_reply_id );
+			remove_filter( 'bbp_is_reply_edit', $true );
+
+			$output = $capture( 'bbp_edit_user_form_fields' );
+			$this->assertStringContainsString( 'value="bbp-update-user"', $output );
+			$assert_field( $output, 'user_id', $bbp->displayed_user->ID );
+			$assert_nonce( $output, 'update-user_' . $bbp->displayed_user->ID );
+		} finally {
+			remove_filter( 'bbp_is_forum_edit', $true );
+			remove_filter( 'bbp_is_topic_edit', $true );
+			remove_filter( 'bbp_is_reply_edit', $true );
+			$bbp->current_forum_id = $old_forum_id;
+			$bbp->current_topic_id = $old_topic_id;
+			$bbp->current_reply_id = $old_reply_id;
+			$bbp->displayed_user   = $old_displayed_user;
+			wp_set_current_user( $old_user_id );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_title_breadcrumb
+	 * @covers ::bbp_breadcrumb
+	 * @covers ::bbp_get_breadcrumb
+	 */
+	public function test_breadcrumb_builds_filters_and_outputs_custom_trail() {
+		$args = array(
+			'before'          => '<nav>',
+			'after'           => '</nav>',
+			'sep'             => '|',
+			'pad_sep'         => 0,
+			'include_home'    => true,
+			'home_text'       => 'Start',
+			'include_root'    => false,
+			'root_text'       => 'Forums',
+			'include_current' => true,
+			'current_text'    => 'Current',
+		);
+		$filter = function( $trail, $crumbs, $parsed, $original ) use ( $args ) {
+			$this->assertCount( 2, $crumbs );
+			$this->assertSame( '|', $parsed['sep'] );
+			$this->assertSame( $args, $original );
+
+			return $trail . '<!-- filtered -->';
+		};
+
+		add_filter( 'bbp_get_breadcrumb', $filter, 10, 4 );
+
+		try {
+			$expected = '<nav><a href="' . esc_url( home_url() ) . '" class="bbp-breadcrumb-home">Start</a><span class="bbp-breadcrumb-sep">|</span><span class="bbp-breadcrumb-current">Current</span></nav><!-- filtered -->';
+			$this->assertSame( $expected, bbp_get_breadcrumb( $args ) );
+			$this->expectOutputString( $expected . $expected );
+			bbp_breadcrumb( $args );
+			bbp_title_breadcrumb( $args );
+		} finally {
+			remove_filter( 'bbp_get_breadcrumb', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_title
+	 */
+	public function test_title_formats_filters_and_positions_separator() {
+		$raw_array = function() {
+			return array(
+				'text'   => 'A%WP_TITILE_SEP%B',
+				'format' => '%s',
+			);
+		};
+		$filtered = function( $title, $sep, $location ) {
+			return $title . '[' . $sep . ':' . $location . ']';
+		};
+
+		$this->assertSame( 'Original', bbp_title( 'Original', '|', '' ) );
+		add_filter( 'bbp_raw_title_array', $raw_array );
+		add_filter( 'bbp_title', $filtered, 10, 3 );
+
+		try {
+			$this->assertSame( ' | A | B[|:]', bbp_title( 'Original', '|', '' ) );
+			$this->assertSame( 'B | A | [|:right]', bbp_title( 'Original', '|', 'right' ) );
+		} finally {
+			remove_filter( 'bbp_raw_title_array', $raw_array );
+			remove_filter( 'bbp_title', $filtered, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_no_title_status_hints
+	 */
+	public function test_no_title_status_hints_only_removes_bbpress_prefixes() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$post_id  = $this->factory->post->create();
+		$filter   = function( $format, $prepend, $post ) use ( $forum_id ) {
+			$this->assertSame( '%s', $format );
+			$this->assertSame( 'Protected: %s', $prepend );
+			$this->assertSame( $forum_id, $post );
+
+			return 'Forum: %s';
+		};
+
+		$this->assertSame( '', bbp_no_title_status_hints() );
+		$this->assertSame( 'Protected: %s', bbp_no_title_status_hints( 'Protected: %s', $post_id ) );
+		$this->assertSame( '%s', bbp_no_title_status_hints( 'Protected: %s', $forum_id ) );
+		$this->assertSame( '%s', bbp_no_title_status_hints( 'Private: %s', get_post( $topic_id ) ) );
+		$this->assertSame( '%s', bbp_no_title_status_hints( 'Protected: %s', $reply_id ) );
+		add_filter( 'bbp_no_special_title_formatting', $filter, 10, 3 );
+
+		try {
+			$this->assertSame( 'Forum: %s', bbp_no_title_status_hints( 'Protected: %s', $forum_id ) );
+		} finally {
+			remove_filter( 'bbp_no_special_title_formatting', $filter, 10 );
 		}
 	}
 
