@@ -166,6 +166,41 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * @covers ::bbp_edit_reply_handler
+	 */
+	public function test_participant_can_edit_own_reply_in_closed_topic_and_forum_theme_side() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+
+		bbp_close_topic( $topic_id );
+		bbp_close_forum( $forum_id );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$did_redirect = $this->submit_reply_edit( $reply_id, 'Participant reply edit in closed content.' );
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Participant reply edit in closed content.', get_post_field( 'post_content', $reply_id ) );
+		$this->assertTrue( $did_redirect );
+	}
+
 	protected function submit_reply_move( $reply_id, $move_option, $destination_topic_id = 0, $destination_title = null ) {
 		$home_url             = wp_parse_url( home_url( '/' ) );
 		$_SERVER['HTTP_HOST'] = $home_url['host'];

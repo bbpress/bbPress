@@ -106,7 +106,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$post_type = get_post_type_object( $_post->post_type );
 
 					// Post is public
-					if ( bbp_get_public_status_id() === $_post->post_status ) {
+					if ( in_array( $_post->post_status, bbp_get_public_topic_statuses(), true ) ) {
 
 						// Anonymous users do not have caps, but can 'exist'
 						if ( bbp_is_anonymous() ) {

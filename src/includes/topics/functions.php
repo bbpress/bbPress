@@ -579,8 +579,8 @@ function bbp_edit_topic_handler( $action = '' ) {
 		// Forum is not a category
 		} else {
 
-			// Forum not editable by user
-			if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
+			// Forum not editable by user and topic is moving
+			if ( ( $forum_id !== $current_forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
 
 				// Forum is closed
 				if ( bbp_is_forum_closed( $forum_id ) ) {
