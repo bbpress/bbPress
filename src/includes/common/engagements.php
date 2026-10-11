@@ -409,6 +409,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * Remove a user id from all objects
 	 *
 	 * @since 2.6.0 bbPress (r6739)
+	 * @since 2.6.20 bbPress (r7958) Avoid a warning when the user relationship does not exist.
 	 *
 	 * @param int    $user_id   The user id
 	 * @param string $meta_key  The relationship key
@@ -421,6 +422,11 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		$tax_key  = "{$meta_key}_{$meta_type}";
 		$this->jit_taxonomy( $tax_key );
 		$term     = get_term_by( 'slug', $user_key, $tax_key );
+
+		// Bail if term does not exist.
+		if ( empty( $term ) ) {
+			return false;
+		}
 
 		return wp_delete_term( $term->term_id, $tax_key );
 	}
@@ -449,6 +455,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * Remove all users from all objects
 	 *
 	 * @since 2.6.0 bbPress (r6739)
+	 * @since 2.6.20 bbPress (r7958) Implement bulk term relationship cleanup.
 	 *
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
@@ -456,7 +463,34 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
-		// TODO
+		$tax_key = "{$meta_key}_{$meta_type}";
+		$this->jit_taxonomy( $tax_key );
+		$term_ids = get_terms(
+			array(
+				'taxonomy'               => $tax_key,
+				'hide_empty'             => false,
+				'fields'                 => 'ids',
+				'orderby'                => 'none',
+				'cache_results'          => false,
+				'update_term_meta_cache' => false
+			)
+		);
+
+		// Bail if terms cannot be queried.
+		if ( is_wp_error( $term_ids ) ) {
+			return false;
+		}
+
+		// Delete all relationship terms and their object relationships.
+		foreach ( $term_ids as $term_id ) {
+			$deleted = wp_delete_term( $term_id, $tax_key );
+
+			if ( is_wp_error( $deleted ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
