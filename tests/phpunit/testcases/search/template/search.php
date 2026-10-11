@@ -108,6 +108,133 @@ class BBP_Tests_Search_Template_Search extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_search_pagination_base
+	 */
+	public function test_bbp_get_search_pagination_base_with_ugly_permalinks() {
+		global $wp_query;
+
+		$old_permalinks = get_option( 'permalink_structure' );
+		$old_request_uri = $_SERVER['REQUEST_URI'];
+		$old_singular    = $wp_query->is_singular;
+
+		try {
+			$this->set_permalink_structure();
+			$_SERVER['REQUEST_URI'] = '/?bbp_search=sample-query';
+
+			$this->assertSame( '/?bbp_search=sample-query&paged=%#%', bbp_get_search_pagination_base() );
+
+			$wp_query->is_singular = true;
+			$this->assertSame( '/?bbp_search=sample-query&paged=%#%', bbp_get_search_pagination_base() );
+		} finally {
+			$_SERVER['REQUEST_URI'] = $old_request_uri;
+			$wp_query->is_singular  = $old_singular;
+			$this->set_permalink_structure( $old_permalinks );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_search_pagination_base
+	 */
+	public function test_bbp_get_search_pagination_base_with_pretty_permalinks() {
+		$old_permalinks = get_option( 'permalink_structure' );
+		$filter         = static function() {
+			return home_url( '/forums/search/sample-query/' );
+		};
+
+		add_filter( 'bbp_get_search_results_url', $filter );
+
+		try {
+			$this->set_permalink_structure( '/%postname%/' );
+
+			$this->assertFalse( is_singular() );
+			$this->assertSame(
+				home_url( '/forums/search/sample-query/page/%#%/' ),
+				bbp_get_search_pagination_base()
+			);
+		} finally {
+			remove_filter( 'bbp_get_search_results_url', $filter );
+			$this->set_permalink_structure( $old_permalinks );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_search_pagination_base
+	 */
+	public function test_bbp_get_search_pagination_base_respects_permalink_trailing_slashes() {
+		$old_permalinks = get_option( 'permalink_structure' );
+		$filter         = static function() {
+			return home_url( '/forums/search/sample-query' );
+		};
+
+		add_filter( 'bbp_get_search_results_url', $filter );
+
+		try {
+			$this->set_permalink_structure( '/%postname%' );
+
+			$this->assertSame(
+				home_url( '/forums/search/sample-query/page/%#%' ),
+				bbp_get_search_pagination_base()
+			);
+		} finally {
+			remove_filter( 'bbp_get_search_results_url', $filter );
+			$this->set_permalink_structure( $old_permalinks );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_search_pagination_base
+	 */
+	public function test_bbp_get_search_pagination_base_for_singular_content() {
+		global $post, $wp_query;
+
+		$old_permalinks = get_option( 'permalink_structure' );
+		$old_post       = $post;
+		$old_singular   = $wp_query->is_singular;
+		$post_id        = self::factory()->post->create( array( 'post_name' => 'search-shortcode' ) );
+
+		try {
+			$this->set_permalink_structure( '/%postname%/' );
+			$post                  = get_post( $post_id );
+			$wp_query->is_singular = true;
+
+			$this->assertTrue( is_singular() );
+			$this->assertSame(
+				home_url( '/search-shortcode/page/%#%/' ),
+				bbp_get_search_pagination_base()
+			);
+		} finally {
+			$post                  = $old_post;
+			$wp_query->is_singular = $old_singular;
+			$this->set_permalink_structure( $old_permalinks );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_search_pagination_base
+	 */
+	public function test_bbp_get_search_pagination_base_is_filterable() {
+		$old_request_uri = $_SERVER['REQUEST_URI'];
+		$received_base   = null;
+		$filter          = static function( $base ) use ( &$received_base ) {
+			$received_base = $base;
+
+			return 'https://example.org/filtered/';
+		};
+
+		add_filter( 'bbp_get_search_pagination_base', $filter );
+
+		try {
+			$_SERVER['REQUEST_URI'] = '/?bbp_search=filter-base';
+
+			$this->assertSame( 'https://example.org/filtered/', bbp_get_search_pagination_base() );
+			$this->assertSame( '/?bbp_search=filter-base&paged=%#%', $received_base );
+		} finally {
+			$_SERVER['REQUEST_URI'] = $old_request_uri;
+			remove_filter( 'bbp_get_search_pagination_base', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_search_pagination_count
 	 * @covers ::bbp_get_search_pagination_count
 	 */
