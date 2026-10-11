@@ -2692,14 +2692,71 @@ function bbp_get_allowed_tags() {
 /** Errors & Messages *********************************************************/
 
 /**
+ * Return the template notice context for the current POST action.
+ *
+ * @since 2.6.20 bbPress (r7969)
+ *
+ * @return string Template notice context.
+ */
+function bbp_get_template_notice_context() {
+
+	// Bail if not a POST request
+	if ( ! bbp_is_post_request() ) {
+		return '';
+	}
+
+	// Map form actions to their notice contexts
+	$action   = bbp_get_post_action();
+	$contexts = array(
+		'bbp-new-forum'  => 'forum',
+		'bbp-edit-forum' => 'forum',
+		'bbp-new-topic'  => 'topic',
+		'bbp-edit-topic' => 'topic',
+		'bbp-new-reply'  => 'reply',
+		'bbp-edit-reply' => 'reply',
+	);
+	$context  = isset( $contexts[ $action ] )
+		? $contexts[ $action ]
+		: '';
+
+	// Filter & return
+	return apply_filters( 'bbp_get_template_notice_context', $context, $action );
+}
+
+/**
+ * Return true|false if notices should display in one of the given contexts.
+ *
+ * @since 2.6.20 bbPress (r7969)
+ *
+ * @param string|array $context Context or contexts to check.
+ * @return bool
+ */
+function bbp_is_template_notice_context( $context = '' ) {
+	$notice_context = bbp_get_template_notice_context();
+
+	return empty( $context )
+		|| empty( $notice_context )
+		|| in_array( $notice_context, (array) $context, true );
+}
+
+/**
  * Display possible errors & messages inside a template file.
  *
  * @since 2.0.0 bbPress (r2970)
+ * @since 2.6.20 bbPress (r7969) Added the `$context` parameter.
+ *
+ * @param string $context Optional. Form context. Accepts 'forum', 'topic', or
+ *                        'reply'. Default empty.
  */
-function bbp_template_notices() {
+function bbp_template_notices( $context = '' ) {
 
 	// Bail if no notices or errors
 	if ( ! bbp_has_errors() ) {
+		return;
+	}
+
+	// Keep form submission notices in the form that handled the request
+	if ( ! bbp_is_template_notice_context( $context ) ) {
 		return;
 	}
 

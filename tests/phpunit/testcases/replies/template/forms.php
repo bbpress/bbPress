@@ -31,9 +31,10 @@ class BBP_Tests_Replies_Template_Forms extends BBP_UnitTestCase {
 		$old_method = $_SERVER['REQUEST_METHOD'];
 		$old_post = $_POST;
 		$old_request = $_REQUEST;
+		$post_action = preg_replace( '/_[0-9]+$/', '', $action );
 		$_SERVER['REQUEST_METHOD'] = 'POST';
-		$_POST = $values;
-		$_REQUEST = array_merge( $old_request, $values, array( '_wpnonce' => wp_create_nonce( $action ) ) );
+		$_POST = array_merge( $values, array( 'action' => $post_action ) );
+		$_REQUEST = array_merge( $old_request, $values, array( 'action' => $post_action, '_wpnonce' => wp_create_nonce( $action ) ) );
 
 		try {
 			$callback();
@@ -212,8 +213,23 @@ class BBP_Tests_Replies_Template_Forms extends BBP_UnitTestCase {
 			$_SERVER['REQUEST_METHOD'] = 'GET';
 			$this->assertFalse( bbp_is_reply_form_post_request() );
 		} );
-		$this->with_reply_post( 'bbp-edit-reply', array(), function() {
-			$this->assertTrue( bbp_is_reply_form_post_request() );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$this->with_reply_edit( $reply_id, function() use ( $reply_id ) {
+			$this->with_reply_post( 'bbp-edit-reply_' . $reply_id, array(), function() {
+				$this->assertTrue( bbp_is_reply_form_post_request() );
+			} );
 		} );
 	}
 }

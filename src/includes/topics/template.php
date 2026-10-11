@@ -4242,13 +4242,20 @@ function bbp_is_topic_form_post_request() {
 		return false;
 	}
 
+	$action = bbp_get_post_action();
+
+	// Bail if not a topic form action
+	if ( ! bbp_is_post_action( array( 'bbp-new-topic', 'bbp-edit-topic' ) ) ) {
+		return false;
+	}
+
 	// Creating a new topic
-	if ( bbp_verify_nonce_request( 'bbp-new-topic' ) ) {
+	if ( ( 'bbp-new-topic' === $action ) && bbp_verify_nonce_request( 'bbp-new-topic' ) ) {
 		return true;
 	}
 
 	// Editing an existing topic
-	if ( bbp_verify_nonce_request( 'bbp-edit-topic_' . bbp_get_topic_id() ) ) {
+	if ( ( 'bbp-edit-topic' === $action ) && bbp_verify_nonce_request( 'bbp-edit-topic_' . bbp_get_topic_id() ) ) {
 		return true;
 	}
 

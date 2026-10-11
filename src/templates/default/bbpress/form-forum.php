@@ -67,7 +67,7 @@ if ( bbp_is_forum_edit() ) : ?>
 
 				<?php endif; ?>
 
-				<?php do_action( 'bbp_template_notices' ); ?>
+				<?php do_action( 'bbp_template_notices', 'forum' ); ?>
 
 				<div>
 

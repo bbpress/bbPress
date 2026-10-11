@@ -636,6 +636,33 @@ function bbp_delete_rewrite_rules() {
 /** Requests ******************************************************************/
 
 /**
+ * Return the sanitized action for the current POST request.
+ *
+ * @since 2.6.20 bbPress (r7969)
+ *
+ * @return string
+ */
+function bbp_get_post_action() {
+	return ! empty( $_POST['action'] ) && is_string( $_POST['action'] )
+		? sanitize_key( $_POST['action'] )
+		: '';
+}
+
+/**
+ * Return true|false if this is a POST request for one of the given actions.
+ *
+ * @since 2.6.20 bbPress (r7969)
+ *
+ * @param string|array $action Action or actions to check.
+ * @return bool
+ */
+function bbp_is_post_action( $action = '' ) {
+	$post_action = bbp_get_post_action();
+
+	return ! empty( $post_action ) && bbp_is_post_request() && in_array( $post_action, (array) $action, true );
+}
+
+/**
  * Return true|false if this is a POST request.
  *
  * @since 2.3.0 bbPress (r4791)

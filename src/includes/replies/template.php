@@ -2924,13 +2924,20 @@ function bbp_is_reply_form_post_request() {
 		return false;
 	}
 
+	$action = bbp_get_post_action();
+
+	// Bail if not a reply form action
+	if ( ! bbp_is_post_action( array( 'bbp-new-reply', 'bbp-edit-reply' ) ) ) {
+		return false;
+	}
+
 	// Creating a new reply
-	if ( bbp_verify_nonce_request( 'bbp-new-reply' ) ) {
+	if ( ( 'bbp-new-reply' === $action ) && bbp_verify_nonce_request( 'bbp-new-reply' ) ) {
 		return true;
 	}
 
 	// Editing an existing reply
-	if ( bbp_verify_nonce_request( 'bbp-edit-reply' ) ) {
+	if ( ( 'bbp-edit-reply' === $action ) && bbp_verify_nonce_request( 'bbp-edit-reply_' . bbp_get_reply_id() ) ) {
 		return true;
 	}
 

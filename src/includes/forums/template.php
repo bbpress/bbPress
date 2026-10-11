@@ -2852,13 +2852,20 @@ function bbp_is_forum_form_post_request() {
 		return false;
 	}
 
+	$action = bbp_get_post_action();
+
+	// Bail if not a forum form action
+	if ( ! bbp_is_post_action( array( 'bbp-new-forum', 'bbp-edit-forum' ) ) ) {
+		return false;
+	}
+
 	// Creating a new forum
-	if ( bbp_verify_nonce_request( 'bbp-new-forum' ) ) {
+	if ( ( 'bbp-new-forum' === $action ) && bbp_verify_nonce_request( 'bbp-new-forum' ) ) {
 		return true;
 	}
 
 	// Editing an existing forum
-	if ( bbp_verify_nonce_request( 'bbp-edit-forum_' . bbp_get_forum_id() ) ) {
+	if ( ( 'bbp-edit-forum' === $action ) && bbp_verify_nonce_request( 'bbp-edit-forum_' . bbp_get_forum_id() ) ) {
 		return true;
 	}
 

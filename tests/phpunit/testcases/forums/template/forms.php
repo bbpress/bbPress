@@ -31,9 +31,10 @@ class BBP_Tests_Forums_Template_Forms extends BBP_UnitTestCase {
 		$old_method  = $_SERVER['REQUEST_METHOD'];
 		$old_post    = $_POST;
 		$old_request = $_REQUEST;
+		$post_action = preg_replace( '/_[0-9]+$/', '', $action );
 		$_SERVER['REQUEST_METHOD'] = 'POST';
-		$_POST = $values;
-		$_REQUEST = array_merge( $old_request, $values, array( '_wpnonce' => wp_create_nonce( $action ) ) );
+		$_POST = array_merge( $values, array( 'action' => $post_action ) );
+		$_REQUEST = array_merge( $old_request, $values, array( 'action' => $post_action, '_wpnonce' => wp_create_nonce( $action ) ) );
 
 		try {
 			$callback();
