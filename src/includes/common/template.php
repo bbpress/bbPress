@@ -2177,7 +2177,7 @@ function bbp_get_quicktags_settings( $settings = array() ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id.
+ * @param string|int $view Optional. View ID.
  */
 function bbp_view_id( $view = '' ) {
 	echo bbp_get_view_id( $view );
@@ -2186,20 +2186,21 @@ function bbp_view_id( $view = '' ) {
 /**
  * Get the view id.
  *
- * Use view id if supplied, otherwise bbp_get_view_rewrite_id() query var.
+ * Uses the supplied view ID, then the current view ID, then the view rewrite
+ * query var.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id.
+ * @param string|int $view Optional. View ID.
  *
- * @return bool|string ID on success, false on failure.
+ * @return string View ID, or empty string if none is set.
  */
 function bbp_get_view_id( $view = '' ) {
 	$bbp = bbpress();
 
 	// User supplied string
-	if ( ! empty( $view ) && is_string( $view ) ) {
-		$view_id = $view;
+	if ( ! empty( $view ) && ( is_string( $view ) || is_int( $view ) ) ) {
+		$view_id = (string) $view;
 
 	// Current view ID
 	} elseif ( ! empty( $bbp->current_view_id ) ) {
@@ -2208,6 +2209,13 @@ function bbp_get_view_id( $view = '' ) {
 	// Querying for view
 	} else {
 		$view_id = get_query_var( bbp_get_view_rewrite_id() );
+	}
+
+	// View IDs are strings.
+	if ( is_int( $view_id ) ) {
+		$view_id = (string) $view_id;
+	} elseif ( ! is_string( $view_id ) ) {
+		$view_id = '';
 	}
 
 	// Filter & return
@@ -2219,7 +2227,7 @@ function bbp_get_view_id( $view = '' ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id.
+ * @param string|int $view Optional. View ID.
  */
 function bbp_view_title( $view = '' ) {
 	echo bbp_get_view_title( $view );
@@ -2228,12 +2236,12 @@ function bbp_view_title( $view = '' ) {
 /**
  * Get the view name aka title.
  *
- * If a view id is supplied, that is used. Otherwise the bbp_view
- * query var is checked for.
+ * Uses the supplied view ID, then the current view ID, then the view rewrite
+ * query var.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id.
+ * @param string|int $view Optional. View ID.
  *
  * @return bool|string Title on success, false on failure.
  */
@@ -2253,7 +2261,7 @@ function bbp_get_view_title( $view = '' ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id.
+ * @param string|int|false $view Optional. View ID.
  */
 function bbp_view_url( $view = false ) {
 	echo esc_url( bbp_get_view_url( $view ) );
@@ -2263,9 +2271,9 @@ function bbp_view_url( $view = false ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id.
+ * @param string|int|false $view Optional. View ID.
  *
- * @return string View url (or home url if the view was not found).
+ * @return string View URL, or home URL if no view resolves.
  */
 function bbp_get_view_url( $view = false ) {
 

@@ -1395,17 +1395,269 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_view_id
+	 * @covers ::bbp_get_view_id
+	 */
+	public function test_view_id_uses_explicit_current_and_query_values_and_applies_filter() {
+		global $wp_query;
+
+		$bbp              = bbpress();
+		$old_current_view = $bbp->current_view_id;
+		$rewrite_id       = bbp_get_view_rewrite_id();
+		$had_query_view   = array_key_exists( $rewrite_id, $wp_query->query_vars );
+		$old_query_view   = get_query_var( $rewrite_id );
+		$filter_calls     = array();
+		$filter           = function( $view_id, $view ) use ( &$filter_calls ) {
+			$filter_calls[] = array( $view_id, $view );
+
+			if ( 'explicit-view' === $view ) {
+				return $view_id . '-filtered';
+			}
+
+			return $view_id;
+		};
+		add_filter( 'bbp_get_view_id', $filter, 10, 2 );
+
+		try {
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, 'query-view' );
+			$this->assertSame( 'query-view', bbp_get_view_id() );
+
+			$bbp->current_view_id = 'current-view';
+			$this->assertSame( 'current-view', bbp_get_view_id() );
+			$this->assertSame( 'explicit-view-filtered', bbp_get_view_id( 'explicit-view' ) );
+			$this->assertSame( '123', bbp_get_view_id( 123 ) );
+			$this->assertSame( 'current-view', bbp_get_view_id( false ) );
+
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, '' );
+			$this->assertSame( '', bbp_get_view_id() );
+
+			set_query_var( $rewrite_id, array( 'malformed-view' ) );
+			$this->assertSame( '', bbp_get_view_id() );
+
+			$this->expectOutputString( 'output-view' );
+			bbp_view_id( 'output-view' );
+
+			$this->assertSame(
+				array(
+					array( 'query-view', '' ),
+					array( 'current-view', '' ),
+					array( 'explicit-view', 'explicit-view' ),
+					array( '123', 123 ),
+					array( 'current-view', false ),
+					array( '', '' ),
+					array( '', '' ),
+					array( 'output-view', 'output-view' ),
+				),
+				$filter_calls
+			);
+		} finally {
+			remove_filter( 'bbp_get_view_id', $filter, 10 );
+			$bbp->current_view_id = $old_current_view;
+			if ( $had_query_view ) {
+				set_query_var( $rewrite_id, $old_query_view );
+			} else {
+				unset( $wp_query->query_vars[ $rewrite_id ] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_view_id
+	 * @covers ::bbp_get_view_title
+	 * @covers ::bbp_get_view_url
+	 * @ticket BBP3734
+	 */
+	public function test_view_helpers_reject_malformed_query_values() {
+		global $wp_query;
+
+		$bbp              = bbpress();
+		$old_current_view = $bbp->current_view_id;
+		$rewrite_id       = bbp_get_view_rewrite_id();
+		$had_query_view   = array_key_exists( $rewrite_id, $wp_query->query_vars );
+		$old_query_view   = get_query_var( $rewrite_id );
+
+		try {
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, array( 'malformed-view' ) );
+			$this->assertSame( '', bbp_get_view_id() );
+			$this->assertFalse( bbp_get_view_title() );
+			$this->assertSame( home_url(), bbp_get_view_url() );
+		} finally {
+			$bbp->current_view_id = $old_current_view;
+			if ( $had_query_view ) {
+				set_query_var( $rewrite_id, $old_query_view );
+			} else {
+				unset( $wp_query->query_vars[ $rewrite_id ] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_view_id
+	 * @covers ::bbp_get_view_title
+	 * @covers ::bbp_get_view_url
+	 * @ticket BBP3734
+	 */
+	public function test_view_helpers_support_numeric_registered_view_ids() {
+		$bbp            = bbpress();
+		$old_views      = $bbp->views;
+		$old_permalinks = get_option( 'permalink_structure' );
+
+		bbp_register_view( '123', 'Numeric View' );
+
+		try {
+			$this->set_permalink_structure();
+			$this->assertSame( '123', bbp_get_view_id( 123 ) );
+			$this->assertSame( 'Numeric View', bbp_get_view_title( 123 ) );
+			$this->assertSame(
+				add_query_arg( bbp_get_view_rewrite_id(), '123', home_url( '/' ) ),
+				bbp_get_view_url( 123 )
+			);
+		} finally {
+			$bbp->views = $old_views;
+			$this->set_permalink_structure( $old_permalinks );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_view_title
+	 * @covers ::bbp_get_view_title
+	 */
+	public function test_view_title_returns_and_outputs_registered_title() {
+		global $wp_query;
+
+		$bbp              = bbpress();
+		$old_views        = $bbp->views;
+		$old_current_view = $bbp->current_view_id;
+		$rewrite_id       = bbp_get_view_rewrite_id();
+		$had_query_view   = array_key_exists( $rewrite_id, $wp_query->query_vars );
+		$old_query_view   = get_query_var( $rewrite_id );
+		$view_id          = 'unit-test-template-view';
+		$title            = 'A &amp; B';
+
+		bbp_register_view( $view_id, 'A & B' );
+
+		try {
+			$this->assertSame( $title, bbp_get_view_title( $view_id ) );
+
+			$bbp->current_view_id = $view_id;
+			$this->assertSame( $title, bbp_get_view_title() );
+
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, $view_id );
+			$this->assertSame( $title, bbp_get_view_title() );
+
+			$this->expectOutputString( $title );
+			bbp_view_title( $view_id );
+		} finally {
+			$bbp->views           = $old_views;
+			$bbp->current_view_id = $old_current_view;
+			if ( $had_query_view ) {
+				set_query_var( $rewrite_id, $old_query_view );
+			} else {
+				unset( $wp_query->query_vars[ $rewrite_id ] );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_view_title
 	 * @ticket BBP3733
 	 */
 	public function test_view_title_returns_false_for_unregistered_view() {
-		bbp_register_view( 'unit-test-view', 'Unit Test View' );
+		global $wp_query;
+
+		$bbp              = bbpress();
+		$old_current_view = $bbp->current_view_id;
+		$rewrite_id       = bbp_get_view_rewrite_id();
+		$had_query_view   = array_key_exists( $rewrite_id, $wp_query->query_vars );
+		$old_query_view   = get_query_var( $rewrite_id );
 
 		try {
-			$this->assertSame( 'Unit Test View', bbp_get_view_title( 'unit-test-view' ) );
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, '' );
+			$this->assertFalse( bbp_get_view_title() );
 			$this->assertFalse( bbp_get_view_title( 'missing-view' ) );
+
+			$bbp->current_view_id = 'missing-current-view';
+			$this->assertFalse( bbp_get_view_title() );
+
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, 'missing-query-view' );
+			$this->assertFalse( bbp_get_view_title() );
 		} finally {
-			bbp_deregister_view( 'unit-test-view' );
+			$bbp->current_view_id = $old_current_view;
+			if ( $had_query_view ) {
+				set_query_var( $rewrite_id, $old_query_view );
+			} else {
+				unset( $wp_query->query_vars[ $rewrite_id ] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_view_url
+	 * @covers ::bbp_get_view_url
+	 */
+	public function test_view_url_supports_pretty_and_plain_permalinks_and_applies_filter() {
+		global $wp_query;
+
+		$bbp              = bbpress();
+		$old_permalinks   = get_option( 'permalink_structure' );
+		$old_current_view = $bbp->current_view_id;
+		$rewrite_id       = bbp_get_view_rewrite_id();
+		$had_query_view   = array_key_exists( $rewrite_id, $wp_query->query_vars );
+		$old_query_view   = get_query_var( $rewrite_id );
+		$filtered_view    = null;
+		$filter           = function( $url, $view ) use ( &$filtered_view ) {
+			$filtered_view = $view;
+
+			return add_query_arg(
+				array(
+					'first'  => '1',
+					'second' => '"quoted"',
+				),
+				$url
+			);
+		};
+
+		try {
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, '' );
+			$this->set_permalink_structure();
+			$this->assertSame( home_url(), bbp_get_view_url() );
+
+			add_filter( 'bbp_get_view_link', $filter, 10, 2 );
+			$plain_url = add_query_arg(
+				array(
+					bbp_get_view_rewrite_id() => 'unit-test-view',
+					'first'                   => '1',
+					'second'                  => '"quoted"',
+				),
+				home_url( '/' )
+			);
+			$this->assertSame( $plain_url, bbp_get_view_url( 'unit-test-view' ) );
+			$this->assertSame( 'unit-test-view', $filtered_view );
+			$this->expectOutputString( esc_url( $plain_url ) );
+			bbp_view_url( 'unit-test-view' );
+			remove_filter( 'bbp_get_view_link', $filter, 10 );
+
+			$this->set_permalink_structure( '/%postname%/' );
+			$this->assertSame(
+				home_url( '/forums/view/unit-test-view/' ),
+				bbp_get_view_url( 'unit-test-view' )
+			);
+		} finally {
+			remove_filter( 'bbp_get_view_link', $filter, 10 );
+			$this->set_permalink_structure( $old_permalinks );
+			$bbp->current_view_id = $old_current_view;
+			if ( $had_query_view ) {
+				set_query_var( $rewrite_id, $old_query_view );
+			} else {
+				unset( $wp_query->query_vars[ $rewrite_id ] );
+			}
 		}
 	}
 
