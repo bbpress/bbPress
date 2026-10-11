@@ -459,7 +459,7 @@ class BBP_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6897)
 	 *
-	 * @global menu $menu
+	 * @global array $menu WordPress admin menu entries.
 	 */
 	public function add_upgrade_count() {
 		global $menu;

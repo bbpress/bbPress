@@ -93,8 +93,6 @@ class BBP_User_Query extends WP_User_Query {
 	 *
 	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
-	 *
-	 * @global WP_User $user
 	 */
 	public function the_user() {
 		$this->in_the_loop = true;

@@ -2806,6 +2806,8 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  * @since 2.3.0 bbPress (r4808)
  * @since 2.6.19 bbPress (r7691) Exclude restricted forum IDs from post__in queries.
  *
+ * @global string $pagenow The filename of the current screen.
+ *
  * @param WP_Query $posts_query
  *
  * @return WP_Query

@@ -4018,7 +4018,7 @@ function bbp_update_topic_tag_count( $terms, $taxonomy ) {
  *
  * @since 2.1.0 bbPress (r3753)
  *
- * @global WP_Embed $wp_embed
+ * @global WP_Embed $wp_embed WordPress Embed object.
  */
 function bbp_topic_content_autoembed() {
 	global $wp_embed;

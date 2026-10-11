@@ -355,8 +355,9 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
  *
  * @since 2.0.0 bbPress (r3108)
  *
- * @global WP_Query $wp_query
- * @global object $post
+ * @global WP_Query $wp_query WordPress query object.
+ * @global WP_Post  $post     Global post object.
+ *
  * @param array $args
  */
 function bbp_theme_compat_reset_post( $args = array() ) {
@@ -489,6 +490,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * the current query post so shortcodes restore the correct post data.
  *
  * @since 2.6.20 bbPress (r7847)
+ *
+ * @global WP_Post $post Global post object.
  *
  * @param WP_Post $page Root page.
  * @return string Filtered page content.
@@ -1002,13 +1005,14 @@ function bbp_do_not_redirect_paginations( $redirect_url = '' ) {
 /** Filters *******************************************************************/
 
 /**
- * Removes all filters from a WordPress filter, and stashes them in the $bbp
- * global in the event they need to be restored later.
+ * Removes all filters from a WordPress filter, and stashes them in the bbPress
+ * instance in the event they need to be restored later.
  *
  * @since 2.0.0 bbPress (r3251)
  *
- * @global WP_filter $wp_filter
- * @global array $merged_filters
+ * @global WP_Hook[] $wp_filter      Stores all of the filters and actions.
+ * @global array     $merged_filters Tracks the tags that need to be merged for later.
+ *
  * @param string $tag
  * @param int $priority
  * @return bool
@@ -1055,13 +1059,14 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
 }
 
 /**
- * Restores filters from the $bbp global that were removed using
+ * Restores filters from the bbPress instance that were removed using
  * bbp_remove_all_filters().
  *
  * @since 2.0.0 bbPress (r3251)
  *
- * @global WP_filter $wp_filter
- * @global array $merged_filters
+ * @global WP_Hook[] $wp_filter      Stores all of the filters and actions.
+ * @global array     $merged_filters Tracks the tags that need to be merged for later.
+ *
  * @param string $tag
  * @param int $priority
  * @return bool

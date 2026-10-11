@@ -306,6 +306,8 @@ class BBP_BuddyPress_Activity {
 	 * Activity can outlive a forum visibility or parent change, so the stored
 	 * hide_sitewide value alone cannot protect previously public entries.
 	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
 	 * @param array $where_conditions BuddyPress activity query conditions.
 	 * @param array $args BuddyPress activity query arguments.
 	 * @return array Filtered conditions.
@@ -567,7 +569,8 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @since 2.2.0 bbPress (r4394)
 	 *
-	 * @global BP_Activity_Template $activities_template
+	 * @global BP_Activity_Template $activities_template BuddyPress activity loop template.
+	 *
 	 * @param boolean $can_comment
 	 * @return boolean
 	 */

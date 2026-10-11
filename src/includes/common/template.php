@@ -949,8 +949,6 @@ function bbp_is_single_user_engagements() {
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true.
- *
  * @return bool Is it a view page?
  */
 function bbp_is_single_view() {
@@ -979,8 +977,6 @@ function bbp_is_single_view() {
  * Check if current page is a search page.
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true.
  *
  * @return bool Is it a search page?
  */
@@ -1023,8 +1019,6 @@ function bbp_is_search() {
  * Check if current page is a search results page.
  *
  * @since 2.4.0 bbPress (r4919)
- *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true.
  *
  * @return bool Is it a search page?
  */

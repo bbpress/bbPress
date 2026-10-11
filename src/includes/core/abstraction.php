@@ -469,8 +469,6 @@ function bbp_get_paged_slug() {
  *
  * @since 2.6.0 bbPress (r5826)
  *
- * @global object $wp_rewrite The WP_Rewrite object.
- *
  * @return bool
  */
 function bbp_use_pretty_urls() {
@@ -571,7 +569,7 @@ function bbp_paginate_links( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6051)
  *
- * @global string $wp_version
+ * @global string $wp_version The WordPress version string.
  *
  * @return string $wp_version
  */

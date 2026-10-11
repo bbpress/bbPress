@@ -161,6 +161,8 @@ function bbp_version_bump() {
  * @since 2.0.0 bbPress (r3419)
  * @since 2.6.19 bbPress (r7644) Moved to "bbp_current_screen" hook
  *
+ * @global string $pagenow The filename of the current screen.
+ *
  * @param WP_Screen|null $current_screen Current admin screen.
  */
 function bbp_setup_updater( $current_screen = null ) {

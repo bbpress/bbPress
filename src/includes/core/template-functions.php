@@ -330,9 +330,9 @@ function bbp_deregister_template_stack( $location_callback = '', $priority = 10 
  * @since 2.2.0 bbPress (r4324)
  * @since 2.6.0 bbPress (r5944) Added support for `WP_Hook`
  *
- * @global array $wp_filter Stores all of the filters.
- * @global array $merged_filters Merges the filter hooks using this function.
- * @global array $wp_current_filter stores the list of current filters with the current one last.
+ * @global WP_Hook[] $wp_filter         Stores all of the filters and actions.
+ * @global array     $merged_filters    Tracks the tags that need to be merged for later.
+ * @global string[]  $wp_current_filter Stores the list of current filters with the current one last.
  *
  * @return array The filtered value after all hooked functions are applied to it.
  */

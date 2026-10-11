@@ -764,7 +764,7 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3097)
 	 *
-	 * @global int $post_ID
+	 * @global int $post_ID ID of the post being edited.
 	 *
 	 * @param array $messages
 	 *

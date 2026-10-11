@@ -27,7 +27,8 @@ function bbp_ajax_url() {
  *
  * @since 2.3.0 bbPress (r4548)
  *
- * @global WP $wp
+ * @global WP $wp Current WordPress environment instance.
+ *
  * @return string
  */
 function bbp_get_ajax_url() {

@@ -283,12 +283,10 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
-	 * @param int $post_id Post id.
+	 * @global WP_User    $current_user The current user object.
+	 * @global WP_Network $current_site The current network.
 	 *
-	 * @global string $akismet_api_host
-	 * @global string $akismet_api_port
-	 * @global object $current_user
-	 * @global object $current_site
+	 * @param int $post_id Post id.
 	 *
 	 * @return array Array of existing topic terms.
 	 */
@@ -449,12 +447,12 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3278)
 	 *
+	 * @global string $akismet_api_host Akismet API host.
+	 * @global string $akismet_api_port Akismet API port.
+	 *
 	 * @param array $post_data
 	 * @param string $check Accepts check|submit.
 	 * @param string $spam Accepts spam|ham.
-	 *
-	 * @global string $akismet_api_host
-	 * @global string $akismet_api_port
 	 *
 	 * @return array Array of post data.
 	 */
@@ -564,8 +562,6 @@ class BBP_Akismet {
 	 *
 	 * @param int $post_id Post id.
 	 * @param object $_post
-	 *
-	 * @global object $this->last_post
 	 */
 	public function update_post_meta( $post_id = 0, $_post = false ) {
 
@@ -1089,7 +1085,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.6.7 bbPress (r7204)
 	 *
-	 * @global wpdb $wpdb
+	 * @global wpdb $wpdb WordPress database abstraction object.
 	 */
 	public function delete_old_spam() {
 		global $wpdb;
@@ -1174,7 +1170,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.6.7 bbPress (r7204)
 	 *
-	 * @global wpdb $wpdb
+	 * @global wpdb $wpdb WordPress database abstraction object.
 	 */
 	public function delete_old_spam_meta() {
 		global $wpdb;
@@ -1234,7 +1230,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.6.7 bbPress (r7204)
 	 *
-	 * @global wpdb $wpdb
+	 * @global wpdb $wpdb WordPress database abstraction object.
 	 */
 	public function delete_orphaned_spam_meta() {
 		global $wpdb;
@@ -1326,7 +1322,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.7.0 bbPress (r7204)
 	 *
-	 * @global wpdb $wpdb
+	 * @global wpdb $wpdb WordPress database abstraction object.
 	 */
 	private function maybe_optimize_postmeta() {
 		global $wpdb;

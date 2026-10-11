@@ -56,6 +56,8 @@ function bbp_setup_buddypress() {
 		 *
 		 * @since 2.2.0 bbPress (r4396)
 		 *
+		 * @global BuddyPress $bp BuddyPress instance.
+		 *
 		 * @return BuddyPress
 		 */
 		function buddypress() {

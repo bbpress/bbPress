@@ -16,6 +16,9 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.7.0 bbPress (r7485)
  * @since 2.6.19 bbPress (r7683) Validate publication and date changes.
  *
+ * @global int    $bbp_xmlrpc_error_post_id   ID of the post that failed XML-RPC validation.
+ * @global string $bbp_xmlrpc_error_post_type Post type of the post that failed XML-RPC validation.
+ *
  * @param string $method XML-RPC method name.
  * @param array  $args   XML-RPC method arguments.
  */
@@ -235,6 +238,9 @@ function bbp_xmlrpc_post_date_changed( $post_data, $post ) {
  * Deny a post capability when an XML-RPC edit failed bbPress validation.
  *
  * @since 2.7.0 bbPress (r7485)
+ *
+ * @global int    $bbp_xmlrpc_error_post_id   ID of the post that failed XML-RPC validation.
+ * @global string $bbp_xmlrpc_error_post_type Post type of the post that failed XML-RPC validation.
  *
  * @param array  $caps    Required capabilities.
  * @param string $cap     Requested capability.

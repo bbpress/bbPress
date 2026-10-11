@@ -2277,7 +2277,8 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
  *
  * @deprecated 2.5.8 bbPress (r5814)
  *
- * @global WP $wp
+ * @global WP $wp Current WordPress environment instance.
+ *
  * @param string $where
  * @param WP_Query $query
  * @return string

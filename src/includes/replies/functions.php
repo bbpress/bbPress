@@ -2187,7 +2187,7 @@ function bbp_get_replies_per_rss_page( $default = 25 ) {
  *
  * @since 2.1.0 bbPress (r3753)
  *
- * @global WP_Embed $wp_embed
+ * @global WP_Embed $wp_embed WordPress Embed object.
  */
 function bbp_reply_content_autoembed() {
 	global $wp_embed;
