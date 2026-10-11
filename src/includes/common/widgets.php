@@ -718,6 +718,11 @@ class BBP_Topics_Widget extends WP_Widget {
 		// bbPress filter
 		$settings['title'] = apply_filters( 'bbp_topic_widget_title', $settings['title'], $instance, $this->id_base );
 
+		// Use the WordPress default to query topics from any forum
+		if ( 'any' === $settings['parent_forum'] ) {
+			$settings['parent_forum'] = '';
+		}
+
 		// How do we want to order our results?
 		switch ( $settings['order_by'] ) {
 
