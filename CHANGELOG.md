@@ -55,6 +55,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept the Login widget logout link readable when themes style widget links and
+  buttons with conflicting colors.
 - Kept validation notices and nonce checks scoped to the submitted form when
   multiple forum, topic, or reply forms share a page.
 - Allowed authors to edit existing topics and replies after their topic or

@@ -2813,30 +2813,36 @@ function bbp_template_notices( $context = '' ) {
  * Output the logout link.
  *
  * @since 2.0.0 bbPress (r2827)
+ * @since 2.7.0 Added the `$classes` parameter.
  *
  * @param string $redirect_to Redirect to url.
+ * @param array  $classes     Classes to add to the logout link.
  */
-function bbp_logout_link( $redirect_to = '' ) {
-	echo bbp_get_logout_link( $redirect_to );
+function bbp_logout_link( $redirect_to = '', $classes = array( 'button', 'logout-link' ) ) {
+	echo bbp_get_logout_link( $redirect_to, $classes );
 }
 
 /**
  * Return the logout link.
  *
  * @since 2.0.0 bbPress (r2827)
+ * @since 2.7.0 Added the `$classes` parameter.
  *
  * @param string $redirect_to Redirect to url.
- *                            redirect to url.
+ * @param array  $classes     Classes to add to the logout link.
  *
  * @return string The logout link.
  */
-function bbp_get_logout_link( $redirect_to = '' ) {
+function bbp_get_logout_link( $redirect_to = '', $classes = array( 'button', 'logout-link' ) ) {
+
+	// Sanitize classes
+	$classes = implode( ' ', array_map( 'sanitize_html_class', $classes ) );
 
 	// Build the link
-	$link = '<a href="' . wp_logout_url( $redirect_to ) . '" class="button logout-link">' . esc_html__( 'Log Out', 'bbpress' ) . '</a>';
+	$link = '<a href="' . wp_logout_url( $redirect_to ) . '" class="' . esc_attr( $classes ) . '">' . esc_html__( 'Log Out', 'bbpress' ) . '</a>';
 
 	// Filter & return
-	return apply_filters( 'bbp_get_logout_link', $link, $redirect_to );
+	return apply_filters( 'bbp_get_logout_link', $link, $redirect_to, $classes );
 }
 
 /** Title *********************************************************************/
