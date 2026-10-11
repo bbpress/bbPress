@@ -281,6 +281,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 	/**
 	 * @covers BBP_Admin::admin_menus
 	 * @covers BBP_Admin::admin_head
+	 * @ticket 3480
 	 * @ticket 3706
 	 */
 	public function test_admin_menus_register_and_hide_grouped_pages() {
@@ -305,6 +306,14 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			$this->assertContains( 'bbpress', wp_list_pluck( $GLOBALS['submenu']['options-general.php'], 2 ) );
 			$this->assertContains( 'bbp-about', wp_list_pluck( $GLOBALS['submenu']['index.php'], 2 ) );
 			$this->assertContains( 'bbp-credits', wp_list_pluck( $GLOBALS['submenu']['index.php'], 2 ) );
+			$about = wp_list_filter( $GLOBALS['submenu']['index.php'], array( 2 => 'bbp-about' ) );
+			$about = reset( $about );
+			$this->assertSame( 'Welcome to bbPress', $about[0] );
+			$this->assertSame( 'Welcome to bbPress', $about[3] );
+			$credits = wp_list_filter( $GLOBALS['submenu']['index.php'], array( 2 => 'bbp-credits' ) );
+			$credits = reset( $credits );
+			$this->assertSame( 'Credits', $credits[0] );
+			$this->assertSame( 'Welcome to bbPress', $credits[3] );
 			$upgrade_hook = get_plugin_page_hookname( 'bbp-upgrade', 'tools.php' );
 			$this->assertSame( 10, has_action( 'admin_head-' . $upgrade_hook, 'bbp_tools_modify_menu_highlight' ) );
 

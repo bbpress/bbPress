@@ -558,7 +558,7 @@ class BBP_Admin {
 			// Credits
 			add_dashboard_page(
 				esc_html__( 'Welcome to bbPress',  'bbpress' ),
-				esc_html__( 'Welcome to bbPress',  'bbpress' ),
+				esc_html__( 'Credits',             'bbpress' ),
 				'bbp_about_page',
 				'bbp-credits',
 				array( $this, 'credits_screen' )
