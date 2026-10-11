@@ -117,6 +117,29 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 	return $forum_id;
 }
 
+/** Validation ***************************************************************/
+
+/**
+ * Validate a forum title.
+ *
+ * @since 2.6.20 bbPress (r7978)
+ *
+ * @param string $forum_title     Forum title.
+ * @param string $empty_error_code Optional. Error code for an empty title.
+ */
+function bbp_validate_forum_title( $forum_title = '', $empty_error_code = 'bbp_forum_title' ) {
+
+	// Title cannot be empty
+	if ( empty( $forum_title ) ) {
+		bbp_add_error( $empty_error_code, __( '<strong>Error</strong>: Your forum needs a title.', 'bbpress' ) );
+	}
+
+	// Title too long
+	if ( bbp_is_title_too_long( $forum_title ) ) {
+		bbp_add_error( 'bbp_forum_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
+	}
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -169,15 +192,8 @@ function bbp_new_forum_handler( $action = '' ) {
 	// Filter and sanitize
 	$forum_title = apply_filters( 'bbp_new_forum_pre_title', $forum_title );
 
-	// No forum title
-	if ( empty( $forum_title ) ) {
-		bbp_add_error( 'bbp_forum_title', __( '<strong>Error</strong>: Your forum needs a title.', 'bbpress' ) );
-	}
-
-	// Title too long
-	if ( bbp_is_title_too_long( $forum_title ) ) {
-		bbp_add_error( 'bbp_forum_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-	}
+	// Validate the forum title
+	bbp_validate_forum_title( $forum_title );
 
 	/** Forum Content *********************************************************/
 
@@ -493,15 +509,8 @@ function bbp_edit_forum_handler( $action = '' ) {
 	// Filter and sanitize
 	$forum_title = apply_filters( 'bbp_edit_forum_pre_title', $forum_title, $forum_id );
 
-	// No forum title
-	if ( empty( $forum_title ) ) {
-		bbp_add_error( 'bbp_edit_forum_title', __( '<strong>Error</strong>: Your forum needs a title.', 'bbpress' ) );
-	}
-
-	// Title too long
-	if ( bbp_is_title_too_long( $forum_title ) ) {
-		bbp_add_error( 'bbp_forum_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-	}
+	// Validate the forum title
+	bbp_validate_forum_title( $forum_title, 'bbp_edit_forum_title' );
 
 	/** Forum Content *********************************************************/
 
