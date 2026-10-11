@@ -470,6 +470,41 @@ function bbp_admin_repair_forum_topic_count() {
 }
 
 /**
+ * Recount forum subforums.
+ *
+ * @since 2.7.0 bbPress (r7971)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_subforum_count() {
+
+	// Define variables
+	/* translators: %s: Status of the counting process */
+	$statement = esc_html__( 'Counting the number of subforums in each forum&hellip; %s', 'bbpress' );
+	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$forums    = get_posts(
+		array(
+			'fields'      => 'ids',
+			'post_type'   => bbp_get_forum_post_type(),
+			'post_status' => array_keys( get_post_stati() ),
+			'numberposts' => -1
+		)
+	);
+
+	if ( empty( $forums ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	foreach ( $forums as $forum_id ) {
+		if ( false === bbp_update_forum_subforum_count( $forum_id ) ) {
+			return array( 2, sprintf( $statement, $result ) );
+		}
+	}
+
+	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
  * Recount topic in each topic-tag.
  *
  * @since 2.6.0 bbPress (r6256)

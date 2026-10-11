@@ -165,6 +165,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		bbp_register_default_repair_tools();
 
 		try {
+			$this->assertArrayHasKey( 'bbp-forum-subforums', bbp_admin()->tools );
+
 			$list = bbp_admin_repair_list();
 			$this->assertNotEmpty( $list );
 			foreach ( $list as $tool ) {
@@ -517,6 +519,43 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		// Forum topic count hidden.
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 2, $count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @ticket BBP3332
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count() {
+		$parent_ids = array();
+
+		foreach ( array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id(), 'draft', bbp_get_trash_status_id() ) as $status ) {
+			$parent_id    = $this->factory->forum->create( array( 'post_status' => $status ) );
+			$parent_ids[] = $parent_id;
+
+			foreach ( array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) as $child_status ) {
+				$child_id = $this->factory->forum->create(
+					array(
+						'post_parent' => $parent_id,
+						'post_status' => $child_status,
+					)
+				);
+			}
+
+			$this->factory->forum->create( array( 'post_parent' => $child_id ) );
+			bbp_update_forum_subforum_count( $parent_id, 99 );
+		}
+
+		$empty_forum_id = $this->factory->forum->create();
+		bbp_update_forum_subforum_count( $empty_forum_id, 99 );
+
+		$result = bbp_admin_repair_forum_subforum_count();
+
+		$this->assertSame( 0, $result[0] );
+
+		foreach ( $parent_ids as $parent_id ) {
+			$this->assertSame( 3, bbp_get_forum_subforum_count( $parent_id, true ) );
+		}
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $empty_forum_id, true ) );
 	}
 
 	/**

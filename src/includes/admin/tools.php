@@ -240,6 +240,20 @@ function bbp_register_default_repair_tools() {
 		)
 	);
 
+	// Count subforums
+	bbp_register_repair_tool(
+		array(
+			'id'          => 'bbp-forum-subforums',
+			'type'        => 'repair',
+			'title'       => esc_html__( 'Recount subforums in each forum', 'bbpress' ),
+			'description' => esc_html__( 'Run this if the number of subforums in any forums are incorrect.', 'bbpress' ),
+			'callback'    => 'bbp_admin_repair_forum_subforum_count',
+			'priority'    => 47,
+			'overhead'    => 'medium',
+			'components'  => array( bbp_get_forum_post_type() )
+		)
+	);
+
 	// Count topic tags
 	bbp_register_repair_tool(
 		array(
