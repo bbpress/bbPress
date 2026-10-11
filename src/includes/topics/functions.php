@@ -96,6 +96,29 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	return $topic_id;
 }
 
+/** Validation ***************************************************************/
+
+/**
+ * Validate a topic title.
+ *
+ * @since 2.6.20 bbPress (r7964)
+ *
+ * @param string $topic_title     Topic title.
+ * @param string $empty_error_code Optional. Error code for an empty title.
+ */
+function bbp_validate_topic_title( $topic_title = '', $empty_error_code = 'bbp_topic_title' ) {
+
+	// Title cannot be empty
+	if ( empty( $topic_title ) ) {
+		bbp_add_error( $empty_error_code, __( '<strong>Error</strong>: Your topic needs a title.', 'bbpress' ) );
+	}
+
+	// Title too long
+	if ( bbp_is_title_too_long( $topic_title ) ) {
+		bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
+	}
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -162,15 +185,8 @@ function bbp_new_topic_handler( $action = '' ) {
 	// Filter and sanitize
 	$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
 
-	// No topic title
-	if ( empty( $topic_title ) ) {
-		bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your topic needs a title.', 'bbpress' ) );
-	}
-
-	// Title too long
-	if ( bbp_is_title_too_long( $topic_title ) ) {
-		bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-	}
+	// Validate the topic title
+	bbp_validate_topic_title( $topic_title );
 
 	/** Topic Content *********************************************************/
 
@@ -604,15 +620,8 @@ function bbp_edit_topic_handler( $action = '' ) {
 	// Filter and sanitize
 	$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
 
-	// No topic title
-	if ( empty( $topic_title ) ) {
-		bbp_add_error( 'bbp_edit_topic_title', __( '<strong>Error</strong>: Your topic needs a title.', 'bbpress' ) );
-	}
-
-	// Title too long
-	if ( bbp_is_title_too_long( $topic_title ) ) {
-		bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-	}
+	// Validate the topic title
+	bbp_validate_topic_title( $topic_title, 'bbp_edit_topic_title' );
 
 	/** Topic Content *********************************************************/
 
@@ -1534,15 +1543,8 @@ function bbp_split_topic_handler( $action = '' ) {
 					// Filter the new topic title
 					$destination_topic_title = apply_filters( 'bbp_new_topic_pre_title', $destination_topic_title );
 
-					// Title cannot be empty
-					if ( empty( $destination_topic_title ) ) {
-						bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your topic needs a title.', 'bbpress' ) );
-					}
-
-					// Title too long
-					if ( bbp_is_title_too_long( $destination_topic_title ) ) {
-						bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-					}
+					// Validate the topic title
+					bbp_validate_topic_title( $destination_topic_title );
 
 					// Bail before converting the reply if there are errors
 					if ( bbp_has_errors() ) {

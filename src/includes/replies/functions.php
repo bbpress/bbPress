@@ -1417,15 +1417,8 @@ function bbp_move_reply_handler( $action = '' ) {
 					// Filter the new topic title
 					$destination_topic_title = apply_filters( 'bbp_new_topic_pre_title', $destination_topic_title );
 
-					// Title cannot be empty
-					if ( empty( $destination_topic_title ) ) {
-						bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your topic needs a title.', 'bbpress' ) );
-					}
-
-					// Title too long
-					if ( bbp_is_title_too_long( $destination_topic_title ) ) {
-						bbp_add_error( 'bbp_topic_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
-					}
+					// Validate the topic title
+					bbp_validate_topic_title( $destination_topic_title );
 
 					// Bail before converting the reply if there are errors
 					if ( bbp_has_errors() ) {
