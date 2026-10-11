@@ -112,6 +112,64 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @covers ::bbp_get_view_id
+	 * @covers ::bbp_get_view_title
+	 * @covers ::bbp_get_view_url
+	 * @ticket BBP3734
+	 */
+	public function test_view_id_rejects_malformed_query_values() {
+		global $wp_query;
+
+		$bbp              = bbpress();
+		$old_current_view = $bbp->current_view_id;
+		$rewrite_id       = bbp_get_view_rewrite_id();
+		$had_query_view   = array_key_exists( $rewrite_id, $wp_query->query_vars );
+		$old_query_view   = get_query_var( $rewrite_id );
+
+		try {
+			$bbp->current_view_id = '';
+			set_query_var( $rewrite_id, array( 'malformed-view' ) );
+			$this->assertSame( '', bbp_get_view_id() );
+			$this->assertFalse( bbp_get_view_title() );
+			$this->assertSame( home_url(), bbp_get_view_url() );
+		} finally {
+			$bbp->current_view_id = $old_current_view;
+			if ( $had_query_view ) {
+				set_query_var( $rewrite_id, $old_query_view );
+			} else {
+				unset( $wp_query->query_vars[ $rewrite_id ] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_view_id
+	 * @covers ::bbp_get_view_title
+	 * @covers ::bbp_get_view_url
+	 * @ticket BBP3734
+	 */
+	public function test_view_helpers_support_numeric_registered_view_ids() {
+		$bbp            = bbpress();
+		$old_views      = $bbp->views;
+		$old_permalinks = get_option( 'permalink_structure' );
+
+		bbp_register_view( '123', 'Numeric View' );
+
+		try {
+			$this->set_permalink_structure();
+			$this->assertSame( '123', bbp_get_view_id( 123 ) );
+			$this->assertSame( 'Numeric View', bbp_get_view_title( 123 ) );
+			$this->assertSame(
+				add_query_arg( bbp_get_view_rewrite_id(), '123', home_url( '/' ) ),
+				bbp_get_view_url( 123 )
+			);
+		} finally {
+			$bbp->views = $old_views;
+			$this->set_permalink_structure( $old_permalinks );
+		}
+	}
+
 	public static function body_class_specific_state_provider() {
 		return array(
 			'topic merge' => array(

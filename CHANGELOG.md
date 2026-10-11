@@ -28,6 +28,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Handled malformed and numeric topic-view identifiers without PHP errors or
+  broken view links.
 - Required a username or email address before submitting the lost password form.
 - Imported FluxBB replies without duplicating topic starters and preserved the
   source forum and topic reply counts.
