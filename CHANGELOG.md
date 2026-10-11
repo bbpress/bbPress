@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added an optional date format parameter to topic and reply post-date template functions.
 - Added a site-wide forum status setting for open, closed, or frozen posting.
 
 ### Changed

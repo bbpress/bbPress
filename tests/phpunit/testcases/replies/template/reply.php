@@ -303,6 +303,8 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_reply_post_date
 	 * @covers ::bbp_get_reply_post_date
+	 *
+	 * @ticket BBP3427
 	 */
 	public function test_bbp_get_reply_post_date() {
 		$f = $this->factory->forum->create();
@@ -337,16 +339,49 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		bbp_reply_post_date( $r );
 
 		// String, August 4, 2012 at 2:37 pm.
-		$datetime = bbp_get_topic_post_date( $r, false, false );
+		$datetime = bbp_get_reply_post_date( $r, false, false );
 		$this->assertSame( $result, $datetime );
 
 		// Humanized string, 4 days, 4 hours ago.
-		$datetime = bbp_get_topic_post_date( $r, true, false );
+		$datetime = bbp_get_reply_post_date( $r, true, false );
 		$this->assertSame( '1 hour, 6 minutes ago', $datetime );
 
 		// Humanized string using GMT formatted date, 4 days, 4 hours ago.
-		$datetime = bbp_get_topic_post_date( $r, true, true );
+		$datetime = bbp_get_reply_post_date( $r, true, true );
 		$this->assertSame( '1 hour, 6 minutes ago', $datetime );
+	}
+
+	/**
+	 * @covers ::bbp_reply_post_date
+	 * @covers ::bbp_get_reply_post_date
+	 *
+	 * @ticket BBP3427
+	 */
+	public function test_bbp_get_reply_post_date_with_custom_format() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_date'   => '2012-08-04 14:37:00',
+			'reply_meta'  => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$date   = get_post_time( 'Y-m-d', false, $r, true );
+		$time   = get_post_time( get_option( 'time_format' ), false, $r, true );
+		$result = sprintf( '%1$s at %2$s', $date, $time );
+
+		$this->assertSame( '2012-08-04', $date );
+		$this->assertSame( $result, bbp_get_reply_post_date( $r, false, false, 'Y-m-d' ) );
+		$this->expectOutputString( $result );
+		bbp_reply_post_date( $r, false, false, 'Y-m-d' );
 	}
 
 	/**
