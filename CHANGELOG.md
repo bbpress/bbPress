@@ -28,6 +28,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept validation notices and nonce checks scoped to the submitted form when
+  multiple forum, topic, or reply forms share a page.
 - Allowed authors to edit existing topics and replies after their topic or
   forum is closed and kept closed topics publicly readable, preserving the
   established new-content meaning of closing.

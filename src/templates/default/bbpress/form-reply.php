@@ -72,7 +72,7 @@ if ( bbp_is_reply_edit() ) : ?>
 
 				<?php endif; ?>
 
-				<?php do_action( 'bbp_template_notices' ); ?>
+				<?php do_action( 'bbp_template_notices', 'reply' ); ?>
 
 				<div>
 

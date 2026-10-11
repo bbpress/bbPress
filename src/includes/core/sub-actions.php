@@ -421,13 +421,8 @@ function bbp_post_request() {
 		return;
 	}
 
-	// Bail if no action, or if not a string (arrays not supported)
-	if ( empty( $_POST['action'] ) || ! is_string( $_POST['action'] ) ) {
-		return;
-	}
-
-	// Sanitize the POST action
-	$action = sanitize_key( $_POST['action'] );
+	// Get the POST action
+	$action = bbp_get_post_action();
 
 	// Bail if action was totally invalid
 	if ( empty( $action ) ) {
