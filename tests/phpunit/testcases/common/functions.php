@@ -1561,13 +1561,58 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_logout_url
-	 * @todo   Implement test_bbp_logout_url().
 	 */
 	public function test_bbp_logout_url() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$url      = 'https://example.org/logout/';
+		$redirect = home_url( '/forums/' );
+		$result   = bbp_logout_url( $url, $redirect );
+		$query    = array();
+		wp_parse_str( wp_parse_url( $result, PHP_URL_QUERY ), $query );
+
+		$this->assertSame( $redirect . '?loggedout=true', $query['redirect_to'] );
+		$this->assertSame( $url . '?redirect_to=already-set', bbp_logout_url( $url . '?redirect_to=already-set', $redirect ) );
+	}
+
+	/**
+	 * @covers ::bbp_logout_url
+	 */
+	public function test_bbp_logout_url_defaults_to_current_request() {
+		$server = $_SERVER;
+		$home   = wp_parse_url( home_url() );
+		$host   = $home['host'] . ( isset( $home['port'] ) ? ':' . $home['port'] : '' );
+
+		try {
+			$_SERVER['HTTP_HOST']    = $host;
+			$_SERVER['REQUEST_URI']  = '/forums/topic/current/';
+			$_SERVER['HTTP_REFERER'] = bbp_get_url_scheme() . $host . '/forums/topic/previous/';
+
+			$result = bbp_logout_url( 'https://example.org/logout/' );
+			$query  = array();
+			wp_parse_str( wp_parse_url( $result, PHP_URL_QUERY ), $query );
+
+			$this->assertSame( bbp_get_url_scheme() . $host . '/forums/topic/current/?loggedout=true', $query['redirect_to'] );
+		} finally {
+			$_SERVER = $server;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_logout_url
+	 */
+	public function test_bbp_logout_url_defaults_to_forum_root_without_current_request() {
+		$server = $_SERVER;
+
+		try {
+			unset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] );
+
+			$result = bbp_logout_url( 'https://example.org/logout/' );
+			$query  = array();
+			wp_parse_str( wp_parse_url( $result, PHP_URL_QUERY ), $query );
+
+			$this->assertSame( add_query_arg( 'loggedout', 'true', bbp_get_root_url() ), $query['redirect_to'] );
+		} finally {
+			$_SERVER = $server;
+		}
 	}
 
 	/**

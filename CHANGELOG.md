@@ -35,6 +35,8 @@ Development for the next bbPress release is in progress. See the active
 - Handled malformed and numeric topic-view identifiers without PHP errors or
   broken view links.
 - Required a username or email address before submitting the lost password form.
+- Made default logout links return to the current page instead of the
+  previous page.
 - Imported FluxBB replies without duplicating topic starters and preserved the
   source forum and topic reply counts.
 - Restored favorite and subscription removal from BuddyPress member profiles.
