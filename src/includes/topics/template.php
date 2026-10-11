@@ -3536,6 +3536,19 @@ function bbp_get_single_topic_description( $args = array() ) {
 		'get_single_topic_description'
 	);
 
+	/**
+	 * Filters whether to build the single topic description.
+	 *
+	 * @since 2.7.0 bbPress (r7970)
+	 *
+	 * @param bool  $use_description Whether to build the description.
+	 * @param array $r               Parsed arguments.
+	 * @param array $args            Original arguments.
+	 */
+	if ( ! apply_filters( 'bbp_use_single_topic_description', true, $r, $args ) ) {
+		return apply_filters( 'bbp_get_single_topic_description', '', $r, $args );
+	}
+
 	// Validate topic_id
 	$topic_id = bbp_get_topic_id( $r['topic_id'] );
 

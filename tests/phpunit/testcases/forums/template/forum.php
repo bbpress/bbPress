@@ -655,6 +655,54 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_get_single_forum_description
 	 */
+	public function test_bbp_get_single_forum_description_can_be_disabled() {
+		$args                     = array( 'forum_id' => 123 );
+		$filtered_args            = array();
+		$original_args            = array();
+		$filtered_use_description = null;
+		$default_description      = null;
+		$topic_count_called       = 0;
+		$disable                  = function( $use_description, $description_args, $description_original_args ) use ( &$filtered_args, &$original_args, &$filtered_use_description ) {
+			$filtered_args            = $description_args;
+			$original_args            = $description_original_args;
+			$filtered_use_description = $use_description;
+
+			return false;
+		};
+		$filter_description = function( $description ) use ( &$default_description ) {
+			$default_description = $description;
+
+			return 'Filtered description.';
+		};
+		$count_topics = function( $topic_count ) use ( &$topic_count_called ) {
+			++$topic_count_called;
+
+			return $topic_count;
+		};
+
+		add_filter( 'bbp_use_single_forum_description', $disable, 10, 3 );
+		add_filter( 'bbp_get_single_forum_description', $filter_description );
+		add_filter( 'bbp_get_forum_topic_count_int', $count_topics );
+
+		try {
+			$description = bbp_get_single_forum_description( $args );
+		} finally {
+			remove_filter( 'bbp_get_forum_topic_count_int', $count_topics );
+			remove_filter( 'bbp_get_single_forum_description', $filter_description );
+			remove_filter( 'bbp_use_single_forum_description', $disable, 10 );
+		}
+
+		$this->assertSame( 'Filtered description.', $description );
+		$this->assertSame( '', $default_description );
+		$this->assertTrue( $filtered_use_description );
+		$this->assertSame( 123, $filtered_args['forum_id'] );
+		$this->assertSame( $args, $original_args );
+		$this->assertSame( 0, $topic_count_called );
+	}
+
+	/**
+	 * @covers ::bbp_get_single_forum_description
+	 */
 	public function test_bbp_get_single_forum_description_uses_topic_count_for_sentence_plural() {
 		$forum_id      = $this->factory->forum->create();
 		$topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );

@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added filters to skip single-forum and single-topic description generation
+  before their statistics are calculated.
 - Added a site-wide forum status setting for open, closed, or frozen posting.
 - Added 17 editor blocks for forum and topic indexes, forms, search, login,
   registration, password recovery, statistics, tags, views, forums, topics,

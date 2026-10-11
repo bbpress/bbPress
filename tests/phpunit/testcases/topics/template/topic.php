@@ -459,6 +459,54 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_get_single_topic_description
 	 */
+	public function test_bbp_get_single_topic_description_can_be_disabled() {
+		$args                     = array( 'topic_id' => 123 );
+		$filtered_args            = array();
+		$original_args            = array();
+		$filtered_use_description = null;
+		$default_description      = null;
+		$voice_count_called       = 0;
+		$disable                  = function( $use_description, $description_args, $description_original_args ) use ( &$filtered_args, &$original_args, &$filtered_use_description ) {
+			$filtered_args            = $description_args;
+			$original_args            = $description_original_args;
+			$filtered_use_description = $use_description;
+
+			return false;
+		};
+		$filter_description = function( $description ) use ( &$default_description ) {
+			$default_description = $description;
+
+			return 'Filtered description.';
+		};
+		$count_voice = function( $voice_count ) use ( &$voice_count_called ) {
+			++$voice_count_called;
+
+			return $voice_count;
+		};
+
+		add_filter( 'bbp_use_single_topic_description', $disable, 10, 3 );
+		add_filter( 'bbp_get_single_topic_description', $filter_description );
+		add_filter( 'bbp_get_topic_voice_count_int', $count_voice );
+
+		try {
+			$description = bbp_get_single_topic_description( $args );
+		} finally {
+			remove_filter( 'bbp_get_topic_voice_count_int', $count_voice );
+			remove_filter( 'bbp_get_single_topic_description', $filter_description );
+			remove_filter( 'bbp_use_single_topic_description', $disable, 10 );
+		}
+
+		$this->assertSame( 'Filtered description.', $description );
+		$this->assertSame( '', $default_description );
+		$this->assertTrue( $filtered_use_description );
+		$this->assertSame( 123, $filtered_args['topic_id'] );
+		$this->assertSame( $args, $original_args );
+		$this->assertSame( 0, $voice_count_called );
+	}
+
+	/**
+	 * @covers ::bbp_get_single_topic_description
+	 */
 	public function test_bbp_get_single_topic_description_uses_reply_count_for_sentence_plural() {
 		$topic_id     = $this->factory->topic->create();
 		$reply_counts = array();

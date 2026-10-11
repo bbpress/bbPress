@@ -2207,6 +2207,19 @@ function bbp_get_single_forum_description( $args = array() ) {
 		'get_single_forum_description'
 	);
 
+	/**
+	 * Filters whether to build the single forum description.
+	 *
+	 * @since 2.7.0 bbPress (r7970)
+	 *
+	 * @param bool  $use_description Whether to build the description.
+	 * @param array $r               Parsed arguments.
+	 * @param array $args            Original arguments.
+	 */
+	if ( ! apply_filters( 'bbp_use_single_forum_description', true, $r, $args ) ) {
+		return apply_filters( 'bbp_get_single_forum_description', '', $r, $args );
+	}
+
 	// Validate forum_id
 	$forum_id = bbp_get_forum_id( $r['forum_id'] );
 
