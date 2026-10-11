@@ -255,6 +255,7 @@ class BBP_Tests_Common_Functions_Rel_Nofollow extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_rel_nofollow
+	 * @covers ::bbp_rel_nofollow_callback
 	 */
 	public function test_bbp_rel_nofollow_adds_relationship_to_external_link() {
 		$link = '<a href="https://example.com/">Link</a>';
@@ -299,5 +300,144 @@ class BBP_Tests_Common_Functions_Rel_Nofollow extends BBP_UnitTestCase {
 		$this->assertStringNotContainsString( '<img', $output );
 		$this->assertStringContainsString( '\\x22', $output );
 		$this->assertStringContainsString( 'rel="nofollow', $output );
+	}
+}
+
+/**
+ * @group common
+ * @group formatting
+ */
+class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
+
+	/**
+	 * @covers ::bbp_kses_allowed_tags
+	 * @covers ::bbp_filter_kses
+	 * @covers ::bbp_kses_data
+	 */
+	public function test_kses_helpers_define_filter_and_preserve_slashing_contracts() {
+		$tags = bbp_kses_allowed_tags();
+		$this->assertArrayHasKey( 'a', $tags );
+		$this->assertArrayHasKey( 'href', $tags['a'] );
+		$this->assertArrayHasKey( 'img', $tags );
+		$this->assertArrayNotHasKey( 'script', $tags );
+
+		$raw      = '<a href="https://example.com" onclick="bad()">Link</a><script>alert(1)</script>';
+		$expected = '<a href="https://example.com">Link</a>alert(1)';
+		$this->assertSame( $expected, bbp_kses_data( $raw ) );
+		$this->assertSame( wp_slash( $expected ), bbp_filter_kses( wp_slash( $raw ) ) );
+		$dangerous = bbp_kses_data( '<a href="javascript:alert(1)">Bad</a><img src="x" onerror="bad()">' );
+		$this->assertStringNotContainsString( 'javascript:', $dangerous );
+		$this->assertStringNotContainsString( 'onerror', $dangerous );
+
+		$filter = function() {
+			return array( 'mark' => array() );
+		};
+		add_filter( 'bbp_kses_allowed_tags', $filter );
+		try {
+			$this->assertSame( array( 'mark' => array() ), bbp_kses_allowed_tags() );
+			$this->assertSame( '<mark>yes</mark>no', bbp_kses_data( '<mark>yes</mark><em>no</em>' ) );
+		} finally {
+			remove_filter( 'bbp_kses_allowed_tags', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @covers ::bbp_encode_bad
+	 * @covers ::bbp_encode_callback
+	 * @covers ::bbp_decode_callback
+	 * @covers ::bbp_encode_empty_callback
+	 * @covers ::bbp_encode_normal_callback
+	 */
+	public function test_code_helpers_encode_restore_and_preserve_allowed_markup() {
+		$source  = "Before `<b> & \"quoted\" 'single'</b>` after";
+		$encoded = 'Before <code>&lt;b&gt; &amp; &quot;quoted&quot; &#039;single&#039;&lt;/b&gt;</code> after';
+		$this->assertSame( $encoded, bbp_code_trick( $source ) );
+		$this->assertSame( $source, bbp_code_trick_reverse( $encoded ) );
+		$this->assertSame( '<code>x &amp; y</code>', bbp_encode_callback( array( '` x &amp; y `', '`', ' x &amp; y ' ) ) );
+		$this->assertSame( '`<coded_p>x<coded_br />y</coded_p>`', bbp_decode_callback( array( '<code><p>x<br />y</p></code>', '<code>', '<p>x<br />y</p>', '</code>' ) ) );
+
+		$block_source  = "`\n  indented\n\n\n\nline\n`";
+		$block_encoded = "\n<pre><code>\n  indented\n\nline\n</code></pre>\n";
+		$this->assertSame( $block_encoded, bbp_code_trick( $block_source ) );
+		$this->assertSame( "\n`\n  indented\n\nline\n`\n", bbp_code_trick_reverse( $block_encoded ) );
+
+		$content = '&lt;img src="x"&gt;';
+		bbp_encode_empty_callback( $content, 0, 'img(?:\s.*?)?' );
+		$this->assertSame( '<img src="x" />', $content );
+		$content = '&lt;strong&gt;x&lt;/strong&gt;';
+		bbp_encode_normal_callback( $content, 0, 'strong' );
+		$this->assertSame( '<strong>x</strong>', $content );
+
+		$bad = '<strong>yes</strong><img src="x"><a href="https://example.com">link</a><script>no</script> `<em>code</em>`';
+		$this->assertSame( '<strong>yes</strong><img src="x" /><a href="https://example.com">link</a>&lt;script&gt;no&lt;/script&gt; `&lt;em&gt;code&lt;/em&gt;`', bbp_encode_bad( $bad ) );
+	}
+
+	/**
+	 * @covers ::bbp_make_urls_clickable
+	 * @covers ::bbp_make_ftps_clickable
+	 * @covers ::bbp_make_emails_clickable
+	 * @covers ::bbp_make_mentions_clickable
+	 * @covers ::bbp_make_mentions_clickable_callback
+	 */
+	public function test_clickable_helpers_link_supported_targets_and_mentions() {
+		$this->assertStringContainsString( 'href="https://example.com/path"', bbp_make_urls_clickable( ' https://example.com/path ' ) );
+		$this->assertStringContainsString( 'href="http://www.example.com"', bbp_make_ftps_clickable( ' www.example.com ' ) );
+		$this->assertStringContainsString( 'href="http://ftp.example.com"', bbp_make_ftps_clickable( ' ftp.example.com ' ) );
+		$this->assertStringContainsString( 'href="mailto:user@example.com"', bbp_make_emails_clickable( ' user@example.com ' ) );
+
+		$user_id = $this->factory->user->create(
+			array(
+				'user_login'    => 'mention-user',
+				'user_nicename' => 'mention-user',
+			)
+		);
+		$output = bbp_make_mentions_clickable( ' Hi @mention-user!' );
+		$this->assertStringContainsString( esc_url( bbp_get_user_profile_url( $user_id ) ), $output );
+		$this->assertStringContainsString( 'class="bbp-user-mention bbp-user-id-' . $user_id . '"', $output );
+		$this->assertStringNotContainsString( 'rel="nofollow"', $output );
+		$this->assertSame( ' @missing-user', bbp_make_mentions_clickable_callback( array( ' @missing-user', ' ', 'missing-user' ) ) );
+		$this->assertSame( ' @', bbp_make_mentions_clickable_callback( array( ' @', ' ', '' ) ) );
+
+		add_filter( 'bbp_core_is_user_spammer', '__return_true' );
+		try {
+			$this->assertSame( ' Hi @mention-user!', bbp_make_mentions_clickable( ' Hi @mention-user!' ) );
+		} finally {
+			remove_filter( 'bbp_core_is_user_spammer', '__return_true' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_number_not_negative
+	 */
+	public function test_number_not_negative_normalizes_inputs_and_filters_context() {
+		$this->assertSame( 0, bbp_number_not_negative( -2 ) );
+		$this->assertSame( 1234, bbp_number_not_negative( '1,234 posts' ) );
+		$this->assertSame( 5, bbp_number_not_negative( '<b>5</b>' ) );
+		$this->assertSame( 3, bbp_number_not_negative( 3.9 ) );
+		$this->assertSame( 0, bbp_number_not_negative( null ) );
+		$this->assertSame( 0, bbp_number_not_negative( array( 5 ) ) );
+
+		$filter = function( $value, $integer, $normalized ) {
+			$this->assertSame( 0, $value );
+			$this->assertSame( -25, $integer );
+			$this->assertSame( '-25', $normalized );
+			return 7;
+		};
+		add_filter( 'bbp_number_not_negative', $filter, 10, 3 );
+		try {
+			$this->assertSame( 7, bbp_number_not_negative( '-25' ) );
+		} finally {
+			remove_filter( 'bbp_number_not_negative', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_format_user_display_name
+	 */
+	public function test_format_user_display_name_preserves_utf8_and_converts_latin1() {
+		$this->assertSame( 'Renée', bbp_format_user_display_name( 'Renée' ) );
+		$this->assertSame( "\xC3\x89", bbp_format_user_display_name( "\xC9" ) );
 	}
 }
