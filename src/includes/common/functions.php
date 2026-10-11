@@ -1199,8 +1199,8 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	/** Max Links *************************************************************/
 
 	// Only check max_links when not being strict
-	if ( false === $strict ) {
-		$max_links = get_option( 'comment_max_links' );
+	if ( ( false === $strict ) && bbp_allow_moderation_links() ) {
+		$max_links = bbp_get_moderation_link_limit();
 		if ( ! empty( $max_links ) ) {
 
 			// How many links?

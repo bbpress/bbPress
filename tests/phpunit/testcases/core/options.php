@@ -69,6 +69,8 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 
 		$this->assertSame( 0, $options['_bbp_db_version'] );
 		$this->assertSame( bbp_get_participant_role(), $options['_bbp_default_role'] );
+		$this->assertSame( 1, $options['_bbp_allow_moderation_links'] );
+		$this->assertFalse( $options['_bbp_moderation_links'] );
 		$this->assertSame( 15, $options['_bbp_topics_per_page'] );
 		$this->assertSame( 'forums', $options['_bbp_root_slug'] );
 		$this->assertSame( 'meta', $options['_bbp_engagements_strategy'] );
@@ -320,6 +322,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 			'engagements'      => array( 'bbp_is_engagements_active', '_bbp_enable_engagements', 'bbp_is_engagements_active' ),
 			'content edit'     => array( 'bbp_allow_content_edit', '_bbp_allow_content_edit', 'bbp_allow_content_edit' ),
 			'throttle'         => array( 'bbp_allow_content_throttle', '_bbp_allow_content_throttle', 'bbp_allow_content_throttle' ),
+			'link moderation'  => array( 'bbp_allow_moderation_links', '_bbp_allow_moderation_links', 'bbp_allow_moderation_links' ),
 			'topic tags'       => array( 'bbp_allow_topic_tags', '_bbp_allow_topic_tags', 'bbp_allow_topic_tags' ),
 			'forum moderators' => array( 'bbp_allow_forum_mods', '_bbp_allow_forum_mods', 'bbp_allow_forum_mods' ),
 			'super moderators' => array( 'bbp_allow_super_mods', '_bbp_allow_super_mods', 'bbp_allow_super_mods' ),
@@ -365,6 +368,30 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		}
 
 		$this->assertSame( array( 'legacy', 'public' ), $order );
+	}
+
+	/**
+	 * @ticket BBP3352
+	 * @covers ::bbp_get_moderation_link_limit
+	 */
+	public function test_bbp_get_moderation_link_limit_inherits_and_filters_the_limit() {
+		$this->set_option( 'comment_max_links', 4 );
+		$this->set_option( '_bbp_moderation_links', false );
+		$this->assertSame( 4, bbp_get_moderation_link_limit() );
+
+		update_option( '_bbp_moderation_links', 7 );
+		$this->assertSame( 7, bbp_get_moderation_link_limit() );
+
+		$filter = function( $limit ) {
+			return $limit + 2;
+		};
+		add_filter( 'bbp_get_moderation_link_limit', $filter );
+
+		try {
+			$this->assertSame( 9, bbp_get_moderation_link_limit() );
+		} finally {
+			remove_filter( 'bbp_get_moderation_link_limit', $filter );
+		}
 	}
 
 	/**

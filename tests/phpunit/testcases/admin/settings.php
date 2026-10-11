@@ -90,6 +90,9 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_setting_callback_forums_status', $fields['bbp_settings_status']['_bbp_forums_status']['callback'] );
 		$this->assertSame( 'bbp_admin_sanitize_forums_status', $fields['bbp_settings_status']['_bbp_forums_status']['sanitize_callback'] );
 		$this->assertSame( array( 'label_for' => '_bbp_forums_status' ), $fields['bbp_settings_status']['_bbp_forums_status']['args'] );
+		$this->assertSame( 'bbp_admin_setting_callback_moderation_links', $fields['bbp_settings_users']['_bbp_moderation_links']['callback'] );
+		$this->assertSame( array(), $fields['bbp_settings_users']['_bbp_moderation_links']['args'] );
+		$this->assertSame( 'intval', $fields['bbp_settings_users']['_bbp_allow_moderation_links']['sanitize_callback'] );
 		$this->assertSame( 'intval', $fields['bbp_converter_options']['_bbp_converter_clean']['sanitize_callback'] );
 	}
 
@@ -510,6 +513,39 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$throttle  = $this->capture_callback( 'bbp_admin_setting_callback_throttle' );
 		$this->assertSame( 2, substr_count( $edit_lock, "disabled='disabled'" ) );
 		$this->assertSame( 2, substr_count( $throttle, "disabled='disabled'" ) );
+	}
+
+	/**
+	 * @ticket BBP3352
+	 * @covers ::bbp_admin_setting_callback_moderation_links
+	 */
+	public function test_moderation_links_callback_outputs_inherited_and_explicit_limits() {
+		$this->set_option( 'comment_max_links', 4 );
+		$this->set_option( '_bbp_allow_moderation_links', 1 );
+		$this->set_option( '_bbp_moderation_links', false );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_moderation_links' );
+
+		$this->assertStringContainsString( 'name="_bbp_allow_moderation_links"', $output );
+		$this->assertStringContainsString( 'name="_bbp_moderation_links"', $output );
+		$this->assertStringContainsString( 'value=""', $output );
+		$this->assertStringContainsString( 'placeholder="4"', $output );
+		$this->assertStringContainsString( 'currently 4.', $output );
+		$this->assertStringContainsString( "checked='checked'", $output );
+
+		$this->set_option( 'comment_max_links', 0 );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_moderation_links' );
+		$this->assertStringContainsString( 'placeholder=""', $output );
+		$this->assertStringContainsString( 'currently has no link limit.', $output );
+
+		$this->set_option( '_bbp_moderation_links', 7 );
+		$this->assertStringContainsString( 'value="7"', $this->capture_callback( 'bbp_admin_setting_callback_moderation_links' ) );
+
+		$this->set_option( '_bbp_allow_moderation_links', 0 );
+		$this->assertStringNotContainsString( "checked='checked'", $this->capture_callback( 'bbp_admin_setting_callback_moderation_links' ) );
+
+		bbpress()->options['_bbp_allow_moderation_links'] = 1;
+		bbpress()->options['_bbp_moderation_links'] = 7;
+		$this->assertSame( 2, substr_count( $this->capture_callback( 'bbp_admin_setting_callback_moderation_links' ), "disabled='disabled'" ) );
 	}
 
 	/**

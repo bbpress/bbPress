@@ -157,6 +157,20 @@ function bbp_admin_get_settings_fields() {
 					'args'              => array()
 				),
 
+				// Allow link moderation
+				'_bbp_allow_moderation_links' => array(
+					'sanitize_callback' => 'intval',
+					'args'              => array()
+				),
+
+				// Link moderation setting
+				'_bbp_moderation_links' => array(
+					'title'             => esc_html__( 'Links', 'bbpress' ),
+					'callback'          => 'bbp_admin_setting_callback_moderation_links',
+					'sanitize_callback' => 'bbp_admin_sanitize_moderation_links',
+					'args'              => array()
+				),
+
 				// Allow content editing
 				'_bbp_allow_content_edit' => array(
 					'sanitize_callback' => 'intval',
@@ -652,6 +666,26 @@ function bbp_admin_sanitize_default_role( $role ) {
 }
 
 /**
+ * Sanitize the forum moderation link limit.
+ *
+ * An empty value inherits the WordPress comment moderation limit.
+ *
+ * @since 2.7.0 bbPress (r7974)
+ *
+ * @param mixed $limit Submitted forum moderation link limit.
+ * @return int|false Positive link limit, or false to inherit WordPress.
+ */
+function bbp_admin_sanitize_moderation_links( $limit ) {
+	if ( false === $limit || null === $limit || ( is_string( $limit ) && '' === trim( $limit ) ) ) {
+		return false;
+	}
+
+	return is_scalar( $limit )
+		? max( 1, intval( $limit ) )
+		: false;
+}
+
+/**
  * Keep the site-wide forums status within its supported values.
  *
  * @since 2.6.20 bbPress (r7851)
@@ -831,6 +865,52 @@ function bbp_admin_setting_callback_throttle() {
 	<p class="description"><?php esc_html_e( 'Use this to discourage users from spamming your forums.', 'bbpress' ); ?></p>
 
 <?php
+}
+
+/**
+ * Moderation link limit setting field.
+ *
+ * @since 2.7.0 bbPress (r7974)
+ */
+function bbp_admin_setting_callback_moderation_links() {
+	$limit         = get_option( '_bbp_moderation_links', false );
+	$default_limit = (int) get_option( 'comment_max_links', 0 );
+	$placeholder   = 0 < $default_limit ? $default_limit : '';
+
+	// Start the output buffer for the link limit option
+	ob_start(); ?>
+
+	</label>
+	<label for="_bbp_moderation_links">
+		<input name="_bbp_moderation_links" id="_bbp_moderation_links" type="number" min="1" step="1" value="<?php echo false === $limit ? '' : esc_attr( $limit ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_moderation_links' ); ?> />
+
+	<?php $input = ob_get_clean(); ?>
+
+	<label for="_bbp_allow_moderation_links">
+		<input name="_bbp_allow_moderation_links" id="_bbp_allow_moderation_links" type="checkbox" value="1" <?php checked( bbp_allow_moderation_links( true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_allow_moderation_links' ); ?> />
+		<?php
+		printf(
+			/* translators: %s: Forum moderation link limit input */
+			esc_html__( 'Hold topics and replies with %s or more links for moderation', 'bbpress' ),
+			$input
+		);
+		?>
+	</label>
+	<p class="description">
+		<?php
+		if ( 0 < $default_limit ) {
+			printf(
+				/* translators: %s: WordPress comment moderation link limit */
+				esc_html__( 'Leave the number empty to use the WordPress Discussion setting, currently %s.', 'bbpress' ),
+				esc_html( $default_limit )
+			);
+		} else {
+			esc_html_e( 'Leave the number empty to use the WordPress Discussion setting, which currently has no link limit.', 'bbpress' );
+		}
+		?>
+	</p>
+
+	<?php
 }
 
 /**

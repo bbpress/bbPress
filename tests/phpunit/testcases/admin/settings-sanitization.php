@@ -7,6 +7,23 @@
  */
 class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 
+	/**
+	 * @ticket BBP3352
+	 * @covers ::bbp_admin_sanitize_moderation_links
+	 */
+	public function test_moderation_link_limit_accepts_positive_integers_or_inheritance() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		$fields = bbp_admin_get_settings_fields();
+		$this->assertSame( 'bbp_admin_sanitize_moderation_links', $fields['bbp_settings_users']['_bbp_moderation_links']['sanitize_callback'] );
+		$this->assertFalse( bbp_admin_sanitize_moderation_links( '' ) );
+		$this->assertFalse( bbp_admin_sanitize_moderation_links( null ) );
+		$this->assertFalse( bbp_admin_sanitize_moderation_links( array( 3 ) ) );
+		$this->assertSame( 7, bbp_admin_sanitize_moderation_links( '7' ) );
+		$this->assertSame( 1, bbp_admin_sanitize_moderation_links( '-3' ) );
+		$this->assertSame( 1, bbp_admin_sanitize_moderation_links( '0' ) );
+	}
+
 	public function test_default_role_accepts_registered_choices_only() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
 

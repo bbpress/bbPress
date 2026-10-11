@@ -45,6 +45,7 @@ function bbp_get_default_options() {
 			'_bbp_enable_engagements'     => 1,         // Enable engagements
 			'_bbp_allow_content_edit'     => 1,         // Allow content edit
 			'_bbp_allow_content_throttle' => 1,         // Allow content throttle
+			'_bbp_allow_moderation_links' => 1,         // Allow link moderation
 			'_bbp_allow_revisions'        => 1,         // Allow revisions
 			'_bbp_allow_topic_tags'       => 1,         // Allow topic tagging
 			'_bbp_allow_search'           => 1,         // Allow forum-wide search
@@ -59,6 +60,7 @@ function bbp_get_default_options() {
 			/** Settings **********************************************************/
 
 			'_bbp_forums_status'          => 'open',    // Site-wide forum content status
+			'_bbp_moderation_links'       => false,     // Inherit WordPress comment link limit
 			'_bbp_default_role'           => $role,     // Default forums role
 			'_bbp_edit_lock'              => 5,         // Lock post editing after 5 minutes
 			'_bbp_throttle_time'          => 10,        // Throttle post time to 10 seconds
@@ -438,6 +440,28 @@ function bbp_user_can_edit_in_forums( $user_id ) {
 	return (bool) apply_filters( 'bbp_user_can_edit_in_forums', $retval, $user_id, bbp_get_forums_status() );
 }
 
+/** Moderation ****************************************************************/
+
+/**
+ * Get the link threshold that holds forum content for moderation.
+ *
+ * Inherit the WordPress comment moderation limit until a forum-specific value
+ * is saved.
+ *
+ * @since 2.7.0 bbPress (r7974)
+ *
+ * @return int Forum moderation link limit.
+ */
+function bbp_get_moderation_link_limit() {
+	$limit = get_option( '_bbp_moderation_links', false );
+
+	if ( false === $limit || '' === $limit ) {
+		$limit = get_option( 'comment_max_links', 0 );
+	}
+
+	return (int) apply_filters( 'bbp_get_moderation_link_limit', (int) $limit );
+}
+
 /**
  * Checks if favorites feature is enabled.
  *
@@ -506,6 +530,20 @@ function bbp_allow_content_throttle( $default = 1 ) {
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_content_throttle', (bool) get_option( '_bbp_allow_content_throttle', $default ) );
+}
+
+/**
+ * Is link moderation enabled for new topics and replies?
+ *
+ * @since 2.7.0 bbPress (r7974)
+ *
+ * @param bool $default Optional. Default value true.
+ * @return bool Whether link moderation is enabled.
+ */
+function bbp_allow_moderation_links( $default = 1 ) {
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_allow_moderation_links', (bool) get_option( '_bbp_allow_moderation_links', $default ) );
 }
 
 /**

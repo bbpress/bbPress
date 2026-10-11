@@ -1013,6 +1013,8 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = 'Sting';
 		$content        = 'This is a post with <a href="http://example.com">multiple</a> <a href="http://bob.example.com">links</a>.';
 
+		delete_option( '_bbp_allow_moderation_links' );
+		delete_option( '_bbp_moderation_links' );
 		update_option( 'comment_max_links', 2 );
 		$results = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
 		$this->assertFalse( $results );
@@ -1030,6 +1032,28 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		update_option( 'comment_max_links', 3 );
 		$results = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
 		$this->assertTrue( $results );
+	}
+
+	/**
+	 * @ticket BBP3352
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_use_forum_specific_moderation_link_limit() {
+		$anonymous_data = false;
+		$author_id      = 0;
+		$title          = 'Sting';
+		$content        = 'This is a post with <a href="http://example.com">multiple</a> <a href="http://bob.example.com">links</a>.';
+
+		update_option( 'comment_max_links', 2 );
+		update_option( '_bbp_moderation_links', 3 );
+		$this->assertTrue( bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content ) );
+
+		update_option( 'comment_max_links', 3 );
+		update_option( '_bbp_moderation_links', 2 );
+		$this->assertFalse( bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content ) );
+
+		update_option( '_bbp_allow_moderation_links', 0 );
+		$this->assertTrue( bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content ) );
 	}
 
 	/**

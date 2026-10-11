@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added a Links setting to turn forum link moderation on or off and set a
+  forum-specific limit, inheriting the WordPress Discussion setting until
+  customized.
 - Added an optional date format parameter to topic and reply post-date template functions.
 - Added filters to skip single-forum and single-topic description generation
   before their statistics are calculated.
