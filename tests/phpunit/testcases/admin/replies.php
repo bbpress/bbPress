@@ -84,7 +84,9 @@ class BBP_Tests_Admin_Replies extends BBP_UnitTestCase {
 		$reflection = new ReflectionClass( 'BBP_Replies_Admin' );
 		$admin      = $reflection->newInstanceWithoutConstructor();
 		$post_type  = $reflection->getProperty( 'post_type' );
-		$post_type->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$post_type->setAccessible( true );
+		}
 		$post_type->setValue( $admin, bbp_get_reply_post_type() );
 		return $admin;
 	}

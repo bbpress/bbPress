@@ -86,7 +86,9 @@ class BBP_Tests_Admin_Forums extends BBP_UnitTestCase {
 		$reflection = new ReflectionClass( 'BBP_Forums_Admin' );
 		$admin      = $reflection->newInstanceWithoutConstructor();
 		$post_type  = $reflection->getProperty( 'post_type' );
-		$post_type->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$post_type->setAccessible( true );
+		}
 		$post_type->setValue( $admin, bbp_get_forum_post_type() );
 
 		return $admin;
@@ -94,7 +96,9 @@ class BBP_Tests_Admin_Forums extends BBP_UnitTestCase {
 
 	private function invoke_private_method( $admin, $method, $arguments = array() ) {
 		$reflection = new ReflectionMethod( $admin, $method );
-		$reflection->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 
 		return $reflection->invokeArgs( $admin, $arguments );
 	}
