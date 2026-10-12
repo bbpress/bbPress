@@ -55,6 +55,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Fixed legacy user-option engagement lookups for numeric-string object IDs.
 - Corrected engagement cleanup return values for taxonomy storage and partial
   failures in legacy user-option storage.
 - Kept front-end topic merge, topic split, and reply move action values

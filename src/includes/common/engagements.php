@@ -780,6 +780,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * Add a user id to an object.
 	 *
 	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.20 bbPress (r7989) Normalize object IDs before strict lookups.
 	 *
 	 * @param int    $object_id The object id.
 	 * @param int    $user_id   The user id.
@@ -790,6 +791,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
+		$object_id  = absint( $object_id );
 		$retval     = false;
 		$option_key = $this->get_user_option_key( $meta_key, $object_id );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
@@ -815,6 +817,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * Remove a user id from an object.
 	 *
 	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.20 bbPress (r7989) Normalize object IDs before strict lookups.
 	 *
 	 * @param int    $object_id The object id.
 	 * @param int    $user_id   The user id.
@@ -824,6 +827,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		$object_id  = absint( $object_id );
 		$retval     = false;
 		$option_key = $this->get_user_option_key( $meta_key, $object_id );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
