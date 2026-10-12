@@ -436,19 +436,21 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6739)
 	 * @since 2.6.17 bbPress (r7468) Limit removal to the requested relationship taxonomy.
+	 * @since 2.6.20 bbPress (r7988) Return true after removing the requested relationships.
 	 *
 	 * @param int    $object_id The object id
-	 * @param int    $user_id   The user id
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
 	 *
-	 * @return bool Returns true on success, false on failure
+	 * @return bool Always returns true; term relationship removal does not report failures
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$tax_key = "{$meta_key}_{$meta_type}";
 		$this->jit_taxonomy( $tax_key );
 
-		return wp_delete_object_term_relationships( $object_id, $tax_key );
+		wp_delete_object_term_relationships( $object_id, $tax_key );
+
+		return true;
 	}
 
 	/**
@@ -887,9 +889,9 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * Remove an object from all users
 	 *
 	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.20 bbPress (r7988) Report partial cleanup failures.
 	 *
 	 * @param int    $object_id The object id
-	 * @param int    $user_id   The user id
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
 	 *
@@ -902,7 +904,6 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$u_count  = count( $user_ids );
 
 		// Count number of removals
-		$removed  = array();
 		$r_count  = 0;
 
 		// Users have engaged, so remove them
@@ -910,11 +911,10 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Loop through users and remove them from the object
 			foreach ( $user_ids as $user_id ) {
-				$removed[] = $this->remove_user_from_object( $object_id, $user_id, $meta_key, $meta_type );
+				if ( $this->remove_user_from_object( $object_id, $user_id, $meta_key, $meta_type ) ) {
+					++$r_count;
+				}
 			}
-
-			// Count the removed users
-			$r_count = count( $removed );
 		}
 
 		// Return true if successfully removed from all users
@@ -925,6 +925,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * Remove all users from all objects
 	 *
 	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.6.20 bbPress (r7988) Report partial cleanup failures.
 	 *
 	 * @param string $meta_key  The relationship key
 	 * @param string $meta_type The relationship type (usually 'post')
@@ -940,7 +941,6 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$u_count    = count( $user_ids );
 
 		// Count number of removals
-		$removed    = array();
 		$r_count    = 0;
 
 		// Users have engaged, so remove them
@@ -948,11 +948,10 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Loop through users and remove their user options
 			foreach ( $user_ids as $user_id ) {
-				$removed[] = $this->remove_user_from_all_objects( $user_id, $meta_key );
+				if ( $this->remove_user_from_all_objects( $user_id, $meta_key ) ) {
+					++$r_count;
+				}
 			}
-
-			// Count the removed users
-			$r_count = count( $removed );
 		}
 
 		// Return true if successfully removed from all users

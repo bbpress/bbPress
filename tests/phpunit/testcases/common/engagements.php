@@ -10,6 +10,68 @@
 class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 
 	/**
+	 * @covers BBP_User_Engagements_User::remove_object_from_all_users
+	 * @ticket BBP3736
+	 */
+	public function test_user_strategy_remove_object_reports_partial_failure() {
+		$strategy = new class() extends BBP_User_Engagements_User {
+			public $failing_user_id = 0;
+
+			public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+				return ( (int) $user_id === $this->failing_user_id )
+					? false
+					: parent::remove_user_from_object( $object_id, $user_id, $meta_key, $meta_type );
+			}
+		};
+		$user_ids = $this->factory->user->create_many( 2 );
+		$topic_id = $this->factory->topic->create();
+		$meta_key = '_bbp_test_failed_object_removal';
+
+		$strategy->failing_user_id = $user_ids[1];
+		$strategy->add_user_to_object( $topic_id, $user_ids[0], $meta_key );
+		$strategy->add_user_to_object( $topic_id, $user_ids[1], $meta_key );
+
+		$this->assertEqualSets( $user_ids, $strategy->get_users_for_object( $topic_id, $meta_key ) );
+		$this->assertFalse( $strategy->remove_object_from_all_users( $topic_id, $meta_key ) );
+		$this->assertSame( array( $user_ids[1] ), $strategy->get_users_for_object( $topic_id, $meta_key ) );
+
+		$cleanup_strategy = new BBP_User_Engagements_User();
+		$this->assertTrue( $cleanup_strategy->remove_object_from_all_users( $topic_id, $meta_key ) );
+		$this->assertSame( array(), $cleanup_strategy->get_users_for_object( $topic_id, $meta_key ) );
+	}
+
+	/**
+	 * @covers BBP_User_Engagements_User::remove_all_users_from_all_objects
+	 * @ticket BBP3736
+	 */
+	public function test_user_strategy_remove_all_reports_partial_failure() {
+		$strategy = new class() extends BBP_User_Engagements_User {
+			public $failing_user_id = 0;
+
+			public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+				return ( (int) $user_id === $this->failing_user_id )
+					? false
+					: parent::remove_user_from_all_objects( $user_id, $meta_key, $meta_type );
+			}
+		};
+		$user_ids = $this->factory->user->create_many( 2 );
+		$topic_id = $this->factory->topic->create();
+		$meta_key = '_bbp_test_failed_all_removal';
+
+		$strategy->failing_user_id = $user_ids[1];
+		$strategy->add_user_to_object( $topic_id, $user_ids[0], $meta_key );
+		$strategy->add_user_to_object( $topic_id, $user_ids[1], $meta_key );
+
+		$this->assertEqualSets( $user_ids, $strategy->get_users_for_object( $topic_id, $meta_key ) );
+		$this->assertFalse( $strategy->remove_all_users_from_all_objects( $meta_key ) );
+		$this->assertSame( array( $user_ids[1] ), $strategy->get_users_for_object( $topic_id, $meta_key ) );
+
+		$cleanup_strategy = new BBP_User_Engagements_User();
+		$this->assertTrue( $cleanup_strategy->remove_all_users_from_all_objects( $meta_key ) );
+		$this->assertSame( array(), $cleanup_strategy->get_users_for_object( $topic_id, $meta_key ) );
+	}
+
+	/**
 	 * @covers BBP_User_Engagements_User::remove_user_from_object
 	 * @ticket BBP3737
 	 */
@@ -123,6 +185,7 @@ class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 	/**
 	 * @covers BBP_User_Engagements_Term::remove_object_from_all_users
 	 * @ticket BBP3678
+	 * @ticket BBP3736
 	 */
 	public function test_term_strategy_removes_only_the_requested_relationship() {
 		$strategy = new BBP_User_Engagements_Term();
@@ -137,10 +200,11 @@ class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 		$this->assertSame( array( $user_id ), $strategy->get_users_for_object( $topic_id, '_bbp_favorite' ) );
 		$this->assertSame( array( $user_id ), $strategy->get_users_for_object( $topic_id, '_bbp_subscription' ) );
 
-		$strategy->remove_object_from_all_users( $topic_id, '_bbp_engagement' );
+		$this->assertTrue( $strategy->remove_object_from_all_users( $topic_id, '_bbp_engagement' ) );
 
 		$this->assertSame( array(), $strategy->get_users_for_object( $topic_id, '_bbp_engagement' ) );
 		$this->assertSame( array( $user_id ), $strategy->get_users_for_object( $topic_id, '_bbp_favorite' ) );
 		$this->assertSame( array( $user_id ), $strategy->get_users_for_object( $topic_id, '_bbp_subscription' ) );
+		$this->assertTrue( $strategy->remove_object_from_all_users( $topic_id, '_bbp_engagement' ) );
 	}
 }

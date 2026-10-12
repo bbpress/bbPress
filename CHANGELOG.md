@@ -29,6 +29,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected engagement cleanup return values for taxonomy storage and partial
+  failures in legacy user-option storage.
 - Kept front-end topic merge, topic split, and reply move action values
   consistent between request methods.
 - Kept forum and topic subscriptions separate when using the legacy user-meta
