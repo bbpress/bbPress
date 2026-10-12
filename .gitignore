@@ -13,6 +13,7 @@
 /.phpcs.xml
 /phpcs.xml
 /phpunit.xml
+/.phpunit.result.cache
 /pnpm-lock.yaml
 
 # Output directory.
