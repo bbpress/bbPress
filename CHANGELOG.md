@@ -55,6 +55,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept forum and topic subscriptions separate when using the legacy user-meta
+  engagement strategy.
 - Kept the Login widget logout link readable when themes style widget links and
   buttons with conflicting colors.
 - Kept validation notices and nonce checks scoped to the submitted form when

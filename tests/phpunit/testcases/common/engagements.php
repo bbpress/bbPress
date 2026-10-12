@@ -10,6 +10,26 @@
 class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 
 	/**
+	 * @covers BBP_User_Engagements_User::get_query
+	 * @ticket BBP3401
+	 */
+	public function test_user_strategy_keeps_forum_and_topic_subscriptions_separate() {
+		$strategy = new BBP_User_Engagements_User();
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create();
+
+		update_user_option( $user_id, '_bbp_forum_subscriptions', $forum_id );
+		update_user_option( $user_id, '_bbp_subscriptions', $topic_id );
+
+		$forum_query = $strategy->get_query( $user_id, 'get_user_forum_subscriptions', '_bbp_subscription' );
+		$topic_query = $strategy->get_query( $user_id, 'get_user_topic_subscriptions', '_bbp_subscription' );
+
+		$this->assertSame( array( $forum_id ), $forum_query['post__in'] );
+		$this->assertSame( array( $topic_id ), $topic_query['post__in'] );
+	}
+
+	/**
 	 * @covers BBP_User_Engagements_Term::add_user_to_object
 	 * @covers BBP_User_Engagements_Term::remove_user_from_all_objects
 	 * @covers BBP_User_Engagements_Term::get_users_for_object
