@@ -399,6 +399,188 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Login_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_login_widget_renders_logged_out_form_and_filtered_links() {
+		$this->set_current_user( 0 );
+		$widget = new BBP_Login_Widget();
+		$args   = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+		$title_filter = function() {
+			return 'Filtered login title';
+		};
+		$register_filter = function() {
+			return 'https://example.org/join';
+		};
+		$lostpass_filter = function() {
+			return 'https://example.org/recover';
+		};
+
+		add_filter( 'bbp_login_widget_title', $title_filter );
+		add_filter( 'bbp_login_widget_register', $register_filter );
+		add_filter( 'bbp_login_widget_lostpass', $lostpass_filter );
+		try {
+			ob_start();
+			$widget->widget(
+				$args,
+				array(
+					'title'    => 'Login title',
+					'register' => 'https://example.org/register',
+					'lostpass' => 'https://example.org/lost-password',
+				)
+			);
+			$html = ob_get_clean();
+		} finally {
+			remove_filter( 'bbp_login_widget_title', $title_filter );
+			remove_filter( 'bbp_login_widget_register', $register_filter );
+			remove_filter( 'bbp_login_widget_lostpass', $lostpass_filter );
+		}
+
+		$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered login title</h2>', $html );
+		$this->assertStringEndsWith( '</section>', $html );
+		$this->assertStringContainsString( 'class="bbp-login-form"', $html );
+		$this->assertMatchesRegularExpression( '/href="https:\/\/example\.org\/join"[^>]*class="bbp-register-link"/', $html );
+		$this->assertMatchesRegularExpression( '/href="https:\/\/example\.org\/recover"[^>]*class="bbp-lostpass-link"/', $html );
+		$this->assertStringNotContainsString( 'https://example.org/register', $html );
+		$this->assertStringNotContainsString( 'https://example.org/lost-password', $html );
+
+		ob_start();
+		$widget->widget( $args, array() );
+		$empty_html = ob_get_clean();
+		$this->assertStringNotContainsString( '<h2>', $empty_html );
+		$this->assertStringNotContainsString( 'class="bbp-login-links"', $empty_html );
+	}
+
+	/**
+	 * @covers BBP_Views_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_views_widget_bails_without_views_and_renders_registered_views() {
+		$views  = bbpress()->views;
+		$widget = new BBP_Views_Widget();
+		$args   = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+		$title_filter = function() {
+			return 'Filtered views title';
+		};
+
+		try {
+			bbpress()->views = array();
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Views title' ) );
+			$this->assertSame( '', ob_get_clean() );
+
+			bbp_register_view( 'first-widget-view', 'First Widget View' );
+			bbp_register_view( 'second-widget-view', 'Second & Widget View' );
+			add_filter( 'bbp_view_widget_title', $title_filter );
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Views title' ) );
+			$html = ob_get_clean();
+		} finally {
+			remove_filter( 'bbp_view_widget_title', $title_filter );
+			bbpress()->views = $views;
+		}
+
+		$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered views title</h2>', $html );
+		$this->assertStringEndsWith( '</section>', $html );
+		$this->assertStringContainsString( '<ul class="bbp-views-widget">', $html );
+		$this->assertStringContainsString( '>First Widget View</a>', $html );
+		$this->assertStringContainsString( '>Second &amp; Widget View</a>', $html );
+	}
+
+	/**
+	 * @covers BBP_Search_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_search_widget_respects_search_setting_and_requests_template() {
+		$widget = new BBP_Search_Widget();
+		$args   = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+		$template_name = null;
+		$template_hook = function( $slug, $name ) use ( &$template_name ) {
+			$template_name = $name;
+		};
+		$title_filter = function() {
+			return 'Filtered search title';
+		};
+
+		add_filter( 'bbp_allow_search', '__return_false' );
+		try {
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Search title' ) );
+			$this->assertSame( '', ob_get_clean() );
+		} finally {
+			remove_filter( 'bbp_allow_search', '__return_false' );
+		}
+
+		add_filter( 'bbp_allow_search', '__return_true' );
+		add_filter( 'bbp_search_widget_title', $title_filter );
+		add_action( 'get_template_part_form', $template_hook, 10, 2 );
+		try {
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Search title' ) );
+			$html = ob_get_clean();
+		} finally {
+			remove_filter( 'bbp_allow_search', '__return_true' );
+			remove_filter( 'bbp_search_widget_title', $title_filter );
+			remove_action( 'get_template_part_form', $template_hook, 10 );
+		}
+
+		$this->assertSame( 'search', $template_name );
+		$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered search title</h2>', $html );
+		$this->assertStringEndsWith( '</section>', $html );
+	}
+
+	/**
+	 * @covers BBP_Stats_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_stats_widget_renders_filtered_title_and_requests_template() {
+		$widget = new BBP_Stats_Widget();
+		$args   = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+		$template_name = null;
+		$template_hook = function( $slug, $name ) use ( &$template_name ) {
+			$template_name = $name;
+		};
+		$title_filter = function() {
+			return 'Filtered stats title';
+		};
+
+		add_filter( 'bbp_stats_widget_title', $title_filter );
+		add_action( 'get_template_part_content', $template_hook, 10, 2 );
+		try {
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Stats title' ) );
+			$html = ob_get_clean();
+		} finally {
+			remove_filter( 'bbp_stats_widget_title', $title_filter );
+			remove_action( 'get_template_part_content', $template_hook, 10 );
+		}
+
+		$this->assertSame( 'statistics', $template_name );
+		$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered stats title</h2>', $html );
+		$this->assertStringEndsWith( '</section>', $html );
+	}
+
+	/**
 	 * @covers BBP_Topics_Widget::widget
 	 */
 	public function test_topics_widget_uses_default_post_parent_for_any_forum() {
