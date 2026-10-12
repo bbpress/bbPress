@@ -746,7 +746,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Bail early if revisions are off
-		if ( ! bbp_allow_revisions() || ! post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+		if ( ! bbp_allow_revisions() ) {
 			return;
 		}
 
@@ -892,7 +892,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Bail early if revisions are off
-		if ( ! bbp_allow_revisions() || ! post_type_supports( bbp_get_reply_post_type(), 'revisions' ) ) {
+		if ( ! bbp_allow_revisions() ) {
 			return;
 		}
 
