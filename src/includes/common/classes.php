@@ -151,7 +151,7 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r2700)
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
-		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', $wp_rewrite );
+		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', array( &$wp_rewrite ) );
 	}
 }
 endif; // BBP_Component

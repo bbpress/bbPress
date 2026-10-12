@@ -29,6 +29,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Fixed component-specific rewrite callbacks so they receive the WordPress rewrite object instead of failing or being skipped.
 - Corrected engagement cleanup return values for taxonomy storage and partial
   failures in legacy user-option storage.
 - Kept front-end topic merge, topic split, and reply move action values
