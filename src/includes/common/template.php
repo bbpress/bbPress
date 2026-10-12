@@ -323,7 +323,7 @@ function bbp_is_topic_merge() {
 	$retval = false;
 
 	// Check topic edit and GET params
-	if ( bbp_is_topic_edit() && ! empty( $_GET['action'] ) && ( 'merge' === $_GET['action'] ) ) {
+	if ( bbp_is_topic_edit() && bbp_is_get_action( array( 'merge', 'bbp-merge-topic' ) ) ) {
 		$retval = true;
 	}
 
@@ -344,7 +344,7 @@ function bbp_is_topic_split() {
 	$retval = false;
 
 	// Check topic edit and GET params
-	if ( bbp_is_topic_edit() && ! empty( $_GET['action'] ) && ( 'split' === $_GET['action'] ) ) {
+	if ( bbp_is_topic_edit() && bbp_is_get_action( array( 'split', 'bbp-split-topic' ) ) ) {
 		$retval = true;
 	}
 
@@ -624,7 +624,7 @@ function bbp_is_reply_move() {
 	$retval = false;
 
 	// Check reply edit and GET params
-	if ( bbp_is_reply_edit() && ! empty( $_GET['action'] ) && ( 'move' === $_GET['action'] ) ) {
+	if ( bbp_is_reply_edit() && bbp_is_get_action( array( 'move', 'bbp-move-reply' ) ) ) {
 		$retval = true;
 	}
 

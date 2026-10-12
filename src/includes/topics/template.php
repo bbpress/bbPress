@@ -2969,7 +2969,7 @@ function bbp_get_topic_merge_link( $args = array() ) {
 		return;
 	}
 
-	$query  = array( 'action' => 'merge' );
+	$query  = array( 'action' => 'bbp-merge-topic' );
 	$uri    = add_query_arg( $query, bbp_get_topic_edit_url( $topic->ID ) );
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-merge-link">' . $r['merge_text'] . '</a>' . $r['link_after'];
 

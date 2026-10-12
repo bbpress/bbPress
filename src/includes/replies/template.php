@@ -2239,7 +2239,7 @@ function bbp_get_reply_move_link( $args = array() ) {
 
 	$uri = add_query_arg(
 		array(
-			'action'   => 'move',
+			'action'   => 'bbp-move-reply',
 			'reply_id' => $reply_id
 		),
 		bbp_get_reply_edit_url( $reply_id )
@@ -2305,7 +2305,7 @@ function bbp_get_topic_split_link( $args = array() ) {
 
 	$uri = add_query_arg(
 		array(
-			'action'   => 'split',
+			'action'   => 'bbp-split-topic',
 			'reply_id' => $reply_id
 		),
 		bbp_get_topic_edit_url( $topic_id )

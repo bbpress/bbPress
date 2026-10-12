@@ -55,6 +55,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept front-end topic merge, topic split, and reply move action values
+  consistent between request methods.
 - Kept forum and topic subscriptions separate when using the legacy user-meta
   engagement strategy.
 - Kept the Login widget logout link readable when themes style widget links and
