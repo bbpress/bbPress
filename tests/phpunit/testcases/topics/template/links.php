@@ -394,7 +394,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 			$args = array( 'id' => $topic_id );
 			$html = bbp_get_topic_merge_link( $args );
 			$this->assertStringContainsString( 'class="bbp-topic-merge-link">Merge</a>', $html );
-			$this->assertStringContainsString( 'action=merge', $html );
+			$this->assertStringContainsString( 'action=bbp-merge-topic', $html );
 			$this->expectOutputString( $html );
 			bbp_topic_merge_link( $args );
 		} );

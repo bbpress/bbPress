@@ -177,7 +177,7 @@ class BBP_Tests_Replies_Template_Links extends BBP_UnitTestCase {
 			$args = array( 'id' => $reply_id, 'split_text' => 'Relocate' );
 			$link = bbp_get_reply_move_link( $args );
 			$this->assertStringContainsString( 'bbp-reply-move-link', $link );
-			$this->assertStringContainsString( 'action=move', $link );
+			$this->assertStringContainsString( 'action=bbp-move-reply', $link );
 			$this->assertStringContainsString( '>Relocate</a>', $link );
 			$this->expectOutputString( $link );
 			bbp_reply_move_link( $args );
@@ -193,7 +193,7 @@ class BBP_Tests_Replies_Template_Links extends BBP_UnitTestCase {
 			$args = array( 'id' => $reply_id, 'split_text' => 'Divide' );
 			$link = bbp_get_topic_split_link( $args );
 			$this->assertStringContainsString( 'bbp-topic-split-link', $link );
-			$this->assertStringContainsString( 'action=split', $link );
+			$this->assertStringContainsString( 'action=bbp-split-topic', $link );
 			$this->assertStringContainsString( '>Divide</a>', $link );
 			$this->expectOutputString( $link );
 			bbp_topic_split_link( $args );
