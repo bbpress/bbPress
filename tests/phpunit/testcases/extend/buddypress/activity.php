@@ -493,6 +493,75 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Topic and reply activity update cases.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public function activity_edit_cases() {
+		return array(
+			'topic' => array( 'topic' ),
+			'reply' => array( 'reply' ),
+		);
+	}
+
+	/**
+	 * Editing a topic or reply updates its existing activity item.
+	 *
+	 * bbPress temporarily removes post-type revision support while updating a
+	 * topic or reply to avoid creating a duplicate WordPress revision.
+	 *
+	 * @ticket BBP3328
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_edit_updates_activity_when_revision_support_is_temporarily_removed( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent'  => $forum_id,
+			'post_author'  => $user_id,
+			'post_content' => 'Original topic activity content',
+		) );
+
+		if ( 'reply' === $activity_type ) {
+			$post_id = $this->factory->reply->create( array(
+				'post_parent'  => $topic_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Original reply activity content',
+			) );
+			bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+		} else {
+			$post_id = $topic_id;
+			bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+		}
+
+		$activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+		$post_type    = get_post_type( $post_id );
+		$had_support  = post_type_supports( $post_type, 'revisions' );
+		$new_content  = 'Edited ' . $activity_type . ' activity content';
+
+		$this->assertGreaterThan( 0, $activity_id );
+
+		remove_post_type_support( $post_type, 'revisions' );
+		try {
+			wp_update_post( array(
+				'ID'           => $post_id,
+				'post_content' => $new_content,
+			) );
+		} finally {
+			if ( $had_support ) {
+				add_post_type_support( $post_type, 'revisions' );
+			}
+		}
+
+		$activity = new BP_Activity_Activity( $activity_id );
+
+		$this->assertSame( $activity_id, (int) get_post_meta( $post_id, '_bbp_activity_id', true ) );
+		$this->assertStringContainsString( $new_content, $activity->content );
+	}
+
+	/**
 	 * Dynamic activity actions for site-wide forum topics.
 	 *
 	 * @since 2.6.0 bbPress (r6370)

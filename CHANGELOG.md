@@ -143,6 +143,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Updated BuddyPress activity when topics and replies are edited with revision logging enabled.
 - Kept forum exclusions active in topic and reply queries using OR metadata conditions.
 - Corrected topic edit-lock owner detection.
 - Stopped prefilling login password fields from request data.
