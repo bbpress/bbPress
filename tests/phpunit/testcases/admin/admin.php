@@ -120,6 +120,25 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		}
 	}
 
+	private function capture_wp_die_output( $callback ) {
+		$level = ob_get_level();
+		ob_start();
+
+		try {
+			call_user_func( $callback );
+			$this->fail( 'Expected the request to terminate.' );
+		} catch ( WPDieException $error ) {
+			$output = ob_get_clean();
+			$this->assertSame( '', $error->getMessage() );
+
+			return $output;
+		} finally {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+		}
+	}
+
 	/**
 	 * @covers BBP_Admin::__construct
 	 * @ticket 3706
@@ -703,6 +722,62 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		} finally {
 			remove_filter( 'wp_doing_ajax', '__return_true' );
 			remove_filter( 'wp_die_handler', $handler );
+			remove_filter( 'wp_die_ajax_handler', $handler );
+		}
+	}
+
+	/**
+	 * @covers BBP_Admin::suggest_topic
+	 * @covers BBP_Admin::suggest_user
+	 * @ticket 3363
+	 */
+	public function test_ajax_suggestions_use_ajax_die_handler_after_output() {
+		$admin = bbp_admin();
+		$handler = function () {
+			return function ( $message ) {
+				throw new WPDieException( (string) $message );
+			};
+		};
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter( 'wp_die_ajax_handler', $handler );
+
+		try {
+			$this->create_administrator();
+			bbp_set_user_role( bbp_get_current_user_id(), bbp_get_keymaster_role() );
+
+			$forum_id = $this->factory->forum->create();
+			$topic_id = $this->factory->topic->create(
+				array(
+					'post_parent' => $forum_id,
+					'post_title'  => 'Needle Topic',
+				)
+			);
+			$user_id = $this->factory->user->create(
+				array(
+					'user_login'    => 'needle-user',
+					'user_nicename' => 'needle-user',
+				)
+			);
+
+			$_REQUEST = array(
+				'q'           => 'Needle',
+				'_ajax_nonce' => wp_create_nonce( 'bbp_suggest_topic_nonce' ),
+			);
+			$this->assertSame(
+				$topic_id . " - Needle Topic\n",
+				$this->capture_wp_die_output( array( $admin, 'suggest_topic' ) )
+			);
+
+			$_REQUEST = array(
+				'q'           => 'needle',
+				'_ajax_nonce' => wp_create_nonce( 'bbp_suggest_user_nonce' ),
+			);
+			$this->assertSame(
+				$user_id . " - needle-user\n",
+				$this->capture_wp_die_output( array( $admin, 'suggest_user' ) )
+			);
+		} finally {
+			remove_filter( 'wp_doing_ajax', '__return_true' );
 			remove_filter( 'wp_die_ajax_handler', $handler );
 		}
 	}

@@ -1109,7 +1109,7 @@ class BBP_Admin {
 				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), esc_html( bbp_get_topic_title( $post->ID ) ) . "\n" );
 			}
 		}
-		die();
+		wp_die();
 	}
 
 	/**
@@ -1196,7 +1196,7 @@ class BBP_Admin {
 				);
 			}
 		}
-		die();
+		wp_die();
 	}
 
 	/** About *****************************************************************/

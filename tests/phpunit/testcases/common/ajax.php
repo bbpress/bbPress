@@ -330,6 +330,42 @@ class BBP_Tests_Common_Ajax extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @covers ::bbp_ajax_response
+	 * @ticket 3363
+	 */
+	public function test_ajax_response_uses_ajax_die_handler_after_output() {
+		$handler = $this->get_die_handler_filter();
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter( 'wp_die_ajax_handler', $handler );
+
+		$level = ob_get_level();
+		ob_start();
+
+		try {
+			$this->without_header_warnings(
+				function() {
+					bbp_ajax_response( true, 'Content', -1, array( 'extra' => 'value' ) );
+				}
+			);
+			$this->fail( 'Expected the AJAX response to terminate.' );
+		} catch ( BBP_Tests_Common_Ajax_Die_Exception $error ) {
+			$output = ob_get_clean();
+			$this->assertSame( '', $error->getMessage() );
+			$this->assertSame(
+				'{"success":true,"status":200,"content":"Content","extra":"value"}',
+				$output
+			);
+		} finally {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_filter( 'wp_die_ajax_handler', $handler );
+		}
+	}
+
 	private function get_die_handler_filter() {
 		return function() {
 			return function( $message, $title, $args ) {
