@@ -9,6 +9,7 @@
  */
 class BBP_Tests_Repliess_Template_Status extends BBP_UnitTestCase {
 	protected $old_current_user = 0;
+	protected $keymaster_id;
 
 	public function setUp(): void {
 		parent::setUp();

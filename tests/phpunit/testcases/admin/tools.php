@@ -7,6 +7,7 @@
  */
 class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	protected $old_current_user = 0;
+	protected $keymaster_id;
 
 	public function setUp(): void {
 		parent::setUp();

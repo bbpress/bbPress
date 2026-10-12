@@ -6,7 +6,7 @@
 
 echo "Setting up WordPress test environment...\n";
 
-error_reporting( E_ALL & ~E_DEPRECATED & ~E_STRICT );
+error_reporting( E_ALL & ~E_DEPRECATED );
 
 $config_file_path = $argv[1];
 $tests_dir_path   = $argv[2];
@@ -41,7 +41,11 @@ echo "Loading WordPress via `wp-settings.php`...\n";
 require_once ABSPATH . '/wp-settings.php';
 
 // Fix fussy database settings
-$wpdb->query( 'SET storage_engine = INNODB' );
+if ( version_compare( $wpdb->db_version(), '5.5.3', '>=' ) ) {
+	$wpdb->query( 'SET default_storage_engine = INNODB' );
+} else {
+	$wpdb->query( 'SET storage_engine = INNODB' );
+}
 $wpdb->select( DB_NAME, $wpdb->dbh );
 
 // Install bbPress
