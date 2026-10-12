@@ -10,6 +10,21 @@
 class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 
 	/**
+	 * @covers BBP_User_Engagements_User::remove_user_from_object
+	 * @ticket BBP3737
+	 */
+	public function test_user_strategy_removes_numeric_string_object_id() {
+		$strategy = new BBP_User_Engagements_User();
+		$user_id  = $this->factory->user->create();
+		$topic_id = $this->factory->topic->create();
+		$meta_key = '_bbp_test_numeric_string_removal';
+
+		$this->assertNotFalse( $strategy->add_user_to_object( $topic_id, $user_id, $meta_key ) );
+		$this->assertTrue( $strategy->remove_user_from_object( (string) $topic_id, $user_id, $meta_key ) );
+		$this->assertSame( array(), $strategy->get_users_for_object( $topic_id, $meta_key ) );
+	}
+
+	/**
 	 * @covers BBP_User_Engagements_User::get_query
 	 * @ticket BBP3401
 	 */
