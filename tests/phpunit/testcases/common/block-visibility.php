@@ -10,7 +10,7 @@
 class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 
 	/**
-	 * @covers ::BBP_Blocks::enqueue_block_editor_assets
+	 * @covers BBP_Blocks::enqueue_block_editor_assets
 	 */
 	public function test_editor_choices_only_load_for_registered_admin_script() {
 		$forum_id = $this->factory->forum->create();
@@ -48,7 +48,7 @@ class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::BBP_Blocks::get_localize_script_data
+	 * @covers BBP_Blocks::get_localize_script_data
 	 */
 	public function test_forum_options_respect_editor_visibility() {
 		$public_id  = $this->factory->forum->create( array( 'post_title' => 'Public block forum' ) );
@@ -92,7 +92,7 @@ class BBP_Tests_Common_Block_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::BBP_Blocks::get_localize_script_data
+	 * @covers BBP_Blocks::get_localize_script_data
 	 */
 	public function test_topic_tag_options_exclude_restricted_only_tags() {
 		$public_forum    = $this->factory->forum->create();
