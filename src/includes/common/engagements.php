@@ -607,10 +607,11 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @param string $meta_key
 	 * @param int    $object_id
 	 * @param bool   $prefix
+	 * @param string $context_key
 	 *
 	 * @return string
 	 */
-	private function get_user_option_key( $meta_key = '', $object_id = 0, $prefix = false ) {
+	private function get_user_option_key( $meta_key = '', $object_id = 0, $prefix = false, $context_key = '' ) {
 		switch ( $meta_key ) {
 
 			// Favorites
@@ -622,9 +623,13 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			case '_bbp_subscription' :
 
 				// Maybe guess at post type
-				$post_type = ! empty( $object_id )
-					? get_post_type( $object_id )
-					: bbp_get_topic_post_type();
+				if ( ! empty( $object_id ) ) {
+					$post_type = get_post_type( $object_id );
+				} elseif ( 'get_user_forum_subscriptions' === $context_key ) {
+					$post_type = bbp_get_forum_post_type();
+				} else {
+					$post_type = bbp_get_topic_post_type();
+				}
 
 				// Forums & Topics used different keys :/
 				$key = ( bbp_get_forum_post_type() === $post_type )
@@ -996,7 +1001,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		$user_id    = bbp_get_user_id( $args, true, true );
-		$option_key = $this->get_user_option_key( $meta_key );
+		$option_key = $this->get_user_option_key( $meta_key, 0, false, $context_key );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 
 		// Maybe trick WP_Query into ".ID IN (0)" to return no results
