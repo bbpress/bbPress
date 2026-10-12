@@ -36,6 +36,161 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Assert that a wrapper dispatches its matching action with all arguments.
+	 *
+	 * @param string $function Wrapper function name.
+	 * @param string $hook     Action hook name.
+	 * @param array  $args     Wrapper arguments.
+	 */
+	private function assert_action_wrapper( $function, $hook, $args = array() ) {
+		global $wp_actions, $wp_filter;
+
+		$had_filter = isset( $wp_filter[ $hook ] );
+		$filter     = $had_filter ? $wp_filter[ $hook ] : null;
+		$had_count  = isset( $wp_actions[ $hook ] );
+		$count      = $had_count ? $wp_actions[ $hook ] : null;
+		$received   = null;
+
+		$wp_filter[ $hook ] = new WP_Hook();
+		add_action(
+			$hook,
+			function() use ( &$received ) {
+				$received = func_get_args();
+			},
+			10,
+			empty( $args ) ? 0 : PHP_INT_MAX
+		);
+
+		try {
+			call_user_func_array( $function, $args );
+		} finally {
+			if ( $had_filter ) {
+				$wp_filter[ $hook ] = $filter;
+			} else {
+				unset( $wp_filter[ $hook ] );
+			}
+
+			if ( $had_count ) {
+				$wp_actions[ $hook ] = $count;
+			} else {
+				unset( $wp_actions[ $hook ] );
+			}
+		}
+
+		$this->assertSame( $args, $received );
+	}
+
+	/**
+	 * @covers ::bbp_activation
+	 * @covers ::bbp_deactivation
+	 * @covers ::bbp_uninstall
+	 * @covers ::bbp_loaded
+	 * @covers ::bbp_constants
+	 * @covers ::bbp_boot_strap_globals
+	 * @covers ::bbp_includes
+	 * @covers ::bbp_setup_globals
+	 * @covers ::bbp_register
+	 * @covers ::bbp_init
+	 * @covers ::bbp_rest_api_init
+	 * @covers ::bbp_widgets_init
+	 * @covers ::bbp_setup_current_user
+	 * @covers ::bbp_setup_engagements
+	 * @covers ::bbp_load_textdomain
+	 * @covers ::bbp_register_post_types
+	 * @covers ::bbp_register_post_statuses
+	 * @covers ::bbp_register_taxonomies
+	 * @covers ::bbp_register_views
+	 * @covers ::bbp_register_shortcodes
+	 * @covers ::bbp_register_blocks
+	 * @covers ::bbp_register_meta
+	 * @covers ::bbp_enqueue_scripts
+	 * @covers ::bbp_add_rewrite_tags
+	 * @covers ::bbp_add_rewrite_rules
+	 * @covers ::bbp_add_permastructs
+	 * @covers ::bbp_login_form_login
+	 * @covers ::bbp_ready
+	 * @covers ::bbp_template_redirect
+	 * @covers ::bbp_register_theme_packages
+	 * @covers ::bbp_setup_theme
+	 * @covers ::bbp_after_setup_theme
+	 * @dataProvider action_wrapper_provider
+	 */
+	public function test_action_wrappers_dispatch_matching_hooks( $function ) {
+		$this->assert_action_wrapper( $function, $function );
+	}
+
+	public static function action_wrapper_provider() {
+		$functions = array(
+			'bbp_activation',
+			'bbp_deactivation',
+			'bbp_uninstall',
+			'bbp_loaded',
+			'bbp_constants',
+			'bbp_boot_strap_globals',
+			'bbp_includes',
+			'bbp_setup_globals',
+			'bbp_register',
+			'bbp_init',
+			'bbp_rest_api_init',
+			'bbp_widgets_init',
+			'bbp_setup_current_user',
+			'bbp_setup_engagements',
+			'bbp_load_textdomain',
+			'bbp_register_post_types',
+			'bbp_register_post_statuses',
+			'bbp_register_taxonomies',
+			'bbp_register_views',
+			'bbp_register_shortcodes',
+			'bbp_register_blocks',
+			'bbp_register_meta',
+			'bbp_enqueue_scripts',
+			'bbp_add_rewrite_tags',
+			'bbp_add_rewrite_rules',
+			'bbp_add_permastructs',
+			'bbp_login_form_login',
+			'bbp_ready',
+			'bbp_template_redirect',
+			'bbp_register_theme_packages',
+			'bbp_setup_theme',
+			'bbp_after_setup_theme',
+		);
+
+		$data = array();
+		foreach ( $functions as $function ) {
+			$data[ $function ] = array( $function );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @covers ::bbp_xmlrpc_call
+	 * @covers ::bbp_roles_init
+	 * @covers ::bbp_profile_update
+	 * @covers ::bbp_user_register
+	 * @covers ::bbp_generate_rewrite_rules
+	 * @dataProvider argument_action_wrapper_provider
+	 */
+	public function test_action_wrappers_forward_arguments( $function, $args ) {
+		$this->assert_action_wrapper( $function, $function, $args );
+	}
+
+	public static function argument_action_wrapper_provider() {
+		$server        = new stdClass();
+		$roles         = new stdClass();
+		$old_user_data = array( 'display_name' => 'Old Name' );
+		$rewrite       = new stdClass();
+
+		return array(
+			'XML-RPC call'           => array( 'bbp_xmlrpc_call', array( 'wp.editPost', array( 7, 11 ), $server ) ),
+			'roles init'             => array( 'bbp_roles_init', array( $roles ) ),
+			'profile update'         => array( 'bbp_profile_update', array( 17, $old_user_data ) ),
+			'user register'          => array( 'bbp_user_register', array( 23 ) ),
+			'generate rewrite rules' => array( 'bbp_generate_rewrite_rules', array( $rewrite ) ),
+		);
+	}
+
+	/**
 	 * @covers ::bbp_post_request
 	 */
 	public function test_post_request_dispatches_sanitized_dynamic_and_static_actions() {
