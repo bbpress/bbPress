@@ -1486,12 +1486,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						$bbp->current_topic_id       = get_the_ID();
 
 						// Merge
-						if ( ! empty( $_GET['action'] ) && 'merge' === $_GET['action'] ) :
+						if ( bbp_is_get_action( array( 'merge', 'bbp-merge-topic' ) ) ) :
 							bbp_set_query_name( 'bbp_topic_merge' );
 							bbp_get_template_part( 'form', 'topic-merge' );
 
 						// Split
-						elseif ( ! empty( $_GET['action'] ) && 'split' === $_GET['action'] ) :
+						elseif ( bbp_is_get_action( array( 'split', 'bbp-split-topic' ) ) ) :
 							bbp_set_query_name( 'bbp_topic_split' );
 							bbp_get_template_part( 'form', 'topic-split' );
 
@@ -1566,7 +1566,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						$bbp->current_reply_id       = get_the_ID();
 
 						// Move
-						if ( ! empty( $_GET['action'] ) && ( 'move' === $_GET['action'] ) ) :
+						if ( bbp_is_get_action( array( 'move', 'bbp-move-reply' ) ) ) :
 							bbp_set_query_name( 'bbp_reply_move' );
 							bbp_get_template_part( 'form', 'reply-move' );
 

@@ -678,6 +678,22 @@ function bbp_is_get_request() {
 		&& ( 'GET' === strtoupper( $_SERVER['REQUEST_METHOD'] ) );
 }
 
+/**
+ * Return true|false if this is a GET request for one of the given actions.
+ *
+ * @since 2.6.20 bbPress (r7985)
+ *
+ * @param string|array $action Action or actions to check.
+ * @return bool
+ */
+function bbp_is_get_action( $action = '' ) {
+	$get_action = ! empty( $_GET['action'] ) && is_string( $_GET['action'] )
+		? sanitize_key( $_GET['action'] )
+		: '';
+
+	return ! empty( $get_action ) && bbp_is_get_request() && in_array( $get_action, (array) $action, true );
+}
+
 /** Redirection ***************************************************************/
 
 /**
