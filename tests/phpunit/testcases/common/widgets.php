@@ -581,7 +581,338 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Forums_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_forums_widget_bails_without_forums_and_renders_matching_children() {
+		$widget = new BBP_Forums_Widget();
+		$args   = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+
+		ob_start();
+		$widget->widget( $args, array( 'parent_forum' => 0 ) );
+		$this->assertSame( '', ob_get_clean() );
+
+		$parent_id = $this->factory->forum->create( array( 'post_title' => 'Parent Forum' ) );
+		$this->factory->forum->create(
+			array(
+				'post_parent' => $parent_id,
+				'post_title'  => 'Matching Child Forum',
+			)
+		);
+		$this->factory->forum->create( array( 'post_title' => 'Other Root Forum' ) );
+
+		$captured_query = array();
+		$capture_query  = function( $query ) use ( &$captured_query ) {
+			if ( bbp_get_forum_post_type() === $query->get( 'post_type' ) ) {
+				$captured_query = $query->query;
+			}
+		};
+		$title_filter = function() {
+			return 'Filtered forums title';
+		};
+
+		add_action( 'pre_get_posts', $capture_query, 999 );
+		add_filter( 'bbp_forum_widget_title', $title_filter );
+		try {
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Forums title', 'parent_forum' => $parent_id ) );
+			$html = ob_get_clean();
+		} finally {
+			remove_action( 'pre_get_posts', $capture_query, 999 );
+			remove_filter( 'bbp_forum_widget_title', $title_filter );
+		}
+
+		$this->assertSame( $parent_id, $captured_query['post_parent'] );
+		$this->assertSame( 'menu_order title', $captured_query['orderby'] );
+		$this->assertSame( 'ASC', $captured_query['order'] );
+		$this->assertTrue( $captured_query['no_found_rows'] );
+		$this->assertFalse( $captured_query['update_post_term_cache'] );
+		$this->assertFalse( $captured_query['update_post_meta_cache'] );
+		$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered forums title</h2>', $html );
+		$this->assertStringEndsWith( '</section>', $html );
+		$this->assertStringContainsString( '<ul class="bbp-forums-widget">', $html );
+		$this->assertStringContainsString( 'Matching Child Forum', $html );
+		$this->assertStringNotContainsString( 'Parent Forum', $html );
+		$this->assertStringNotContainsString( 'Other Root Forum', $html );
+	}
+
+	/**
 	 * @covers BBP_Topics_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_topics_widget_uses_expected_queries_and_optional_output() {
+		$empty_forum_id = $this->factory->forum->create();
+		$widget         = new BBP_Topics_Widget();
+		$args           = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+
+		ob_start();
+		$widget->widget( $args, array( 'parent_forum' => $empty_forum_id ) );
+		$this->assertSame( '', ob_get_clean() );
+
+		$author_id = $this->factory->user->create( array( 'display_name' => 'Widget Topic Author' ) );
+		$forum_id  = $this->factory->forum->create();
+		$now       = current_time( 'timestamp' );
+		$topics    = array(
+			'newness' => array(
+				'title'      => 'Newest Widget Topic',
+				'post_date'  => $now - 60,
+				'replies'    => 1,
+				'last_active' => $now - 300,
+			),
+			'popular' => array(
+				'title'      => 'Popular Widget Topic',
+				'post_date'  => $now - 180,
+				'replies'    => 20,
+				'last_active' => $now - 200,
+			),
+			'freshness' => array(
+				'title'      => 'Fresh Widget Topic',
+				'post_date'  => $now - 120,
+				'replies'    => 5,
+				'last_active' => $now - 30,
+			),
+		);
+		foreach ( $topics as $topic ) {
+			$topic_id = $this->factory->topic->create(
+				array(
+					'post_author' => $author_id,
+					'post_date'   => gmdate( 'Y-m-d H:i:s', $topic['post_date'] ),
+					'post_parent' => $forum_id,
+					'post_title'  => $topic['title'],
+					'topic_meta'  => array( 'forum_id' => $forum_id ),
+				)
+			);
+			update_post_meta( $topic_id, '_bbp_reply_count', $topic['replies'] );
+			update_post_meta( $topic_id, '_bbp_last_active_time', gmdate( 'Y-m-d H:i:s', $topic['last_active'] ) );
+		}
+
+		$modes = array(
+			'newness' => array(
+				'orderby'   => 'date',
+				'meta_query' => null,
+				'title'      => 'Newest Widget Topic',
+			),
+			'popular' => array(
+				'orderby'   => 'meta_value_num',
+				'meta_query' => array(
+					array(
+						'key'  => '_bbp_reply_count',
+						'type' => 'NUMERIC',
+					),
+				),
+				'title' => 'Popular Widget Topic',
+			),
+			'freshness' => array(
+				'orderby'   => 'meta_value',
+				'meta_query' => array(
+					array(
+						'key'  => '_bbp_last_active_time',
+						'type' => 'DATETIME',
+					),
+				),
+				'title' => 'Fresh Widget Topic',
+			),
+		);
+		$captured_query = array();
+		$capture_query  = function( $query ) use ( &$captured_query ) {
+			if ( bbp_get_topic_post_type() === $query->get( 'post_type' ) ) {
+				$captured_query = $query->query;
+			}
+		};
+		$title_filter = function() {
+			return 'Filtered topics title';
+		};
+
+		add_action( 'pre_get_posts', $capture_query, 999 );
+		add_filter( 'bbp_topic_widget_title', $title_filter );
+		try {
+			foreach ( $modes as $mode => $expected ) {
+				$captured_query = array();
+				ob_start();
+				$widget->widget(
+					$args,
+					array(
+						'title'        => 'Topics title',
+						'max_shown'    => 1,
+						'show_date'    => true,
+						'show_user'    => true,
+						'parent_forum' => $forum_id,
+						'order_by'     => $mode,
+					)
+				);
+				$html = ob_get_clean();
+
+				$this->assertSame( $forum_id, $captured_query['post_parent'] );
+				$this->assertSame( 1, $captured_query['posts_per_page'] );
+				$this->assertSame( $expected['orderby'], $captured_query['orderby'] );
+				$this->assertSame( 'DESC', $captured_query['order'] );
+				$this->assertSame( $expected['meta_query'], $captured_query['meta_query'] ?? null );
+				$this->assertTrue( $captured_query['no_found_rows'] );
+				$this->assertFalse( $captured_query['update_post_term_cache'] );
+				$this->assertFalse( $captured_query['update_post_meta_cache'] );
+				$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered topics title</h2>', $html );
+				$this->assertStringEndsWith( '</section>', $html );
+				$this->assertStringContainsString( '<ul class="bbp-topics-widget ' . $mode . '">', $html );
+				$this->assertStringContainsString( $expected['title'], $html );
+				foreach ( $topics as $topic ) {
+					if ( $expected['title'] !== $topic['title'] ) {
+						$this->assertStringNotContainsString( $topic['title'], $html );
+					}
+				}
+				$this->assertStringContainsString( 'Widget Topic Author', $html );
+				$this->assertStringContainsString( '<span class="topic-author">', $html );
+				$this->assertMatchesRegularExpression( '/<div>[^<]+<\/div>/', $html );
+			}
+
+			$captured_query = array();
+			ob_start();
+			$widget->widget(
+				$args,
+				array(
+					'max_shown'    => 1,
+					'parent_forum' => $forum_id,
+					'order_by'     => false,
+					'show_date'    => false,
+					'show_user'    => false,
+				)
+			);
+			$default_html = ob_get_clean();
+
+			$this->assertSame( 'date', $captured_query['orderby'] );
+			$this->assertArrayNotHasKey( 'meta_query', $captured_query );
+			$this->assertStringContainsString( '<ul class="bbp-topics-widget ">', $default_html );
+			$this->assertStringContainsString( 'Newest Widget Topic', $default_html );
+			$this->assertStringNotContainsString( '<span class="topic-author">', $default_html );
+			$this->assertStringNotContainsString( '<div>', $default_html );
+		} finally {
+			remove_action( 'pre_get_posts', $capture_query, 999 );
+			remove_filter( 'bbp_topic_widget_title', $title_filter );
+		}
+	}
+
+	/**
+	 * @covers BBP_Replies_Widget::widget
+	 * @ticket 3706
+	 */
+	public function test_replies_widget_bails_without_replies_and_renders_optional_output() {
+		$widget = new BBP_Replies_Widget();
+		$args   = array(
+			'before_widget' => '<section class="before-widget">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>',
+		);
+
+		ob_start();
+		$widget->widget( $args, array( 'max_shown' => 1 ) );
+		$this->assertSame( '', ob_get_clean() );
+
+		$author_id = $this->factory->user->create( array( 'display_name' => 'Widget Reply Author' ) );
+		$forum_id  = $this->factory->forum->create();
+		$now       = current_time( 'timestamp' );
+		$topic_id  = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_title'  => 'Widget Reply Topic',
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$this->factory->reply->create(
+			array(
+				'post_author' => $author_id,
+				'post_content' => 'Older reply marker',
+				'post_date'   => gmdate( 'Y-m-d H:i:s', $now - 120 ),
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$this->factory->reply->create(
+			array(
+				'post_author' => $author_id,
+				'post_content' => 'Newest reply marker',
+				'post_date'   => gmdate( 'Y-m-d H:i:s', $now - 60 ),
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		$variants = array(
+			array( 'show_date' => false, 'show_user' => false ),
+			array( 'show_date' => false, 'show_user' => true ),
+			array( 'show_date' => true,  'show_user' => false ),
+			array( 'show_date' => true,  'show_user' => true ),
+		);
+		$captured_query = array();
+		$capture_query  = function( $query ) use ( &$captured_query ) {
+			if ( bbp_get_reply_post_type() === $query->get( 'post_type' ) ) {
+				$captured_query = $query->query;
+			}
+		};
+		$title_filter = function() {
+			return 'Filtered replies title';
+		};
+
+		add_action( 'pre_get_posts', $capture_query, 999 );
+		add_filter( 'bbp_replies_widget_title', $title_filter );
+		try {
+			foreach ( $variants as $variant ) {
+				ob_start();
+				$widget->widget(
+					$args,
+					array_merge(
+						array(
+							'title'     => 'Replies title',
+							'max_shown' => 1,
+						),
+						$variant
+					)
+				);
+				$html = ob_get_clean();
+
+				$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered replies title</h2>', $html );
+				$this->assertStringEndsWith( '</section>', $html );
+				$this->assertStringContainsString( '<ul class="bbp-replies-widget">', $html );
+				$this->assertStringContainsString( 'class="bbp-reply-topic-title"', $html );
+				$this->assertStringContainsString( 'Widget Reply Topic', $html );
+				$this->assertStringContainsString( 'Newest reply marker', $html );
+				$this->assertStringNotContainsString( 'Older reply marker', $html );
+
+				if ( $variant['show_user'] ) {
+					$this->assertStringContainsString( 'Widget Reply Author', $html );
+				} else {
+					$this->assertStringNotContainsString( 'Widget Reply Author', $html );
+				}
+
+				if ( $variant['show_date'] ) {
+					$this->assertStringContainsString( '<time datetime="', $html );
+				} else {
+					$this->assertStringNotContainsString( '<time datetime="', $html );
+				}
+			}
+		} finally {
+			remove_action( 'pre_get_posts', $capture_query, 999 );
+			remove_filter( 'bbp_replies_widget_title', $title_filter );
+		}
+
+		$this->assertSame( 1, $captured_query['posts_per_page'] );
+		$this->assertTrue( $captured_query['no_found_rows'] );
+		$this->assertFalse( $captured_query['update_post_term_cache'] );
+		$this->assertFalse( $captured_query['update_post_meta_cache'] );
+	}
+
+	/**
+	 * @covers BBP_Topics_Widget::widget
+	 * @ticket 3706
 	 */
 	public function test_topics_widget_uses_default_post_parent_for_any_forum() {
 		$forum_ids = $this->factory->forum->create_many( 2 );
@@ -608,23 +939,25 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 		};
 		add_action( 'pre_get_posts', $capture_query, 999 );
 
-		$widget = new BBP_Topics_Widget();
-		ob_start();
-		$widget->widget(
-			array(
-				'before_widget' => '',
-				'after_widget'  => '',
-				'before_title'  => '',
-				'after_title'   => '',
-			),
-			array(
-				'max_shown'    => 10,
-				'parent_forum' => 'any',
-			)
-		);
-		$html = ob_get_clean();
-
-		remove_action( 'pre_get_posts', $capture_query, 999 );
+		try {
+			$widget = new BBP_Topics_Widget();
+			ob_start();
+			$widget->widget(
+				array(
+					'before_widget' => '',
+					'after_widget'  => '',
+					'before_title'  => '',
+					'after_title'   => '',
+				),
+				array(
+					'max_shown'    => 10,
+					'parent_forum' => 'any',
+				)
+			);
+			$html = ob_get_clean();
+		} finally {
+			remove_action( 'pre_get_posts', $capture_query, 999 );
+		}
 
 		$this->assertSame( '', $post_parent );
 		$this->assertStringContainsString( 'First forum topic', $html );
