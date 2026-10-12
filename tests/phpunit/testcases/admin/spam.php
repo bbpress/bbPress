@@ -35,7 +35,9 @@ class BBP_Tests_Admin_Spam extends BBP_UnitTestCase {
 		$reflection = new ReflectionClass( $class_name );
 		$admin      = $reflection->newInstanceWithoutConstructor();
 		$property   = $reflection->getProperty( 'post_type' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( $admin, $post_type );
 
 		return $admin;
