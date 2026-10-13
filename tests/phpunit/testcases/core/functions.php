@@ -9,6 +9,8 @@
 class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 
 	private $errors;
+	private $get;
+	private $post;
 	private $request_method;
 	private $views;
 
@@ -16,6 +18,8 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 		parent::setUp();
 
 		$this->errors         = bbpress()->errors;
+		$this->get            = $_GET;
+		$this->post           = $_POST;
 		$this->request_method = isset( $_SERVER['REQUEST_METHOD'] )
 			? $_SERVER['REQUEST_METHOD']
 			: null;
@@ -28,6 +32,8 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 	public function tearDown(): void {
 		bbpress()->errors = $this->errors;
 		bbpress()->views  = $this->views;
+		$_GET             = $this->get;
+		$_POST            = $this->post;
 
 		if ( null === $this->request_method ) {
 			unset( $_SERVER['REQUEST_METHOD'] );
@@ -395,6 +401,65 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 
 		$this->assertFalse( bbp_is_post_request() );
 		$this->assertFalse( bbp_is_get_request() );
+	}
+
+	/**
+	 * @covers ::bbp_get_post_action
+	 * @covers ::bbp_is_post_action
+	 */
+	public function test_post_action_helpers_sanitize_and_match_actions() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_POST['action']           = 'EDIT-TOPIC!';
+
+		$this->assertSame( 'edit-topic', bbp_get_post_action() );
+		$this->assertTrue( bbp_is_post_action( 'edit-topic' ) );
+		$this->assertTrue( bbp_is_post_action( array( 'other', 'edit-topic' ) ) );
+		$this->assertFalse( bbp_is_post_action( 'other' ) );
+		$this->assertFalse( bbp_is_post_action( true ) );
+		$this->assertFalse( bbp_is_post_action() );
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$this->assertFalse( bbp_is_post_action( 'edit-topic' ) );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		unset( $_POST['action'] );
+		$this->assertSame( '', bbp_get_post_action() );
+		$this->assertFalse( bbp_is_post_action( '' ) );
+
+		$_POST['action'] = array( 'edit-topic' );
+		$this->assertSame( '', bbp_get_post_action() );
+		$this->assertFalse( bbp_is_post_action( 'edit-topic' ) );
+
+		$_POST['action'] = '!!!';
+		$this->assertSame( '', bbp_get_post_action() );
+		$this->assertFalse( bbp_is_post_action( '' ) );
+	}
+
+	/**
+	 * @covers ::bbp_is_get_action
+	 */
+	public function test_get_action_helper_sanitizes_and_matches_actions() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET['action']            = 'EDIT-TOPIC!';
+
+		$this->assertTrue( bbp_is_get_action( 'edit-topic' ) );
+		$this->assertTrue( bbp_is_get_action( array( 'other', 'edit-topic' ) ) );
+		$this->assertFalse( bbp_is_get_action( 'other' ) );
+		$this->assertFalse( bbp_is_get_action( true ) );
+		$this->assertFalse( bbp_is_get_action() );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$this->assertFalse( bbp_is_get_action( 'edit-topic' ) );
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		unset( $_GET['action'] );
+		$this->assertFalse( bbp_is_get_action( '' ) );
+
+		$_GET['action'] = array( 'edit-topic' );
+		$this->assertFalse( bbp_is_get_action( 'edit-topic' ) );
+
+		$_GET['action'] = '!!!';
+		$this->assertFalse( bbp_is_get_action( '' ) );
 	}
 
 	/**
