@@ -2232,7 +2232,7 @@ function bbp_get_view_title( $view = '' ) {
 	$bbp = bbpress();
 
 	$view = bbp_get_view_id( $view );
-	if ( empty( $view ) ) {
+	if ( empty( $view ) || empty( $bbp->views[ $view ] ) ) {
 		return false;
 	}
 

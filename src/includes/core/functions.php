@@ -267,7 +267,7 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 
 	// Get view, or bail
 	$view = bbp_get_view_id( $view );
-	if ( empty( $view ) ) {
+	if ( empty( $view ) || empty( bbpress()->views[ $view ] ) ) {
 		return false;
 	}
 
