@@ -301,7 +301,7 @@ function bbp_get_string_array_values( $arr = array() ) {
  * WordPress leaves the GMT date empty for pending posts, which can cause a
  * later status change to replace the original post date.
  *
- * @since 2.6.21 bbPress
+ * @since 2.6.21 bbPress (r8036)
  *
  * @param array $data Post data.
  * @return array Filtered post data.
