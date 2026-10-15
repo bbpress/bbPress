@@ -2813,7 +2813,7 @@ function bbp_template_notices( $context = '' ) {
  * Output the logout link.
  *
  * @since 2.0.0 bbPress (r2827)
- * @since 2.7.0 Added the `$classes` parameter.
+ * @since 2.7.0 bbPress (r7975) Added the `$classes` parameter.
  *
  * @param string $redirect_to Redirect to url.
  * @param array  $classes     Classes to add to the logout link.
@@ -2826,7 +2826,7 @@ function bbp_logout_link( $redirect_to = '', $classes = array( 'button', 'logout
  * Return the logout link.
  *
  * @since 2.0.0 bbPress (r2827)
- * @since 2.7.0 Added the `$classes` parameter.
+ * @since 2.7.0 bbPress (r7975) Added the `$classes` parameter.
  *
  * @param string $redirect_to Redirect to url.
  * @param array  $classes     Classes to add to the logout link.
