@@ -63,6 +63,7 @@ class BBP_BuddyPress_Members {
 	 * handlers.
 	 *
 	 * @since 2.6.20 (r7933)
+	 * @since 2.6.20 (r8025) Set member query variables before handling engagements.
 	 */
 	public function engagements_handler() {
 
@@ -73,6 +74,9 @@ class BBP_BuddyPress_Members {
 
 		// Sanitize the GET action
 		$action = sanitize_key( $_GET['action'] );
+
+		// Set the displayed member context before handlers select a user
+		$this->set_member_forum_query_vars();
 
 		// Pass the action to both handlers, which validate supported actions
 		bbp_favorites_handler( $action );

@@ -77,6 +77,7 @@ Development for the next bbPress release is in progress. See the active
   moderation.
 - Restored controls for privileged users to manage another user's favorites and
   subscriptions.
+- Kept BuddyPress profile engagement actions targeted to the displayed member.
 
 - Fixed the topic-edit Replies metabox pagination for large topics and
   non-public replies.
