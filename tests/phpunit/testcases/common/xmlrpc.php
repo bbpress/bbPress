@@ -873,6 +873,108 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_validate_xmlrpc_post
 	 */
+	public function test_global_moderator_cannot_trash_forum_through_xmlrpc() {
+		$user_id  = $this->create_moderator();
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_author' => $user_id,
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+
+		$result = $this->edit_post( $forum_id, array( 'post_status' => 'trash' ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $result );
+		$this->assertTrue( bbp_is_forum_hidden( $forum_id, false ) );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_keymaster_can_trash_forum_through_xmlrpc() {
+		$forum_id = $this->factory->forum->create();
+
+		$this->create_keymaster();
+
+		$result = $this->edit_post( $forum_id, array( 'post_status' => 'trash' ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'trash', get_post_status( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_global_moderator_cannot_untrash_forum_through_xmlrpc() {
+		$user_id  = $this->create_moderator();
+		$forum_id = $this->factory->forum->create( array( 'post_author' => $user_id ) );
+
+		wp_trash_post( $forum_id );
+
+		$result = $this->edit_post( $forum_id, array( 'post_status' => 'publish' ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'trash', get_post_status( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_forum_deleter_cannot_change_visibility_through_trash() {
+		$user_id = $this->create_participant();
+		$user    = get_user_by( 'id', $user_id );
+
+		$user->add_cap( 'edit_forums' );
+		$user->add_cap( 'delete_forums' );
+
+		$hidden_id  = $this->factory->forum->create(
+			array(
+				'post_author' => $user_id,
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+		$trashed_id = $this->factory->forum->create(
+			array(
+				'post_author' => $user_id,
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+
+		$this->set_current_user( $user_id );
+		$this->assertTrue( current_user_can( 'delete_forum', $hidden_id ) );
+		$this->assertFalse( current_user_can( 'manage_forum_attributes', $hidden_id ) );
+
+		$result = $this->edit_post( $hidden_id, array( 'post_status' => 'trash' ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $result );
+		$this->assertTrue( bbp_is_forum_hidden( $hidden_id, false ) );
+
+		wp_trash_post( $trashed_id );
+
+		$result = $this->edit_post( $trashed_id, array( 'post_status' => 'publish' ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'trash', get_post_status( $trashed_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_keymaster_can_untrash_forum_through_xmlrpc() {
+		$forum_id = $this->factory->forum->create();
+
+		wp_trash_post( $forum_id );
+		$this->create_keymaster();
+
+		$result = $this->edit_post( $forum_id, array( 'post_status' => 'publish' ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'publish', get_post_status( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
 	public function test_keymaster_can_change_forum_structure_through_xmlrpc() {
 		$old_parent_id = $this->factory->forum->create();
 		$new_parent_id = $this->factory->forum->create();

@@ -193,6 +193,11 @@ add_action( 'trashed_post',   'bbp_trashed_forum'   );
 add_action( 'untrashed_post', 'bbp_untrashed_forum' );
 add_action( 'deleted_post',   'bbp_deleted_forum', 10, 2 );
 
+// Keep attachments private after permanent deletion
+add_action( 'bbp_delete_forum', 'bbp_make_post_attachments_private' );
+add_action( 'bbp_delete_topic', 'bbp_make_post_attachments_private' );
+add_action( 'bbp_delete_reply', 'bbp_make_post_attachments_private' );
+
 // Auto trash/untrash/delete a forums topics
 add_action( 'bbp_delete_forum',  'bbp_delete_forum_topics',  10 );
 add_action( 'bbp_trash_forum',   'bbp_trash_forum_topics',   10 );

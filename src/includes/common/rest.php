@@ -358,6 +358,23 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 				break;
 		}
 
+		// Do not expose content below a forum outside a registered visibility
+		$visibility_forum_ids = array();
+		if ( ! empty( $forum_id ) ) {
+			$visibility_forum_ids = ( bbp_get_forum_post_type() === $post->post_type )
+				? bbp_get_forum_ancestors( $forum_id )
+				: array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
+			$visibility_forum_ids = wp_parse_id_list( $visibility_forum_ids );
+		}
+
+		foreach ( $visibility_forum_ids as $visibility_forum_id ) {
+			$forum_visibilities = array_keys( bbp_get_forum_visibilities( $visibility_forum_id ) );
+
+			if ( ! in_array( bbp_get_forum_visibility( $visibility_forum_id ), $forum_visibilities, true ) ) {
+				return false;
+			}
+		}
+
 		// Check access to restricted forums and their ancestors
 		$restricted = ! empty( $forum_id ) && bbp_is_forum_restricted( $forum_id, true );
 		$moderator  = $restricted && is_user_logged_in() && bbp_is_user_forum_moderator( $user_id, $forum_id );

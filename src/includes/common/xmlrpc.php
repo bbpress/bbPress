@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.17 bbPress (r7486)
  * @since 2.6.19 bbPress (r7684) Validate publication and date changes.
+ * @since 2.6.20 bbPress (r8016) Require deletion permission for trash transitions.
  *
  * @param string $method XML-RPC method name.
  * @param array  $args   XML-RPC method arguments.
@@ -136,8 +137,17 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 			$invalid = true;
 		}
 
-		if ( ! $is_restore && $status_changed && ! current_user_can( 'manage_forum_attributes', $post_id ) ) {
-			$invalid = true;
+		if ( ! $is_restore && $status_changed ) {
+			$is_trash_transition = ( 'trash' === $post_data['post_status'] ) || ( 'trash' === $post->post_status );
+			$can_change_status   = current_user_can( 'manage_forum_attributes', $post_id );
+
+			if ( $is_trash_transition && ! current_user_can( 'delete_forum', $post_id ) ) {
+				$can_change_status = false;
+			}
+
+			if ( ! $can_change_status ) {
+				$invalid = true;
+			}
 		}
 
 		if ( ! $is_restore && $order_changed && ! current_user_can( 'assign_moderators' ) ) {
@@ -245,7 +255,7 @@ function bbp_xmlrpc_post_date_changed( $post_data, $post ) {
 function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 	global $bbp_xmlrpc_error_post_id, $bbp_xmlrpc_error_post_type;
 
-	$edit_caps = array( 'edit_post', 'edit_topic', 'edit_reply' );
+	$edit_caps = array( 'edit_post', 'edit_forum', 'edit_topic', 'edit_reply' );
 
 	if ( ! empty( $bbp_xmlrpc_error_post_id ) && in_array( $cap, $edit_caps, true ) && ! empty( $args[0] ) && ( (int) $args[0] === $bbp_xmlrpc_error_post_id ) ) {
 		$caps[] = 'do_not_allow';

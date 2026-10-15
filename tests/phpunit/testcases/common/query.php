@@ -251,6 +251,44 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_child_ids_by_status
+	 */
+	public function test_bbp_get_child_ids_by_status() {
+		$forum_id = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$public_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$pending_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_spam_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		$this->set_current_user( 0 );
+
+		$topic_ids = bbp_get_child_ids_by_status(
+			$forum_id,
+			bbp_get_topic_post_type(),
+			array( bbp_get_public_status_id(), bbp_get_pending_status_id() )
+		);
+
+		$this->assertSame( array( $pending_id, $public_id ), $topic_ids );
+		$this->assertSame( array( $pending_id ), bbp_get_child_ids_by_status( $forum_id, bbp_get_topic_post_type(), bbp_get_pending_status_id() ) );
+	}
+
+	/**
 	 * @covers ::bbp_get_all_child_ids
 	 */
 	public function test_bbp_get_all_child_ids() {

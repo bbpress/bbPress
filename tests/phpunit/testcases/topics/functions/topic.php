@@ -609,6 +609,37 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_spam_topic_replies
+	 */
+	public function test_bbp_spam_topic_replies_in_hidden_forum() {
+		$forum_id = $this->factory->forum->create(
+			array( 'post_status' => bbp_get_hidden_status_id() )
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+
+		$this->set_current_user( 0 );
+		bbp_spam_topic( $topic_id );
+
+		$this->assertSame( bbp_get_spam_status_id(), get_post_status( $topic_id ) );
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $reply_id ) );
+		$this->assertSame( array( $reply_id ), get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_untrash_topic
 	 */
 	public function test_bbp_untrash_topic() {

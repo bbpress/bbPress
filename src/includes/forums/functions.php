@@ -2178,6 +2178,7 @@ function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false 
  * @since 2.0.0 bbPress (r3349)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  * @since 2.6.17 bbPress (r7468) Optionally update ancestor forum totals.
+ * @since 2.6.20 bbPress (r8016) Use an unfiltered structural topic lookup.
  *
  * @param int $forum_id Optional. Topic id to update.
  * @param int $topic_count Optional. Set the topic count manually.
@@ -2217,27 +2218,13 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 
 		// Get topics of forum
 		if ( ! is_int( $topic_count ) ) {
-			$query = new WP_Query(
-				array(
-					'fields'         => 'ids',
-					'post_parent'    => $forum_id,
-					'post_status'    => bbp_get_non_public_topic_statuses(),
-					'post_type'      => bbp_get_topic_post_type(),
-					'posts_per_page' => -1,
-
-					// Performance
-					'nopaging'               => true,
-					'suppress_filters'       => true,
-					'update_post_term_cache' => false,
-					'update_post_meta_cache' => false,
-					'ignore_sticky_posts'    => true,
-					'no_found_rows'          => true
+			$topic_count = count(
+				bbp_get_child_ids_by_status(
+					$forum_id,
+					bbp_get_topic_post_type(),
+					bbp_get_non_public_topic_statuses()
 				)
 			);
-
-			$topic_count = $query->post_count;
-
-			unset( $query );
 		}
 
 		$topic_count  = (int) $topic_count;
@@ -3170,9 +3157,7 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 	$statuses     = bbp_get_countable_forum_statuses();
 	$subforum_ids = array();
 
-	// Query and cache countable subforums. The public child-ID helper excludes
-	// private and hidden forums, while the all-child helper includes trash, so
-	// neither existing helper represents the statuses counted here.
+	// Query and cache countable subforums
 	if ( ! empty( $forum_id ) && ! empty( $statuses ) ) {
 		$key = md5(
 			serialize(
@@ -3187,13 +3172,7 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 		$subforum_ids = wp_cache_get( $cache_key, 'bbpress_posts' );
 
 		if ( false === $subforum_ids ) {
-			$bbp_db       = bbp_db();
-			$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
-			$query        = $bbp_db->prepare(
-				"SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$placeholders}) ORDER BY ID DESC",
-				array_merge( array( $forum_id, bbp_get_forum_post_type() ), $statuses )
-			);
-			$subforum_ids = (array) $bbp_db->get_col( $query );
+			$subforum_ids = bbp_get_child_ids_by_status( $forum_id, bbp_get_forum_post_type(), $statuses );
 
 			wp_cache_set( $cache_key, $subforum_ids, 'bbpress_posts' );
 		}
@@ -3381,37 +3360,19 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 
 	// Forum is being permanently deleted, so its content has go too
 	// Note that we get all post statuses here
-	$topics = new WP_Query(
-		array(
-			'fields'         => 'id=>parent',
-			'post_type'      => bbp_get_topic_post_type(),
-			'post_parent'    => $forum_id,
-			'post_status'    => array_keys( get_post_stati() ),
-			'posts_per_page' => -1,
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		)
+	$topic_ids = bbp_get_child_ids_by_status(
+		$forum_id,
+		bbp_get_topic_post_type(),
+		array_keys( get_post_stati() )
 	);
 
 	// Loop through and delete child topics. Topic replies will get deleted by
 	// the bbp_delete_topic() action.
-	if ( ! empty( $topics->posts ) ) {
-		foreach ( $topics->posts as $topic ) {
-			wp_delete_post( $topic->ID, true );
+	if ( ! empty( $topic_ids ) ) {
+		foreach ( $topic_ids as $topic_id ) {
+			wp_delete_post( $topic_id, true );
 		}
-
-		// Reset the $post global
-		wp_reset_postdata();
 	}
-
-	// Cleanup
-	unset( $topics );
 }
 
 /**
@@ -3438,48 +3399,30 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	);
 
 	// Forum is being trashed, so its topics (and replies) are trashed too
-	$topics = new WP_Query(
-		array(
-			'fields'         => 'id=>parent',
-			'post_type'      => bbp_get_topic_post_type(),
-			'post_parent'    => $forum_id,
-			'post_status'    => $post_stati,
-			'posts_per_page' => -1,
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		)
+	$topic_ids = bbp_get_child_ids_by_status(
+		$forum_id,
+		bbp_get_topic_post_type(),
+		$post_stati
 	);
 
 	// Loop through and trash child topics. Topic replies will get trashed by
 	// the bbp_trash_topic() action.
-	if ( ! empty( $topics->posts ) ) {
+	if ( ! empty( $topic_ids ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_topics = array();
 
 		// Loop through topics, trash them, and add them to array
-		foreach ( $topics->posts as $topic ) {
-			wp_trash_post( $topic->ID, true );
-			$pre_trashed_topics[] = $topic->ID;
+		foreach ( $topic_ids as $topic_id ) {
+			wp_trash_post( $topic_id, true );
+			$pre_trashed_topics[] = $topic_id;
 		}
 
 		// Set a post_meta entry of the topics that were trashed by this action.
 		// This is so we can possibly untrash them, without untrashing topics
 		// that were purposefully trashed before.
 		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
-
-		// Reset the $post global
-		wp_reset_postdata();
 	}
-
-	// Cleanup
-	unset( $topics );
 }
 
 /**
