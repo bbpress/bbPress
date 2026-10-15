@@ -207,6 +207,7 @@ class BBP_Tests_Core_Actions extends BBP_UnitTestCase {
 			array( 'bbp_template_redirect', 'bbp_forum_enforce_blocked', 1,  1 ),
 			array( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',  1,  1 ),
 			array( 'bbp_template_redirect', 'bbp_forum_enforce_private', 1,  1 ),
+			array( 'bbp_template_redirect', 'bbp_forum_enforce_attachments', 1, 1 ),
 			array( 'bbp_template_redirect', 'bbp_post_request',          10, 1 ),
 			array( 'bbp_template_redirect', 'bbp_get_request',           10, 1 ),
 		) );

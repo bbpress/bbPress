@@ -355,6 +355,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_REST_Attachments_Controller::check_read_permission
+	 * @covers BBP_REST_Attachment_Parent_Controller::check_is_post_type_allowed
 	 */
 	public function test_anonymous_user_can_read_public_attachment_when_parent_post_type_is_not_in_rest() {
 		$posts     = $this->create_forum_content();

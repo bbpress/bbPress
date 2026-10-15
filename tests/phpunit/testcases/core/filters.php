@@ -158,6 +158,8 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 			array( 'wp_insert_post_data',       'bbp_fix_post_author',                     30, 2 ),
 			array( 'wp_untrash_post_status',    'bbp_fix_untrash_post_status',             10, 3 ),
 			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_restricted_posts',    10, 2 ),
+			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_restricted_attachments', 10, 2 ),
+			array( 'oembed_request_post_id',    'bbp_filter_oembed_request_attachment_id', 10, 1 ),
 			array( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',      10, 6 ),
 			array( 'bbp_get_author_link',       'bbp_suppress_private_author_link',         10, 3 ),
 			array( 'bbp_get_topic_author_link', 'bbp_suppress_private_author_link',         10, 3 ),

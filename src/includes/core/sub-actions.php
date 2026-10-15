@@ -661,16 +661,9 @@ function bbp_user_can_embed_post( $post_id = 0 ) {
  * @return int Resolved post ID, or zero when access is denied.
  */
 function bbp_filter_oembed_request_post_id( $post_id = 0 ) {
-	$post          = get_post( $post_id );
-	$visibility_id = $post_id;
+	$post = get_post( $post_id );
 
-	// Attachments inherit visibility from a bbPress parent.
-	if ( $post && ( 'attachment' === $post->post_type ) && ! empty( $post->post_parent ) ) {
-		$visibility_id = $post->post_parent;
-		$post          = get_post( $visibility_id );
-	}
-
-	if ( $post && bbp_is_custom_post_type( $post ) && ! bbp_user_can_embed_post( $visibility_id ) ) {
+	if ( $post && bbp_is_custom_post_type( $post ) && ! bbp_user_can_embed_post( $post_id ) ) {
 		return 0;
 	}
 
