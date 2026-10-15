@@ -679,7 +679,7 @@ function bbp_is_get_request() {
 }
 
 /**
- * Return true|false if this is a GET request for one of the given actions.
+ * Return true|false if the GET action matches one of the given actions.
  *
  * @since 2.6.20 bbPress (r7985)
  *
@@ -691,7 +691,7 @@ function bbp_is_get_action( $action = '' ) {
 		? sanitize_key( $_GET['action'] )
 		: '';
 
-	return ! empty( $get_action ) && bbp_is_get_request() && in_array( $get_action, (array) $action, true );
+	return ! empty( $get_action ) && in_array( $get_action, (array) $action, true );
 }
 
 /** Redirection ***************************************************************/

@@ -79,8 +79,9 @@ class BBP_Tests_Common_Moderation_Actions extends BBP_UnitTestCase {
 	 * @covers ::bbp_is_reply_move
 	 * @covers ::bbp_is_get_action
 	 * @ticket BBP3365
+	 * @ticket BBP3740
 	 */
-	public function test_moderation_routes_accept_current_and_legacy_actions() {
+	public function test_moderation_routes_accept_current_and_legacy_actions_during_get_and_post_requests() {
 		$wp_query           = bbp_get_wp_query();
 		$old_get            = $_GET;
 		$old_request_method = $_SERVER['REQUEST_METHOD'];
@@ -89,22 +90,25 @@ class BBP_Tests_Common_Moderation_Actions extends BBP_UnitTestCase {
 
 		$wp_query->bbp_is_topic_edit = true;
 		$wp_query->bbp_is_reply_edit = true;
-		$_SERVER['REQUEST_METHOD']    = 'GET';
 
 		try {
-			foreach ( array( 'merge', 'bbp-merge-topic' ) as $action ) {
-				$_GET['action'] = $action;
-				$this->assertTrue( bbp_is_topic_merge() );
-			}
+			foreach ( array( 'GET', 'POST' ) as $request_method ) {
+				$_SERVER['REQUEST_METHOD'] = $request_method;
 
-			foreach ( array( 'split', 'bbp-split-topic' ) as $action ) {
-				$_GET['action'] = $action;
-				$this->assertTrue( bbp_is_topic_split() );
-			}
+				foreach ( array( 'merge', 'bbp-merge-topic' ) as $action ) {
+					$_GET['action'] = $action;
+					$this->assertTrue( bbp_is_topic_merge() );
+				}
 
-			foreach ( array( 'move', 'bbp-move-reply' ) as $action ) {
-				$_GET['action'] = $action;
-				$this->assertTrue( bbp_is_reply_move() );
+				foreach ( array( 'split', 'bbp-split-topic' ) as $action ) {
+					$_GET['action'] = $action;
+					$this->assertTrue( bbp_is_topic_split() );
+				}
+
+				foreach ( array( 'move', 'bbp-move-reply' ) as $action ) {
+					$_GET['action'] = $action;
+					$this->assertTrue( bbp_is_reply_move() );
+				}
 			}
 		} finally {
 			$_GET                         = $old_get;
@@ -117,8 +121,9 @@ class BBP_Tests_Common_Moderation_Actions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_is_get_action
 	 * @ticket BBP3365
+	 * @ticket BBP3740
 	 */
-	public function test_get_action_requires_a_matching_get_request() {
+	public function test_get_action_requires_a_matching_query_string_action() {
 		$old_get            = $_GET;
 		$old_request_method = $_SERVER['REQUEST_METHOD'];
 
@@ -135,7 +140,7 @@ class BBP_Tests_Common_Moderation_Actions extends BBP_UnitTestCase {
 
 			$_GET['action']             = 'bbp-merge-topic';
 			$_SERVER['REQUEST_METHOD'] = 'POST';
-			$this->assertFalse( bbp_is_get_action( 'bbp-merge-topic' ) );
+			$this->assertTrue( bbp_is_get_action( 'bbp-merge-topic' ) );
 		} finally {
 			$_GET                     = $old_get;
 			$_SERVER['REQUEST_METHOD'] = $old_request_method;
