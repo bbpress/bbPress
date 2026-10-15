@@ -25,15 +25,23 @@ canonical Subversion revision.
 | System | Role | Mutation rule |
 | --- | --- | --- |
 | `https://bbpress.svn.wordpress.org/` | Canonical source, branches, and tags | Commit approved source changes here |
-| `https://github.com/bbpress/bbPress` | Engineering mirror, pull requests, review, and CI | Never push or merge authoritative refs directly |
+| `https://github.com/bbpress/bbPress` | Engineering mirror, pull requests, review, and CI | Update canonical refs only through the approved fail-closed mirror workflow or its reviewed local manifest process; never hand-push or merge them |
 | `https://bbpress.trac.wordpress.org/` | Public issue and milestone system of record | Keep ticket history authoritative |
 | `https://plugins.svn.wordpress.org/bbpress/` | WordPress.org deployment repository | Release packages only; never normal development |
 | `https://translate.wordpress.org/projects/wp-plugins/bbpress/` | Hosted translations | Do not treat it as the source repository |
 
 GitHub is a mirror, not the release origin. A reviewed change is committed to
-canonical SVN first and then allowed to arrive in GitHub through the existing
-mirror. Do not repair delayed or missing GitHub branches or tags by pushing to
-the mirror; verify the SVN state and escalate the mirror problem instead.
+canonical SVN first and then synchronized by `.github/workflows/sync-github-mirror.yml`.
+That workflow may only fast-forward existing canonical branches, create missing
+canonical branches after validating their complete history and copy origin, and
+create missing verified canonical tags after independently validating the
+candidate Git objects against Subversion. It may delete an exact branch or tag
+only after canonical Subversion records that directory deletion. If the native
+Git mirror retains the ref, its object must match GitHub. An exact old-object
+lease prevents deleting a concurrent change. GitHub-only engineering branches
+remain outside the canonical mirror namespace. Never force-push, delete, or
+update a mirror ref outside the reviewed workflow or local manifest process.
+Stop and investigate any validation failure or source divergence.
 
 Plugin SVN contains built deployment artifacts. Never copy source back from
 Plugin SVN into canonical development history.
@@ -48,6 +56,14 @@ Plugin SVN into canonical development history.
   releases. Do not mix a release with an unrelated development checkout.
 - Before every public mutation, inspect the exact diff and target, and present
   the proposed commit message for maintainer review.
+- The reviewed scheduled GitHub mirror workflow is the only exception to
+  per-run approval. Its standing authorization covers validated fast-forward
+  branch updates, creation of missing canonical branches after history and copy
+  origin validation, verified new-tag creation, and deletion of an exact branch
+  or tag after both official sources agree and canonical Subversion explicitly
+  records the deletion. Enabling it or changing its scope, credentials, or
+  validation rules requires explicit maintainer approval. Disabling it is
+  always allowed as a fail-safe response.
 - Stop for explicit maintainer approval before an SVN commit, GitHub push, PR
   merge or close, Trac mutation, release, deployment, site publication,
   permission change, or public infrastructure change. One clear approval may
@@ -55,8 +71,10 @@ Plugin SVN into canonical development history.
 - Never expose passwords or authentication tokens in command arguments, tracked files, patches, logs,
   chat, or shell history. Let approved credential helpers or interactive tools
   handle authentication.
-- Treat release tags as immutable records. Correct forward unless a maintainer
-  explicitly directs an exceptional tag repair.
+- Treat canonical release tags as immutable records. Correct forward unless a
+  maintainer explicitly directs an exceptional tag repair. If canonical
+  Subversion records an exceptional tag deletion, the reviewed mirror workflow
+  may remove only the corresponding GitHub mirror tag after full validation.
 
 ## Working Tree Map
 

@@ -1,0 +1,90 @@
+name: Sync GitHub mirror
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Validate only or simulate the atomic push
+        required: true
+        default: validate
+        type: choice
+        options:
+          - validate
+          - dry-run
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'bbpress-github-mirror' || format('bbpress-github-mirror-manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+jobs:
+  synchronize:
+    name: Validate and synchronize canonical refs
+    if: ${{ github.event_name != 'schedule' || vars.BBPRESS_GITHUB_MIRROR_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: github mirror
+    permissions:
+      contents: read
+    env:
+      MIRROR_MODE: ${{ github.event_name == 'schedule' && 'scheduled-push' || inputs.mode }}
+
+    steps:
+      - name: Check out automation
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes subversion
+
+      - name: Validate the candidate and prepare the expected manifest
+        id: validate
+        run: |
+          python3 -I bin/sync-github-mirror.py \
+            --manifest "$RUNNER_TEMP/github-mirror-expected.json" \
+            --mode validate
+          needs_sync=$(python3 -c 'import json, sys; manifest = json.load(open(sys.argv[1])); print(str(manifest["status"] == "validated" and bool(manifest["updates"])).lower())' "$RUNNER_TEMP/github-mirror-expected.json")
+          echo "needs_sync=$needs_sync" >> "$GITHUB_OUTPUT"
+
+      - name: Revalidate and synchronize the exact manifest
+        id: synchronize
+        if: ${{ env.MIRROR_MODE == 'dry-run' || (env.MIRROR_MODE != 'validate' && steps.validate.outputs.needs_sync == 'true') }}
+        env:
+          MIRROR_DEPLOY_KEY: ${{ secrets.BBPRESS_GITHUB_MIRROR_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$MIRROR_DEPLOY_KEY" ]]; then
+            echo "The mirror deploy key is not configured." >&2
+            exit 1
+          fi
+          install -d -m 700 "$RUNNER_TEMP/ssh"
+          trap 'rm -rf "$RUNNER_TEMP/ssh"' EXIT
+          printf '%s\n' "$MIRROR_DEPLOY_KEY" > "$RUNNER_TEMP/ssh/deploy-key"
+          unset MIRROR_DEPLOY_KEY
+          chmod 600 "$RUNNER_TEMP/ssh/deploy-key"
+          printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$RUNNER_TEMP/ssh/known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/ssh/deploy-key -o IdentitiesOnly=yes -o IdentityAgent=none -o UserKnownHostsFile=$RUNNER_TEMP/ssh/known_hosts -o GlobalKnownHostsFile=/dev/null -o HostKeyAlgorithms=ssh-ed25519 -o StrictHostKeyChecking=yes"
+          arguments=(
+            --manifest "$RUNNER_TEMP/github-mirror-actual.json"
+            --expected-manifest "$RUNNER_TEMP/github-mirror-expected.json"
+            --mode "$MIRROR_MODE"
+          )
+          python3 -I bin/sync-github-mirror.py "${arguments[@]}"
+          if python3 -c 'import json, sys; sys.exit(not json.load(open(sys.argv[1]))["updates"])' "$RUNNER_TEMP/github-mirror-actual.json"; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload the ref manifest
+        if: ${{ failure() || github.event_name == 'workflow_dispatch' || steps.synchronize.outputs.changed == 'true' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: github-mirror-manifest-${{ github.run_id }}
+          path: ${{ runner.temp }}/github-mirror-*.json
+          if-no-files-found: warn
+          retention-days: 90
