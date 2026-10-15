@@ -404,6 +404,7 @@ add_action( 'bbp_template_redirect', 'bbp_forum_enforce_blocked', 1  );
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',  1  );
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_private', 1  );
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_attachments', 1 );
+add_action( 'bbp_template_redirect', 'bbp_reply_enforce_visibility',   1 );
 add_action( 'bbp_template_redirect', 'bbp_post_request',          10 );
 add_action( 'bbp_template_redirect', 'bbp_get_request',           10 );
 add_action( 'bbp_template_redirect', 'bbp_check_user_edit',       10 );

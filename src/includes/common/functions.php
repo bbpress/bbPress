@@ -71,23 +71,44 @@ function bbp_exclude_forum_posts_from_user_query( $args, $request = null ) {
 /**
  * Exclude replies in non-public topics from public bbPress queries.
  *
- * The query flag scopes this SQL clause to listings that expose replies
- * outside a single topic, so pagination counts match the visible results.
+ * Existing bbPress loops use a query flag to opt in. Generic public WordPress
+ * main-query listings that include replies are protected automatically.
  *
  * @since 2.6.19 bbPress (r7618)
+ * @since 2.6.20 bbPress (r8013) Protect public WordPress reply listings.
  *
  * @param string   $where       SQL WHERE clause.
  * @param WP_Query $posts_query Posts query.
  * @return string SQL WHERE clause.
  */
 function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
-	if ( ! $posts_query instanceof WP_Query || ! $posts_query->get( '_bbp_public_topic_replies' ) ) {
+	if ( ! $posts_query instanceof WP_Query ) {
+		return $where;
+	}
+
+	// Existing bbPress loops opt in explicitly.
+	$filter_replies = (bool) $posts_query->get( '_bbp_public_topic_replies' );
+
+	// Protect generic public WordPress reply listings.
+	if ( ! $filter_replies && $posts_query->is_main_query() && ! is_admin() && ! $posts_query->is_singular() && ! bbp_get_view_all( 'edit_others_replies' ) ) {
+		$post_type_query_var = $posts_query->get( 'post_type' );
+		$post_types          = bbp_get_string_array_values( $post_type_query_var );
+
+		if ( ( 'any' === $post_type_query_var ) || ( empty( $post_types ) && $posts_query->is_search() ) ) {
+			$post_types = get_post_types( array( 'exclude_from_search' => false ) );
+		}
+
+		$filter_replies = in_array( bbp_get_reply_post_type(), $post_types, true );
+	}
+
+	if ( ! $filter_replies ) {
 		return $where;
 	}
 
 	$bbp_db   = bbp_db();
 	$statuses = bbp_get_public_topic_statuses();
-	if ( $posts_query->get( '_bbp_search_private_topic_replies' ) && current_user_can( 'read_private_topics' ) && ! is_feed() && ! $posts_query->is_feed() ) {
+	$include_private = $posts_query->get( '_bbp_search_private_topic_replies' ) || ( $posts_query->is_main_query() && $posts_query->is_search() );
+	if ( $include_private && current_user_can( 'read_private_topics' ) && ! is_feed() && ! $posts_query->is_feed() ) {
 		$statuses[] = bbp_get_private_status_id();
 	}
 
