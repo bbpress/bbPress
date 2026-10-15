@@ -10,6 +10,7 @@ class BBP_Tests_Common_Reply_Query_Visibility extends BBP_UnitTestCase {
 
 	public function tearDown(): void {
 		$this->set_current_user( 0 );
+		$this->go_to_without_reregistering_blocks( '/' );
 		unset( $_GET['view'] );
 
 		parent::tearDown();
