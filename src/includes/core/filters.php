@@ -58,8 +58,9 @@ add_filter( 'rest_user_query',               'bbp_exclude_forum_posts_from_user_
 add_filter( 'wp_sitemaps_users_query_args',  'bbp_exclude_forum_posts_from_user_query'  );
 add_filter( 'rest_request_before_callbacks', 'bbp_filter_rest_user_discovery',          10, 3 );
 
-// Filter WordPress post data for forums and anonymous posts
+// Filter WordPress post data for forums, pending dates, and anonymous posts
 add_filter( 'wp_insert_post_data', 'bbp_filter_admin_forum_post_data', 20, 2 );
+add_filter( 'wp_insert_post_data', 'bbp_set_pending_post_date_gmt',     25    );
 add_filter( 'wp_insert_post_data', 'bbp_fix_post_author',              30, 2 );
 
 // Fix untrash post status after a topic or reply is re-instated

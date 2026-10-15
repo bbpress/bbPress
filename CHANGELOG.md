@@ -50,6 +50,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved the original date of pending topics and replies across status changes.
 - Fixed legacy user-option engagement lookups for numeric-string object IDs.
 - Kept the Login widget logout link readable when themes style widget links and
   buttons with conflicting colors.

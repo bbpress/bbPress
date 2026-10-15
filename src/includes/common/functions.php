@@ -296,6 +296,30 @@ function bbp_get_string_array_values( $arr = array() ) {
 }
 
 /**
+ * Set the GMT date for pending topics and replies.
+ *
+ * WordPress leaves the GMT date empty for pending posts, which can cause a
+ * later status change to replace the original post date.
+ *
+ * @since 2.6.21 bbPress
+ *
+ * @param array $data Post data.
+ * @return array Filtered post data.
+ */
+function bbp_set_pending_post_date_gmt( $data = array() ) {
+	if (
+		isset( $data['post_type'], $data['post_status'], $data['post_date'], $data['post_date_gmt'] )
+		&& in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true )
+		&& ( bbp_get_pending_status_id() === $data['post_status'] )
+		&& ( '0000-00-00 00:00:00' === $data['post_date_gmt'] )
+	) {
+		$data['post_date_gmt'] = get_gmt_from_date( $data['post_date'] );
+	}
+
+	return $data;
+}
+
+/**
  * Fix post author id on post save.
  *
  * When a logged in user changes the status of an anonymous reply or topic, or
