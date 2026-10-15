@@ -18,10 +18,8 @@ Development for the next bbPress release is in progress. See the active
 - Added a Links setting to turn forum link moderation on or off and set a
   forum-specific limit, inheriting the WordPress Discussion setting until
   customized.
-- Added an optional date format parameter to topic and reply post-date template functions.
 - Added filters to skip single-forum and single-topic description generation
   before their statistics are calculated.
-- Added a site-wide forum status setting for open, closed, or frozen posting.
 - Added a repair tool to recalculate each forum's direct subforum count.
 - Added 17 editor blocks for forum and topic indexes, forms, search, login,
   registration, password recovery, statistics, tags, views, forums, topics,
@@ -34,7 +32,6 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
-- Sent Akismet the edit recheck signal for updated topics and replies.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.
 - Shortened new-content labels and administration metabox titles.
@@ -47,18 +44,57 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
-- Kept bbPress post shortcodes literal in WordPress content loops.
-- Strengthened password checks for topic and reply submissions.
 - Limited block editor topic-tag choices to public discussions in accessible forums.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 
 ### Fixed
 
+- Fixed legacy user-option engagement lookups for numeric-string object IDs.
+- Kept the Login widget logout link readable when themes style widget links and
+  buttons with conflicting colors.
+- Cache a distinct count of current-site forum-role holders for forum statistics,
+  invalidating it when users or their capabilities change. Use the WordPress
+  installation count for large-installation upgrade decisions.
+- Show an ellipsis for long topic metadata in the default templates, revealing
+  the full text when a link receives focus.
+- Restored the Forums administration menu for moderators.
+- Used the selected WordPress Page title for topic archives.
+- Prevented duplicate forum-root breadcrumbs on archive subpages.
+- Applied filtered topic permalinks in subscriptions and topic pagination.
+- Prevented anonymous topics from incorrectly appearing empty.
+- Respected filtered Keymaster checks in administration user suggestions.
+- Scoped registered forum, topic, and reply metadata to the correct post type.
+- Counted multibyte title characters correctly and improved UTF-8 display-name
+  handling on modern WordPress and PHP versions.
+- Prevented warnings when building BuddyPress member URLs and when bbPress
+  runtime data is accessed before initialization.
+- Prevented PHP warnings when building logout URLs without expected server
+  variables.
+- Prevented PHP deprecation notices in Akismet history and reply-position
+  calculations.
+
+## 2.6.20 - 2026-10-15
+
+### Added
+
+- Added an optional date format parameter to topic and reply post-date template functions.
+- Added a site-wide forum status setting for open, closed, or frozen posting.
+
+### Changed
+
+- Sent Akismet the edit recheck signal for updated topics and replies.
+
+### Security
+
+- Kept bbPress post shortcodes literal in WordPress content loops.
+- Strengthened password checks for topic and reply submissions.
+
+### Fixed
+
 - Prevented invalid engagement strategy options and filter values from causing
   startup failures or selecting the empty base implementation.
 - Fixed component-specific rewrite callbacks so they receive the WordPress rewrite object instead of failing or being skipped.
-- Fixed legacy user-option engagement lookups for numeric-string object IDs.
 - Corrected engagement cleanup return values for taxonomy storage and partial
   failures in legacy user-option storage.
 - Kept front-end topic merge, topic split, and reply move action values
@@ -69,8 +105,6 @@ Development for the next bbPress release is in progress. See the active
   clauses filter in BuddyPress 15 and newer.
 - Kept forum and topic subscriptions separate when using the legacy user-meta
   engagement strategy.
-- Kept the Login widget logout link readable when themes style widget links and
-  buttons with conflicting colors.
 - Kept validation notices and nonce checks scoped to the submitted form when
   multiple forum, topic, or reply forms share a page.
 - Allowed authors to edit existing topics and replies after their topic or
@@ -80,6 +114,8 @@ Development for the next bbPress release is in progress. See the active
 - Handled malformed and numeric topic-view identifiers without PHP errors or
   broken view links.
 - Required a username or email address before submitting the lost password form.
+- Made default logout links return to the current page instead of the
+  previous page.
 - Imported FluxBB replies without duplicating topic starters and preserved the
   source forum and topic reply counts.
 - Restored favorite and subscription removal from BuddyPress member profiles.
@@ -106,46 +142,30 @@ Development for the next bbPress release is in progress. See the active
 - Restored controls for privileged users to manage another user's favorites and
   subscriptions.
 - Kept BuddyPress profile engagement actions targeted to the displayed member.
+
+- Fixed the topic-edit Replies metabox pagination for large topics and
+  non-public replies.
 - Restored the original subscription link nonce so AJAX handlers in third-party
   theme packages accept subscription toggles.
 - Corrected reply position classes and repeated position lookups when replies
   are rendered outside their topic.
 - Sent accurate author post counts to Akismet when members have at least 1,000
   combined topics and replies.
+- Kept pending, spam, and trashed replies with their topic when merging topics.
 - Kept BuddyPress group Forum navigation in sync with group settings under rewrite URLs.
 - Restored private BuddyPress group forum access for members without a bbPress role and reduced queries for large restricted forum lists.
-- Kept pending, spam, and trashed replies with their topic when merging topics.
 - Applied the public threaded-replies setting filter while preserving its legacy underscored hook.
+- Avoided unnecessary post queries during BuddyPress group capability checks.
 - Kept objects without assigned moderators from listing unrelated users.
 - Used explicitly supplied topic tags in edit links and passed their slug to description filters.
 - Prevented threaded reply ancestry from including an invalid parent and avoided redundant reply-position writes.
 - Restored assigned moderator names in forum edit forms and corrected forum type and visibility dropdown behavior.
 - Kept closed category ancestors from being ignored by forum status checks.
-- Fixed the topic-edit Replies metabox pagination for large topics and
-  non-public replies.
 - Preserved topic subscriptions when topics and replies are edited in administration.
-- Cache a distinct count of current-site forum-role holders for forum statistics,
-  invalidating it when users or their capabilities change. Use the WordPress
-  installation count for large-installation upgrade decisions.
-- Show an ellipsis for long topic metadata in the default templates, revealing
-  the full text when a link receives focus.
-- Restored the Forums administration menu for moderators.
-- Used the selected WordPress Page title for topic archives.
-- Prevented duplicate forum-root breadcrumbs on archive subpages.
-- Applied filtered topic permalinks in subscriptions and topic pagination.
-- Prevented anonymous topics from incorrectly appearing empty.
-- Respected filtered Keymaster checks in administration user suggestions.
-- Scoped registered forum, topic, and reply metadata to the correct post type.
-- Counted multibyte title characters correctly and improved UTF-8 display-name
-  handling on modern WordPress and PHP versions.
-- Prevented warnings when building BuddyPress member URLs and when bbPress
-  runtime data is accessed before initialization.
-- Prevented PHP warnings when building logout URLs without expected server
-  variables.
-- Made default logout links return to the current page instead of the
-  previous page.
-- Prevented PHP deprecation notices in Akismet history and reply-position
-  calculations.
+
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-20/)
+
+[Release announcement](https://bbpress.org/blog/2026/10/bbpress-2-6-20-is-out/)
 
 ## 2.6.19 - 2026-09-29
 
