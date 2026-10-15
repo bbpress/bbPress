@@ -13,6 +13,10 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Fixed
+
+- Preserved the original date of pending topics and replies across status changes.
+
 ## 2.6.20 - 2026-10-15
 
 ### Added

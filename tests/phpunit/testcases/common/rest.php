@@ -1094,7 +1094,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * A pending topic's zero GMT date must not lock out its recent author.
+	 * A pending topic's GMT date must not lock out its recent author.
 	 *
 	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
 	 */
@@ -1107,7 +1107,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
 
-		$this->assertSame( '0000-00-00 00:00:00', get_post_field( 'post_date_gmt', $topic_id ) );
+		$this->assertSame( get_gmt_from_date( get_post_field( 'post_date', $topic_id ) ), get_post_field( 'post_date_gmt', $topic_id ) );
 		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'Pending revision.' ) );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -1193,7 +1193,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
 
-		$this->assertSame( '0000-00-00 00:00:00', get_post_field( 'post_date_gmt', $reply_id ) );
+		$this->assertSame( get_gmt_from_date( get_post_field( 'post_date', $reply_id ) ), get_post_field( 'post_date_gmt', $reply_id ) );
 		$response = $this->update_item( bbp_get_reply_post_type(), $reply_id, $user_id, array( 'content' => 'Pending reply revision.' ) );
 
 		$this->assertSame( 200, $response->get_status() );

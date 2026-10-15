@@ -637,6 +637,40 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_set_pending_post_date_gmt
+	 */
+	public function test_bbp_set_pending_post_date_gmt_preserves_dates_on_status_change() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'post_date'   => '2020-01-01 00:00:00',
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'post_date'   => '2020-01-02 00:00:00',
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		foreach ( array( $topic_id, $reply_id ) as $post_id ) {
+			$post_date = get_post_field( 'post_date', $post_id );
+			$this->assertSame( get_gmt_from_date( $post_date ), get_post_field( 'post_date_gmt', $post_id ) );
+
+			wp_update_post( array(
+				'ID'          => $post_id,
+				'post_status' => bbp_get_spam_status_id(),
+			) );
+
+			$this->assertSame( $post_date, get_post_field( 'post_date', $post_id ) );
+		}
+	}
+
+	/**
 	 * @group  locking
 	 * @covers ::bbp_past_edit_lock
 	 */
