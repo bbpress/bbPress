@@ -52,6 +52,7 @@ Development for the next bbPress release is in progress. See the active
 
 - Preserved the original date of pending topics and replies across status changes.
 - Fixed legacy user-option engagement lookups for numeric-string object IDs.
+- Returned a 404 response for feed requests to unregistered views.
 - Kept the Login widget logout link readable when themes style widget links and
   buttons with conflicting colors.
 - Cache a distinct count of current-site forum-role holders for forum statistics,
