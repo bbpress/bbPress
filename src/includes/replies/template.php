@@ -199,13 +199,7 @@ function bbp_has_replies( $args = array() ) {
 	$bbp = bbpress();
 
 	// Call the query
-	if ( ! empty( $r['_bbp_public_topic_replies'] ) ) {
-		add_filter( 'posts_where', 'bbp_public_topic_replies_where', 10, 2 );
-	}
 	$bbp->reply_query = new WP_Query( $r );
-	if ( ! empty( $r['_bbp_public_topic_replies'] ) ) {
-		remove_filter( 'posts_where', 'bbp_public_topic_replies_where', 10 );
-	}
 
 	// Maybe prime the post author caches
 	if ( ! empty( $r['update_post_family_cache'] ) ) {

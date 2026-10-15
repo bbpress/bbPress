@@ -2214,6 +2214,7 @@ function bbp_reply_content_autoembed() {
  * to include both the topic AND its children in the same loop.
  *
  * @since 2.1.0 bbPress (r4059)
+ * @since 2.6.20 bbPress (r8012) Limit the index hint to the outer query.
  *
  * @param string $where
  * @param WP_Query $query
@@ -2272,13 +2273,43 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
 		") AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})"
 	);
 
-	// Try to replace the search text with the replacement
-	$new_where = str_replace( $search, $replace, $where );
+	// Add the index hint to the outer query only.
+	$from_position = strpos( $where, $search[0] );
+	if ( false !== $from_position ) {
+		$where = substr_replace( $where, $replace[0], $from_position, strlen( $search[0] ) );
+	}
+
+	// Try to replace the remaining search text with the replacement.
+	$new_where = str_replace(
+		array_slice( $search, 1 ),
+		array_slice( $replace, 1 ),
+		$where
+	);
 	if ( ! empty( $new_where ) ) {
 		$where = $new_where;
 	}
 
 	return $where;
+}
+
+/**
+ * Prevent direct access to replies whose status or parent topic is not visible.
+ *
+ * @since 2.6.20 bbPress (r8012)
+ */
+function bbp_reply_enforce_visibility() {
+
+	// Bail if this is not a single reply request.
+	if ( ! bbp_is_single_reply() ) {
+		return;
+	}
+
+	$reply_id = bbp_get_reply_id();
+	$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+	if ( ( ! bbp_is_reply_public( $reply_id ) && ! current_user_can( 'read_reply', $reply_id ) ) || ( ! bbp_is_topic_public( $topic_id ) && ! current_user_can( 'read_topic', $topic_id ) ) ) {
+		bbp_set_404();
+	}
 }
 
 /** Feeds *********************************************************************/

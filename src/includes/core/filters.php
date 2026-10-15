@@ -85,6 +85,7 @@ add_filter( 'private_title_format',   'bbp_no_title_status_hints', 10, 2 );
 add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
 add_filter( 'pre_handle_404',                  'bbp_pre_handle_404',              10, 2 );
 add_action( 'posts_pre_query',                 'bbp_posts_pre_query',             10, 2 );
+add_filter( 'posts_where',                     'bbp_public_topic_replies_where',  11, 2 );
 
 // User Creation
 add_filter( 'signup_user_meta', 'bbp_user_add_role_to_signup_meta', 10 );
