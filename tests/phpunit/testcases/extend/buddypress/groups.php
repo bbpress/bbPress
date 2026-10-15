@@ -991,6 +991,11 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		buddypress()->action_variables = array( $this->group_extension->topic_slug, 'missing-group-topic' );
 		$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
 
+		foreach ( array( array( $this->group_extension->topic_slug ), array( $this->group_extension->topic_slug, '' ) ) as $action_variables ) {
+			buddypress()->action_variables = $action_variables;
+			$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+		}
+
 		bbp_privatize_forum( $forum_id );
 		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $visible_topic ) );
 		$this->assertSame( 'Group', bbp_filter_modify_page_title( 'Group', '', '|' ) );
@@ -998,6 +1003,30 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
 		$this->set_current_user( $creator_id );
 		$this->assertSame( 'GroupVisible group topic | ', bbp_filter_modify_page_title( 'Group', '', '|' ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 */
+	public function test_group_topic_route_requires_topic_slug() {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Missing route sentinel 8026', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		$this->set_current_user( 0 );
+		buddypress()->action_variables = array( $this->group_extension->topic_slug );
+		$this->template_parts = array();
+		add_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10, 3 );
+		ob_start();
+		$this->group_extension->display_forums();
+		$html = ob_get_clean();
+		remove_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10 );
+
+		$this->assertContains( 'feedback-no-topics', $this->template_parts );
+		$this->assertStringNotContainsString( 'Missing route sentinel 8026', $html );
 	}
 
 	/**

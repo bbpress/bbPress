@@ -114,6 +114,7 @@ function bbp_filter_is_user_home( $is = false ) {
  * Add the topic title to the <title> if viewing a single group forum topic.
  *
  * @since 2.5.0 bbPress (r5161)
+ * @since 2.6.20 bbPress (r8026) Match group topics with a non-singular slug query.
  *
  * @param string $new_title The title to filter.
  * @param string $old_title (Not used).
@@ -138,7 +139,7 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 			}
 
 			$topic_args = array(
-				'name'            => bp_action_variable( 1 ),
+				'post_name__in'   => array( bp_action_variable( 1 ) ),
 				'post_parent__in' => $forum_ids,
 				'post_status'     => array_keys( bbp_get_topic_statuses() ),
 				'post_type'       => bbp_get_topic_post_type(),
@@ -155,7 +156,7 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 					$topic_args['post__in'] = array( 0 );
 				}
 
-				unset( $topic_args['name'] );
+				unset( $topic_args['post_name__in'] );
 			}
 
 			// Get a topic belonging to the current group's forums

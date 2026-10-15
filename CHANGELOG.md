@@ -99,6 +99,7 @@ Development for the next bbPress release is in progress. See the active
 - Prevented flagged starter forum content from being recreated on later activation passes.
 - Made pending BuddyPress group topics viewable to their authors and moderators
   inside the group forum.
+- Kept BuddyPress group topic routes and page titles scoped to the requested topic.
 - Prevented unknown views from falling back to unrestricted topic queries.
 - Informed authors when newly submitted topics or replies are held for
   moderation.
