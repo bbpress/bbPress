@@ -470,6 +470,38 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_delete_forum_topics
+	 * @covers ::bbp_delete_topic_replies
+	 */
+	public function test_bbp_delete_restricted_forum_topics_without_current_user() {
+		foreach ( array( bbp_get_private_status_id(), bbp_get_hidden_status_id() ) as $status ) {
+			$forum_id = $this->factory->forum->create( array( 'post_status' => $status ) );
+			$topic_id = $this->factory->topic->create(
+				array(
+					'post_parent' => $forum_id,
+					'topic_meta'  => array( 'forum_id' => $forum_id ),
+				)
+			);
+			$reply_id = $this->factory->reply->create(
+				array(
+					'post_parent' => $topic_id,
+					'reply_meta'  => array(
+						'forum_id' => $forum_id,
+						'topic_id' => $topic_id,
+					),
+				)
+			);
+
+			$this->set_current_user( 0 );
+			wp_delete_post( $forum_id, true );
+
+			$this->assertNull( get_post( $forum_id ) );
+			$this->assertNull( get_post( $topic_id ) );
+			$this->assertNull( get_post( $reply_id ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_trash_forum_topics
 	 */
 	public function test_bbp_trash_forum_topics() {

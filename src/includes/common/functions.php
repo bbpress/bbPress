@@ -2606,6 +2606,41 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
+ * Query the database for direct child post IDs with specific statuses.
+ *
+ * This is an uncached structural lookup that always reads the current database
+ * state. It does not apply WP_Query filters, forum visibility normalization,
+ * or result filters.
+ *
+ * @since 2.6.20 bbPress (r8016)
+ *
+ * @param int          $parent_id   Parent ID.
+ * @param string       $post_type   Post type.
+ * @param string|array $post_status Post status or statuses.
+ * @return array Child post IDs.
+ */
+function bbp_get_child_ids_by_status( $parent_id = 0, $post_type = 'post', $post_status = array() ) {
+	$parent_id   = absint( $parent_id );
+	$post_type   = sanitize_key( $post_type );
+	$post_status = bbp_get_string_array_values( $post_status );
+
+	// Bail if nothing passed
+	if ( empty( $parent_id ) || empty( $post_type ) || empty( $post_status ) ) {
+		return array();
+	}
+
+	$bbp_db       = bbp_db();
+	$placeholders = implode( ', ', array_fill( 0, count( $post_status ), '%s' ) );
+	$query        = $bbp_db->prepare(
+		"SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$placeholders}) ORDER BY ID DESC",
+		array_merge( array( $parent_id, $post_type ), $post_status )
+	);
+
+	// Return IDs as integers
+	return wp_parse_id_list( $bbp_db->get_col( $query ) );
+}
+
+/**
  * Query the DB and get the child id's of public children.
  *
  * @since 2.0.0 bbPress (r2891)

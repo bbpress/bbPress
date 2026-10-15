@@ -946,6 +946,28 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_update_forum_topic_count_hidden
 	 */
+	public function test_bbp_update_forum_topic_count_hidden_for_hidden_forum() {
+		$forum_id = $this->factory->forum->create(
+			array( 'post_status' => bbp_get_hidden_status_id() )
+		);
+
+		$this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		$this->set_current_user( 0 );
+
+		$this->assertSame( 1, bbp_update_forum_topic_count_hidden( $forum_id ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_forum_topic_count_hidden
+	 */
 	public function test_bbp_update_forum_topic_count_hidden_rebuilds_total_counts() {
 		$parent_id = $this->factory->forum->create();
 		$child_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );

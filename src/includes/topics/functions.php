@@ -3164,6 +3164,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
  * @since 2.6.0 bbPress (r5406)
+ * @since 2.6.20 bbPress (r8016) Use an unfiltered structural reply lookup.
  *
  * @param int $topic_id Topic id.
  */
@@ -3172,43 +3173,28 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 	// Validation
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	// Topic is being spammed, so its replies are trashed
-	$replies = new WP_Query(
-		array(
-			'fields'         => 'id=>parent',
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => bbp_get_public_status_id(),
-			'post_parent'    => $topic_id,
-			'posts_per_page' => -1,
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		)
+	// Topic is being spammed, so its public replies are trashed
+	$reply_ids = bbp_get_child_ids_by_status(
+		$topic_id,
+		bbp_get_reply_post_type(),
+		bbp_get_public_status_id()
 	);
 
-	if ( ! empty( $replies->posts ) ) {
+	if ( ! empty( $reply_ids ) ) {
 
 		// Prevent debug notices
 		$pre_spammed_replies = array();
 
 		// Loop through replies, trash them, and add them to array
-		foreach ( $replies->posts as $reply ) {
-			wp_trash_post( $reply->ID );
-			$pre_spammed_replies[] = $reply->ID;
+		foreach ( $reply_ids as $reply_id ) {
+			wp_trash_post( $reply_id );
+			$pre_spammed_replies[] = $reply_id;
 		}
 
 		// Set a post_meta entry of the replies that were trashed by this action.
 		// This is so we can possibly untrash them, without untrashing replies
 		// that were purposefully trashed before.
 		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
-
-		// Reset the global post data after looping through the above WP_Query
-		wp_reset_postdata();
 	}
 }
 
@@ -3609,32 +3595,17 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 
 	// Topic is being permanently deleted, so its replies gotta go too
 	// Note that we get all post statuses here
-	$replies = new WP_Query(
-		array(
-			'fields'         => 'id=>parent',
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => array_keys( get_post_stati() ),
-			'post_parent'    => $topic_id,
-			'posts_per_page' => -1,
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		)
+	$reply_ids = bbp_get_child_ids_by_status(
+		$topic_id,
+		bbp_get_reply_post_type(),
+		array_keys( get_post_stati() )
 	);
 
 	// Loop through and delete child replies
-	if ( ! empty( $replies->posts ) ) {
-		foreach ( $replies->posts as $reply ) {
-			wp_delete_post( $reply->ID, true );
+	if ( ! empty( $reply_ids ) ) {
+		foreach ( $reply_ids as $reply_id ) {
+			wp_delete_post( $reply_id, true );
 		}
-
-		// Reset the $post global
-		wp_reset_postdata();
 	}
 }
 
@@ -3676,42 +3647,27 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Topic is being trashed, so its replies are trashed too
-	$replies = new WP_Query(
-		array(
-			'fields'         => 'id=>parent',
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => bbp_get_public_status_id(),
-			'post_parent'    => $topic_id,
-			'posts_per_page' => -1,
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		)
+	$reply_ids = bbp_get_child_ids_by_status(
+		$topic_id,
+		bbp_get_reply_post_type(),
+		bbp_get_public_status_id()
 	);
 
-	if ( ! empty( $replies->posts ) ) {
+	if ( ! empty( $reply_ids ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_replies = array();
 
 		// Loop through replies, trash them, and add them to array
-		foreach ( $replies->posts as $reply ) {
-			wp_trash_post( $reply->ID );
-			$pre_trashed_replies[] = $reply->ID;
+		foreach ( $reply_ids as $reply_id ) {
+			wp_trash_post( $reply_id );
+			$pre_trashed_replies[] = $reply_id;
 		}
 
 		// Set a post_meta entry of the replies that were trashed by this action.
 		// This is so we can possibly untrash them, without untrashing replies
 		// that were purposefully trashed before.
 		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
-
-		// Reset the $post global
-		wp_reset_postdata();
 	}
 }
 

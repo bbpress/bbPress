@@ -328,6 +328,79 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 */
+	public function test_anonymous_user_can_read_public_content_without_forum() {
+		$topic_ids = $this->factory->topic->create_many(
+			2,
+			array(
+				'post_parent' => 0,
+				'topic_meta'  => array( 'forum_id' => 0 ),
+			)
+		);
+		$reply_id  = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_ids[0],
+				'reply_meta'  => array(
+					'forum_id' => 0,
+					'topic_id' => $topic_ids[0],
+				),
+			)
+		);
+
+		foreach ( $topic_ids as $topic_id ) {
+			$this->assertSame( 200, $this->get_item( bbp_get_topic_post_type(), $topic_id )->get_status() );
+		}
+		$this->assertSame( 200, $this->get_item( bbp_get_reply_post_type(), $reply_id )->get_status() );
+
+		$collection_ids = wp_list_pluck( $this->get_items( bbp_get_topic_post_type() )->get_data(), 'id' );
+		$this->assertEmpty( array_diff( $topic_ids, $collection_ids ) );
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 * @covers ::bbp_trash_forum_topics
+	 */
+	public function test_anonymous_user_cannot_read_restricted_forum_content_after_forum_is_trashed() {
+		foreach ( array( bbp_get_private_status_id(), bbp_get_hidden_status_id() ) as $status ) {
+			$posts = $this->create_forum_content( $status );
+
+			$this->assert_item_status( 401, $posts );
+			$this->set_current_user( 0 );
+			wp_trash_post( $posts['forum_id'] );
+
+			$this->assertSame( 'trash', get_post_status( $posts['forum_id'] ) );
+			$this->assertSame( 'trash', get_post_status( $posts['topic_id'] ) );
+			$this->assertSame( 'trash', get_post_status( $posts['reply_id'] ) );
+			$this->assertSame( 401, $this->get_item( bbp_get_topic_post_type(), $posts['topic_id'] )->get_status() );
+			$this->assertSame( 401, $this->get_item( bbp_get_reply_post_type(), $posts['reply_id'] )->get_status() );
+		}
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 */
+	public function test_anonymous_user_cannot_read_published_content_with_trashed_forum() {
+		foreach ( array( bbp_get_public_status_id(), bbp_get_hidden_status_id() ) as $status ) {
+			$posts = $this->create_forum_content( $status );
+
+			wp_update_post(
+				array(
+					'ID'          => $posts['forum_id'],
+					'post_status' => 'trash',
+				)
+			);
+
+			$this->assertSame( 'publish', get_post_status( $posts['topic_id'] ) );
+			$this->assertSame( 'publish', get_post_status( $posts['reply_id'] ) );
+			$this->assertSame( 401, $this->get_item( bbp_get_topic_post_type(), $posts['topic_id'] )->get_status() );
+			$this->assertSame( 401, $this->get_item( bbp_get_reply_post_type(), $posts['reply_id'] )->get_status() );
+			$this->assertNotContains( $posts['topic_id'], wp_list_pluck( $this->get_items( bbp_get_topic_post_type() )->get_data(), 'id' ) );
+			$this->assertNotContains( $posts['reply_id'], wp_list_pluck( $this->get_items( bbp_get_reply_post_type() )->get_data(), 'id' ) );
+		}
+	}
+
+	/**
 	 * @covers BBP_REST_Attachments_Controller::check_read_permission
 	 */
 	public function test_anonymous_user_cannot_read_attachment_in_hidden_forum() {
@@ -336,6 +409,27 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 		foreach ( $posts as $parent_id ) {
 			$attachment_id = $this->create_attachment( $parent_id );
 
+			$this->assertSame( 401, $this->get_item( 'media', $attachment_id )->get_status() );
+		}
+	}
+
+	/**
+	 * @covers BBP_REST_Attachments_Controller::check_read_permission
+	 * @covers ::bbp_make_post_attachments_private
+	 */
+	public function test_permanently_deleted_hidden_forum_keeps_attachments_private() {
+		$posts           = $this->create_forum_content( bbp_get_hidden_status_id() );
+		$attachment_ids = array();
+
+		foreach ( $posts as $parent_id ) {
+			$attachment_ids[] = $this->create_attachment( $parent_id );
+		}
+
+		$this->set_current_user( 0 );
+		wp_delete_post( $posts['forum_id'], true );
+
+		foreach ( $attachment_ids as $attachment_id ) {
+			$this->assertSame( 'private', get_post_status( $attachment_id ) );
 			$this->assertSame( 401, $this->get_item( 'media', $attachment_id )->get_status() );
 		}
 	}

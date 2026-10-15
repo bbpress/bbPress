@@ -63,6 +63,30 @@ function bbp_user_can_view_attachment( $attachment = 0 ) {
 }
 
 /**
+ * Make inherited attachments private before permanently deleting their parent.
+ *
+ * WordPress treats an inherited attachment with a missing parent as public. Keep
+ * retained bbPress attachments private when their forum, topic, or reply is
+ * permanently deleted.
+ *
+ * @since 2.6.20 bbPress (r8016)
+ *
+ * @param int $post_id Parent post ID.
+ */
+function bbp_make_post_attachments_private( $post_id = 0 ) {
+	$attachment_ids = bbp_get_child_ids_by_status( $post_id, 'attachment', 'inherit' );
+
+	foreach ( $attachment_ids as $attachment_id ) {
+		wp_update_post(
+			array(
+				'ID'          => $attachment_id,
+				'post_status' => 'private',
+			)
+		);
+	}
+}
+
+/**
  * Return the attachment ID from WordPress's normalized query variables.
  *
  * @since 2.6.20 bbPress (r8010)
