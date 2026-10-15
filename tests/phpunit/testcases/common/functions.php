@@ -1688,12 +1688,16 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_request_feed_trap
-	 * @todo   Implement test_bbp_request_feed_trap().
 	 */
 	public function test_bbp_request_feed_trap() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$query_vars = array( 'post_type' => bbp_get_topic_post_type(), 'paged' => 2 );
+		$this->assertSame( $query_vars, bbp_request_feed_trap( $query_vars ) );
+		$this->assertSame( array( 'feed' => 'rss2', 'post_type' => 'post' ), bbp_request_feed_trap( array( 'feed' => 'rss2', 'post_type' => 'post' ) ) );
+
+		$view_id = bbp_get_view_rewrite_id();
+		$this->assertSame(
+			array( 'feed' => 'rss2', 'error' => 404 ),
+			bbp_request_feed_trap( array( 'feed' => 'rss2', $view_id => 'missing-view' ) )
 		);
 	}
 

@@ -16,6 +16,7 @@ Development for the next bbPress release is in progress. See the active
 ### Fixed
 
 - Preserved the original date of pending topics and replies across status changes.
+- Returned a 404 response for feed requests to unregistered views.
 
 ## 2.6.20 - 2026-10-15
 

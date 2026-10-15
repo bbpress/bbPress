@@ -3216,11 +3216,12 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 				}
 			}
 
-		// Single Topic Vview
+		// Single Topic View
 		} elseif ( isset( $query_vars[ bbp_get_view_rewrite_id() ] ) ) {
+			$view_id = bbp_get_view_rewrite_id();
 
 			// Get the view
-			$view = $query_vars[ bbp_get_view_rewrite_id() ];
+			$view = $query_vars[ $view_id ];
 
 			// We have a view to display a feed
 			if ( ! empty( $view ) ) {
@@ -3231,6 +3232,11 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 				// Output the feed if view exists
 				if ( ! empty( $the_query ) ) {
 					bbp_display_topics_feed_rss2( $the_query );
+
+				// Return a 404 for unregistered views
+				} else {
+					unset( $query_vars[ $view_id ] );
+					$query_vars['error'] = 404;
 				}
 			}
 		}
