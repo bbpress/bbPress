@@ -21,16 +21,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  synchronize:
-    name: Validate and synchronize canonical refs
+  validate:
+    name: Validate canonical refs
     if: ${{ github.event_name != 'schedule' || vars.BBPRESS_GITHUB_MIRROR_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: github mirror
     permissions:
       contents: read
-    env:
-      MIRROR_MODE: ${{ github.event_name == 'schedule' && 'scheduled-push' || inputs.mode }}
+    outputs:
+      needs_sync: ${{ steps.validate.outputs.needs_sync }}
 
     steps:
       - name: Check out automation
@@ -52,9 +51,46 @@ jobs:
           needs_sync=$(python3 -c 'import json, sys; manifest = json.load(open(sys.argv[1])); print(str(manifest["status"] == "validated" and bool(manifest["updates"])).lower())' "$RUNNER_TEMP/github-mirror-expected.json")
           echo "needs_sync=$needs_sync" >> "$GITHUB_OUTPUT"
 
+      - name: Upload the validation manifest
+        if: ${{ failure() || inputs.mode == 'validate' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: github-mirror-validation-${{ github.run_id }}
+          path: ${{ runner.temp }}/github-mirror-expected.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  synchronize:
+    name: Synchronize canonical refs
+    needs: validate
+    if: ${{ inputs.mode == 'dry-run' || (github.event_name == 'schedule' && needs.validate.outputs.needs_sync == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: github mirror
+    permissions:
+      contents: read
+    env:
+      MIRROR_MODE: ${{ github.event_name == 'schedule' && 'scheduled-push' || inputs.mode }}
+
+    steps:
+      - name: Check out automation
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes subversion
+
+      - name: Prepare the expected manifest
+        run: |
+          python3 -I bin/sync-github-mirror.py \
+            --manifest "$RUNNER_TEMP/github-mirror-expected.json" \
+            --mode validate
+
       - name: Revalidate and synchronize the exact manifest
         id: synchronize
-        if: ${{ env.MIRROR_MODE == 'dry-run' || (env.MIRROR_MODE != 'validate' && steps.validate.outputs.needs_sync == 'true') }}
         env:
           MIRROR_DEPLOY_KEY: ${{ secrets.BBPRESS_GITHUB_MIRROR_SSH_KEY }}
         run: |
@@ -80,7 +116,7 @@ jobs:
             echo 'changed=true' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Upload the ref manifest
+      - name: Upload the synchronization manifest
         if: ${{ failure() || github.event_name == 'workflow_dispatch' || steps.synchronize.outputs.changed == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
