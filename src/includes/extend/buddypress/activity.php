@@ -160,7 +160,11 @@ class BBP_BuddyPress_Activity {
 		add_filter( 'bp_activity_get_permalink', array( $this, 'activity_get_permalink' ), 10, 2 );
 
 		// Check current forum visibility when activity is read, including older entries.
-		add_filter( 'bp_activity_get_where_conditions', array( $this, 'activity_get_where_conditions' ), 10, 2 );
+		if ( version_compare( bp_get_version(), '15.0.0-alpha', '>=' ) ) {
+			add_filter( 'bp_activity_get_sql_clauses', array( $this, 'activity_get_sql_clauses' ), 10, 2 );
+		} else {
+			add_filter( 'bp_activity_get_where_conditions', array( $this, 'activity_get_where_conditions' ), 10, 2 );
+		}
 		add_filter( 'bp_activity_get',                  array( $this, 'activity_get'                  ), 10, 2 );
 		add_filter( 'bp_activity_user_can_read',       array( $this, 'activity_user_can_read'       ), 10, 3 );
 	}
@@ -415,6 +419,23 @@ class BBP_BuddyPress_Activity {
 		}
 
 		return $where_conditions;
+	}
+
+	/**
+	 * Exclude restricted forum activity using BuddyPress's SQL clauses filter.
+	 *
+	 * @since 2.6.20 bbPress
+	 *
+	 * @param array $sql_clauses BuddyPress activity query SQL clauses.
+	 * @param array $args        BuddyPress activity query arguments.
+	 * @return array Filtered SQL clauses.
+	 */
+	public function activity_get_sql_clauses( $sql_clauses, $args ) {
+		if ( isset( $sql_clauses['where_conditions'] ) && is_array( $sql_clauses['where_conditions'] ) ) {
+			$sql_clauses['where_conditions'] = $this->activity_get_where_conditions( $sql_clauses['where_conditions'], $args );
+		}
+
+		return $sql_clauses;
 	}
 
 	/**

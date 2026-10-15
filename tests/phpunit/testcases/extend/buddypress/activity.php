@@ -10,6 +10,23 @@
 class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 
 	/**
+	 * Activity visibility uses the supported BuddyPress query filter.
+	 *
+	 * @ticket BBP3741
+	 */
+	public function test_activity_visibility_uses_supported_query_filter() {
+		$activity = bbpress()->extend->buddypress->activity;
+
+		if ( version_compare( bp_get_version(), '15.0.0-alpha', '>=' ) ) {
+			$this->assertFalse( has_filter( 'bp_activity_get_where_conditions', array( $activity, 'activity_get_where_conditions' ) ) );
+			$this->assertSame( 10, has_filter( 'bp_activity_get_sql_clauses', array( $activity, 'activity_get_sql_clauses' ) ) );
+		} else {
+			$this->assertSame( 10, has_filter( 'bp_activity_get_where_conditions', array( $activity, 'activity_get_where_conditions' ) ) );
+			$this->assertFalse( has_filter( 'bp_activity_get_sql_clauses', array( $activity, 'activity_get_sql_clauses' ) ) );
+		}
+	}
+
+	/**
 	 * Restricted ancestors and activity types that must not be sitewide.
 	 *
 	 * @return array[] Test cases.

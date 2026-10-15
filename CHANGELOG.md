@@ -65,6 +65,8 @@ Development for the next bbPress release is in progress. See the active
   consistent between request methods.
 - Kept front-end moderation forms visible when validation fails during a
   submitted merge, split, or move request.
+- Updated BuddyPress activity visibility queries to use the supported SQL
+  clauses filter in BuddyPress 15 and newer.
 - Kept forum and topic subscriptions separate when using the legacy user-meta
   engagement strategy.
 - Kept the Login widget logout link readable when themes style widget links and
