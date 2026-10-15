@@ -874,33 +874,57 @@ function bbp_settings_integration( $default = 'basic' ) {
 }
 
 /**
+ * Check whether an engagements strategy is valid.
+ *
+ * @since 2.6.20 bbPress (r8008)
+ *
+ * @param string $strategy Engagements strategy to check.
+ * @return bool Whether the strategy class exists and is not the base class.
+ */
+function bbp_is_valid_engagements_strategy( $strategy ) {
+	if ( ! is_string( $strategy ) ) {
+		return false;
+	}
+
+	$class_name         = 'BBP_User_Engagements_' . ucwords( $strategy );
+	$disallowed_classes = array(
+		strtolower( 'BBP_User_Engagements_Base' ),
+	);
+
+	return class_exists( $class_name ) && ! in_array( strtolower( $class_name ), $disallowed_classes, true );
+}
+
+/**
  * How to interact with engagements.
  *
- * There are 3 possible strategies:
+ * There are 3 bundled strategies:
  * - 'meta' 2.6 and higher. Uses multiple postmeta keys.
  * - 'user' Pre-2.6. Uses comma-separated string of IDs in usermeta.
  * - 'term' Alternate. Uses taxonomy term relationships.
  *
  * @since 2.6.0 bbPress (r6876)
+ * @since 2.6.20 bbPress (r8008) Validates stored and filtered strategy values.
  *
- * @param bool $default Optional. Default value false.
- * @return string How to interact with engagements.
+ * @param string $default Optional. Default value 'meta'.
+ * @return string Valid engagements strategy, or 'meta' if invalid.
  */
 function bbp_engagements_strategy( $default = 'meta' ) {
 
 	// Get the option value
 	$integration = get_option( '_bbp_engagements_strategy', $default );
 
-	// Check that class exists, or fallback
-	$class_name  = 'BBP_User_Engagements_' . ucwords( $integration );
-
 	// Fallback to 'meta' if invalid
-	if ( ! class_exists( $class_name ) ) {
+	if ( ! bbp_is_valid_engagements_strategy( $integration ) ) {
 		$integration = 'meta';
 	}
 
-	// Filter & return
-	return apply_filters( 'bbp_engagements_strategy', $integration, $default );
+	// Filter the integration
+	$integration = apply_filters( 'bbp_engagements_strategy', $integration, $default );
+
+	// Return a valid integration
+	return bbp_is_valid_engagements_strategy( $integration )
+		? $integration
+		: 'meta';
 }
 
 /** Slugs *********************************************************************/
