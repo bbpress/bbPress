@@ -437,6 +437,7 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_is_get_action
+	 * @ticket BBP3740
 	 */
 	public function test_get_action_helper_sanitizes_and_matches_actions() {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
@@ -449,7 +450,7 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_is_get_action() );
 
 		$_SERVER['REQUEST_METHOD'] = 'POST';
-		$this->assertFalse( bbp_is_get_action( 'edit-topic' ) );
+		$this->assertTrue( bbp_is_get_action( 'edit-topic' ) );
 
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 		unset( $_GET['action'] );
