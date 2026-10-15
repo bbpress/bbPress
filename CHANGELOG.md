@@ -13,6 +13,8 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+## 2.6.20 - 2026-10-15
+
 ### Added
 
 - Added an optional date format parameter to topic and reply post-date template functions.
@@ -99,6 +101,10 @@ Development for the next bbPress release is in progress. See the active
 - Restored assigned moderator names in forum edit forms and corrected forum type and visibility dropdown behavior.
 - Kept closed category ancestors from being ignored by forum status checks.
 - Preserved topic subscriptions when topics and replies are edited in administration.
+
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-20/)
+
+[Release announcement](https://bbpress.org/blog/2026/10/bbpress-2-6-20-is-out/)
 
 ## 2.6.19 - 2026-09-29
 
