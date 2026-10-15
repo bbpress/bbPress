@@ -1343,6 +1343,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * In the future, many-to-many should be allowed.
 	 *
 	 * @since 2.1.0 bbPress (r3746)
+	 * @since 2.6.20 bbPress (r8027) Match topics with a non-singular slug query.
 	 */
 	public function display_forums( $offset = 0 ) {
 
@@ -1422,7 +1423,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					add_filter( 'bbp_get_topic_stick_link', array( $this, 'hide_super_sticky_admin_link' ), 10, 2 );
 
 					$topic_args = array(
-						'name'           => bp_action_variable( $offset + 1 ),
+						'post_name__in'  => array( bp_action_variable( $offset + 1 ) ),
 						'posts_per_page' => 1,
 						'show_stickies'  => false
 					);
@@ -1439,7 +1440,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 							$topic_args['post__in'] = array( 0 );
 						}
 
-						unset( $topic_args['name'] );
+						unset( $topic_args['post_name__in'] );
 					}
 
 					// Get the topic
