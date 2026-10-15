@@ -14,6 +14,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		add_filter( 'get_avatar_url', array( $this, 'filter_gravatar_url' ) );
 
 		$this->factory = new BBP_UnitTest_Factory;
 
@@ -33,6 +34,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	public function tearDown(): void {
 		global $wpdb;
 
+		remove_filter( 'get_avatar_url', array( $this, 'filter_gravatar_url' ) );
 		parent::tearDown();
 
 		if ( is_multisite() ) {
@@ -50,6 +52,17 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		}
 
 		$this->commit_transaction();
+	}
+
+	/**
+	 * Normalize the randomly selected Gravatar server in generated URLs.
+	 *
+	 * @param string $url Gravatar URL.
+	 *
+	 * @return string Normalized Gravatar URL.
+	 */
+	public function filter_gravatar_url( $url ) {
+		return preg_replace( '|//[0-2]\.gravatar\.com|', '//secure.gravatar.com', $url );
 	}
 
 	function clean_up_global_scope() {
