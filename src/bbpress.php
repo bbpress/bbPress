@@ -357,6 +357,7 @@ final class bbPress {
 		require $this->includes_dir . 'common/locale.php';
 		require $this->includes_dir . 'common/locks.php';
 		require $this->includes_dir . 'common/rest.php';
+		require $this->includes_dir . 'common/attachments.php';
 		require $this->includes_dir . 'common/xmlrpc.php';
 		require $this->includes_dir . 'common/template.php';
 		require $this->includes_dir . 'common/widgets.php';
