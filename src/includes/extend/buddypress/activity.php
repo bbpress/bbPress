@@ -424,7 +424,7 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Exclude restricted forum activity using BuddyPress's SQL clauses filter.
 	 *
-	 * @since 2.6.20 bbPress
+	 * @since 2.6.20 bbPress (r8022)
 	 *
 	 * @param array $sql_clauses BuddyPress activity query SQL clauses.
 	 * @param array $args        BuddyPress activity query arguments.

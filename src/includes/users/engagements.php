@@ -664,6 +664,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * Handles the front end adding and removing of favorite topics.
  *
  * @since 2.0.0 bbPress (r2660)
+ * @since 2.6.20 bbPress (r8024) Use the displayed user on favorites views.
  *
  * @param string $action The requested action to compare this function to.
  */
@@ -696,7 +697,7 @@ function bbp_favorites_handler( $action = '' ) {
 	// What action is taking place?
 	$topic_id     = bbp_get_topic_id( $_GET['object_id'] );
 	$user_id      = bbp_is_favorites()
-		? bbp_get_user_id( 0, true, true )
+		? bbp_get_displayed_user_id()
 		: bbp_get_current_user_id();
 	$toggle_action = ( 'bbp_favorite_remove' === $action ) ? 'remove' : 'add';
 
@@ -959,6 +960,7 @@ function bbp_update_reply_subscription( $reply_id = 0, $topic_id = 0, $forum_id 
  *
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6544)
+ * @since 2.6.20 bbPress (r8024) Use the displayed user on subscriptions views.
  *
  * @param string $action The requested action to compare this function to.
  */
@@ -990,7 +992,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 
 	// Get required data
 	$user_id     = bbp_is_subscriptions()
-		? bbp_get_user_id( 0, true, true )
+		? bbp_get_displayed_user_id()
 		: bbp_get_current_user_id();
 	$object_id   = absint( $_GET['object_id'] );
 	$object_type = 'post';

@@ -160,6 +160,8 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		$forum_id = $this->factory->forum->create();
 
 		$this->set_current_user( $user_id );
+		buddypress()->displayed_user = (object) array( 'id' => $user_id );
+		buddypress()->current_action = bbp_get_user_subscriptions_slug();
 		$this->assertTrue( bbp_add_user_subscription( $user_id, $forum_id ) );
 
 		$_GET['action']        = 'bbp_unsubscribe';
@@ -185,6 +187,8 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		) );
 
 		$this->set_current_user( $user_id );
+		buddypress()->displayed_user = (object) array( 'id' => $user_id );
+		buddypress()->current_action = bbp_get_user_favorites_slug();
 		$this->assertTrue( bbp_add_user_favorite( $user_id, $topic_id ) );
 
 		$_GET['action']        = 'bbp_favorite_remove';
@@ -194,6 +198,63 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		$this->submit_member_engagement();
 
 		$this->assertFalse( bbp_is_user_favorite( $user_id, $topic_id ) );
+	}
+
+	/**
+	 * @covers ::BBP_BuddyPress_Members::engagements_handler
+	 * @covers ::bbp_subscriptions_handler
+	 */
+	public function test_keymaster_removes_displayed_members_subscription_from_buddypress_profile() {
+		$keymaster_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$member_id    = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id     = $this->factory->forum->create();
+
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $keymaster_id );
+		buddypress()->displayed_user = (object) array( 'id' => $member_id );
+		buddypress()->current_action = bbp_get_user_subscriptions_slug();
+		$this->assertTrue( bbp_add_user_subscription( $keymaster_id, $forum_id ) );
+		$this->assertTrue( bbp_add_user_subscription( $member_id, $forum_id ) );
+
+		$_GET['action']        = 'bbp_unsubscribe';
+		$_GET['object_id']     = $forum_id;
+		$_GET['object_type']   = 'post';
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'toggle-subscription_post_' . $forum_id );
+
+		$this->submit_member_engagement();
+
+		$this->assertTrue( bbp_is_user_subscribed( $keymaster_id, $forum_id ) );
+		$this->assertFalse( bbp_is_user_subscribed( $member_id, $forum_id ) );
+	}
+
+	/**
+	 * @covers ::BBP_BuddyPress_Members::engagements_handler
+	 * @covers ::bbp_favorites_handler
+	 */
+	public function test_keymaster_removes_displayed_members_favorite_from_buddypress_profile() {
+		$keymaster_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$member_id    = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id     = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $keymaster_id );
+		buddypress()->displayed_user = (object) array( 'id' => $member_id );
+		buddypress()->current_action = bbp_get_user_favorites_slug();
+		$this->assertTrue( bbp_add_user_favorite( $keymaster_id, $topic_id ) );
+		$this->assertTrue( bbp_add_user_favorite( $member_id, $topic_id ) );
+
+		$_GET['action']        = 'bbp_favorite_remove';
+		$_GET['object_id']     = $topic_id;
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'toggle-favorite_' . $topic_id );
+
+		$this->submit_member_engagement();
+
+		$this->assertTrue( bbp_is_user_favorite( $keymaster_id, $topic_id ) );
+		$this->assertFalse( bbp_is_user_favorite( $member_id, $topic_id ) );
 	}
 
 	/**

@@ -104,6 +104,7 @@ Development for the next bbPress release is in progress. See the active
   moderation.
 - Restored controls for privileged users to manage another user's favorites and
   subscriptions.
+- Kept BuddyPress profile engagement actions targeted to the displayed member.
 - Restored the original subscription link nonce so AJAX handlers in third-party
   theme packages accept subscription toggles.
 - Corrected reply position classes and repeated position lookups when replies
