@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented stray post and Page query variables from misclassifying bbPress
+  user routes.
 - Preserved the original date of pending topics and replies across status changes.
 - Returned a 404 response for feed requests to unregistered views.
 
