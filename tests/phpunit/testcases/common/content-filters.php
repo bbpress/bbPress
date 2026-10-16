@@ -158,6 +158,77 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Topic and reply shortcodes must not render in WordPress feeds.
+	 *
+	 * @dataProvider get_topic_and_reply_post_types
+	 *
+	 * @covers bbp_pre_do_shortcode_tag
+	 * @covers bbp_prevent_content_shortcodes
+	 *
+	 * @param string $post_type bbPress post type.
+	 */
+	public function test_wordpress_feeds_remove_topic_and_reply_shortcodes( $post_type ) {
+		$shortcode       = "Before feed shortcode.\n\n[bbp_content_feed_probe]\n\nAfter feed shortcode. [bbp_unregistered_feed_code]";
+		$post_id         = $this->factory->post->create(
+			array(
+				'post_type'    => $post_type,
+				'post_content' => $shortcode,
+			)
+		);
+		$wp_query       = bbp_get_wp_query();
+		$old_post       = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$old_query_post = $wp_query->post;
+		$old_posts      = $wp_query->posts;
+		$old_is_feed    = $wp_query->is_feed;
+		$executions     = 0;
+		$allow          = function( $allowed ) {
+			$allowed[] = 'bbp_content_feed_probe';
+			return $allowed;
+		};
+
+		add_shortcode( 'bbp_content_feed_probe', function() use ( &$executions ) {
+			++$executions;
+			return 'feed-shortcode-ran';
+		} );
+		add_filter( 'bbp_allowed_content_shortcodes', $allow );
+
+		try {
+			$GLOBALS['post'] = get_post( $post_id );
+			$wp_query->post  = $GLOBALS['post'];
+			$wp_query->posts = array( $GLOBALS['post'] );
+			$wp_query->setup_postdata( $GLOBALS['post'] );
+			$wp_query->is_feed = true;
+			$content = get_the_content_feed( 'rss2' );
+
+			$this->assertSame( 0, $executions );
+			$this->assertStringContainsString( '<p>Before feed shortcode.</p>', $content );
+			$this->assertStringContainsString( '<p>After feed shortcode. [bbp_unregistered_feed_code]</p>', $content );
+			$this->assertStringNotContainsString( 'bbp_content_feed_probe', $content );
+			$this->assertStringNotContainsString( 'feed-shortcode-ran', $content );
+		} finally {
+			remove_filter( 'bbp_allowed_content_shortcodes', $allow );
+			remove_shortcode( 'bbp_content_feed_probe' );
+			$GLOBALS['post'] = $old_post;
+			$wp_query->post  = $old_query_post;
+			$wp_query->posts = $old_posts;
+			$wp_query->is_feed = $old_is_feed;
+			wp_reset_postdata();
+		}
+	}
+
+	/**
+	 * Topic and reply post types.
+	 *
+	 * @return array[] Topic and reply post types.
+	 */
+	public function get_topic_and_reply_post_types() {
+		return array(
+			'topic' => array( bbp_get_topic_post_type() ),
+			'reply' => array( bbp_get_reply_post_type() ),
+		);
+	}
+
+	/**
 	 * @covers bbp_prevent_content_shortcodes
 	 */
 	public function test_private_attachment_gallery_is_not_rendered_from_forum_content() {
