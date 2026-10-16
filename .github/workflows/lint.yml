@@ -36,6 +36,12 @@ jobs:
       - name: Test pre-commit revision fixes
         run: python3 tests/ci/test-audit-since-revisions.py
 
+      - name: Test GitHub mirror synchronization
+        run: python3 tests/ci/test-sync-github-mirror.py
+
+      - name: Test Plugin SVN release staging
+        run: python3 tests/ci/test-plugin-svn-release.py
+
       - name: Audit source annotations
         run: python3 tests/ci/audit-since-revisions.py --check
 
