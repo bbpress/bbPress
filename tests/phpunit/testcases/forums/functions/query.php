@@ -173,4 +173,71 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 		$query_last_reply_c = bbp_forum_query_last_reply_id( $c );
 		$this->assertSame( $query_last_reply_c, bbp_get_forum_last_reply_id( $c ) );
 	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
+	public function test_bbp_forum_query_last_activity_id_checks_beyond_fifty_topics() {
+		$forum_id = $this->factory->forum->create();
+		$topic_ids = $this->factory->topic->create_many(
+			51,
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => reset( $topic_ids ),
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => reset( $topic_ids ),
+				),
+			)
+		);
+
+		// Simulate legacy topic metadata that a fixed-size approximation can omit
+		delete_post_meta( reset( $topic_ids ), '_bbp_last_active_time' );
+
+		$this->assertSame( $reply_id, bbp_forum_query_last_activity_id( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
+	public function test_bbp_forum_query_last_activity_id_preserves_filtered_topic_ids() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+		$this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		$filter = function() use ( $topic_id ) {
+			return array( $topic_id );
+		};
+		add_filter( 'bbp_forum_query_topic_ids', $filter );
+
+		$activity_id = bbp_forum_query_last_activity_id( $forum_id );
+
+		remove_filter( 'bbp_forum_query_topic_ids', $filter );
+
+		$this->assertSame( $reply_id, $activity_id );
+	}
 }

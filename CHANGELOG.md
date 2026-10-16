@@ -53,6 +53,7 @@ Development for the next bbPress release is in progress. See the active
 - Removed topic and reply shortcodes from WordPress-generated feed content.
 - Prevented stray post and Page query variables from misclassifying bbPress
   user routes.
+- Avoided loading every public topic ID when forum freshness is recalculated.
 - Preserved the original date of pending topics and replies across status changes.
 - Fixed legacy user-option engagement lookups for numeric-string object IDs.
 - Returned a 404 response for feed requests to unregistered views.

@@ -394,8 +394,25 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		// Create a new forum
 		$new_forum_id = $this->factory->forum->create();
 
+		// Track unbounded topic ID queries during the move
+		$unbounded_topic_queries = 0;
+		$query_callback = function( $query ) use ( &$unbounded_topic_queries ) {
+			if (
+				( 'ids' === $query->get( 'fields' ) ) &&
+				( bbp_get_topic_post_type() === $query->get( 'post_type' ) ) &&
+				! empty( $query->get( 'post_parent' ) ) &&
+				! empty( $query->get( 'nopaging' ) )
+			) {
+				$unbounded_topic_queries++;
+			}
+		};
+		add_action( 'pre_get_posts', $query_callback );
+
 		// Move the topic into the new forum
 		bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id );
+		remove_action( 'pre_get_posts', $query_callback );
+
+		$this->assertSame( 0, $unbounded_topic_queries );
 
 		// Topic post parent
 		$topic_parent = wp_get_post_parent_id( $topic_id );
