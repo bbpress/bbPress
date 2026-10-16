@@ -94,6 +94,36 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_parse_query
 	 */
+	public function test_parse_query_clears_singular_state_on_user_routes() {
+		$user_id = $this->factory->user->create();
+		$cases   = array(
+			'page ID'   => array( 'page_id', PHP_INT_MAX ),
+			'page name' => array( 'pagename', 'missing-page' ),
+			'post ID'   => array( 'p', PHP_INT_MAX ),
+			'post name' => array( 'name', 'missing-post' ),
+		);
+
+		foreach ( $cases as $case => $query_var ) {
+			$query = $this->set_main_query();
+			$query->parse_query(
+				array(
+					bbp_get_user_rewrite_id()         => $user_id,
+					bbp_get_user_replies_rewrite_id() => 1,
+					$query_var[0]                      => $query_var[1],
+				)
+			);
+
+			$this->assertTrue( $query->bbp_is_single_user, $case );
+			$this->assertTrue( $query->bbp_is_single_user_replies, $case );
+			$this->assertFalse( $query->is_page, $case );
+			$this->assertFalse( $query->is_single, $case );
+			$this->assertFalse( $query->is_singular, $case );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_parse_query
+	 */
 	public function test_parse_query_sets_404_for_unknown_user() {
 		$query = $this->set_main_query();
 		$query->set( bbp_get_user_rewrite_id(), PHP_INT_MAX );
