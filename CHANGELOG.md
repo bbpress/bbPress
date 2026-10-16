@@ -50,6 +50,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Removed topic and reply shortcodes from WordPress-generated feed content.
 - Prevented stray post and Page query variables from misclassifying bbPress
   user routes.
 - Preserved the original date of pending topics and replies across status changes.

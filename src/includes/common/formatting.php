@@ -20,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * sub-filter for this case without affecting shortcodes in other post types.
  *
  * @since 2.6.20 bbPress (r7847)
+ * @since 2.7.0  bbPress (r8045) Remove shortcodes from WordPress feed content.
  *
  * @param false|string $output  Short-circuit value from an earlier filter.
  * @param string       $tag     Shortcode name.
@@ -54,6 +55,10 @@ function bbp_pre_do_shortcode_tag( $output, $tag, $attr, $matches ) {
  * @return false|string Short-circuit value or the literal shortcode.
  */
 function bbp_prevent_content_shortcodes( $output, $tag, $attr, $matches ) {
+	if ( is_feed() ) {
+		return '';
+	}
+
 	/**
 	 * Filter shortcode tags allowed to run in bbPress post content.
 	 *
