@@ -1200,6 +1200,41 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 		$this->assertSame( 'Pending reply revision.', get_post_field( 'post_content', $reply_id ) );
 		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $reply_id ) );
 	}
+
+	/**
+	 * bbPress metadata must not interfere with ordinary post updates.
+	 *
+	 * @covers BBPress::register_meta
+	 */
+	public function test_count_meta_does_not_interfere_with_post_rest_updates() {
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		bbpress()->register_meta();
+		$old_rest_server = isset( $GLOBALS['wp_rest_server'] ) ? $GLOBALS['wp_rest_server'] : null;
+		$GLOBALS['wp_rest_server'] = null;
+
+		$response = $this->get_item( 'posts', $post_id, $user_id );
+		$data     = $response->get_data();
+		$bbp_meta = preg_grep( '/^_bbp_/', array_keys( $data['meta'] ) );
+
+		$update = $this->update_item(
+			'posts',
+			$post_id,
+			$user_id,
+			array(
+				'content' => 'Updated article.',
+				'meta'    => $data['meta'],
+			)
+		);
+
+		$GLOBALS['wp_rest_server'] = $old_rest_server;
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array(), $bbp_meta );
+		$this->assertSame( 200, $update->get_status() );
+		$this->assertSame( 'Updated article.', get_post_field( 'post_content', $post_id ) );
+	}
+
 	/**
 	 * Hidden counts stay out of REST even when custom fields are enabled.
 	 *
