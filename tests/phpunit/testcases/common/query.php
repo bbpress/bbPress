@@ -153,6 +153,66 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_child_counts
+	 * @ticket BBP3749
+	 */
+	public function test_bbp_get_child_counts_uses_indexed_post_relationships() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		$topic_counts = bbp_get_child_counts( $topic_id );
+		$topic_query  = bbp_db()->last_query;
+
+		$this->assertSame( 1, $topic_counts[ bbp_get_reply_post_type() ][ bbp_get_public_status_id() ] );
+		$this->assertStringContainsString( 'post_parent', $topic_query );
+		$this->assertStringNotContainsString( bbp_db()->postmeta, $topic_query );
+
+		$forum_counts = bbp_get_child_counts( $forum_id );
+		$forum_query  = bbp_db()->last_query;
+
+		$this->assertSame( 1, $forum_counts[ bbp_get_topic_post_type() ][ bbp_get_public_status_id() ] );
+		$this->assertSame( 1, $forum_counts[ bbp_get_reply_post_type() ][ bbp_get_public_status_id() ] );
+		$this->assertStringContainsString( 'UNION ALL', $forum_query );
+		$this->assertStringContainsString( 'post_parent', $forum_query );
+		$this->assertStringNotContainsString( bbp_db()->postmeta, $forum_query );
+	}
+
+	/**
+	 * @covers ::bbp_get_child_counts
+	 * @ticket BBP3749
+	 */
+	public function test_bbp_get_child_counts_query_is_filterable() {
+		$topic_id = $this->factory->topic->create();
+		$callback = function( $query, $parent_id, $post_type ) use ( $topic_id ) {
+			$this->assertSame( $topic_id, $parent_id );
+			$this->assertSame( bbp_get_topic_post_type(), $post_type );
+
+			return "SELECT 'reply' AS type, 'publish' AS status, 7 AS count";
+		};
+
+		add_filter( 'bbp_get_child_counts_query', $callback, 10, 3 );
+
+		try {
+			$counts = bbp_get_child_counts( $topic_id );
+		} finally {
+			remove_filter( 'bbp_get_child_counts_query', $callback, 10 );
+		}
+
+		$this->assertSame( 7, $counts['reply']['publish'] );
+		$this->assertSame( "SELECT 'reply' AS type, 'publish' AS status, 7 AS count", bbp_db()->last_query );
+	}
+
+	/**
 	 * @covers ::bbp_get_public_child_ids
 	 */
 	public function test_bbp_get_public_child_ids() {

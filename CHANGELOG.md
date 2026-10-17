@@ -41,6 +41,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Avoided unindexed relationship metadata scans when recounting forum and topic
+  children.
 - Prevented invalid engagement strategy options and filter values from causing
   startup failures or selecting the empty base implementation.
 - Fixed component-specific rewrite callbacks so they receive the WordPress rewrite object instead of failing or being skipped.
