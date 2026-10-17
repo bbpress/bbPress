@@ -516,9 +516,16 @@ function bbp_is_password_protected( $object_id = 0, $object_type = 'post' ) {
  * @return int Protected post ID, or zero if all passwords are satisfied.
  */
 function bbp_get_password_required_id( $object_id = 0 ) {
+	static $checking_id = 0;
+
 	$post     = get_post( $object_id );
 	$post_ids = array();
 	$forum_id = 0;
+
+	// Avoid recursion while checking this post's own password.
+	if ( ! empty( $post ) && ( $checking_id === (int) $post->ID ) ) {
+		return 0;
+	}
 
 	// Include the object
 	if ( ! empty( $post ) && bbp_is_custom_post_type( $post ) ) {
@@ -547,13 +554,43 @@ function bbp_get_password_required_id( $object_id = 0 ) {
 	}
 
 	// Check the object and its parents
-	foreach ( array_unique( array_filter( $post_ids ) ) as $post_id ) {
-		if ( post_password_required( $post_id ) ) {
-			return (int) $post_id;
+	foreach ( array_unique( array_map( 'intval', array_filter( $post_ids ) ) ) as $post_id ) {
+		$previous_id = $checking_id;
+		$checking_id = $post_id;
+
+		try {
+			$required = post_password_required( $post_id );
+		} finally {
+			$checking_id = $previous_id;
+		}
+
+		if ( $required ) {
+			return $post_id;
 		}
 	}
 
 	return 0;
+}
+
+/**
+ * Require passwords inherited from bbPress parent topics and forums.
+ *
+ * WordPress checks only the current post. Extend that check for bbPress posts
+ * so Core content and excerpt rendering preserves the same password boundary
+ * as bbPress templates.
+ *
+ * @since 2.6.21 bbPress (r8058)
+ *
+ * @param bool         $required Whether the current post requires a password.
+ * @param WP_Post|null $post     Post object.
+ * @return bool Whether the post or a bbPress ancestor requires a password.
+ */
+function bbp_filter_post_password_required( $required, $post = null ) {
+	if ( $required || ! ( $post instanceof WP_Post ) || ! bbp_is_custom_post_type( $post ) ) {
+		return $required;
+	}
+
+	return ( 0 !== bbp_get_password_required_id( $post ) );
 }
 
 /**

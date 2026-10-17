@@ -78,6 +78,9 @@ add_filter( 'show_password_fields', 'bbp_filter_user_edit_password_fields', 10, 
 // Reply title fallback
 add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 
+// Inherited post passwords
+add_filter( 'post_password_required', 'bbp_filter_post_password_required', 10, 2 );
+
 // Avoid queries & 404s
 add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
 add_filter( 'pre_handle_404',                  'bbp_pre_handle_404',              10, 2 );
