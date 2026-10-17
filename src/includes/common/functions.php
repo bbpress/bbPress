@@ -2425,7 +2425,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * Query the database for child counts, grouped by type & status.
  *
  * @since 2.6.0 bbPress (r6827)
- * @since 2.7.0 bbPress (r8054) Use indexed post relationships for forums and topics.
+ * @since 2.6.21 bbPress (r8055) Use indexed post relationships for forums and topics.
  *
  * @param int $parent_id
  */
@@ -2515,7 +2515,7 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 		/**
 		 * Filters the prepared SQL query for child counts.
 		 *
-		 * @since 2.7.0 bbPress (r8054)
+		 * @since 2.6.21 bbPress (r8055)
 		 *
 		 * @param string       $query      Prepared SQL query.
 		 * @param int          $parent_id  Parent post ID.
