@@ -3187,7 +3187,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
  * The unfiltered path uses bounded database queries. Filtered topic-ID sets
  * retain the legacy query path so extensions continue to control membership.
  *
- * @since 2.7.0 bbPress (r8047)
+ * @since 2.6.21 bbPress (r8048)
  *
  * @param int $forum_id Forum ID.
  * @return int Last public topic or reply ID.
