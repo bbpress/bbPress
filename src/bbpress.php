@@ -836,13 +836,12 @@ final class bbPress {
 
 		/** Post **************************************************************/
 
-			// Counts
+		// Forum
+		$count['object_subtype'] = bbp_get_forum_post_type();
 		register_meta( 'post', '_bbp_topic_count',              $count );
 		register_meta( 'post', '_bbp_reply_count',              $count );
 		register_meta( 'post', '_bbp_total_topic_count',        $count );
 		register_meta( 'post', '_bbp_total_reply_count',        $count );
-		register_meta( 'post', '_bbp_voice_count',              $count );
-		register_meta( 'post', '_bbp_anonymous_reply_count',    $count );
 		// Hidden counts must stay private if custom fields are exposed in REST.
 		$hidden_count = $count;
 		$hidden_count['show_in_rest'] = false;
@@ -852,9 +851,18 @@ final class bbPress {
 		register_meta( 'post', '_bbp_total_reply_count_hidden', $hidden_count );
 		register_meta( 'post', '_bbp_forum_subforum_count',     $count );
 
-		/** User **************************************************************/
+		// Topic
+		$count['object_subtype'] = bbp_get_topic_post_type();
+		$hidden_count['object_subtype'] = bbp_get_topic_post_type();
+		register_meta( 'post', '_bbp_reply_count',           $count );
+		register_meta( 'post', '_bbp_voice_count',           $count );
+		register_meta( 'post', '_bbp_anonymous_reply_count', $count );
+		register_meta( 'post', '_bbp_reply_count_hidden',    $hidden_count );
 
-			// Counts
+		/* User ***************************************************************/
+
+		// Counts
+		$count['object_subtype'] = '';
 		register_meta( 'user', '_bbp_topic_count', $count );
 		register_meta( 'user', '_bbp_reply_count', $count );
 
