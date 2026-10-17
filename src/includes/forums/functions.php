@@ -1846,18 +1846,8 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 			}
 		}
 
-		// If this forum has topics...
-		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
-		if ( ! empty( $topic_ids ) ) {
-
-			// ...get the most recent reply from those topics...
-			$reply_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
-
-			// ...and compare it to the most recent topic id...
-			$reply_id = ( $reply_id > max( $topic_ids ) )
-				? $reply_id
-				: max( $topic_ids );
-		}
+		// Get the most recent topic or reply without loading every topic ID
+		$reply_id = bbp_forum_query_last_activity_id( $forum_id );
 	}
 
 	// Cast as integer in case of empty or string
@@ -1903,20 +1893,8 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 			}
 		}
 
-		// Get topic IDs and only accept larger IDs
-		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
-		if ( ! empty( $topic_ids ) ) {
-
-			// Make sure ID is larger
-			$active_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
-			$active_id = $active_id > max( $topic_ids )
-				? $active_id
-				: max( $topic_ids );
-
-		// Forum has no topics
-		} else {
-			$active_id = 0;
-		}
+		// Get the most recent topic or reply without loading every topic ID
+		$active_id = bbp_forum_query_last_activity_id( $forum_id );
 	}
 
 	// Cast as integer in case of empty or string
@@ -3228,6 +3206,81 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
+}
+
+/**
+ * Returns the forum's last public topic or reply ID.
+ *
+ * The unfiltered path uses bounded database queries. Filtered topic-ID sets
+ * retain the legacy query path so extensions continue to control membership.
+ *
+ * @since 2.6.21 bbPress (r8048)
+ *
+ * @param int $forum_id Forum ID.
+ * @return int Last public topic or reply ID.
+ */
+function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Preserve extensions that customize the legacy topic ID set
+	if ( has_filter( 'bbp_forum_query_topic_ids' ) || has_filter( 'bbp_get_public_child_ids' ) ) {
+		$topic_ids   = bbp_forum_query_topic_ids( $forum_id );
+		$activity_id = ! empty( $topic_ids )
+			? max( bbp_forum_query_last_reply_id( $forum_id, $topic_ids ), max( $topic_ids ) )
+			: 0;
+
+	// Query only the scalar values needed by the forum updaters
+	} else {
+		$bbp_db         = bbp_db();
+		$topic_statuses = bbp_get_public_topic_statuses();
+
+		if ( empty( $topic_statuses ) ) {
+			$reply_id = $topic_id = 0;
+		} else {
+			$placeholders = implode( ', ', array_fill( 0, count( $topic_statuses ), '%s' ) );
+			$sql          = "SELECT
+				(
+					SELECT replies.ID FROM {$bbp_db->posts} AS replies
+					INNER JOIN {$bbp_db->posts} AS topics ON replies.post_parent = topics.ID
+					WHERE topics.post_parent = %d
+						AND topics.post_type = %s
+						AND topics.post_status IN ({$placeholders})
+						AND replies.post_type = %s
+						AND replies.post_status = %s
+					ORDER BY replies.post_date DESC, replies.ID DESC
+					LIMIT 1
+				) AS reply_id,
+				(
+					SELECT MAX(ID) FROM {$bbp_db->posts}
+					WHERE post_parent = %d
+						AND post_type = %s
+						AND post_status IN ({$placeholders})
+				) AS topic_id";
+			$query        = $bbp_db->prepare(
+				$sql,
+				array_merge(
+					array( $forum_id, bbp_get_topic_post_type() ),
+					$topic_statuses,
+					array(
+						bbp_get_reply_post_type(),
+						bbp_get_public_status_id(),
+						$forum_id,
+						bbp_get_topic_post_type()
+					),
+					$topic_statuses
+				)
+			);
+			$latest   = $bbp_db->get_row( $query );
+			$reply_id = $latest->reply_id;
+			$topic_id = $latest->topic_id;
+		}
+
+		$reply_id   = apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
+		$activity_id = max( (int) $reply_id, (int) $topic_id );
+	}
+
+	// Filter & return
+	return (int) apply_filters( 'bbp_forum_query_last_activity_id', $activity_id, $forum_id );
 }
 
 /** Listeners *****************************************************************/
