@@ -2425,6 +2425,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * Query the database for child counts, grouped by type & status.
  *
  * @since 2.6.0 bbPress (r6827)
+ * @since 2.7.0 bbPress (r8054) Use indexed post relationships for forums and topics.
  *
  * @param int $parent_id
  */
@@ -2448,8 +2449,56 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 	if ( false === $retval ) {
 
 		// Setup the DB & query
-		$bbp_db = bbp_db();
-		$sql    = "SELECT
+		$bbp_db    = bbp_db();
+		$post_type = get_post_type( $parent_id );
+
+		// Forums contain direct forums/topics and replies through direct topics
+		if ( bbp_get_forum_post_type() === $post_type ) {
+			$sql = "SELECT
+						p.post_type AS type,
+						p.post_status AS status,
+						COUNT( * ) AS count
+					FROM {$bbp_db->posts} AS p
+					WHERE p.post_parent = %d
+						AND p.post_type IN ( %s, %s )
+					GROUP BY p.post_status, p.post_type
+					UNION ALL
+					SELECT
+						r.post_type AS type,
+						r.post_status AS status,
+						COUNT( * ) AS count
+					FROM {$bbp_db->posts} AS r
+						INNER JOIN {$bbp_db->posts} AS t
+							ON r.post_parent = t.ID
+					WHERE t.post_parent = %d
+						AND t.post_type = %s
+						AND r.post_type = %s
+					GROUP BY r.post_status, r.post_type";
+			$query = $bbp_db->prepare(
+				$sql,
+				$parent_id,
+				bbp_get_forum_post_type(),
+				bbp_get_topic_post_type(),
+				$parent_id,
+				bbp_get_topic_post_type(),
+				bbp_get_reply_post_type()
+			);
+
+		// Topics contain direct replies
+		} elseif ( bbp_get_topic_post_type() === $post_type ) {
+			$sql   = "SELECT
+						p.post_type AS type,
+						p.post_status AS status,
+						COUNT( * ) AS count
+					FROM {$bbp_db->posts} AS p
+					WHERE p.post_parent = %d
+						AND p.post_type = %s
+					GROUP BY p.post_status, p.post_type";
+			$query = $bbp_db->prepare( $sql, $parent_id, bbp_get_reply_post_type() );
+
+		// Retain metadata relationships for unknown parent types
+		} else {
+			$sql      = "SELECT
 						p.post_type AS type,
 						p.post_status AS status,
 						COUNT( * ) AS count
@@ -2459,14 +2508,23 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 							AND pm.meta_key = %s
 					WHERE pm.meta_value = %s
 					GROUP BY p.post_status, p.post_type";
+			$meta_key = "_bbp_{$post_type}_id";
+			$query    = $bbp_db->prepare( $sql, $meta_key, $parent_id );
+		}
 
-		// Get prepare vars
-		$post_type = get_post_type( $parent_id );
-		$meta_key  = "_bbp_{$post_type}_id";
+		/**
+		 * Filters the prepared SQL query for child counts.
+		 *
+		 * @since 2.7.0 bbPress (r8054)
+		 *
+		 * @param string       $query      Prepared SQL query.
+		 * @param int          $parent_id  Parent post ID.
+		 * @param string|false $post_type  Parent post type, or false if unknown.
+		 */
+		$query = apply_filters( 'bbp_get_child_counts_query', $query, $parent_id, $post_type );
 
-		// Prepare & get results
-		$query     = $bbp_db->prepare( $sql, $meta_key, $parent_id );
-		$results   = $bbp_db->get_results( $query, ARRAY_A );
+		// Get results
+		$results = $bbp_db->get_results( $query, ARRAY_A );
 
 		// Setup return value
 		$retval    = wp_list_pluck( $results, 'type', 'type' );

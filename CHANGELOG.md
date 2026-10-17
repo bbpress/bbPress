@@ -50,6 +50,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Avoided unindexed relationship metadata scans when recounting forum and topic
+  children.
 - Removed topic and reply shortcodes from WordPress-generated feed content.
 - Prevented stray post and Page query variables from misclassifying bbPress
   user routes.
