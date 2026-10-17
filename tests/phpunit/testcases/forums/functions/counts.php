@@ -15,7 +15,7 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	public function test_hidden_total_count_meta_is_registered() {
 		bbpress()->register_meta();
 
-		$registered = get_registered_meta_keys( 'post' );
+		$registered = get_registered_meta_keys( 'post', bbp_get_forum_post_type() );
 
 		$this->assertArrayHasKey( '_bbp_total_topic_count_hidden', $registered );
 		$this->assertArrayHasKey( '_bbp_total_reply_count_hidden', $registered );
