@@ -1422,9 +1422,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					// hide the 'to front' admin links
 					add_filter( 'bbp_get_topic_stick_link', array( $this, 'hide_super_sticky_admin_link' ), 10, 2 );
 
+					// The route page belongs to the nested replies query.
 					$topic_args = array(
 						'post_name__in'  => array( bp_action_variable( $offset + 1 ) ),
 						'posts_per_page' => 1,
+						'paged'          => 1,
 						'show_stickies'  => false
 					);
 

@@ -41,6 +41,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept BuddyPress group topics available when viewing later reply pages.
 - Avoided unindexed relationship metadata scans when recounting forum and topic
   children.
 - Prevented invalid engagement strategy options and filter values from causing

@@ -17,6 +17,13 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_allow_forum_mods;
 	protected $old_moderation_keys;
 	protected $old_action_variables;
+	protected $old_forum_query;
+	protected $old_topic_query;
+	protected $old_reply_query;
+	protected $old_current_forum_id;
+	protected $old_current_topic_id;
+	protected $old_query_name;
+	protected $old_paged;
 	protected $group_extension;
 	protected $template_parts = array();
 
@@ -58,6 +65,13 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->old_allow_forum_mods = get_option( '_bbp_allow_forum_mods', null );
 		$this->old_moderation_keys = get_option( 'moderation_keys' );
 		$this->old_action_variables = buddypress()->action_variables;
+		$this->old_forum_query       = bbpress()->forum_query;
+		$this->old_topic_query       = bbpress()->topic_query;
+		$this->old_reply_query       = bbpress()->reply_query;
+		$this->old_current_forum_id  = bbpress()->current_forum_id;
+		$this->old_current_topic_id  = bbpress()->current_topic_id;
+		$this->old_query_name        = bbp_get_query_name();
+		$this->old_paged             = bbp_get_wp_query()->get( 'paged' );
 	}
 
 	public function tearDown(): void {
@@ -68,6 +82,13 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		bbpress()->errors = $this->old_errors;
 		buddypress()->action_variables = $this->old_action_variables;
 		update_option( 'moderation_keys', $this->old_moderation_keys );
+		bbpress()->forum_query      = $this->old_forum_query;
+		bbpress()->topic_query      = $this->old_topic_query;
+		bbpress()->reply_query      = $this->old_reply_query;
+		bbpress()->current_forum_id = $this->old_current_forum_id;
+		bbpress()->current_topic_id = $this->old_current_topic_id;
+		bbp_set_query_name( $this->old_query_name );
+		bbp_get_wp_query()->set( 'paged', $this->old_paged );
 
 		if ( null === $this->old_allow_forum_mods ) {
 			delete_option( '_bbp_allow_forum_mods' );
@@ -1040,8 +1061,10 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 * @ticket BBP3743
+	 * @dataProvider invalid_group_topic_routes
 	 */
-	public function test_group_topic_route_requires_topic_slug() {
+	public function test_group_topic_route_requires_topic_slug( $route_variables ) {
 		$creator_id = $this->factory->user->create();
 		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
 		$forum_id   = $this->factory->forum->create();
@@ -1050,7 +1073,8 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->attach_forum_to_group( $forum_id, $group_id );
 		$this->set_group_context( $group_id, $creator_id );
 		$this->set_current_user( 0 );
-		buddypress()->action_variables = array( $this->group_extension->topic_slug );
+		buddypress()->action_variables = array_merge( array( $this->group_extension->topic_slug ), $route_variables );
+		$this->group_extension->rewrite_pagination( bbp_get_wp_query(), 'wp_query' );
 		$this->template_parts = array();
 		add_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10, 3 );
 		ob_start();
@@ -1060,6 +1084,94 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 
 		$this->assertContains( 'feedback-no-topics', $this->template_parts );
 		$this->assertStringNotContainsString( 'Missing route sentinel 8027', $html );
+		$this->assertSame( 1, bbpress()->topic_query->get( 'paged' ) );
+		$this->assertSame( 0, bbpress()->topic_query->post_count );
+	}
+
+	public function invalid_group_topic_routes() {
+		return array(
+			'missing slug'               => array( array() ),
+			'empty slug'                 => array( array( '' ) ),
+			'unknown slug on reply page' => array( array( 'missing-group-topic', 'page', '2' ) ),
+		);
+	}
+
+	/**
+	 * @covers ::bbp_has_replies
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 * @covers ::BBP_Forums_Group_Extension::rewrite_pagination
+	 * @ticket BBP3750
+	 * @dataProvider group_topic_reply_pages
+	 */
+	public function test_group_topic_route_loads_requested_reply_page( $page_number, $expected_result ) {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_title'  => 'Paginated group topic 3750',
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_ids = array();
+
+		foreach ( array( 'First group reply 3750', 'Second group reply 3750' ) as $reply_content ) {
+			$reply_ids[] = $this->factory->reply->create(
+				array(
+					'post_content' => $reply_content,
+					'post_parent'  => $topic_id,
+					'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+				)
+			);
+		}
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		$this->set_current_user( 0 );
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $topic_id ), 'page', (string) $page_number );
+		$this->group_extension->rewrite_pagination( bbp_get_wp_query(), 'wp_query' );
+
+		$one_reply_per_page = function() {
+			return 1;
+		};
+		add_filter( 'bbp_get_replies_per_page', $one_reply_per_page );
+		try {
+			$this->template_parts = array();
+			add_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10, 3 );
+			ob_start();
+			$this->group_extension->display_forums();
+			$html = ob_get_clean();
+			bbp_has_replies();
+		} finally {
+			remove_filter( 'bbp_get_template_part', array( $this, 'capture_template_part' ), 10 );
+			remove_filter( 'bbp_get_replies_per_page', $one_reply_per_page );
+		}
+
+		$this->assertNotContains( 'feedback-no-topics', $this->template_parts );
+		$this->assertStringContainsString( 'Paginated group topic 3750', $html );
+		$this->assertSame( 1, bbpress()->topic_query->get( 'paged' ) );
+		$this->assertSame( array( $topic_id ), wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+		$this->assertSame( $page_number, bbpress()->reply_query->paged );
+
+		if ( null === $expected_result ) {
+			$this->assertSame( array(), bbpress()->reply_query->posts );
+		} elseif ( 'topic' === $expected_result ) {
+			$this->assertSame( array( $topic_id ), wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
+			$this->assertSame( bbp_get_topic_post_type(), bbpress()->reply_query->posts[0]->post_type );
+		} else {
+			$this->assertSame( array( $reply_ids[ $expected_result ] ), wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
+			$this->assertSame( get_post_field( 'post_content', $reply_ids[ $expected_result ] ), bbpress()->reply_query->posts[0]->post_content );
+		}
+	}
+
+	public function group_topic_reply_pages() {
+		return array(
+			'first reply page'        => array( 1, 'topic' ),
+			'second reply page'       => array( 2, 0 ),
+			'third reply page'        => array( 3, 1 ),
+			'out-of-range reply page' => array( 99, null ),
+		);
 	}
 
 	/**
