@@ -3,8 +3,12 @@
 
 Fix mode is a pre-commit operation. It inspects uncommitted annotation lines,
 reads the current revision from the remote canonical Subversion URL, and uses
-the next revision in the patch. Verify the assigned revision after committing
-in case another changeset landed between the remote check and the commit.
+the next revision in the patch. For a trunk change that will immediately be
+backported, --planned-backport instead uses the following revision so trunk can
+record the maintenance version and backport revision in its original changeset.
+That mode requires the reviewed HEAD and maintenance version explicitly. Verify
+each assigned revision after committing in case another changeset landed between
+the remote check and the commit.
 
 Audit mode uses blame history to report committed annotations. Use
 --min-revision with --check after a Subversion commit to verify the result.
@@ -133,13 +137,19 @@ def svn_target_url(root, vcs, override):
     return match.group(1)
 
 
-def next_remote_revision(root, target_url):
+def next_remote_revision(root, target_url, offset, expected_head):
     current = command(
         root, "svn", "info", "--show-item", "revision", target_url,
     ).strip()
     if not current.isdigit():
         raise RuntimeError("remote Subversion revision is not numeric: {}".format(current))
-    return current, str(int(current) + 1)
+    if expected_head is not None and current != str(expected_head):
+        raise RuntimeError(
+            "remote Subversion HEAD is r{}; expected r{}".format(
+                current, expected_head,
+            )
+        )
+    return current, str(int(current) + offset)
 
 
 def diff_added_lines(diff):
@@ -217,10 +227,15 @@ def main():
     parser.add_argument("--version", help="only report this @since version")
     parser.add_argument("--min-revision", type=int, help="only annotations last changed at or after this revision")
     parser.add_argument("--svn-url", help="canonical Subversion target URL for pre-commit fix mode")
+    parser.add_argument("--expect-head", type=int, help="fail unless canonical Subversion HEAD is this revision")
     parser.add_argument("--format", choices=("csv", "json"), default="csv")
     parser.add_argument("--check", action="store_true", help="exit nonzero when the report contains any rows")
     parser.add_argument("--fix", action="store_true", help="add the next remote Subversion revision to uncommitted annotations")
     parser.add_argument("--dry-run", action="store_true", help="preview --fix without writing files")
+    parser.add_argument(
+        "--planned-backport", action="store_true",
+        help="with --fix on trunk, use the revision after the trunk changeset",
+    )
     args = parser.parse_args()
     if args.dry_run and not args.fix:
         parser.error("--dry-run requires --fix")
@@ -230,6 +245,14 @@ def main():
         parser.error("--fix targets uncommitted changes; omit --min-revision")
     if args.svn_url and not args.fix:
         parser.error("--svn-url requires --fix")
+    if args.expect_head is not None and not args.fix:
+        parser.error("--expect-head requires --fix")
+    if args.planned_backport and not args.fix:
+        parser.error("--planned-backport requires --fix")
+    if args.planned_backport and args.expect_head is None:
+        parser.error("--planned-backport requires --expect-head")
+    if args.planned_backport and not args.version:
+        parser.error("--planned-backport requires --version")
     root = args.root.resolve()
     if not (root / "src").is_dir():
         parser.error("checkout has no src/ directory")
@@ -241,10 +264,36 @@ def main():
     try:
         if args.fix:
             target_url = svn_target_url(root, vcs, args.svn_url)
-            remote_revision, revision = next_remote_revision(root, target_url)
-            rows = precommit_rows(
-                root, vcs, args.version, target_url, remote_revision, revision,
+            if args.planned_backport and not target_url.endswith("/trunk"):
+                parser.error("--planned-backport requires a trunk target URL")
+            offset = 2 if args.planned_backport else 1
+            remote_revision, revision = next_remote_revision(
+                root, target_url, offset, args.expect_head,
             )
+            if args.planned_backport:
+                rows = precommit_rows(
+                    root, vcs, None, target_url, remote_revision, revision,
+                )
+                if not rows:
+                    raise RuntimeError(
+                        "--planned-backport found no uncommitted annotations"
+                    )
+                other_versions = sorted({
+                    row["version"] for row in rows
+                    if row["version"] != args.version
+                })
+                if other_versions:
+                    raise RuntimeError(
+                        "--planned-backport requires every uncommitted annotation "
+                        "to use {}; found {}".format(
+                            args.version, ", ".join(other_versions),
+                        )
+                    )
+            else:
+                rows = precommit_rows(
+                    root, vcs, args.version, target_url,
+                    remote_revision, revision,
+                )
             heal(root, rows, revision, args.dry_run)
         else:
             rows = audit(root, vcs, args.version, args.min_revision)

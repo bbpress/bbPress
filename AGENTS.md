@@ -257,17 +257,26 @@ suite and applicable matrix before resuming.
 - Keep source compatible with the declared requirements in plugin headers,
   readme metadata, PHPCS compatibility rules, and CI. When those disagree,
   surface the inconsistency rather than choosing one silently.
-- Use the actual first shipped version in new `@since` annotations. If a feature
-  is backported before release, reconcile trunk annotations too.
+- Use the actual first shipped version in new `@since` annotations. When a
+  change will immediately be backported before release, put the maintenance
+  version and planned backport revision in trunk's original changeset. Do not
+  add a third trunk changeset only to reconcile annotations after the backport.
 - For major new concepts, include the canonical Subversion revision in `@since`.
   For committed work, `svn info --show-item last-changed-revision PATH` works
   with a file in a checkout or its URL; verify that revision is the intended
   changeset. For new work, read the repository HEAD with
   `svn info --show-item revision URL` and use the next revision in the patch.
+  For an immediate trunk-then-maintenance landing, use the maintenance version
+  and the revision after the trunk changeset by passing `--planned-backport`,
+  `--version VERSION`, and `--expect-head REVISION`. Do not combine trunk-only
+  and backported annotations in that changeset.
   Before committing, run `tests/ci/audit-since-revisions.py --fix --dry-run`,
   review the remote revision and proposed edits, then run it with `--fix`.
-  Verify the assigned revision after committing and correct any mismatch. Check
-  trunk and maintenance branches separately.
+  Recheck global HEAD before each commit with the same expected revision. After
+  trunk lands, run the maintenance check with `--expect-head` set to the trunk
+  revision. The backport must be the changeset immediately after trunk and must
+  receive the revision already recorded in both patches. Stop on any intervening
+  changeset or mismatch. Check trunk and maintenance branches separately.
 
 ## Version Metadata
 

@@ -8,6 +8,9 @@ from pathlib import Path
 
 
 HELPER = Path(__file__).with_name("audit-since-revisions.py")
+PREVIOUS_VERSION = "previous"
+MAINTENANCE_VERSION = "maintenance"
+TRUNK_VERSION = "trunk"
 
 
 def run(root, *args):
@@ -36,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-audit-") as directory:
     (source / "changed.php").write_text("<?php\n")
     (source / "plain.php").write_text("<?php\n")
     (source / "committed.php").write_text(
-        "<?php\n * @since 2.6.18 bbPress Existing omission.\n"
+        f"<?php\n * @since {PREVIOUS_VERSION} bbPress Existing omission.\n"
     )
     run(mirror, "git", "add", "src")
     run(
@@ -45,12 +48,14 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-audit-") as directory:
     )
 
     (source / "new.php").write_text(
-        "<?php\n * @since 2.6.19 bbPress Added behavior.\n"
+        f"<?php\n * @since {MAINTENANCE_VERSION} bbPress Added behavior.\n"
     )
     (source / "changed.php").write_text(
-        "<?php\n * @since 2.6.19 bbPress\n"
+        f"<?php\n * @since {MAINTENANCE_VERSION} bbPress\n"
     )
-    (source / "plain.php").write_text("<?php\n * @since 2.6.19\n")
+    (source / "plain.php").write_text(
+        f"<?php\n * @since {MAINTENANCE_VERSION}\n"
+    )
 
     output = run(
         mirror, "python3", str(HELPER), "--fix", "--dry-run",
@@ -65,19 +70,97 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-audit-") as directory:
     assert all(row["candidate_revision"] == "2" for row in rows), rows
     assert all(row["action"] == "would fix" for row in rows), rows
 
-    run(mirror, "python3", str(HELPER), "--fix")
-    assert "@since 2.6.19 bbPress (r2) Added behavior." in (
+    output = run(
+        mirror, "python3", str(HELPER), "--fix", "--dry-run",
+        "--planned-backport", "--expect-head", "1",
+        "--version", MAINTENANCE_VERSION, "--format", "json",
+    )
+    rows = json.loads(output)
+    assert all(row["remote_revision"] == "1" for row in rows), rows
+    assert all(row["candidate_revision"] == "3" for row in rows), rows
+
+    result = subprocess.run(
+        (
+            "python3", str(HELPER), "--fix", "--planned-backport",
+            "--expect-head", "2", "--version", MAINTENANCE_VERSION,
+        ),
+        cwd=mirror, text=True, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, check=False,
+    )
+    assert result.returncode == 1, result
+    assert "HEAD is r1; expected r2" in result.stderr, result.stderr
+
+    run(
+        mirror, "python3", str(HELPER), "--fix", "--planned-backport",
+        "--expect-head", "1", "--version", MAINTENANCE_VERSION,
+    )
+    assert f"@since {MAINTENANCE_VERSION} bbPress (r3) Added behavior." in (
         source / "new.php"
     ).read_text()
-    assert "@since 2.6.19 bbPress (r2)" in (
+    assert f"@since {MAINTENANCE_VERSION} bbPress (r3)" in (
         source / "changed.php"
     ).read_text()
-    assert "@since 2.6.19 (r2)" in (source / "plain.php").read_text()
-    assert "@since 2.6.18 bbPress Existing omission." in (
+    assert f"@since {MAINTENANCE_VERSION} (r3)" in (
+        source / "plain.php"
+    ).read_text()
+    assert f"@since {PREVIOUS_VERSION} bbPress Existing omission." in (
         source / "committed.php"
     ).read_text()
 
+    result = subprocess.run(
+        (
+            "python3", str(HELPER), "--fix", "--planned-backport",
+            "--expect-head", "1", "--version", MAINTENANCE_VERSION,
+            "--svn-url", repository.as_uri() + "/branches/2.6",
+        ),
+        cwd=mirror, text=True, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, check=False,
+    )
+    assert result.returncode == 2, result
+    assert "requires a trunk target URL" in result.stderr, result.stderr
+
 print("Git pre-commit fixture passed.")
+
+print("Planned backport target guard passed.")
+
+with tempfile.TemporaryDirectory(prefix="bbp-since-version-") as directory:
+    root = Path(directory)
+    repository = root / "repo"
+    run(root, "svnadmin", "create", str(repository))
+    svn_url = repository.as_uri() + "/trunk"
+    run(root, "svn", "mkdir", svn_url, "-m", "Create trunk.")
+    mirror = root / "mirror"
+    mirror.mkdir()
+    run(mirror, "git", "init", "-q")
+    run(mirror, "git", "config", "user.name", "bbPress test")
+    run(mirror, "git", "config", "user.email", "test@example.invalid")
+    run(mirror, "git", "config", "commit.gpgsign", "false")
+    source = mirror / "src"
+    source.mkdir()
+    file = source / "mixed.php"
+    file.write_text("<?php\n")
+    run(mirror, "git", "add", "src")
+    run(
+        mirror, "git", "commit", "-qm",
+        "Initial.\n\ngit-svn-id: {}@1 test".format(svn_url),
+    )
+    file.write_text(
+        f"<?php\n * @since {MAINTENANCE_VERSION} bbPress Maintenance.\n"
+        f" * @since {TRUNK_VERSION} bbPress Trunk only.\n"
+    )
+    result = subprocess.run(
+        (
+            "python3", str(HELPER), "--fix", "--planned-backport",
+            "--expect-head", "1", "--version", MAINTENANCE_VERSION,
+            "--svn-url", svn_url,
+        ),
+        cwd=mirror, text=True, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, check=False,
+    )
+    assert result.returncode == 1, result
+    assert f"found {TRUNK_VERSION}" in result.stderr, result.stderr
+
+print("Planned backport version guard passed.")
 
 with tempfile.TemporaryDirectory(prefix="bbp-since-svn-") as directory:
     root = Path(directory)
@@ -93,7 +176,9 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-svn-") as directory:
     file.write_text("<?php\n")
     run(checkout, "svn", "add", "src")
     run(checkout, "svn", "commit", "-m", "Add source file.")
-    file.write_text("<?php\n * @since 2.6.19 bbPress Added behavior.\n")
+    file.write_text(
+        f"<?php\n * @since {MAINTENANCE_VERSION} bbPress Added behavior.\n"
+    )
 
     output = run(
         checkout, "python3", str(HELPER), "--fix", "--dry-run",
@@ -107,6 +192,6 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-svn-") as directory:
     assert rows[0]["action"] == "would fix", rows
 
     run(checkout, "python3", str(HELPER), "--fix")
-    assert "@since 2.6.19 bbPress (r3)" in file.read_text()
+    assert f"@since {MAINTENANCE_VERSION} bbPress (r3)" in file.read_text()
 
 print("Subversion pre-commit fixture passed.")
