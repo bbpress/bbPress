@@ -50,6 +50,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept BuddyPress group topics available when viewing later reply pages.
 - Avoided unindexed relationship metadata scans when recounting forum and topic
   children.
 - Removed topic and reply shortcodes from WordPress-generated feed content.
