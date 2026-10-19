@@ -51,6 +51,32 @@ class BBP_Tests_Common_Old_Slug_Visibility extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_filter_old_slug_redirect_post_id
+	 */
+	public function test_old_slug_redirect_post_id_honors_filtered_forum_visibilities() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$filter   = function( $visibilities, $visibility_forum_id ) use ( $forum_id ) {
+			if ( $forum_id === $visibility_forum_id ) {
+				unset( $visibilities[ bbp_get_public_status_id() ] );
+			}
+
+			return $visibilities;
+		};
+
+		add_filter( 'bbp_get_forum_visibilities', $filter, 10, 2 );
+
+		try {
+			$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $topic_id ) );
+		} finally {
+			remove_filter( 'bbp_get_forum_visibilities', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_old_slug_redirect_post_id
 	 * @covers ::wp_old_slug_redirect
 	 */
 	public function test_wp_old_slug_redirect_does_not_redirect_to_unreadable_topic() {

@@ -603,7 +603,7 @@ function bbp_filter_old_slug_redirect_post_id( $post_id = 0 ) {
 
 	if ( $post && bbp_is_topic( $post ) ) {
 		$forum_id       = bbp_get_topic_forum_id( $post->ID );
-		$forum_stati    = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
+		$forum_stati    = array_keys( bbp_get_forum_visibilities( $forum_id ) );
 		$can_read_forum = ! empty( $forum_id )
 			&& bbp_is_forum( $forum_id )
 			&& in_array( get_post_status( $forum_id ), $forum_stati, true )
