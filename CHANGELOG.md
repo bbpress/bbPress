@@ -45,6 +45,7 @@ Development for the next bbPress release is in progress. See the active
 ### Security
 
 - Limited block editor topic-tag choices to public discussions in accessible forums.
+- Prevented old topic slugs from redirecting visitors to topics they cannot read.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 
