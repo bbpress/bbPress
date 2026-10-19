@@ -28,6 +28,117 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_edit_reply_handler
+	 */
+	public function test_bbp_edit_reply_handler_preserves_the_original_revision() {
+		$forum_id        = $this->factory->forum->create();
+		$author_id       = $this->factory->user->create();
+		$admin_id        = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$topic_id        = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id        = $this->factory->reply->create(
+			array(
+				'post_author' => $author_id,
+				'post_date'   => '2020-01-02 03:04:05',
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+		$original_content  = get_post_field( 'post_content', $reply_id );
+		$original_modified = get_post_field( 'post_modified', $reply_id );
+		$old_post         = $_POST;
+		$old_request      = $_REQUEST;
+		$old_server       = $_SERVER;
+		$old_user         = get_current_user_id();
+		$old_errors       = bbpress()->errors;
+		$prevent_redirect = function () {
+			throw new RuntimeException( 'Edit reply redirect.' );
+		};
+		$home_url = wp_parse_url( home_url( '/' ) );
+
+		$_POST                   = array();
+		$_REQUEST                = array();
+		$_SERVER['HTTP_HOST']    = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI']  = $home_url['path'];
+		bbpress()->errors       = new WP_Error();
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			bbp_set_user_role( $admin_id, bbp_get_keymaster_role() );
+			$this->set_current_user( $admin_id );
+			$_POST = array(
+				'bbp_reply_id'          => $reply_id,
+				'bbp_reply_content'     => 'Edited reply content',
+				'bbp_log_reply_edit'    => '1',
+				'bbp_reply_edit_reason' => 'Clarify the answer.',
+			);
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
+			$this->assertSame( array(), wp_get_post_revisions( $reply_id ) );
+
+			$autosave_id = wp_create_post_autosave(
+				array(
+					'post_ID'   => $reply_id,
+					'post_type' => bbp_get_reply_post_type(),
+					'content'   => 'Autosaved reply content',
+				)
+			);
+			$this->assertIsInt( $autosave_id );
+			$this->assertSame( $reply_id, wp_is_post_autosave( $autosave_id ) );
+
+			try {
+				bbp_edit_reply_handler( 'bbp-edit-reply' );
+				$this->fail( 'Editing a reply should redirect.' );
+			} catch ( RuntimeException $exception ) {
+				if ( 'Edit reply redirect.' !== $exception->getMessage() ) {
+					throw $exception;
+				}
+			}
+
+			$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+			$this->assertSame( 'Edited reply content', get_post_field( 'post_content', $reply_id ) );
+
+			$revisions = array_values(
+				wp_get_post_revisions(
+					$reply_id,
+					array(
+						'name'  => "{$reply_id}-revision-v1",
+						'order' => 'ASC',
+					)
+				)
+			);
+			$this->assertCount( 2, $revisions );
+			$this->assertSame( $original_content, $revisions[0]->post_content );
+			$this->assertSame( $original_modified, $revisions[0]->post_modified );
+			$this->assertSame( $author_id, (int) $revisions[0]->post_author );
+			$this->assertSame( 'Edited reply content', $revisions[1]->post_content );
+			$this->assertSame( $admin_id, (int) $revisions[1]->post_author );
+			$this->assertSame(
+				array(
+					$revisions[1]->ID => array(
+						'author' => $admin_id,
+						'reason' => 'Clarify the answer',
+					),
+				),
+				bbp_get_reply_raw_revision_log( $reply_id )
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $prevent_redirect );
+			$_POST            = $old_post;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
+			bbpress()->errors = $old_errors;
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @group canonical
 	 * @covers ::bbp_insert_reply
 	 */
