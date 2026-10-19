@@ -138,8 +138,10 @@ For every issue, capture:
    accidental version changes, and unrelated formatting.
 8. Prepare an SVN-compatible patch and bbPress-style commit message.
 9. Obtain maintainer review. Commit to canonical SVN only after approval.
-10. Verify the resulting SVN revision and clean working-copy state. Then verify
-   that the GitHub mirror and its CI picked up the canonical revision.
+10. Verify the resulting SVN revision, stored log, Trac result, and clean
+   working-copy state. Do not wait for the GitHub mirror or its CI to pick up
+   the canonical revision; the scheduled mirror workflow handles that
+   asynchronously.
 
 GitHub pull requests are useful review and CI surfaces, but Trac and canonical
 SVN remain authoritative. Reference the PR from the SVN commit when one exists.
@@ -488,7 +490,7 @@ and unrelated work remains untouched. Report:
 - what changed and why;
 - exact tests/checks and their outcomes;
 - canonical revisions, ticket/PR links, or release URLs when applicable;
-- remaining risks, skipped checks, mirror/propagation state, and follow-ups;
+- remaining risks, skipped checks, and follow-ups;
 - whether each working copy is clean.
 
 Do not call a task complete merely because a command exited zero. Verify the
