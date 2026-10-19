@@ -1773,23 +1773,63 @@ function bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id = 0 )
 function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Define local variable(s)
-	$children_last_topic = 0;
+	// Update a manually supplied topic ID without walking child forums
+	if ( ! empty( $topic_id ) ) {
+		$topic_id = (int) $topic_id;
+		update_post_meta( $forum_id, '_bbp_last_topic_id', $topic_id );
 
-	// Do some calculation if not manually set
-	if ( empty( $topic_id ) ) {
+		return (int) apply_filters( 'bbp_update_forum_last_topic_id', $topic_id, $forum_id );
+	}
 
-		// Loop through children and add together forum reply counts
-		$children = bbp_forum_query_subforum_ids( $forum_id );
-		if ( ! empty( $children ) ) {
-			foreach ( $children as $child ) {
-				$children_last_topic = bbp_update_forum_last_topic_id( $child ); // Recursive
+	// Track each forum once to avoid cycles and duplicate work
+	$stack          = array( $forum_id );
+	$visiting       = array( $forum_id => true );
+	$processed      = array();
+	$children       = array();
+	$child_offsets  = array();
+	$last_topic_ids = array();
+
+	// Process descendants before their parents without recursive calls
+	while ( ! empty( $stack ) ) {
+		$current_forum_id = end( $stack );
+
+		if ( ! isset( $children[ $current_forum_id ] ) ) {
+			$children[ $current_forum_id ]      = array_values( bbp_forum_query_subforum_ids( $current_forum_id ) );
+			$child_offsets[ $current_forum_id ] = 0;
+		}
+
+		$next_forum_id = 0;
+		$child_count   = count( $children[ $current_forum_id ] );
+		while ( $child_offsets[ $current_forum_id ] < $child_count ) {
+			$child_id = $children[ $current_forum_id ][ $child_offsets[ $current_forum_id ] ];
+			++$child_offsets[ $current_forum_id ];
+			$child_id = bbp_get_forum_id( $child_id );
+
+			// Skip completed forums and cycles in the active path
+			if ( ! empty( $child_id ) && ! isset( $visiting[ $child_id ] ) && ! isset( $processed[ $child_id ] ) ) {
+				$next_forum_id = $child_id;
+				break;
+			}
+		}
+
+		if ( ! empty( $next_forum_id ) ) {
+			$visiting[ $next_forum_id ] = true;
+			$stack[]                     = $next_forum_id;
+			continue;
+		}
+
+		$candidate_ids = array();
+		foreach ( $children[ $current_forum_id ] as $child_id ) {
+			$child_id = bbp_get_forum_id( $child_id );
+
+			if ( isset( $last_topic_ids[ $child_id ] ) ) {
+				$candidate_ids[] = $last_topic_ids[ $child_id ];
 			}
 		}
 
 		// Setup recent topic query vars
 		$post_vars = array(
-			'post_parent' => $forum_id,
+			'post_parent' => $current_forum_id,
 			'post_type'   => bbp_get_topic_post_type(),
 			'meta_key'    => '_bbp_last_active_time',
 			'meta_type'   => 'DATETIME',
@@ -1800,24 +1840,39 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 		// Get the most recent topic in this forum_id
 		$recent_topic = get_posts( $post_vars );
 		if ( ! empty( $recent_topic ) ) {
-			$topic_id = $recent_topic[0]->ID;
+			$candidate_ids[] = $recent_topic[0]->ID;
 		}
+
+		// Select the candidate with the newest raw activity timestamp
+		$topic_id         = 0;
+		$last_active_time = '';
+		foreach ( bbp_get_unique_array_values( $candidate_ids ) as $candidate_id ) {
+			$candidate_time = get_post_meta( $candidate_id, '_bbp_last_active_time', true );
+
+			if ( empty( $candidate_time ) ) {
+				$candidate_time = get_post_field( 'post_date', $candidate_id, 'db' );
+			}
+
+			$time_comparison = strcmp( (string) $candidate_time, (string) $last_active_time );
+			if ( ( $time_comparison > 0 ) || ( ( 0 === $time_comparison ) && ( $candidate_id > $topic_id ) ) ) {
+				$topic_id         = $candidate_id;
+				$last_active_time = $candidate_time;
+			}
+		}
+
+		// Update this forum before its parent uses the filtered result
+		update_post_meta( $current_forum_id, '_bbp_last_topic_id', $topic_id );
+
+		$last_topic_ids[ $current_forum_id ] = (int) apply_filters( 'bbp_update_forum_last_topic_id', $topic_id, $current_forum_id );
+		$processed[ $current_forum_id ]      = true;
+
+		unset( $visiting[ $current_forum_id ] );
+		array_pop( $stack );
 	}
 
-	// Cast as integer in case of empty or string
-	$topic_id            = (int) $topic_id;
-	$children_last_topic = (int) $children_last_topic;
-
-	// If child forums have higher id, use that instead
-	if ( ! empty( $children ) && ( $children_last_topic > $topic_id ) ) {
-		$topic_id = $children_last_topic;
-	}
-
-	// Update the last public topic ID
-	update_post_meta( $forum_id, '_bbp_last_topic_id', $topic_id );
-
-	// Filter & return
-	return (int) apply_filters( 'bbp_update_forum_last_topic_id', $topic_id, $forum_id );
+	return isset( $last_topic_ids[ $forum_id ] )
+		? $last_topic_ids[ $forum_id ]
+		: 0;
 }
 
 /**
