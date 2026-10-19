@@ -210,9 +210,8 @@ def heal(root, rows, revision, dry_run):
             else:
                 index = row["line"] - 1
                 lines[index] = re.sub(
-                    r"(@since\s+\S+)(\s+bbPress\b)?",
-                    lambda match: match.group(1) + (match.group(2) or "") +
-                    " (r{})".format(revision),
+                    r"(@since\s+\S+)(?:\s+bbPress\b)?",
+                    r"\1 bbPress (r{})".format(revision),
                     lines[index], count=1,
                 )
                 row["action"] = "would fix" if dry_run else "fixed"

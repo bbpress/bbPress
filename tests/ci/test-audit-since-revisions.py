@@ -100,7 +100,7 @@ with tempfile.TemporaryDirectory(prefix="bbp-since-audit-") as directory:
     assert f"@since {MAINTENANCE_VERSION} bbPress (r3)" in (
         source / "changed.php"
     ).read_text()
-    assert f"@since {MAINTENANCE_VERSION} (r3)" in (
+    assert f"@since {MAINTENANCE_VERSION} bbPress (r3)" in (
         source / "plain.php"
     ).read_text()
     assert f"@since {PREVIOUS_VERSION} bbPress Existing omission." in (

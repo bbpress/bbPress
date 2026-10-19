@@ -50,6 +50,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Returned a 404 instead of guessing unrelated permalinks for incomplete
+  bbPress route roots.
 - Kept BuddyPress group topics available when viewing later reply pages.
 - Avoided unindexed relationship metadata scans when recounting forum and topic
   children.
