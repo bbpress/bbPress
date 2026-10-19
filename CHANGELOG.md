@@ -19,6 +19,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved original topic and reply content when the first logged edit is saved.
 - Returned a 404 instead of guessing unrelated permalinks for incomplete
   bbPress route roots.
 - Scoped registered forum and topic count metadata to the correct post type.

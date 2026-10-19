@@ -754,6 +754,38 @@ function bbp_edit_reply_handler( $action = '' ) {
 		)
 	);
 
+	// Preserve the original reply when its first logged edit is submitted.
+	$log_reply_edit = ! empty( $_POST['bbp_log_reply_edit'] ) && ( '1' === $_POST['bbp_log_reply_edit'] );
+	if ( $log_reply_edit ) {
+		// Do not count autosaves as normal reply revisions.
+		$reply_revisions = wp_get_post_revisions(
+			$reply_id,
+			array(
+				'name'           => "{$reply_id}-revision-v1",
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+
+		if ( empty( $reply_revisions ) ) {
+			$reply_author_id         = (int) get_post_field( 'post_author', $reply_id );
+			$set_reply_revision_data = function ( $data ) use ( $reply_id, $reply_author_id ) {
+				if ( ( 'revision' === $data['post_type'] ) && ( $reply_id === (int) $data['post_parent'] ) ) {
+					$data['post_author'] = $reply_author_id;
+				}
+
+				return $data;
+			};
+
+			add_filter( 'wp_insert_post_data', $set_reply_revision_data );
+			try {
+				wp_save_post_revision( $reply_id );
+			} finally {
+				remove_filter( 'wp_insert_post_data', $set_reply_revision_data );
+			}
+		}
+	}
+
 	// Toggle revisions to avoid duplicates
 	if ( post_type_supports( bbp_get_reply_post_type(), 'revisions' ) ) {
 		$revisions_removed = true;
@@ -801,7 +833,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		}
 
 		// Update revision log
-		if ( ! empty( $_POST['bbp_log_reply_edit'] ) && ( '1' === $_POST['bbp_log_reply_edit'] ) ) {
+		if ( $log_reply_edit ) {
 			$revision_id = wp_save_post_revision( $reply_id );
 			if ( ! empty( $revision_id ) ) {
 				bbp_update_reply_revision_log(

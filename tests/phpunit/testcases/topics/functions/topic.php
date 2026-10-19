@@ -79,13 +79,131 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_edit_topic_handler
-	 * @todo   Implement test_bbp_edit_topic_handler().
 	 */
 	public function test_bbp_edit_topic_handler() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$forum_id         = $this->factory->forum->create();
+		$author_id        = $this->factory->user->create();
+		$admin_id         = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$topic_id         = $this->factory->topic->create( array(
+			'post_author' => $author_id,
+			'post_date'   => '2020-01-02 03:04:05',
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$old_post          = $_POST;
+		$old_request       = $_REQUEST;
+		$old_server        = $_SERVER;
+		$old_user          = get_current_user_id();
+		$old_errors        = bbpress()->errors;
+		$original_title    = get_post_field( 'post_title', $topic_id );
+		$original_content  = get_post_field( 'post_content', $topic_id );
+		$original_modified = get_post_field( 'post_modified', $topic_id );
+		$redirect          = null;
+		$edited_topic_id   = 0;
+		$record_topic      = function ( $edited_id ) use ( &$edited_topic_id ) {
+			$edited_topic_id = $edited_id;
+		};
+		$prevent_redirect = function ( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			throw new RuntimeException( 'Edit topic redirect.' );
+		};
+		$home_url = wp_parse_url( home_url( '/' ) );
+
+		$_POST                   = array();
+		$_REQUEST                = array();
+		$_SERVER['HTTP_HOST']    = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI']  = $home_url['path'];
+		bbpress()->errors       = new WP_Error();
+		add_action( 'bbp_edit_topic', $record_topic );
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			$this->assertNull( bbp_edit_topic_handler( 'invalid-action' ) );
+			$this->assertNull( bbp_edit_topic_handler( 'bbp-edit-topic' ) );
+			$this->assertContains( 'bbp_edit_topic_id', bbpress()->errors->get_error_codes() );
+
+			$_POST['bbp_topic_id'] = $topic_id;
+			$this->set_current_user( 0 );
+			bbpress()->errors = new WP_Error();
+			$this->assertNull( bbp_edit_topic_handler( 'bbp-edit-topic' ) );
+			$this->assertContains( 'bbp_edit_topic_permission', bbpress()->errors->get_error_codes() );
+
+			bbp_set_user_role( $admin_id, bbp_get_keymaster_role() );
+			$this->set_current_user( $admin_id );
+			bbpress()->errors = new WP_Error();
+			$_POST = array(
+				'bbp_topic_id'          => $topic_id,
+				'bbp_forum_id'          => $forum_id,
+				'bbp_topic_title'       => 'Edited topic',
+				'bbp_topic_content'     => 'Edited content',
+				'bbp_log_topic_edit'    => '1',
+				'bbp_topic_edit_reason' => 'Clarify the question.',
+			);
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'bbp-edit-topic_' . $topic_id );
+			$this->assertSame( array(), wp_get_post_revisions( $topic_id ) );
+
+			$autosave_id = wp_create_post_autosave(
+				array(
+					'post_ID'    => $topic_id,
+					'post_type'  => bbp_get_topic_post_type(),
+					'post_title' => 'Autosaved topic',
+					'content'    => 'Autosaved content',
+				)
+			);
+			$this->assertIsInt( $autosave_id );
+			$this->assertSame( $topic_id, wp_is_post_autosave( $autosave_id ) );
+
+			try {
+				bbp_edit_topic_handler( 'bbp-edit-topic' );
+				$this->fail( 'Editing a topic should redirect.' );
+			} catch ( RuntimeException $exception ) {
+				if ( 'Edit topic redirect.' !== $exception->getMessage() ) {
+					throw $exception;
+				}
+			}
+
+			$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+			$this->assertSame( $topic_id, $edited_topic_id );
+			$this->assertSame( $forum_id, wp_get_post_parent_id( $topic_id ) );
+			$this->assertSame( 'Edited topic', get_post_field( 'post_title', $topic_id ) );
+			$this->assertSame( 'Edited content', get_post_field( 'post_content', $topic_id ) );
+			$this->assertSame( bbp_get_topic_permalink( $topic_id ), $redirect );
+
+			$revisions = array_values(
+				wp_get_post_revisions(
+					$topic_id,
+					array(
+						'name'  => "{$topic_id}-revision-v1",
+						'order' => 'ASC',
+					)
+				)
+			);
+			$this->assertCount( 2, $revisions );
+			$this->assertSame( $original_title, $revisions[0]->post_title );
+			$this->assertSame( $original_content, $revisions[0]->post_content );
+			$this->assertSame( $original_modified, $revisions[0]->post_modified );
+			$this->assertSame( $author_id, (int) $revisions[0]->post_author );
+			$this->assertSame( 'Edited topic', $revisions[1]->post_title );
+			$this->assertSame( 'Edited content', $revisions[1]->post_content );
+			$this->assertSame( $admin_id, (int) $revisions[1]->post_author );
+			$this->assertSame(
+				array(
+					$revisions[1]->ID => array(
+						'author' => $admin_id,
+						'reason' => 'Clarify the question',
+					),
+				),
+				bbp_get_topic_raw_revision_log( $topic_id )
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $prevent_redirect );
+			remove_action( 'bbp_edit_topic', $record_topic );
+			$_POST            = $old_post;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
+			bbpress()->errors = $old_errors;
+			$this->set_current_user( $old_user );
+		}
 	}
 
 	/**
