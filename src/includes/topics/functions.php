@@ -1286,6 +1286,12 @@ function bbp_merge_topic_handler( $action = '' ) {
 
 	/** Source Topic **********************************************************/
 
+	// Get the source topic's current and old slugs
+	$source_topic_slugs = array_merge(
+		array( $source_topic->post_name ),
+		get_post_meta( $source_topic->ID, '_wp_old_slug', false )
+	);
+
 	// Status
 	bbp_open_topic( $source_topic->ID );
 
@@ -1348,6 +1354,22 @@ function bbp_merge_topic_handler( $action = '' ) {
 			// Do additional actions per merged reply
 			do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
 		}
+	}
+
+	/** Redirects *************************************************************/
+
+	// Move the source topic's old slugs to the destination topic
+	if ( ! empty( $source_topic_slugs ) ) {
+		$destination_topic_slugs = get_post_meta( $destination_topic->ID, '_wp_old_slug', false );
+
+		foreach ( $source_topic_slugs as $source_topic_slug ) {
+			if ( ! empty( $source_topic_slug ) && ! in_array( $source_topic_slug, $destination_topic_slugs, true ) ) {
+				add_post_meta( $destination_topic->ID, '_wp_old_slug', $source_topic_slug );
+				$destination_topic_slugs[] = $source_topic_slug;
+			}
+		}
+
+		delete_post_meta( $source_topic->ID, '_wp_old_slug' );
 	}
 
 	/** Successful Merge ******************************************************/

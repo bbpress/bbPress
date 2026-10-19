@@ -403,6 +403,57 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_merge_topic_handler
+	 * @covers ::wp_old_slug_redirect
+	 */
+	public function test_merge_redirects_source_topic_slugs_to_destination_topic() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array(
+			'post_name'   => 'source-topic-slug',
+			'post_parent' => $forum_id,
+		) );
+		$destination_topic_id = $this->factory->topic->create( array(
+			'post_name'   => 'destination-topic-slug',
+			'post_parent' => $forum_id,
+		) );
+
+		add_post_meta( $source_topic_id, '_wp_old_slug', 'earlier-source-topic-slug' );
+		add_post_meta( $destination_topic_id, '_wp_old_slug', 'earlier-destination-topic-slug' );
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( $this->submit_topic_merge( $source_topic_id, $destination_topic_id ) );
+		$this->assertEqualSets(
+			array( 'source-topic-slug', 'earlier-source-topic-slug', 'earlier-destination-topic-slug' ),
+			get_post_meta( $destination_topic_id, '_wp_old_slug', false )
+		);
+
+		$redirect_url = null;
+		$filter       = function( $url ) use ( &$redirect_url ) {
+			$redirect_url = $url;
+			return false;
+		};
+		add_filter( 'old_slug_redirect_url', $filter );
+		set_query_var( 'post_type', bbp_get_topic_post_type() );
+
+		try {
+			foreach ( array( 'source-topic-slug', 'earlier-source-topic-slug' ) as $slug ) {
+				set_query_var( 'name', $slug );
+				$GLOBALS['wp_query']->is_404 = true;
+				wp_old_slug_redirect();
+				$this->assertSame( get_permalink( $destination_topic_id ), $redirect_url );
+				$redirect_url = null;
+			}
+		} finally {
+			remove_filter( 'old_slug_redirect_url', $filter );
+		}
+
+		$this->assertSame( array(), get_post_meta( $source_topic_id, '_wp_old_slug', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_merge_topic_handler
 	 */
 	public function test_keymaster_can_merge_existing_topics_when_frozen() {
 		$user_id              = $this->factory->user->create();
