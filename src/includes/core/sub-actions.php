@@ -591,6 +591,34 @@ function bbp_mail( $args = array() ) {
 }
 
 /**
+ * Prevent old-slug redirects from exposing unreadable topics.
+ *
+ * @since 2.6.21 bbPress (r8067)
+ *
+ * @param int $post_id Old-slug redirect post ID.
+ * @return int Redirect post ID, or zero when access is denied.
+ */
+function bbp_filter_old_slug_redirect_post_id( $post_id = 0 ) {
+	$post = get_post( $post_id );
+
+	if ( $post && bbp_is_topic( $post ) ) {
+		$forum_id       = bbp_get_topic_forum_id( $post->ID );
+		$forum_stati    = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
+		$can_read_forum = ! empty( $forum_id )
+			&& bbp_is_forum( $forum_id )
+			&& in_array( get_post_status( $forum_id ), $forum_stati, true )
+			&& ! bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() );
+		$can_read_topic = bbp_is_topic_public( $post->ID ) || current_user_can( 'read_topic', $post->ID );
+
+		if ( ! $can_read_forum || ! $can_read_topic ) {
+			$post_id = 0;
+		}
+	}
+
+	return $post_id;
+}
+
+/**
  * Check whether bbPress metadata can be exposed in an oEmbed response.
  *
  * @since 2.6.19 bbPress (r7636)

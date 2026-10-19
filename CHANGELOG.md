@@ -13,6 +13,10 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Security
+
+- Prevented old topic slugs from redirecting visitors to topics they cannot read.
+
 ### Fixed
 
 - Returned a 404 instead of guessing unrelated permalinks for incomplete

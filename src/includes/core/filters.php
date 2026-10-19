@@ -121,6 +121,7 @@ add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 
 
 add_filter( 'redirect_canonical', 'bbp_do_not_redirect_restricted_posts', 11, 2 );
 add_filter( 'redirect_canonical', 'bbp_do_not_redirect_restricted_attachments', 11, 2 );
+add_filter( 'old_slug_redirect_post_id', 'bbp_filter_old_slug_redirect_post_id' );
 add_filter( 'oembed_request_post_id', 'bbp_filter_oembed_request_post_id' );
 add_filter( 'oembed_request_post_id', 'bbp_filter_oembed_request_attachment_id' );
 
