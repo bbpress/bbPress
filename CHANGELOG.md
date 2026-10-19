@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Returned a 404 instead of guessing unrelated permalinks for incomplete
+  bbPress route roots.
 - Scoped registered forum and topic count metadata to the correct post type.
 - Removed topic and reply shortcodes from WordPress-generated feed content.
 - Prevented stray post and Page query variables from misclassifying bbPress

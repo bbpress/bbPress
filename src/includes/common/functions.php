@@ -3340,22 +3340,32 @@ function bbp_get_page_by_path( $path = '' ) {
 }
 
 /**
- * Prevent WordPress from guessing permalinks for bbPress post types.
+ * Prevent WordPress from guessing permalinks for bbPress requests.
  *
  * bbPress post types are excluded from search because their visibility depends
  * on forum access. Older versions of WordPress may otherwise guess a restricted
  * forum or topic permalink from a partial slug and expose its full title.
  *
+ * Incomplete bbPress route roots do not match their rewrite rules, so WordPress
+ * may also treat them as ordinary post slugs and redirect to unrelated content.
+ *
  * @since 2.6.17 bbPress (r7500)
+ * @since 2.6.21 bbPress (r8065) Prevent guessing for incomplete route roots.
  *
  * @param bool $do_redirect_guess Whether to attempt to guess a redirect URL.
  *
  * @return bool Whether to attempt to guess a redirect URL.
  */
 function bbp_do_not_guess_404_permalink( $do_redirect_guess = true ) {
-	$post_types = (array) get_query_var( 'post_type' );
+	global $wp;
 
-	if ( bbp_is_custom_post_type( $post_types ) ) {
+	$post_types = (array) get_query_var( 'post_type' );
+	$request    = isset( $wp->request )
+		? $wp->request
+		: '';
+	$route_roots = bbp_get_route_root_slugs();
+
+	if ( bbp_is_custom_post_type( $post_types ) || in_array( $request, $route_roots, true ) ) {
 		$do_redirect_guess = false;
 	}
 

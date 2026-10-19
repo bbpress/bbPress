@@ -731,7 +731,7 @@ function bbp_redirect( $location = '', $status = 302 ) {
 /**
  * Return if debugging scripts or not
  *
- * @since 2.6.7 (r7189)
+ * @since 2.6.7 bbPress (r7189)
  *
  * @return bool True if debugging scripts. False if not debugging scripts.
  */
@@ -742,7 +742,7 @@ function bbp_doing_script_debug() {
 /**
  * Return if auto-saving or not
  *
- * @since 2.6.7 (r7189)
+ * @since 2.6.7 bbPress (r7189)
  *
  * @return bool True if mid auto-save. False if not mid auto-save.
  */

@@ -1103,6 +1103,26 @@ function bbp_get_view_slug( $default = 'view' ) {
 }
 
 /**
+ * Return the route root slugs.
+ *
+ * @since 2.6.21 bbPress (r8065)
+ *
+ * @return array Route root slugs.
+ */
+function bbp_get_route_root_slugs() {
+	$slugs = array(
+		bbp_get_topic_slug(),
+		bbp_get_topic_tag_tax_slug(),
+		bbp_get_reply_slug(),
+		bbp_get_user_slug(),
+		bbp_get_view_slug(),
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_route_root_slugs', $slugs );
+}
+
+/**
  * Return the search slug
  *
  * @since 2.3.0 bbPress (r4579)

@@ -62,8 +62,8 @@ class BBP_BuddyPress_Members {
 	 * so get it directly from the request before passing it to the bbPress
 	 * handlers.
 	 *
-	 * @since 2.6.20 (r7933)
-	 * @since 2.6.20 (r8025) Set member query variables before handling engagements.
+	 * @since 2.6.20 bbPress (r7933)
+	 * @since 2.6.20 bbPress (r8025) Set member query variables before handling engagements.
 	 */
 	public function engagements_handler() {
 

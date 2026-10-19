@@ -3,7 +3,7 @@ var addReply = {
 	/**
 	 * Move the reply form when "Reply" is clicked.
 	 *
-	 * @since 2.6.2
+	 * @since 2.6.2 bbPress (r6965)
 	 * @param {string} replyId
 	 * @param {string} parentId
 	 * @param {string} respondId
@@ -57,7 +57,7 @@ var addReply = {
 		/**
 		 * When cancelling a Reply.
 		 *
-		 * @since 2.6.2
+		 * @since 2.6.2 bbPress (r6965)
 		 * @returns {void}
 		 */
 		cancel.onclick = function () {
@@ -73,7 +73,7 @@ var addReply = {
 	/**
 	 * Cancel the reply form.
 	 *
-	 * @since 2.6.6
+	 * @since 2.6.6 bbPress (r7147)
 	 * @returns {void}
 	 */
 	cancelForm: function () {
@@ -107,7 +107,7 @@ var addReply = {
 	/**
 	 * Scrolls to the top of the page.
 	 *
-	 * @since 2.6.2
+	 * @since 2.6.2 bbPress (r6965)
 	 * @return {void}
 	 */
 	scrollToForm: function() {
@@ -184,7 +184,7 @@ var addReply = {
 	/**
 	 * Get an element by ID
 	 *
-	 * @since 2.6.2
+	 * @since 2.6.2 bbPress (r6965)
 	 * @param {string} e
 	 * @returns {HTMLElement} Element
 	 */
@@ -195,7 +195,7 @@ var addReply = {
 	/**
 	 * Remove the Editor
 	 *
-	 * @since 2.6.2
+	 * @since 2.6.2 bbPress (r6965)
 	 * @returns {void}
 	 */
 	removeEditor: function () {
@@ -219,7 +219,7 @@ var addReply = {
 	/**
 	 * Add the Editor
 	 *
-	 * @since 2.6.2
+	 * @since 2.6.2 bbPress (r6965)
 	 * @returns {void}
 	 */
 	addEditor: function () {

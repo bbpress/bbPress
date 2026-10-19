@@ -1870,6 +1870,195 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 */
+	public function test_bbp_do_not_guess_404_permalink_for_incomplete_route_roots() {
+		global $wp;
+
+		$original_request = $wp->request;
+		$include_root     = true;
+		$include_filter   = function () use ( &$include_root ) {
+			return $include_root;
+		};
+
+		add_filter( 'bbp_include_root_slug', $include_filter );
+
+		try {
+			foreach ( array( true, false ) as $include_root ) {
+				$route_roots = bbp_get_route_root_slugs();
+
+				foreach ( $route_roots as $route_root ) {
+					$wp->request = $route_root;
+					$this->assertFalse( bbp_do_not_guess_404_permalink( true ), $route_root );
+				}
+
+				$wp->request = bbp_get_topic_slug() . '/missing-topic';
+				$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+
+				$wp->request = bbp_get_topic_slug() . '-similar';
+				$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+
+				$wp->request = bbp_get_forum_slug();
+				$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+			}
+		} finally {
+			$wp->request = $original_request;
+			remove_filter( 'bbp_include_root_slug', $include_filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 */
+	public function test_bbp_do_not_guess_404_permalink_for_normalized_route_root_requests() {
+		global $wp;
+
+		$original_request = $wp->request;
+
+		add_filter( 'bbp_include_root_slug', '__return_false' );
+
+		try {
+			$route_roots = bbp_get_route_root_slugs();
+
+			foreach ( $route_roots as $route_root ) {
+				$requests = array(
+					'/' . $route_root,
+					'/' . $route_root . '/',
+					'/' . $route_root . '/?example=value',
+				);
+
+				foreach ( $requests as $request ) {
+					$wp->request = trim( wp_parse_url( $request, PHP_URL_PATH ), '/' );
+
+					$this->assertSame( $route_root, $wp->request, $request . ' normalization' );
+					$this->assertFalse( bbp_do_not_guess_404_permalink( true ), $request . ' redirect' );
+				}
+			}
+		} finally {
+			$wp->request = $original_request;
+			remove_filter( 'bbp_include_root_slug', '__return_false' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 */
+	public function test_bbp_do_not_guess_404_permalink_for_custom_route_roots() {
+		global $wp;
+
+		$original_request = $wp->request;
+		$slug_options     = array(
+			'_bbp_topic_slug'     => 'discussion',
+			'_bbp_topic_tag_slug' => 'discussion-label',
+			'_bbp_reply_slug'     => 'response',
+			'_bbp_user_slug'      => 'members',
+			'_bbp_view_slug'      => 'collection',
+		);
+		$original_options = array();
+
+		add_filter( 'bbp_include_root_slug', '__return_false' );
+
+		try {
+			foreach ( $slug_options as $option_name => $slug ) {
+				$original_options[ $option_name ] = get_option( $option_name, false );
+				update_option( $option_name, $slug );
+			}
+
+			$route_roots = bbp_get_route_root_slugs();
+
+			$this->assertSame( array_values( $slug_options ), $route_roots );
+
+			foreach ( $route_roots as $route_root ) {
+				$wp->request = $route_root;
+				$this->assertFalse( bbp_do_not_guess_404_permalink( true ), $route_root );
+			}
+		} finally {
+			foreach ( $original_options as $option_name => $slug ) {
+				if ( false === $slug ) {
+					delete_option( $option_name );
+				} else {
+					update_option( $option_name, $slug );
+				}
+			}
+
+			$wp->request = $original_request;
+			remove_filter( 'bbp_include_root_slug', '__return_false' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 * @covers ::bbp_get_route_root_slugs
+	 */
+	public function test_bbp_do_not_guess_404_permalink_for_filtered_route_root() {
+		global $wp;
+
+		$original_request = $wp->request;
+		$filter           = function ( $route_roots ) {
+			$route_roots[] = 'archive';
+
+			return $route_roots;
+		};
+
+		add_filter( 'bbp_get_route_root_slugs', $filter );
+
+		try {
+			$wp->request = 'archive';
+
+			$this->assertContains( 'archive', bbp_get_route_root_slugs() );
+			$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
+		} finally {
+			$wp->request = $original_request;
+			remove_filter( 'bbp_get_route_root_slugs', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 * @covers ::redirect_guess_404_permalink
+	 */
+	public function test_incomplete_route_roots_do_not_start_canonical_redirect_chain() {
+		global $wp;
+
+		$original_request   = $wp->request;
+		$original_name      = get_query_var( 'name' );
+		$original_post_type = get_query_var( 'post_type' );
+
+		add_filter( 'bbp_include_root_slug', '__return_false' );
+		set_query_var( 'name', 'topic' );
+		set_query_var( 'post_type', '' );
+
+		try {
+			$route_roots = bbp_get_route_root_slugs();
+
+			foreach ( $route_roots as $route_root ) {
+				$post_id     = self::factory()->post->create( array( 'post_name' => $route_root . '-unrelated-target' ) );
+				$wp->request = $route_root;
+				set_query_var( 'name', $route_root );
+
+				remove_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+				$this->assertSame( get_permalink( $post_id ), redirect_guess_404_permalink(), $route_root . ' reproduction' );
+				add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+
+				$this->assertFalse( redirect_guess_404_permalink(), $route_root . ' redirect' );
+			}
+
+			$post_id     = self::factory()->post->create( array( 'post_name' => 'topic-nearby-target' ) );
+			$wp->request = bbp_get_topic_slug() . '-similar';
+			set_query_var( 'name', 'topic-nearby' );
+			$this->assertSame( get_permalink( $post_id ), redirect_guess_404_permalink() );
+		} finally {
+			$wp->request = $original_request;
+			if ( false === has_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' ) ) {
+				add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+			}
+			remove_filter( 'bbp_include_root_slug', '__return_false' );
+			set_query_var( 'name', $original_name );
+			set_query_var( 'post_type', $original_post_type );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_set_404
 	 * @todo   Implement test_bbp_set_404().
 	 */
