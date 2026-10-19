@@ -48,6 +48,96 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 	}
 
 	/**
+	 * @ticket 3637
+	 * @covers ::bbp_update_forum_last_topic_id
+	 */
+	public function test_bbp_update_forum_last_topic_id_uses_newest_subforum_topic() {
+		$parent_id = $this->factory->forum->create();
+		$this->factory->forum->create_many( 2, array(
+			'post_parent' => $parent_id,
+		) );
+
+		$children = bbp_forum_query_subforum_ids( $parent_id );
+
+		$new_topic_id = $this->factory->topic->create( array(
+			'post_parent' => $children[0],
+			'post_date'   => '2025-01-02 00:00:00',
+			'topic_meta'  => array(
+				'forum_id' => $children[0],
+			),
+		) );
+		$this->factory->topic->create( array(
+			'post_parent' => $children[1],
+			'post_date'   => '2025-01-01 00:00:00',
+			'topic_meta'  => array(
+				'forum_id' => $children[1],
+			),
+		) );
+
+		$this->assertSame( $new_topic_id, bbp_update_forum_last_topic_id( $parent_id ) );
+		$this->assertSame( $new_topic_id, bbp_get_forum_last_topic_id( $parent_id ) );
+	}
+
+	/**
+	 * @ticket 3637
+	 * @covers ::bbp_update_forum_last_topic_id
+	 */
+	public function test_bbp_update_forum_last_topic_id_compares_parent_and_subforum_activity() {
+		$parent_id = $this->factory->forum->create();
+		$child_id  = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+		) );
+		$topic_id  = $this->factory->topic->create( array(
+			'post_parent' => $child_id,
+			'post_date'   => '2025-01-02 00:00:00',
+			'topic_meta'  => array(
+				'forum_id' => $child_id,
+			),
+		) );
+		$this->factory->topic->create( array(
+			'post_parent' => $parent_id,
+			'post_date'   => '2025-01-01 00:00:00',
+			'topic_meta'  => array(
+				'forum_id' => $parent_id,
+			),
+		) );
+
+		$this->assertSame( $topic_id, bbp_update_forum_last_topic_id( $parent_id ) );
+	}
+
+	/**
+	 * @ticket 3637
+	 * @covers ::bbp_update_forum_last_topic_id
+	 */
+	public function test_bbp_update_forum_last_topic_id_stops_at_subforum_cycles() {
+		$parent_id = $this->factory->forum->create();
+		$child_id  = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+		) );
+		$topic_id  = $this->factory->topic->create( array(
+			'post_parent' => $child_id,
+			'topic_meta'  => array(
+				'forum_id' => $child_id,
+			),
+		) );
+		$callback  = function ( $subforum_ids, $forum_id ) use ( $parent_id, $child_id ) {
+			if ( $child_id === $forum_id ) {
+				$subforum_ids[] = $parent_id;
+			}
+
+			return $subforum_ids;
+		};
+
+		add_filter( 'bbp_forum_query_subforum_ids', $callback, 10, 2 );
+
+		try {
+			$this->assertSame( $topic_id, bbp_update_forum_last_topic_id( $parent_id ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $callback, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_update_forum_last_reply_id
 	 */
 	public function test_bbp_update_forum_last_reply_id() {

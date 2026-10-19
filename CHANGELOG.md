@@ -51,6 +51,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected parent-forum freshness when the newest topic belongs to a nested
+  subforum.
 - Returned a 404 instead of guessing unrelated permalinks for incomplete
   bbPress route roots.
 - Kept BuddyPress group topics available when viewing later reply pages.
