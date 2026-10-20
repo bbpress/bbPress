@@ -46,8 +46,13 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		$reply_data['post_status'] = bbp_get_topic_status( $reply_data['post_parent'] );
 	}
 
-	// Insert reply
-	$reply_id = wp_insert_post( $reply_data, false );
+	// Defer moderation notifications until the reply metadata is saved.
+	bbp_suspend_moderation_notifications();
+	try {
+		$reply_id = wp_insert_post( $reply_data, false );
+	} finally {
+		bbp_resume_moderation_notifications();
+	}
 
 	// Bail if no reply was added
 	if ( empty( $reply_id ) ) {
@@ -439,8 +444,13 @@ function bbp_new_reply_handler( $action = '' ) {
 		)
 	);
 
-	// Insert reply
-	$reply_id = wp_insert_post( $reply_data, true );
+	// Defer moderation notifications until the reply metadata is saved.
+	bbp_suspend_moderation_notifications();
+	try {
+		$reply_id = wp_insert_post( $reply_data, true );
+	} finally {
+		bbp_resume_moderation_notifications();
+	}
 
 	/** No Errors *************************************************************/
 

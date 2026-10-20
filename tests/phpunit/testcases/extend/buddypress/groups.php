@@ -15,6 +15,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_server;
 	protected $old_errors;
 	protected $old_allow_forum_mods;
+	protected $old_moderation_notification_recipient_types;
 	protected $old_moderation_keys;
 	protected $old_action_variables;
 	protected $old_forum_query;
@@ -63,6 +64,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->old_server  = $_SERVER;
 		$this->old_errors  = bbpress()->errors;
 		$this->old_allow_forum_mods = get_option( '_bbp_allow_forum_mods', null );
+		$this->old_moderation_notification_recipient_types = get_option( '_bbp_moderation_notification_recipient_types', null );
 		$this->old_moderation_keys = get_option( 'moderation_keys' );
 		$this->old_action_variables = buddypress()->action_variables;
 		$this->old_forum_query       = bbpress()->forum_query;
@@ -94,6 +96,12 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			delete_option( '_bbp_allow_forum_mods' );
 		} else {
 			update_option( '_bbp_allow_forum_mods', $this->old_allow_forum_mods );
+		}
+
+		if ( null === $this->old_moderation_notification_recipient_types ) {
+			delete_option( '_bbp_moderation_notification_recipient_types' );
+		} else {
+			update_option( '_bbp_moderation_notification_recipient_types', $this->old_moderation_notification_recipient_types );
 		}
 
 		if ( isset( $this->group_extension ) ) {
@@ -233,6 +241,48 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_user_can_edit_in_forums( $user_id ) );
 		$this->assertFalse( current_user_can( 'edit_topic', $topic_id ) );
 		$this->assertFalse( current_user_can( 'edit_reply', $reply_id ) );
+	}
+
+	/**
+	 * @ticket BBP3349
+	 * @covers ::bbp_filter_group_moderation_notification_recipient_type_labels
+	 * @covers ::bbp_filter_group_moderation_notification_recipient_type_user_ids
+	 */
+	public function test_group_staff_receive_forum_moderation_notifications() {
+		update_option( '_bbp_moderation_notification_recipient_types', array( 'group_moderators' ) );
+
+		$creator_id         = $this->factory->user->create();
+		$group_mod_id       = $this->factory->user->create();
+		$blocked_group_id   = $this->factory->user->create();
+		$other_group_mod_id = $this->factory->user->create();
+		$group_id           = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$other_group_id     = $this->bp_factory->group->create();
+		$forum_id           = $this->factory->forum->create();
+		$topic_id           = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		groups_join_group( $group_id, $group_mod_id );
+		groups_promote_member( $group_mod_id, $group_id, 'mod', $creator_id );
+		groups_join_group( $group_id, $blocked_group_id );
+		groups_promote_member( $blocked_group_id, $group_id, 'mod', $creator_id );
+		bbp_set_user_role( $blocked_group_id, bbp_get_blocked_role() );
+		groups_join_group( $other_group_id, $other_group_mod_id );
+		groups_promote_member( $other_group_mod_id, $other_group_id, 'mod' );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+
+		$user_ids = bbp_get_moderation_notification_user_ids( $topic_id, $forum_id );
+
+		$this->assertArrayHasKey( 'group_moderators', bbp_get_moderation_notification_recipient_type_labels() );
+		$this->assertContains( $creator_id, $user_ids );
+		$this->assertContains( $group_mod_id, $user_ids );
+		$this->assertNotContains( $blocked_group_id, $user_ids );
+		$this->assertNotContains( $other_group_mod_id, $user_ids );
+
+		bbpress()->current_forum_id = $forum_id;
+		try {
+			$this->assertSame( array(), bbp_filter_group_moderation_notification_recipient_type_user_ids( array(), 'group_moderators', $topic_id, 0 ) );
+		} finally {
+			unset( bbpress()->current_forum_id );
+		}
 	}
 
 	/**

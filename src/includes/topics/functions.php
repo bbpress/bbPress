@@ -42,8 +42,13 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		'insert_topic'
 	);
 
-	// Insert topic
-	$topic_id = wp_insert_post( $topic_data, false );
+	// Defer moderation notifications until the topic metadata is saved.
+	bbp_suspend_moderation_notifications();
+	try {
+		$topic_id = wp_insert_post( $topic_data, false );
+	} finally {
+		bbp_resume_moderation_notifications();
+	}
 
 	// Bail if no topic was added
 	if ( empty( $topic_id ) ) {
@@ -370,8 +375,13 @@ function bbp_new_topic_handler( $action = '' ) {
 		)
 	);
 
-	// Insert topic
-	$topic_id = wp_insert_post( $topic_data, true );
+	// Defer moderation notifications until the topic metadata is saved.
+	bbp_suspend_moderation_notifications();
+	try {
+		$topic_id = wp_insert_post( $topic_data, true );
+	} finally {
+		bbp_resume_moderation_notifications();
+	}
 
 	/** No Errors *************************************************************/
 

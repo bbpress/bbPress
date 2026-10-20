@@ -37,6 +37,11 @@ function bbp_admin_get_settings_sections() {
 				'callback' => 'bbp_admin_setting_callback_user_section',
 				'page'     => 'discussion'
 			),
+			'bbp_settings_moderation_notifications' => array(
+				'title'    => esc_html__( 'Forum Moderation Notifications', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_moderation_notifications_section',
+				'page'     => 'discussion'
+			),
 			'bbp_settings_features' => array(
 				'title'    => esc_html__( 'Forum Features', 'bbpress' ),
 				'callback' => 'bbp_admin_setting_callback_features_section',
@@ -190,6 +195,17 @@ function bbp_admin_get_settings_fields() {
 					'title'             => esc_html__( 'Anonymous', 'bbpress' ),
 					'callback'          => 'bbp_admin_setting_callback_anonymous',
 					'sanitize_callback' => 'intval',
+					'args'              => array()
+				)
+			),
+
+			/** Moderation Notifications Section *******************************/
+
+			'bbp_settings_moderation_notifications' => array(
+				'_bbp_moderation_notification_recipient_types' => array(
+					'title'             => esc_html__( 'Recipients', 'bbpress' ),
+					'callback'          => 'bbp_admin_setting_callback_moderation_notification_recipient_types',
+					'sanitize_callback' => 'bbp_admin_sanitize_moderation_notification_recipient_types',
 					'args'              => array()
 				)
 			),
@@ -686,6 +702,25 @@ function bbp_admin_sanitize_moderation_links( $limit ) {
 }
 
 /**
+ * Keep moderation notification recipient types within the available choices.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param mixed $types Submitted recipient type IDs.
+ * @return array Valid recipient type IDs.
+ */
+function bbp_admin_sanitize_moderation_notification_recipient_types( $types ) {
+	if ( ! is_array( $types ) ) {
+		return array();
+	}
+
+	$available = bbp_get_moderation_notification_recipient_type_labels();
+	$types     = array_values( array_unique( array_filter( array_map( 'sanitize_key', $types ) ) ) );
+
+	return array_values( array_intersect( $types, array_keys( $available ) ) );
+}
+
+/**
  * Keep the site-wide forums status within its supported values.
  *
  * @since 2.6.20 bbPress (r7851)
@@ -980,6 +1015,44 @@ function bbp_admin_setting_callback_features_section() {
 ?>
 
 	<p><?php esc_html_e( 'Forum features that can be toggled on and off', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
+ * Moderation notification settings section description.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ */
+function bbp_admin_setting_callback_moderation_notifications_section() {
+?>
+
+	<p><?php esc_html_e( 'Choose who receives an email when a new topic or reply is held for moderation.', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
+ * Moderation notification recipient types setting field.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ */
+function bbp_admin_setting_callback_moderation_notification_recipient_types() {
+	$selected = bbp_get_moderation_notification_recipient_types();
+	$labels   = bbp_get_moderation_notification_recipient_type_labels();
+?>
+
+	<fieldset>
+		<legend class="screen-reader-text"><?php esc_html_e( 'Moderation notification recipients', 'bbpress' ); ?></legend>
+		<input name="_bbp_moderation_notification_recipient_types[]" type="hidden" value=""<?php bbp_maybe_admin_setting_disabled( '_bbp_moderation_notification_recipient_types' ); ?> />
+		<?php foreach ( $labels as $type => $label ) : ?>
+			<label for="_bbp_moderation_notification_recipient_types_<?php echo esc_attr( $type ); ?>">
+				<input name="_bbp_moderation_notification_recipient_types[]" id="_bbp_moderation_notification_recipient_types_<?php echo esc_attr( $type ); ?>" type="checkbox" value="<?php echo esc_attr( $type ); ?>" <?php checked( in_array( $type, $selected, true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_moderation_notification_recipient_types' ); ?> />
+				<?php echo esc_html( $label ); ?>
+			</label><br />
+		<?php endforeach; ?>
+	</fieldset>
+	<p class="description"><?php esc_html_e( 'Leave all boxes unchecked to disable moderation notification emails.', 'bbpress' ); ?></p>
 
 <?php
 }

@@ -93,7 +93,21 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_setting_callback_moderation_links', $fields['bbp_settings_users']['_bbp_moderation_links']['callback'] );
 		$this->assertSame( array(), $fields['bbp_settings_users']['_bbp_moderation_links']['args'] );
 		$this->assertSame( 'intval', $fields['bbp_settings_users']['_bbp_allow_moderation_links']['sanitize_callback'] );
+		$this->assertSame( 'bbp_admin_setting_callback_moderation_notification_recipient_types', $fields['bbp_settings_moderation_notifications']['_bbp_moderation_notification_recipient_types']['callback'] );
 		$this->assertSame( 'intval', $fields['bbp_converter_options']['_bbp_converter_clean']['sanitize_callback'] );
+	}
+
+	/**
+	 * @ticket BBP3349
+	 * @covers ::bbp_admin_setting_callback_moderation_notification_recipient_types
+	 */
+	public function test_moderation_notification_recipient_types_disables_every_input_when_overridden() {
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_moderation_notification_recipient_types' );
+		$this->assertSame( 0, substr_count( $output, "disabled='disabled'" ) );
+
+		bbpress()->options['_bbp_moderation_notification_recipient_types'] = array( 'keymasters' );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_moderation_notification_recipient_types' );
+		$this->assertSame( 4, substr_count( $output, "disabled='disabled'" ) );
 	}
 
 	/**

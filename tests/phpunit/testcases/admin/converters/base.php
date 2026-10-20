@@ -793,6 +793,69 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Converter_Base::insert_post
+	 * @ticket BBP3349
+	 */
+	public function test_insert_post_does_not_send_moderation_notifications() {
+		$converter  = new BBP_Tests_Admin_Converters_Base_Converter();
+		$forum_id   = $this->factory->forum->create();
+		$keymaster  = $this->factory->user->create();
+		$mail_count = 0;
+		$capture    = function () use ( &$mail_count ) {
+			$mail_count++;
+
+			return true;
+		};
+
+		bbp_set_user_role( $keymaster, bbp_get_keymaster_role() );
+		update_option( '_bbp_moderation_notification_recipient_types', array( 'keymasters' ) );
+		add_filter( 'pre_wp_mail', $capture );
+
+		try {
+			$topic_id = $converter->insert_converted_post(
+				array(
+					'post_type'   => bbp_get_topic_post_type(),
+					'post_status' => bbp_get_pending_status_id(),
+					'post_parent' => $forum_id,
+					'post_title'  => 'Converted pending topic',
+				)
+			);
+		} finally {
+			remove_filter( 'pre_wp_mail', $capture );
+		}
+
+		$this->assertIsInt( $topic_id );
+		$this->assertSame( 0, $mail_count );
+		$this->assertTrue( bbp_is_moderation_notifications_active() );
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::insert_post
+	 * @ticket BBP3349
+	 */
+	public function test_insert_post_preserves_existing_suppression_filters() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+
+		add_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' );
+		add_filter( 'bbp_is_moderation_notifications_active', '__return_false' );
+		try {
+			$converter->insert_converted_post(
+				array(
+					'post_status' => bbp_get_pending_status_id(),
+					'post_title'  => 'Converted pending topic',
+					'post_type'   => bbp_get_topic_post_type(),
+				)
+			);
+
+			$this->assertNotFalse( has_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' ) );
+			$this->assertNotFalse( has_filter( 'bbp_is_moderation_notifications_active', '__return_false' ) );
+		} finally {
+			remove_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' );
+			remove_filter( 'bbp_is_moderation_notifications_active', '__return_false' );
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::insert_post
 	 */
 	public function test_insert_post_sanitizes_untrusted_imported_markup() {
 		$converter = new BBP_Tests_Admin_Converters_Base_Converter();

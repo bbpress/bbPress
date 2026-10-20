@@ -315,6 +315,32 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @ticket BBP3349
+	 * @covers ::bbp_get_moderation_notification_recipient_types
+	 * @covers ::bbp_get_moderation_notification_recipient_type_labels
+	 * @covers ::bbp_is_moderation_notifications_active
+	 */
+	public function test_moderation_notifications_use_filterable_recipient_types() {
+		$this->set_option( '_bbp_moderation_notification_recipient_types', array() );
+		$this->assertFalse( bbp_is_moderation_notifications_active() );
+
+		update_option( '_bbp_moderation_notification_recipient_types', array( 'keymasters', 'keymasters', 'Bad Type!' ) );
+		$this->assertSame( array( 'keymasters' ), bbp_get_moderation_notification_recipient_types() );
+		$this->assertTrue( bbp_is_moderation_notifications_active() );
+		$this->assertSame(
+			array( 'keymasters', 'moderators', 'forum_moderators' ),
+			array_keys( bbp_get_moderation_notification_recipient_type_labels() )
+		);
+
+		add_filter( 'bbp_is_moderation_notifications_active', '__return_false' );
+		try {
+			$this->assertFalse( bbp_is_moderation_notifications_active() );
+		} finally {
+			remove_filter( 'bbp_is_moderation_notifications_active', '__return_false' );
+		}
+	}
+
 	public static function boolean_option_provider() {
 		return array(
 			'favorites'        => array( 'bbp_is_favorites_active', '_bbp_enable_favorites', 'bbp_is_favorites_active' ),

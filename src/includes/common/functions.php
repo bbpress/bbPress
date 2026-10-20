@@ -1440,6 +1440,301 @@ function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $ti
 /** Subscriptions *************************************************************/
 
 /**
+ * Suspend moderation notifications during a nested operation.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @return int Suspension depth.
+ */
+function bbp_suspend_moderation_notifications() {
+	$GLOBALS['_bbp_moderation_notifications_suspended'] = isset( $GLOBALS['_bbp_moderation_notifications_suspended'] )
+		? $GLOBALS['_bbp_moderation_notifications_suspended'] + 1
+		: 1;
+
+	return $GLOBALS['_bbp_moderation_notifications_suspended'];
+}
+
+/**
+ * Resume moderation notifications after a nested operation.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @return int Suspension depth.
+ */
+function bbp_resume_moderation_notifications() {
+	$depth = isset( $GLOBALS['_bbp_moderation_notifications_suspended'] )
+		? max( 0, $GLOBALS['_bbp_moderation_notifications_suspended'] - 1 )
+		: 0;
+
+	if ( empty( $depth ) ) {
+		unset( $GLOBALS['_bbp_moderation_notifications_suspended'] );
+	} else {
+		$GLOBALS['_bbp_moderation_notifications_suspended'] = $depth;
+	}
+
+	return $depth;
+}
+
+/**
+ * Return whether moderation notifications are suspended.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @return bool Whether moderation notifications are suspended.
+ */
+function bbp_is_moderation_notifications_suspended() {
+	return ! empty( $GLOBALS['_bbp_moderation_notifications_suspended'] );
+}
+
+/**
+ * Notify moderation recipients when a new topic or reply is held for moderation.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param int          $post_id     Post ID.
+ * @param WP_Post      $post        Post object.
+ * @param bool         $update      Whether this is an existing post being updated.
+ * @param WP_Post|null $post_before Post object before the update, or null for new posts.
+ * @return bool Whether a moderation notification was sent.
+ */
+function bbp_notify_moderation_recipients_on_post_pending( $post_id = 0, $post = false, $update = false, $post_before = null ) {
+	if ( bbp_is_moderation_notifications_suspended() || $update || ! is_null( $post_before ) || ! is_a( $post, 'WP_Post' ) || ( bbp_get_pending_status_id() !== $post->post_status ) ) {
+		return false;
+	}
+
+	return bbp_notify_moderation_recipients( $post_id );
+}
+
+/**
+ * Get users who should receive a moderation notification.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param int $post_id  Pending topic or reply ID.
+ * @param int $forum_id Forum ID.
+ * @return array User IDs.
+ */
+function bbp_get_moderation_notification_user_ids( $post_id = 0, $forum_id = 0 ) {
+	$post_id         = absint( $post_id );
+	$forum_id        = absint( $forum_id );
+	$recipient_types = bbp_get_moderation_notification_recipient_types();
+	$user_ids        = array();
+
+	foreach ( $recipient_types as $recipient_type ) {
+		$type_user_ids = array();
+
+		switch ( $recipient_type ) {
+			case 'keymasters':
+				$type_user_ids = get_users(
+					array(
+						'fields' => 'ids',
+						'role'   => bbp_get_keymaster_role()
+					)
+				);
+				break;
+
+			case 'moderators':
+				$type_user_ids = get_users(
+					array(
+						'fields' => 'ids',
+						'role'   => bbp_get_moderator_role()
+					)
+				);
+				break;
+
+			case 'forum_moderators':
+				if ( bbp_allow_forum_mods() ) {
+					$type_user_ids = bbp_get_moderator_ids( $forum_id );
+				}
+				break;
+		}
+
+		// Core recipient types must still be active and able to moderate this post.
+		$type_user_ids = array_filter(
+			array_map( 'absint', $type_user_ids ),
+			function ( $user_id ) use ( $post_id ) {
+				return ! bbp_is_user_inactive( $user_id ) && user_can( $user_id, 'moderate', $post_id );
+			}
+		);
+
+		/**
+		 * Filters users provided by an enabled moderation notification recipient type.
+		 *
+		 * @since 2.7.0 bbPress (r8089)
+		 *
+		 * @param array  $type_user_ids User IDs for this recipient type.
+		 * @param string $recipient_type Recipient type ID.
+		 * @param int    $post_id         Pending topic or reply ID.
+		 * @param int    $forum_id        Forum ID.
+		 */
+		$type_user_ids = (array) apply_filters( 'bbp_moderation_notification_recipient_type_user_ids', $type_user_ids, $recipient_type, $post_id, $forum_id );
+		$user_ids      = array_merge( $user_ids, $type_user_ids );
+	}
+
+	/**
+	 * Filters users who receive a moderation notification.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param array $user_ids User IDs.
+	 * @param int   $post_id  Pending topic or reply ID.
+	 * @param int   $forum_id Forum ID.
+	 */
+	$user_ids = (array) apply_filters( 'bbp_moderation_notification_user_ids', $user_ids, $post_id, $forum_id );
+	$user_ids = array_values( array_unique( array_filter( array_map( 'absint', $user_ids ) ) ) );
+
+	// Do not notify the author about their own post.
+	$author_id = (int) get_post_field( 'post_author', $post_id );
+	return array_values( array_diff( $user_ids, array( $author_id ) ) );
+}
+
+/**
+ * Send an email to moderation recipients when a topic or reply is held for moderation.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param int $post_id Pending topic or reply ID.
+ * @return bool Whether the email was sent.
+ */
+function bbp_notify_moderation_recipients( $post_id = 0 ) {
+	$post_id = absint( $post_id );
+	$post    = get_post( $post_id );
+
+	if ( ! bbp_is_moderation_notifications_active() || ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || ! is_a( $post, 'WP_Post' ) || ( bbp_get_pending_status_id() !== $post->post_status ) ) {
+		return false;
+	}
+
+	if ( bbp_is_topic( $post_id ) ) {
+		$forum_id = bbp_get_topic_forum_id( $post_id );
+		$title    = bbp_get_topic_title( $post_id );
+		$url      = bbp_get_topic_permalink( $post_id );
+		$type     = 'topic';
+	} elseif ( bbp_is_reply( $post_id ) ) {
+		$forum_id = bbp_get_reply_forum_id( $post_id );
+		$topic_id = bbp_get_reply_topic_id( $post_id );
+		$title    = bbp_get_reply_topic_title( $post_id );
+		$url      = bbp_get_reply_url( $post_id );
+		$type     = 'reply';
+	} else {
+		return false;
+	}
+
+	// Do not notify for posts that bbPress will immediately hide with a parent.
+	if ( ( ! empty( $forum_id ) && ( bbp_get_trash_status_id() === get_post_status( $forum_id ) ) ) || ( ( 'reply' === $type ) && ( bbp_is_topic_pending( $topic_id ) || bbp_is_topic_spam( $topic_id ) || bbp_is_topic_trash( $topic_id ) ) ) ) {
+		return false;
+	}
+
+	$user_ids = bbp_get_moderation_notification_user_ids( $post_id, $forum_id );
+	$emails   = bbp_get_email_addresses_from_user_ids( $user_ids );
+
+	if ( empty( $emails ) ) {
+		return false;
+	}
+
+	$blog_name  = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$forum_name = ! empty( $forum_id )
+		? wp_specialchars_decode( wp_strip_all_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES )
+		: __( 'None', 'bbpress' );
+	$title      = wp_specialchars_decode( wp_strip_all_tags( $title ), ENT_QUOTES );
+	$content    = wp_specialchars_decode( wp_strip_all_tags( $post->post_content ), ENT_QUOTES );
+	$content    = wp_trim_words( $content, 100, '...' );
+	$url        = bbp_add_view_all( $url, true );
+
+	if ( 'topic' === $type ) {
+		$author_name = bbp_get_topic_author_display_name( $post_id );
+	} else {
+		$author_name = bbp_get_reply_author_display_name( $post_id );
+	}
+
+	$author_name = wp_specialchars_decode( wp_strip_all_tags( $author_name ), ENT_QUOTES );
+
+	$message = sprintf(
+		/* translators: 1: Author name, 2: Forum title, 3: Topic title, 4: Topic or reply content, 5: Moderation URL */
+		__( "Author: %1\$s\nForum: %2\$s\nTopic: %3\$s\n\n%4\$s\n\n-----------\n\nReview this post:\n%5\$s\n\nYou are receiving this email because you are included in the forum moderation notification settings.", 'bbpress' ),
+		$author_name,
+		$forum_name,
+		$title,
+		$content,
+		$url
+	);
+
+	/**
+	 * Filters the moderation notification message.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param string $message  Email message.
+	 * @param int    $post_id  Pending topic or reply ID.
+	 * @param int    $forum_id Forum ID.
+	 */
+	$message = apply_filters( 'bbp_moderation_mail_message', $message, $post_id, $forum_id );
+	if ( empty( $message ) ) {
+		return false;
+	}
+
+	if ( 'topic' === $type ) {
+		/* translators: 1: Site title, 2: Topic title */
+		$subject = sprintf( __( '[%1$s] New topic awaiting moderation: "%2$s"', 'bbpress' ), $blog_name, $title );
+	} else {
+		/* translators: 1: Site title, 2: Topic title */
+		$subject = sprintf( __( '[%1$s] New reply awaiting moderation: "%2$s"', 'bbpress' ), $blog_name, $title );
+	}
+
+	/**
+	 * Filters the moderation notification subject.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param string $subject  Email subject.
+	 * @param int    $post_id  Pending topic or reply ID.
+	 * @param int    $forum_id Forum ID.
+	 */
+	$subject = apply_filters( 'bbp_moderation_mail_subject', $subject, $post_id, $forum_id );
+	if ( empty( $subject ) ) {
+		return false;
+	}
+
+	$no_reply = bbp_get_do_not_reply_address();
+	$headers  = array(
+		bbp_get_email_header(),
+		'From: ' . get_bloginfo( 'name' ) . ' <' . apply_filters( 'bbp_moderation_from_email', $no_reply ) . '>'
+	);
+
+	foreach ( $emails as $email ) {
+		$headers[] = 'Bcc: ' . $email;
+	}
+
+	/**
+	 * Filters moderation notification email headers.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param array $headers  Email headers.
+	 * @param int   $post_id  Pending topic or reply ID.
+	 * @param int   $forum_id Forum ID.
+	 */
+	$headers = (array) apply_filters( 'bbp_moderation_mail_headers', $headers, $post_id, $forum_id );
+	$to      = apply_filters( 'bbp_moderation_to_email', $no_reply, $post_id, $forum_id );
+	$sent    = add_post_meta( $post_id, '_bbp_moderation_notification_sent', 1, true );
+
+	// Another notification path already handled this post.
+	if ( ! $sent ) {
+		return false;
+	}
+
+	do_action( 'bbp_pre_notify_moderation_recipients', $post_id, $forum_id, $user_ids );
+	$retval = wp_mail( $to, $subject, $message, $headers );
+	do_action( 'bbp_post_notify_moderation_recipients', $post_id, $forum_id, $user_ids );
+
+	// Allow a later path to retry when WordPress could not send the email.
+	if ( ! $retval ) {
+		delete_post_meta( $post_id, '_bbp_moderation_notification_sent' );
+	}
+
+	return (bool) $retval;
+}
+
+/**
  * Return post statuses that defer subscription notifications.
  *
  * @since 2.6.20 bbPress (r7899)

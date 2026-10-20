@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added configurable email notifications for Keymasters, Moderators, per-forum
+  Moderators, and integrated recipient types when a new topic or reply is held
+  for moderation.
 - Added a Links setting to turn forum link moderation on or off and set a
   forum-specific limit, inheriting the WordPress Discussion setting until
   customized.

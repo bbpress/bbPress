@@ -8,6 +8,22 @@
 class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 
 	/**
+	 * @ticket BBP3349
+	 * @covers ::bbp_admin_sanitize_moderation_notification_recipient_types
+	 */
+	public function test_moderation_notification_recipient_types_accept_available_choices_only() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		$fields = bbp_admin_get_settings_fields();
+		$this->assertSame( 'bbp_admin_sanitize_moderation_notification_recipient_types', $fields['bbp_settings_moderation_notifications']['_bbp_moderation_notification_recipient_types']['sanitize_callback'] );
+		$this->assertSame( array(), bbp_admin_sanitize_moderation_notification_recipient_types( 'keymasters' ) );
+		$this->assertSame(
+			array( 'keymasters', 'forum_moderators' ),
+			bbp_admin_sanitize_moderation_notification_recipient_types( array( 'keymasters', 'unknown', 'forum_moderators', 'keymasters' ) )
+		);
+	}
+
+	/**
 	 * @ticket BBP3352
 	 * @covers ::bbp_admin_sanitize_moderation_links
 	 */

@@ -20,7 +20,62 @@ add_filter( 'bbp_is_user_home',     'bbp_filter_is_user_home',      10, 1 );
 add_action( 'load-settings_page_bbpress', 'bbp_maybe_create_group_forum_root' );
 add_action( 'bbp_delete_forum',           'bbp_maybe_delete_group_forum_root' );
 
+// Moderation notifications
+add_filter( 'bbp_get_moderation_notification_recipient_type_labels',   'bbp_filter_group_moderation_notification_recipient_type_labels' );
+add_filter( 'bbp_moderation_notification_recipient_type_user_ids',    'bbp_filter_group_moderation_notification_recipient_type_user_ids', 10, 4 );
+
 /** BuddyPress Helpers ********************************************************/
+
+/**
+ * Add the BuddyPress group staff moderation notification recipient type.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param array $labels Recipient type labels.
+ * @return array Recipient type labels.
+ */
+function bbp_filter_group_moderation_notification_recipient_type_labels( $labels ) {
+	if ( bp_is_active( 'groups' ) ) {
+		$labels['group_moderators'] = esc_html__( 'BuddyPress group administrators and moderators', 'bbpress' );
+	}
+
+	return $labels;
+}
+
+/**
+ * Add BuddyPress group staff to their moderation notification recipient type.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param array  $user_ids      User IDs.
+ * @param string $recipient_type Recipient type ID.
+ * @param int    $post_id       Pending topic or reply ID.
+ * @param int    $forum_id      Forum ID.
+ * @return array User IDs.
+ */
+function bbp_filter_group_moderation_notification_recipient_type_user_ids( $user_ids, $recipient_type, $post_id, $forum_id ) {
+	if ( ( 'group_moderators' !== $recipient_type ) || empty( $forum_id ) || ! bp_is_active( 'groups' ) || ! bbp_is_forum_group_forum( $forum_id ) ) {
+		return $user_ids;
+	}
+
+	foreach ( bbp_get_forum_group_ids( $forum_id ) as $group_id ) {
+		$admins   = wp_list_pluck( groups_get_group_admins( $group_id ), 'user_id' );
+		$mods     = wp_list_pluck( groups_get_group_mods( $group_id ), 'user_id' );
+		$staff    = array_filter(
+			array_merge( $admins, $mods ),
+			function ( $user_id ) use ( $group_id ) {
+				$user = get_userdata( $user_id );
+
+				return bbp_is_user_active( $user_id )
+					&& ! groups_is_user_banned( $user_id, $group_id )
+					&& ! in_array( bbp_get_blocked_role(), (array) $user->roles, true );
+			}
+		);
+		$user_ids = array_merge( $user_ids, $staff );
+	}
+
+	return array_values( array_unique( $user_ids ) );
+}
 
 /**
  * Return component name/ID ('forums' by default).

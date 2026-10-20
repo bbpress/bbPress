@@ -126,10 +126,15 @@ class BBP_Tests_Core_Actions extends BBP_UnitTestCase {
 		$this->assert_actions( array(
 			array( 'bbp_new_reply',                'bbp_notify_topic_subscribers',                      11, 5 ),
 			array( 'bbp_new_reply',                'bbp_defer_subscription_notification',              12, 1 ),
+			array( 'bbp_new_reply',                'bbp_notify_moderation_recipients',                   13, 1 ),
 			array( 'bbp_new_topic',                'bbp_notify_forum_subscribers',                      11, 4 ),
 			array( 'bbp_new_topic',                'bbp_defer_subscription_notification',              12, 1 ),
+			array( 'bbp_new_topic',                'bbp_notify_moderation_recipients',                   13, 1 ),
+			array( 'bbp_insert_reply',             'bbp_notify_moderation_recipients',                   13, 1 ),
+			array( 'bbp_insert_topic',             'bbp_notify_moderation_recipients',                   13, 1 ),
 			array( 'bbp_transition_post_status',   'bbp_notify_forum_subscribers_on_topic_publication', 11, 3 ),
 			array( 'bbp_transition_post_status',   'bbp_notify_topic_subscribers_on_reply_publication', 11, 3 ),
+			array( 'wp_after_insert_post',          'bbp_notify_moderation_recipients_on_post_pending',  10, 4 ),
 			array( 'bbp_deferred_reply_published', 'bbp_notify_topic_subscribers',                      11, 5 ),
 			array( 'bbp_deferred_topic_published', 'bbp_notify_forum_subscribers',                      11, 4 ),
 		) );

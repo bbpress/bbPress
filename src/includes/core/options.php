@@ -68,6 +68,7 @@ function bbp_get_default_options() {
 			'_bbp_theme_package_id'       => 'default', // The ID for the current theme package
 			'_bbp_settings_integration'   => 'basic',   // How to integrate into wp-admin
 			'_bbp_engagements_strategy'   => 'meta',    // How to interact with engagements
+			'_bbp_moderation_notification_recipient_types' => array(), // Who receives moderation notifications
 
 			/** Per Page **********************************************************/
 
@@ -502,6 +503,58 @@ function bbp_is_engagements_active( $default = 1 ) {
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_engagements_active', (bool) get_option( '_bbp_enable_engagements', $default ) );
+}
+
+/**
+ * Get available moderation notification recipient type labels.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @return array Recipient type labels keyed by type ID.
+ */
+function bbp_get_moderation_notification_recipient_type_labels() {
+	$labels = array(
+		'keymasters'       => esc_html__( 'Keymasters', 'bbpress' ),
+		'moderators'       => esc_html__( 'Moderators', 'bbpress' ),
+		'forum_moderators' => esc_html__( 'Moderators assigned to the affected forum', 'bbpress' )
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_moderation_notification_recipient_type_labels', $labels );
+}
+
+/**
+ * Get enabled moderation notification recipient types.
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @param array $default Optional. Default recipient types.
+ * @return array Recipient type IDs.
+ */
+function bbp_get_moderation_notification_recipient_types( $default = array() ) {
+	$types     = get_option( '_bbp_moderation_notification_recipient_types', $default );
+	$types     = is_array( $types )
+		? array_values( array_unique( array_filter( array_map( 'sanitize_key', $types ) ) ) )
+		: array();
+	$available = bbp_get_moderation_notification_recipient_type_labels();
+	$types     = array_values( array_intersect( $types, array_keys( $available ) ) );
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_moderation_notification_recipient_types', $types );
+}
+
+/**
+ * Are moderation notifications enabled?
+ *
+ * @since 2.7.0 bbPress (r8089)
+ *
+ * @return bool Whether moderation notifications are enabled.
+ */
+function bbp_is_moderation_notifications_active() {
+	$active = ! empty( bbp_get_moderation_notification_recipient_types() );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_moderation_notifications_active', $active );
 }
 
 /**

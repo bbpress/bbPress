@@ -648,6 +648,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			'bbp_converter_options',
 			'bbp_settings_status',
 			'bbp_settings_users',
+			'bbp_settings_moderation_notifications',
 			'bbp_settings_features',
 			'bbp_settings_theme_compat',
 			'bbp_settings_root_slugs',
