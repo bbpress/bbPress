@@ -3455,11 +3455,13 @@ function bbp_get_page_by_path( $path = '' ) {
  * on forum access. Older versions of WordPress may otherwise guess a restricted
  * forum or topic permalink from a partial slug and expose its full title.
  *
- * Incomplete bbPress route roots do not match their rewrite rules, so WordPress
- * may also treat them as ordinary post slugs and redirect to unrelated content.
+ * Incomplete bbPress route roots and malformed requests beneath them do not
+ * match their rewrite rules, so WordPress may also treat them as ordinary post
+ * slugs and redirect to unrelated content.
  *
  * @since 2.6.17 bbPress (r7500)
  * @since 2.6.21 bbPress (r8065) Prevent guessing for incomplete route roots.
+ * @since 2.6.21 bbPress (r8094) Prevent guessing for malformed route children.
  *
  * @param bool $do_redirect_guess Whether to attempt to guess a redirect URL.
  *
@@ -3476,6 +3478,13 @@ function bbp_do_not_guess_404_permalink( $do_redirect_guess = true ) {
 
 	if ( bbp_is_custom_post_type( $post_types ) || in_array( $request, $route_roots, true ) ) {
 		$do_redirect_guess = false;
+	} else {
+		foreach ( $route_roots as $route_root ) {
+			if ( 0 === strpos( $request, trailingslashit( $route_root ) ) ) {
+				$do_redirect_guess = false;
+				break;
+			}
+		}
 	}
 
 	return $do_redirect_guess;

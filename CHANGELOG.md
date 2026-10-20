@@ -19,6 +19,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented malformed requests below bbPress route roots from triggering broad
+  permalink guess queries.
 - Corrected relative registration times on user profiles when sites use a
   non-UTC timezone.
 - Preserved original topic and reply content when the first logged edit is saved.

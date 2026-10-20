@@ -2157,7 +2157,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 				}
 
 				$wp->request = bbp_get_topic_slug() . '/missing-topic';
-				$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+				$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
 
 				$wp->request = bbp_get_topic_slug() . '-similar';
 				$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
@@ -2168,6 +2168,57 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		} finally {
 			$wp->request = $original_request;
 			remove_filter( 'bbp_include_root_slug', $include_filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 */
+	public function test_bbp_do_not_guess_404_permalink_below_route_roots() {
+		global $wp;
+
+		$original_request   = $wp->request;
+		$original_name      = get_query_var( 'name' );
+		$original_post_type = get_query_var( 'post_type' );
+
+		add_filter( 'bbp_include_root_slug', '__return_false' );
+
+		try {
+			$post_id = self::factory()->post->create( array( 'post_name' => 'zz1-route-target' ) );
+
+			set_query_var( 'post_type', '' );
+			set_query_var( 'name', 'zz1' );
+			$wp->request = bbp_get_topic_slug() . '/test/*zz1*';
+
+			remove_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+			$this->assertSame( get_permalink( $post_id ), redirect_guess_404_permalink() );
+			add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+			$this->assertFalse( redirect_guess_404_permalink() );
+
+			set_query_var( 'name', 'valid-name' );
+			$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
+
+			foreach ( bbp_get_route_root_slugs() as $route_root ) {
+				$wp->request = $route_root . '/test/valid-name';
+				$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
+			}
+
+			$wp->request = bbp_get_topic_slug() . '-similar/zz1';
+			set_query_var( 'name', 'zz1' );
+			$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+
+			remove_filter( 'bbp_include_root_slug', '__return_false' );
+			$wp->request = bbp_get_topic_slug() . '/test/valid-name';
+			set_query_var( 'name', 'valid-name' );
+			$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
+		} finally {
+			$wp->request = $original_request;
+			set_query_var( 'name', $original_name );
+			set_query_var( 'post_type', $original_post_type );
+			if ( false === has_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' ) ) {
+				add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+			}
+			remove_filter( 'bbp_include_root_slug', '__return_false' );
 		}
 	}
 
