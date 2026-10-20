@@ -13,6 +13,231 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	protected $keymaster_id;
 
 	/**
+	 * Throw when WordPress attempts to insert a revision.
+	 *
+	 * @param array $data Post data.
+	 * @return array Post data.
+	 *
+	 * @throws RuntimeException When revision data is received.
+	 */
+	public function throw_on_revision_insert( $data ) {
+		if ( isset( $data['post_type'] ) && ( 'revision' === $data['post_type'] ) ) {
+			throw new RuntimeException( 'Revision insert.' );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_ignores_non_revision_data() {
+		$data = array(
+			'post_type'   => bbp_get_topic_post_type(),
+			'post_parent' => 123,
+			'post_author' => 456,
+		);
+
+		$this->assertSame( $data, bbp_filter_revision_post_author( $data ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_uses_the_parent_author() {
+		$author_id = $this->factory->user->create();
+		$topic_id  = $this->factory->topic->create( array( 'post_author' => $author_id ) );
+		$data      = array(
+			'post_type'   => 'revision',
+			'post_parent' => $topic_id,
+			'post_author' => 0,
+		);
+
+		$filtered = bbp_filter_revision_post_author( $data );
+
+		$this->assertSame( $author_id, $filtered['post_author'] );
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_preserves_an_anonymous_parent_author() {
+		$topic_id = $this->factory->topic->create( array( 'post_author' => 0 ) );
+		$data     = array(
+			'post_type'   => 'revision',
+			'post_parent' => $topic_id,
+			'post_author' => 123,
+		);
+
+		$filtered = bbp_filter_revision_post_author( $data );
+
+		$this->assertSame( 0, $filtered['post_author'] );
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_ignores_a_non_bbp_parent() {
+		$post_id = $this->factory->post->create();
+		$data    = array(
+			'post_type'   => 'revision',
+			'post_parent' => $post_id,
+			'post_author' => 123,
+		);
+
+		$this->assertSame( $data, bbp_filter_revision_post_author( $data ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_ignores_an_autosave() {
+		$topic_id = $this->factory->topic->create();
+		$data     = array(
+			'post_type'   => 'revision',
+			'post_parent' => $topic_id,
+			'post_author' => 123,
+			'post_name'   => "{$topic_id}-autosave-v1",
+		);
+
+		$this->assertSame( $data, bbp_filter_revision_post_author( $data ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_ignores_a_missing_parent() {
+		$data = array(
+			'post_type'   => 'revision',
+			'post_parent' => PHP_INT_MAX,
+			'post_author' => 123,
+		);
+
+		$this->assertSame( $data, bbp_filter_revision_post_author( $data ) );
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_rejects_an_empty_id_with_a_global_post() {
+		global $post;
+
+		$topic_id = $this->factory->topic->create();
+		$old_post = $post;
+		$post     = get_post( $topic_id );
+
+		try {
+			$this->assertNull( bbp_save_initial_post_revision( 0 ) );
+			$this->assertSame( array(), wp_get_post_revisions( $topic_id ) );
+		} finally {
+			$post = $old_post;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_rejects_invalid_ids() {
+		$this->assertNull( bbp_save_initial_post_revision( -1 ) );
+		$this->assertNull( bbp_save_initial_post_revision( PHP_INT_MAX ) );
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_rejects_a_non_bbp_post_type() {
+		$post_id = $this->factory->post->create();
+
+		$this->assertNull( bbp_save_initial_post_revision( $post_id ) );
+		$this->assertSame( array(), wp_get_post_revisions( $post_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_supports_registered_bbp_post_types() {
+		$forum_id = $this->factory->forum->create();
+
+		$this->assertIsInt( bbp_save_initial_post_revision( $forum_id ) );
+		$this->assertCount( 1, wp_get_post_revisions( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_returns_null_when_revisions_are_disabled() {
+		$topic_id = $this->factory->topic->create();
+
+		remove_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+
+		try {
+			$this->assertNull( bbp_save_initial_post_revision( $topic_id ) );
+			$this->assertSame( array(), wp_get_post_revisions( $topic_id ) );
+		} finally {
+			add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_revision_post_author
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_saves_once_and_preserves_the_author() {
+		$author_id = $this->factory->user->create();
+		$editor_id = $this->factory->user->create();
+		$topic_id  = $this->factory->topic->create( array( 'post_author' => $author_id ) );
+		$old_user  = get_current_user_id();
+
+		try {
+			$this->set_current_user( $editor_id );
+			$revision_id = bbp_save_initial_post_revision( $topic_id );
+
+			$this->assertIsInt( $revision_id );
+			$this->assertSame( $author_id, (int) get_post_field( 'post_author', $revision_id ) );
+			$this->assertFalse( bbp_save_initial_post_revision( $topic_id ) );
+			$this->assertCount( 1, wp_get_post_revisions( $topic_id ) );
+			$this->assertFalse( has_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' ) );
+		} finally {
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_preserves_an_existing_filter() {
+		$topic_id = $this->factory->topic->create();
+
+		add_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' );
+
+		try {
+			$this->assertIsInt( bbp_save_initial_post_revision( $topic_id ) );
+			$this->assertSame( 10, has_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' ) );
+		} finally {
+			remove_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_save_initial_post_revision
+	 */
+	public function test_bbp_save_initial_post_revision_removes_its_filter_after_an_exception() {
+		$topic_id = $this->factory->topic->create();
+
+		add_filter( 'wp_insert_post_data', array( $this, 'throw_on_revision_insert' ), 20 );
+
+		try {
+			bbp_save_initial_post_revision( $topic_id );
+			$this->fail( 'Saving the initial revision should throw.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Revision insert.', $exception->getMessage() );
+			$this->assertFalse( has_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' ) );
+		} finally {
+			remove_filter( 'wp_insert_post_data', array( $this, 'throw_on_revision_insert' ), 20 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_unique_array_values
 	 * @ticket BBP3717
 	 *

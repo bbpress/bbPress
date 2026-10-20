@@ -157,6 +157,8 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_edit_topic_handler
+	 * @covers ::bbp_filter_revision_post_author
+	 * @covers ::bbp_save_initial_post_revision
 	 */
 	public function test_bbp_edit_topic_handler() {
 		$forum_id         = $this->factory->forum->create();
@@ -246,6 +248,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 			$this->assertSame( 'Edited topic', get_post_field( 'post_title', $topic_id ) );
 			$this->assertSame( 'Edited content', get_post_field( 'post_content', $topic_id ) );
 			$this->assertSame( bbp_get_topic_permalink( $topic_id ), $redirect );
+			$this->assertFalse( has_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' ) );
 
 			$revisions = array_values(
 				wp_get_post_revisions(
