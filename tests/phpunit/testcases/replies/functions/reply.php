@@ -11,6 +11,8 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_edit_reply_handler
+	 * @covers ::bbp_filter_revision_post_author
+	 * @covers ::bbp_save_initial_post_revision
 	 */
 	public function test_bbp_edit_reply_handler_preserves_the_original_revision() {
 		$forum_id        = $this->factory->forum->create();
@@ -85,6 +87,7 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 			$this->assertSame( array(), bbpress()->errors->get_error_codes() );
 			$this->assertSame( 'Edited reply content', get_post_field( 'post_content', $reply_id ) );
+			$this->assertFalse( has_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' ) );
 
 			$revisions = array_values(
 				wp_get_post_revisions(

@@ -858,6 +858,83 @@ function bbp_get_statistics( $args = array() ) {
 /** New/edit topic/reply helpers **********************************************/
 
 /**
+ * Set a normal bbPress revision author to the author of its parent post.
+ *
+ * @since 2.6.21 bbPress (r8078)
+ *
+ * @param array $data Post data.
+ * @return array Post data.
+ */
+function bbp_filter_revision_post_author( $data = array() ) {
+	if ( isset( $data['post_type'], $data['post_parent'] ) && ( 'revision' === $data['post_type'] ) && ! empty( $data['post_parent'] ) ) {
+		$parent = get_post( $data['post_parent'] );
+
+		if ( ! empty( $parent ) && in_array( $parent->post_type, bbp_get_post_types(), true ) && ( empty( $data['post_name'] ) || ( false === strpos( $data['post_name'], '-autosave-v1' ) ) ) ) {
+			$data['post_author'] = (int) $parent->post_author;
+		}
+	}
+
+	return $data;
+}
+
+/**
+ * Save the original bbPress post before its first logged edit.
+ *
+ * Supports every registered bbPress post type. Autosaves are not counted as
+ * normal revisions.
+ *
+ * @since 2.6.21 bbPress (r8078)
+ *
+ * @param int $post_id Post ID.
+ * @return int|WP_Error|false|null Revision ID on success. False if a normal
+ *                                 revision already exists. Null if the ID or
+ *                                 post type is invalid, revisions are disabled,
+ *                                 or WordPress skips the save. WP_Error on
+ *                                 failure.
+ */
+function bbp_save_initial_post_revision( $post_id = 0 ) {
+	$post_id = (int) $post_id;
+
+	if ( $post_id <= 0 ) {
+		return null;
+	}
+
+	$post = get_post( $post_id );
+
+	if ( empty( $post ) || ! in_array( $post->post_type, bbp_get_post_types(), true ) ) {
+		return null;
+	}
+
+	$revisions = wp_get_post_revisions(
+		$post_id,
+		array(
+			'name'           => "{$post_id}-revision-v1",
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		)
+	);
+
+	if ( ! empty( $revisions ) ) {
+		return false;
+	}
+
+	$filter_added = false === has_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' );
+	if ( $filter_added ) {
+		add_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' );
+	}
+
+	try {
+		$revision_id = wp_save_post_revision( $post_id );
+	} finally {
+		if ( $filter_added ) {
+			remove_filter( 'wp_insert_post_data', 'bbp_filter_revision_post_author' );
+		}
+	}
+
+	return $revision_id;
+}
+
+/**
  * Filter anonymous post data
  *
  * We use REMOTE_ADDR here directly. If you are behind a proxy, you should

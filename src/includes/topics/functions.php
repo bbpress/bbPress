@@ -675,33 +675,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	// Preserve the original topic when its first logged edit is submitted.
 	$log_topic_edit = ! empty( $_POST['bbp_log_topic_edit'] ) && ( '1' === $_POST['bbp_log_topic_edit'] );
 	if ( $log_topic_edit ) {
-		// Do not count autosaves as normal topic revisions.
-		$topic_revisions = wp_get_post_revisions(
-			$topic_id,
-			array(
-				'name'           => "{$topic_id}-revision-v1",
-				'posts_per_page' => 1,
-				'fields'         => 'ids',
-			)
-		);
-
-		if ( empty( $topic_revisions ) ) {
-			$topic_author_id         = (int) get_post_field( 'post_author', $topic_id );
-			$set_topic_revision_data = function ( $data ) use ( $topic_id, $topic_author_id ) {
-				if ( ( 'revision' === $data['post_type'] ) && ( $topic_id === (int) $data['post_parent'] ) ) {
-					$data['post_author'] = $topic_author_id;
-				}
-
-				return $data;
-			};
-
-			add_filter( 'wp_insert_post_data', $set_topic_revision_data );
-			try {
-				wp_save_post_revision( $topic_id );
-			} finally {
-				remove_filter( 'wp_insert_post_data', $set_topic_revision_data );
-			}
-		}
+		bbp_save_initial_post_revision( $topic_id );
 	}
 
 	// Toggle revisions to avoid duplicates
