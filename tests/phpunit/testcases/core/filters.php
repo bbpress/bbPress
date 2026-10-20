@@ -56,6 +56,16 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Verify empty route query variables are removed before other request work.
+	 */
+	public function test_request_filters_normalize_route_query_vars_first() {
+		$this->assert_filters( array(
+			array( 'bbp_request', 'bbp_request_remove_empty_query_vars', 5,  1 ),
+			array( 'bbp_request', 'bbp_request_feed_trap',               10, 1 ),
+		) );
+	}
+
+	/**
 	 * Verify theme-support template selection runs before theme compatibility.
 	 */
 	public function test_template_filters_run_in_selection_order() {

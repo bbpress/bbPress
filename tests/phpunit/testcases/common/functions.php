@@ -2028,6 +2028,45 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_request_remove_empty_query_vars
+	 */
+	public function test_bbp_request_remove_empty_query_vars() {
+		$routes = array(
+			bbp_get_forum_post_type()  => bbp_get_forum_slug(),
+			bbp_get_topic_post_type()  => bbp_get_topic_slug(),
+			bbp_get_reply_post_type()  => bbp_get_reply_slug(),
+			bbp_get_topic_tag_tax_id() => bbp_get_topic_tag_tax_slug(),
+			bbp_get_view_rewrite_id()  => bbp_get_view_slug(),
+		);
+		$route_query_vars = array_keys( $routes );
+
+		foreach ( $routes as $query_var => $route ) {
+			$this->assertSame(
+				array(),
+				bbp_request( array( $query_var => '0' ) ),
+				'/' . $route . '/0/'
+			);
+		}
+
+		foreach ( array( '', '0', 0, false, array() ) as $empty_value ) {
+			$query_vars              = array_fill_keys( $route_query_vars, $empty_value );
+			$query_vars['unrelated'] = $empty_value;
+
+			$this->assertSame(
+				array( 'unrelated' => $empty_value ),
+				bbp_request_remove_empty_query_vars( $query_vars )
+			);
+		}
+
+		$query_vars = array_combine(
+			$route_query_vars,
+			array( 'forum-slug', 'topic-slug', 'reply-slug', 'topic-tag-slug', 'view-slug' )
+		);
+
+		$this->assertSame( $query_vars, bbp_request_remove_empty_query_vars( $query_vars ) );
+	}
+
+	/**
 	 * @covers ::bbp_request_feed_trap
 	 */
 	public function test_bbp_request_feed_trap() {

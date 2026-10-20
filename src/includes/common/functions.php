@@ -3159,6 +3159,38 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	return $result;
 }
 
+/** Requests ******************************************************************/
+
+/**
+ * Remove empty route query variables from a request.
+ *
+ * Empty route values cannot identify bbPress content. Leaving them in the
+ * request may cause WordPress to treat the request as a bbPress route without
+ * setting the corresponding post type or taxonomy query.
+ *
+ * @since 2.6.21 bbPress (r8084)
+ *
+ * @param array $query_vars Query variables for the request.
+ * @return array Query variables for the request.
+ */
+function bbp_request_remove_empty_query_vars( $query_vars = array() ) {
+	$bbp_query_vars = array(
+		bbp_get_forum_post_type(),
+		bbp_get_topic_post_type(),
+		bbp_get_reply_post_type(),
+		bbp_get_topic_tag_tax_id(),
+		bbp_get_view_rewrite_id(),
+	);
+
+	foreach ( $bbp_query_vars as $query_var ) {
+		if ( isset( $query_vars[ $query_var ] ) && empty( $query_vars[ $query_var ] ) ) {
+			unset( $query_vars[ $query_var ] );
+		}
+	}
+
+	return $query_vars;
+}
+
 /** Feeds *********************************************************************/
 
 /**
