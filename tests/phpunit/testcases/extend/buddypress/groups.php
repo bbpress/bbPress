@@ -294,6 +294,33 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3349
+	 * @covers ::bbp_filter_group_moderation_notification_recipient_type_user_ids
+	 */
+	public function test_group_staff_moderation_notifications_require_forum_access() {
+		$creator_id      = $this->factory->user->create();
+		$group_mod_id    = $this->factory->user->create();
+		$group_id        = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$hidden_forum_id = $this->factory->forum->create();
+		$forum_id        = $this->factory->forum->create( array( 'post_parent' => $hidden_forum_id ) );
+		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		bbp_set_user_role( $group_mod_id, bbp_get_participant_role() );
+		groups_join_group( $group_id, $group_mod_id );
+		groups_promote_member( $group_mod_id, $group_id, 'mod', $creator_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		bbp_hide_forum( $hidden_forum_id );
+
+		$this->assertFalse( bbp_user_can_view_forum( array( 'user_id' => $creator_id, 'forum_id' => $forum_id ) ) );
+		$this->assertFalse( bbp_user_can_view_forum( array( 'user_id' => $group_mod_id, 'forum_id' => $forum_id ) ) );
+		$this->assertSame(
+			array(),
+			bbp_filter_group_moderation_notification_recipient_type_user_ids( array(), 'group_moderators', $topic_id, $forum_id )
+		);
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::edit_screen_save
 	 */
 	public function test_group_admin_can_create_group_forum_while_frozen() {

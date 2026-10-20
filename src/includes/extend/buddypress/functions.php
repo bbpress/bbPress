@@ -63,12 +63,19 @@ function bbp_filter_group_moderation_notification_recipient_type_user_ids( $user
 		$mods     = wp_list_pluck( groups_get_group_mods( $group_id ), 'user_id' );
 		$staff    = array_filter(
 			array_merge( $admins, $mods ),
-			function ( $user_id ) use ( $group_id ) {
+			function ( $user_id ) use ( $group_id, $forum_id ) {
 				$user = get_userdata( $user_id );
 
-				return bbp_is_user_active( $user_id )
+				return ! empty( $user )
+					&& bbp_is_user_active( $user_id )
 					&& ! groups_is_user_banned( $user_id, $group_id )
-					&& ! in_array( bbp_get_blocked_role(), (array) $user->roles, true );
+					&& ! in_array( bbp_get_blocked_role(), (array) $user->roles, true )
+					&& bbp_user_can_view_forum(
+						array(
+							'user_id'  => $user_id,
+							'forum_id' => $forum_id
+						)
+					);
 			}
 		);
 		$user_ids = array_merge( $user_ids, $staff );
