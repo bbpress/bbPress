@@ -604,4 +604,74 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 		);
 		$this->assertFalse( bbp_user_can_embed_post( $password_topic_id ) );
 	}
+
+	/**
+	 * @dataProvider canonical_redirect_post_id_provider
+	 *
+	 * @covers ::bbp_get_canonical_redirect_post_id
+	 */
+	public function test_get_canonical_redirect_post_id( $path, $expected ) {
+		$this->assertSame( $expected, bbp_get_canonical_redirect_post_id( home_url( $path ) ) );
+	}
+
+	public static function canonical_redirect_post_id_provider() {
+		return array(
+			'no query'                      => array( '/', 0 ),
+			'p'                             => array( '/?p=10', 10 ),
+			'page_id'                       => array( '/?page_id=20', 20 ),
+			'attachment_id'                 => array( '/?attachment_id=30', 30 ),
+			'subpost_id'                    => array( '/?subpost_id=40', 40 ),
+			'page_id replaces p'            => array( '/?p=40&page_id=20', 20 ),
+			'attachment_id replaces p'      => array( '/?p=40&attachment_id=20', 20 ),
+			'subpost replaces attachment'   => array( '/?attachment_id=40&subpost_id=20', 20 ),
+			'attachment greater than page'  => array( '/?p=40&page_id=20&attachment_id=30', 30 ),
+			'page greater than attachment'  => array( '/?p=20&page_id=40&attachment_id=30', 40 ),
+			'non-scalar p'                  => array( '/?p%5B%5D=10', 0 ),
+			'negative p'                    => array( '/?p=-10', 0 ),
+			'non-scalar page preserves p'   => array( '/?p=10&page_id%5B%5D=20', 10 ),
+			'non-scalar subpost is ignored' => array( '/?attachment_id=30&subpost_id%5B%5D=20', 30 ),
+		);
+	}
+
+	/**
+	 * @covers ::bbp_do_not_redirect_restricted_posts
+	 */
+	public function test_restricted_post_redirects_use_canonical_post_id() {
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id        = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+		$post_id         = self::factory()->post->create();
+		$keymaster_id    = self::factory()->user->create();
+		$redirect        = 'https://example.org/canonical';
+
+		bbp_hide_forum( $forum_id, bbp_get_public_status_id() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		$this->set_current_user( 0 );
+		foreach ( array( 'p', 'page_id', 'attachment_id', 'subpost_id' ) as $query_var ) {
+			$this->assertFalse( bbp_do_not_redirect_restricted_posts( $redirect, home_url( '/?' . $query_var . '=' . $topic_id ) ), $query_var . ' must not disclose a restricted topic permalink.' );
+			$this->assertFalse( bbp_do_not_redirect_restricted_posts( $redirect, home_url( '/?' . $query_var . '=' . $reply_id ) ), $query_var . ' must not disclose a restricted reply permalink.' );
+			$this->assertSame( $redirect, bbp_do_not_redirect_restricted_posts( $redirect, home_url( '/?' . $query_var . '=' . $post_id ) ), $query_var . ' must preserve redirects for non-bbPress posts.' );
+		}
+		$this->assertSame( $redirect, bbp_do_not_redirect_restricted_posts( $redirect, home_url( '/' ) ) );
+
+		$this->set_current_user( $keymaster_id );
+		foreach ( array( 'p', 'page_id', 'attachment_id', 'subpost_id' ) as $query_var ) {
+			$this->assertSame( $redirect, bbp_do_not_redirect_restricted_posts( $redirect, home_url( '/?' . $query_var . '=' . $topic_id ) ), $query_var . ' must preserve an authorized topic redirect.' );
+			$this->assertSame( $redirect, bbp_do_not_redirect_restricted_posts( $redirect, home_url( '/?' . $query_var . '=' . $reply_id ) ), $query_var . ' must preserve an authorized reply redirect.' );
+		}
+	}
 }
