@@ -15,6 +15,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_server;
 	protected $old_errors;
 	protected $old_allow_forum_mods;
+	protected $old_community_visibility;
 	protected $old_moderation_keys;
 	protected $old_action_variables;
 	protected $old_forum_query;
@@ -63,6 +64,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->old_server  = $_SERVER;
 		$this->old_errors  = bbpress()->errors;
 		$this->old_allow_forum_mods = get_option( '_bbp_allow_forum_mods', null );
+		$this->old_community_visibility = get_option( '_bp_community_visibility', null );
 		$this->old_moderation_keys = get_option( 'moderation_keys' );
 		$this->old_action_variables = buddypress()->action_variables;
 		$this->old_forum_query       = bbpress()->forum_query;
@@ -94,6 +96,12 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			delete_option( '_bbp_allow_forum_mods' );
 		} else {
 			update_option( '_bbp_allow_forum_mods', $this->old_allow_forum_mods );
+		}
+
+		if ( null === $this->old_community_visibility ) {
+			delete_option( '_bp_community_visibility' );
+		} else {
+			update_option( '_bp_community_visibility', $this->old_community_visibility );
 		}
 
 		if ( isset( $this->group_extension ) ) {
@@ -411,6 +419,86 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->set_current_user( $banned_id );
 		$this->assertContains( $private_forum_id, bbp_get_excluded_forum_ids() );
 		$this->assertContains( $hidden_forum_id, bbp_get_excluded_forum_ids() );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::user_can_view_group_forum
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
+	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids
+	 */
+	public function test_members_only_community_excludes_public_group_forums_from_anonymous_users() {
+		$creator_id     = $this->factory->user->create();
+		$no_role_id     = $this->factory->user->create();
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create();
+		$group_id       = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id       = $this->factory->forum->create();
+		$normal_id      = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id       = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		update_option( '_bp_community_visibility', array( 'global' => 'members' ) );
+		$this->group_extension = new BBP_Forums_Group_Extension();
+
+		$this->assertFalse( $this->group_extension->user_can_view_group_forum( 0, $forum_id ) );
+		$this->assertFalse( user_can( 0, 'read_forum', $forum_id ) );
+		$this->assertFalse( user_can( 0, 'read_topic', $topic_id ) );
+		$this->assertFalse( user_can( 0, 'read_reply', $reply_id ) );
+
+		$this->set_current_user( 0 );
+		$group_forum_queries = 0;
+		$count_group_forum_queries = function( $query ) use ( &$group_forum_queries ) {
+			if ( ( false !== strpos( $query, 'SELECT DISTINCT p.ID' ) ) && ( false !== strpos( $query, '_bbp_group_ids' ) ) ) {
+				$group_forum_queries++;
+			}
+
+			return $query;
+		};
+		add_filter( 'query', $count_group_forum_queries );
+		$excluded_forums       = $this->group_extension->exclude_group_forum_ids( array() );
+		$excluded_forums_again = $this->group_extension->exclude_group_forum_ids( array() );
+		remove_filter( 'query', $count_group_forum_queries );
+		$this->assertContains( $forum_id, $excluded_forums );
+		$this->assertNotContains( $normal_id, $excluded_forums_again );
+		$this->assertSame( 1, $group_forum_queries );
+
+		bbp_has_topics( array( 'post_parent' => 'any', 'posts_per_page' => -1, 'show_stickies' => false ) );
+		$this->assertNotContains( $topic_id, wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+		bbp_has_replies( array( 'post_parent' => 'any', 'posts_per_page' => -1 ) );
+		$this->assertNotContains( $reply_id, wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
+
+		foreach ( array( $no_role_id, $participant_id, $moderator_id, $keymaster_id ) as $user_id ) {
+			$this->assertNull( $this->group_extension->user_can_view_group_forum( $user_id, $forum_id ) );
+			$this->assertTrue( user_can( $user_id, 'read_forum', $forum_id ) );
+			$this->assertTrue( user_can( $user_id, 'read_topic', $topic_id ) );
+			$this->assertTrue( user_can( $user_id, 'read_reply', $reply_id ) );
+		}
+
+		update_option( '_bp_community_visibility', array( 'global' => 'anyone' ) );
+		$this->assertNull( $this->group_extension->user_can_view_group_forum( 0, $forum_id ) );
+		$this->assertNotContains( $forum_id, bbp_get_excluded_forum_ids() );
+		bbp_has_topics( array( 'post_parent' => 'any', 'posts_per_page' => -1, 'show_stickies' => false ) );
+		$this->assertContains( $topic_id, wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+		bbp_has_replies( array( 'post_parent' => 'any', 'posts_per_page' => -1 ) );
+		$this->assertContains( $reply_id, wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
 	}
 
 	/**
