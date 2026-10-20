@@ -196,6 +196,48 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
+	 * Normalize activity filter values when they are safe to compare in PHP.
+	 *
+	 * @param mixed $values Activity filter values.
+	 * @return array|null Normalized values, or null when SQL may compare differently.
+	 */
+	private function normalize_filter_values( $values ) {
+		if ( ! is_array( $values ) ) {
+			if ( ! is_scalar( $values ) ) {
+				return null;
+			}
+
+			$values = explode( ',', (string) $values );
+		}
+
+		$normalized = array();
+		foreach ( $values as $value ) {
+			if ( ! is_scalar( $value ) ) {
+				return null;
+			}
+
+			$value = trim( (string) $value );
+			if ( '' === $value ) {
+				continue;
+			}
+
+			// BuddyPress binds numeric values as integers, changing SQL comparison semantics.
+			if ( is_numeric( $value ) ) {
+				return null;
+			}
+
+			// Non-ASCII identifiers may compare equal under the database collation.
+			if ( ! preg_match( '/\A[A-Za-z0-9_-]+\z/', $value ) ) {
+				return null;
+			}
+
+			$normalized[] = strtolower( $value );
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Check whether an activity query can contain bbPress topic or reply activity.
 	 *
 	 * @param array $args BuddyPress activity query arguments.
@@ -209,16 +251,26 @@ class BBP_BuddyPress_Activity {
 		$filter = $args['filter'];
 
 		if ( ! empty( $filter['action'] ) ) {
-			$actions = wp_parse_list( $filter['action'] );
-			if ( ! array_intersect( $actions, array( $this->topic_create, $this->reply_create ) ) ) {
+			$actions        = $this->normalize_filter_values( $filter['action'] );
+			$activity_types = $this->normalize_filter_values( array( $this->topic_create, $this->reply_create ) );
+			if ( ( null === $actions ) || ( null === $activity_types ) ) {
+				return true;
+			}
+
+			if ( ! array_intersect( $actions, $activity_types ) ) {
 				return false;
 			}
 		}
 
 		if ( ! empty( $filter['object'] ) ) {
-			$objects         = wp_parse_list( $filter['object'] );
+			$objects         = $this->normalize_filter_values( $filter['object'] );
 			$group_component = bp_is_active( 'groups' ) ? buddypress()->groups->id : 'groups';
-			if ( ! array_intersect( $objects, array( $this->component, $group_component ) ) ) {
+			$components      = $this->normalize_filter_values( array( $this->component, $group_component ) );
+			if ( ( null === $objects ) || ( null === $components ) ) {
+				return true;
+			}
+
+			if ( ! array_intersect( $objects, $components ) ) {
 				return false;
 			}
 		}
