@@ -9,6 +9,14 @@
 class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 
 	/**
+	 * Verify empty route query variables are removed before feed handling.
+	 */
+	public function test_request_filters_normalize_route_query_vars_first() {
+		$this->assertSame( 5, has_filter( 'bbp_request', 'bbp_request_remove_empty_query_vars' ) );
+		$this->assertSame( 10, has_filter( 'bbp_request', 'bbp_request_feed_trap' ) );
+	}
+
+	/**
 	 * @covers ::_bbp_filter_locale
 	 * @covers ::bbp_plugin_locale
 	 */

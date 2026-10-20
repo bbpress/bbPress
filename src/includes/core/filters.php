@@ -101,6 +101,14 @@ add_filter( 'signup_user_meta', 'bbp_user_add_role_to_signup_meta', 10 );
 add_filter( 'bbp_mail', 'bbp_chunk_emails' );
 
 /**
+ * Requests
+ *
+ * Empty bbPress route values cannot identify content and need to be removed
+ * before feed handling and WordPress query parsing.
+ */
+add_filter( 'bbp_request', 'bbp_request_remove_empty_query_vars', 5 );
+
+/**
  * Feeds
  *
  * bbPress comes with a number of custom RSS2 feeds that get handled outside
