@@ -952,16 +952,21 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
 			$author_id = $revision->post_author;
 			$reason    = '';
 		} else {
-			$author_id = $revision_log[ $revision->ID ]['author'];
+			$author_id = (int) $revision_log[ $revision->ID ]['author'];
 			$reason    = $revision_log[ $revision->ID ]['reason'];
+
+			if ( empty( $author_id ) ) {
+				$author_id = $revision->post_author;
+			}
 		}
 
 		$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 		$author = bbp_get_author_link(
 			array(
+				'post_id'   => $revision->ID,
+				'user_id'   => $author_id,
 				'size'      => 14,
-				'link_text' => bbp_get_topic_author_display_name( $revision->ID ),
-				'post_id'   => $revision->ID
+				'link_text' => bbp_get_topic_author_display_name( $revision->ID )
 			)
 		);
 

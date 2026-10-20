@@ -48,6 +48,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Used the recorded editor when displaying topic and reply revision logs.
 - Redirected merged topic URLs to their destination topics.
 - Corrected parent-forum freshness when the newest topic belongs to a nested
   subforum.

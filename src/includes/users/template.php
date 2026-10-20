@@ -2096,6 +2096,7 @@ function bbp_author_link( $args = array() ) {
 	 * Return the author link of the post
 	 *
 	 * @since 2.0.0 bbPress (r2874)
+	 * @since 2.6.21 bbPress (r8080) Added the `user_id` argument for non-topic and non-reply posts.
 	 *
 	 * @param array $args Optional. If an integer, it is used as reply id.
 	 * @return string Author link of reply
@@ -2109,6 +2110,7 @@ function bbp_get_author_link( $args = array() ) {
 		$args,
 		array(
 			'post_id'    => $post_id,
+			'user_id'    => 0,
 			'link_title' => '',
 			'type'       => 'both',
 			'size'       => 80,
@@ -2134,13 +2136,15 @@ function bbp_get_author_link( $args = array() ) {
 	// Default return value
 	$author_link = '';
 
-	// Neither a reply nor a topic, so could be a revision
-	if ( ! empty( $r['post_id'] ) ) {
+	// Neither a reply nor a topic, so could be a revision or explicit user
+	if ( ! empty( $r['post_id'] ) || ! empty( $r['user_id'] ) ) {
 
-		// Get some useful reply information
-		$user_id    = get_post_field( 'post_author', $r['post_id'] );
+		// Get some useful author information
+		$user_id    = ! empty( $r['user_id'] )
+			? (int) $r['user_id']
+			: get_post_field( 'post_author', $r['post_id'] );
 		$author_url = bbp_get_user_profile_url( $user_id );
-		$anonymous  = bbp_is_reply_anonymous( $r['post_id'] );
+		$anonymous  = empty( $r['user_id'] ) && ! empty( $r['post_id'] ) && bbp_is_reply_anonymous( $r['post_id'] );
 
 		// Generate title with the display name of the author
 		if ( empty( $r['link_title'] ) ) {
