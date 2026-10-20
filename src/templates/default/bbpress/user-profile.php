@@ -22,7 +22,7 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 			printf(
 				/* translators: %s: Registration date in "time ago" format */
 				esc_html__( 'Registered: %s', 'bbpress' ),
-				bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ) )
+				bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ), false, true )
 			);
 			?>
 		</p>
