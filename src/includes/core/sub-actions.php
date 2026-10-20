@@ -670,6 +670,45 @@ function bbp_filter_oembed_request_post_id( $post_id = 0 ) {
 }
 
 /**
+ * Return the post ID WordPress uses for an ID-based canonical redirect.
+ *
+ * @since 2.6.21 bbPress (r8086)
+ *
+ * @param string $requested_url Requested URL.
+ * @return int Canonical redirect post ID, or zero when none was requested.
+ */
+function bbp_get_canonical_redirect_post_id( $requested_url = '' ) {
+	$query = wp_parse_url( $requested_url, PHP_URL_QUERY );
+	if ( empty( $query ) ) {
+		return 0;
+	}
+
+	wp_parse_str( $query, $args );
+	$p             = isset( $args['p'] ) && is_scalar( $args['p'] ) && ( (int) $args['p'] >= 0 )
+		? (int) $args['p']
+		: 0;
+	$page_id       = isset( $args['page_id'] ) && is_scalar( $args['page_id'] )
+		? absint( $args['page_id'] )
+		: 0;
+	$attachment_id = isset( $args['attachment_id'] ) && is_scalar( $args['attachment_id'] )
+		? absint( $args['attachment_id'] )
+		: 0;
+
+	// Match WP_Query normalization before redirect_canonical() chooses an ID.
+	if ( isset( $args['subpost_id'] ) && is_scalar( $args['subpost_id'] ) && ( '' !== $args['subpost_id'] ) ) {
+		$attachment_id = absint( $args['subpost_id'] );
+	}
+	if ( $attachment_id ) {
+		$p = $attachment_id;
+	}
+	if ( $page_id ) {
+		$p = $page_id;
+	}
+
+	return max( $p, $page_id, $attachment_id );
+}
+
+/**
  * Prevent canonical redirects from exposing restricted bbPress permalinks.
  *
  * @since 2.6.19 bbPress (r7636)
@@ -679,14 +718,8 @@ function bbp_filter_oembed_request_post_id( $post_id = 0 ) {
  * @return string|false Redirect URL, or false when access is denied.
  */
 function bbp_do_not_redirect_restricted_posts( $redirect_url = '', $requested_url = '' ) {
-	$query = wp_parse_url( $requested_url, PHP_URL_QUERY );
-	if ( empty( $query ) ) {
-		return $redirect_url;
-	}
-
-	wp_parse_str( $query, $args );
-	$post_id = ! empty( $args['p'] ) ? absint( $args['p'] ) : 0;
-	$post = get_post( $post_id );
+	$post_id = bbp_get_canonical_redirect_post_id( $requested_url );
+	$post    = get_post( $post_id );
 	if ( $post && bbp_is_custom_post_type( $post ) && ! bbp_user_can_embed_post( $post_id ) ) {
 		return false;
 	}
