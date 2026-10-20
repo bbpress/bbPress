@@ -339,6 +339,11 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 
 		wp_set_current_user( 0 );
 		$this->assertEmpty( bp_activity_get( array( 'in' => $activity_ids ) )['activities'] );
+		$uppercase_filter = array(
+			'in'     => $activity_ids,
+			'filter' => array( 'action' => 'BBP_TOPIC_CREATE,BBP_REPLY_CREATE' ),
+		);
+		$this->assertEmpty( bp_activity_get( $uppercase_filter )['activities'] );
 
 		foreach ( $activity_ids as $activity_id ) {
 			$this->assertFalse( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
@@ -354,6 +359,9 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			$unlocked_activity = bp_activity_get( array( 'in' => $activity_ids ) );
 			$this->assertCount( count( $activity_ids ), $unlocked_activity['activities'] );
 			$this->assertEmpty( array_diff( $activity_ids, wp_list_pluck( $unlocked_activity['activities'], 'id' ) ) );
+			$unlocked_filtered_activity = bp_activity_get( $uppercase_filter );
+			$this->assertCount( count( $activity_ids ), $unlocked_filtered_activity['activities'] );
+			$this->assertEmpty( array_diff( $activity_ids, wp_list_pluck( $unlocked_filtered_activity['activities'], 'id' ) ) );
 
 			foreach ( $activity_ids as $activity_id ) {
 				$this->assertTrue( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
@@ -389,12 +397,133 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			bp_activity_get( array( 'filter' => array( 'object' => array( 'activity', 'bbpress' ) ) ) );
 			$this->assertSame( 2, $password_queries );
 
+			bp_activity_get( array( 'filter' => array( 'action' => array( ' BBP_TOPIC_CREATE ' ) ) ) );
+			bp_activity_get( array( 'filter' => array( 'action' => "BBP_TOPIC_CREATE\0" ) ) );
+			bp_activity_get( array( 'filter' => array( 'object' => 'bbpréss' ) ) );
+			bp_activity_get( array( 'filter' => array( 'action' => '00' ) ) );
+			bp_activity_get( array( 'filter' => array( 'action' => 'activity_update,0e1' ) ) );
+			bp_activity_get( array( 'filter' => array( 'object' => array( 0 ) ) ) );
+			$this->assertSame( 8, $password_queries );
+
 			if ( bp_is_active( 'groups' ) ) {
 				bp_activity_get( array( 'filter' => array( 'object' => buddypress()->groups->id ) ) );
-				$this->assertSame( 3, $password_queries );
+				$this->assertSame( 9, $password_queries );
 			}
 		} finally {
 			remove_action( 'pre_get_posts', $count_queries );
+		}
+	}
+
+	/**
+	 * Activity visibility applies when action and object filters use uppercase.
+	 */
+	public function test_activity_visibility_filters_are_case_insensitive() {
+		$user_id     = $this->factory->user->create();
+		$no_role     = $this->factory->user->create();
+		$participant = $this->factory->user->create();
+		$moderator   = $this->factory->user->create();
+		$keymaster   = $this->factory->user->create();
+		bbp_set_user_role( $participant, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster, bbp_get_keymaster_role() );
+		get_userdata( $no_role )->set_role( '' );
+
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_author' => $user_id,
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_author' => $user_id,
+			)
+		);
+
+		bbpress()->extend->buddypress->activity->topic_create( $topic_id, $forum_id, array(), $user_id );
+		bbpress()->extend->buddypress->activity->reply_create( $reply_id, $topic_id, $forum_id, array(), $user_id );
+
+		$topic_activity_id = (int) get_post_meta( $topic_id, '_bbp_activity_id', true );
+		$reply_activity_id = (int) get_post_meta( $reply_id, '_bbp_activity_id', true );
+		$this->assertGreaterThan( 0, $topic_activity_id );
+		$this->assertGreaterThan( 0, $reply_activity_id );
+
+		bbp_hide_forum( $forum_id );
+
+		$contexts = array(
+			'anonymous'   => array( 0, false ),
+			'no role'     => array( $no_role, false ),
+			'participant' => array( $participant, false ),
+			'moderator'   => array( $moderator, true ),
+			'keymaster'   => array( $keymaster, true ),
+		);
+
+		foreach ( $contexts as $context => $data ) {
+			list( $viewer_id, $can_read ) = $data;
+			wp_set_current_user( $viewer_id );
+
+			$topic_activity = bp_activity_get(
+				array(
+					'filter' => array( 'action' => 'BBP_TOPIC_CREATE' ),
+				)
+			);
+			$reply_activity = bp_activity_get(
+				array(
+					'filter' => array( 'action' => 'activity_update, BBP_REPLY_CREATE' ),
+				)
+			);
+			$padded_topic_activity = bp_activity_get(
+				array(
+					'filter' => array( 'action' => array( ' BBP_TOPIC_CREATE ' ) ),
+				)
+			);
+			$nul_topic_activity = bp_activity_get(
+				array(
+					'filter' => array( 'action' => "BBP_TOPIC_CREATE\0" ),
+				)
+			);
+			$numeric_activity = bp_activity_get(
+				array(
+					'filter' => array( 'action' => '00' ),
+				)
+			);
+			$numeric_object_activity = bp_activity_get(
+				array(
+					'filter' => array( 'object' => array( 0 ) ),
+				)
+			);
+			$forum_activity = bp_activity_get(
+				array(
+					'filter' => array( 'object' => 'BBPRESS' ),
+				)
+			);
+
+			$topic_ids          = wp_list_pluck( $topic_activity['activities'], 'id' );
+			$reply_ids          = wp_list_pluck( $reply_activity['activities'], 'id' );
+			$padded_ids         = wp_list_pluck( $padded_topic_activity['activities'], 'id' );
+			$nul_ids            = wp_list_pluck( $nul_topic_activity['activities'], 'id' );
+			$numeric_ids        = wp_list_pluck( $numeric_activity['activities'], 'id' );
+			$numeric_object_ids = wp_list_pluck( $numeric_object_activity['activities'], 'id' );
+			$forum_ids          = wp_list_pluck( $forum_activity['activities'], 'id' );
+			if ( $can_read ) {
+				$this->assertContains( $topic_activity_id, $topic_ids, $context );
+				$this->assertContains( $reply_activity_id, $reply_ids, $context );
+				$this->assertContains( $topic_activity_id, $padded_ids, $context );
+				$this->assertContains( $topic_activity_id, $nul_ids, $context );
+				$this->assertEmpty( array_diff( array( $topic_activity_id, $reply_activity_id ), $numeric_ids ), $context );
+				$this->assertEmpty( array_diff( array( $topic_activity_id, $reply_activity_id ), $numeric_object_ids ), $context );
+				$this->assertEmpty( array_diff( array( $topic_activity_id, $reply_activity_id ), $forum_ids ), $context );
+			} else {
+				$this->assertNotContains( $topic_activity_id, $topic_ids, $context );
+				$this->assertNotContains( $reply_activity_id, $reply_ids, $context );
+				$this->assertNotContains( $topic_activity_id, $padded_ids, $context );
+				$this->assertNotContains( $topic_activity_id, $nul_ids, $context );
+				$this->assertEmpty( array_intersect( array( $topic_activity_id, $reply_activity_id ), $numeric_ids ), $context );
+				$this->assertEmpty( array_intersect( array( $topic_activity_id, $reply_activity_id ), $numeric_object_ids ), $context );
+				$this->assertEmpty( array_intersect( array( $topic_activity_id, $reply_activity_id ), $forum_ids ), $context );
+			}
 		}
 	}
 
@@ -456,6 +585,13 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 		wp_set_current_user( 0 );
 		$public_activity = bp_activity_get( array( 'in' => array( $activity_id ) ) );
 		$this->assertEmpty( $public_activity['activities'] );
+		$uppercase_group_activity = bp_activity_get(
+			array(
+				'in'     => array( $activity_id ),
+				'filter' => array( 'object' => 'GROUPS' ),
+			)
+		);
+		$this->assertEmpty( $uppercase_group_activity['activities'] );
 		$this->assertFalse( bp_activity_user_can_read( $activity, 0 ) );
 		$hidden_activity = bp_activity_get( array(
 			'in'          => array( $activity_id ),
