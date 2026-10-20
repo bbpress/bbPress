@@ -51,6 +51,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected relative registration times on user profiles when sites use a
+  non-UTC timezone.
 - Preserved original topic and reply content when the first logged edit is saved.
 - Used the recorded editor when displaying topic and reply revision logs.
 - Redirected merged topic URLs to their destination topics.

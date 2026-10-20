@@ -101,6 +101,33 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @coversNothing
+	 */
+	public function test_user_profile_registration_time_uses_gmt() {
+		$old_displayed_user          = bbpress()->displayed_user;
+		$old_timezone_string         = get_option( 'timezone_string' );
+		$old_gmt_offset              = get_option( 'gmt_offset' );
+		$user                        = $this->keymaster_userdata;
+		$user->data->user_registered = gmdate( 'Y-m-d H:i:s', time() - ( 5 * HOUR_IN_SECONDS ) );
+
+		try {
+			update_option( 'timezone_string', '' );
+			update_option( 'gmt_offset', -4 );
+			bbpress()->displayed_user = $user;
+
+			ob_start();
+			include BBP_PLUGIN_DIR . 'templates/default/bbpress/user-profile.php';
+			$output = ob_get_clean();
+
+			$this->assertStringContainsString( 'Registered: 5 hours ago', wp_strip_all_tags( $output ) );
+		} finally {
+			bbpress()->displayed_user = $old_displayed_user;
+			update_option( 'timezone_string', $old_timezone_string );
+			update_option( 'gmt_offset', $old_gmt_offset );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_current_user_name
 	 * @covers ::bbp_get_current_user_name
 	 */
