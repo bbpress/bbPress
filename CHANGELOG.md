@@ -13,6 +13,10 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Changed
+
+- Added `ugc` alongside `nofollow` to links in topic and reply content.
+
 ### Security
 
 - Kept restricted attachment metadata out of alternate front-end and feed requests.
