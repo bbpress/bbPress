@@ -52,6 +52,58 @@ class BBP_Tests_Common_Old_Slug_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_filter_old_slug_redirect_post_id
 	 */
+	public function test_old_slug_redirect_post_id_honors_custom_non_public_topic_status() {
+		global $wp_post_statuses;
+
+		$status          = 'archived';
+		$original_status = isset( $wp_post_statuses[ $status ] )
+			? $wp_post_statuses[ $status ]
+			: null;
+
+		$author_id      = $this->factory->user->create();
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$forum_id       = $this->factory->forum->create();
+
+		register_post_status( $status, array(
+			'public'    => false,
+			'protected' => true,
+		) );
+
+		try {
+			$topic_id = $this->factory->topic->create( array(
+				'post_author' => $author_id,
+				'post_parent' => $forum_id,
+				'post_status' => $status,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			) );
+
+			bbp_set_user_role( $author_id, bbp_get_participant_role() );
+			bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+			bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+			$this->set_current_user( $participant_id );
+			$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $topic_id ) );
+
+			$this->set_current_user( $author_id );
+			$this->assertSame( $topic_id, apply_filters( 'old_slug_redirect_post_id', $topic_id ) );
+
+			$this->set_current_user( $moderator_id );
+			$this->assertSame( $topic_id, apply_filters( 'old_slug_redirect_post_id', $topic_id ) );
+		} finally {
+			$this->set_current_user( 0 );
+
+			if ( $original_status ) {
+				$wp_post_statuses[ $status ] = $original_status;
+			} else {
+				unset( $wp_post_statuses[ $status ] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_old_slug_redirect_post_id
+	 */
 	public function test_old_slug_redirect_post_id_honors_filtered_forum_visibilities() {
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create( array(

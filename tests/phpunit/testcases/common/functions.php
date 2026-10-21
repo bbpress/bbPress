@@ -2135,6 +2135,61 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_do_not_guess_404_permalink
+	 * @covers ::redirect_guess_404_permalink
+	 */
+	public function test_bbp_do_not_guess_404_permalink_for_hidden_topic_request() {
+		global $wp;
+
+		$original_request             = $wp->request;
+		$original_name                = get_query_var( 'name' );
+		$original_post_type           = get_query_var( 'post_type' );
+		$topic_post_type              = get_post_type_object( bbp_get_topic_post_type() );
+		$original_exclude_from_search = $topic_post_type->exclude_from_search;
+		$original_publicly_queryable  = $topic_post_type->publicly_queryable;
+		$forum_id                     = $this->factory->forum->create();
+		$hidden_topic_id              = $this->factory->topic->create( array(
+			'post_name'   => 'hidden-topic-request',
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_spam_status_id(),
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$public_topic_id              = $this->factory->topic->create( array(
+			'post_name'   => 'hidden-topic-request-public',
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_public_status_id(),
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		// Reproduce the historical path where WordPress queried topics for a guess.
+		$topic_post_type->exclude_from_search = false;
+		$topic_post_type->publicly_queryable  = true;
+
+		set_query_var( 'post_type', bbp_get_topic_post_type() );
+		set_query_var( 'name', get_post_field( 'post_name', $hidden_topic_id ) );
+		$wp->request = bbp_get_topic_slug() . '/' . get_post_field( 'post_name', $hidden_topic_id );
+		$this->set_current_user( 0 );
+
+		try {
+			remove_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+			$this->assertSame( get_permalink( $public_topic_id ), redirect_guess_404_permalink() );
+			add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+
+			$this->assertFalse( redirect_guess_404_permalink() );
+		} finally {
+			$wp->request = $original_request;
+			set_query_var( 'name', $original_name );
+			set_query_var( 'post_type', $original_post_type );
+			$topic_post_type->exclude_from_search = $original_exclude_from_search;
+			$topic_post_type->publicly_queryable  = $original_publicly_queryable;
+
+			if ( false === has_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' ) ) {
+				add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
 	 */
 	public function test_bbp_do_not_guess_404_permalink_for_incomplete_route_roots() {
 		global $wp;
