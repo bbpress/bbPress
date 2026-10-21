@@ -118,6 +118,119 @@ class BBP_Tests_Common_Oembed_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_forum_enforce_attachments
+	 * @covers ::bbp_user_can_view_attachment
+	 */
+	public function test_attachment_page_uses_resolved_post_type_for_visibility() {
+		global $wp_query;
+
+		$previous = $wp_query;
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_status'    => 'inherit',
+				'post_parent'    => $topic_id,
+				'post_mime_type' => 'text/plain',
+				'guid'           => home_url( '/restricted-single-attachment.txt' ),
+			)
+		);
+		$no_role_id     = $this->factory->user->create();
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		$cases = array(
+			'anonymous'   => array( 0, true ),
+			'no role'     => array( $no_role_id, true ),
+			'participant' => array( $participant_id, true ),
+			'moderator'   => array( $moderator_id, false ),
+			'keymaster'   => array( $keymaster_id, false ),
+		);
+
+		try {
+			foreach ( $cases as $case => $args ) {
+				list( $user_id, $expected_404 ) = $args;
+
+				$this->set_current_user( $user_id );
+
+				$query                = $this->get_attachment_query( $attachment_id, 'p' );
+				$query->is_attachment = false;
+				$query->is_single     = true;
+				$wp_query             = $query;
+
+				do_action( 'bbp_template_redirect' );
+
+				$this->assertSame( $expected_404, $query->is_404(), $case );
+			}
+		} finally {
+			$wp_query = $previous;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_forum_enforce_attachments
+	 * @covers ::bbp_user_can_view_attachment
+	 */
+	public function test_restricted_attachment_feed_does_not_retain_denied_post() {
+		global $wp_query;
+
+		$previous = $wp_query;
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_status'    => 'inherit',
+				'post_parent'    => $topic_id,
+				'post_mime_type' => 'text/plain',
+				'guid'           => home_url( '/restricted-feed-attachment.txt' ),
+			)
+		);
+		$query = $this->get_attachment_query( $attachment_id );
+		$post  = get_post( $attachment_id );
+
+		$query->posts      = array( $post );
+		$query->post_count = 1;
+		$query->is_feed    = true;
+		$wp_query          = $query;
+
+		$this->set_current_user( 0 );
+
+		try {
+			do_action( 'bbp_template_redirect' );
+
+			$this->assertTrue( $query->is_404() );
+			$this->assertSame( array(), $query->posts );
+			$this->assertNull( $query->post );
+			$this->assertSame( 0, $query->post_count );
+		} finally {
+			$wp_query = $previous;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_do_not_redirect_restricted_attachments
 	 * @covers ::bbp_get_attachment_request_id
 	 * @covers ::bbp_user_can_view_attachment

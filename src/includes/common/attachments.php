@@ -128,19 +128,28 @@ function bbp_get_attachment_request_id() {
  * @since 2.6.20 bbPress (r8010)
  */
 function bbp_forum_enforce_attachments() {
+	$wp_query = bbp_get_wp_query();
 
-	// Bail if this is not an attachment page
-	if ( ! is_attachment() ) {
+	// Bail if this is not a singular attachment
+	if ( ! ( $wp_query instanceof WP_Query ) || ! $wp_query->is_singular() || empty( $wp_query->post ) || ( 'attachment' !== $wp_query->post->post_type ) ) {
 		return;
 	}
 
-	$wp_query   = bbp_get_wp_query();
-	$attachment = ! empty( $wp_query->post ) ? $wp_query->post : null;
+	$attachment = $wp_query->post;
 	$parent     = bbp_get_attachment_parent( $attachment );
 
 	// Attachments inherit bbPress visibility from their parent
 	if ( $parent && ! bbp_user_can_view_attachment( $attachment ) ) {
 		bbp_set_404( $wp_query );
+
+		// Prevent feeds and later template hooks from using the denied object
+		$wp_query->posts             = array();
+		$wp_query->post              = null;
+		$wp_query->post_count        = 0;
+		$wp_query->found_posts       = 0;
+		$wp_query->max_num_pages     = 0;
+		$wp_query->queried_object    = null;
+		$wp_query->queried_object_id = 0;
 	}
 }
 
