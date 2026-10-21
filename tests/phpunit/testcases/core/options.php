@@ -329,8 +329,12 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertSame( array( 'keymasters' ), bbp_get_moderation_notification_recipient_types() );
 		$this->assertTrue( bbp_is_moderation_notifications_active() );
 		$this->assertSame(
-			array( 'keymasters', 'moderators', 'forum_moderators' ),
-			array_keys( bbp_get_moderation_notification_recipient_type_labels() )
+			array(
+				'keymasters'       => 'Keymasters',
+				'moderators'       => 'Moderators',
+				'forum_moderators' => 'Per-forum Moderators'
+			),
+			bbp_get_moderation_notification_recipient_type_labels()
 		);
 
 		add_filter( 'bbp_is_moderation_notifications_active', '__return_false' );

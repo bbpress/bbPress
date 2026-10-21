@@ -516,7 +516,7 @@ function bbp_get_moderation_notification_recipient_type_labels() {
 	$labels = array(
 		'keymasters'       => esc_html__( 'Keymasters', 'bbpress' ),
 		'moderators'       => esc_html__( 'Moderators', 'bbpress' ),
-		'forum_moderators' => esc_html__( 'Moderators assigned to the affected forum', 'bbpress' )
+		'forum_moderators' => esc_html__( 'Per-forum Moderators', 'bbpress' )
 	);
 
 	// Filter & return
