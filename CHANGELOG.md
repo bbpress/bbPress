@@ -48,6 +48,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Required validated forum destinations for front-end topic submissions.
 - Enforced BuddyPress community visibility for group forum content.
 - Kept bbPress post shortcodes literal in WordPress content loops.
 - Strengthened password checks for topic and reply submissions.

@@ -78,6 +78,137 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_new_topic_handler
+	 */
+	public function test_bbp_new_topic_handler_requires_forum_id_for_all_roles() {
+		$forum_id                   = $this->factory->forum->create();
+		$no_role_id                 = $this->factory->user->create();
+		$participant_id             = $this->factory->user->create();
+		$moderator_id               = $this->factory->user->create();
+		$keymaster_id               = $this->factory->user->create();
+		$old_post                   = $_POST;
+		$old_request                = $_REQUEST;
+		$old_server                 = $_SERVER;
+		$old_user                   = get_current_user_id();
+		$old_errors                 = bbpress()->errors;
+		$old_current_forum_id       = bbpress()->current_forum_id;
+		$old_allow_anonymous        = get_option( '_bbp_allow_anonymous' );
+		$old_allow_content_throttle = get_option( '_bbp_allow_content_throttle' );
+		$created_topic_id           = 0;
+		$record_topic               = function ( $topic_id ) use ( &$created_topic_id ) {
+			$created_topic_id = $topic_id;
+		};
+		$prevent_redirect           = function() {
+			throw new RuntimeException( 'New topic redirect.' );
+		};
+		$prevent_anonymous_cookies  = function() {
+			return array();
+		};
+		$home_url                   = wp_parse_url( home_url( '/' ) );
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		bbp_close_forum( $forum_id );
+		update_option( '_bbp_allow_content_throttle', false );
+		bbpress()->current_forum_id = $forum_id;
+		$_SERVER['HTTP_HOST']       = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI']     = $home_url['path'];
+		$_SERVER['REMOTE_ADDR']     = '127.0.0.1';
+
+		add_filter( 'bbp_is_single_forum', '__return_true' );
+		add_action( 'bbp_new_topic', $record_topic );
+		add_filter( 'wp_redirect', $prevent_redirect );
+		add_filter( 'bbp_filter_anonymous_post_data', $prevent_anonymous_cookies );
+
+		try {
+			$actors = array(
+				'logged-out'  => array( 0, false ),
+				'anonymous'   => array( 0, true ),
+				'no-role'     => array( $no_role_id, false ),
+				'participant' => array( $participant_id, false ),
+				'moderator'   => array( $moderator_id, false ),
+				'keymaster'   => array( $keymaster_id, false ),
+			);
+
+			foreach ( $actors as $actor => $configuration ) {
+				$created_topic_id = 0;
+				$this->set_current_user( $configuration[0] );
+				update_option( '_bbp_allow_anonymous', $configuration[1] );
+				bbpress()->errors = new WP_Error();
+				$_POST = array(
+					'bbp_topic_title'   => 'Topic without a forum ID for ' . $actor,
+					'bbp_topic_content' => 'Topic content',
+				);
+				$_REQUEST = array( '_wpnonce' => wp_create_nonce( 'bbp-new-topic' ) );
+
+				if ( 'anonymous' === $actor ) {
+					$_POST['bbp_anonymous_name']  = 'Anonymous User';
+					$_POST['bbp_anonymous_email'] = 'anonymous@example.org';
+				}
+
+				try {
+					bbp_new_topic_handler( 'bbp-new-topic' );
+				} catch ( RuntimeException $exception ) {
+					if ( 'New topic redirect.' !== $exception->getMessage() ) {
+						throw $exception;
+					}
+				}
+
+				$this->assertContains( 'bbp_topic_forum_id', bbpress()->errors->get_error_codes(), $actor );
+				$this->assertSame( 0, $created_topic_id, $actor );
+			}
+
+			$cases = array(
+				'empty'       => array( '', '<strong>Error</strong>: Forum ID is missing.' ),
+				'zero'        => array( 0, '<strong>Error</strong>: Forum ID is missing.' ),
+				'nonnumeric'  => array( 'not-a-number', '<strong>Error</strong>: Forum ID must be a number.' ),
+				'negative'    => array( -1, '<strong>Error</strong>: Forum ID cannot be a negative number.' ),
+				'nonexistent' => array( PHP_INT_MAX, '<strong>Error</strong>: Forum does not exist.' ),
+			);
+
+			$this->set_current_user( $keymaster_id );
+			update_option( '_bbp_allow_anonymous', false );
+
+			foreach ( $cases as $case => $configuration ) {
+				$created_topic_id = 0;
+				bbpress()->errors = new WP_Error();
+				$_POST = array(
+					'bbp_forum_id'      => $configuration[0],
+					'bbp_topic_title'   => 'Topic with invalid forum ID: ' . $case,
+					'bbp_topic_content' => 'Topic content',
+				);
+				$_REQUEST = array( '_wpnonce' => wp_create_nonce( 'bbp-new-topic' ) );
+
+				try {
+					bbp_new_topic_handler( 'bbp-new-topic' );
+				} catch ( RuntimeException $exception ) {
+					if ( 'New topic redirect.' !== $exception->getMessage() ) {
+						throw $exception;
+					}
+				}
+
+				$this->assertSame( array( 'bbp_topic_forum_id' ), bbpress()->errors->get_error_codes(), $case );
+				$this->assertSame( $configuration[1], bbpress()->errors->get_error_message( 'bbp_topic_forum_id' ), $case );
+				$this->assertSame( 0, $created_topic_id, $case );
+			}
+		} finally {
+			remove_filter( 'bbp_filter_anonymous_post_data', $prevent_anonymous_cookies );
+			remove_filter( 'wp_redirect', $prevent_redirect );
+			remove_action( 'bbp_new_topic', $record_topic );
+			remove_filter( 'bbp_is_single_forum', '__return_true' );
+			$_POST                      = $old_post;
+			$_REQUEST                   = $old_request;
+			$_SERVER                    = $old_server;
+			bbpress()->errors           = $old_errors;
+			bbpress()->current_forum_id = $old_current_forum_id;
+			update_option( '_bbp_allow_anonymous', $old_allow_anonymous );
+			update_option( '_bbp_allow_content_throttle', $old_allow_content_throttle );
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_edit_topic_handler
 	 * @covers ::bbp_filter_revision_post_author
 	 * @covers ::bbp_save_initial_post_revision
