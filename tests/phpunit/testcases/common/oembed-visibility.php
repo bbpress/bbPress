@@ -120,6 +120,80 @@ class BBP_Tests_Common_Oembed_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_do_not_redirect_restricted_attachments
 	 * @covers ::bbp_get_attachment_request_id
+	 * @covers ::bbp_user_can_view_attachment
+	 */
+	public function test_attachment_canonical_redirect_uses_attachment_id_when_query_vars_conflict() {
+		global $wp_query;
+
+		$previous = $wp_query;
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_status'    => 'inherit',
+				'post_parent'    => $topic_id,
+				'post_mime_type' => 'text/plain',
+				'guid'           => home_url( '/restricted-conflicting-query-vars.txt' ),
+			)
+		);
+		$decoy_id = wp_insert_attachment(
+			array(
+				'post_status'    => 'inherit',
+				'post_parent'    => 0,
+				'post_mime_type' => 'text/plain',
+				'guid'           => home_url( '/public-conflicting-query-vars.txt' ),
+			)
+		);
+		$query = $this->get_attachment_query( $attachment_id );
+		$query->post              = get_post( $decoy_id );
+		$query->queried_object    = get_post( $decoy_id );
+		$query->queried_object_id = $decoy_id;
+		$query->set( 'page_id', $decoy_id );
+		$wp_query = $query;
+
+		$no_role_id     = $this->factory->user->create();
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		$redirect_url  = wp_get_attachment_url( $attachment_id );
+		$requested_url = home_url( '/?attachment_id=' . $attachment_id . '&page_id=' . $decoy_id );
+		$cases         = array(
+			'anonymous'   => array( 0, false ),
+			'no role'     => array( $no_role_id, false ),
+			'participant' => array( $participant_id, false ),
+			'moderator'   => array( $moderator_id, $redirect_url ),
+			'keymaster'   => array( $keymaster_id, $redirect_url ),
+		);
+
+		try {
+			foreach ( $cases as $case => $args ) {
+				list( $user_id, $expected ) = $args;
+
+				$this->set_current_user( $user_id );
+				$this->assertSame( $expected, bbp_do_not_redirect_restricted_attachments( $redirect_url, $requested_url ), $case );
+			}
+		} finally {
+			$wp_query = $previous;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_redirect_restricted_attachments
+	 * @covers ::bbp_get_attachment_request_id
 	 */
 	public function test_attachment_canonical_redirect_uses_resolved_slug_object() {
 		global $wp_query;

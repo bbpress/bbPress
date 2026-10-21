@@ -94,11 +94,15 @@ function bbp_make_post_attachments_private( $post_id = 0 ) {
  * @return int Attachment ID, or zero when none was requested.
  */
 function bbp_get_attachment_request_id() {
-	$attachment_id = max(
-		absint( get_query_var( 'p' ) ),
-		absint( get_query_var( 'page_id' ) ),
-		absint( get_query_var( 'attachment_id' ) )
-	);
+	$attachment_id = absint( get_query_var( 'attachment_id' ) );
+
+	// Core uses this exact value for attachment-to-file redirects.
+	if ( empty( $attachment_id ) ) {
+		$attachment_id = max(
+			absint( get_query_var( 'p' ) ),
+			absint( get_query_var( 'page_id' ) )
+		);
+	}
 
 	$wp_query = bbp_get_wp_query();
 	$post     = null;
