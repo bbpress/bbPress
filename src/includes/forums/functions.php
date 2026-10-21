@@ -1903,6 +1903,9 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 
 		// Get the most recent topic or reply without loading every topic ID
 		$reply_id = bbp_forum_query_last_activity_id( $forum_id );
+		if ( false === $reply_id ) {
+			$reply_id = get_post_meta( $forum_id, '_bbp_last_reply_id', true );
+		}
 	}
 
 	// Cast as integer in case of empty or string
@@ -1950,6 +1953,9 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 
 		// Get the most recent topic or reply without loading every topic ID
 		$active_id = bbp_forum_query_last_activity_id( $forum_id );
+		if ( false === $active_id ) {
+			$active_id = get_post_meta( $forum_id, '_bbp_last_active_id', true );
+		}
 	}
 
 	// Cast as integer in case of empty or string
@@ -3272,7 +3278,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
  * @since 2.6.21 bbPress (r8048)
  *
  * @param int $forum_id Forum ID.
- * @return int Last public topic or reply ID.
+ * @return int|false Last public topic or reply ID, or false on query failure.
  */
 function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3326,6 +3332,13 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 				)
 			);
 			$latest   = $bbp_db->get_row( $query );
+
+			// Preserve stored freshness when the database cannot answer this query
+			if ( null === $latest ) {
+				$activity_id = apply_filters( 'bbp_forum_query_last_activity_id', false, $forum_id );
+				return ( false === $activity_id ) ? false : (int) $activity_id;
+			}
+
 			$reply_id = $latest->reply_id;
 			$topic_id = $latest->topic_id;
 		}

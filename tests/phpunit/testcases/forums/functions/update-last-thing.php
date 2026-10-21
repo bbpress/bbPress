@@ -243,6 +243,50 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 	}
 
 	/**
+	 * @covers ::bbp_update_forum_last_reply_id
+	 * @covers ::bbp_update_forum_last_active_id
+	 */
+	public function test_forum_last_ids_survive_activity_query_failure() {
+		global $wpdb;
+
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+		update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
+		update_post_meta( $forum_id, '_bbp_last_active_id', $topic_id );
+
+		$fail_query = function( $query ) use ( $wpdb ) {
+			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
+				$query = str_replace( $wpdb->posts, $wpdb->posts . '_missing', $query );
+			}
+
+			return $query;
+		};
+		$suppress_errors = $wpdb->suppress_errors( true );
+		add_filter( 'query', $fail_query );
+
+		try {
+			$this->assertSame( $reply_id, bbp_update_forum_last_reply_id( $forum_id ) );
+			$this->assertSame( $topic_id, bbp_update_forum_last_active_id( $forum_id ) );
+		} finally {
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $suppress_errors );
+		}
+
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $forum_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $forum_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_forum_last_active_time
 	 */
 	public function test_bbp_update_forum_last_active_time() {

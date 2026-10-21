@@ -28,6 +28,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved forum freshness metadata when its activity query fails.
 - Prevented malformed requests below bbPress route roots from triggering broad
   permalink guess queries.
 - Corrected relative registration times on user profiles when sites use a
