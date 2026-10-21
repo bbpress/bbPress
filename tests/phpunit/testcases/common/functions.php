@@ -2276,6 +2276,9 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 				foreach ( $route_roots as $route_root ) {
 					$wp->request = $route_root;
 					$this->assertFalse( bbp_do_not_guess_404_permalink( true ), $route_root );
+
+					$wp->request = strtoupper( $route_root );
+					$this->assertFalse( bbp_do_not_guess_404_permalink( true ), strtoupper( $route_root ) );
 				}
 
 				$wp->request = bbp_get_topic_slug() . '/missing-topic';
@@ -2323,10 +2326,23 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			foreach ( bbp_get_route_root_slugs() as $route_root ) {
 				$wp->request = $route_root . '/test/valid-name';
 				$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
+
+				$wp->request = strtoupper( $route_root ) . '/test/valid-name';
+				$this->assertFalse( bbp_do_not_guess_404_permalink( true ), strtoupper( $route_root ) . ' child' );
 			}
+
+			$wp->request = '%54OPIC/test/valid-name';
+			$this->assertFalse( bbp_do_not_guess_404_permalink( true ), 'percent-encoded mixed-case topic child' );
+
+			$wp->request = ucfirst( bbp_get_topic_slug() ) . '/test/*zz1*';
+			set_query_var( 'name', 'zz1' );
+			$this->assertFalse( redirect_guess_404_permalink(), 'mixed-case topic child redirect' );
 
 			$wp->request = bbp_get_topic_slug() . '-similar/zz1';
 			set_query_var( 'name', 'zz1' );
+			$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+
+			$wp->request = strtoupper( bbp_get_topic_slug() ) . '-similar/zz1';
 			$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
 
 			remove_filter( 'bbp_include_root_slug', '__return_false' );
@@ -2478,6 +2494,10 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 				add_filter( 'do_redirect_guess_404_permalink', 'bbp_do_not_guess_404_permalink' );
 
 				$this->assertFalse( redirect_guess_404_permalink(), $route_root . ' redirect' );
+
+				$wp->request = strtoupper( $route_root );
+				set_query_var( 'name', strtoupper( $route_root ) );
+				$this->assertFalse( redirect_guess_404_permalink(), strtoupper( $route_root ) . ' redirect' );
 			}
 
 			$post_id      = self::factory()->post->create( array( 'post_name' => 'topic-nearby-target' ) );

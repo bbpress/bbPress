@@ -3795,6 +3795,7 @@ function bbp_get_page_by_path( $path = '' ) {
  * @since 2.6.17 bbPress (r7499)
  * @since 2.6.21 bbPress (r8065) Prevent guessing for incomplete route roots.
  * @since 2.6.21 bbPress (r8094) Prevent guessing for malformed route children.
+ * @since 2.6.21 bbPress (r8097) Match route roots case-insensitively.
  *
  * @param bool $do_redirect_guess Whether to attempt to guess a redirect URL.
  *
@@ -3805,9 +3806,10 @@ function bbp_do_not_guess_404_permalink( $do_redirect_guess = true ) {
 
 	$post_types = (array) get_query_var( 'post_type' );
 	$request    = isset( $wp->request )
-		? $wp->request
+		? strtolower( urldecode( $wp->request ) )
 		: '';
-	$route_roots = bbp_get_route_root_slugs();
+	$route_roots = array_map( 'urldecode', bbp_get_route_root_slugs() );
+	$route_roots = array_map( 'strtolower', $route_roots );
 
 	if ( bbp_is_custom_post_type( $post_types ) || in_array( $request, $route_roots, true ) ) {
 		$do_redirect_guess = false;
