@@ -3298,7 +3298,13 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 					$topic_statuses
 				)
 			);
-			$latest   = $bbp_db->get_row( $query );
+			$latest = $bbp_db->get_row( $query );
+
+			// Bail on a failed query, rather than wiping the stored freshness
+			if ( null === $latest ) {
+				return (int) get_post_meta( $forum_id, '_bbp_last_active_id', true );
+			}
+
 			$reply_id = $latest->reply_id;
 			$topic_id = $latest->topic_id;
 		}
