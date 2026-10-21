@@ -240,4 +240,40 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 
 		$this->assertSame( $reply_id, $activity_id );
 	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
+	public function test_bbp_forum_query_last_activity_id_reports_query_failure() {
+		global $wpdb;
+
+		$forum_id = $this->factory->forum->create();
+		$this->assertSame( 0, bbp_forum_query_last_activity_id( $forum_id ) );
+
+		$seen     = null;
+		$filter   = function( $activity_id ) use ( &$seen ) {
+			$seen = $activity_id;
+			return $activity_id;
+		};
+		$fail_query = function( $query ) use ( $wpdb ) {
+			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
+				$query = str_replace( $wpdb->posts, $wpdb->posts . '_missing', $query );
+			}
+
+			return $query;
+		};
+		$suppress_errors = $wpdb->suppress_errors( true );
+		add_filter( 'query', $fail_query );
+		add_filter( 'bbp_forum_query_last_activity_id', $filter );
+
+		try {
+			$this->assertFalse( bbp_forum_query_last_activity_id( $forum_id ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_last_activity_id', $filter );
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $suppress_errors );
+		}
+
+		$this->assertFalse( $seen );
+	}
 }
