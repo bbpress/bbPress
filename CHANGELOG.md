@@ -56,6 +56,7 @@ Development for the next bbPress release is in progress. See the active
 - Limited block editor topic-tag choices to public discussions in accessible forums.
 - Enforced BuddyPress community visibility for group forum content.
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
+- Prevented old reply slugs from redirecting visitors to replies they cannot read.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 
