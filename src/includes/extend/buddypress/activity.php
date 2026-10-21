@@ -138,6 +138,7 @@ class BBP_BuddyPress_Activity {
 		// Hook into topic and reply status changes
 		add_action( 'edit_post',                         array( $this, 'topic_update'              ), 10, 2 );
 		add_action( 'edit_post',                         array( $this, 'reply_update'              ), 10, 2 );
+		add_action( 'post_updated',                      array( $this, 'post_visibility_update'    ), 10, 3 );
 
 		// Hook into topic and reply deletion
 		add_action( 'bbp_delete_topic',                  array( $this, 'topic_delete'              ), 10, 1 );
@@ -728,13 +729,19 @@ class BBP_BuddyPress_Activity {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_forum_id( $forum_id );
 
+		// Do not retain activity for password-protected topics
+		if ( bbp_is_password_protected( $topic_id ) ) {
+			$this->topic_delete( $topic_id );
+			return;
+		}
+
 		// Bail if user is not active
 		if ( bbp_is_user_inactive( $user_id ) ) {
 			return;
 		}
 
-		// Bail if topic is not published
-		if ( ! bbp_is_topic_published( $topic_id ) ) {
+		// Bail if topic is not publicly viewable
+		if ( ! bbp_is_topic_public( $topic_id ) ) {
 			return;
 		}
 
@@ -815,29 +822,29 @@ class BBP_BuddyPress_Activity {
 			return;
 		}
 
-		// Bail early if revisions are off
-		if ( ! bbp_allow_revisions() ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		// Delete activity for unpublished or password-protected topics
+		if ( ! bbp_is_topic_public( $post->ID ) || bbp_is_password_protected( $topic_id ) ) {
+			$this->topic_delete( $topic_id );
 			return;
 		}
-
-		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Bail early if topic is by anonymous user
 		if ( bbp_is_topic_anonymous( $topic_id ) ) {
 			return;
 		}
 
-		// Action based on new status
-		if ( bbp_is_topic_public( $post->ID ) ) {
-
-			// Validate topic data
-			$forum_id        = bbp_get_topic_forum_id( $topic_id );
-			$topic_author_id = bbp_get_topic_author_id( $topic_id );
-
-			$this->topic_create( $topic_id, $forum_id, array(), $topic_author_id );
-		} else {
-			$this->topic_delete( $topic_id );
+		// Preserve the revision setting for activity updates
+		if ( ! bbp_allow_revisions() ) {
+			return;
 		}
+
+		// Validate topic data
+		$forum_id        = bbp_get_topic_forum_id( $topic_id );
+		$topic_author_id = bbp_get_topic_author_id( $topic_id );
+
+		$this->topic_create( $topic_id, $forum_id, array(), $topic_author_id );
 	}
 
 	/** Replies ***************************************************************/
@@ -870,6 +877,12 @@ class BBP_BuddyPress_Activity {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_forum_id( $forum_id );
+
+		// Do not retain activity for password-protected replies
+		if ( bbp_is_password_protected( $reply_id ) ) {
+			$this->reply_delete( $reply_id );
+			return;
+		}
 
 		// Bail if user is not active
 		if ( bbp_is_user_inactive( $user_id ) ) {
@@ -961,29 +974,87 @@ class BBP_BuddyPress_Activity {
 			return;
 		}
 
-		// Bail early if revisions are off
-		if ( ! bbp_allow_revisions() ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// Delete activity for unpublished or password-protected replies
+		if ( ( bbp_get_public_status_id() !== $post->post_status ) || bbp_is_password_protected( $reply_id ) ) {
+			$this->reply_delete( $reply_id );
 			return;
 		}
-
-		$reply_id = bbp_get_reply_id( $reply_id );
 
 		// Bail early if reply is by anonymous user
 		if ( bbp_is_reply_anonymous( $reply_id ) ) {
 			return;
 		}
 
-		// Action based on new status
-		if ( bbp_get_public_status_id() === $post->post_status ) {
+		// Preserve the revision setting for activity updates
+		if ( ! bbp_allow_revisions() ) {
+			return;
+		}
 
-			// Validate reply data
-			$topic_id        = bbp_get_reply_topic_id( $reply_id );
-			$forum_id        = bbp_get_reply_forum_id( $reply_id );
-			$reply_author_id = bbp_get_reply_author_id( $reply_id );
+		// Validate reply data
+		$topic_id        = bbp_get_reply_topic_id( $reply_id );
+		$forum_id        = bbp_get_reply_forum_id( $reply_id );
+		$reply_author_id = bbp_get_reply_author_id( $reply_id );
 
-			$this->reply_create( $reply_id, $topic_id, $forum_id, array(), $reply_author_id );
-		} else {
-			$this->reply_delete( $reply_id );
+		$this->reply_create( $reply_id, $topic_id, $forum_id, array(), $reply_author_id );
+	}
+
+	/**
+	 * Restore activity after a topic or reply becomes publicly visible.
+	 *
+	 * Normal edits recreate activity through topic_update() and reply_update().
+	 * Handle visibility transitions separately when revision logging is disabled.
+	 *
+	 * @since 2.6.21 bbPress (r8113)
+	 *
+	 * @param int     $post_id     Post ID.
+	 * @param WP_Post $post_after  Post object following the update.
+	 * @param WP_Post $post_before Post object before the update.
+	 */
+	public function post_visibility_update( $post_id = 0, $post_after = null, $post_before = null ) {
+		$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+
+		// Bail unless this is a topic or reply update
+		if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post ) || ! in_array( $post_after->post_type, $post_types, true ) ) {
+			return;
+		}
+
+		// Bail when normal edit handling applies or protection remains
+		if ( bbp_allow_revisions() || bbp_is_password_protected( $post_id ) ) {
+			return;
+		}
+
+		// Restore topic activity
+		if ( bbp_get_topic_post_type() === $post_after->post_type ) {
+			$was_public = in_array( $post_before->post_status, bbp_get_public_topic_statuses(), true );
+			$is_public  = in_array( $post_after->post_status, bbp_get_public_topic_statuses(), true );
+
+			// Bail unless the topic became publicly visible
+			if ( ( $was_public && empty( $post_before->post_password ) ) || ! $is_public || bbp_is_topic_anonymous( $post_id ) ) {
+				return;
+			}
+
+			$forum_id = bbp_get_topic_forum_id( $post_id );
+			$user_id  = bbp_get_topic_author_id( $post_id );
+
+			$this->topic_create( $post_id, $forum_id, array(), $user_id );
+
+		// Restore reply activity
+		} elseif ( bbp_get_reply_post_type() === $post_after->post_type ) {
+			$was_public = ( bbp_get_public_status_id() === $post_before->post_status );
+			$is_public  = ( bbp_get_public_status_id() === $post_after->post_status  );
+
+			// Bail unless the reply became publicly visible
+			if ( ( $was_public && empty( $post_before->post_password ) ) || ! $is_public || bbp_is_reply_anonymous( $post_id ) ) {
+				return;
+			}
+
+			$topic_id = bbp_get_reply_topic_id( $post_id );
+			$forum_id = bbp_get_reply_forum_id( $post_id );
+			$user_id  = bbp_get_reply_author_id( $post_id );
+
+			$this->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
 		}
 	}
 }

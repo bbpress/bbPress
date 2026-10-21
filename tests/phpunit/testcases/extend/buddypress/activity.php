@@ -219,11 +219,7 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	 */
 	public function test_password_protected_ancestor_activity_requires_password() {
 		$user_id = $this->factory->user->create();
-		$parent  = $this->factory->forum->create(
-			array(
-				'post_password' => 'parent-secret',
-			)
-		);
+		$parent  = $this->factory->forum->create();
 		$forum_id = $this->factory->forum->create(
 			array(
 				'post_parent' => $parent,
@@ -252,6 +248,13 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			(int) get_post_meta( $reply_id, '_bbp_activity_id', true ),
 		);
 		$this->assertNotContains( 0, $activity_ids );
+
+		wp_update_post(
+			array(
+				'ID'            => $parent,
+				'post_password' => 'parent-secret',
+			)
+		);
 
 		wp_set_current_user( 0 );
 		$public_activity = bp_activity_get( array( 'in' => $activity_ids ) );
@@ -300,17 +303,16 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * Activity respects passwords set directly on topics and replies.
+	 * Existing activity respects passwords set directly on topics and replies.
 	 */
-	public function test_password_protected_post_activity_requires_password() {
+	public function test_existing_password_protected_post_activity_requires_password() {
 		$user_id  = $this->factory->user->create();
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create(
 			array(
-				'post_parent'   => $forum_id,
-				'post_author'   => $user_id,
-				'post_content'  => 'Protected topic content',
-				'post_password' => 'post-secret',
+				'post_parent'  => $forum_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Protected topic content',
 			)
 		);
 		$public_topic_id = $this->factory->topic->create(
@@ -321,10 +323,9 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 		);
 		$reply_id = $this->factory->reply->create(
 			array(
-				'post_parent'   => $public_topic_id,
-				'post_author'   => $user_id,
-				'post_content'  => 'Protected reply content',
-				'post_password' => 'post-secret',
+				'post_parent'  => $public_topic_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Protected reply content',
 			)
 		);
 
@@ -336,6 +337,16 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			(int) get_post_meta( $reply_id, '_bbp_activity_id', true ),
 		);
 		$this->assertNotContains( 0, $activity_ids );
+
+		global $wpdb;
+		foreach ( array( $topic_id, $reply_id ) as $post_id ) {
+			$wpdb->update(
+				$wpdb->posts,
+				array( 'post_password' => 'post-secret' ),
+				array( 'ID' => $post_id )
+			);
+			clean_post_cache( $post_id );
+		}
 
 		wp_set_current_user( 0 );
 		$this->assertEmpty( bp_activity_get( array( 'in' => $activity_ids ) )['activities'] );
@@ -372,6 +383,476 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			} else {
 				$_COOKIE[ $cookie ] = $old_cookie;
 			}
+		}
+	}
+
+	/**
+	 * Password-protected topics and replies do not create activity.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_password_protected_post_does_not_create_activity( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'  => $forum_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Public topic content',
+			)
+		);
+
+		if ( 'reply' === $activity_type ) {
+			$post_id = $this->factory->reply->create(
+				array(
+					'post_parent'   => $topic_id,
+					'post_author'   => $user_id,
+					'post_content'  => 'Protected reply content',
+					'post_password' => 'post-secret',
+				)
+			);
+			bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+		} else {
+			$post_id = wp_update_post(
+				array(
+					'ID'            => $topic_id,
+					'post_password' => 'post-secret',
+				)
+			);
+			bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+		}
+
+		$this->assertEmpty( get_post_meta( $post_id, '_bbp_activity_id', true ) );
+	}
+
+	/**
+	 * An unlocked password-protected topic or reply does not create activity.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_unlocked_password_protected_post_does_not_create_activity( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'  => $forum_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Public topic content',
+			)
+		);
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher               = new PasswordHash( 8, true );
+		$cookie               = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie           = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'post-secret' );
+
+		try {
+			if ( 'reply' === $activity_type ) {
+				$post_id = $this->factory->reply->create(
+					array(
+						'post_parent'   => $topic_id,
+						'post_author'   => $user_id,
+						'post_content'  => 'Protected reply content',
+						'post_password' => 'post-secret',
+					)
+				);
+				bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+			} else {
+				$post_id = wp_update_post(
+					array(
+						'ID'            => $topic_id,
+						'post_password' => 'post-secret',
+					)
+				);
+				bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+			}
+
+			$this->assertFalse( post_password_required( $post_id ) );
+			$this->assertEmpty( get_post_meta( $post_id, '_bbp_activity_id', true ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
+	 * Topics and replies do not create activity beneath a protected forum.
+	 */
+	public function test_inherited_password_protection_does_not_create_activity() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create(
+			array( 'post_password' => 'forum-secret' )
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_author' => $user_id,
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_author' => $user_id,
+			)
+		);
+
+		bbpress()->extend->buddypress->activity->topic_create( $topic_id, $forum_id, array(), $user_id );
+		bbpress()->extend->buddypress->activity->reply_create( $reply_id, $topic_id, $forum_id, array(), $user_id );
+
+		$this->assertEmpty( get_post_meta( $topic_id, '_bbp_activity_id', true ) );
+		$this->assertEmpty( get_post_meta( $reply_id, '_bbp_activity_id', true ) );
+
+		$public_forum_id = $this->factory->forum->create();
+		$protected_topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'   => $public_forum_id,
+				'post_author'   => $user_id,
+				'post_password' => 'topic-secret',
+			)
+		);
+		$inherited_reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $protected_topic_id,
+				'post_author' => $user_id,
+			)
+		);
+
+		bbpress()->extend->buddypress->activity->reply_create( $inherited_reply_id, $protected_topic_id, $public_forum_id, array(), $user_id );
+
+		$this->assertEmpty( get_post_meta( $inherited_reply_id, '_bbp_activity_id', true ) );
+	}
+
+	/**
+	 * Activity follows direct password changes on topics and replies.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_activity_follows_post_password_changes( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'  => $forum_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Public topic content',
+			)
+		);
+
+		if ( 'reply' === $activity_type ) {
+			$post_id = $this->factory->reply->create(
+				array(
+					'post_parent'  => $topic_id,
+					'post_author'  => $user_id,
+					'post_content' => 'Public reply content',
+				)
+			);
+			bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+		} else {
+			$post_id = $topic_id;
+			bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+		}
+
+		$activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+		$this->assertGreaterThan( 0, $activity_id );
+
+		add_filter( 'bbp_allow_revisions', '__return_false' );
+		try {
+			wp_update_post(
+				array(
+					'ID'            => $post_id,
+					'post_password' => 'post-secret',
+				)
+			);
+
+			$protected_activity = new BP_Activity_Activity( $activity_id );
+			$this->assertEmpty( $protected_activity->component );
+
+			wp_update_post(
+				array(
+					'ID'            => $post_id,
+					'post_password' => '',
+				)
+			);
+
+			$restored_activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+			$this->assertGreaterThan( 0, $restored_activity_id );
+			$this->assertNotSame( $activity_id, $restored_activity_id );
+			$this->assertSame( $post_id, (int) ( new BP_Activity_Activity( $restored_activity_id ) )->item_id );
+		} finally {
+			remove_filter( 'bbp_allow_revisions', '__return_false' );
+		}
+	}
+
+	/**
+	 * Disabled revisions do not update or recreate missing activity.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_disabled_revisions_do_not_update_or_recreate_activity( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'  => $forum_id,
+				'post_author'  => $user_id,
+				'post_content' => 'Original topic content',
+			)
+		);
+
+		if ( 'reply' === $activity_type ) {
+			$post_id = $this->factory->reply->create(
+				array(
+					'post_parent'  => $topic_id,
+					'post_author'  => $user_id,
+					'post_content' => 'Original reply content',
+				)
+			);
+			bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+		} else {
+			$post_id = $topic_id;
+			bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+		}
+
+		$activity_id      = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+		$original_content = ( new BP_Activity_Activity( $activity_id ) )->content;
+		$this->assertGreaterThan( 0, $activity_id );
+
+		add_filter( 'bbp_allow_revisions', '__return_false' );
+		try {
+			wp_update_post(
+				array(
+					'ID'           => $post_id,
+					'post_content' => 'Edited activity content',
+				)
+			);
+
+			$this->assertSame( $original_content, ( new BP_Activity_Activity( $activity_id ) )->content );
+
+			bp_activity_delete( array( 'id' => $activity_id ) );
+			wp_update_post(
+				array(
+					'ID'           => $post_id,
+					'post_content' => 'Edited after activity deletion',
+				)
+			);
+
+			$remaining_activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+			$this->assertEmpty( ( new BP_Activity_Activity( $remaining_activity_id ) )->component );
+		} finally {
+			remove_filter( 'bbp_allow_revisions', '__return_false' );
+		}
+	}
+
+	/**
+	 * Activity follows visibility changes when revisions are disabled.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_visibility_changes_update_activity_when_revisions_are_disabled( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_author' => $user_id,
+			)
+		);
+
+		if ( 'reply' === $activity_type ) {
+			$post_id = $this->factory->reply->create(
+				array(
+					'post_parent' => $topic_id,
+					'post_author' => $user_id,
+				)
+			);
+			bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+		} else {
+			$post_id = $topic_id;
+			bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+		}
+
+		$activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+		$this->assertGreaterThan( 0, $activity_id );
+
+		add_filter( 'bbp_allow_revisions', '__return_false' );
+		try {
+			wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => bbp_get_pending_status_id(),
+				)
+			);
+
+			$this->assertEmpty( ( new BP_Activity_Activity( $activity_id ) )->component );
+
+			wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => bbp_get_public_status_id(),
+				)
+			);
+
+			$restored_activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+			$this->assertGreaterThan( 0, $restored_activity_id );
+			$this->assertNotSame( $activity_id, $restored_activity_id );
+			$this->assertSame( $post_id, (int) ( new BP_Activity_Activity( $restored_activity_id ) )->item_id );
+		} finally {
+			remove_filter( 'bbp_allow_revisions', '__return_false' );
+		}
+	}
+
+	/**
+	 * Closed topics regain activity after protection or pending status.
+	 */
+	public function test_closed_topic_activity_is_restored() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_author' => $user_id,
+		) );
+		bbpress()->extend->buddypress->activity->topic_create( $topic_id, $forum_id, array(), $user_id );
+		$activity_id = (int) get_post_meta( $topic_id, '_bbp_activity_id', true );
+		$this->assertGreaterThan( 0, $activity_id );
+
+		add_filter( 'bbp_allow_revisions', '__return_false' );
+		try {
+			wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_closed_status_id() ) );
+			wp_update_post( array( 'ID' => $topic_id, 'post_password' => 'topic-secret' ) );
+			$this->assertEmpty( ( new BP_Activity_Activity( $activity_id ) )->component );
+
+			wp_update_post( array( 'ID' => $topic_id, 'post_password' => '' ) );
+			$restored_id = (int) get_post_meta( $topic_id, '_bbp_activity_id', true );
+			$this->assertNotSame( $activity_id, $restored_id );
+			$this->assertSame( $topic_id, (int) ( new BP_Activity_Activity( $restored_id ) )->item_id );
+
+			wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_pending_status_id() ) );
+			$this->assertEmpty( ( new BP_Activity_Activity( $restored_id ) )->component );
+			wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_closed_status_id() ) );
+			$approved_id = (int) get_post_meta( $topic_id, '_bbp_activity_id', true );
+			$this->assertNotSame( $restored_id, $approved_id );
+			$this->assertSame( $topic_id, (int) ( new BP_Activity_Activity( $approved_id ) )->item_id );
+		} finally {
+			remove_filter( 'bbp_allow_revisions', '__return_false' );
+		}
+	}
+
+	/**
+	 * Anonymous conversion cannot preserve protected or unpublished activity.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_existing_anonymous_activity_is_removed( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_author' => $user_id,
+		) );
+
+		add_filter( 'bbp_allow_revisions', '__return_false' );
+		try {
+			foreach ( array( 'password', 'status' ) as $change ) {
+				if ( 'reply' === $activity_type ) {
+					$post_id = $this->factory->reply->create( array(
+						'post_parent' => $topic_id,
+						'post_author' => $user_id,
+					) );
+					bbpress()->extend->buddypress->activity->reply_create( $post_id, $topic_id, $forum_id, array(), $user_id );
+				} else {
+					$post_id = $this->factory->topic->create( array(
+						'post_parent' => $forum_id,
+						'post_author' => $user_id,
+					) );
+					bbpress()->extend->buddypress->activity->topic_create( $post_id, $forum_id, array(), $user_id );
+				}
+
+				$activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
+				$this->assertGreaterThan( 0, $activity_id );
+				wp_update_post( array( 'ID' => $post_id, 'post_author' => 0 ) );
+				$this->assertSame( $post_id, (int) ( new BP_Activity_Activity( $activity_id ) )->item_id );
+
+				$update = array( 'ID' => $post_id );
+				if ( 'password' === $change ) {
+					$update['post_password'] = 'post-secret';
+				} else {
+					$update['post_status'] = bbp_get_pending_status_id();
+				}
+				wp_update_post( $update );
+				$this->assertEmpty( ( new BP_Activity_Activity( $activity_id ) )->component );
+			}
+		} finally {
+			remove_filter( 'bbp_allow_revisions', '__return_false' );
+		}
+	}
+
+	/**
+	 * Visibility restoration does not create activity for anonymous posts.
+	 *
+	 * @dataProvider activity_edit_cases
+	 *
+	 * @param string $activity_type Topic or reply activity.
+	 */
+	public function test_visibility_restoration_skips_anonymous_posts( $activity_type ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'  => $forum_id,
+				'post_author'  => $user_id,
+				'post_password' => ( 'topic' === $activity_type ) ? 'post-secret' : '',
+			)
+		);
+
+		if ( 'reply' === $activity_type ) {
+			$post_id = $this->factory->reply->create(
+				array(
+					'post_parent'   => $topic_id,
+					'post_author'   => 0,
+					'post_password' => 'post-secret',
+				)
+			);
+		} else {
+			$post_id = $topic_id;
+			wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_author' => 0,
+				)
+			);
+		}
+
+		$this->assertTrue( bbp_is_topic_anonymous( $post_id ) || bbp_is_reply_anonymous( $post_id ) );
+		$this->assertEmpty( get_post_meta( $post_id, '_bbp_activity_id', true ) );
+
+		add_filter( 'bbp_allow_revisions', '__return_false' );
+		try {
+			wp_update_post(
+				array(
+					'ID'            => $post_id,
+					'post_password' => '',
+				)
+			);
+
+			$this->assertEmpty( get_post_meta( $post_id, '_bbp_activity_id', true ) );
+		} finally {
+			remove_filter( 'bbp_allow_revisions', '__return_false' );
 		}
 	}
 
