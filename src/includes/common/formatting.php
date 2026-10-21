@@ -380,21 +380,27 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 }
 
 /**
- * Add link relationships to user-generated content on output, not save.
+ * Add the ugc link relationship on output, not save.
  *
  * @since 2.6.21 bbPress (r8110)
  *
  * @param string $text Post text.
- * @return string Text with nofollow and ugc link relationships.
+ * @return string Text with the ugc link relationship.
  */
 function bbp_rel_ugc( $text = '' ) {
-	return preg_replace_callback(
-		'|<a (.+?)>|i',
-		function ( $matches ) {
-			return wp_rel_callback( $matches, 'nofollow ugc' );
-		},
-		$text
-	);
+	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_ugc_callback', $text );
+}
+
+/**
+ * Add the ugc relationship to a user-generated link.
+ *
+ * @since 2.6.21 bbPress (r8112)
+ *
+ * @param array $matches
+ * @return string Link with the ugc relationship.
+ */
+function bbp_rel_ugc_callback( $matches = array() ) {
+	return wp_rel_callback( $matches, 'ugc' );
 }
 
 /** Make Clickable ************************************************************/

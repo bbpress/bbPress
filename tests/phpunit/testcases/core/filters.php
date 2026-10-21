@@ -88,7 +88,8 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 				array( $hook, 'force_balance_tags', 30, 1 ),
 				array( $hook, 'bbp_make_clickable', 40, 1 ),
 				array( $hook, 'wpautop',            50, 1 ),
-				array( $hook, 'bbp_rel_ugc',        60, 1 ),
+				array( $hook, 'bbp_rel_nofollow',   60, 1 ),
+				array( $hook, 'bbp_rel_ugc',        70, 1 ),
 			) );
 		}
 	}

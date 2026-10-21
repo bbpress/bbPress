@@ -220,7 +220,8 @@ add_filter( 'bbp_get_reply_content', 'convert_smilies',    20 );
 add_filter( 'bbp_get_reply_content', 'force_balance_tags', 30 );
 add_filter( 'bbp_get_reply_content', 'bbp_make_clickable', 40 );
 add_filter( 'bbp_get_reply_content', 'wpautop',            50 );
-add_filter( 'bbp_get_reply_content', 'bbp_rel_ugc',        60 );
+add_filter( 'bbp_get_reply_content', 'bbp_rel_nofollow',   60 );
+add_filter( 'bbp_get_reply_content', 'bbp_rel_ugc',        70 );
 
 // Run filters on topic content
 add_filter( 'bbp_get_topic_content', 'wptexturize',        6  );
@@ -230,7 +231,8 @@ add_filter( 'bbp_get_topic_content', 'convert_smilies',    20 );
 add_filter( 'bbp_get_topic_content', 'force_balance_tags', 30 );
 add_filter( 'bbp_get_topic_content', 'bbp_make_clickable', 40 );
 add_filter( 'bbp_get_topic_content', 'wpautop',            50 );
-add_filter( 'bbp_get_topic_content', 'bbp_rel_ugc',        60 );
+add_filter( 'bbp_get_topic_content', 'bbp_rel_nofollow',   60 );
+add_filter( 'bbp_get_topic_content', 'bbp_rel_ugc',        70 );
 
 // Admin-only
 if ( is_admin() ) {
