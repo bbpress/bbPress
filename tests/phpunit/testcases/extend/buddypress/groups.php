@@ -16,6 +16,8 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_errors;
 	protected $old_allow_forum_mods;
 	protected $old_community_visibility;
+	protected $old_allow_anonymous;
+	protected $old_allow_content_throttle;
 	protected $old_moderation_keys;
 	protected $old_action_variables;
 	protected $old_forum_query;
@@ -65,6 +67,8 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->old_errors  = bbpress()->errors;
 		$this->old_allow_forum_mods = get_option( '_bbp_allow_forum_mods', null );
 		$this->old_community_visibility = get_option( '_bp_community_visibility', null );
+		$this->old_allow_anonymous = get_option( '_bbp_allow_anonymous', null );
+		$this->old_allow_content_throttle = get_option( '_bbp_allow_content_throttle' );
 		$this->old_moderation_keys = get_option( 'moderation_keys' );
 		$this->old_action_variables = buddypress()->action_variables;
 		$this->old_forum_query       = bbpress()->forum_query;
@@ -83,6 +87,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$_SERVER          = $this->old_server;
 		bbpress()->errors = $this->old_errors;
 		buddypress()->action_variables = $this->old_action_variables;
+		update_option( '_bbp_allow_content_throttle', $this->old_allow_content_throttle );
 		update_option( 'moderation_keys', $this->old_moderation_keys );
 		bbpress()->forum_query      = $this->old_forum_query;
 		bbpress()->topic_query      = $this->old_topic_query;
@@ -104,7 +109,15 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			update_option( '_bp_community_visibility', $this->old_community_visibility );
 		}
 
+		if ( null === $this->old_allow_anonymous ) {
+			delete_option( '_bbp_allow_anonymous' );
+		} else {
+			update_option( '_bbp_allow_anonymous', $this->old_allow_anonymous );
+		}
+
 		if ( isset( $this->group_extension ) ) {
+			remove_action( 'bbp_new_topic_pre_extras', array( $this->group_extension, 'validate_new_post' ), 10 );
+			remove_action( 'bbp_new_reply_pre_extras', array( $this->group_extension, 'validate_new_post' ), 10 );
 			remove_filter( 'bbp_allow_read_without_spectate', array( $this->group_extension, 'allow_group_forum_read_without_role' ), 10 );
 			remove_filter( 'bbp_current_user_can_access_create_topic_form', array( $this->group_extension, 'form_permissions' ) );
 			remove_filter( 'bbp_current_user_can_access_create_reply_form', array( $this->group_extension, 'form_permissions' ) );
@@ -190,6 +203,75 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->assertSame( 'Your topic is pending moderation.', bbpress()->errors->get_error_message( 'bbp_topic_moderated' ) );
 		$this->assertFalse( $redirected );
 		$this->assertSame( '', bbp_get_form_topic_content() );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::validate_new_post
+	 * @covers ::bbp_new_topic_handler
+	 * @covers ::bbp_new_reply_handler
+	 */
+	public function test_group_forum_creation_requires_current_membership_outside_group_context() {
+		$creator_id   = $this->factory->user->create();
+		$member_id    = $this->factory->user->create();
+		$banned_id    = $this->factory->user->create();
+		$outsider_id  = $this->factory->user->create();
+		$forum_mod_id = $this->factory->user->create();
+		$moderator_id = $this->factory->user->create();
+		$keymaster_id = $this->factory->user->create();
+		$group_id     = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id     = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		foreach ( array( $creator_id, $member_id, $banned_id, $outsider_id, $forum_mod_id ) as $user_id ) {
+			bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		}
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		groups_join_group( $group_id, $member_id );
+		groups_join_group( $group_id, $banned_id );
+		groups_ban_member( $banned_id, $group_id, $creator_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		bbp_add_moderator( $forum_id, $forum_mod_id );
+		update_option( '_bbp_allow_content_throttle', false );
+
+		buddypress()->current_component = '';
+		buddypress()->current_item      = '';
+		buddypress()->current_action    = '';
+		$this->group_extension          = new BBP_Forums_Group_Extension();
+
+		$cases = array(
+			'anonymous'       => array( 0, false, false ),
+			'non-member'      => array( $outsider_id, false, true ),
+			'banned member'   => array( $banned_id, false, true ),
+			'current member'  => array( $member_id, true, false ),
+			'forum moderator' => array( $forum_mod_id, true, false ),
+			'moderator'       => array( $moderator_id, true, false ),
+			'keymaster'       => array( $keymaster_id, true, false ),
+		);
+
+		foreach ( $cases as $label => $case ) {
+			list( $user_id, $allowed, $group_error ) = $case;
+			$this->set_current_user( $user_id );
+			bbpress()->errors = new WP_Error();
+
+			$this->assertSame( $allowed, (bool) $this->submit_group_topic( $forum_id, $label ), $label . ' topic.' );
+			if ( $group_error ) {
+				$this->assertContains( 'bbp_group_forum_permission', bbpress()->errors->get_error_codes(), $label . ' topic error.' );
+			}
+
+			bbpress()->errors = new WP_Error();
+			$this->assertSame( $allowed, (bool) $this->submit_group_reply( $topic_id, $forum_id, $label ), $label . ' reply.' );
+			if ( $group_error ) {
+				$this->assertContains( 'bbp_group_forum_permission', bbpress()->errors->get_error_codes(), $label . ' reply error.' );
+			}
+		}
+
+		$this->set_current_user( 0 );
+		update_option( '_bbp_allow_anonymous', true );
+		bbpress()->errors = new WP_Error();
+		$this->group_extension->validate_new_post( $forum_id );
+		$this->assertNotContains( 'bbp_group_forum_permission', bbpress()->errors->get_error_codes() );
 	}
 
 	/**
@@ -1338,6 +1420,93 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->template_parts[] = $slug . '-' . $name;
 
 		return $templates;
+	}
+
+	protected function submit_group_topic( $forum_id, $label ) {
+		$this->set_request_url();
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_SERVER['REMOTE_ADDR']    = '127.0.0.1';
+		$_POST                     = array(
+			'bbp_forum_id'     => $forum_id,
+			'bbp_topic_title'   => 'Group permission ' . $label,
+			'bbp_topic_content' => 'Group permission topic ' . $label,
+		);
+		$_REQUEST                  = array(
+			'_wpnonce' => wp_create_nonce( 'bbp-new-topic' ),
+		);
+
+		$topic_id         = 0;
+		$capture_topic    = function( $created_topic_id ) use ( &$topic_id ) {
+			$topic_id = $created_topic_id;
+		};
+		$prevent_redirect = function() {
+			throw new RuntimeException( 'Group topic redirect.' );
+		};
+
+		add_action( 'bbp_new_topic', $capture_topic, 10, 1 );
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			bbp_new_topic_handler( 'bbp-new-topic' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'Group topic redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+		} finally {
+			remove_action( 'bbp_new_topic', $capture_topic, 10 );
+			remove_filter( 'wp_redirect', $prevent_redirect );
+		}
+
+		return $topic_id;
+	}
+
+	protected function submit_group_reply( $topic_id, $forum_id, $label ) {
+		$this->set_request_url();
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_SERVER['REMOTE_ADDR']    = '127.0.0.1';
+		$_POST                     = array(
+			'bbp_forum_id'      => $forum_id,
+			'bbp_topic_id'      => $topic_id,
+			'bbp_reply_content' => 'Group permission reply ' . $label,
+		);
+		$_REQUEST                  = array(
+			'_wpnonce' => wp_create_nonce( 'bbp-new-reply' ),
+		);
+
+		$reply_id          = 0;
+		$capture_reply     = function( $created_reply_id ) use ( &$reply_id ) {
+			$reply_id = $created_reply_id;
+		};
+		$prevent_redirect = function() {
+			throw new RuntimeException( 'Group reply redirect.' );
+		};
+
+		add_action( 'bbp_new_reply', $capture_reply, 10, 1 );
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			bbp_new_reply_handler( 'bbp-new-reply' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'Group reply redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+		} finally {
+			remove_action( 'bbp_new_reply', $capture_reply, 10 );
+			remove_filter( 'wp_redirect', $prevent_redirect );
+		}
+
+		return $reply_id;
+	}
+
+	protected function set_request_url() {
+		$home_url             = wp_parse_url( home_url( '/' ) );
+		$_SERVER['HTTP_HOST'] = $home_url['host'];
+
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
 	}
 
 	protected function submit_forum_edit( $forum_id, $parent_id ) {

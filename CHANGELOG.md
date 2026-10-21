@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Enforced BuddyPress group posting permissions during topic and reply submission.
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
 
 ### Fixed
