@@ -379,6 +379,24 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 	return wp_rel_callback( $matches, 'nofollow' );
 }
 
+/**
+ * Add link relationships to user-generated content on output, not save.
+ *
+ * @since 2.6.21 bbPress (r8110)
+ *
+ * @param string $text Post text.
+ * @return string Text with nofollow and ugc link relationships.
+ */
+function bbp_rel_ugc( $text = '' ) {
+	return preg_replace_callback(
+		'|<a (.+?)>|i',
+		function ( $matches ) {
+			return wp_rel_callback( $matches, 'nofollow ugc' );
+		},
+		$text
+	);
+}
+
 /** Make Clickable ************************************************************/
 
 /**

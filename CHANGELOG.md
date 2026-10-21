@@ -36,6 +36,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Added `ugc` alongside `nofollow` to links in topic and reply content.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.
 - Shortened new-content labels and administration metabox titles.
