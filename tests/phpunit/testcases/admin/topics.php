@@ -153,6 +153,47 @@ class BBP_Tests_Admin_Topics extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Topics_Admin::filter_post_data
+	 */
+	public function test_scoped_moderator_cannot_move_restricted_topic_to_public_forum_in_admin() {
+		$old_post      = $_POST;
+		$user_id       = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$author_id     = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum  = $this->factory->forum->create();
+		$public_forum  = $this->factory->forum->create();
+		$topic_id      = $this->factory->topic->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $source_forum,
+			'topic_meta'  => array( 'forum_id' => $source_forum ),
+		) );
+
+		bbp_privatize_forum( $source_forum );
+		bbp_add_moderator( $source_forum, $user_id );
+		$this->set_current_user( $user_id );
+		$GLOBALS['current_screen'] = WP_Screen::get( 'topic' );
+		$_POST['action']            = 'editpost';
+		$_POST['bbp_topic_metabox'] = wp_create_nonce( 'bbp_topic_metabox_save' );
+
+		try {
+			$this->assertTrue( is_admin() );
+			$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+			$this->assertTrue( current_user_can( 'edit_forum', $source_forum ) );
+			$this->assertTrue( current_user_can( 'read_forum', $public_forum ) );
+			$this->assertFalse( current_user_can( 'edit_forum', $public_forum ) );
+
+			$admin = $this->get_admin_without_hooks();
+			$data  = $admin->filter_post_data(
+				array( 'post_type' => bbp_get_topic_post_type(), 'post_parent' => $public_forum ),
+				array( 'ID' => $topic_id )
+			);
+
+			$this->assertSame( $source_forum, $data['post_parent'] );
+		} finally {
+			$_POST = $old_post;
+		}
+	}
+
+	/**
 	 * @covers BBP_Topics_Admin::__construct
 	 * @ticket 3706
 	 */

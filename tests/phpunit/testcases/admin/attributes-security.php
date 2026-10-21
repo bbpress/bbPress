@@ -222,6 +222,29 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertSame( $forum_id, (int) get_post_meta( $topic_id, '_bbp_forum_id', true ) );
 	}
 
+	public function test_new_topic_can_be_published_without_destination_edit_forum() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->post->create( array( 'post_type' => bbp_get_topic_post_type(), 'post_status' => 'auto-draft', 'post_author' => $user_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		get_user_by( 'id', $user_id )->add_cap( 'edit_others_topics' );
+		$this->set_current_user( $user_id );
+		$this->assertTrue( current_user_can( 'publish_topics' ) );
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertTrue( current_user_can( 'read_forum', $forum_id ) );
+		$this->assertFalse( current_user_can( 'edit_forum', $forum_id ) );
+		new BBP_Topics_Admin();
+		$_POST['parent_id']          = $forum_id;
+		$_POST['hidden_post_status'] = 'draft';
+		$_POST['bbp_topic_metabox']  = wp_create_nonce( 'bbp_topic_metabox_save' );
+
+		wp_update_post( array( 'ID' => $topic_id, 'post_status' => 'publish', 'post_parent' => $forum_id ) );
+
+		$this->assertSame( $forum_id, wp_get_post_parent_id( $topic_id ) );
+		$this->assertSame( $forum_id, (int) get_post_meta( $topic_id, '_bbp_forum_id', true ) );
+	}
+
 	public function test_forum_moderator_cannot_move_reply_into_unmoderated_topic() {
 		set_current_screen( 'edit-reply' );
 
@@ -307,7 +330,7 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertSame( $forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
 	}
 
-	public function test_forum_moderator_can_move_topic_into_readable_forum() {
+	public function test_forum_moderator_can_move_topic_into_moderated_forum() {
 		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$source_forum_id      = $this->factory->forum->create();
 		$destination_forum_id = $this->factory->forum->create();
@@ -315,9 +338,11 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$reply_id             = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
 
 		bbp_add_moderator( $source_forum_id, $user_id );
+		bbp_add_moderator( $destination_forum_id, $user_id );
 		$this->set_current_user( $user_id );
 
 		$this->assertTrue( current_user_can( 'edit_forum', $source_forum_id ) );
+		$this->assertTrue( current_user_can( 'edit_forum', $destination_forum_id ) );
 		$this->assertTrue( current_user_can( 'read_forum', $destination_forum_id ) );
 		new BBP_Topics_Admin();
 		$_POST['parent_id']         = $destination_forum_id;

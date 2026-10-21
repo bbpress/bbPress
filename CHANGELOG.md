@@ -49,6 +49,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Required permission to manage both forums before moving a topic between them.
 - Kept password-protected topic and reply content out of BuddyPress activity.
 - Kept restricted attachment metadata out of alternate front-end and feed requests.
 - Required validated forum destinations for front-end topic submissions.

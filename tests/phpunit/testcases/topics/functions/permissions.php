@@ -196,6 +196,196 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertFalse( $did_redirect );
 	}
 
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_forum_moderator_cannot_move_restricted_topic_to_unmoderated_public_forum() {
+		$user_id        = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$author_id      = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$public_forum   = $this->factory->forum->create();
+		$source_forums  = array();
+
+		foreach ( array( 'private', 'hidden', 'password' ) as $restriction ) {
+			$forum_id = $this->factory->forum->create();
+
+			if ( 'private' === $restriction ) {
+				bbp_privatize_forum( $forum_id );
+			} elseif ( 'hidden' === $restriction ) {
+				bbp_hide_forum( $forum_id );
+			} else {
+				wp_update_post( array( 'ID' => $forum_id, 'post_password' => 'forum-pass' ) );
+			}
+
+			bbp_add_moderator( $forum_id, $user_id );
+			$source_forums[ $restriction ] = $forum_id;
+		}
+
+		$this->set_current_user( $user_id );
+		$this->assertFalse( current_user_can( 'edit_forum', $public_forum ) );
+		$this->assertTrue( current_user_can( 'read_forum', $public_forum ) );
+
+		foreach ( $source_forums as $restriction => $forum_id ) {
+			$topic_id = $this->factory->topic->create( array(
+				'post_author' => $author_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			) );
+			$reply_id = $this->factory->reply->create( array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			) );
+
+			bbpress()->errors = new WP_Error();
+			$this->assertTrue( current_user_can( 'edit_topic', $topic_id ), $restriction );
+			$this->assertTrue( current_user_can( 'edit_forum', $forum_id ), $restriction );
+			if ( 'password' === $restriction ) {
+				$this->assertSame( $forum_id, bbp_get_password_required_id( $forum_id ) );
+			} else {
+				$this->assertTrue( bbp_is_forum_restricted_for_user( $forum_id, 0 ) );
+			}
+
+			$did_redirect = $this->submit_topic_edit( $topic_id, $public_forum, 'Restricted topic.' );
+
+			$this->assertSame( $forum_id, bbp_get_topic_forum_id( $topic_id ), $restriction );
+			$this->assertSame( $forum_id, bbp_get_reply_forum_id( $reply_id ), $restriction );
+			$this->assertContains( 'bbp_edit_topic_forum_move_new', bbpress()->errors->get_error_codes(), $restriction );
+			$this->assertFalse( $did_redirect, $restriction );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_forum_moderator_cannot_move_topic_into_unmoderated_forums() {
+		$user_id      = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$author_id    = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum = $this->factory->forum->create();
+
+		bbp_add_moderator( $source_forum, $user_id );
+		$this->set_current_user( $user_id );
+
+		foreach ( array( 'public', 'private', 'hidden', 'password' ) as $restriction ) {
+			$destination = $this->factory->forum->create();
+			$topic_id    = $this->factory->topic->create( array(
+				'post_author' => $author_id,
+				'post_parent' => $source_forum,
+				'topic_meta'  => array( 'forum_id' => $source_forum ),
+			) );
+
+			if ( 'private' === $restriction ) {
+				bbp_privatize_forum( $destination );
+			} elseif ( 'hidden' === $restriction ) {
+				bbp_hide_forum( $destination );
+			} elseif ( 'password' === $restriction ) {
+				wp_update_post( array( 'ID' => $destination, 'post_password' => 'forum-pass' ) );
+			}
+
+			bbpress()->errors = new WP_Error();
+			$this->assertFalse( current_user_can( 'edit_forum', $destination ), $restriction );
+
+			$did_redirect = $this->submit_topic_edit( $topic_id, $destination, 'Topic stays in source forum.' );
+
+			$this->assertSame( $source_forum, bbp_get_topic_forum_id( $topic_id ), $restriction );
+			$this->assertContains( 'bbp_edit_topic_forum_move_new', bbpress()->errors->get_error_codes(), $restriction );
+			$this->assertFalse( $did_redirect, $restriction );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_authorized_forum_staff_can_move_topics_between_moderated_forums() {
+		$author_id    = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum = $this->factory->forum->create();
+		$destination  = $this->factory->forum->create();
+
+		foreach ( array( 'scoped', 'moderator', 'keymaster' ) as $role ) {
+			$user_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+			$topic_id = $this->factory->topic->create( array(
+				'post_author' => $author_id,
+				'post_parent' => $source_forum,
+				'topic_meta'  => array( 'forum_id' => $source_forum ),
+			) );
+
+			if ( 'scoped' === $role ) {
+				bbp_add_moderator( $source_forum, $user_id );
+				bbp_add_moderator( $destination, $user_id );
+			} else {
+				bbp_set_user_role( $user_id, ( 'moderator' === $role ) ? bbp_get_moderator_role() : bbp_get_keymaster_role() );
+			}
+
+			$this->set_current_user( $user_id );
+			bbpress()->errors = new WP_Error();
+			$this->assertTrue( current_user_can( 'edit_forum', $source_forum ), $role );
+			$this->assertTrue( current_user_can( 'edit_forum', $destination ), $role );
+
+			$did_redirect = $this->submit_topic_edit( $topic_id, $destination, 'Authorized topic move.' );
+
+			$this->assertSame( array(), bbpress()->errors->get_error_codes(), $role );
+			$this->assertSame( $destination, bbp_get_topic_forum_id( $topic_id ), $role );
+			$this->assertTrue( $did_redirect, $role );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_participant_cannot_move_own_topic_between_public_forums() {
+		$user_id      = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum = $this->factory->forum->create();
+		$destination  = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $source_forum,
+			'topic_meta'  => array( 'forum_id' => $source_forum ),
+		) );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertFalse( current_user_can( 'edit_forum', $source_forum ) );
+
+		$did_redirect = $this->submit_topic_edit( $topic_id, $destination, 'Participant move.' );
+
+		$this->assertSame( $source_forum, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertContains( 'bbp_edit_topic_forum_move_old', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_participant_cannot_move_own_private_topic_and_others_replies_public() {
+		$user_id      = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$reply_author = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum = $this->factory->forum->create();
+		$destination  = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $source_forum,
+			'topic_meta'  => array( 'forum_id' => $source_forum ),
+		) );
+		$reply_id     = $this->factory->reply->create( array(
+			'post_author' => $reply_author,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $source_forum, 'topic_id' => $topic_id ),
+		) );
+
+		bbp_privatize_forum( $source_forum );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertFalse( current_user_can( 'edit_forum', $source_forum ) );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $source_forum, 0 ) );
+
+		$did_redirect = $this->submit_topic_edit( $topic_id, $destination, 'Private topic.' );
+
+		$this->assertSame( $source_forum, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertSame( $source_forum, bbp_get_reply_forum_id( $reply_id ) );
+		$this->assertContains( 'bbp_edit_topic_forum_move_old', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( $did_redirect );
+	}
+
 
 	/**
 	 * @covers ::bbp_new_topic_handler
