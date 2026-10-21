@@ -134,6 +134,40 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_edit_topic_handler
 	 */
+	public function test_keymaster_cannot_edit_topic_with_invalid_forum_id() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+		$cases = array(
+			'nonnumeric'  => array( 'not-a-number', '<strong>Error</strong>: Forum ID must be a number.' ),
+			'numeric-zero' => array( '00', '<strong>Error</strong>: Forum ID is missing.' ),
+			'negative'    => array( -1, '<strong>Error</strong>: Forum ID cannot be a negative number.' ),
+			'nonexistent' => array( PHP_INT_MAX, '<strong>Error</strong>: Forum does not exist.' ),
+		);
+
+		foreach ( $cases as $case => $configuration ) {
+			bbpress()->errors = new WP_Error();
+
+			$did_redirect = $this->submit_topic_edit( $topic_id, $configuration[0], 'Invalid forum ID edit: ' . $case );
+
+			$this->assertContains( 'bbp_topic_forum_id', bbpress()->errors->get_error_codes(), $case );
+			$this->assertSame( $configuration[1], bbpress()->errors->get_error_message( 'bbp_topic_forum_id' ), $case );
+			$this->assertSame( $forum_id, bbp_get_topic_forum_id( $topic_id ), $case );
+			$this->assertFalse( $did_redirect, $case );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
 	public function test_forum_moderator_cannot_move_topic_to_closed_forum() {
 		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$topic_owner_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );

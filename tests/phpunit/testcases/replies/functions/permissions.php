@@ -601,6 +601,66 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_new_reply_handler
 	 */
+	public function test_participant_can_submit_reply_without_redundant_forum_id() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$user_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$did_redirect = $this->submit_reply( $topic_id, null, 'A reply without a redundant forum ID.' );
+		$reply_ids    = $this->get_reply_ids( $topic_id );
+
+		$this->assertCount( 1, $reply_ids );
+		$this->assertSame( $forum_id, bbp_get_reply_forum_id( $reply_ids[0] ) );
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
+	 */
+	public function test_new_reply_rejects_invalid_redundant_forum_ids_consistently() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$user_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$cases   = array(
+			'empty'       => array( '', '<strong>Error</strong>: Forum ID is missing.' ),
+			'zero'        => array( 0, '<strong>Error</strong>: Forum ID is missing.' ),
+			'nonnumeric'  => array( 'not-a-number', '<strong>Error</strong>: Forum ID must be a number.' ),
+			'negative'    => array( -1, '<strong>Error</strong>: Forum ID cannot be a negative number.' ),
+			'nonexistent' => array( PHP_INT_MAX, '<strong>Error</strong>: Forum does not exist.' ),
+		);
+
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( $user_id );
+
+		foreach ( $cases as $case => $configuration ) {
+			bbpress()->errors = new WP_Error();
+
+			$did_redirect = $this->submit_reply( $topic_id, $configuration[0], 'Invalid forum ID reply: ' . $case );
+
+			$this->assertSame( array( 'bbp_reply_forum_id' ), bbpress()->errors->get_error_codes(), $case );
+			$this->assertSame( $configuration[1], bbpress()->errors->get_error_message( 'bbp_reply_forum_id' ), $case );
+			$this->assertSame( array(), $this->get_reply_ids( $topic_id ), $case );
+			$this->assertFalse( $did_redirect, $case );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
+	 */
 	public function test_new_reply_action_excludes_parent_from_another_topic() {
 		$forum_id  = $this->factory->forum->create();
 		$topic_ids = $this->factory->topic->create_many( 2, array( 'post_parent' => $forum_id ) );
