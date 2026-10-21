@@ -106,6 +106,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_action( 'bbp_edit_topic_pre_extras',      array( $this, 'validate_topic_forum_id' ) );
 		add_action( 'bbp_edit_reply_pre_extras',      array( $this, 'validate_reply_to_id'    ) );
 
+		// Validate group membership when creating topics & replies
+		add_action( 'bbp_new_topic_pre_extras',       array( $this, 'validate_new_post'       ), 10, 1 );
+		add_action( 'bbp_new_reply_pre_extras',       array( $this, 'validate_new_post'       ), 10, 2 );
+
 		// Check if group-forum attributes should be changed
 		add_action( 'groups_group_after_save',        array( $this, 'update_group_forum' ) );
 
@@ -696,6 +700,40 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function remove_group_forum_meta_cap_map() {
 		remove_filter( 'bbp_map_meta_caps', array( $this, 'map_group_forum_meta_caps' ), 10 );
+	}
+
+	/**
+	 * Validate group membership before creating a topic or reply.
+	 *
+	 * @since 2.6.21 bbPress (r8103)
+	 *
+	 * @param int $object_id Forum ID for topics, or topic ID for replies.
+	 * @param int $forum_id  Forum ID for replies.
+	 */
+	public function validate_new_post( $object_id = 0, $forum_id = 0 ) {
+		$forum_id = ! empty( $forum_id ) ? bbp_get_forum_id( $forum_id ) : bbp_get_forum_id( $object_id );
+		$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+		// Keep normal bbPress permissions for other forums and anonymous posting.
+		if ( empty( $group_ids ) || bbp_is_anonymous() ) {
+			return;
+		}
+
+		$user_id = bbp_get_current_user_id();
+
+		// Preserve access for global and per-forum moderators.
+		if ( bbp_is_user_forum_moderator( $user_id, $forum_id ) ) {
+			return;
+		}
+
+		// Allow current, non-banned members of any attached group.
+		foreach ( $group_ids as $group_id ) {
+			if ( false === groups_is_user_banned( $user_id, $group_id ) && false !== groups_is_user_member( $user_id, $group_id ) ) {
+				return;
+			}
+		}
+
+		bbp_add_error( 'bbp_group_forum_permission', __( '<strong>Error</strong>: You do not have permission to create content in this forum.', 'bbpress' ) );
 	}
 
 	/**

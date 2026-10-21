@@ -48,6 +48,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Enforced BuddyPress group posting permissions during topic and reply submission.
 - Limited block editor topic-tag choices to public discussions in accessible forums.
 - Enforced BuddyPress community visibility for group forum content.
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
