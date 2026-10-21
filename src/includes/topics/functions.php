@@ -570,6 +570,19 @@ function bbp_edit_topic_handler( $action = '' ) {
 	// Current forum this topic is in
 	$current_forum_id = bbp_get_topic_forum_id( $topic_id );
 
+	// Forum change
+	if ( $forum_id !== $current_forum_id ) {
+
+		// User cannot edit current forum
+		if ( ! current_user_can( 'edit_forum', $current_forum_id ) ) {
+			bbp_add_error( 'bbp_edit_topic_forum_move_old', __( '<strong>Error</strong>: You do not have the capability to move topics out of this forum.', 'bbpress' ) );
+
+		// User cannot edit or read new forum
+		} elseif ( ! current_user_can( 'edit_forum', $forum_id ) || ! current_user_can( 'read_forum', $forum_id ) ) {
+			bbp_add_error( 'bbp_edit_topic_forum_move_new', __( '<strong>Error</strong>: You do not have the capability to move topics into this forum.', 'bbpress' ) );
+		}
+	}
+
 	// Forum exists
 	if ( ! empty( $forum_id ) && ( $forum_id !== $current_forum_id ) ) {
 

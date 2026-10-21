@@ -634,6 +634,7 @@ class BBP_Topics_Admin {
 			|| ( ! empty( $old_forum_id ) && ! current_user_can( 'edit_forum', $old_forum_id ) )
 			|| ! bbp_get_forum( $new_forum_id )
 			|| bbp_is_forum_category( $new_forum_id )
+			|| ( ! $is_new && ! current_user_can( 'edit_forum', $new_forum_id ) )
 			|| ! current_user_can( 'read_forum', $new_forum_id )
 			|| ( bbp_is_forum_closed( $new_forum_id ) && ! current_user_can( 'edit_forum', $new_forum_id ) )
 		) {
