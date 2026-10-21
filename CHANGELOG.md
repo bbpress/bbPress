@@ -49,6 +49,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Kept password-protected topic and reply content out of BuddyPress activity.
 - Kept restricted attachment metadata out of alternate front-end and feed requests.
 - Required validated forum destinations for front-end topic submissions.
 - Enforced BuddyPress group posting permissions during topic and reply submission.
