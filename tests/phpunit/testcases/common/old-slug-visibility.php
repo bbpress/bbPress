@@ -155,11 +155,129 @@ class BBP_Tests_Common_Old_Slug_Visibility extends BBP_UnitTestCase {
 
 		try {
 			wp_old_slug_redirect();
+			$this->assertNull( $redirect_url );
+
+			wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_public_status_id() ) );
+			wp_old_slug_redirect();
+			$this->assertSame( get_permalink( $topic_id ), $redirect_url );
 		} finally {
 			remove_filter( 'old_slug_redirect_url', $filter );
 		}
+	}
 
-		$this->assertNull( $redirect_url );
+	/**
+	 * @covers ::bbp_filter_old_slug_redirect_post_id
+	 * @covers ::wp_old_slug_redirect
+	 */
+	public function test_wp_old_slug_redirect_does_not_redirect_to_unreadable_reply() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_name'   => 'restricted-reply-current-title',
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		add_post_meta( $reply_id, '_wp_old_slug', 'restricted-reply-old-title' );
+		bbp_privatize_forum( $forum_id );
+		set_query_var( 'post_type', bbp_get_reply_post_type() );
+		set_query_var( 'name', 'restricted-reply-old-title' );
+		$GLOBALS['wp_query']->is_404 = true;
+		$this->set_current_user( 0 );
+
+		$redirect_url = null;
+		$filter       = function( $url ) use ( &$redirect_url ) {
+			$redirect_url = $url;
+			return false;
+		};
+		add_filter( 'old_slug_redirect_url', $filter );
+
+		try {
+			wp_old_slug_redirect();
+			$this->assertNull( $redirect_url );
+
+			bbp_publicize_forum( $forum_id );
+			wp_old_slug_redirect();
+			$this->assertSame( get_permalink( $reply_id ), $redirect_url );
+		} finally {
+			remove_filter( 'old_slug_redirect_url', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_old_slug_redirect_post_id
+	 */
+	public function test_old_slug_redirect_post_id_requires_reply_topic_and_forum_access() {
+		$author_id      = $this->factory->user->create();
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create();
+		$forum_id       = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id       = $this->factory->reply->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		bbp_set_user_role( $author_id, bbp_get_participant_role() );
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		$this->set_current_user( 0 );
+		$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+
+		bbp_privatize_forum( $forum_id );
+		$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+		$this->set_current_user( $participant_id );
+		$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+
+		bbp_hide_forum( $forum_id, bbp_get_private_status_id() );
+		$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+		$this->set_current_user( 0 );
+		$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+		$this->set_current_user( $moderator_id );
+		$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+		$this->set_current_user( $keymaster_id );
+		$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+
+		bbp_publicize_forum( $forum_id, bbp_get_hidden_status_id() );
+		wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_pending_status_id() ) );
+		$this->set_current_user( 0 );
+		$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+		$this->set_current_user( $moderator_id );
+		$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+
+		wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_public_status_id() ) );
+		foreach ( array( bbp_get_pending_status_id(), bbp_get_spam_status_id(), 'trash' ) as $reply_status ) {
+			wp_update_post( array( 'ID' => $reply_id, 'post_status' => $reply_status ) );
+			$this->set_current_user( 0 );
+			$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ), $reply_status );
+			$this->set_current_user( $participant_id );
+			$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ), $reply_status );
+			$this->set_current_user( $moderator_id );
+			$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ), $reply_status );
+		}
+
+		wp_update_post( array( 'ID' => $reply_id, 'post_status' => bbp_get_pending_status_id() ) );
+		$this->set_current_user( $author_id );
+		$this->assertSame( $reply_id, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+
+		wp_update_post( array( 'ID' => $reply_id, 'post_parent' => 0 ) );
+		delete_post_meta( $reply_id, '_bbp_topic_id' );
+		$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
+
+		wp_update_post( array( 'ID' => $reply_id, 'post_parent' => $topic_id ) );
+		wp_update_post( array( 'ID' => $topic_id, 'post_parent' => 0 ) );
+		delete_post_meta( $topic_id, '_bbp_forum_id' );
+		$this->assertSame( 0, apply_filters( 'old_slug_redirect_post_id', $reply_id ) );
 	}
 
 	/**
