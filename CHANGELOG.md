@@ -53,6 +53,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented malformed and mixed-case requests below bbPress route roots from
+  triggering broad permalink guess queries.
 - Allowed canonical and 404 handling for bbPress routes with empty identifiers.
 - Used the recorded editor when displaying topic and reply revision logs.
 - Redirected merged topic URLs to their destination topics.
