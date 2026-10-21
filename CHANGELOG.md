@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added pending moderation counts to the Topics and Replies administration menus.
 - Added configurable email notifications for Keymasters, Moderators, per-forum
   Moderators, and integrated recipient types when a new topic or reply is held
   for moderation.

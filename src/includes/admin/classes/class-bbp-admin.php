@@ -211,6 +211,7 @@ class BBP_Admin {
 		/** General Actions ***************************************************/
 
 		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) );
+		add_action( 'bbp_admin_menu',              array( $this, 'add_pending_counts'      ), 99 );
 		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) );
 		add_action( 'bbp_register_admin_styles',   array( $this, 'register_admin_styles'   ) );
 		add_action( 'bbp_register_admin_scripts',  array( $this, 'register_admin_scripts'  ) );
@@ -479,6 +480,147 @@ class BBP_Admin {
 				$menu[ $menu_index ][0] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][0] );
 				continue;
 			}
+		}
+	}
+
+	/**
+	 * Append pending topic and reply counts to their admin menus.
+	 *
+	 * @since 2.7.0 bbPress (r8098)
+	 *
+	 * @global array $menu WordPress admin menu entries.
+	 * @global wpdb  $wpdb WordPress database abstraction object.
+	 */
+	public function add_pending_counts() {
+		global $menu, $wpdb;
+
+		// Only show moderation counts to users who can act on every item.
+		if ( empty( $menu ) || ! current_user_can( 'moderate' ) ) {
+			return;
+		}
+
+		$topic_type = bbp_get_topic_post_type();
+		$reply_type = bbp_get_reply_post_type();
+		$menu_items = array(
+			$topic_type => array(
+				'index' => false,
+				'slug'  => 'edit.php?post_type=' . $topic_type
+			),
+			$reply_type => array(
+				'index' => false,
+				'slug'  => 'edit.php?post_type=' . $reply_type
+			)
+		);
+
+		// Find the menus before loading their counts.
+		foreach ( $menu as $menu_index => $menu_item ) {
+			if ( empty( $menu_item[2] ) ) {
+				continue;
+			}
+
+			foreach ( $menu_items as $post_type => $item ) {
+				if ( $item['slug'] === $menu_item[2] ) {
+					$menu_items[ $post_type ]['index'] = $menu_index;
+				}
+			}
+		}
+
+		if ( ( false === $menu_items[ $topic_type ]['index'] ) && ( false === $menu_items[ $reply_type ]['index'] ) ) {
+			return;
+		}
+
+		$pending_status = bbp_get_pending_status_id();
+		$last_changed   = wp_cache_get_last_changed( 'posts' );
+		$cache_key      = 'bbp_pending_counts';
+		$cached         = wp_cache_get( $cache_key, 'bbpress_posts' );
+		$counts         = false;
+
+		if ( is_array( $cached )
+			&& isset( $cached['last_changed'], $cached['topic_type'], $cached['reply_type'], $cached['pending_status'], $cached['counts'] )
+			&& ( $last_changed === $cached['last_changed'] )
+			&& ( $topic_type === $cached['topic_type'] )
+			&& ( $reply_type === $cached['reply_type'] )
+			&& ( $pending_status === $cached['pending_status'] )
+			&& is_array( $cached['counts'] )
+		) {
+			$counts = array(
+				$topic_type => isset( $cached['counts'][ $topic_type ] ) ? (int) $cached['counts'][ $topic_type ] : 0,
+				$reply_type => isset( $cached['counts'][ $reply_type ] ) ? (int) $cached['counts'][ $reply_type ] : 0
+			);
+		}
+
+		if ( false === $counts ) {
+			$counts = array(
+				$topic_type => 0,
+				$reply_type => 0
+			);
+
+			// Count only queued content to avoid full post-type counts on every page.
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT post_type, COUNT(*) AS pending_count
+						FROM {$wpdb->posts}
+						WHERE post_type IN ( %s, %s )
+							AND post_status = %s
+						GROUP BY post_type",
+					$topic_type,
+					$reply_type,
+					$pending_status
+				)
+			);
+
+			foreach ( (array) $results as $result ) {
+				if ( 0 === strcasecmp( $topic_type, $result->post_type ) ) {
+					$counts[ $topic_type ] += (int) $result->pending_count;
+				} elseif ( 0 === strcasecmp( $reply_type, $result->post_type ) ) {
+					$counts[ $reply_type ] += (int) $result->pending_count;
+				}
+			}
+
+			// Do not hide pending content behind a cached database failure.
+			if ( empty( $wpdb->last_error ) ) {
+				wp_cache_set(
+					$cache_key,
+					array(
+						'last_changed'   => $last_changed,
+						'topic_type'    => $topic_type,
+						'reply_type'    => $reply_type,
+						'pending_status' => $pending_status,
+						'counts'         => $counts
+					),
+					'bbpress_posts'
+				);
+			}
+		}
+
+		$post_types = array(
+			$topic_type => array(
+				'count'      => $counts[ $topic_type ],
+				'menu_index' => $menu_items[ $topic_type ]['index'],
+				/* translators: %s: Number of topics. */
+				'text'       => _n( '%s Topic pending', '%s Topics pending', $counts[ $topic_type ], 'bbpress' )
+			),
+			$reply_type => array(
+				'count'      => $counts[ $reply_type ],
+				'menu_index' => $menu_items[ $reply_type ]['index'],
+				/* translators: %s: Number of replies. */
+				'text'       => _n( '%s Reply pending', '%s Replies pending', $counts[ $reply_type ], 'bbpress' )
+			)
+		);
+
+		foreach ( $post_types as $item ) {
+			$count      = $item['count'];
+			$menu_index = $item['menu_index'];
+			if ( empty( $count ) || ( false === $menu_index ) ) {
+				continue;
+			}
+
+			$count_i18n = bbp_number_format_i18n( $count );
+			$text       = sprintf( $item['text'], $count_i18n );
+			$bubble     = ' <span class="awaiting-mod bbp-menu-count count-' . absint( $count ) . '"><span class="pending-count" aria-hidden="true">' . esc_html( $count_i18n ) . '</span><span class="screen-reader-text">' . esc_html( $text ) . '</span></span>';
+
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $menu_index ][0] .= $bubble;
 		}
 	}
 

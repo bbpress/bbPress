@@ -151,6 +151,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$this->assertStringEndsWith( '/includes/admin/assets/css/', $admin->css_url );
 		$this->assertStringEndsWith( '/includes/admin/assets/js/', $admin->js_url );
 		$this->assertSame( 10, has_action( 'bbp_admin_menu', array( $admin, 'admin_menus' ) ) );
+		$this->assertSame( 99, has_action( 'bbp_admin_menu', array( $admin, 'add_pending_counts' ) ) );
 		$this->assertSame( 10, has_action( 'bbp_admin_head', array( $admin, 'admin_head' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_styles' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_scripts' ) ) );
@@ -295,6 +296,226 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$this->assertSame( array( 'manage_options', 'tools.php' ), array_slice( $GLOBALS['menu'][1], 1 ) );
 		$this->assertStringContainsString( 'awaiting-mod count-2', $GLOBALS['menu'][1][0] );
 		$this->assertStringContainsString( 'pending-count">2</span>', $GLOBALS['menu'][1][0] );
+	}
+
+	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3325
+	 */
+	public function test_pending_counts_are_added_to_topic_and_reply_menus_for_moderators() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$topic_ids = $this->factory->topic->create_many( 2, array( 'post_status' => bbp_get_pending_status_id() ) );
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_ids[0],
+				'post_status' => bbp_get_pending_status_id()
+			)
+		);
+		$this->factory->topic->create( array( 'post_status' => bbp_get_public_status_id() ) );
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_ids[0],
+				'post_status' => bbp_get_public_status_id()
+			)
+		);
+		$this->factory->topic->create( array( 'post_status' => bbp_get_spam_status_id() ) );
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_ids[0],
+				'post_status' => bbp_get_trash_status_id()
+			)
+		);
+		$this->factory->forum->create( array( 'post_status' => bbp_get_pending_status_id() ) );
+		$this->factory->post->create( array( 'post_status' => bbp_get_pending_status_id() ) );
+
+		$GLOBALS['menu'] = array(
+			array( 'Forums', 'edit_forums', 'edit.php?post_type=' . bbp_get_forum_post_type() ),
+			array( 'Topics', 'edit_topics', 'edit.php?post_type=' . bbp_get_topic_post_type() ),
+			array( 'Replies', 'edit_replies', 'edit.php?post_type=' . bbp_get_reply_post_type() ),
+		);
+
+		bbp_admin()->add_pending_counts();
+
+		$this->assertSame( 'Forums', $GLOBALS['menu'][0][0] );
+		$this->assertStringContainsString( 'awaiting-mod bbp-menu-count count-2', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( 'pending-count" aria-hidden="true">2</span>', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( '2 Topics pending', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( 'awaiting-mod bbp-menu-count count-1', $GLOBALS['menu'][2][0] );
+		$this->assertStringContainsString( '1 Reply pending', $GLOBALS['menu'][2][0] );
+	}
+
+	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3325
+	 */
+	public function test_pending_counts_are_not_added_without_global_moderation_access() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id() ) );
+		$GLOBALS['menu'] = array(
+			array( 'Topics', 'edit_topics', 'edit.php?post_type=' . bbp_get_topic_post_type() ),
+		);
+
+		bbp_admin()->add_pending_counts();
+
+		$this->assertSame( 'Topics', $GLOBALS['menu'][0][0] );
+	}
+
+	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3325
+	 */
+	public function test_pending_counts_are_not_added_when_the_queue_is_empty() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$this->factory->topic->create( array( 'post_status' => bbp_get_public_status_id() ) );
+		$GLOBALS['menu'] = array(
+			array( 'Topics', 'edit_topics', 'edit.php?post_type=' . bbp_get_topic_post_type() ),
+		);
+
+		bbp_admin()->add_pending_counts();
+
+		$this->assertSame( 'Topics', $GLOBALS['menu'][0][0] );
+	}
+
+	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3325
+	 */
+	public function test_pending_counts_are_not_loaded_without_topic_or_reply_menus() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$GLOBALS['menu'] = array(
+			array( 'Dashboard', 'read', 'index.php' ),
+		);
+
+		$this->assertTrue( current_user_can( 'moderate' ) );
+		$queries_before = get_num_queries();
+		bbp_admin()->add_pending_counts();
+
+		$this->assertSame( $queries_before, get_num_queries() );
+		$this->assertSame( 'Dashboard', $GLOBALS['menu'][0][0] );
+	}
+
+	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3325
+	 */
+	public function test_pending_counts_are_cached_and_invalidated_with_posts() {
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id() ) );
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_pending_status_id()
+			)
+		);
+		$GLOBALS['menu'] = array(
+			array( 'Topics', 'edit_topics', 'edit.php?post_type=' . bbp_get_topic_post_type() ),
+			array( 'Replies', 'edit_replies', 'edit.php?post_type=' . bbp_get_reply_post_type() ),
+		);
+
+		$last_changed = wp_cache_get_last_changed( 'posts' );
+		$cache_key    = 'bbp_pending_counts';
+		wp_cache_delete( $cache_key, 'bbpress_posts' );
+
+		$queries_before = get_num_queries();
+		bbp_admin()->add_pending_counts();
+		$queries_after  = get_num_queries();
+		$this->assertSame( $queries_before + 1, $queries_after );
+		$this->assertSame(
+			array(
+				'last_changed'   => $last_changed,
+				'topic_type'    => bbp_get_topic_post_type(),
+				'reply_type'    => bbp_get_reply_post_type(),
+				'pending_status' => bbp_get_pending_status_id(),
+				'counts'         => array(
+					bbp_get_topic_post_type() => 1,
+					bbp_get_reply_post_type() => 1
+				)
+			),
+			wp_cache_get( $cache_key, 'bbpress_posts' )
+		);
+
+		$GLOBALS['menu'][0][0] = 'Topics';
+		$GLOBALS['menu'][1][0] = 'Replies';
+		bbp_admin()->add_pending_counts();
+		$this->assertSame( $queries_after, get_num_queries() );
+		$this->assertStringContainsString( '1 Topic pending', $GLOBALS['menu'][0][0] );
+		$this->assertStringContainsString( '1 Reply pending', $GLOBALS['menu'][1][0] );
+
+		bbp_approve_reply( $reply_id );
+		bbp_approve_topic( $topic_id );
+		$new_last_changed = wp_cache_get_last_changed( 'posts' );
+		$this->assertNotSame( $last_changed, $new_last_changed );
+
+		$GLOBALS['menu'][0][0] = 'Topics';
+		$GLOBALS['menu'][1][0] = 'Replies';
+		$this->assertTrue( current_user_can( 'moderate' ) );
+		$queries_before_refresh = get_num_queries();
+		bbp_admin()->add_pending_counts();
+		$this->assertSame( $queries_before_refresh + 1, get_num_queries() );
+		$this->assertSame( 'Topics', $GLOBALS['menu'][0][0] );
+		$this->assertSame( 'Replies', $GLOBALS['menu'][1][0] );
+	}
+
+	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3325
+	 */
+	public function test_pending_counts_are_not_cached_after_database_failure() {
+		global $wpdb;
+
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$GLOBALS['menu'] = array(
+			array( 'Topics', 'edit_topics', 'edit.php?post_type=' . bbp_get_topic_post_type() ),
+		);
+		$this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id() ) );
+		wp_cache_delete( 'bbp_pending_counts', 'bbpress_posts' );
+
+		$suppress_errors = $wpdb->suppress_errors( true );
+		add_filter( 'query', array( $this, 'filter_pending_counts_query_to_missing_table' ) );
+
+		try {
+			bbp_admin()->add_pending_counts();
+		} finally {
+			remove_filter( 'query', array( $this, 'filter_pending_counts_query_to_missing_table' ) );
+			$wpdb->suppress_errors( $suppress_errors );
+		}
+
+		$this->assertFalse( wp_cache_get( 'bbp_pending_counts', 'bbpress_posts' ) );
+		$this->assertSame( 'Topics', $GLOBALS['menu'][0][0] );
+	}
+
+	/**
+	 * Replace the pending-count table with a missing table.
+	 *
+	 * @param string $query Database query.
+	 * @return string Filtered database query.
+	 */
+	public function filter_pending_counts_query_to_missing_table( $query ) {
+		global $wpdb;
+
+		if ( false !== strpos( $query, 'COUNT(*) AS pending_count' ) ) {
+			$query = str_replace( $wpdb->posts, $wpdb->posts . '_missing', $query );
+		}
+
+		return $query;
 	}
 
 	/**
