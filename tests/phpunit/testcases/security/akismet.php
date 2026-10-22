@@ -7,6 +7,86 @@
  */
 class BBP_Tests_Security_Akismet extends BBP_UnitTestCase {
 
+	public function test_akismet_never_retries_over_http_after_https_errors() {
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+
+		$previous = get_option( 'akismet_ssl_disabled', null );
+		$disabled = time();
+		$requests = array();
+		$intercept = function( $pre, $args, $url ) use ( &$requests ) {
+			$requests[] = array( $url, $args );
+			return new WP_Error( 'test_https_failure' );
+		};
+
+		update_option( 'akismet_ssl_disabled', $disabled );
+		add_filter( 'pre_http_request', $intercept, 10, 3 );
+
+		try {
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$method     = $reflection->getMethod( 'get_response' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+
+			$result = $method->invoke( $akismet, 'example.invalid/1.1/comment-check', array(
+				'body'        => 'Private forum submission',
+				'redirection' => 5,
+				'sslverify'   => false,
+			) );
+
+			$this->assertSame( array( '', '' ), $result );
+			$this->assertCount( 2, $requests );
+			foreach ( $requests as $request ) {
+				$this->assertSame( 'https://example.invalid/1.1/comment-check', $request[0] );
+				$this->assertSame( 'Private forum submission', $request[1]['body'] );
+				$this->assertSame( 0, $request[1]['redirection'] );
+				$this->assertTrue( $request[1]['sslverify'] );
+			}
+			$this->assertSame( (string) $disabled, (string) get_option( 'akismet_ssl_disabled' ) );
+		} finally {
+			remove_filter( 'pre_http_request', $intercept, 10 );
+			if ( null === $previous ) {
+				delete_option( 'akismet_ssl_disabled' );
+			} else {
+				update_option( 'akismet_ssl_disabled', $previous );
+			}
+		}
+	}
+
+	public function test_akismet_accepts_a_successful_https_retry() {
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+
+		$requests  = array();
+		$intercept = function( $pre, $args, $url ) use ( &$requests ) {
+			$requests[] = $url;
+			return ( 1 === count( $requests ) )
+				? new WP_Error( 'test_https_failure' )
+				: array( 'headers' => array( 'x-test' => 'ok' ), 'body' => 'false' );
+		};
+		add_filter( 'pre_http_request', $intercept, 10, 3 );
+
+		try {
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$method     = $reflection->getMethod( 'get_response' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+
+			$this->assertSame(
+				array( array( 'x-test' => 'ok' ), 'false' ),
+				$method->invoke( $akismet, 'example.invalid/1.1/comment-check', array( 'body' => 'Forum submission' ) )
+			);
+			$this->assertSame( array(
+				'https://example.invalid/1.1/comment-check',
+				'https://example.invalid/1.1/comment-check',
+			), $requests );
+		} finally {
+			remove_filter( 'pre_http_request', $intercept, 10 );
+		}
+	}
+
 	public function test_akismet_receives_unformatted_author_post_count() {
 		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
 

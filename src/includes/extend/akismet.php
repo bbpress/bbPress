@@ -821,7 +821,7 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Handles the repeated calls to wp_remote_post(), including SSL support.
+	 * Handles repeated HTTPS requests to Akismet.
 	 *
 	 * @since 2.6.7 bbPress (r7195)
 	 *
@@ -831,56 +831,21 @@ class BBP_Akismet {
 	 */
 	private function get_response( $host_and_path = '', $http_args = array() ) {
 
-		// Default variables
-		$akismet_url = $http_akismet_url = 'http://' . $host_and_path;
-		$is_ssl = $ssl_failed = false;
-		$now = time();
-
-		// Check if SSL requests were disabled fewer than 24 hours ago
-		$ssl_disabled_time = get_option( 'akismet_ssl_disabled' );
-
-		// Clean-up if 24 hours have passed
-		if ( ! empty( $ssl_disabled_time ) && ( $ssl_disabled_time < ( $now - DAY_IN_SECONDS ) ) ) {
-			delete_option( 'akismet_ssl_disabled' );
-			$ssl_disabled_time = false;
-		}
-
-		// Maybe HTTPS if not disabled
-		if ( empty( $ssl_disabled_time ) ) {
-			$is_ssl = wp_http_supports( array( 'ssl' ) );
-
-			// Use SSL
-			if ( ! empty( $is_ssl ) ) {
-				$akismet_url = set_url_scheme( $akismet_url, 'https' );
-			}
-		}
+		$akismet_url = 'https://' . $host_and_path;
+		$http_args['redirection'] = 0;
+		$http_args['sslverify']   = true;
 
 		// Initial remote request
 		$response = wp_remote_post( $akismet_url, $http_args );
 
-		// Initial request produced an error, so retry...
-		if ( ! empty( $is_ssl ) && is_wp_error( $response ) ) {
-
-			// Intermittent connection problems may cause the first HTTPS
-			// request to fail and subsequent HTTP requests to succeed randomly.
-			// Retry the HTTPS request once before disabling SSL for a time.
+		// Retry HTTPS once after an intermittent connection error
+		if ( is_wp_error( $response ) ) {
 			$response = wp_remote_post( $akismet_url, $http_args );
-
-			// SSL request failed twice, so try again without it
-			if ( is_wp_error( $response ) ) {
-				$response   = wp_remote_post( $http_akismet_url, $http_args );
-				$ssl_failed = true;
-			}
 		}
 
 		// Bail if errored
 		if ( is_wp_error( $response ) ) {
 			return array( '', '' );
-		}
-
-		// Maybe disable SSL for future requests
-		if ( ! empty( $ssl_failed ) ) {
-			update_option( 'akismet_ssl_disabled', $now );
 		}
 
 		// No errors so return response
