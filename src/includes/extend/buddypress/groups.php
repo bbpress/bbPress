@@ -168,6 +168,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'bbp_allow_read_without_spectate', array( $this, 'allow_group_forum_read_without_role' ), 10, 4 );
 		add_filter( 'bbp_map_meta_caps',              array( $this, 'map_group_forum_read_meta_caps' ), 20, 4 );
 		add_filter( 'bbp_get_excluded_forum_ids',     array( $this, 'exclude_group_forum_ids'        ), 20    );
+		add_filter( 'bbp_is_forum_restricted_for_user', array( $this, 'restrict_inaccessible_group_forums' ), 10, 3 );
+		add_filter( 'bbp_user_can_view_forum',         array( $this, 'filter_user_can_view_forum'       ), 10, 3 );
 
 		// BuddyPress rewrites resolve the group during query parsing.
 		if ( function_exists( 'bp_core_get_query_parser' ) && ( 'rewrites' === bp_core_get_query_parser() ) && ! ( bp_is_single_item() && bp_is_group() && bp_is_current_action( $this->slug ) ) ) {
@@ -247,6 +249,49 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Include BuddyPress group visibility in forum read restrictions.
+	 *
+	 * Public group forums can be unreadable when the community is Members Only.
+	 * Check attached ancestors as well as the requested forum so their public
+	 * descendants cannot bypass the group decision.
+	 *
+	 * @since 2.6.21 bbPress (r8123)
+	 *
+	 * @param bool $restricted Whether bbPress already restricts the forum.
+	 * @param int  $forum_id   Forum ID.
+	 * @param int  $user_id    User ID.
+	 * @return bool Whether the forum is restricted from the user.
+	 */
+	public function restrict_inaccessible_group_forums( $restricted, $forum_id, $user_id ) {
+		if ( $restricted || empty( $forum_id ) || ! function_exists( 'bp_get_community_visibility' ) || bp_user_can( $user_id, 'bp_view', array( 'bp_component' => 'groups' ) ) ) {
+			return $restricted;
+		}
+
+		$forum_ids = array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
+		foreach ( $forum_ids as $candidate_id ) {
+			if ( false === $this->user_can_view_group_forum( $user_id, $candidate_id ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Apply the same group decision to public forum template reads.
+	 *
+	 * @since 2.6.21 bbPress (r8123)
+	 *
+	 * @param bool $can_view Whether bbPress allows the forum to be viewed.
+	 * @param int  $forum_id Forum ID.
+	 * @param int  $user_id  User ID.
+	 * @return bool Whether the forum can be viewed.
+	 */
+	public function filter_user_can_view_forum( $can_view, $forum_id, $user_id ) {
+		return $can_view && ! $this->restrict_inaccessible_group_forums( false, $forum_id, $user_id );
 	}
 
 	/**
