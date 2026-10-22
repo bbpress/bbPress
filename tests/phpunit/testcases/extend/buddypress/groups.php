@@ -125,6 +125,8 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99 );
 			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_read_meta_caps' ), 20 );
 			remove_filter( 'bbp_get_excluded_forum_ids', array( $this->group_extension, 'exclude_group_forum_ids' ), 20 );
+			remove_filter( 'bbp_is_forum_restricted_for_user', array( $this->group_extension, 'restrict_inaccessible_group_forums' ), 10 );
+			remove_filter( 'bbp_user_can_view_forum', array( $this->group_extension, 'filter_user_can_view_forum' ), 10 );
 			remove_filter( 'bbp_subscription_user_can_view_forum', array( $this->group_extension, 'subscription_user_can_view_forum' ), 10 );
 		}
 
@@ -581,6 +583,155 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->assertContains( $topic_id, wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
 		bbp_has_replies( array( 'post_parent' => 'any', 'posts_per_page' => -1 ) );
 		$this->assertContains( $reply_id, wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::restrict_inaccessible_group_forums
+	 * @covers ::BBP_Forums_Group_Extension::filter_user_can_view_forum
+	 */
+	public function test_members_only_public_group_forum_direct_reads_respect_community_visibility() {
+		$creator_id = $this->factory->user->create();
+		$no_role_id = $this->factory->user->create();
+		$outsider_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+		$normal_id  = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array(
+			'post_parent' => $child_id,
+			'post_title'  => 'Members only fixture topic',
+			'topic_meta'  => array( 'forum_id' => $child_id ),
+		) );
+		$reply_id   = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $child_id, 'topic_id' => $topic_id ),
+		) );
+		$media_id   = wp_insert_attachment( array(
+			'post_status'    => 'inherit',
+			'post_parent'    => $topic_id,
+			'post_mime_type' => 'image/jpeg',
+			'guid'           => 'https://example.org/group-forum-attachment.jpg',
+		) );
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		bbp_set_user_role( $outsider_id, bbp_get_participant_role() );
+		groups_join_group( $group_id, $no_role_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		update_option( '_bp_community_visibility', array( 'global' => 'members' ) );
+		$this->group_extension = new BBP_Forums_Group_Extension();
+		$items = array(
+			bbp_get_forum_post_type() => array( $forum_id, $child_id ),
+			bbp_get_topic_post_type() => array( $topic_id ),
+			bbp_get_reply_post_type() => array( $reply_id ),
+			'media' => array( $media_id ),
+		);
+		$controllers = array(
+			bbp_get_forum_post_type() => new BBP_REST_Posts_Controller( bbp_get_forum_post_type() ),
+			bbp_get_topic_post_type() => new BBP_REST_Posts_Controller( bbp_get_topic_post_type() ),
+			bbp_get_reply_post_type() => new BBP_REST_Posts_Controller( bbp_get_reply_post_type() ),
+		);
+		$check_rest_read = function( $controller, $post_id ) {
+			$post = get_post( $post_id );
+			$show_in_rest = array();
+			foreach ( bbp_get_post_types() as $post_type ) {
+				$object = get_post_type_object( $post_type );
+				$show_in_rest[ $post_type ] = $object->show_in_rest;
+				$object->show_in_rest = true;
+			}
+			try {
+				return $controller->check_read_permission( $post );
+			} finally {
+				foreach ( $show_in_rest as $post_type => $enabled ) {
+					get_post_type_object( $post_type )->show_in_rest = $enabled;
+				}
+			}
+		};
+
+		$this->set_current_user( 0 );
+		$this->assertFalse( bp_user_can( 0, 'bp_view', array( 'bp_component' => 'groups' ) ) );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $child_id, 0 ) );
+		$this->assertFalse( bbp_user_can_view_forum( array( 'forum_id' => $child_id ) ) );
+		$this->assertContains( $forum_id, bbp_get_excluded_forum_ids() );
+		$this->assertContains( $child_id, bbp_get_excluded_forum_ids() );
+		foreach ( $items as $post_type => $post_ids ) {
+			foreach ( $post_ids as $post_id ) {
+				if ( isset( $controllers[ $post_type ] ) ) {
+					$this->assertFalse( $check_rest_read( $controllers[ $post_type ], $post_id ) );
+				}
+				if ( 'media' === $post_type || get_post_type_object( $post_type )->show_in_rest ) {
+					$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp/v2/' . $post_type . '/' . $post_id ) );
+					$this->assertSame( 401, $response->get_status() );
+				}
+			}
+		}
+		$this->assertTrue( $check_rest_read( $controllers[ bbp_get_forum_post_type() ], $normal_id ) );
+		if ( get_post_type_object( bbp_get_forum_post_type() )->show_in_rest ) {
+			$this->assertSame( 200, rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp/v2/forum/' . $normal_id ) )->get_status() );
+		}
+		foreach ( $controllers as $post_type => $controller ) {
+			$post_ids = $items[ $post_type ];
+			$posts = get_posts( array( 'post_type' => $post_type, 'numberposts' => -1, 'suppress_filters' => false ) );
+			$this->assertSame( array(), array_intersect( $post_ids, wp_list_pluck( $posts, 'ID' ) ) );
+			if ( get_post_type_object( $post_type )->show_in_rest ) {
+				$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp/v2/' . $post_type ) );
+				$this->assertSame( 200, $response->get_status() );
+				$this->assertSame( array(), array_intersect( $post_ids, wp_list_pluck( $response->get_data(), 'id' ) ) );
+			}
+		}
+		if ( get_post_type_object( bbp_get_topic_post_type() )->show_in_rest ) {
+			$search = new WP_REST_Request( 'GET', '/wp/v2/search' );
+			$search->set_param( 'search', 'Members only fixture topic' );
+			$search->set_param( 'subtype', bbp_get_topic_post_type() );
+			$response = rest_get_server()->dispatch( $search );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertNotContains( $topic_id, wp_list_pluck( $response->get_data(), 'id' ) );
+		}
+		$this->assertSame( 0, bbp_filter_oembed_request_post_id( $topic_id ) );
+		$this->assertSame( 0, bbp_filter_oembed_request_attachment_id( $media_id ) );
+		$this->assertFalse( get_oembed_response_data_for_url( home_url( '/?p=' . $topic_id ), array( 'width' => 600 ) ) );
+		$this->assertSame( 0, bbp_filter_old_slug_redirect_post_id( $topic_id ) );
+		$this->assertEmpty( apply_filters( 'redirect_canonical', get_permalink( $topic_id ), home_url( '/?p=' . $topic_id ) ) );
+		$this->assertSame( array(), $this->get_shortcode_template_parts( 'display_forum', $child_id ) );
+		$this->assertSame( array(), $this->get_shortcode_template_parts( 'display_topic', $topic_id ) );
+		$this->assertSame( array(), $this->get_shortcode_template_parts( 'display_reply', $reply_id ) );
+		$this->set_current_user( $creator_id );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $child_id, 0 ) );
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_is_forum_restricted_for_user( $child_id, $creator_id ) );
+
+		foreach ( array( $creator_id, $no_role_id, $outsider_id ) as $user_id ) {
+			$this->set_current_user( $user_id );
+			$this->assertTrue( bp_user_can( $user_id, 'bp_view', array( 'bp_component' => 'groups' ) ) );
+			$this->assertFalse( bbp_is_forum_restricted_for_user( $child_id, $user_id ) );
+			foreach ( $items as $post_type => $post_ids ) {
+				foreach ( $post_ids as $post_id ) {
+					if ( isset( $controllers[ $post_type ] ) ) {
+						$this->assertTrue( $check_rest_read( $controllers[ $post_type ], $post_id ), $post_type . ' for user ' . $user_id );
+					}
+					if ( 'media' === $post_type || get_post_type_object( $post_type )->show_in_rest ) {
+						$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp/v2/' . $post_type . '/' . $post_id ) );
+						$this->assertSame( 200, $response->get_status() );
+					}
+				}
+			}
+			$this->assertSame( $topic_id, bbp_filter_oembed_request_post_id( $topic_id ) );
+			$this->assertSame( $media_id, bbp_filter_oembed_request_attachment_id( $media_id ) );
+			$this->assertNotFalse( get_oembed_response_data_for_url( home_url( '/?p=' . $topic_id ), array( 'width' => 600 ) ) );
+			$this->assertSame( $topic_id, bbp_filter_old_slug_redirect_post_id( $topic_id ) );
+			$this->assertSame( array( 'content-single-topic' ), $this->get_shortcode_template_parts( 'display_topic', $topic_id ) );
+		}
+
+		update_option( '_bp_community_visibility', array( 'global' => 'anyone' ) );
+		$this->set_current_user( 0 );
+		$this->assertFalse( bbp_is_forum_restricted_for_user( $child_id, 0 ) );
+		$this->assertTrue( $check_rest_read( $controllers[ bbp_get_topic_post_type() ], $topic_id ) );
+		if ( get_post_type_object( bbp_get_topic_post_type() )->show_in_rest ) {
+			$this->assertSame( 200, rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp/v2/topic/' . $topic_id ) )->get_status() );
+		}
+		$this->assertSame( array( 'content-single-topic' ), $this->get_shortcode_template_parts( 'display_topic', $topic_id ) );
+		$this->set_current_user( $outsider_id );
+		bbp_privatize_forum( $forum_id );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $child_id, $outsider_id ) );
 	}
 
 	/**

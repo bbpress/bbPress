@@ -23,6 +23,7 @@ Development for the next bbPress release is in progress. See the active
 - Kept password-protected topic and reply content out of BuddyPress activity.
 - Kept restricted attachment metadata out of alternate front-end and feed requests.
 - Enforced BuddyPress group posting permissions during topic and reply submission.
+- Respected BuddyPress community visibility in direct group forum reads.
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
 - Prevented old reply slugs from redirecting visitors to replies they cannot read.
 
