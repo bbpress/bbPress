@@ -133,6 +133,7 @@ add_filter( 'bbp_request', 'bbp_request_feed_trap' );
  */
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
+add_filter( 'get_the_excerpt',     'bbp_get_theme_compat_excerpt',        9, 2 );
 
 /**
  * Canonical Redirection

@@ -65,6 +65,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept generated bbPress content available to excerpt-based templates without
+  causing themes that display both excerpts and content to duplicate it.
 - Restored topic titles on moderated reply lists for people who can read the
   reply and its topic.
 - Preserved forum freshness metadata when its activity query fails.

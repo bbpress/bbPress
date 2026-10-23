@@ -355,16 +355,84 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	/**
 	 * @ticket 3431
 	 */
-	public function test_theme_compat_reset_post_copies_content_to_excerpt() {
+	public function test_theme_compat_reset_post_uses_content_for_requested_excerpt() {
 		$content = '<div class="bbpress">Generated bbPress content</div>';
+		$original_query = $GLOBALS['wp_query'];
+		$original_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 
-		bbp_theme_compat_reset_post(
+		$GLOBALS['wp_query'] = new WP_Query();
+		$GLOBALS['wp_query']->post = get_post( $this->factory->post->create( array( 'post_excerpt' => '' ) ) );
+
+		try {
+			bbp_theme_compat_reset_post(
+				array(
+					'post_content' => $content,
+				)
+			);
+
+			$this->assertSame( '', $GLOBALS['post']->post_excerpt );
+			$this->assertFalse( has_excerpt() );
+			$this->assertSame( $content, get_the_excerpt() );
+
+			bbp_set_theme_compat_active( false );
+			$this->assertSame( 'Generated bbPress content', get_the_excerpt() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			$GLOBALS['post']     = $original_post;
+		}
+	}
+
+	/**
+	 * @ticket 3431
+	 */
+	public function test_theme_compat_excerpt_does_not_replace_other_posts() {
+		$other_id = $this->factory->post->create(
 			array(
-				'post_content' => $content,
+				'post_content' => '<p>Other post content</p>',
+				'post_excerpt' => '',
 			)
 		);
 
-		$this->assertSame( $content, get_the_excerpt() );
+		bbp_theme_compat_reset_post(
+			array(
+				'post_content' => 'Generated bbPress content',
+			)
+		);
+
+		$this->assertSame( 'Other post content', get_the_excerpt( $other_id ) );
+	}
+
+	/**
+	 * @ticket 3431
+	 */
+	public function test_theme_compat_excerpt_does_not_replace_swapped_query_post() {
+		$original_query = $GLOBALS['wp_query'];
+		$original_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$other_post     = get_post( $this->factory->post->create(
+			array(
+				'post_content' => '<p>Other post content</p>',
+				'post_excerpt' => '',
+			)
+		) );
+
+		$GLOBALS['wp_query'] = new WP_Query();
+
+		try {
+			bbp_theme_compat_reset_post(
+				array(
+					'post_content' => '<div class="bbpress">Generated bbPress content</div>',
+				)
+			);
+
+			$GLOBALS['wp_query']       = new WP_Query();
+			$GLOBALS['wp_query']->post = $other_post;
+			$GLOBALS['post']           = $other_post;
+
+			$this->assertSame( 'Other post content', get_the_excerpt() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			$GLOBALS['post']     = $original_post;
+		}
 	}
 
 	/**
