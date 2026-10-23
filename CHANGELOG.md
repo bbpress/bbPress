@@ -29,6 +29,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Restored topic titles on moderated reply lists for people who can read the
+  reply and its topic.
 - Preserved forum freshness metadata when its activity query fails.
 - Prevented malformed requests below bbPress route roots from triggering broad
   permalink guess queries.

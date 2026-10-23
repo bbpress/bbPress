@@ -604,10 +604,7 @@ function bbp_filter_old_slug_redirect_post_id( $post_id = 0 ) {
 	if ( $post && ( bbp_is_topic( $post ) || bbp_is_reply( $post ) ) ) {
 		$topic_id       = bbp_is_reply( $post ) ? bbp_get_reply_topic_id( $post->ID ) : $post->ID;
 		$forum_id       = bbp_get_topic_forum_id( $topic_id );
-		$forum_stati    = array_keys( bbp_get_forum_visibilities( $forum_id ) );
-		$can_read_forum = ! empty( $forum_id )
-			&& bbp_is_forum( $forum_id )
-			&& in_array( get_post_status( $forum_id ), $forum_stati, true )
+		$can_read_forum = bbp_is_forum_visibility_valid( $forum_id )
 			&& ! bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() );
 		$can_read_topic = ! empty( $topic_id )
 			&& bbp_is_topic( $topic_id )

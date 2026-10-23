@@ -247,6 +247,56 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_reply_title_fallback
+	 */
+	public function test_pending_reply_title_identifies_its_topic_to_readers() {
+		$author_id    = self::factory()->user->create();
+		$other_id     = self::factory()->user->create();
+		$moderator_id = self::factory()->user->create();
+		bbp_set_user_role( $author_id, bbp_get_participant_role() );
+		bbp_set_user_role( $other_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_title'  => 'Moderation test topic',
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		$this->set_current_user( 0 );
+		$this->assertSame( 'Reply', get_the_title( $reply_id ) );
+		$this->set_current_user( $other_id );
+		$this->assertSame( 'Reply', get_the_title( $reply_id ) );
+		$this->set_current_user( $author_id );
+		$this->assertSame( 'Reply To: Moderation test topic', get_the_title( $reply_id ) );
+		$this->set_current_user( $moderator_id );
+		$this->assertSame( 'Reply To: Moderation test topic', get_the_title( $reply_id ) );
+
+		wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_pending_status_id() ) );
+		$this->set_current_user( $author_id );
+		$this->assertSame( 'Reply', get_the_title( $reply_id ) );
+		$this->set_current_user( $moderator_id );
+		$this->assertSame( 'Reply To: Moderation test topic', get_the_title( $reply_id ) );
+
+		wp_update_post( array( 'ID' => $topic_id, 'post_password' => 'secret' ) );
+		$this->assertSame( 'Reply', get_the_title( $reply_id ) );
+
+		wp_update_post( array( 'ID' => $topic_id, 'post_status' => bbp_get_public_status_id(), 'post_password' => '' ) );
+		bbp_hide_forum( $forum_id );
+		$this->set_current_user( $author_id );
+		$this->assertSame( 'Reply', get_the_title( $reply_id ) );
+		$this->set_current_user( $moderator_id );
+		$this->assertSame( 'Reply To: Moderation test topic', get_the_title( $reply_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_reply_content
 	 * @covers ::bbp_get_reply_content
 	 */

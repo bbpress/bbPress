@@ -1525,6 +1525,24 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 	}
 
 /**
+ * Check whether a forum's stored status is a valid visibility.
+ *
+ * Callers check ancestors, user access, and passwords separately.
+ *
+ * @since 2.6.21 bbPress (r8125)
+ *
+ * @param int $forum_id Forum ID.
+ * @return bool Whether the forum has a valid visibility.
+ */
+function bbp_is_forum_visibility_valid( $forum_id = 0 ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
+		return false;
+	}
+
+	return in_array( get_post_status( $forum_id ), array_keys( bbp_get_forum_visibilities( $forum_id ) ), true );
+}
+
+/**
  * Output the type of the forum
  *
  * @since 2.1.0 bbPress (r3563)
