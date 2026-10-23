@@ -27,6 +27,11 @@ Development for the next bbPress release is in progress. See the active
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
 - Prevented old reply slugs from redirecting visitors to replies they cannot read.
 
+### Changed
+
+- Stop after finding the latest public topic during forum freshness
+  recalculation.
+
 ### Fixed
 
 - Restored topic titles on moderated reply lists for people who can read the
