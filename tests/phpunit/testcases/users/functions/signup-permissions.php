@@ -91,4 +91,27 @@ class BBP_Tests_Users_Functions_Signup_Permissions extends BBP_UnitTestCase {
 		bbp_user_add_role_on_register( $target_id );
 		$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $target_id ) );
 	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_user_add_role_on_register
+	 * @covers ::bbp_user_add_role_on_activate
+	 */
+	public function test_filtered_empty_signup_role_does_not_remove_existing_forum_role() {
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$empty   = function () {
+			return '';
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		add_filter( 'bbp_validate_signup_role', $empty );
+
+		try {
+			bbp_user_add_role_on_register( $user_id );
+			bbp_user_add_role_on_activate( $user_id, '', array( 'bbp_new_role' => bbp_get_participant_role() ) );
+			$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $user_id ) );
+		} finally {
+			remove_filter( 'bbp_validate_signup_role', $empty );
+		}
+	}
 }

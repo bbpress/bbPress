@@ -946,6 +946,28 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_repair_user_roles
+	 */
+	public function test_role_repair_does_not_remove_role_for_empty_mapped_role() {
+		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$empty_map = function ( $roles ) {
+			$roles['subscriber'] = '';
+			return $roles;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_blocked_role() );
+		add_filter( 'bbp_get_user_role_map', $empty_map );
+
+		try {
+			$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+			$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
+		} finally {
+			remove_filter( 'bbp_get_user_role_map', $empty_map );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_freshness
 	 */
 	public function test_bbp_admin_repair_freshness() {

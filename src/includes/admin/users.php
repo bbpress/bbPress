@@ -99,9 +99,21 @@ class BBP_Users_Admin {
 					<th><label for="bbp-forums-role"><?php esc_html_e( 'Forum Role', 'bbpress' ); ?></label></th>
 					<td>
 
-						<?php $user_role = bbp_get_user_role( $profileuser->ID ); ?>
+						<?php
+						$user_role         = bbp_get_user_role( $profileuser->ID );
+						$all_forum_roles   = bbp_get_dynamic_roles();
+						$current_role_name = isset( $all_forum_roles[ $user_role ]['name'] )
+							? $all_forum_roles[ $user_role ]['name']
+							: '';
+						?>
 
 						<select name="bbp-forums-role" id="bbp-forums-role">
+
+							<?php if ( ! empty( $user_role ) && ! isset( $dynamic_roles[ $user_role ] ) && ! empty( $current_role_name ) ) : ?>
+
+								<option value="<?php echo esc_attr( $user_role ); ?>" selected="selected"><?php echo esc_html( bbp_translate_user_role( $current_role_name ) ); ?></option>
+
+							<?php endif; ?>
 
 							<?php if ( ! empty( $user_role ) ) : ?>
 

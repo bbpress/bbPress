@@ -884,6 +884,81 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $target_id ) );
 	}
 
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_profile_update_role
+	 */
+	public function test_forum_role_handler_can_clear_role_without_changing_site_role() {
+		$admin_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$target_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		bbp_set_user_role( $target_id, bbp_get_participant_role() );
+		wp_set_current_user( $admin_id );
+		$this->set_profile_editor( $target_id );
+		$this->set_profile_request( $target_id, '' );
+
+		bbp_profile_update_role( $target_id );
+
+		$this->assertFalse( bbp_get_user_role( $target_id ) );
+		$this->assertSame( 'subscriber', bbp_get_user_blog_role( $target_id ) );
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_profile_update_role
+	 */
+	public function test_forum_role_handler_cannot_clear_a_role_hidden_from_the_editor() {
+		$admin_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$target_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$hide_role = function ( $roles ) {
+			unset( $roles[ bbp_get_moderator_role() ] );
+			return $roles;
+		};
+
+		bbp_set_user_role( $target_id, bbp_get_moderator_role() );
+		wp_set_current_user( $admin_id );
+		$this->set_profile_editor( $target_id );
+		$this->set_profile_request( $target_id, '' );
+		add_filter( 'bbp_get_user_editable_forum_roles', $hide_role );
+
+		try {
+			bbp_profile_update_role( $target_id );
+			$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $target_id ) );
+		} finally {
+			remove_filter( 'bbp_get_user_editable_forum_roles', $hide_role );
+		}
+
+		bbp_profile_update_role( $target_id );
+		$this->assertFalse( bbp_get_user_role( $target_id ) );
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_edit_user_forums_role
+	 */
+	public function test_forum_role_selector_keeps_an_unassignable_current_role_selected() {
+		$admin_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$target_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$hide_role = function ( $roles ) {
+			unset( $roles[ bbp_get_moderator_role() ] );
+			return $roles;
+		};
+
+		bbp_set_user_role( $target_id, bbp_get_moderator_role() );
+		wp_set_current_user( $admin_id );
+		$this->set_profile_editor( $target_id );
+		add_filter( 'bbp_get_user_editable_forum_roles', $hide_role );
+
+		try {
+			ob_start();
+			bbp_edit_user_forums_role();
+			$html = ob_get_clean();
+			$this->assertStringContainsString( 'value="' . bbp_get_moderator_role() . '" selected="selected"', $html );
+		} finally {
+			remove_filter( 'bbp_get_user_editable_forum_roles', $hide_role );
+		}
+	}
+
 	public function allow_all_forum_roles() {
 		return bbp_get_dynamic_roles();
 	}

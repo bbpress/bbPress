@@ -196,6 +196,14 @@ function bbp_admin_get_settings_fields() {
 					'callback'          => 'bbp_admin_setting_callback_anonymous',
 					'sanitize_callback' => 'intval',
 					'args'              => array()
+				),
+
+				// Blocked user actions
+				'_bbp_user_block_actions' => array(
+					'title'             => esc_html__( 'Blocking', 'bbpress' ),
+					'callback'          => 'bbp_admin_setting_callback_user_block_actions',
+					'sanitize_callback' => 'bbp_admin_sanitize_user_block_actions',
+					'args'              => array()
 				)
 			),
 
@@ -682,6 +690,59 @@ function bbp_admin_sanitize_default_role( $role ) {
 }
 
 /**
+ * Check whether a blocking action can appear in the settings field.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param array $action Registered action details.
+ * @return bool Whether this action can be selected by the current user.
+ */
+function bbp_admin_is_user_block_action_visible( $action ) {
+	return is_array( $action )
+		&& ! empty( $action['name'] )
+		&& bbp_is_user_block_action_available( $action );
+}
+
+/**
+ * Keep blocked user actions within the actions registered with bbPress.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param mixed $action_ids Submitted action IDs.
+ * @return array Valid action IDs.
+ */
+function bbp_admin_sanitize_user_block_actions( $action_ids ) {
+	$actions = bbp_get_user_block_actions();
+	$retval  = array();
+
+	$submitted = is_array( $action_ids ) ? $action_ids : array();
+
+	foreach ( $submitted as $action_id ) {
+		if (
+			is_string( $action_id )
+			&& isset( $actions[ $action_id ] )
+			&& bbp_admin_is_user_block_action_visible( $actions[ $action_id ] )
+		) {
+			$retval[] = $action_id;
+		}
+	}
+
+	// A settings-page save must not clear actions hidden from this user.
+	foreach ( (array) get_option( '_bbp_user_block_actions', array() ) as $action_id ) {
+		if (
+			is_string( $action_id )
+			&& isset( $actions[ $action_id ] )
+			&& bbp_is_user_block_action_available( $actions[ $action_id ], false )
+			&& ! bbp_admin_is_user_block_action_visible( $actions[ $action_id ] )
+		) {
+			$retval[] = $action_id;
+		}
+	}
+
+	return array_values( array_unique( $retval ) );
+}
+
+/**
  * Sanitize the forum moderation link limit.
  *
  * An empty value inherits the WordPress comment moderation limit.
@@ -837,6 +898,50 @@ function bbp_admin_setting_callback_user_section() {
 	<p><?php esc_html_e( 'Setting time limits and other user posting capabilities', 'bbpress' ); ?></p>
 
 <?php
+}
+
+/**
+ * Blocked user actions setting field.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ */
+function bbp_admin_setting_callback_user_block_actions() {
+	$actions  = bbp_get_user_block_actions();
+	$selected = bbp_get_user_block_action_ids();
+	$visible  = array();
+
+	foreach ( $actions as $action_id => $details ) {
+		if ( bbp_admin_is_user_block_action_visible( $details ) ) {
+			$visible[ $action_id ] = $details;
+		}
+	}
+
+	if ( empty( $visible ) ) {
+		echo '<p class="description">' . esc_html__( 'No additional blocking actions are available.', 'bbpress' ) . '</p>';
+		return;
+	}
+	?>
+
+	<fieldset>
+		<legend class="screen-reader-text"><?php esc_html_e( 'Actions to run when blocking a user', 'bbpress' ); ?></legend>
+		<input name="_bbp_user_block_actions[]" type="hidden" value=""<?php bbp_maybe_admin_setting_disabled( '_bbp_user_block_actions' ); ?> />
+
+		<?php foreach ( $visible as $action_id => $details ) : ?>
+
+			<label for="_bbp_user_block_actions_<?php echo esc_attr( $action_id ); ?>">
+				<input name="_bbp_user_block_actions[]" id="_bbp_user_block_actions_<?php echo esc_attr( $action_id ); ?>" type="checkbox" value="<?php echo esc_attr( $action_id ); ?>" <?php checked( in_array( $action_id, $selected, true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_user_block_actions' ); ?> />
+				<?php echo esc_html( $details['name'] ); ?>
+			</label><br />
+
+			<?php if ( ! empty( $details['description'] ) ) : ?>
+				<p class="description"><?php echo esc_html( $details['description'] ); ?></p>
+			<?php endif; ?>
+		<?php endforeach; ?>
+	</fieldset>
+
+	<p class="description"><?php esc_html_e( 'Perform these actions when a user has their role set to Blocked.', 'bbpress' ); ?></p>
+
+	<?php
 }
 
 
@@ -2232,7 +2337,7 @@ function bbp_admin_settings_help() {
 			'title'   => esc_html__( 'Overview', 'bbpress' ),
 			'content' =>
 						'<p>' . esc_html__( 'This screen provides access to all of the Forums settings.',                          'bbpress' ) . '</p>' .
-						'<p>' . esc_html__( 'Please see the additional help tabs for more information on each individual section.', 'bbpress' ) . '</p>'
+						'<p>' . esc_html__( 'Use the other Help tabs for more information about selected settings sections.', 'bbpress' ) . '</p>'
 		)
 	);
 
@@ -2251,26 +2356,32 @@ function bbp_admin_settings_help() {
 		)
 	);
 
-	// Main Settings
+	// Forum User Settings
+	$user_settings_help =
+		'<p>' . esc_html__( 'Forum User Settings include:', 'bbpress' ) . '</p>' .
+		'<ul>' .
+			'<li>' . esc_html__( 'Automatic forum roles, posting limits, editing, and anonymous posting.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'Blocking removes forum access. Selected actions run when a user is assigned the Blocked forum role.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'Plugins may add blocking actions with their own effects and reversal behavior.', 'bbpress' ) . '</li>';
+
+	if ( is_multisite() ) {
+		$user_settings_help .=
+			'<li>' . esc_html__( 'When a network administrator unblocks a user after the cross-site action set their default forum role to Blocked, bbPress clears that override and removes Blocked forum roles on other sites.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'Previous forum roles are not restored; automatic role assignment may apply on a later visit.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'If the blocking action marked the account as spam, unblocking uses the normal WordPress unspam transition and restores spammed forum content for that user.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'A pre-existing spam status is left alone.', 'bbpress' ) . '</li>';
+	}
+
+	$user_settings_help .=
+			'<li>' . esc_html__( 'Signing the user out cannot be reversed; they must sign in again.', 'bbpress' ) . '</li>' .
+		'</ul>' .
+		'<p>' . esc_html__( 'Click Save Changes for new settings to take effect.', 'bbpress' ) . '</p>';
+
 	$current_screen->add_help_tab(
 		array(
 			'id'      => 'main_settings',
-			'title'   => esc_html__( 'Main Settings', 'bbpress' ),
-			'content' =>
-						'<p>' . esc_html__( 'The "Main Settings" section includes a number of options:', 'bbpress' ) . '</p>' .
-						'<p>' .
-							'<ul>' .
-								'<li>' . esc_html__( 'You can choose to lock a post after a certain number of minutes. "Locking post editing" will prevent the author from editing some amount of time after saving a post.',              'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( '"Throttle time" is the amount of time required between posts from a single author. The higher the throttle time, the longer a user will need to wait between posting to the forum.', 'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( 'Favorites are a way for users to save and later return to topics they favor. This is enabled by default.',                                                                           'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( 'Subscriptions allow users to subscribe for notifications to topics that interest them. This is enabled by default.',                                                                 'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( 'Topic-Tags allow users to filter topics between forums. This is enabled by default.',                                                                                                'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( '"Anonymous Posting" allows guest users who do not have accounts on your site to both create topics as well as replies.',                                                             'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( 'The Fancy Editor brings the luxury of the Visual editor and HTML editor from the traditional WordPress dashboard into your theme.',                                                  'bbpress' ) . '</li>' .
-								'<li>' . esc_html__( 'Auto-embed will embed the media content from a URL directly into the replies. For example: links to Flickr and YouTube.',                                                            'bbpress' ) . '</li>' .
-							'</ul>' .
-						'</p>' .
-						'<p>' . esc_html__( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.', 'bbpress' ) . '</p>'
+			'title'   => esc_html__( 'Forum User Settings', 'bbpress' ),
+			'content' => $user_settings_help,
 		)
 	);
 

@@ -155,8 +155,10 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
  * Set a user's role in the forums.
  *
  * @since 2.2.0 bbPress (r4289)
+ * @since 2.7.0 bbPress (r8131) Emit transitions and keep Blocked exclusive.
  *
- * @param int $user_id User id.
+ * @param int    $user_id  User id.
+ * @param string $new_role Forum role to assign.
  *
  * @return mixed False if no change. String of new role if changed.
  */
@@ -166,37 +168,467 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
 	$user    = get_userdata( $user_id );
 
-	// User exists
-	if ( ! empty( $user ) ) {
+	// Only assign valid roles; an empty role never removes one.
+	if ( ! empty( $user ) && ( '' !== $new_role ) && bbp_is_valid_role( $new_role ) ) {
+		$new_role = bbp_update_user_role( $user, $new_role ) ? $new_role : false;
 
-		// Get user forum role
-		$role = bbp_get_user_role( $user_id );
-
-		// User already has this role so no new role is set
-		if ( $new_role === $role ) {
-			$new_role = false;
-
-		// User role is different than the new (valid) role
-		} elseif ( bbp_is_valid_role( $new_role ) ) {
-
-			// Remove the old role
-			if ( ! empty( $role ) ) {
-				$user->remove_role( $role );
-			}
-
-			// Add the new role
-			if ( ! empty( $new_role ) ) {
-				$user->add_role( $new_role );
-			}
-		}
-
-	// User does don exist so return false
-	} else {
+	// A missing user or an empty role is a no-op.
+	} elseif ( empty( $user ) || ( '' === $new_role ) ) {
 		$new_role = false;
 	}
 
 	// Filter & return
 	return apply_filters( 'bbp_set_user_role', $new_role, $user_id, $user );
+}
+
+/**
+ * Remove a user's forum role without changing their WordPress roles.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int $user_id User ID.
+ * @return bool Whether a forum role was removed.
+ */
+function bbp_remove_user_role( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$user    = get_userdata( $user_id );
+
+	return ! empty( $user ) && bbp_update_user_role( $user, false );
+}
+
+/**
+ * Apply a forum role change and announce an actual transition.
+ *
+ * This shared helper keeps Blocked exclusive, including when a user already
+ * has that role alongside another forum role. Callers must pass a WP_User and
+ * either a valid forum role or false for no role.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param WP_User     $user     User whose forum role is changing.
+ * @param string|bool $new_role New forum role, or false to remove all forum roles.
+ * @return bool Whether the user's forum role changed.
+ */
+function bbp_update_user_role( $user, $new_role ) {
+	if (
+		! ( $user instanceof WP_User )
+		|| empty( $user->ID )
+		|| ! get_userdata( $user->ID )
+		|| ( false !== $new_role && ( ! is_string( $new_role ) || ( '' === $new_role ) || ! bbp_is_valid_role( $new_role ) ) )
+	) {
+		return false;
+	}
+
+	$old_role      = bbp_get_user_role( $user->ID );
+	$blocked_role  = bbp_get_blocked_role();
+	$forum_roles   = array_intersect( $user->roles, array_keys( bbp_get_dynamic_roles() ) );
+	$remove_roles  = ( false === $new_role ) || ( $blocked_role === $new_role );
+
+	// A repeated Blocked assignment still removes any other forum roles.
+	if ( $old_role === $new_role ) {
+		if ( $blocked_role === $new_role ) {
+			foreach ( $forum_roles as $forum_role ) {
+				if ( $blocked_role !== $forum_role ) {
+					$user->remove_role( $forum_role );
+				}
+			}
+		}
+
+		return false;
+	}
+
+	// No role and Blocked remove every other forum role.
+	if ( $remove_roles ) {
+		foreach ( $forum_roles as $forum_role ) {
+			$user->remove_role( $forum_role );
+		}
+	} elseif ( ! empty( $old_role ) ) {
+		$user->remove_role( $old_role );
+	}
+
+	if ( false !== $new_role ) {
+		$user->add_role( $new_role );
+	}
+
+	/**
+	 * Fires after a user's forum role changes, including to or from no role.
+	 *
+	 * This action covers changes made through bbp_set_user_role() and
+	 * bbp_remove_user_role() on the current site. No role is represented by
+	 * false in either argument.
+	 *
+	 * @since 2.7.0 bbPress (r8131)
+	 *
+	 * @param string|bool $new_role New forum role, or false for no role.
+	 * @param string|bool $old_role Previous forum role, or false for no role.
+	 * @param WP_User     $user     User object.
+	 */
+	do_action( 'bbp_transition_user_role', $new_role, $old_role, $user );
+
+	return true;
+}
+
+/**
+ * Return the actions available when a user is blocked from the forums.
+ *
+ * Plugins may add site-specific policies by filtering this registry. Store the
+ * action ID in the setting, not its callback.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @return array Block action details keyed by action ID.
+ */
+function bbp_get_user_block_actions() {
+	$actions = array(
+		'destroy_sessions' => array(
+			'name'       => __( 'Sign the user out everywhere', 'bbpress' ),
+			'callback'   => 'bbp_destroy_user_sessions',
+			'capability' => is_multisite() ? 'manage_network_users' : 'manage_options',
+		),
+		'block_sites' => array(
+			'name'       => __( 'Block the user on every other site', 'bbpress' ),
+			'callback'   => 'bbp_block_user_on_sites',
+			'capability' => 'manage_network_users',
+			'multisite'  => true,
+		),
+		'mark_spam' => array(
+			'name'       => __( 'Globally mark the user as a spammer', 'bbpress' ),
+			'callback'   => 'bbp_mark_user_as_spam',
+			'capability' => 'manage_network_users',
+			'multisite'  => true,
+		),
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_user_block_actions', $actions );
+}
+
+/**
+ * Check whether a registered blocking action can run for the current user.
+ *
+ * Plugins may omit the capability key for actions without an actor restriction.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param array $action           Registered action details.
+ * @param bool  $check_capability Whether to check the current user's capability.
+ * @return bool Whether the action is available.
+ */
+function bbp_is_user_block_action_available( $action, $check_capability = true ) {
+	if (
+		! is_array( $action )
+		|| empty( $action['callback'] )
+		|| ! is_callable( $action['callback'] )
+		|| ( ! empty( $action['multisite'] ) && ! is_multisite() )
+	) {
+		return false;
+	}
+
+	if ( $check_capability && ! empty( $action['capability'] ) ) {
+		return is_string( $action['capability'] ) && current_user_can( $action['capability'] );
+	}
+
+	return true;
+}
+
+/**
+ * Run the selected actions after a user receives the blocked forum role.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param string|bool $new_role New forum role.
+ * @param string|bool $old_role Previous forum role.
+ * @param WP_User     $user     User object.
+ */
+function bbp_run_user_block_actions( $new_role, $old_role, $user ) {
+	static $running = array();
+
+	if ( bbp_get_blocked_role() !== $new_role || ! ( $user instanceof WP_User ) ) {
+		return;
+	}
+
+	$user_id = bbp_get_user_id( $user->ID, false, false );
+
+	if ( empty( $user_id ) || isset( $running[ $user_id ] ) ) {
+		return;
+	}
+
+	$running[ $user_id ] = true;
+	$actions = bbp_get_user_block_actions();
+
+	try {
+		foreach ( bbp_get_user_block_action_ids() as $action_id ) {
+			if ( ! is_string( $action_id ) || ! isset( $actions[ $action_id ] ) || ! bbp_is_user_block_action_available( $actions[ $action_id ] ) ) {
+				continue;
+			}
+
+			call_user_func( $actions[ $action_id ]['callback'], $user_id, $old_role, $user );
+			do_action( 'bbp_user_block_action', $action_id, $user_id, $old_role, $user );
+		}
+	} finally {
+		unset( $running[ $user_id ] );
+	}
+}
+
+/**
+ * Destroy all WordPress login sessions for a user.
+ *
+ * WordPress session tokens are shared across a multisite network, so this logs
+ * the user out of every site in the installation.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int $user_id User ID.
+ * @return bool Whether sessions were destroyed.
+ */
+function bbp_destroy_user_sessions( $user_id ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+
+	if ( empty( $user_id ) || ! get_userdata( $user_id ) ) {
+		return false;
+	}
+
+	WP_Session_Tokens::get_instance( $user_id )->destroy_all();
+
+	return true;
+}
+
+/**
+ * Return a user's default forum role override, if it is a valid forum role.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int $user_id User ID.
+ * @return string|bool Forum role, or false if no valid override exists.
+ */
+function bbp_get_user_default_role_override( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$role    = empty( $user_id ) ? false : get_user_meta( $user_id, '_bbp_default_role', true );
+
+	return bbp_is_valid_role( $role ) ? $role : false;
+}
+
+/**
+ * Clear a Blocked default role override and other Blocked forum roles.
+ *
+ * Other default role overrides and non-Blocked roles remain untouched. Only a
+ * network administrator can undo an installation-wide forum block.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param string|bool $new_role New forum role.
+ * @param string|bool $old_role Previous forum role.
+ * @param WP_User     $user     User object.
+ */
+function bbp_clear_user_default_role_on_unblock( $new_role, $old_role, $user ) {
+	if (
+		! is_multisite()
+		|| bbp_get_blocked_role() !== $old_role
+		|| bbp_get_blocked_role() === $new_role
+		|| ! ( $user instanceof WP_User )
+		|| ! current_user_can( 'manage_network_users' )
+	) {
+		return;
+	}
+
+	if ( bbp_get_blocked_role() !== bbp_get_user_default_role_override( $user->ID ) ) {
+		return;
+	}
+
+	delete_user_meta( $user->ID, '_bbp_default_role', bbp_get_blocked_role() );
+	bbp_set_user_role_on_sites( $user->ID, '', null, true, bbp_get_blocked_role() );
+}
+
+/**
+ * Block existing forum roles and future default roles across multisite.
+ *
+ * A single user-meta override supplies the default role on future site visits.
+ * Existing roles are changed only on sites where the user already has one.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int $user_id User ID.
+ * @return array Results keyed by site ID.
+ */
+function bbp_block_user_on_sites( $user_id ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+
+	if ( ! is_multisite() || empty( $user_id ) || ! get_userdata( $user_id ) ) {
+		return array();
+	}
+
+	update_user_meta( $user_id, '_bbp_default_role', bbp_get_blocked_role() );
+
+	return bbp_set_user_role_on_sites( $user_id, bbp_get_blocked_role(), null, true );
+}
+
+/**
+ * Mark a WordPress multisite user as spam.
+ *
+ * WordPress fires the make_spam_user action after the account is updated.
+ * bbPress uses this action to mark the user's topics and replies as spam.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int $user_id User ID.
+ * @return bool Whether the user was marked as spam.
+ */
+function bbp_mark_user_as_spam( $user_id ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$user    = get_userdata( $user_id );
+
+	if ( ! is_multisite() || empty( $user ) || is_super_admin( $user_id ) ) {
+		return false;
+	}
+
+	if ( ! empty( $user->spam ) ) {
+		return true;
+	}
+
+	$result = wp_update_user(
+		array(
+			'ID'   => $user_id,
+			'spam' => '1',
+		)
+	);
+
+	if ( is_wp_error( $result ) ) {
+		return false;
+	}
+
+	// Only undo a spam designation introduced by this blocking action.
+	update_user_meta( $user_id, '_bbp_block_action_spammed_user', 1 );
+
+	return true;
+}
+
+/**
+ * Clear the blocking action's spam marker when a user is unspammed elsewhere.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int $user_id User ID.
+ */
+function bbp_clear_user_block_spam_marker( $user_id ) {
+	delete_user_meta( $user_id, '_bbp_block_action_spammed_user' );
+}
+
+/**
+ * Undo a spam designation introduced by the blocking action on unblock.
+ *
+ * This uses WordPress's normal ham transition, including bbPress's existing
+ * content restoration behavior. A pre-existing spam designation is untouched.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param string|bool $new_role New forum role.
+ * @param string|bool $old_role Previous forum role.
+ * @param WP_User     $user     User object.
+ */
+function bbp_unspam_user_after_unblock( $new_role, $old_role, $user ) {
+	if (
+		! is_multisite()
+		|| bbp_get_blocked_role() !== $old_role
+		|| bbp_get_blocked_role() === $new_role
+		|| ! ( $user instanceof WP_User )
+		|| ! current_user_can( 'manage_network_users' )
+		|| ! get_user_meta( $user->ID, '_bbp_block_action_spammed_user', true )
+	) {
+		return;
+	}
+
+	$current_user = get_userdata( $user->ID );
+	if ( empty( $current_user->spam ) ) {
+		bbp_clear_user_block_spam_marker( $user->ID );
+		return;
+	}
+
+	wp_update_user(
+		array(
+			'ID'   => $user->ID,
+			'spam' => '0',
+		)
+	);
+}
+
+/**
+ * Set a user's forum role on each selected site in a multisite network.
+ *
+ * The default site list contains sites where the user is already a member.
+ * Built-in cross-site block and unblock actions change only matching existing
+ * forum roles.
+ * Integrations may filter the list for their own site policy.
+ * Recursive calls for the same user and role are ignored, allowing this helper
+ * to be called safely from a blocked user action.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param int         $user_id             User ID.
+ * @param string|bool $new_role            New forum role. Pass an empty string to remove it.
+ * @param array|null  $site_ids            Optional. Site IDs. Null defaults to the user's sites.
+ * @param bool        $only_existing_roles Optional. Skip sites without an existing forum role.
+ * @param string|bool $only_from_role      Optional. Change only sites with this forum role.
+ * @return array Results keyed by site ID.
+ */
+function bbp_set_user_role_on_sites( $user_id = 0, $new_role = false, $site_ids = null, $only_existing_roles = false, $only_from_role = false ) {
+	static $running = array();
+
+	$user_id     = bbp_get_user_id( $user_id, false, false );
+	$key         = $user_id . ':' . $new_role;
+	$retval      = array();
+	$remove_role = ( '' === $new_role );
+
+	if ( ! is_multisite() || empty( $user_id ) || ( ! $remove_role && ! bbp_is_valid_role( $new_role ) ) || isset( $running[ $key ] ) ) {
+		return $retval;
+	}
+
+	if ( null === $site_ids ) {
+		$site_ids = array_keys( get_blogs_of_user( $user_id ) );
+	}
+
+	$site_ids = (array) apply_filters( 'bbp_set_user_role_site_ids', $site_ids, $user_id, $new_role );
+	$site_ids = array_unique( array_map( 'intval', $site_ids ) );
+
+	foreach ( $site_ids as $index => $site_id ) {
+		if ( 0 >= $site_id ) {
+			unset( $site_ids[ $index ] );
+		}
+	}
+
+	$running[ $key ] = true;
+
+	try {
+		foreach ( $site_ids as $site_id ) {
+			if ( ! get_site( $site_id ) ) {
+				$retval[ $site_id ] = false;
+				continue;
+			}
+
+			$switched = get_current_blog_id() !== $site_id;
+			if ( $switched ) {
+				bbp_switch_to_site( $site_id );
+			}
+
+			try {
+				$existing_role = bbp_get_user_role( $user_id );
+				if ( ( $only_existing_roles && ! $existing_role ) || ( false !== $only_from_role && $only_from_role !== $existing_role ) ) {
+					continue;
+				}
+
+				$retval[ $site_id ] = $remove_role
+					? bbp_remove_user_role( $user_id )
+					: bbp_set_user_role( $user_id, $new_role );
+			} finally {
+				if ( $switched ) {
+					bbp_restore_current_site();
+				}
+			}
+		}
+	} finally {
+		unset( $running[ $key ] );
+	}
+
+	return $retval;
 }
 
 /**
@@ -309,7 +741,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
 		return;
 	}
 
-	// Bail if no role
+	// Bail if no forum role field was submitted.
 	if ( ! isset( $_POST['bbp-forums-role'] ) || ! is_string( $_POST['bbp-forums-role'] ) ) {
 		return;
 	}
@@ -317,13 +749,23 @@ function bbp_profile_update_role( $user_id = 0 ) {
 	// Forums role we want the user to have.
 	$new_role = sanitize_key( wp_unslash( $_POST['bbp-forums-role'] ) );
 
-	// Bail if the current user cannot assign this forum role.
-	if ( ! array_key_exists( $new_role, bbp_get_user_editable_forum_roles( $user_id ) ) ) {
+	// Do not remove a current role that this editor cannot assign.
+	$editable_roles = bbp_get_user_editable_forum_roles( $user_id );
+	$current_role   = bbp_get_user_role( $user_id );
+
+	if (
+		( ( '' !== $new_role ) && ! array_key_exists( $new_role, $editable_roles ) )
+		|| ( ( '' === $new_role ) && ! empty( $current_role ) && ! array_key_exists( $current_role, $editable_roles ) )
+	) {
 		return;
 	}
 
-	// Set the new forums role
-	bbp_set_user_role( $user_id, $new_role );
+	// Set or remove the new forums role.
+	if ( '' === $new_role ) {
+		bbp_remove_user_role( $user_id );
+	} else {
+		bbp_set_user_role( $user_id, $new_role );
+	}
 }
 
 /**
@@ -449,12 +891,11 @@ function bbp_is_valid_role( $role = '' ) {
 /**
  * Add the default role to the current user if needed.
  *
- * This function will bail if the forum is not global in a multisite
- * installation of WordPress, or if the user is marked as spam or deleted.
+ * This function will bail if the user is marked as spam or deleted.
  *
  * @since 2.2.0 bbPress (r4185)
  *
- * @return If not multisite, not global, or user is deleted/spammed.
+ * @return If not logged in, already assigned a forum role, or inactive.
  */
 function bbp_set_current_user_default_role() {
 
@@ -496,18 +937,22 @@ function bbp_set_current_user_default_role() {
 	// Get whether or not to add a role to the user account
 	$add_to_site = bbp_allow_global_access();
 
-	// Get the current user's WordPress role. Set to empty string if none found.
-	$user_role   = bbp_get_user_blog_role( $user_id );
-
-	// Get the role map
-	$role_map    = bbp_get_user_role_map();
-
 	/** Forum Role ************************************************************/
 
-	// Use a mapped role or default role
-	$new_role = empty( $user_role ) || ! isset( $role_map[ $user_role ] )
-		? bbp_get_default_role()
-		: $role_map[ $user_role ];
+	// A valid user override takes precedence over the site's role map.
+	$new_role = bbp_get_user_default_role_override( $user_id );
+	if ( false === $new_role ) {
+		$user_role = bbp_get_user_blog_role( $user_id );
+		$role_map  = bbp_get_user_role_map();
+		$new_role  = empty( $user_role ) || ! isset( $role_map[ $user_role ] )
+			? bbp_get_default_role()
+			: $role_map[ $user_role ];
+	}
+
+	// A filtered empty role must not be interpreted as an explicit removal.
+	if ( ! bbp_is_valid_role( $new_role ) ) {
+		return;
+	}
 
 	/** Add or Map ************************************************************/
 

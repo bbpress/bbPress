@@ -383,10 +383,14 @@ add_action( 'bbp_unapproved_topic', 'bbp_update_topic_voice_count', 30 );
 // User status
 // @todo make these sub-actions
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );
+add_action( 'make_ham_user',  'bbp_clear_user_block_spam_marker', 20 );
 add_action( 'make_spam_user', 'bbp_make_spam_user' );
 
 // User role
 add_action( 'bbp_profile_update', 'bbp_profile_update_role' );
+add_action( 'bbp_transition_user_role', 'bbp_run_user_block_actions', 10, 3 );
+add_action( 'bbp_transition_user_role', 'bbp_clear_user_default_role_on_unblock', 10, 3 );
+add_action( 'bbp_transition_user_role', 'bbp_unspam_user_after_unblock', 10, 3 );
 
 // Hook WordPress admin actions to bbPress profiles on save
 add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );

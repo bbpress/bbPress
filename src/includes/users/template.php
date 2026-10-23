@@ -1620,11 +1620,20 @@ function bbp_edit_user_forums_role() {
 
 	// Get the user's current forum role
 	$user_role     = bbp_get_user_role( bbp_get_displayed_user_id() );
+	$all_roles     = bbp_get_dynamic_roles();
+	$current_name  = isset( $all_roles[ $user_role ]['name'] )
+		? $all_roles[ $user_role ]['name']
+		: '';
 
 	// Get the folum roles
 	$dynamic_roles = bbp_get_user_editable_forum_roles( bbp_get_displayed_user_id() ); ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
+		<?php if ( ! empty( $user_role ) && ! isset( $dynamic_roles[ $user_role ] ) && ! empty( $current_name ) ) : ?>
+
+			<option value="<?php echo esc_attr( $user_role ); ?>" selected="selected"><?php echo esc_html( bbp_translate_user_role( $current_name ) ); ?></option>
+
+		<?php endif; ?>
 		<option value=""><?php esc_html_e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
 
 		<?php foreach ( $dynamic_roles as $role => $details ) : ?>

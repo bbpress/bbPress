@@ -62,6 +62,7 @@ function bbp_get_default_options() {
 			'_bbp_forums_status'          => 'open',    // Site-wide forum content status
 			'_bbp_moderation_links'       => false,     // Inherit WordPress comment link limit
 			'_bbp_default_role'           => $role,     // Default forums role
+			'_bbp_user_block_actions'     => array(),   // Actions to run when blocking a user
 			'_bbp_edit_lock'              => 5,         // Lock post editing after 5 minutes
 			'_bbp_throttle_time'          => 10,        // Throttle post time to 10 seconds
 			'_bbp_thread_replies_depth'   => 2,         // Thread replies depth
@@ -743,6 +744,21 @@ function bbp_get_default_role( $default = 'bbp_participant' ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_default_role', get_option( '_bbp_default_role', $default ) );
+}
+
+/**
+ * Get the actions to run when a user receives the blocked forum role.
+ *
+ * @since 2.7.0 bbPress (r8131)
+ *
+ * @param array $default Optional. Default action IDs.
+ * @return array Selected action IDs.
+ */
+function bbp_get_user_block_action_ids( $default = array() ) {
+	$actions = get_option( '_bbp_user_block_actions', $default );
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_user_block_action_ids', (array) $actions );
 }
 
 /**

@@ -155,6 +155,33 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3262
+	 * @covers BBP_Users_Admin::secondary_role_display
+	 */
+	public function test_secondary_role_display_keeps_unassignable_current_role_selected() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The site administrator cannot edit this profile on multisite.' );
+		}
+
+		$target_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$hide_role = function ( $roles ) {
+			unset( $roles[ bbp_get_moderator_role() ] );
+			return $roles;
+		};
+
+		bbp_set_user_role( $target_id, bbp_get_moderator_role() );
+		$this->create_administrator();
+		add_filter( 'bbp_get_user_editable_forum_roles', $hide_role );
+
+		try {
+			$output = $this->capture( array( 'BBP_Users_Admin', 'secondary_role_display' ), get_userdata( $target_id ) );
+			$this->assertStringContainsString( 'value="' . bbp_get_moderator_role() . '" selected="selected"', $output );
+		} finally {
+			remove_filter( 'bbp_get_user_editable_forum_roles', $hide_role );
+		}
+	}
+
+	/**
 	 * @covers BBP_Users_Admin::secondary_role_display
 	 * @covers BBP_Users_Admin::user_role_bulk_dropdown
 	 * @ticket 3706

@@ -8,6 +8,165 @@
 class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 
 	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_sanitize_user_block_actions
+	 */
+	public function test_user_block_actions_accept_registered_callable_choices_only() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		if ( is_multisite() ) {
+			grant_super_admin( $admin_id );
+		}
+
+		wp_set_current_user( $admin_id );
+
+		$filter = function ( $actions ) {
+			$actions['custom'] = array(
+				'name'        => 'Custom',
+				'callback'    => '__return_true',
+				'description' => '',
+			);
+			$actions['invalid'] = array(
+				'name'        => 'Invalid',
+				'callback'    => 'bbp_missing_callback',
+				'description' => '',
+			);
+
+			return $actions;
+		};
+
+		add_filter( 'bbp_get_user_block_actions', $filter );
+
+		try {
+			$expected = is_multisite()
+				? array( 'destroy_sessions', 'block_sites', 'mark_spam', 'custom' )
+				: array( 'destroy_sessions', 'custom' );
+			$this->assertSame(
+				$expected,
+				bbp_admin_sanitize_user_block_actions( array( 'destroy_sessions', 'block_sites', 'unknown', 'mark_spam', 'custom', 'invalid', 'custom' ) )
+			);
+			$this->assertSame( array(), bbp_admin_sanitize_user_block_actions( 'destroy_sessions' ) );
+		} finally {
+			remove_filter( 'bbp_get_user_block_actions', $filter );
+			wp_set_current_user( $old_user );
+			if ( is_multisite() ) {
+				revoke_super_admin( $admin_id );
+			}
+		}
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_sanitize_user_block_actions
+	 */
+	public function test_user_block_actions_preserve_selected_choices_hidden_by_capability() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$include_available = false;
+		$filter   = function () use ( &$include_available ) {
+			$actions = array(
+				'restricted' => array(
+					'name'       => 'Restricted',
+					'callback'   => '__return_true',
+					'capability' => 'do_not_allow',
+				),
+			);
+
+			if ( $include_available ) {
+				$actions['available'] = array(
+					'name'     => 'Available',
+					'callback' => '__return_true',
+				);
+			}
+
+			return $actions;
+		};
+
+		wp_set_current_user( $admin_id );
+		$this->assertTrue( current_user_can( 'manage_options' ) );
+		update_option( '_bbp_user_block_actions', array( 'restricted' ) );
+		add_filter( 'bbp_get_user_block_actions', $filter );
+
+		try {
+			$this->assertSame( array( 'restricted' ), bbp_admin_sanitize_user_block_actions( null ) );
+			$this->assertSame( array( 'restricted' ), bbp_admin_sanitize_user_block_actions( array( 'restricted' ) ) );
+			$include_available = true;
+			update_option( '_bbp_user_block_actions', array( 'restricted', 'available' ) );
+			$this->assertSame( array( 'restricted' ), bbp_admin_sanitize_user_block_actions( array( '' ) ) );
+			$this->assertSame( array( 'available', 'restricted' ), bbp_admin_sanitize_user_block_actions( array( 'available' ) ) );
+			delete_option( '_bbp_user_block_actions' );
+			$this->assertSame( array(), bbp_admin_sanitize_user_block_actions( array( 'restricted' ) ) );
+		} finally {
+			remove_filter( 'bbp_get_user_block_actions', $filter );
+			delete_option( '_bbp_user_block_actions' );
+			wp_set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_sanitize_user_block_actions
+	 */
+	public function test_user_block_actions_allow_registry_to_remove_every_choice() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+		$filter = function () {
+			return array();
+		};
+
+		update_option( '_bbp_user_block_actions', array( 'destroy_sessions' ) );
+		add_filter( 'bbp_get_user_block_actions', $filter );
+
+		try {
+			$this->assertSame( array(), bbp_admin_sanitize_user_block_actions( null ) );
+			$this->assertSame( array(), bbp_admin_sanitize_user_block_actions( array( 'destroy_sessions' ) ) );
+		} finally {
+			remove_filter( 'bbp_get_user_block_actions', $filter );
+			delete_option( '_bbp_user_block_actions' );
+		}
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_sanitize_user_block_actions
+	 * @covers ::bbp_admin_is_user_block_action_visible
+	 */
+	public function test_user_block_actions_do_not_save_hidden_or_filter_injected_choices() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$registry = function () {
+			return array(
+				'nameless' => array( 'callback' => '__return_true' ),
+				'injected' => array( 'name' => 'Injected', 'callback' => '__return_true' ),
+			);
+		};
+		$selected = function ( $action_ids ) {
+			$action_ids[] = 'injected';
+			return $action_ids;
+		};
+
+		wp_set_current_user( $admin_id );
+		update_option( '_bbp_user_block_actions', array( 'nameless' ) );
+		add_filter( 'bbp_get_user_block_actions', $registry );
+		add_filter( 'bbp_get_user_block_action_ids', $selected );
+
+		try {
+			$this->assertSame( array( 'nameless' ), bbp_admin_sanitize_user_block_actions( array( 'nameless' ) ) );
+			$this->assertSame( array( 'nameless' ), bbp_admin_sanitize_user_block_actions( array( '' ) ) );
+			delete_option( '_bbp_user_block_actions' );
+			$this->assertSame( array(), bbp_admin_sanitize_user_block_actions( array( '' ) ) );
+		} finally {
+			remove_filter( 'bbp_get_user_block_action_ids', $selected );
+			remove_filter( 'bbp_get_user_block_actions', $registry );
+			delete_option( '_bbp_user_block_actions' );
+			wp_set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @ticket BBP3349
 	 * @covers ::bbp_admin_sanitize_moderation_notification_recipient_types
 	 */

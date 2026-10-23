@@ -93,8 +93,105 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_setting_callback_moderation_links', $fields['bbp_settings_users']['_bbp_moderation_links']['callback'] );
 		$this->assertSame( array(), $fields['bbp_settings_users']['_bbp_moderation_links']['args'] );
 		$this->assertSame( 'intval', $fields['bbp_settings_users']['_bbp_allow_moderation_links']['sanitize_callback'] );
+		$this->assertSame( 'bbp_admin_setting_callback_user_block_actions', $fields['bbp_settings_users']['_bbp_user_block_actions']['callback'] );
+		$this->assertSame( 'bbp_admin_sanitize_user_block_actions', $fields['bbp_settings_users']['_bbp_user_block_actions']['sanitize_callback'] );
+		$this->assertGreaterThan(
+			array_search( '_bbp_allow_anonymous', array_keys( $fields['bbp_settings_users'] ), true ),
+			array_search( '_bbp_user_block_actions', array_keys( $fields['bbp_settings_users'] ), true )
+		);
 		$this->assertSame( 'bbp_admin_setting_callback_moderation_notification_recipient_types', $fields['bbp_settings_moderation_notifications']['_bbp_moderation_notification_recipient_types']['callback'] );
 		$this->assertSame( 'intval', $fields['bbp_converter_options']['_bbp_converter_clean']['sanitize_callback'] );
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_setting_callback_user_block_actions
+	 */
+	public function test_user_block_actions_callback_shows_actions_available_to_installation() {
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		if ( is_multisite() ) {
+			grant_super_admin( $admin_id );
+		}
+
+		wp_set_current_user( $admin_id );
+
+		try {
+			$output = $this->capture_callback( 'bbp_admin_setting_callback_user_block_actions' );
+		} finally {
+			wp_set_current_user( $old_user );
+			if ( is_multisite() ) {
+				revoke_super_admin( $admin_id );
+			}
+		}
+
+		$this->assertStringContainsString( 'Sign the user out everywhere', $output );
+
+		if ( is_multisite() ) {
+			$this->assertStringContainsString( 'Block the user on every other site', $output );
+			$this->assertStringContainsString( 'Globally mark the user as a spammer', $output );
+		} else {
+			$this->assertStringNotContainsString( 'Block the user on every other site', $output );
+			$this->assertStringNotContainsString( 'Globally mark the user as a spammer', $output );
+		}
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_setting_callback_user_block_actions
+	 */
+	public function test_user_block_actions_callback_handles_no_visible_actions() {
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$filter   = function () {
+			return array();
+		};
+
+		wp_set_current_user( $admin_id );
+		$this->assertTrue( current_user_can( 'manage_options' ) );
+		add_filter( 'bbp_get_user_block_actions', $filter );
+
+		try {
+			$output = $this->capture_callback( 'bbp_admin_setting_callback_user_block_actions' );
+			$this->assertStringContainsString( 'No additional blocking actions are available.', $output );
+			$this->assertStringNotContainsString( 'name="_bbp_user_block_actions[]"', $output );
+		} finally {
+			remove_filter( 'bbp_get_user_block_actions', $filter );
+			wp_set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_admin_setting_callback_user_block_actions
+	 */
+	public function test_user_block_actions_callback_handles_all_actions_unavailable_by_capability() {
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$filter   = function () {
+			return array(
+				'restricted' => array(
+					'name'       => 'Restricted',
+					'callback'   => '__return_true',
+					'capability' => 'do_not_allow',
+				),
+			);
+		};
+
+		wp_set_current_user( $admin_id );
+		$this->assertTrue( current_user_can( 'manage_options' ) );
+		add_filter( 'bbp_get_user_block_actions', $filter );
+
+		try {
+			$output = $this->capture_callback( 'bbp_admin_setting_callback_user_block_actions' );
+			$this->assertStringContainsString( 'No additional blocking actions are available.', $output );
+			$this->assertStringNotContainsString( 'name="_bbp_user_block_actions[]"', $output );
+			$this->assertStringNotContainsString( 'Restricted', $output );
+		} finally {
+			remove_filter( 'bbp_get_user_block_actions', $filter );
+			wp_set_current_user( $old_user );
+		}
 	}
 
 	/**
@@ -205,7 +302,25 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			$tabs = get_current_screen()->get_help_tabs();
 
 			$this->assertSame( array( 'overview', 'forum_status', 'main_settings', 'theme_packages', 'per_page', 'slugs' ), array_keys( $tabs ) );
+			$this->assertStringContainsString( 'selected settings sections', $tabs['overview']['content'] );
 			$this->assertStringContainsString( 'Frozen stops new topics and replies', $tabs['forum_status']['content'] );
+			$this->assertSame( 'Forum User Settings', $tabs['main_settings']['title'] );
+			$this->assertStringContainsString( '<ul><li>Automatic forum roles', $tabs['main_settings']['content'] );
+			$this->assertStringContainsString( '<li>Blocking removes forum access.', $tabs['main_settings']['content'] );
+			$this->assertStringContainsString( '<li>Plugins may add blocking actions', $tabs['main_settings']['content'] );
+			$this->assertStringContainsString( '</ul><p>Click Save Changes', $tabs['main_settings']['content'] );
+			$this->assertStringNotContainsString( 'Favorites are a way', $tabs['main_settings']['content'] );
+
+			if ( is_multisite() ) {
+				$this->assertSame( 8, substr_count( $tabs['main_settings']['content'], '<li>' ) );
+				$this->assertStringContainsString( 'When a network administrator unblocks a user', $tabs['main_settings']['content'] );
+				$this->assertStringContainsString( '<li>Previous forum roles are not restored;', $tabs['main_settings']['content'] );
+				$this->assertStringContainsString( 'A pre-existing spam status is left alone.', $tabs['main_settings']['content'] );
+			} else {
+				$this->assertSame( 4, substr_count( $tabs['main_settings']['content'], '<li>' ) );
+				$this->assertStringNotContainsString( 'network administrator', $tabs['main_settings']['content'] );
+			}
+
 			$this->assertStringContainsString( 'bbPress Documentation', get_current_screen()->get_help_sidebar() );
 		} finally {
 			$GLOBALS['current_screen'] = $old_screen;

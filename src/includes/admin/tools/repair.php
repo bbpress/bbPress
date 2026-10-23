@@ -1033,6 +1033,11 @@ function bbp_admin_repair_user_roles() {
 			? $role_map[ $role ]
 			: $default_role;
 
+		// An empty filtered role must not remove existing forum roles.
+		if ( ! bbp_is_valid_role( $new_role ) ) {
+			continue;
+		}
+
 		// Get users of this site, limited to 1000
 		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( $users = get_users(
@@ -1079,7 +1084,7 @@ function bbp_admin_repair_user_roles() {
 
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
-				if ( bbp_set_user_role( $user_id, $default_role ) ) {
+				if ( bbp_is_valid_role( $default_role ) && bbp_set_user_role( $user_id, $default_role ) ) {
 					++$changed; // Keep a count to display at the end
 				}
 			}
@@ -1106,7 +1111,7 @@ function bbp_admin_repair_user_roles() {
 
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
-				if ( bbp_set_user_role( $user_id, $default_role ) ) {
+				if ( bbp_is_valid_role( $default_role ) && bbp_set_user_role( $user_id, $default_role ) ) {
 					++$changed; // Keep a count to display at the end
 				}
 			}

@@ -163,8 +163,10 @@ function bbp_user_add_role_on_register( $user_id = '' ) {
 		return;
 	}
 
-	// Set the user role
-	bbp_set_user_role( $user_id, $valid_role );
+	// Set only a valid role; an empty filtered value must not remove one.
+	if ( bbp_is_valid_role( $valid_role ) ) {
+		bbp_set_user_role( $user_id, $valid_role );
+	}
 }
 
 /**
@@ -193,8 +195,10 @@ function bbp_user_add_role_on_activate( $user_id = 0, $password = '', $meta = ar
 		return;
 	}
 
-	// Set the user role
-	bbp_set_user_role( $user_id, $valid_role );
+	// Set only a valid role; an empty filtered value must not remove one.
+	if ( bbp_is_valid_role( $valid_role ) ) {
+		bbp_set_user_role( $user_id, $valid_role );
+	}
 }
 
 /** Validators ****************************************************************/

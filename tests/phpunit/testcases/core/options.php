@@ -69,6 +69,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 
 		$this->assertSame( 0, $options['_bbp_db_version'] );
 		$this->assertSame( bbp_get_participant_role(), $options['_bbp_default_role'] );
+		$this->assertSame( array(), $options['_bbp_user_block_actions'] );
 		$this->assertSame( 1, $options['_bbp_allow_moderation_links'] );
 		$this->assertFalse( $options['_bbp_moderation_links'] );
 		$this->assertSame( 15, $options['_bbp_topics_per_page'] );
@@ -85,6 +86,27 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 			$this->assertSame( 'filtered', bbp_get_default_options()['_bbp_test_option'] );
 		} finally {
 			remove_filter( 'bbp_get_default_options', $filter );
+		}
+	}
+
+	/**
+	 * @ticket BBP3262
+	 * @covers ::bbp_get_user_block_action_ids
+	 */
+	public function test_bbp_get_user_block_action_ids_supports_option_and_filter() {
+		$this->set_option( '_bbp_user_block_actions', array( 'destroy_sessions' ) );
+		$this->assertSame( array( 'destroy_sessions' ), bbp_get_user_block_action_ids() );
+
+		$filter = function ( $actions ) {
+			$actions[] = 'custom';
+			return $actions;
+		};
+		add_filter( 'bbp_get_user_block_action_ids', $filter );
+
+		try {
+			$this->assertSame( array( 'destroy_sessions', 'custom' ), bbp_get_user_block_action_ids() );
+		} finally {
+			remove_filter( 'bbp_get_user_block_action_ids', $filter );
 		}
 	}
 

@@ -15,6 +15,10 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added configurable actions for blocked users, including cross-site forum
+  blocking through a per-user default role, session invalidation, and global
+  multisite spam controls. A network administrator's unblock clears propagated
+  Blocked roles and spam status set by those actions.
 - Added pending moderation counts to the Topics and Replies administration menus.
 - Added configurable email notifications for Keymasters, Moderators, per-forum
   Moderators, and integrated recipient types when a new topic or reply is held
