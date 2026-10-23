@@ -564,7 +564,28 @@ function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
 
 	// Do not use an unreadable parent's title as the reply title.
 	if ( ! bbp_user_can_embed_post( $post_id ) ) {
-		return apply_filters( 'bbp_get_reply_title_fallback', esc_html__( 'Reply', 'bbpress' ), $post_id, '' );
+		// Pending replies are not embeddable, so check the reader's access.
+		$can_read = is_user_logged_in() && current_user_can( 'read_reply', $post_id );
+
+		if ( $can_read ) {
+			$topic_id = bbp_get_reply_topic_id( $post_id );
+			$can_read = bbp_is_topic( $topic_id ) && current_user_can( 'read_topic', $topic_id );
+		}
+
+		if ( $can_read ) {
+			$forum_id = bbp_get_reply_forum_id( $post_id );
+			$can_read = bbp_is_forum_visibility_valid( $forum_id )
+				&& bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) )
+				&& ! bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() );
+		}
+
+		if ( $can_read ) {
+			$can_read = ! bbp_is_password_protected( $post_id );
+		}
+
+		if ( ! $can_read ) {
+			return apply_filters( 'bbp_get_reply_title_fallback', esc_html__( 'Reply', 'bbpress' ), $post_id, '' );
+		}
 	}
 
 	// Get reply topic title.

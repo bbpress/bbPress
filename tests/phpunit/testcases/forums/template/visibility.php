@@ -35,6 +35,40 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_is_forum_visibility_valid
+	 */
+	public function test_bbp_is_forum_visibility_valid() {
+		$public_id  = $this->factory->forum->create();
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$hidden_id  = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$draft_id   = $this->factory->post->create( array( 'post_type' => bbp_get_forum_post_type(), 'post_status' => 'draft' ) );
+		$post_id    = $this->factory->post->create();
+
+		$this->assertTrue( bbp_is_forum_visibility_valid( $public_id ) );
+		$this->assertTrue( bbp_is_forum_visibility_valid( $private_id ) );
+		$this->assertTrue( bbp_is_forum_visibility_valid( $hidden_id ) );
+		$this->assertFalse( bbp_is_forum_visibility_valid( $draft_id ) );
+		$this->assertFalse( bbp_is_forum_visibility_valid( $post_id ) );
+		$this->assertFalse( bbp_is_forum_visibility_valid( 0 ) );
+
+		$filter = function( $visibilities, $forum_id ) use ( $public_id ) {
+			if ( $public_id === $forum_id ) {
+				unset( $visibilities[ bbp_get_public_status_id() ] );
+			}
+
+			return $visibilities;
+		};
+
+		add_filter( 'bbp_get_forum_visibilities', $filter, 10, 2 );
+
+		try {
+			$this->assertFalse( bbp_is_forum_visibility_valid( $public_id ) );
+		} finally {
+			remove_filter( 'bbp_get_forum_visibilities', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_forum_visibility
 	 */
 	public function test_bbp_is_forum_visibility() {
