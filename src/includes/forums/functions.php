@@ -3285,10 +3285,12 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 					LIMIT 1
 				) AS reply_id,
 				(
-					SELECT MAX(ID) FROM {$bbp_db->posts}
+					SELECT ID FROM {$bbp_db->posts}
 					WHERE post_parent = %d
 						AND post_type = %s
 						AND post_status IN ({$placeholders})
+					ORDER BY ID DESC
+					LIMIT 1
 				) AS topic_id";
 			$query        = $bbp_db->prepare(
 				$sql,

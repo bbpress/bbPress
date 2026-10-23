@@ -36,6 +36,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Stop after finding the latest public topic during forum freshness
+  recalculation.
 - Added `ugc` alongside `nofollow` to links in topic and reply content.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.

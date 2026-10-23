@@ -205,6 +205,49 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_forum_query_last_activity_id
 	 */
+	public function test_bbp_forum_query_last_activity_id_without_public_topics() {
+		$forum_id = $this->factory->forum->create();
+
+		$this->assertSame( 0, bbp_forum_query_last_activity_id( $forum_id ) );
+
+		$this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		$this->assertSame( 0, bbp_forum_query_last_activity_id( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
+	public function test_bbp_forum_query_last_activity_id_uses_latest_public_topic() {
+		$forum_id = $this->factory->forum->create();
+		$this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$closed_topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_closed_status_id(),
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->post->create( array(
+			'post_parent' => $forum_id,
+		) );
+
+		$this->assertSame( $closed_topic_id, bbp_forum_query_last_activity_id( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
 	public function test_bbp_forum_query_last_activity_id_preserves_filtered_topic_ids() {
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create(
