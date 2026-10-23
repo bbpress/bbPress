@@ -438,11 +438,6 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 		);
 	}
 
-	// Use generated content when a theme requests an excerpt
-	if ( isset( $args['post_content'] ) && ! isset( $args['post_excerpt'] ) ) {
-		$args['post_excerpt'] = $args['post_content'];
-	}
-
 	// Parse & filter
 	$dummy = bbp_parse_args( $args, $defaults, 'theme_compat_reset_post' );
 
@@ -455,6 +450,9 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 
 	// Set the $post global
 	$post = new WP_Post( (object) $dummy );
+
+	// Remember this exact post for excerpt-based theme templates
+	bbpress()->theme_compat->post = $post;
 
 	// Copy the new post global into the main $wp_query
 	$wp_query->post       = $post;
@@ -477,6 +475,30 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active( true );
+}
+
+/**
+ * Use generated content when the current theme-compatibility post is rendered
+ * through an excerpt. Leave the raw excerpt unchanged so themes can use
+ * has_excerpt() to decide whether to display both excerpt and content.
+ *
+ * @since 2.6.21 bbPress (r8130)
+ *
+ * @param string  $excerpt Post excerpt.
+ * @param WP_Post $post    Post object.
+ * @return string
+ */
+function bbp_get_theme_compat_excerpt( $excerpt, $post ) {
+	if ( ( '' !== $excerpt ) || ! bbp_is_theme_compat_active() || ! ( $post instanceof WP_Post ) ) {
+		return $excerpt;
+	}
+
+	$theme_compat = bbpress()->theme_compat;
+	if ( ! isset( $GLOBALS['post'], $theme_compat->post ) || ( $theme_compat->post !== $post ) || ( $GLOBALS['post'] !== $post ) ) {
+		return $excerpt;
+	}
+
+	return $post->post_content;
 }
 
 /**
