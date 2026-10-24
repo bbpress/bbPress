@@ -2718,17 +2718,25 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
  * Return a select box allowing to pick which topic/reply a reply belongs.
  *
  * @since 2.6.0 bbPress (r5387)
+ * @since 2.6.21 bbPress (r8137) Added the $topic_id parameter.
  *
  * @param int $reply_id Reply id.
+ * @param int $topic_id Optional topic id when previewing a reply move.
  *
  * @return string The dropdown.
  */
-function bbp_get_reply_to_dropdown( $reply_id = 0 ) {
+function bbp_get_reply_to_dropdown( $reply_id = 0, $topic_id = 0 ) {
 
 	// Validate the reply data
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$reply_to = bbp_get_reply_to( $reply_id );
-	$topic_id = bbp_get_reply_topic_id( $reply_id );
+	$saved_topic_id = bbp_get_reply_topic_id( $reply_id );
+	$topic_id       = ! empty( $topic_id ) ? (int) $topic_id : $saved_topic_id;
+
+	// A reply in the old topic cannot be the parent in the new topic.
+	if ( $topic_id !== $saved_topic_id ) {
+		$reply_to = 0;
+	}
 
 	// Get the replies
 	$posts = get_posts(

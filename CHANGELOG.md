@@ -70,6 +70,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept the reply editor's Forum and Reply To dropdowns synchronized with its
+  Topic, and made Forum read-only.
 - Wrapped standalone list items in topic and reply content on WordPress 6.9+
   to prevent missing list containers from affecting the surrounding layout.
 - Kept generated bbPress content available to excerpt-based templates without

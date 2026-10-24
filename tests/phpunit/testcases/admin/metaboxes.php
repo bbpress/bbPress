@@ -301,11 +301,68 @@ class BBP_Tests_Admin_Metaboxes extends BBP_UnitTestCase {
 		$output = $this->capture_metabox( 'bbp_reply_metabox', get_post( $reply_id ) );
 
 		$this->assertStringContainsString( 'id="post_status_select"', $output );
-		$this->assertStringNotContainsString( 'id="bbp_forum_id"', $output );
+		$this->assertStringContainsString( 'id="bbp_forum_id" class="bbp_dropdown" disabled="disabled"', $output );
+		$this->assertStringContainsString( 'value="' . $topic_forum_id . '" selected', $output );
+		$this->assertStringContainsString( 'Topic Forum', $output );
+		$this->assertLessThan( strpos( $output, 'id="bbp_topic_id"' ), strpos( $output, 'id="bbp_forum_id"' ) );
 		$this->assertStringContainsString( 'id="bbp_topic_id" type="text" value="' . $topic_id . '"', $output );
 		$this->assertStringContainsString( 'id="bbp_reply_to"', $output );
 		$this->assertSame( 1, preg_match( '/name="bbp_reply_metabox" value="([^"]+)"/', $output, $matches ) );
 		$this->assertNotFalse( wp_verify_nonce( $matches[1], 'bbp_reply_metabox_save' ) );
+	}
+
+	/**
+	 * @ticket BBP3724
+	 * @covers ::bbp_reply_metabox
+	 */
+	public function test_reply_metabox_selects_topic_forum_without_writing_mismatched_meta() {
+		$user_id = $this->create_capable_user( array( 'edit_others_replies', 'moderate', 'edit_forums' ) );
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( 0 );
+		$this->set_current_user( $user_id );
+		$topic_forum_id = $this->factory->forum->create( array( 'post_title' => 'Topic Forum' ) );
+		$reply_forum_id = $this->factory->forum->create( array( 'post_title' => 'Reply Forum' ) );
+		$topic_id       = $this->factory->topic->create(
+			array(
+				'post_parent' => $topic_forum_id,
+				'topic_meta'  => array( 'forum_id' => $topic_forum_id ),
+			)
+		);
+		$reply_id       = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $reply_forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+
+		$this->assertSame( $reply_forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
+		$this->assertSame( $topic_forum_id, bbp_get_reply_forum_id( $reply_id ) );
+		$this->assertSame( $topic_forum_id, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
+
+		$output = $this->capture_metabox( 'bbp_reply_metabox', get_post( $reply_id ) );
+
+		$this->assertStringContainsString( 'id="bbp_forum_id" class="bbp_dropdown" disabled="disabled"', $output );
+		$this->assertStringContainsString( 'value="' . $topic_forum_id . '" selected', $output );
+		$this->assertStringContainsString( 'id="bbp_topic_id" type="text" value="' . $topic_id . '"', $output );
+		$this->assertStringContainsString( 'Topic Forum', $output );
+		$this->assertStringNotContainsString( '>Fix</button>', $output );
+		$this->assertStringNotContainsString( 'Should be:', $output );
+		$this->assertSame( $reply_forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
+
+		$nonforum_id = $this->factory->post->create( array( 'post_status' => 'private', 'post_title' => 'Private parent title' ) );
+		$topic_id    = $this->factory->topic->create( array( 'post_parent' => $nonforum_id ) );
+		$reply_id    = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$output      = $this->capture_metabox( 'bbp_reply_metabox', get_post( $reply_id ) );
+
+		$this->assertSame( $nonforum_id, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertStringContainsString( 'data-forum-title="' . $nonforum_id . '"', $output );
+		$this->assertStringNotContainsString( 'Private parent title', $output );
+
+		$this->set_current_user( 0 );
 	}
 
 	/**

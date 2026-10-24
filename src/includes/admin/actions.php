@@ -112,6 +112,9 @@ add_filter( 'bbp_admin_replies_column_headers', 'bbp_filter_column_headers' );
 add_action( 'load-tools_page_bbp-converter', 'bbp_setup_converter', 2 );
 add_action( 'wp_ajax_bbp_converter_process', 'bbp_setup_converter', 2 );
 
+// Preview reply topic changes
+add_action( 'wp_ajax_bbp_reply_topic_forum', 'bbp_ajax_reply_topic_forum' );
+
 // Add New User
 add_action( 'user_new_form', 'bbp_add_user_form_role_field', 10, 1 );
 

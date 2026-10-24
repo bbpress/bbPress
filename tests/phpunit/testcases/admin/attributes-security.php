@@ -262,6 +262,7 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
 		$this->assertTrue( current_user_can( 'moderate', $source_topic_id ) );
 		$this->assertFalse( current_user_can( 'moderate', $destination_topic_id ) );
+		$this->assertFalse( bbp_user_can_move_reply_to_topic( get_post( $reply_id ), $destination_topic_id, $destination_forum_id ) );
 		new BBP_Replies_Admin();
 		$_POST['parent_id']         = $destination_topic_id;
 		$_POST['bbp_forum_id']      = $destination_forum_id;
@@ -318,6 +319,7 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
 		$this->set_current_user( $user_id );
+		$this->assertTrue( bbp_user_can_move_reply_to_topic( get_post( $reply_id ), $topic_id, $forum_id ) );
 		new BBP_Replies_Admin();
 		$_POST['parent_id']          = $topic_id;
 		$_POST['hidden_post_status'] = 'draft';
@@ -328,6 +330,36 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertSame( $topic_id, wp_get_post_parent_id( $reply_id ) );
 		$this->assertSame( $topic_id, (int) get_post_meta( $reply_id, '_bbp_topic_id', true ) );
 		$this->assertSame( $forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
+	}
+
+	/**
+	 * @ticket BBP3724
+	 */
+	public function test_reply_save_repairs_mismatched_forum_meta_from_topic() {
+		set_current_screen( 'edit-reply' );
+
+		$user_id        = $this->factory->user->create();
+		$topic_forum_id = $this->factory->forum->create();
+		$reply_forum_id = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $topic_forum_id, 'topic_meta' => array( 'forum_id' => $topic_forum_id ) ) );
+		$reply_id       = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'reply_meta' => array( 'forum_id' => $reply_forum_id, 'topic_id' => $topic_id ) ) );
+
+		$this->assertSame( $reply_forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
+		$this->assertSame( $topic_forum_id, bbp_get_reply_forum_id( $reply_id ) );
+		$this->assertSame( $topic_forum_id, bbp_get_topic_forum_id( $topic_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		new BBP_Replies_Admin();
+		$_POST['parent_id']         = $topic_id;
+		$_POST['bbp_forum_id']      = $reply_forum_id;
+		$_POST['bbp_reply_metabox'] = wp_create_nonce( 'bbp_reply_metabox_save' );
+
+		wp_update_post( array( 'ID' => $reply_id, 'post_parent' => $topic_id ) );
+
+		$this->assertSame( $topic_id, wp_get_post_parent_id( $reply_id ) );
+		$this->assertSame( $topic_forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
+		$this->assertSame( $topic_forum_id, bbp_get_reply_forum_id( $reply_id ) );
 	}
 
 	public function test_forum_moderator_can_move_topic_into_moderated_forum() {
@@ -479,6 +511,43 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertSame( 2, bbp_get_topic_reply_count( $destination_topic_id, true ) );
 		$this->assertSame( 0, bbp_get_forum_reply_count( $source_forum_id, true, true ) );
 		$this->assertSame( 2, bbp_get_forum_reply_count( $destination_forum_id, true, true ) );
+	}
+
+	/**
+	 * @ticket BBP3724
+	 */
+	public function test_forum_moderator_can_preview_reply_move_into_moderated_topic() {
+		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$source_forum_id      = $this->factory->forum->create();
+		$destination_forum_id = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $source_forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $destination_forum_id ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_author' => $user_id, 'post_parent' => $source_topic_id ) );
+
+		bbp_add_moderator( $source_forum_id, $user_id );
+		bbp_add_moderator( $destination_forum_id, $user_id );
+		$this->set_current_user( $user_id );
+
+		$this->assertFalse( current_user_can( 'moderate' ) );
+		$this->assertTrue( current_user_can( 'moderate', $source_topic_id ) );
+		$this->assertTrue( current_user_can( 'moderate', $destination_topic_id ) );
+		$this->assertTrue( bbp_user_can_move_reply_to_topic( get_post( $reply_id ), $destination_topic_id, $destination_forum_id ) );
+	}
+
+	/**
+	 * @ticket BBP3724
+	 */
+	public function test_new_reply_preview_rejects_topic_without_forum() {
+		$user_id  = $this->factory->user->create();
+		$topic_id = $this->factory->post->create( array( 'post_type' => bbp_get_topic_post_type(), 'post_status' => 'publish', 'post_parent' => 0 ) );
+		$reply_id = $this->factory->post->create( array( 'post_type' => bbp_get_reply_post_type(), 'post_status' => 'auto-draft', 'post_author' => $user_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$this->assertSame( 0, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
+		$this->assertFalse( bbp_user_can_move_reply_to_topic( get_post( $reply_id ), $topic_id, 0 ) );
 	}
 
 	public function invalid_new_post_actions() {

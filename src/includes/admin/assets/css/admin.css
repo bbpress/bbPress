@@ -17,6 +17,18 @@
 	box-sizing: border-box;
 }
 
+#poststuff #bbp_reply_attributes select#bbp_forum_id,
+#poststuff #bbp_reply_attributes select#bbp_reply_to {
+	width: 165px;
+	padding-right: 24px;
+}
+
+#poststuff #bbp_reply_attributes select#bbp_forum_id:disabled {
+	color: #2c3338;
+	background-color: #fff;
+	opacity: 1;
+}
+
 /* Version Badge */
 
 .bbp-badge {
