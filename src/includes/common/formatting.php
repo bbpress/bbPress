@@ -171,6 +171,137 @@ function bbp_kses_data( $data = '' ) {
 /** Formatting ****************************************************************/
 
 /**
+ * Wrap runs of list items that have no list container in displayed content.
+ *
+ * Runs after force_balance_tags(), which closes items but does not supply
+ * missing parent lists. Requires the public HTML serialization API available
+ * in WordPress 6.9. Repaired fragments are normalized by the HTML Processor.
+ * Code examples and block content are excluded from repair. Fragments without
+ * orphan list items and sites using other character encodings are unchanged.
+ * References that may affect later formatting are excluded from normalization.
+ * Nested malformed list containers are not reconstructed.
+ *
+ * @since 2.6.21 bbPress (r8135)
+ *
+ * @param string $content Balanced topic or reply content.
+ * @param int    $post_id Optional. Topic or reply ID.
+ * @return string Content with missing unordered list containers supplied.
+ */
+function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
+	if ( ! class_exists( 'WP_HTML_Processor' ) || ( false === stripos( $content, '<li' ) ) || has_blocks( $content ) ) {
+		return $content;
+	}
+
+	if ( ! empty( $post_id ) && has_blocks( get_post_field( 'post_content', $post_id, 'raw' ) ) ) {
+		return $content;
+	}
+
+	$processor = WP_HTML_Processor::create_fragment( $content );
+	if ( ! is_callable( array( $processor, 'serialize_token' ) ) || ! is_utf8_charset() ) {
+		return $content;
+	}
+
+	// Do not expose encoded ASCII or named punctuation to later formatting filters.
+	$pattern = '/&(?:
+		\#0*(?:[0-9]|[1-9][0-9]|1[01][0-9]|12[0-7])(?![0-9])        # Decimal ASCII: 0 through 127.
+		| \#[xX]0*[0-7]?[0-9a-fA-F](?![0-9a-fA-F])                  # Hexadecimal ASCII: 00 through 7F.
+		| (?!(?:amp|lt|gt|quot|apos|nbsp);)[a-zA-Z][a-zA-Z0-9]*;      # Other named references.
+	)/x';
+	if ( preg_match( $pattern, $content ) ) {
+		return $content;
+	}
+
+	$output          = '';
+	$depth           = 0;
+	$in_item         = false;
+	$changed         = false;
+	$pending_newline = false;
+
+	while ( $processor->next_token() ) {
+		$tag         = $processor->get_tag();
+		$type        = $processor->get_token_type();
+		$closing     = $processor->is_tag_closer();
+		$breadcrumbs = $processor->get_breadcrumbs();
+		$is_item     = ( 'LI' === $tag ) && ! $closing && ! array_intersect(
+			array( 'UL', 'OL', 'MENU', 'DIR', 'PRE', 'CODE', 'LISTING' ),
+			$breadcrumbs
+		);
+		$is_spacing  = ( '#comment' === $type ) || ( ( '#text' === $type ) && ( '' === trim( $processor->get_modifiable_text(), " \t\n\r\f" ) ) );
+
+		// A run ends at text or another element, not at whitespace or a comment.
+		if ( $depth && ! $in_item && ! $is_item && ! $is_spacing ) {
+			$output .= '</ul>';
+			$depth   = 0;
+		}
+
+		if ( $is_item ) {
+			if ( ! $depth ) {
+				$output .= '<ul>';
+				$depth   = count( $breadcrumbs ) - 1;
+				$changed = true;
+			}
+			$in_item = true;
+		} elseif ( $closing && ( 'LI' === $tag ) && ( count( $breadcrumbs ) === $depth ) ) {
+			$in_item = false;
+		}
+
+		$serialized = $processor->serialize_token();
+		if ( $pending_newline ) {
+			if ( ( '#text' === $type ) && ( "\n" === substr( $processor->get_modifiable_text(), 0, 1 ) ) ) {
+				$output .= "\n";
+			}
+			$pending_newline = false;
+		}
+
+		// Preserve the newline consumed by HTML parsing, including on WordPress 6.9.
+		if ( ! $closing && ( 'html' === $processor->get_namespace() ) ) {
+			if ( in_array( $tag, array( 'PRE', 'LISTING' ), true ) ) {
+				if ( "\n" === substr( $serialized, -1 ) ) {
+					$serialized = substr( $serialized, 0, -1 );
+				}
+				$pending_newline = true;
+			} elseif ( 'TEXTAREA' === $tag ) {
+				$expected = $processor->get_modifiable_text();
+				$textarea = new WP_HTML_Tag_Processor( $serialized );
+				if ( ! $textarea->next_tag() ) {
+					return $content;
+				}
+				// Serialized attribute values have escaped angle brackets.
+				$text_start = strpos( $serialized, '>' ) + 1;
+				if ( $textarea->get_modifiable_text() !== $expected ) {
+					if ( "\n" . $textarea->get_modifiable_text() !== $expected ) {
+						return $content;
+					}
+					$serialized = substr_replace( $serialized, "\n", $text_start, 0 );
+				} elseif ( ( "\n" !== substr( $expected, 0, 1 ) ) && ( "\n" === substr( $serialized, $text_start, 1 ) ) ) {
+					$serialized = substr_replace( $serialized, '', $text_start, 1 );
+				}
+			}
+			// Older serializers cannot preserve every opaque element's payload.
+			if ( in_array( $tag, array( 'IFRAME', 'NOEMBED', 'NOFRAMES', 'SCRIPT', 'STYLE', 'TEXTAREA', 'TITLE', 'XMP' ), true ) ) {
+				$token = new WP_HTML_Tag_Processor( $serialized );
+				if ( ! $token->next_tag() || ( $token->get_modifiable_text() !== $processor->get_modifiable_text() ) ) {
+					return $content;
+				}
+			}
+		}
+
+		$output .= $serialized;
+	}
+
+	// Never publish a partially parsed or incomplete fragment.
+	if ( null !== $processor->get_last_error() || $processor->paused_at_incomplete_token() || ! $changed ) {
+		return $content;
+	}
+
+	if ( $depth ) {
+		$output .= '</ul>';
+	}
+
+	return $output;
+}
+
+/**
  * Filter the topic or reply content and output code and pre tags.
  *
  * @since 2.3.0 bbPress (r4642)
