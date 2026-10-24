@@ -2650,6 +2650,37 @@ function bbp_get_private_forum_ids() {
 }
 
 /**
+ * Return password-protected forum IDs and all of their descendants.
+ *
+ * @since 2.6.21 bbPress (r8133)
+ *
+ * @return int[] Password-protected forum IDs and descendant forum IDs.
+ */
+function bbp_get_password_protected_forum_ids() {
+	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
+	$cache_key    = 'bbp_password_protected_forum_ids:' . $last_changed;
+	$forum_ids    = wp_cache_get( $cache_key, 'bbpress_posts' );
+
+	if ( false === $forum_ids ) {
+		// Length checks preserve whitespace-only passwords with padded collations.
+		$bbp_db    = bbp_db();
+		$query     = $bbp_db->prepare(
+			"SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND CHAR_LENGTH( post_password ) > 0",
+			bbp_get_forum_post_type()
+		);
+		$forum_ids = wp_parse_id_list( $bbp_db->get_col( $query ) );
+
+		if ( ! empty( $forum_ids ) ) {
+			$forum_ids = bbp_forum_query_all_descendant_ids( $forum_ids );
+		}
+
+		wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+	}
+
+	return (array) apply_filters( 'bbp_get_password_protected_forum_ids', $forum_ids );
+}
+
+/**
  * Returns the forum IDs that should be excluded from various views & queries,
  * based on the current user's capabilities.
  *
@@ -2840,6 +2871,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  *
  * @since 2.3.0 bbPress (r4808)
  * @since 2.6.19 bbPress (r7691) Exclude restricted forum IDs from post__in queries.
+ * @since 2.6.21 bbPress (r8133) Exclude password-restricted content from searches.
  *
  * @global string $pagenow The filename of the current screen.
  *
@@ -2859,8 +2891,9 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
-	// Preserve the main post list query without exempting admin-ajax queries
-	if ( is_admin() && ! wp_doing_ajax() && isset( $_REQUEST['post_status'] ) && isset( $GLOBALS['pagenow'] ) && ( 'edit.php' === $GLOBALS['pagenow'] ) && $posts_query->is_main_query() && current_user_can( 'moderate' ) ) {
+	// Preserve the existing explicit-status admin exemption.
+	$is_admin_list = is_admin() && ! wp_doing_ajax() && isset( $GLOBALS['pagenow'] ) && ( 'edit.php' === $GLOBALS['pagenow'] ) && $posts_query->is_main_query() && current_user_can( 'moderate' );
+	if ( $is_admin_list && isset( $_REQUEST['post_status'] ) ) {
 		return;
 	}
 
@@ -2894,6 +2927,14 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	// Mark this query as normalized
 	$posts_query->set( '_bbp_forum_visibility_normalized', true );
 
+	// Singular requests can still contain a search term that WordPress uses in SQL.
+	$password_search = $posts_query->is_search() || ( '' !== (string) $posts_query->get( 's' ) );
+
+	// Preserve admin lists and suggestions without skipping forum restrictions.
+	if ( $is_admin_list || ( $posts_query->get( 'suppress_filters' ) && wp_doing_ajax() && current_user_can( 'moderate' ) ) ) {
+		$password_search = false;
+	}
+
 	// Separate non-bbPress post types from supported bbPress post types.
 	$non_bbp_post_types = array_diff( $post_types, $bbp_post_types );
 	$content_post_types = array_intersect(
@@ -2906,13 +2947,38 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	 * post types from mixed queries so protected content continues to fail closed
 	 * without changing the requested non-bbPress post types.
 	 */
-	if ( ! empty( $non_bbp_post_types ) && $posts_query->get( 'suppress_filters' ) ) {
-		$posts_query->set( 'post_type', array_values( $non_bbp_post_types ) );
-		return;
+	if ( $posts_query->get( 'suppress_filters' ) ) {
+		if ( ! empty( $non_bbp_post_types ) ) {
+			$posts_query->set( 'post_type', array_values( $non_bbp_post_types ) );
+			return;
+		}
+
+		// Password inheritance requires a posts_where clause during searches.
+		if ( $password_search ) {
+			// Explicit IDs take precedence over post__in in WordPress.
+			$posts_query->set( 'p', 0 );
+			$posts_query->set( 'page_id', 0 );
+			$posts_query->set( 'attachment_id', 0 );
+			$posts_query->set( 'post__in', array( 0 ) );
+			return;
+		}
 	}
 
 	// Get forums to exclude.
-	$forum_ids = bbp_exclude_forum_ids( 'array' );
+	$forum_ids          = bbp_exclude_forum_ids( 'array' );
+	$password_forum_ids = array();
+
+	/**
+	 * Search matches must not reveal whether password-protected content contains
+	 * a term. Add password-protected forum trees to the normal visibility rules
+	 * and exclude protected topics through the password-search clause.
+	 */
+	if ( $password_search ) {
+		$password_forum_ids  = bbp_get_password_protected_forum_ids();
+		$forum_ids           = wp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) );
+		$posts_query->set( '_bbp_password_protected_search', true );
+		$posts_query->set( '_bbp_password_protected_forum_ids', $password_forum_ids );
+	}
 
 	// Forums
 	if ( in_array( bbp_get_forum_post_type(), $post_types, true ) ) {
@@ -2923,7 +2989,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		 * forum visibilities to a shared query. Without a post-type-aware status
 		 * clause, private and hidden content inherits the broader forum statuses.
 		 */
-		if ( ! empty( $content_post_types ) ) {
+		if ( ! $is_admin_list && ! empty( $content_post_types ) ) {
 			$content_post_statuses = bbp_get_string_array_values( $posts_query->get( 'post_status' ) );
 
 			if ( empty( $content_post_statuses ) ) {
@@ -2937,8 +3003,8 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			$posts_query->set( '_bbp_forum_visibility_post_statuses', $content_post_statuses );
 		}
 
-		// Add all supported forum visibilities to bbPress-only queries.
-		if ( empty( $non_bbp_post_types ) ) {
+		// Add forum visibilities without replacing WordPress admin-list statuses.
+		if ( ! $is_admin_list && empty( $non_bbp_post_types ) ) {
 			$posts_query->set(
 				'post_status',
 				array_unique(
@@ -2988,17 +3054,21 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	/**
-	 * Mixed queries need a post-type-aware SQL clause. A meta query would use an
-	 * inner join and unintentionally remove non-bbPress posts that do not have
-	 * bbPress forum metadata.
+	 * Mixed queries need a post-type-aware clause to preserve non-bbPress posts.
+	 * Searches also use it to reject every excluded forum metadata value, rather
+	 * than allowing a duplicate public value to satisfy a NOT IN meta query.
 	 */
-	if ( ! empty( $non_bbp_post_types ) ) {
+	if ( ! empty( $non_bbp_post_types ) || $password_search ) {
 		$posts_query->set( '_bbp_forum_visibility_post_types', $content_post_types );
 		$posts_query->set( '_bbp_forum_visibility_forum_ids',  $forum_ids          );
-		return;
+
+		// Mixed queries cannot use a meta join without losing unrelated posts.
+		if ( ! empty( $non_bbp_post_types ) ) {
+			return;
+		}
 	}
 
-	// Get forum meta query.
+	// Preserve the existing meta-query filter for bbPress-only queries.
 	$forum_meta_query = bbp_exclude_forum_ids( 'meta_query' );
 
 	// Excluding some forums
@@ -3024,7 +3094,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 }
 
 /**
- * Excludes protected bbPress content from mixed post-type queries.
+ * Excludes protected bbPress content from mixed post-type queries and searches.
  *
  * A normal meta query cannot scope its join to bbPress post types, causing
  * unrelated WordPress posts and third-party post types without `_bbp_forum_id`
@@ -3116,7 +3186,7 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
 	);
 
 	/**
-	 * Filters the forum visibility SQL appended to mixed post-type queries.
+	 * Filters the forum visibility SQL appended to mixed queries and searches.
 	 *
 	 * @since 2.6.15 bbPress (r7415)
 	 *

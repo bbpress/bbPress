@@ -125,6 +125,55 @@ function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
 	return $where;
 }
 
+/**
+ * Exclude password-protected bbPress matches from search queries.
+ *
+ * Password-protected content stays out of public search results even after its
+ * password has been entered. Direct requests continue to use WordPress's post
+ * password cookie normally.
+ *
+ * @since 2.6.21 bbPress (r8133)
+ *
+ * @param string   $where       SQL WHERE clause.
+ * @param WP_Query $posts_query Posts query.
+ * @return string SQL WHERE clause.
+ */
+function bbp_password_protected_search_where( $where = '', $posts_query = null ) {
+	if ( ! $posts_query instanceof WP_Query || ! $posts_query->get( '_bbp_password_protected_search' ) ) {
+		return $where;
+	}
+
+	$bbp_db = bbp_db();
+	$where .= $bbp_db->prepare(
+		" AND ( {$bbp_db->posts}.post_type NOT IN ( %s, %s, %s ) OR CHAR_LENGTH( {$bbp_db->posts}.post_password ) = 0 )",
+		bbp_get_forum_post_type(),
+		bbp_get_topic_post_type(),
+		bbp_get_reply_post_type()
+	);
+
+	// Metadata is a fallback, not a replacement for canonical forum ancestry.
+	$forum_ids       = wp_parse_id_list( $posts_query->get( '_bbp_password_protected_forum_ids' ) );
+	$topic_forum_sql = '';
+	if ( ! empty( $forum_ids ) ) {
+		$placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
+		$where       .= $bbp_db->prepare(
+			" AND ( {$bbp_db->posts}.post_type <> %s OR {$bbp_db->posts}.ID NOT IN ({$placeholders}) )
+			AND ( {$bbp_db->posts}.post_type <> %s OR {$bbp_db->posts}.post_parent NOT IN ({$placeholders}) )",
+			array_merge( array( bbp_get_forum_post_type() ), $forum_ids, array( bbp_get_topic_post_type() ), $forum_ids )
+		);
+		$topic_forum_sql = $bbp_db->prepare( " AND bbp_password_topic.post_parent NOT IN ({$placeholders})", $forum_ids );
+	}
+
+	// Follow reply ancestry without changing existing parent-topic status rules.
+	$where .= $bbp_db->prepare(
+		" AND ( {$bbp_db->posts}.post_type <> %s OR EXISTS ( SELECT 1 FROM {$bbp_db->posts} AS bbp_password_topic WHERE bbp_password_topic.ID = {$bbp_db->posts}.post_parent AND bbp_password_topic.post_type = %s AND CHAR_LENGTH( bbp_password_topic.post_password ) = 0{$topic_forum_sql} ) )",
+		bbp_get_reply_post_type(),
+		bbp_get_topic_post_type()
+	);
+
+	return $where;
+}
+
 /** URLs **********************************************************************/
 
 /**

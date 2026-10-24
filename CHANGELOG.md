@@ -55,6 +55,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Prevented password-protected forum content from influencing search results.
 - Required permission to manage both forums before moving a topic between them.
 - Kept password-protected topic and reply content out of BuddyPress activity.
 - Kept restricted attachment metadata out of alternate front-end and feed requests.
