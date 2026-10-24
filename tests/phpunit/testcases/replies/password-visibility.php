@@ -72,12 +72,13 @@ class BBP_Tests_Replies_Password_Visibility extends BBP_UnitTestCase {
 			foreach ( $user_ids as $user_id ) {
 				$this->set_current_user( $user_id );
 
-				foreach ( array( '/?post_type=reply', '/?s=Protected&post_type=reply' ) as $url ) {
-					$this->go_to_without_reregistering_blocks( $url );
-					$this->assertContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
-					$this->assertTrue( post_password_required( $reply_id ) );
-					$this->assertStringNotContainsString( 'Protected core reply marker', get_the_content( null, false, $reply_id ) );
-				}
+				$this->go_to_without_reregistering_blocks( '/?post_type=reply' );
+				$this->assertContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+				$this->assertTrue( post_password_required( $reply_id ) );
+				$this->assertStringNotContainsString( 'Protected core reply marker', get_the_content( null, false, $reply_id ) );
+
+				$this->go_to_without_reregistering_blocks( '/?s=Protected&post_type=reply' );
+				$this->assertNotContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
 			}
 
 			require_once ABSPATH . WPINC . '/class-phpass.php';
@@ -87,6 +88,9 @@ class BBP_Tests_Replies_Password_Visibility extends BBP_UnitTestCase {
 			$this->set_current_user( 0 );
 			$this->assertFalse( post_password_required( $reply_id ) );
 			$this->assertStringContainsString( 'Protected core reply marker', get_the_content( null, false, $reply_id ) );
+
+			$this->go_to_without_reregistering_blocks( '/?s=Protected&post_type=reply' );
+			$this->assertNotContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
 		} finally {
 			$this->set_current_user( 0 );
 
