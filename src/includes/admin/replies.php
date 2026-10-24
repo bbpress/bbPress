@@ -215,8 +215,8 @@ class BBP_Replies_Admin {
 				'content' =>
 					'<p>' . __( 'Select the attributes that your reply should have:', 'bbpress' ) . '</p>' .
 					'<ul>' .
-						'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the reply belongs to. Select the forum, or leave the default (Use Forum of Topic) to post the reply in forum of the topic.', 'bbpress' ) . '</li>' .
-						'<li>' . __( '<strong>Topic</strong> determines the parent topic that the reply belongs to.', 'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Forum</strong> shows the forum of the selected topic.', 'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Topic</strong> determines the parent topic and forum that the reply belongs to.', 'bbpress' ) . '</li>' .
 						'<li>' . __( '<strong>Reply To</strong> determines the threading of the reply.', 'bbpress' ) . '</li>' .
 					'</ul>'
 			)
@@ -518,13 +518,8 @@ class BBP_Replies_Admin {
 			|| empty( $_POST['bbp_reply_metabox'] )
 			|| ! is_string( $_POST['bbp_reply_metabox'] )
 			|| ! wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' )
-			|| ! current_user_can( 'edit_reply', $reply->ID )
-			|| ( $is_new && ! current_user_can( 'publish_replies' ) )
-			|| ( ! $is_new && ! empty( $old_topic_id ) && ( ! current_user_can( 'moderate', $old_topic_id ) || ! current_user_can( 'edit_topic', $old_topic_id ) ) )
 			|| empty( $new_topic )
-			|| ( $is_new && ( ! current_user_can( 'read_topic', $new_topic_id ) || ( bbp_is_topic_closed( $new_topic_id ) && ! current_user_can( 'edit_topic', $new_topic_id ) ) ) )
-			|| ( $is_new && ( ! current_user_can( 'read_forum', $new_forum_id ) || ( bbp_is_forum_closed( $new_forum_id ) && ! current_user_can( 'edit_forum', $new_forum_id ) ) ) )
-			|| ( ! $is_new && ( ! current_user_can( 'moderate', $new_topic_id ) || ! current_user_can( 'edit_topic', $new_topic_id ) ) )
+			|| ! bbp_user_can_move_reply_to_topic( $reply, $new_topic_id, $new_forum_id )
 		) {
 			if ( $is_new ) {
 				wp_die(
@@ -852,19 +847,11 @@ class BBP_Replies_Admin {
 
 				// Get Forum ID's
 				$reply_forum_id = bbp_get_reply_forum_id( $reply_id );
-				$topic_forum_id = bbp_get_topic_forum_id( $topic_id );
 
 				// Forum Title
 				$forum_title = ! empty( $reply_forum_id )
 					? bbp_get_forum_title( $reply_forum_id )
 					: '';
-
-				// Alert capable users of reply forum mismatch
-				if ( $reply_forum_id !== $topic_forum_id ) {
-					if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $reply_id ) ) {
-						$forum_title .= '<div class="attention">' . esc_html__( '(Mismatch)', 'bbpress' ) . '</div>';
-					}
-				}
 
 				// Output forum name
 				if ( ! empty( $forum_title ) ) {
@@ -1195,6 +1182,75 @@ class BBP_Replies_Admin {
 	}
 }
 endif; // class_exists check
+
+/**
+ * Check the topic and forum permissions for an administrative reply move.
+ *
+ * @since 2.6.21 bbPress (r8137)
+ *
+ * @param WP_Post $reply        Reply being edited.
+ * @param int     $topic_id     Destination topic ID.
+ * @param int     $forum_id     Destination forum ID.
+ * @return bool Whether the current user may move the reply.
+ */
+function bbp_user_can_move_reply_to_topic( $reply, $topic_id, $forum_id ) {
+	if ( ! current_user_can( 'edit_reply', $reply->ID ) ) {
+		return false;
+	}
+
+	if ( 'auto-draft' === $reply->post_status ) {
+		return current_user_can( 'publish_replies' )
+			&& current_user_can( 'read_topic', $topic_id )
+			&& ( ! bbp_is_topic_closed( $topic_id ) || current_user_can( 'edit_topic', $topic_id ) )
+			&& current_user_can( 'read_forum', $forum_id )
+			&& ( ! bbp_is_forum_closed( $forum_id ) || current_user_can( 'edit_forum', $forum_id ) );
+	}
+
+	$old_topic_id = (int) $reply->post_parent;
+
+	return ( ! $old_topic_id || ( current_user_can( 'moderate', $old_topic_id ) && current_user_can( 'edit_topic', $old_topic_id ) ) )
+		&& current_user_can( 'moderate', $topic_id )
+		&& current_user_can( 'edit_topic', $topic_id );
+}
+
+/**
+ * Preview the forum that will be saved with a selected reply topic.
+ *
+ * @since 2.6.21 bbPress (r8137)
+ */
+function bbp_ajax_reply_topic_forum() {
+	$reply_id = isset( $_POST['reply_id'] ) ? absint( wp_unslash( $_POST['reply_id'] ) ) : 0;
+	$topic_id = isset( $_POST['topic_id'] ) ? absint( wp_unslash( $_POST['topic_id'] ) ) : 0;
+
+	if ( ! bbp_is_post_request() || ! bbp_is_reply( $reply_id ) ) {
+		wp_send_json_error( array( 'message' => __( 'The reply is not available.', 'bbpress' ) ), 400 );
+	}
+
+	check_ajax_referer( 'bbp_reply_topic_forum_' . $reply_id );
+
+	if ( ! $topic_id || ! bbp_is_topic( $topic_id ) ) {
+		wp_send_json_error( array( 'message' => __( 'The selected topic is not available for this reply.', 'bbpress' ) ), 400 );
+	}
+
+	$forum_id = bbp_get_topic_forum_id( $topic_id );
+	if ( ! bbp_user_can_move_reply_to_topic( bbp_get_reply( $reply_id ), $topic_id, $forum_id ) ) {
+		wp_send_json_error( array( 'message' => __( 'You cannot move this reply.', 'bbpress' ) ), 403 );
+	}
+
+	// Send plain text for the JavaScript option label.
+	$forum_title = $forum_id
+		? ( bbp_is_forum( $forum_id ) ? bbp_get_forum_title( $forum_id ) : (string) $forum_id )
+		: esc_html__( 'No forum', 'bbpress' );
+	$forum_title = html_entity_decode( $forum_title, ENT_QUOTES, get_bloginfo( 'charset' ) );
+
+	wp_send_json_success(
+		array(
+			'forum_id'          => $forum_id,
+			'forum_title'       => $forum_title,
+			'reply_to_dropdown' => bbp_get_reply_to_dropdown( $reply_id, $topic_id )
+		)
+	);
+}
 
 /**
  * Setup bbPress Replies Admin

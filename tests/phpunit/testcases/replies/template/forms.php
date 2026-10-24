@@ -104,6 +104,27 @@ class BBP_Tests_Replies_Template_Forms extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3724
+	 * @covers ::bbp_get_reply_to_dropdown
+	 */
+	public function test_reply_to_dropdown_previews_destination_topic() {
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_title' => 'Destination Topic' ) );
+		$source_reply_id      = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+		$destination_reply_id = $this->factory->reply->create( array( 'post_parent' => $destination_topic_id ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+
+		bbp_update_reply_to( $reply_id, $source_reply_id );
+
+		$html = bbp_get_reply_to_dropdown( $reply_id, $destination_topic_id );
+
+		$this->assertStringContainsString( 'value="" class="level-0">' . $destination_topic_id . ' - Destination Topic', $html );
+		$this->assertStringContainsString( 'value="' . $destination_reply_id . '"', $html );
+		$this->assertStringNotContainsString( 'value="' . $source_reply_id . '"', $html );
+	}
+
+	/**
 	 * @covers ::bbp_form_reply_log_edit
 	 * @covers ::bbp_get_form_reply_log_edit
 	 * @todo   Implement test_bbp_get_form_reply_log_edit().

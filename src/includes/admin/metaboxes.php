@@ -514,8 +514,10 @@ function bbp_reply_metabox( $post ) {
 
 	// Get some meta
 	$reply_topic_id = bbp_get_reply_topic_id( $post->ID );
-	$reply_forum_id = bbp_get_reply_forum_id( $post->ID );
 	$topic_forum_id = bbp_get_topic_forum_id( $reply_topic_id );
+	$forum_title    = $topic_forum_id
+		? ( bbp_is_forum( $topic_forum_id ) ? bbp_get_forum_title( $topic_forum_id ) : (string) $topic_forum_id )
+		: '';
 
 	/** Status ****************************************************************/
 
@@ -539,35 +541,21 @@ function bbp_reply_metabox( $post ) {
 
 	/** Forum *****************************************************************/
 
-	// Only allow individual manipulation of reply forum if there is a mismatch
-	if ( ( $reply_forum_id !== $topic_forum_id ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $post->ID ) ) ) : ?>
+	?>
 
-		<p>
-			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_forum_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-			<?php
-			bbp_dropdown(
-				array(
-					'post_type'          => bbp_get_forum_post_type(),
-					'selected'           => $reply_forum_id,
-					'numberposts'        => -1,
-					'orderby'            => 'title',
-					'order'              => 'ASC',
-					'walker'             => '',
-					'exclude'            => '',
+	<p>
+		<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
+		<select id="bbp_forum_id" class="bbp_dropdown" disabled="disabled" data-forum-title="<?php echo esc_attr( $forum_title ); ?>">
+			<option value="" <?php selected( $topic_forum_id, 0 ); ?>><?php esc_html_e( 'No forum', 'bbpress' ); ?></option>
+			<?php if ( $topic_forum_id ) : ?>
+				<option value="<?php echo esc_attr( $topic_forum_id ); ?>" selected="selected"><?php echo esc_html( $forum_title ); ?></option>
+			<?php endif; ?>
+		</select>
+		<span class="bbp-reply-forum-status" role="status" aria-live="polite"></span>
+	</p>
 
-					// Output-related
-					'select_id'          => 'bbp_forum_id',
-					'options_only'       => false,
-					'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
-					'disable_categories' => current_user_can( 'edit_forums' ),
-					'disabled'           => ''
-				)
-			);
-			?>
-		</p>
-
-	<?php endif;
+	<?php
 
 	/** Topic *****************************************************************/
 
@@ -576,7 +564,7 @@ function bbp_reply_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Topic:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Topic', 'bbpress' ); ?></label>
-		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" data-ajax-url="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_topic' ), admin_url( 'admin-ajax.php', 'relative' ) ), 'bbp_suggest_topic_nonce' ) ); ?>" />
+		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" data-saved-topic-id="<?php echo esc_attr( $reply_topic_id ); ?>" data-forum-id="<?php echo esc_attr( $topic_forum_id ); ?>" data-reply-id="<?php echo esc_attr( $post->ID ); ?>" data-forum-nonce="<?php echo esc_attr( wp_create_nonce( 'bbp_reply_topic_forum_' . $post->ID ) ); ?>" data-preview-error="<?php esc_attr_e( 'The forum could not be previewed.', 'bbpress' ); ?>" data-ajax-url="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_topic' ), admin_url( 'admin-ajax.php', 'relative' ) ), 'bbp_suggest_topic_nonce' ) ); ?>" />
 	</p>
 
 	<?php
