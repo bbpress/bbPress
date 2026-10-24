@@ -35,6 +35,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Wrapped standalone list items in topic and reply content on WordPress 6.9+
+  to prevent missing list containers from affecting the surrounding layout.
 - Kept generated bbPress content available to excerpt-based templates without
   causing themes that display both excerpts and content to duplicate it.
 - Restored topic titles on moderated reply lists for people who can read the
