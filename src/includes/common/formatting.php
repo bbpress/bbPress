@@ -178,7 +178,7 @@ function bbp_kses_data( $data = '' ) {
  * in WordPress 6.9. Repaired fragments are normalized by the HTML Processor.
  * Code examples and block content are excluded from repair. Fragments without
  * orphan list items and sites using other character encodings are unchanged.
- * References that may affect later formatting are excluded from normalization.
+ * Character references retain their spelling for later formatting filters.
  * Nested malformed list containers are not reconstructed.
  *
  * @since 2.6.21 bbPress (r8135)
@@ -201,14 +201,24 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 		return $content;
 	}
 
-	// Do not expose encoded ASCII or named punctuation to later formatting filters.
-	$pattern = '/&(?:
-		\#0*(?:[0-9]|[1-9][0-9]|1[01][0-9]|12[0-7])(?![0-9])        # Decimal ASCII: 0 through 127.
-		| \#[xX]0*[0-7]?[0-9a-fA-F](?![0-9a-fA-F])                  # Hexadecimal ASCII: 00 through 7F.
-		| (?!(?:amp|lt|gt|quot|apos|nbsp);)[a-zA-Z][a-zA-Z0-9]*;      # Other named references.
-	)/x';
-	if ( preg_match( $pattern, $content ) ) {
-		return $content;
+	// Protect reference spelling without decoding punctuation for later filters.
+	$original_processor = null;
+	$placeholder        = '';
+	if ( false !== strpos( $content, '&' ) ) {
+		// Try at most 16 private-use characters, each only three UTF-8 bytes.
+		$placeholder_source = str_replace( "\x00", '', $content );
+		for ( $attempt = 0; $attempt < 16; ++$attempt ) {
+			$candidate = "\xEE\x80" . chr( 0x80 + $attempt );
+			if ( false === strpos( $placeholder_source, $candidate ) ) {
+				$placeholder = $candidate;
+				break;
+			}
+		}
+		if ( '' === $placeholder ) {
+			return $content;
+		}
+		$original_processor = $processor;
+		$processor          = WP_HTML_Processor::create_fragment( str_replace( '&', $placeholder, $content ) );
 	}
 
 	$output          = '';
@@ -216,8 +226,28 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 	$in_item         = false;
 	$changed         = false;
 	$pending_newline = false;
+	$original_text   = '';
 
 	while ( $processor->next_token() ) {
+		// References may split text tokens, but must not change the element tree.
+		if ( $original_processor && ( '#text' !== $processor->get_token_type() ) ) {
+			do {
+				$matched = $original_processor->next_token();
+				if ( $matched ) {
+					$original_text .= $original_processor->get_modifiable_text();
+				}
+			} while ( $matched && ( '#text' === $original_processor->get_token_type() ) );
+			if ( ! $matched
+				|| ( $original_processor->get_token_type() !== $processor->get_token_type() )
+				|| ( $original_processor->get_tag() !== $processor->get_tag() )
+				|| ( $original_processor->is_tag_closer() !== $processor->is_tag_closer() )
+				|| ( $original_processor->get_namespace() !== $processor->get_namespace() )
+				|| ( $original_processor->get_breadcrumbs() !== $processor->get_breadcrumbs() )
+			) {
+				return $content;
+			}
+		}
+
 		$tag         = $processor->get_tag();
 		$type        = $processor->get_token_type();
 		$closing     = $processor->is_tag_closer();
@@ -226,7 +256,11 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 			array( 'UL', 'OL', 'MENU', 'DIR', 'PRE', 'CODE', 'LISTING' ),
 			$breadcrumbs
 		);
-		$is_spacing  = ( '#comment' === $type ) || ( ( '#text' === $type ) && ( '' === trim( $processor->get_modifiable_text(), " \t\n\r\f" ) ) );
+		$text        = $processor->get_modifiable_text();
+		if ( $original_processor && ( '#text' === $type ) ) {
+			$text = WP_HTML_Decoder::decode_text_node( str_replace( $placeholder, '&', $text ) );
+		}
+		$is_spacing  = ( '#comment' === $type ) || ( ( '#text' === $type ) && ( '' === trim( $text, " \t\n\r\f" ) ) );
 
 		// A run ends at text or another element, not at whitespace or a comment.
 		if ( $depth && ! $in_item && ! $is_item && ! $is_spacing ) {
@@ -247,7 +281,8 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 
 		$serialized = $processor->serialize_token();
 		if ( $pending_newline ) {
-			if ( ( '#text' === $type ) && ( "\n" === substr( $processor->get_modifiable_text(), 0, 1 ) ) ) {
+			$text = $processor->get_modifiable_text();
+			if ( ( '#text' === $type ) && ( ( "\n" === substr( $text, 0, 1 ) ) || ( $original_processor && '' === $text ) ) ) {
 				$output .= "\n";
 			}
 			$pending_newline = false;
@@ -276,6 +311,20 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 				} elseif ( ( "\n" !== substr( $expected, 0, 1 ) ) && ( "\n" === substr( $serialized, $text_start, 1 ) ) ) {
 					$serialized = substr_replace( $serialized, '', $text_start, 1 );
 				}
+				if ( $original_processor ) {
+					// A consumed literal newline may precede another encoded newline.
+					$textarea = new WP_HTML_Tag_Processor( str_replace( $placeholder, '&', $serialized ) );
+					if ( ! $textarea->next_tag() ) {
+						return $content;
+					}
+					$expected = $original_processor->get_modifiable_text();
+					if ( $textarea->get_modifiable_text() !== $expected ) {
+						if ( "\n" . $textarea->get_modifiable_text() !== $expected ) {
+							return $content;
+						}
+						$serialized = substr_replace( $serialized, "\n", $text_start, 0 );
+					}
+				}
 			}
 			// Older serializers cannot preserve every opaque element's payload.
 			if ( in_array( $tag, array( 'IFRAME', 'NOEMBED', 'NOFRAMES', 'SCRIPT', 'STYLE', 'TEXTAREA', 'TITLE', 'XMP' ), true ) ) {
@@ -289,6 +338,18 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 		$output .= $serialized;
 	}
 
+	if ( $original_processor ) {
+		do {
+			$matched = $original_processor->next_token();
+			if ( $matched ) {
+				$original_text .= $original_processor->get_modifiable_text();
+			}
+		} while ( $matched && ( '#text' === $original_processor->get_token_type() ) );
+		if ( $matched || null !== $original_processor->get_last_error() || $original_processor->paused_at_incomplete_token() ) {
+			return $content;
+		}
+	}
+
 	// Never publish a partially parsed or incomplete fragment.
 	if ( null !== $processor->get_last_error() || $processor->paused_at_incomplete_token() || ! $changed ) {
 		return $content;
@@ -296,6 +357,19 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 
 	if ( $depth ) {
 		$output .= '</ul>';
+	}
+
+	if ( $original_processor ) {
+		$output     = str_replace( $placeholder, '&', $output );
+		$round_trip = WP_HTML_Processor::create_fragment( $output );
+		$text       = '';
+		while ( $round_trip->next_token() ) {
+			$text .= $round_trip->get_modifiable_text();
+		}
+		// Discarded markup must not join reference fragments or change text.
+		if ( null !== $round_trip->get_last_error() || $round_trip->paused_at_incomplete_token() || $text !== $original_text ) {
+			return $content;
+		}
 	}
 
 	return $output;
