@@ -55,6 +55,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Avoided retaining incomplete forum visibility caches after database errors.
 - Omitted password-protected content from BuddyPress activity queries.
 - Prevented password-protected forum content from influencing search results.
 - Required permission to manage both forums before moving a topic between them.

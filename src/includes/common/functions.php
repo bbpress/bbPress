@@ -3260,8 +3260,10 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status NOT IN ( {$post_status} ) AND post_type = %s ORDER BY ID DESC", $parent_id, $post_type );
 		$child_ids   = (array) $bbp_db->get_col( $query );
 
-		// Always cache the results
-		wp_cache_set( $cache_key, $child_ids, 'bbpress_posts' );
+		// Cache successful results.
+		if ( empty( $bbp_db->last_error ) ) {
+			wp_cache_set( $cache_key, $child_ids, 'bbpress_posts' );
+		}
 	}
 
 	// Make sure results are INTs

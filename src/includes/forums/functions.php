@@ -2674,7 +2674,9 @@ function bbp_get_password_protected_forum_ids() {
 			$forum_ids = bbp_forum_query_all_descendant_ids( $forum_ids );
 		}
 
-		wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+		if ( empty( $bbp_db->last_error ) ) {
+			wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+		}
 	}
 
 	return (array) apply_filters( 'bbp_get_password_protected_forum_ids', $forum_ids );
@@ -2762,7 +2764,9 @@ function bbp_forum_query_all_subforum_ids( $forum_id ) {
 		);
 		$forum_ids = (array) $bbp_db->get_col( $query );
 
-		wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+		if ( empty( $bbp_db->last_error ) ) {
+			wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+		}
 	}
 
 	return wp_parse_id_list( $forum_ids );
@@ -2796,7 +2800,14 @@ function bbp_forum_query_all_descendant_ids( $forum_ids ) {
 			bbp_get_forum_post_type()
 		);
 
-		foreach ( (array) $bbp_db->get_col( $query ) as $forum_id ) {
+		$children = $bbp_db->get_col( $query );
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			// Return before another query can clear the error for callers.
+			return $forum_ids;
+		}
+
+		foreach ( (array) $children as $forum_id ) {
 			$forum_id = (int) $forum_id;
 
 			if ( ! isset( $seen[ $forum_id ] ) ) {
@@ -3256,7 +3267,9 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 		if ( false === $subforum_ids ) {
 			$subforum_ids = bbp_get_child_ids_by_status( $forum_id, bbp_get_forum_post_type(), $statuses );
 
-			wp_cache_set( $cache_key, $subforum_ids, 'bbpress_posts' );
+			if ( empty( bbp_db()->last_error ) ) {
+				wp_cache_set( $cache_key, $subforum_ids, 'bbpress_posts' );
+			}
 		}
 	}
 
