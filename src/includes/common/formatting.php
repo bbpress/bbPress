@@ -174,8 +174,10 @@ function bbp_kses_data( $data = '' ) {
  * Wrap runs of list items that have no list container in displayed content.
  *
  * Runs after force_balance_tags(), which closes items but does not supply
- * missing parent lists. Requires the public HTML serialization API available
- * in WordPress 6.9. Repaired fragments are normalized by the HTML Processor.
+ * missing parent lists. Requires the HTML API available in WordPress 6.9.
+ * Public HTML APIs validate explicit tag structure before wrappers are added.
+ * All original source bytes are retained. Implicit closures, foreign content,
+ * and ambiguous literal list-item tags are left unchanged.
  * Code examples and block content are excluded from repair. Fragments without
  * orphan list items and sites using other character encodings are unchanged.
  * Character references retain their spelling for later formatting filters.
@@ -188,191 +190,96 @@ function bbp_kses_data( $data = '' ) {
  * @return string Content with missing unordered list containers supplied.
  */
 function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
-	if ( ! class_exists( 'WP_HTML_Processor' ) || ( false === stripos( $content, '<li' ) ) || has_blocks( $content ) ) {
+	if ( ! class_exists( 'WP_HTML_Processor' ) || false === stripos( $content, '<li' ) || ! preg_match( '/<li(?=[\t\n\f\r \/>])/i', $content ) || has_blocks( $content ) ) {
 		return $content;
 	}
-
 	if ( ! empty( $post_id ) && has_blocks( get_post_field( 'post_content', $post_id, 'raw' ) ) ) {
 		return $content;
 	}
-
 	$processor = WP_HTML_Processor::create_fragment( $content );
 	if ( ! is_callable( array( $processor, 'serialize_token' ) ) || ! is_utf8_charset() ) {
 		return $content;
 	}
-
-	// Protect reference spelling without decoding punctuation for later filters.
-	$original_processor = null;
-	$placeholder        = '';
-	if ( false !== strpos( $content, '&' ) ) {
-		// Try at most 16 private-use characters, each only three UTF-8 bytes.
-		$placeholder_source = str_replace( "\x00", '', $content );
-		for ( $attempt = 0; $attempt < 16; ++$attempt ) {
-			$candidate = "\xEE\x80" . chr( 0x80 + $attempt );
-			if ( false === strpos( $placeholder_source, $candidate ) ) {
-				$placeholder = $candidate;
-				break;
-			}
-		}
-		if ( '' === $placeholder ) {
-			return $content;
-		}
-		$original_processor = $processor;
-		$processor          = WP_HTML_Processor::create_fragment( str_replace( '&', $placeholder, $content ) );
-	}
-
-	$output          = '';
-	$depth           = 0;
-	$in_item         = false;
-	$changed         = false;
-	$pending_newline = false;
-	$original_text   = '';
-
-	while ( $processor->next_token() ) {
-		// References may split text tokens, but must not change the element tree.
-		if ( $original_processor && ( '#text' !== $processor->get_token_type() ) ) {
-			do {
-				$matched = $original_processor->next_token();
-				if ( $matched ) {
-					$original_text .= $original_processor->get_modifiable_text();
-				}
-			} while ( $matched && ( '#text' === $original_processor->get_token_type() ) );
-			if ( ! $matched
-				|| ( $original_processor->get_token_type() !== $processor->get_token_type() )
-				|| ( $original_processor->get_tag() !== $processor->get_tag() )
-				|| ( $original_processor->is_tag_closer() !== $processor->is_tag_closer() )
-				|| ( $original_processor->get_namespace() !== $processor->get_namespace() )
-				|| ( $original_processor->get_breadcrumbs() !== $processor->get_breadcrumbs() )
-			) {
-				return $content;
-			}
-		}
-
-		$tag         = $processor->get_tag();
-		$type        = $processor->get_token_type();
-		$closing     = $processor->is_tag_closer();
-		$breadcrumbs = $processor->get_breadcrumbs();
-		$is_item     = ( 'LI' === $tag ) && ! $closing && ! array_intersect(
-			array( 'UL', 'OL', 'MENU', 'DIR', 'PRE', 'CODE', 'LISTING' ),
-			$breadcrumbs
-		);
-		$text        = $processor->get_modifiable_text();
-		if ( $original_processor && ( '#text' === $type ) ) {
-			$text = WP_HTML_Decoder::decode_text_node( str_replace( $placeholder, '&', $text ) );
-		}
-		$is_spacing  = ( '#comment' === $type ) || ( ( '#text' === $type ) && ( '' === trim( $text, " \t\n\r\f" ) ) );
-
-		// A run ends at text or another element, not at whitespace or a comment.
-		if ( $depth && ! $in_item && ! $is_item && ! $is_spacing ) {
-			$output .= '</ul>';
-			$depth   = 0;
-		}
-
-		if ( $is_item ) {
-			if ( ! $depth ) {
-				$output .= '<ul>';
-				$depth   = count( $breadcrumbs ) - 1;
-				$changed = true;
-			}
-			$in_item = true;
-		} elseif ( $closing && ( 'LI' === $tag ) && ( count( $breadcrumbs ) === $depth ) ) {
-			$in_item = false;
-		}
-
-		$serialized = $processor->serialize_token();
-		if ( $pending_newline ) {
-			$text = $processor->get_modifiable_text();
-			if ( ( '#text' === $type ) && ( ( "\n" === substr( $text, 0, 1 ) ) || ( $original_processor && '' === $text ) ) ) {
-				$output .= "\n";
-			}
-			$pending_newline = false;
-		}
-
-		// Preserve the newline consumed by HTML parsing, including on WordPress 6.9.
-		if ( ! $closing && ( 'html' === $processor->get_namespace() ) ) {
-			if ( in_array( $tag, array( 'PRE', 'LISTING' ), true ) ) {
-				if ( "\n" === substr( $serialized, -1 ) ) {
-					$serialized = substr( $serialized, 0, -1 );
-				}
-				$pending_newline = true;
-			} elseif ( 'TEXTAREA' === $tag ) {
-				$expected = $processor->get_modifiable_text();
-				$textarea = new WP_HTML_Tag_Processor( $serialized );
-				if ( ! $textarea->next_tag() ) {
-					return $content;
-				}
-				// Serialized attribute values have escaped angle brackets.
-				$text_start = strpos( $serialized, '>' ) + 1;
-				if ( $textarea->get_modifiable_text() !== $expected ) {
-					if ( "\n" . $textarea->get_modifiable_text() !== $expected ) {
-						return $content;
-					}
-					$serialized = substr_replace( $serialized, "\n", $text_start, 0 );
-				} elseif ( ( "\n" !== substr( $expected, 0, 1 ) ) && ( "\n" === substr( $serialized, $text_start, 1 ) ) ) {
-					$serialized = substr_replace( $serialized, '', $text_start, 1 );
-				}
-				if ( $original_processor ) {
-					// A consumed literal newline may precede another encoded newline.
-					$textarea = new WP_HTML_Tag_Processor( str_replace( $placeholder, '&', $serialized ) );
-					if ( ! $textarea->next_tag() ) {
-						return $content;
-					}
-					$expected = $original_processor->get_modifiable_text();
-					if ( $textarea->get_modifiable_text() !== $expected ) {
-						if ( "\n" . $textarea->get_modifiable_text() !== $expected ) {
-							return $content;
-						}
-						$serialized = substr_replace( $serialized, "\n", $text_start, 0 );
-					}
-				}
-			}
-			// Older serializers cannot preserve every opaque element's payload.
-			if ( in_array( $tag, array( 'IFRAME', 'NOEMBED', 'NOFRAMES', 'SCRIPT', 'STYLE', 'TEXTAREA', 'TITLE', 'XMP' ), true ) ) {
-				$token = new WP_HTML_Tag_Processor( $serialized );
-				if ( ! $token->next_tag() || ( $token->get_modifiable_text() !== $processor->get_modifiable_text() ) ) {
-					return $content;
-				}
-			}
-		}
-
-		$output .= $serialized;
-	}
-
-	if ( $original_processor ) {
-		do {
-			$matched = $original_processor->next_token();
-			if ( $matched ) {
-				$original_text .= $original_processor->get_modifiable_text();
-			}
-		} while ( $matched && ( '#text' === $original_processor->get_token_type() ) );
-		if ( $matched || null !== $original_processor->get_last_error() || $original_processor->paused_at_incomplete_token() ) {
-			return $content;
+	$excluded = array( 'UL', 'OL', 'MENU', 'DIR', 'PRE', 'CODE', 'LISTING' );
+	$orphan = false;
+	// Valid lists need only this initial semantic scan.
+	while ( $processor->next_tag( 'LI' ) ) {
+		if ( ! array_intersect( $excluded, $processor->get_breadcrumbs() ) ) {
+			$orphan = true;
+			break;
 		}
 	}
-
-	// Never publish a partially parsed or incomplete fragment.
-	if ( null !== $processor->get_last_error() || $processor->paused_at_incomplete_token() || ! $changed ) {
+	if ( ! $orphan ) {
 		return $content;
 	}
 
-	if ( $depth ) {
-		$output .= '</ul>';
-	}
-
-	if ( $original_processor ) {
-		$output     = str_replace( $placeholder, '&', $output );
-		$round_trip = WP_HTML_Processor::create_fragment( $output );
-		$text       = '';
-		while ( $round_trip->next_token() ) {
-			$text .= $round_trip->get_modifiable_text();
-		}
-		// Discarded markup must not join reference fragments or change text.
-		if ( null !== $round_trip->get_last_error() || $round_trip->paused_at_incomplete_token() || $text !== $original_text ) {
+	// Match source boundaries only when lexical and semantic tags agree exactly.
+	$item_pattern = '/<\/?li(?=[\t\n\f\r \/>])/i';
+	$processor = WP_HTML_Processor::create_fragment( $content );
+	$tags = new WP_HTML_Tag_Processor( $content );
+	$query = array( 'tag_closers' => 'visit' );
+	$insertions = array();
+	$search = 0;
+	$depth = 0;
+	$end = 0;
+	while ( $tags->next_tag( $query ) ) {
+		if ( ! $processor->next_tag( $query ) || $tags->get_tag() !== $processor->get_tag() || $tags->is_tag_closer() !== $processor->is_tag_closer() || 'html' !== $processor->get_namespace() ) {
 			return $content;
 		}
+		if ( 'LI' !== $tags->get_tag() ) {
+			continue;
+		}
+		if ( ! preg_match( $item_pattern, $content, $item, PREG_OFFSET_CAPTURE, $search ) || $tags->is_tag_closer() !== ( '/' === $item[0][0][1] ) ) {
+			return $content;
+		}
+		$offset = $item[0][1];
+		$search = $offset + strlen( $item[0][0] );
+		if ( $tags->is_tag_closer() ) {
+			if ( ! preg_match( '/\G<\/li[\t\n\f\r ]*>/i', $content, $closer, 0, $offset ) ) {
+				return $content;
+			}
+			if ( $depth && $processor->get_current_depth() === $depth - 1 ) {
+				$end = $offset + strlen( $closer[0] );
+				$insertions[ $end ] = '</ul>';
+				$depth = 0;
+			}
+		} elseif ( ! array_intersect( $excluded, $processor->get_breadcrumbs() ) ) {
+			if ( $depth ) {
+				return $content;
+			}
+			$gap = $end ? substr( $content, $end, $offset - $end ) : '';
+			$adjacent = '' === trim( $gap, " \t\n\r\f" );
+			// Only whitespace and comments join consecutive items.
+			if ( ! $adjacent && ( false !== strpos( $gap, '<!--' ) || false !== strpos( $gap, '&' ) ) ) {
+				$spacing = new WP_HTML_Tag_Processor( $gap );
+				$adjacent = true;
+				while ( $spacing->next_token() ) {
+					if ( '#comment' !== $spacing->get_token_type() && ( '#text' !== $spacing->get_token_type() || '' !== trim( $spacing->get_modifiable_text(), " \t\n\r\f" ) ) ) {
+						$adjacent = false;
+						break;
+					}
+				}
+			}
+			if ( $end && $adjacent ) {
+				unset( $insertions[ $end ] );
+			} else {
+				$insertions[ $offset ] = '<ul>';
+			}
+			$depth = $processor->get_current_depth();
+		}
 	}
-
-	return $output;
+	if ( $depth || preg_match( $item_pattern, $content, $item, 0, $search ) || $processor->next_tag( $query ) || null !== $processor->get_last_error() || $processor->paused_at_incomplete_token() || $tags->paused_at_incomplete_token() ) {
+		return $content;
+	}
+	// Apply insertions only after the whole fragment passes validation.
+	$output = '';
+	$copied = 0;
+	foreach ( $insertions as $offset => $wrapper ) {
+		$output .= substr( $content, $copied, $offset - $copied );
+		$output .= $wrapper;
+		$copied = $offset;
+	}
+	return $output . substr( $content, $copied );
 }
 
 /**
