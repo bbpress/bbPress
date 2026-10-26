@@ -285,39 +285,60 @@ class BBP_BuddyPress_Activity {
 	 * @return array[] Post IDs keyed by post type.
 	 */
 	private function get_password_restricted_post_ids() {
+		$bbp_db     = bbp_db();
 		$post_types = bbp_get_post_types();
 		$post_ids   = array_fill_keys( $post_types, array() );
-		$protected  = get_posts(
-			array(
-				'has_password'          => true,
-				'no_found_rows'         => true,
-				'numberposts'           => -1,
-				'orderby'               => 'none',
-				'post_status'           => 'any',
-				'post_type'             => $post_types,
-				'suppress_filters'      => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-			)
-		);
+		$types      = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+		$key        = md5( serialize( array( $bbp_db->posts, $post_types ) ) );
+		$cache_key  = 'bbp_activity_password_ids:' . $key . ':' . wp_cache_get_last_changed( 'bbpress_posts' );
+		$protected  = wp_cache_get( $cache_key, 'bbpress_posts' );
 
-		foreach ( $protected as $post ) {
-			if ( post_password_required( $post ) ) {
+		if ( false === $protected ) {
+			// Padded collations can treat whitespace passwords as empty strings.
+			$protected = wp_parse_id_list(
+				$bbp_db->get_col( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type IN ({$types}) AND CHAR_LENGTH( post_password ) > 0", $post_types ) )
+			);
+
+			// Do not retain a failed lookup.
+			if ( '' === $bbp_db->last_error ) {
+				wp_cache_set( $cache_key, $protected, 'bbpress_posts' );
+			}
+		}
+
+		// Cache posts in bulk, but check the current password cookie every time.
+		_prime_post_caches( $protected, false, false );
+		foreach ( $protected as $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! empty( $post ) && post_password_required( $post ) ) {
 				$post_ids[ $post->post_type ][] = (int) $post->ID;
 			}
 		}
 
 		// A password on a forum also protects every descendant forum.
 		$forum_type = bbp_get_forum_post_type();
-		$parents    = $post_ids[ $forum_type ];
+		$parents    = bbp_forum_query_all_descendant_ids( $post_ids[ $forum_type ] );
+		$post_ids[ $forum_type ] = $parents;
 		$seen       = array_fill_keys( $parents, true );
 		$index      = 0;
 		while ( isset( $parents[ $index ] ) ) {
 			$parent_id = $parents[ $index ];
 			++$index;
 
+			// Preserve the existing child-ID filter, including synthetic children.
+			$children = array();
 			foreach ( bbp_forum_query_subforum_ids( $parent_id ) as $forum_id ) {
 				$forum_id = (int) $forum_id;
+				if ( ( $forum_id > 0 ) && ! isset( $seen[ $forum_id ] ) ) {
+					$children[] = $forum_id;
+				}
+			}
+
+			if ( empty( $children ) ) {
+				continue;
+			}
+
+			// Filter-added forums can also have non-countable descendants.
+			foreach ( bbp_forum_query_all_descendant_ids( $children ) as $forum_id ) {
 				if ( ! isset( $seen[ $forum_id ] ) ) {
 					$seen[ $forum_id ]         = true;
 					$post_ids[ $forum_type ][] = $forum_id;
