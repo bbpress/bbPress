@@ -69,12 +69,13 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 		clean_post_cache( $post_id );
 		$this->assertSame( $password, get_post_field( 'post_password', $post_id ) );
 
-		$protected_ids = ( '0' === $password ) ? array() : $tree['activities'];
+		$protected_ids = $tree['activities'];
 		if ( 'reply' === $target ) {
 			$protected_ids = array( $tree['activities'][1] );
 		}
-		$visible_ids = array_values( array_diff( $ids, $protected_ids ) );
-		$viewers     = array( 0 );
+		$direct_protected_ids = ( '0' === $password ) ? array() : $protected_ids;
+		$visible_ids          = array_values( array_diff( $ids, $protected_ids ) );
+		$viewers              = array( 0 );
 		foreach ( array( '', bbp_get_participant_role(), bbp_get_moderator_role(), bbp_get_keymaster_role() ) as $role ) {
 			$viewer = $this->factory->user->create();
 			get_userdata( $viewer )->set_role( '' );
@@ -105,7 +106,7 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 				$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( $response->get_data(), 'id' ) );
 
 				foreach ( $ids as $activity_id ) {
-					$can_read = ! in_array( $activity_id, $protected_ids, true );
+					$can_read = ! in_array( $activity_id, $direct_protected_ids, true );
 					$this->assertSame( $can_read, bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), $viewer ) );
 					$this->assertSame( $can_read, 200 === rest_do_request( new WP_REST_Request( 'GET', $route . '/' . $activity_id ) )->get_status() );
 				}
@@ -117,12 +118,13 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			wp_set_current_user( 0 );
 
 			$unlocked = bp_activity_get( array( 'in' => $ids, 'count_total' => true ) );
-			$this->assertEqualsCanonicalizing( $ids, wp_list_pluck( $unlocked['activities'], 'id' ) );
-			$this->assertSame( count( $ids ), (int) $unlocked['total'] );
-			$this->assertEqualsCanonicalizing( $ids, wp_list_pluck( rest_do_request( $request )->get_data(), 'id' ) );
+			$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( $unlocked['activities'], 'id' ) );
+			$this->assertSame( count( $visible_ids ), (int) $unlocked['total'] );
+			$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( rest_do_request( $request )->get_data(), 'id' ) );
 
 			foreach ( $ids as $activity_id ) {
 				$this->assertTrue( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
+				$this->assertSame( 200, rest_do_request( new WP_REST_Request( 'GET', $route . '/' . $activity_id ) )->get_status() );
 			}
 
 			unset( $_COOKIE[ $cookie ] );
@@ -642,12 +644,11 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 
 		try {
 			$unlocked_activity = bp_activity_get( array( 'in' => $activity_ids ) );
-			$this->assertCount( count( $activity_ids ), $unlocked_activity['activities'] );
-			$this->assertEmpty( array_diff( $activity_ids, wp_list_pluck( $unlocked_activity['activities'], 'id' ) ) );
+			$this->assertEmpty( $unlocked_activity['activities'] );
 
 			$response = rest_do_request( $request );
 			$this->assertSame( 200, $response->get_status() );
-			$this->assertEmpty( array_diff( $activity_ids, wp_list_pluck( $response->get_data(), 'id' ) ) );
+			$this->assertEmpty( array_intersect( $activity_ids, wp_list_pluck( $response->get_data(), 'id' ) ) );
 
 			foreach ( $activity_ids as $activity_id ) {
 				$activity = new BP_Activity_Activity( $activity_id );
@@ -664,9 +665,9 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * Existing activity respects passwords set directly on topics and replies.
+	 * Existing activity omits passwords set directly on topics and replies.
 	 */
-	public function test_existing_password_protected_post_activity_requires_password() {
+	public function test_existing_password_protected_post_activity_is_omitted() {
 		$user_id  = $this->factory->user->create();
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create(
@@ -729,11 +730,9 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 
 		try {
 			$unlocked_activity = bp_activity_get( array( 'in' => $activity_ids ) );
-			$this->assertCount( count( $activity_ids ), $unlocked_activity['activities'] );
-			$this->assertEmpty( array_diff( $activity_ids, wp_list_pluck( $unlocked_activity['activities'], 'id' ) ) );
+			$this->assertEmpty( $unlocked_activity['activities'] );
 			$unlocked_filtered_activity = bp_activity_get( $uppercase_filter );
-			$this->assertCount( count( $activity_ids ), $unlocked_filtered_activity['activities'] );
-			$this->assertEmpty( array_diff( $activity_ids, wp_list_pluck( $unlocked_filtered_activity['activities'], 'id' ) ) );
+			$this->assertEmpty( $unlocked_filtered_activity['activities'] );
 
 			foreach ( $activity_ids as $activity_id ) {
 				$this->assertTrue( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
@@ -1249,7 +1248,7 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			bp_activity_get( array( 'filter' => array( 'action' => 'activity_update,bbp_topic_create' ) ) );
 			bp_activity_get( array( 'filter' => array( 'object' => array( 'activity', 'bbpress' ) ) ) );
 			$this->assertSame( 1, $password_queries );
-			$this->assertSame( 2, $password_checks );
+			$this->assertSame( 0, $password_checks );
 
 			bp_activity_get( array( 'filter' => array( 'action' => array( ' BBP_TOPIC_CREATE ' ) ) ) );
 			bp_activity_get( array( 'filter' => array( 'action' => "BBP_TOPIC_CREATE\0" ) ) );
@@ -1258,16 +1257,40 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			bp_activity_get( array( 'filter' => array( 'action' => 'activity_update,0e1' ) ) );
 			bp_activity_get( array( 'filter' => array( 'object' => array( 0 ) ) ) );
 			$this->assertSame( 1, $password_queries );
-			$this->assertSame( 8, $password_checks );
+			$this->assertSame( 0, $password_checks );
 
 			if ( bp_is_active( 'groups' ) ) {
 				bp_activity_get( array( 'filter' => array( 'object' => buddypress()->groups->id ) ) );
 				$this->assertSame( 1, $password_queries );
-				$this->assertSame( 9, $password_checks );
+				$this->assertSame( 0, $password_checks );
 			}
 		} finally {
 			remove_filter( 'query', $count_queries );
 			remove_filter( 'post_password_required', $count_checks, 10 );
+		}
+	}
+
+	/**
+	 * Collection queries omit protected activity without changing direct reads.
+	 */
+	public function test_activity_password_collections_preserve_direct_read_filter() {
+		$tree = $this->create_password_activity_tree();
+		wp_update_post( array( 'ID' => $tree['forum'], 'post_password' => 'forum-secret' ) );
+		add_filter( 'post_password_required', '__return_false', 20 );
+
+		try {
+			wp_set_current_user( 0 );
+			$activity = bp_activity_get( array( 'in' => $tree['activities'], 'count_total' => true ) );
+			$this->assertEmpty( $activity['activities'] );
+			$this->assertSame( 0, (int) $activity['total'] );
+			$route = '/' . bp_rest_namespace() . '/' . bp_rest_version() . '/activity/';
+
+			foreach ( $tree['activities'] as $activity_id ) {
+				$this->assertTrue( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
+				$this->assertSame( 200, rest_do_request( new WP_REST_Request( 'GET', $route . $activity_id ) )->get_status() );
+			}
+		} finally {
+			remove_filter( 'post_password_required', '__return_false', 20 );
 		}
 	}
 
