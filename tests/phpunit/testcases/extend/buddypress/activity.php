@@ -10,6 +10,367 @@
 class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 
 	/**
+	 * Password representations and forum states that activity queries must cover.
+	 *
+	 * @return array[] Password and ancestor-state cases.
+	 */
+	public function password_activity_query_cases() {
+		$cases = array(
+			'draft ancestor'      => array( 'publish', 'draft', 'parent', 'forum-secret' ),
+			'pending ancestor'    => array( 'publish', 'pending', 'parent', 'forum-secret' ),
+			'trashed ancestor'    => array( 'publish', 'trash', 'parent', 'forum-secret' ),
+			'auto-draft ancestor' => array( 'publish', 'auto-draft', 'parent', 'forum-secret' ),
+			'draft password root' => array( 'draft', 'publish', 'parent', 'forum-secret' ),
+			'trashed password root' => array( 'trash', 'publish', 'parent', 'forum-secret' ),
+			'auto-draft password root' => array( 'auto-draft', 'publish', 'parent', 'forum-secret' ),
+			'forum spaces'        => array( 'publish', 'publish', 'parent', '   ' ),
+			'topic spaces'        => array( 'publish', 'publish', 'topic', '   ' ),
+			'reply spaces'        => array( 'publish', 'publish', 'reply', '   ' ),
+			'forum tab'           => array( 'publish', 'publish', 'parent', "\t" ),
+			'zero password'       => array( 'publish', 'publish', 'parent', '0' ),
+		);
+
+		$result = array();
+		foreach ( array( false, true ) as $group_activity ) {
+			foreach ( $cases as $name => $case ) {
+				$result[ ( $group_activity ? 'group ' : 'sitewide ' ) . $name ] = array_merge( $case, array( $group_activity ) );
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Existing activity obeys passwords across collection and direct reads.
+	 *
+	 * @dataProvider password_activity_query_cases
+	 *
+	 * @param string $parent_status Password-root status.
+	 * @param string $middle_status Intermediate forum status.
+	 * @param string $target        Post receiving the password.
+	 * @param string $password      Password representation.
+	 * @param bool   $group_activity Whether to use real group activity mapping.
+	 */
+	public function test_activity_password_queries_cover_descendants_and_whitespace( $parent_status, $middle_status, $target, $password, $group_activity ) {
+		global $wpdb;
+
+		$parent = $this->factory->forum->create();
+		$middle = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$tree   = $this->create_password_activity_tree( $middle, $group_activity );
+		$public = $this->create_password_activity_tree( 0, $group_activity );
+		$ids    = array_merge( $tree['activities'], $public['activities'] );
+
+		wp_update_post( array( 'ID' => $parent, 'post_status' => $parent_status ) );
+		wp_update_post( array( 'ID' => $middle, 'post_status' => $middle_status ) );
+		$post_id = ( 'parent' === $target ) ? $parent : $tree[ $target ];
+
+		// Model existing rows retained by an import or a direct database update.
+		$this->assertSame( 1, $wpdb->update( $wpdb->posts, array( 'post_password' => $password ), array( 'ID' => $post_id ) ) );
+		clean_post_cache( $post_id );
+		$this->assertSame( $password, get_post_field( 'post_password', $post_id ) );
+
+		$protected_ids = ( '0' === $password ) ? array() : $tree['activities'];
+		if ( 'reply' === $target ) {
+			$protected_ids = array( $tree['activities'][1] );
+		}
+		$visible_ids = array_values( array_diff( $ids, $protected_ids ) );
+		$viewers     = array( 0 );
+		foreach ( array( '', bbp_get_participant_role(), bbp_get_moderator_role(), bbp_get_keymaster_role() ) as $role ) {
+			$viewer = $this->factory->user->create();
+			get_userdata( $viewer )->set_role( '' );
+			if ( '' !== $role ) {
+				bbp_set_user_role( $viewer, $role );
+			}
+			$viewers[] = $viewer;
+		}
+
+		$route      = '/' . bp_rest_namespace() . '/' . bp_rest_version() . '/activity';
+		$request    = new WP_REST_Request( 'GET', $route );
+		$old_user   = get_current_user_id();
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$request->set_param( 'include', $ids );
+		unset( $_COOKIE[ $cookie ] );
+
+		try {
+			foreach ( $viewers as $viewer ) {
+				wp_set_current_user( $viewer );
+				$this->assertSame( '0' !== $password, post_password_required( $post_id ) );
+				$activity = bp_activity_get( array( 'in' => $ids, 'count_total' => true ) );
+				$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( $activity['activities'], 'id' ) );
+				$this->assertSame( count( $visible_ids ), (int) $activity['total'] );
+
+				$response = rest_do_request( $request );
+				$this->assertSame( 200, $response->get_status() );
+				$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( $response->get_data(), 'id' ) );
+
+				foreach ( $ids as $activity_id ) {
+					$can_read = ! in_array( $activity_id, $protected_ids, true );
+					$this->assertSame( $can_read, bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), $viewer ) );
+					$this->assertSame( $can_read, 200 === rest_do_request( new WP_REST_Request( 'GET', $route . '/' . $activity_id ) )->get_status() );
+				}
+			}
+
+			require_once ABSPATH . WPINC . '/class-phpass.php';
+			$hasher = new PasswordHash( 8, true );
+			$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+			wp_set_current_user( 0 );
+
+			$unlocked = bp_activity_get( array( 'in' => $ids, 'count_total' => true ) );
+			$this->assertEqualsCanonicalizing( $ids, wp_list_pluck( $unlocked['activities'], 'id' ) );
+			$this->assertSame( count( $ids ), (int) $unlocked['total'] );
+			$this->assertEqualsCanonicalizing( $ids, wp_list_pluck( rest_do_request( $request )->get_data(), 'id' ) );
+
+			foreach ( $ids as $activity_id ) {
+				$this->assertTrue( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
+			}
+
+			unset( $_COOKIE[ $cookie ] );
+			$locked = bp_activity_get( array( 'in' => $ids, 'count_total' => true ) );
+			$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( $locked['activities'], 'id' ) );
+		} finally {
+			wp_set_current_user( $old_user );
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
+	 * Filter-added forum trees remain protected, including non-countable children.
+	 */
+	public function test_activity_password_descendants_preserve_subforum_filter() {
+		$parent  = $this->factory->forum->create( array( 'post_password' => 'forum-secret' ) );
+		$virtual = $this->factory->forum->create();
+		$middle  = $this->factory->forum->create( array( 'post_parent' => $virtual ) );
+		$tree    = $this->create_password_activity_tree( $middle );
+		$public  = $this->create_password_activity_tree();
+		$visited = array();
+		$inputs  = array();
+		wp_update_post( array( 'ID' => $middle, 'post_status' => 'draft' ) );
+
+		$filter = function( $children, $forum_id ) use ( $parent, $virtual, $tree, &$visited, &$inputs ) {
+			$visited[] = (int) $forum_id;
+			$inputs[ $forum_id ] = wp_parse_id_list( $children );
+			if ( $parent === (int) $forum_id ) {
+				$children[] = $virtual;
+			}
+			if ( $tree['forum'] === (int) $forum_id ) {
+				$children = array_merge( $children, array( $parent, $virtual, $tree['forum'] ) );
+			}
+			return $children;
+		};
+		add_filter( 'bbp_forum_query_subforum_ids', $filter, 10, 2 );
+
+		try {
+			wp_set_current_user( 0 );
+			$ids      = array_merge( $tree['activities'], $public['activities'] );
+			$activity = bp_activity_get( array( 'in' => $ids, 'count_total' => true ) );
+			$this->assertEqualsCanonicalizing( $public['activities'], wp_list_pluck( $activity['activities'], 'id' ) );
+			$this->assertSame( count( $public['activities'] ), (int) $activity['total'] );
+			$this->assertContains( $parent, $visited );
+			$this->assertContains( $virtual, $visited );
+			$this->assertContains( $middle, $visited );
+			$this->assertContains( $tree['forum'], $visited );
+			$this->assertCount( count( array_unique( $visited ) ), $visited );
+			$this->assertSame( array(), $inputs[ $virtual ] );
+			$this->assertSame( array( $tree['forum'] ), $inputs[ $middle ] );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $filter, 10 );
+		}
+	}
+
+	/**
+	 * Invalid filter IDs must not expand into unrelated forum trees.
+	 */
+	public function test_activity_password_subforum_filter_ignores_invalid_ids() {
+		$parent = $this->factory->forum->create( array( 'post_password' => 'forum-secret' ) );
+		$public = $this->create_password_activity_tree();
+		$filter = function( $children, $forum_id ) use ( $parent, $public ) {
+			return ( $parent === (int) $forum_id )
+				? array( 0, '', null, 'invalid', -$public['forum'] )
+				: $children;
+		};
+		add_filter( 'bbp_forum_query_subforum_ids', $filter, 10, 2 );
+
+		try {
+			wp_set_current_user( 0 );
+			$activity = bp_activity_get( array( 'in' => $public['activities'], 'count_total' => true ) );
+			$this->assertEqualsCanonicalizing( $public['activities'], wp_list_pluck( $activity['activities'], 'id' ) );
+			$this->assertSame( count( $public['activities'] ), (int) $activity['total'] );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $filter, 10 );
+		}
+	}
+
+	/**
+	 * A failed password lookup is retried rather than cached as an empty result.
+	 */
+	public function test_activity_password_lookup_retries_database_errors() {
+		global $wpdb;
+
+		$tree   = $this->create_password_activity_tree();
+		$public = $this->create_password_activity_tree();
+		$wpdb->update( $wpdb->posts, array( 'post_password' => 'forum-secret' ), array( 'ID' => $tree['forum'] ) );
+		clean_post_cache( $tree['forum'] );
+		$queries = 0;
+		$counter = function( $query ) use ( $wpdb, &$queries ) {
+			if ( false !== strpos( $query, 'CHAR_LENGTH( post_password ) > 0' ) ) {
+				$queries++;
+				if ( 1 === $queries ) {
+					return "SELECT bbpress_missing_password_column FROM {$wpdb->posts}";
+				}
+			}
+			return $query;
+		};
+		$old_errors = $wpdb->suppress_errors();
+		add_filter( 'query', $counter );
+
+		try {
+			wp_set_current_user( 0 );
+			$args = array( 'in' => array_merge( $tree['activities'], $public['activities'] ), 'count_total' => true );
+			bp_activity_get( $args );
+			$this->assertSame( 1, $queries );
+			$activity = bp_activity_get( $args );
+			$this->assertSame( 2, $queries );
+			$this->assertEqualsCanonicalizing( $public['activities'], wp_list_pluck( $activity['activities'], 'id' ) );
+			$this->assertSame( count( $public['activities'] ), (int) $activity['total'] );
+		} finally {
+			remove_filter( 'query', $counter );
+			$wpdb->suppress_errors( $old_errors );
+		}
+	}
+
+	/**
+	 * Cached password IDs, including an empty lookup, refresh after post changes.
+	 */
+	public function test_activity_password_lookup_cache_refreshes_after_post_changes() {
+		global $wpdb;
+
+		$tree    = $this->create_password_activity_tree();
+		$public  = $this->create_password_activity_tree();
+		$ids     = array_merge( $tree['activities'], $public['activities'] );
+		$queries = 0;
+		$counter = function( $query ) use ( &$queries ) {
+			if ( false !== strpos( $query, 'CHAR_LENGTH( post_password ) > 0' ) ) {
+				$queries++;
+			}
+			return $query;
+		};
+		add_filter( 'query', $counter );
+
+		try {
+			wp_set_current_user( 0 );
+			foreach ( array( '', '   ', '' ) as $index => $password ) {
+				if ( $index ) {
+					$this->assertSame( 1, $wpdb->update( $wpdb->posts, array( 'post_password' => $password ), array( 'ID' => $tree['forum'] ) ) );
+					clean_post_cache( $tree['forum'] );
+				}
+
+				$expected = empty( $password ) ? $ids : $public['activities'];
+				for ( $query = 0; $query < 2; $query++ ) {
+					$activity = bp_activity_get( array( 'in' => $ids, 'count_total' => true ) );
+					$this->assertEqualsCanonicalizing( $expected, wp_list_pluck( $activity['activities'], 'id' ) );
+					$this->assertSame( count( $expected ), (int) $activity['total'] );
+					$this->assertSame( $index + 1, $queries );
+				}
+			}
+		} finally {
+			remove_filter( 'query', $counter );
+		}
+	}
+
+	/**
+	 * Cached password IDs stay separate across sites and survive a round trip.
+	 */
+	public function test_activity_password_lookup_cache_is_separate_per_site() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite only.' );
+		}
+		global $wpdb;
+
+		$blog_id  = $this->factory->blog->create();
+		$this->factory->forum->create( array( 'post_password' => 'forum-secret' ) );
+		$original = $wpdb->posts;
+		$tables   = array();
+		$counter  = function( $query ) use ( $wpdb, &$tables ) {
+			if ( false !== strpos( $query, 'CHAR_LENGTH( post_password ) > 0' ) ) {
+				$tables[] = $wpdb->posts;
+			}
+			return $query;
+		};
+		$activity = bbpress()->extend->buddypress->activity;
+		$args     = array( 'filter' => array( 'action' => 'bbp_topic_create' ) );
+		add_filter( 'query', $counter );
+		$switched = false;
+
+		try {
+			$conditions = $activity->activity_get_where_conditions( array(), $args );
+			$this->assertArrayHasKey( 'bbpress_topic_visibility', $conditions );
+			switch_to_blog( $blog_id );
+			$switched = true;
+			$other    = $wpdb->posts;
+			$this->assertSame( array(), $activity->activity_get_where_conditions( array(), $args ) );
+			restore_current_blog();
+			$switched = false;
+			$this->assertSame( $conditions, $activity->activity_get_where_conditions( array(), $args ) );
+			$this->assertSame( array( $original, $other ), $tables );
+		} finally {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+			remove_filter( 'query', $counter );
+		}
+	}
+
+	/**
+	 * Create real topic and reply activity before changing password visibility.
+	 *
+	 * @param int  $parent         Parent forum.
+	 * @param bool $group_activity Whether to attach a public BuddyPress group.
+	 * @return array Created posts and their activity IDs.
+	 */
+	private function create_password_activity_tree( $parent = 0, $group_activity = false ) {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_author' => $user_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $user_id ) );
+		$old_group = isset( buddypress()->groups->current_group ) ? buddypress()->groups->current_group : null;
+
+		try {
+			if ( $group_activity ) {
+				$group_id = $this->bp_factory->group->create( array( 'creator_id' => $user_id, 'status' => 'public' ) );
+				bbp_add_forum_id_to_group( $group_id, $forum_id );
+				bbp_add_group_id_to_forum( $forum_id, $group_id );
+				buddypress()->groups->current_group = groups_get_group( $group_id );
+			}
+
+			bbpress()->extend->buddypress->activity->topic_create( $topic_id, $forum_id, array(), $user_id );
+			bbpress()->extend->buddypress->activity->reply_create( $reply_id, $topic_id, $forum_id, array(), $user_id );
+		} finally {
+			if ( null === $old_group ) {
+				unset( buddypress()->groups->current_group );
+			} else {
+				buddypress()->groups->current_group = $old_group;
+			}
+		}
+
+		$activity_ids = array( (int) get_post_meta( $topic_id, '_bbp_activity_id', true ), (int) get_post_meta( $reply_id, '_bbp_activity_id', true ) );
+		$this->assertNotContains( 0, $activity_ids );
+
+		foreach ( array( $topic_id, $reply_id ) as $index => $post_id ) {
+			$activity = new BP_Activity_Activity( $activity_ids[ $index ] );
+			$this->assertSame( $group_activity ? buddypress()->groups->id : 'bbpress', $activity->component );
+			$this->assertSame( $post_id, (int) ( $group_activity ? $activity->secondary_item_id : $activity->item_id ) );
+		}
+
+		return array( 'forum' => $forum_id, 'topic' => $topic_id, 'reply' => $reply_id, 'activities' => $activity_ids );
+	}
+
+
+	/**
 	 * Activity visibility uses the supported BuddyPress query filter.
 	 *
 	 * @ticket BBP3741
@@ -860,23 +1221,35 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	 * Unrelated activity filters skip bbPress password visibility queries.
 	 */
 	public function test_unrelated_activity_filters_skip_password_lookup() {
+		$forum_id         = $this->factory->forum->create( array( 'post_password' => 'forum-secret' ) );
 		$password_queries = 0;
+		$password_checks  = 0;
 		$count_queries    = function( $query ) use ( &$password_queries ) {
-			if ( true === $query->get( 'has_password' ) ) {
+			if ( false !== strpos( $query, 'CHAR_LENGTH( post_password ) > 0' ) ) {
 				$password_queries++;
 			}
+			return $query;
+		};
+		$count_checks = function( $required, $post ) use ( $forum_id, &$password_checks ) {
+			if ( $forum_id === (int) $post->ID ) {
+				$password_checks++;
+			}
+			return $required;
 		};
 
-		add_action( 'pre_get_posts', $count_queries );
+		add_filter( 'query', $count_queries );
+		add_filter( 'post_password_required', $count_checks, 10, 2 );
 
 		try {
 			bp_activity_get( array( 'filter' => array( 'action' => 'activity_update' ) ) );
 			bp_activity_get( array( 'filter' => array( 'object' => 'activity' ) ) );
 			$this->assertSame( 0, $password_queries );
+			$this->assertSame( 0, $password_checks );
 
 			bp_activity_get( array( 'filter' => array( 'action' => 'activity_update,bbp_topic_create' ) ) );
 			bp_activity_get( array( 'filter' => array( 'object' => array( 'activity', 'bbpress' ) ) ) );
-			$this->assertSame( 2, $password_queries );
+			$this->assertSame( 1, $password_queries );
+			$this->assertSame( 2, $password_checks );
 
 			bp_activity_get( array( 'filter' => array( 'action' => array( ' BBP_TOPIC_CREATE ' ) ) ) );
 			bp_activity_get( array( 'filter' => array( 'action' => "BBP_TOPIC_CREATE\0" ) ) );
@@ -884,14 +1257,17 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			bp_activity_get( array( 'filter' => array( 'action' => '00' ) ) );
 			bp_activity_get( array( 'filter' => array( 'action' => 'activity_update,0e1' ) ) );
 			bp_activity_get( array( 'filter' => array( 'object' => array( 0 ) ) ) );
-			$this->assertSame( 8, $password_queries );
+			$this->assertSame( 1, $password_queries );
+			$this->assertSame( 8, $password_checks );
 
 			if ( bp_is_active( 'groups' ) ) {
 				bp_activity_get( array( 'filter' => array( 'object' => buddypress()->groups->id ) ) );
-				$this->assertSame( 9, $password_queries );
+				$this->assertSame( 1, $password_queries );
+				$this->assertSame( 9, $password_checks );
 			}
 		} finally {
-			remove_action( 'pre_get_posts', $count_queries );
+			remove_filter( 'query', $count_queries );
+			remove_filter( 'post_password_required', $count_checks, 10 );
 		}
 	}
 
