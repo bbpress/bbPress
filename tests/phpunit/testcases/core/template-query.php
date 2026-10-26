@@ -192,6 +192,21 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_parse_query
 	 */
+	public function test_parse_query_sets_404_for_non_scalar_user() {
+		$this->factory->user->create( array( 'user_nicename' => 'profile-slug' ) );
+		$query = $this->set_main_query();
+
+		$this->set_permalink_structure( '/%postname%/' );
+		$query->set( bbp_get_user_rewrite_id(), array( 'profile-slug' ) );
+		bbp_parse_query( $query );
+
+		$this->assertTrue( $query->bbp_is_404 );
+		$this->assertFalse( isset( $query->bbp_is_single_user ) );
+	}
+
+	/**
+	 * @covers ::bbp_parse_query
+	 */
 	public function test_parse_query_sets_view_and_missing_view_states() {
 		$view_id = 'bbp-unit-test-view';
 		bbp_register_view( $view_id, 'Unit Test View', array( 'post_type' => bbp_get_topic_post_type() ) );

@@ -556,6 +556,12 @@ function bbp_parse_query( $posts_query ) {
 
 		/** Find User *********************************************************/
 
+		// 404 and bail if user is not a single value (I.E. ?bbp_user[]=1)
+		if ( ! is_scalar( $bbp_user ) ) {
+			$posts_query->bbp_is_404 = true;
+			return;
+		}
+
 		// Setup the default user variable
 		$the_user = false;
 
