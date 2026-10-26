@@ -63,6 +63,163 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Return child-ID lookup types that use persistent caches.
+	 *
+	 * @return array Child-ID lookup types.
+	 */
+	public function child_id_cache_lookups() {
+		return array(
+			'all subforums'       => array( 'all_subforums' ),
+			'countable subforums' => array( 'countable_subforums' ),
+			'all children'        => array( 'all_children' ),
+		);
+	}
+
+	/**
+	 * Failed direct-child lookups must be retried instead of cached.
+	 *
+	 * @dataProvider child_id_cache_lookups
+	 *
+	 * @param string $lookup Child-ID lookup to exercise.
+	 */
+	public function test_child_id_lookups_do_not_cache_database_errors( $lookup ) {
+		global $wpdb;
+
+		$parent_id  = $this->factory->forum->create();
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$failed     = false;
+		$fail_query = function( $query ) use ( $wpdb, $parent_id, &$failed ) {
+			if ( ! $failed && ( false !== strpos( $query, "FROM {$wpdb->posts}" ) ) && ( false !== strpos( $query, "post_parent = {$parent_id}" ) ) ) {
+				$failed = true;
+				return str_replace( "FROM {$wpdb->posts}", "FROM {$wpdb->posts}_missing", $query );
+			}
+
+			return $query;
+		};
+		$lookup_ids = function() use ( $lookup, $parent_id ) {
+			switch ( $lookup ) {
+				case 'all_subforums' :
+					return bbp_forum_query_all_subforum_ids( $parent_id );
+
+				case 'countable_subforums' :
+					return bbp_forum_query_subforum_ids( $parent_id );
+
+				default :
+					return bbp_get_all_child_ids( $parent_id, bbp_get_forum_post_type() );
+			}
+		};
+		$old_errors = $wpdb->suppress_errors( true );
+		wp_cache_flush();
+		add_filter( 'query', $fail_query );
+
+		try {
+			$this->assertSame( array(), $lookup_ids() );
+			$this->assertTrue( $failed );
+			$this->assertSame( array( $child_id ), $lookup_ids() );
+		} finally {
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $old_errors );
+		}
+	}
+
+	/**
+	 * Failed descendant batches must be retried instead of cached.
+	 */
+	public function test_descendant_lookup_does_not_cache_database_errors() {
+		global $wpdb;
+
+		$parent_id     = $this->factory->forum->create();
+		$child_id      = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$grandchild_id = $this->factory->forum->create( array( 'post_parent' => $child_id ) );
+		$failed        = false;
+		$fail_query    = function( $query ) use ( $wpdb, &$failed ) {
+			if ( ! $failed && ( false !== strpos( $query, "FROM {$wpdb->posts}" ) ) && ( false !== strpos( $query, 'post_parent IN (' ) ) ) {
+				$failed = true;
+				return str_replace( "FROM {$wpdb->posts}", "FROM {$wpdb->posts}_missing", $query );
+			}
+
+			return $query;
+		};
+		$old_errors = $wpdb->suppress_errors( true );
+		wp_cache_flush();
+		add_filter( 'query', $fail_query );
+
+		try {
+			$this->assertSame( array( $parent_id ), bbp_forum_query_all_descendant_ids( array( $parent_id ) ) );
+			$this->assertTrue( $failed );
+			$this->assertEqualSets(
+				array( $parent_id, $child_id, $grandchild_id ),
+				bbp_forum_query_all_descendant_ids( array( $parent_id ) )
+			);
+		} finally {
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $old_errors );
+		}
+	}
+
+	/**
+	 * Password-protected forum lookups must retry database errors.
+	 */
+	public function test_password_forum_lookup_does_not_cache_database_errors() {
+		global $wpdb;
+
+		$parent_id  = $this->factory->forum->create( array( 'post_password' => 'forum-secret' ) );
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$failed     = false;
+		$fail_query = function( $query ) use ( $wpdb, &$failed ) {
+			if ( ! $failed && ( false !== strpos( $query, "FROM {$wpdb->posts}" ) ) && ( false !== strpos( $query, 'CHAR_LENGTH( post_password )' ) ) ) {
+				$failed = true;
+				return str_replace( "FROM {$wpdb->posts}", "FROM {$wpdb->posts}_missing", $query );
+			}
+
+			return $query;
+		};
+		$old_errors = $wpdb->suppress_errors( true );
+		wp_cache_flush();
+		add_filter( 'query', $fail_query );
+
+		try {
+			$this->assertSame( array(), bbp_get_password_protected_forum_ids() );
+			$this->assertTrue( $failed );
+			$this->assertEqualSets( array( $parent_id, $child_id ), bbp_get_password_protected_forum_ids() );
+		} finally {
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $old_errors );
+		}
+	}
+
+	/**
+	 * Password-protected forum trees must retry failed descendant batches.
+	 */
+	public function test_password_forum_lookup_does_not_cache_descendant_errors() {
+		global $wpdb;
+
+		$parent_id  = $this->factory->forum->create( array( 'post_password' => 'forum-secret' ) );
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$failed     = false;
+		$fail_query = function( $query ) use ( $wpdb, &$failed ) {
+			if ( ! $failed && ( false !== strpos( $query, "FROM {$wpdb->posts}" ) ) && ( false !== strpos( $query, 'post_parent IN (' ) ) ) {
+				$failed = true;
+				return str_replace( "FROM {$wpdb->posts}", "FROM {$wpdb->posts}_missing", $query );
+			}
+
+			return $query;
+		};
+		$old_errors = $wpdb->suppress_errors( true );
+		wp_cache_flush();
+		add_filter( 'query', $fail_query );
+
+		try {
+			$this->assertSame( array( $parent_id ), bbp_get_password_protected_forum_ids() );
+			$this->assertTrue( $failed );
+			$this->assertEqualSets( array( $parent_id, $child_id ), bbp_get_password_protected_forum_ids() );
+		} finally {
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $old_errors );
+		}
+	}
+
+	/**
 	 * Updating a bbPress post must not suspend later cache invalidation.
 	 */
 	public function test_post_update_does_not_suspend_later_cache_invalidation() {
