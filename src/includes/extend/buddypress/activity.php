@@ -280,38 +280,38 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Get password-protected bbPress posts that the current visitor cannot read.
+	 * Get password-protected bbPress post IDs for activity collections.
+	 *
+	 * Collections always omit protected posts. Direct reads continue through
+	 * activity_user_can_read(), which honors password cookies and filters.
 	 *
 	 * @return array[] Post IDs keyed by post type.
 	 */
-	private function get_password_restricted_post_ids() {
+	private function get_password_protected_post_ids() {
 		$bbp_db     = bbp_db();
 		$post_types = bbp_get_post_types();
 		$post_ids   = array_fill_keys( $post_types, array() );
 		$types      = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
 		$key        = md5( serialize( array( $bbp_db->posts, $post_types ) ) );
-		$cache_key  = 'bbp_activity_password_ids:' . $key . ':' . wp_cache_get_last_changed( 'bbpress_posts' );
-		$protected  = wp_cache_get( $cache_key, 'bbpress_posts' );
+		$cache_key  = 'bbp_activity_password_post_ids:' . $key . ':' . wp_cache_get_last_changed( 'bbpress_posts' );
+		$cached     = wp_cache_get( $cache_key, 'bbpress_posts' );
 
-		if ( false === $protected ) {
+		if ( false === $cached ) {
 			// Padded collations can treat whitespace passwords as empty strings.
-			$protected = wp_parse_id_list(
-				$bbp_db->get_col( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type IN ({$types}) AND CHAR_LENGTH( post_password ) > 0", $post_types ) )
-			);
+			$protected = $bbp_db->get_results( $bbp_db->prepare( "SELECT ID, post_type FROM {$bbp_db->posts} WHERE post_type IN ({$types}) AND CHAR_LENGTH( post_password ) > 0", $post_types ) );
 
 			// Do not retain a failed lookup.
 			if ( '' === $bbp_db->last_error ) {
-				wp_cache_set( $cache_key, $protected, 'bbpress_posts' );
-			}
-		}
+				foreach ( $protected as $post ) {
+					if ( isset( $post_ids[ $post->post_type ] ) ) {
+						$post_ids[ $post->post_type ][] = (int) $post->ID;
+					}
+				}
 
-		// Cache posts in bulk, but check the current password cookie every time.
-		_prime_post_caches( $protected, false, false );
-		foreach ( $protected as $post_id ) {
-			$post = get_post( $post_id );
-			if ( ! empty( $post ) && post_password_required( $post ) ) {
-				$post_ids[ $post->post_type ][] = (int) $post->ID;
+				wp_cache_set( $cache_key, $post_ids, 'bbpress_posts' );
 			}
+		} else {
+			$post_ids = $cached;
 		}
 
 		// A password on a forum also protects every descendant forum.
@@ -407,7 +407,7 @@ class BBP_BuddyPress_Activity {
 			}
 		}
 
-		$password_ids = $this->get_password_restricted_post_ids();
+		$password_ids = $this->get_password_protected_post_ids();
 		$forum_ids   = wp_parse_id_list( array_merge( $forum_ids, $password_ids[ bbp_get_forum_post_type() ] ) );
 		$topic_ids   = wp_parse_id_list( $password_ids[ bbp_get_topic_post_type() ] );
 		$reply_ids   = wp_parse_id_list( $password_ids[ bbp_get_reply_post_type() ] );
