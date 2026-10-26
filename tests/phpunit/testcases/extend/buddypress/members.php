@@ -16,6 +16,7 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 	protected $old_request;
 	protected $old_server;
 	protected $old_errors;
+	protected $network_user_managers = array();
 
 	public function setUp(): void {
 		parent::setUp();
@@ -42,6 +43,11 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 	}
 
 	public function tearDown(): void {
+		foreach ( $this->network_user_managers as $user_id ) {
+			get_userdata( $user_id )->remove_cap( 'manage_network_users' );
+		}
+		$this->network_user_managers = array();
+
 		if ( null === $this->displayed_user ) {
 			unset( buddypress()->displayed_user );
 		} else {
@@ -210,6 +216,7 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		$forum_id     = $this->factory->forum->create();
 
 		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		$this->grant_manage_network_users_on_multisite( $keymaster_id );
 		$this->set_current_user( $keymaster_id );
 		buddypress()->displayed_user = (object) array( 'id' => $member_id );
 		buddypress()->current_action = bbp_get_user_subscriptions_slug();
@@ -241,6 +248,7 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		) );
 
 		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		$this->grant_manage_network_users_on_multisite( $keymaster_id );
 		$this->set_current_user( $keymaster_id );
 		buddypress()->displayed_user = (object) array( 'id' => $member_id );
 		buddypress()->current_action = bbp_get_user_favorites_slug();
@@ -292,6 +300,13 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 			'bbp_is_single_user_subs',
 		) as $query_var ) {
 			unset( bbp_get_wp_query()->$query_var );
+		}
+	}
+
+	private function grant_manage_network_users_on_multisite( $user_id ) {
+		if ( is_multisite() ) {
+			get_userdata( $user_id )->add_cap( 'manage_network_users' );
+			$this->network_user_managers[] = $user_id;
 		}
 	}
 
