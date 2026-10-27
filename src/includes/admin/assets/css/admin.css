@@ -301,6 +301,7 @@ body.bbp-svg-icons #dashboard_right_now a.bbp-glance-replies::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
 	.bbp-badge {
 		animation: none;
 	}
