@@ -880,6 +880,141 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_filter_post_title_data
+	 */
+	public function test_bbp_filter_post_title_data_removes_unsafe_markup_from_bbp_titles() {
+		$title = wp_slash( 'Fish &amp; Chips <strong onclick="alert(1)">Discussion</strong>' );
+
+		foreach ( bbp_get_post_types() as $post_type ) {
+			$data = array(
+				'post_type'  => $post_type,
+				'post_title' => $title,
+			);
+
+			$this->assertSame( 'Fish &amp; Chips <strong>Discussion</strong>', wp_unslash( bbp_filter_post_title_data( $data )['post_title'] ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_post_title_data
+	 */
+	public function test_bbp_filter_post_title_data_ignores_other_post_types() {
+		$data = array(
+			'post_type'  => 'post',
+			'post_title' => '<strong>Post title</strong>',
+		);
+
+		$this->assertSame( $data, bbp_filter_post_title_data( $data ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_post_title_data
+	 */
+	public function test_bbp_titles_are_sanitized_on_insert_and_update() {
+		$old_user = get_current_user_id();
+		$user_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		wp_set_current_user( $user_id );
+
+		try {
+			foreach ( bbp_get_post_types() as $post_type ) {
+				$post_id = wp_insert_post(
+					array(
+						'post_type'   => $post_type,
+						'post_status' => 'draft',
+						'post_title'  => '<img src=x onerror=alert(1)>Inserted title',
+					)
+				);
+
+				$inserted_title = get_post_field( 'post_title', $post_id, 'raw' );
+				$this->assertStringContainsString( 'Inserted title', $inserted_title );
+				$this->assertStringNotContainsString( 'onerror', $inserted_title );
+
+				wp_update_post(
+					array(
+						'ID'         => $post_id,
+						'post_title' => "<svg onload=alert(1)></svg>John's updated title",
+					)
+				);
+
+				$updated_title = get_post_field( 'post_title', $post_id, 'raw' );
+				$this->assertStringContainsString( "John's updated title", $updated_title );
+				$this->assertStringNotContainsString( 'onload', $updated_title );
+			}
+		} finally {
+			wp_set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_post_title
+	 */
+	public function test_bbp_filter_post_title_removes_unsafe_legacy_markup() {
+		global $wpdb;
+
+		$title   = '<img src=x onerror=alert(1)>Legacy title';
+		$getters = array(
+			bbp_get_forum_post_type() => 'bbp_get_forum_title',
+			bbp_get_topic_post_type() => 'bbp_get_topic_title',
+			bbp_get_reply_post_type() => 'bbp_get_reply_title',
+		);
+
+		foreach ( $getters as $post_type => $getter ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'   => $post_type,
+					'post_status' => 'draft',
+					'post_title'  => 'Fixture title',
+				)
+			);
+
+			$wpdb->update(
+				$wpdb->posts,
+				array( 'post_title' => $title ),
+				array( 'ID' => $post_id )
+			);
+			clean_post_cache( $post_id );
+
+			$filtered_titles = array(
+				apply_filters( 'the_title', $title, $post_id ),
+				$getter( $post_id ),
+			);
+
+			foreach ( $filtered_titles as $filtered_title ) {
+				$this->assertStringContainsString( 'Legacy title', $filtered_title );
+				$this->assertStringNotContainsString( 'onerror', $filtered_title );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_post_title
+	 */
+	public function test_bbp_filter_post_title_ignores_other_post_types() {
+		$post_id = $this->factory->post->create();
+
+		$this->assertSame( '<strong>Post title</strong>', apply_filters( 'the_title', '<strong>Post title</strong>', $post_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_post_title
+	 */
+	public function test_bbp_filter_post_title_preserves_later_bbp_title_filters() {
+		$topic_id = $this->factory->topic->create( array( 'post_title' => 'Topic title' ) );
+		$filter   = function ( $title ) {
+			return '<strong>' . $title . '</strong>';
+		};
+
+		add_filter( 'bbp_get_topic_title', $filter );
+
+		try {
+			$this->assertSame( '<strong>Topic title</strong>', bbp_get_topic_title( $topic_id ) );
+		} finally {
+			remove_filter( 'bbp_get_topic_title', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_fix_post_author
 	 */
 	public function test_bbp_fix_post_author() {

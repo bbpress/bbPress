@@ -345,6 +345,52 @@ function bbp_get_string_array_values( $arr = array() ) {
 }
 
 /**
+ * Remove unsafe markup from forum, topic, and reply titles before storage.
+ *
+ * This protects importers and other integrations that write directly through
+ * WordPress instead of using the bbPress form handlers.
+ *
+ * @since 2.7.0 bbPress (r8156)
+ *
+ * @param array $data Post data.
+ * @return array Filtered post data.
+ */
+function bbp_filter_post_title_data( $data = array() ) {
+	$post_types = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+
+	if (
+		isset( $data['post_type'], $data['post_title'] )
+		&& in_array( $data['post_type'], $post_types, true )
+	) {
+		$data['post_title'] = wp_filter_post_kses( $data['post_title'] );
+	}
+
+	return $data;
+}
+
+/**
+ * Remove unsafe stored markup when a forum, topic, or reply title is displayed.
+ *
+ * This protects titles that were saved before title storage was normalized.
+ * More specific bbPress title filters still run after this callback.
+ *
+ * @since 2.7.0 bbPress (r8156)
+ *
+ * @param string $title   Post title.
+ * @param int    $post_id Post ID.
+ * @return string Filtered post title.
+ */
+function bbp_filter_post_title( $title = '', $post_id = 0 ) {
+	$post_types = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+
+	if ( in_array( get_post_type( $post_id ), $post_types, true ) ) {
+		$title = wp_kses_post( $title );
+	}
+
+	return $title;
+}
+
+/**
  * Set the GMT date for pending topics and replies.
  *
  * WordPress leaves the GMT date empty for pending posts, which can cause a

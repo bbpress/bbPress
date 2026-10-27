@@ -1001,12 +1001,12 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
 
 	// Topic link
 	$topic_permalink = bbp_get_topic_permalink( $topic_id );
-	$topic_title     = get_post_field( 'post_title', $topic_id, 'raw' );
+	$topic_title     = bbp_get_topic_title( $topic_id );
 	$topic_link      = '<a href="' . esc_url( $topic_permalink ) . '">' . esc_html( $topic_title ) . '</a>';
 
 	// Forum link
 	$forum_permalink = bbp_get_forum_permalink( $forum_id );
-	$forum_title     = get_post_field( 'post_title', $forum_id, 'raw' );
+	$forum_title     = bbp_get_forum_title( $forum_id );
 	$forum_link      = '<a href="' . esc_url( $forum_permalink ) . '">' . esc_html( $forum_title ) . '</a>';
 
 	// Format

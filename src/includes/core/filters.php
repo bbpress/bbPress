@@ -58,7 +58,8 @@ add_filter( 'rest_user_query',               'bbp_exclude_forum_posts_from_user_
 add_filter( 'wp_sitemaps_users_query_args',  'bbp_exclude_forum_posts_from_user_query'  );
 add_filter( 'rest_request_before_callbacks', 'bbp_filter_rest_user_discovery',          10, 3 );
 
-// Filter WordPress post data for forums, pending dates, and anonymous posts
+// Filter WordPress post data for titles, forums, pending dates, and anonymous posts
+add_filter( 'wp_insert_post_data', 'bbp_filter_post_title_data',          15    );
 add_filter( 'wp_insert_post_data', 'bbp_filter_admin_forum_post_data', 20, 2 );
 add_filter( 'wp_insert_post_data', 'bbp_set_pending_post_date_gmt',     25    );
 add_filter( 'wp_insert_post_data', 'bbp_fix_post_author',              30, 2 );
@@ -75,7 +76,8 @@ add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 // User profile fields
 add_filter( 'show_password_fields', 'bbp_filter_user_edit_password_fields', 10, 2 );
 
-// Reply title fallback
+// Safe titles and reply title fallback
+add_filter( 'the_title', 'bbp_filter_post_title',        1, 2 );
 add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 
 // Special title formatting

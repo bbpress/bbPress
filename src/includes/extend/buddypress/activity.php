@@ -774,14 +774,14 @@ class BBP_BuddyPress_Activity {
 
 		// Topic
 		$topic_permalink = bbp_get_topic_permalink( $topic_id );
-		$topic_title     = get_post_field( 'post_title',   $topic_id, 'raw' );
+		$topic_title     = bbp_get_topic_title( $topic_id );
 		$topic_content   = get_post_field( 'post_content', $topic_id, 'raw' );
-		$topic_link      = '<a href="' . $topic_permalink . '">' . $topic_title . '</a>';
+		$topic_link      = '<a href="' . esc_url( $topic_permalink ) . '">' . esc_html( $topic_title ) . '</a>';
 
 		// Forum
 		$forum_permalink = bbp_get_forum_permalink( $forum_id );
-		$forum_title     = get_post_field( 'post_title', $forum_id, 'raw' );
-		$forum_link      = '<a href="' . $forum_permalink . '">' . $forum_title . '</a>';
+		$forum_title     = bbp_get_forum_title( $forum_id );
+		$forum_link      = '<a href="' . esc_url( $forum_permalink ) . '">' . esc_html( $forum_title ) . '</a>';
 
 		// Activity action & text
 		$activity_text = sprintf(
@@ -927,13 +927,13 @@ class BBP_BuddyPress_Activity {
 
 		// Topic
 		$topic_permalink = bbp_get_topic_permalink( $topic_id );
-		$topic_title     = get_post_field( 'post_title', $topic_id, 'raw' );
-		$topic_link      = '<a href="' . $topic_permalink . '">' . $topic_title . '</a>';
+		$topic_title     = bbp_get_topic_title( $topic_id );
+		$topic_link      = '<a href="' . esc_url( $topic_permalink ) . '">' . esc_html( $topic_title ) . '</a>';
 
 		// Forum
 		$forum_permalink = bbp_get_forum_permalink( $forum_id );
-		$forum_title     = get_post_field( 'post_title', $forum_id, 'raw' );
-		$forum_link      = '<a href="' . $forum_permalink . '">' . $forum_title . '</a>';
+		$forum_title     = bbp_get_forum_title( $forum_id );
+		$forum_link      = '<a href="' . esc_url( $forum_permalink ) . '">' . esc_html( $forum_title ) . '</a>';
 
 		// Activity action & text
 		$activity_text    = sprintf(

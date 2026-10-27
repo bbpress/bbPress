@@ -1705,6 +1705,60 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Unsafe legacy title markup is removed from site-wide activity actions.
+	 *
+	 * @since 2.7.0 bbPress (r8156)
+	 */
+	public function test_bp_activity_actions_filter_unsafe_legacy_title_markup() {
+		global $wpdb;
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_author' => $user_id,
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_author' => $user_id,
+			)
+		);
+
+		$wpdb->update(
+			$wpdb->posts,
+			array( 'post_title' => '<img src=x onerror=alert(1)>Legacy forum' ),
+			array( 'ID' => $forum_id )
+		);
+		$wpdb->update(
+			$wpdb->posts,
+			array( 'post_title' => '<img src=x onload=alert(1)>Legacy topic' ),
+			array( 'ID' => $topic_id )
+		);
+		clean_post_cache( $forum_id );
+		clean_post_cache( $topic_id );
+
+		bbpress()->extend->buddypress->activity->topic_create( $topic_id, $forum_id, array(), $user_id );
+		bbpress()->extend->buddypress->activity->reply_create( $reply_id, $topic_id, $forum_id, array(), $user_id );
+
+		$actions = array(
+			( new BP_Activity_Activity( (int) get_post_meta( $topic_id, '_bbp_activity_id', true ) ) )->action,
+			( new BP_Activity_Activity( (int) get_post_meta( $reply_id, '_bbp_activity_id', true ) ) )->action,
+		);
+
+		foreach ( $actions as $action ) {
+			$this->assertStringContainsString( 'Legacy topic', $action );
+			$this->assertStringContainsString( 'Legacy forum', $action );
+			$this->assertStringNotContainsString( '<img', $action );
+			$this->assertStringNotContainsString( '<svg', $action );
+			$this->assertStringNotContainsString( 'onerror', $action );
+			$this->assertStringNotContainsString( 'onload', $action );
+		}
+	}
+
+	/**
 	 * Dynamic activity actions for group forum topics.
 	 *
 	 * @since 2.6.0 bbPress (r6370)

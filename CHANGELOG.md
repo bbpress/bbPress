@@ -55,6 +55,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Kept unsafe markup out of forum, topic, and reply titles across import and direct
+  WordPress write paths, including titles stored by earlier versions.
 - Avoided retaining incomplete forum visibility caches after database errors.
 - Omitted password-protected content from BuddyPress activity queries.
 - Prevented password-protected forum content from influencing search results.
