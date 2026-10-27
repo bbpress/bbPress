@@ -55,8 +55,10 @@ Plugin SVN into canonical development history.
 - Never expose passwords or authentication tokens in command arguments, tracked files, patches, logs,
   chat, or shell history. Let approved credential helpers or interactive tools
   handle authentication.
-- Treat release tags as immutable records. Correct forward unless a maintainer
-  explicitly directs an exceptional tag repair.
+- Treat canonical Subversion release tags as immutable records. Never modify,
+  delete, or recreate them. Correct mistakes forward in branches, trunk,
+  a later release, or public documentation as appropriate. This does not prevent
+  reviewed mirror maintenance from removing an incorrect Git ref.
 
 ## Working Tree Map
 
@@ -282,14 +284,22 @@ the WordPress.org readme, release posts, or Codex release records.
 - Add notable user-visible changes under `Unreleased` in the same change that
   introduces them. Routine refactoring, tests, and internal tooling do not need
   entries unless they materially affect contributors or releases.
+- Never add a change committed after a release tag to that tagged version's
+  changelog section. Put later maintenance-branch changes under `Unreleased`
+  for the next patch release. If a release-note error is found after tagging,
+  leave the tag unchanged, record the discrepancy, and correct the current
+  branch, trunk, and public documentation forward in a separate reviewed change.
 - Use `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Security`
   subsections only when they contain entries.
 - Describe security changes safely before coordinated disclosure. Never put
   embargoed impact, reproduction steps, reporter data, or exploit detail in a
   public changelog draft.
-- During a release, audit `Unreleased` against the exact canonical revision
-  range and Trac milestone. Move the final entries under a version and ISO date,
-  add authoritative release links, and leave a fresh `Unreleased` section.
+- During a release, compare the maintenance changelog with the previous
+  canonical tag and audit the exact post-tag revision range and Trac milestone.
+  Any difference in an older version section must be explained by a recorded,
+  separately reviewed forward correction. Move every notable post-tag entry
+  under the new version and ISO date, remove duplicates, add authoritative
+  release links, and leave a fresh `Unreleased` section.
 - Keep `src/readme.txt`, the Codex version page, the releases table, and the
   bbPress.org announcement consistent with the final changelog. None of these
   records substitutes for the others.
@@ -374,21 +384,37 @@ and deployment working copies. Keep a release log containing every revision,
 URL, checksum, test result, and manual approval.
 
 1. Confirm scope, version, target maintenance branch, compatibility metadata,
-   changelog, upgrade notice, and contributor credits. Audit `CHANGELOG.md`
-   against the exact release range, move final entries under the version and
-   release date, add release links, and create a fresh `Unreleased` section.
-2. Update and test the canonical maintenance branch. Update trunk's stable
-   metadata without replacing trunk's next-development version.
-3. Build the exact candidate from the reviewed maintenance revision. Inspect the
+   changelog, upgrade notice, and contributor credits. Compare `CHANGELOG.md`
+   with the previous canonical tag, explain every older-section difference with
+   a recorded forward correction, audit every post-tag change, move the final
+   entries under the new version and release date, add release links, and create
+   a fresh `Unreleased` section.
+2. Update and test the canonical maintenance branch. Commit the approved release
+   metadata and record its exact revision before building or tagging.
+3. Build the exact candidate from that recorded maintenance revision. Inspect the
    tree/POT, compare with the previous release, install the ZIP, and smoke-test.
-4. Create the canonical source tag with `svn copy` from the exact recorded branch
+4. Complete the immutable-tag gate. Reconfirm the exact branch revision and
+   stored log; version, stable tag, release date, compatibility and database
+   metadata; changelog boundary, release links, contributor credits, and
+   upgrade notice; package manifest, POT, checksum, and smoke-test evidence;
+   and every recorded approval. Stop if anything is incomplete, inconsistent,
+   or uncertain.
+5. Present the exact source revision, target tag URL, and tag message for
+   explicit approval. A canonical Subversion release tag is permanent and can
+   be created only once. It must never be modified, deleted, or recreated.
+6. Create the canonical source tag with one `svn copy` from the approved branch
    revision. Never manufacture the tag in GitHub.
-5. Deploy only the verified `build/` contents to Plugin SVN. Keep its maintenance branch and trunk synchronized when that is the release convention, then make the deployment tag from the exact reviewed state. The guarded `Deploy to WordPress.org` workflow may perform this step after a successful credential-free preparation run and explicit environment approval.
-6. Verify WordPress.org reports the version. Download the public ZIP and compare
+7. Verify the tag's copy origin, assigned revision, stored log, complete tree,
+   version metadata, and byte-for-byte equality with the approved branch
+   revision.
+8. Update trunk's stable-release metadata from the finalized maintenance
+   changelog without replacing trunk's next-development plugin version.
+9. Deploy only the verified `build/` contents to Plugin SVN. Keep its maintenance branch and trunk synchronized when that is the release convention, then make the deployment tag from the exact reviewed state. The guarded `Deploy to WordPress.org` workflow may perform this step after a successful credential-free preparation run and explicit environment approval.
+10. Verify WordPress.org reports the version. Download the public ZIP and compare
    its checksum and file manifest with the candidate.
-7. Verify activation and a front-end forum from the public ZIP.
-8. Confirm Translate WordPress recognizes the source and the bundled POT exists.
-9. Complete the Trac administration for the release. Audit the release milestone
+11. Verify activation and a front-end forum from the public ZIP.
+12. Confirm Translate WordPress recognizes the source and the bundled POT exists.
+13. Complete the Trac administration for the release. Audit the release milestone
    and `Awaiting Review` for tickets whose changes shipped in the release. Move
    any such tickets into the release milestone and confirm their resolutions
    before closing it. Move genuinely unresolved release-milestone tickets to the
@@ -398,13 +424,13 @@ URL, checksum, test result, and manual approval.
    explicitly leave the date unset. Verify the roadmap, completed milestone,
    and Version and Milestone fields on a new ticket, then record their URLs in
    the release log.
-10. Publish the Codex version page and Releases row, bbPress.org post, Downloads
+14. Publish the Codex version page and Releases row, bbPress.org post, Downloads
    update, and any warranted support announcement. Publication is a separate
    explicit public mutation even when drafts were prepared earlier.
-11. Publish a new release topic in the Development & Updates forum, make it
+15. Publish a new release topic in the Development & Updates forum, make it
     Super Sticky, and unstick the previous release topic if needed. Verify the
     new topic, its links, and its Super Sticky status on the live site.
-12. Confirm canonical branches/tags, Plugin SVN branches/trunk/tags, public ZIP,
+16. Confirm canonical branches/tags, Plugin SVN branches/trunk/tags, public ZIP,
     GitHub mirror refs, and Actions. Clean temporary checkouts and credentials.
 
 Never infer that a release completed from one green surface. Source tagging,
