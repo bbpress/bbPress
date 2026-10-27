@@ -13,16 +13,23 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+## 2.6.21 - 2026-10-27
+
 ### Changed
 
 - Updated the forum, topic, and reply admin icons to SVG outlines that retain
   their original Dashicon motifs, and refreshed the About screen logo and bee.
   Older WordPress versions continue to use Dashicons.
 - Added `ugc` alongside `nofollow` to links in topic and reply content.
+- Stopped after finding the latest public topic during forum freshness
+  recalculation.
 
 ### Security
 
 - Avoided retaining incomplete forum visibility caches after database errors.
+- Enforced inherited forum passwords in WordPress-rendered topic and reply
+  content.
+- Enforced restricted forum visibility in reply feeds.
 - Omitted password-protected content from BuddyPress activity queries.
 - Prevented password-protected forum content from influencing search results.
 - Required permission to manage both forums before moving a topic between them.
@@ -32,11 +39,7 @@ Development for the next bbPress release is in progress. See the active
 - Respected BuddyPress community visibility in direct group forum reads.
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
 - Prevented old reply slugs from redirecting visitors to replies they cannot read.
-
-### Changed
-
-- Stop after finding the latest public topic during forum freshness
-  recalculation.
+- Required HTTPS for Akismet moderation requests.
 
 ### Fixed
 
