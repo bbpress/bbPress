@@ -47,6 +47,8 @@ add_action( 'admin_head',              'bbp_admin_head'                    );
 add_action( 'admin_notices',           'bbp_admin_notices'                 );
 add_action( 'menu_order',              'bbp_admin_menu_order'              );
 add_filter( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
+add_filter( 'admin_body_class',        'bbp_admin_icon_body_class'        );
+add_action( 'bbp_register',            'bbp_register_admin_icons',     1 );
 
 // Hook on to admin_init
 add_action( 'bbp_admin_init', 'bbp_register_importers'          );

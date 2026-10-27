@@ -137,19 +137,19 @@ body.rtl .about-wrap .bbp-badge {
 
 th .bbp_forums_column::before,
 #dashboard_right_now a.bbp-glance-forums::before,
-#adminmenu #menu-posts-forum .wp-menu-image::before {
+#adminmenu #menu-posts-forum .wp-menu-image:not(.svg-icon)::before {
 	content: "\f449";
 }
 
 th .bbp_topics_column::before,
 #dashboard_right_now a.bbp-glance-topics::before,
-#adminmenu #menu-posts-topic .wp-menu-image::before {
+#adminmenu #menu-posts-topic .wp-menu-image:not(.svg-icon)::before {
 	content: "\f450";
 }
 
 th .bbp_replies_column::before,
 #dashboard_right_now a.bbp-glance-replies::before,
-#adminmenu #menu-posts-reply .wp-menu-image::before {
+#adminmenu #menu-posts-reply .wp-menu-image:not(.svg-icon)::before {
 	content: "\f451";
 }
 
@@ -183,6 +183,137 @@ th .bbp_replies_column::before {
 	-moz-osx-font-smoothing: grayscale;
 	text-decoration: none !important;
 	color: #444;
+}
+
+/* WordPress 7.2 SVG icons, with Dashicons retained on older versions. */
+
+body.bbp-svg-icons .bbp-bee {
+	font: inherit !important;
+	height: 80px;
+	width: 80px;
+}
+
+body.bbp-svg-icons .bbp-hive {
+	font: inherit !important;
+	color: #bfc3c8;
+	height: 180px;
+	width: 180px;
+}
+
+body.rtl.bbp-svg-icons .bbp-hive {
+	right: auto;
+	left: 0;
+}
+
+body.bbp-svg-icons .bbp-badge {
+	animation: none;
+}
+
+body.bbp-svg-icons .about-wrap .bbp-badge {
+	right: 77px;
+	top: 77px;
+}
+
+body.rtl.bbp-svg-icons .about-wrap .bbp-badge {
+	right: auto;
+	left: 77px;
+}
+
+body.bbp-svg-icons .notice-bbpress .bbpress-logo-icon {
+	font: inherit !important;
+	height: 24px;
+	width: 24px;
+	padding: 0;
+	left: 6px;
+}
+
+body.bbp-svg-icons .bbp-bee::before,
+body.bbp-svg-icons .bbp-hive::before,
+body.bbp-svg-icons .notice-bbpress .bbpress-logo-icon::before,
+body.bbp-svg-icons th .bbp_forums_column::before,
+body.bbp-svg-icons th .bbp_topics_column::before,
+body.bbp-svg-icons th .bbp_replies_column::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-forums::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-topics::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-replies::before {
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	background-color: currentcolor;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	mask-position: center;
+	-webkit-mask-size: contain;
+	mask-size: contain;
+}
+
+body.bbp-svg-icons .bbp-hive::before,
+body.bbp-svg-icons .bbp-bee::before {
+	width: 100%;
+	height: 100%;
+}
+
+body.bbp-svg-icons .notice-bbpress .bbpress-logo-icon::before {
+	width: 24px;
+	height: 24px;
+	-webkit-mask-image: url(../icons/logo.svg);
+	mask-image: url(../icons/logo.svg);
+}
+
+body.bbp-svg-icons .bbp-hive::before {
+	-webkit-mask-image: url(../icons/logo.svg);
+	mask-image: url(../icons/logo.svg);
+}
+
+body.bbp-svg-icons th .bbp_forums_column::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-forums::before {
+	-webkit-mask-image: url(../icons/forum.svg);
+	mask-image: url(../icons/forum.svg);
+}
+
+body.bbp-svg-icons th .bbp_topics_column::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-topics::before {
+	-webkit-mask-image: url(../icons/topic.svg);
+	mask-image: url(../icons/topic.svg);
+}
+
+body.bbp-svg-icons th .bbp_replies_column::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-replies::before {
+	-webkit-mask-image: url(../icons/reply.svg);
+	mask-image: url(../icons/reply.svg);
+}
+
+body.bbp-svg-icons .bbp-bee::before {
+	background-color: transparent;
+	background-image: url(../icons/bee.svg);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-forums::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-topics::before,
+body.bbp-svg-icons #dashboard_right_now a.bbp-glance-replies::before {
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.bbp-badge {
+		animation: none;
+	}
+
+	.bbp-bee {
+		left: -17px;
+		bottom: -17px;
+	}
+
+	body.bbp-svg-icons .bbp-bee {
+		left: -27px;
+		bottom: -27px;
+	}
 }
 
 /* Deprecated Dashboard Metabox */

@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Updated the forum, topic, and reply admin icons to SVG outlines that retain
+  their original Dashicon motifs, and refreshed the About screen logo and bee.
+  Older WordPress versions continue to use Dashicons.
 - Added `ugc` alongside `nofollow` to links in topic and reply content.
 
 ### Security

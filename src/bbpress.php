@@ -400,6 +400,7 @@ final class bbPress {
 
 		// Quick admin check and load if needed
 		if ( is_admin() ) {
+			require $this->includes_dir . 'admin/icons.php';
 			require $this->includes_dir . 'admin/actions.php';
 		}
 	}
@@ -526,6 +527,8 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r2597)
 	 */
 	public static function register_post_types() {
+		// Keep Dashicons on WordPress versions without SVG admin menu support.
+		$menu_icon_prefix = is_admin() && bbp_use_svg_admin_icons() ? 'bbpress/' : '';
 
 		/** Forums ************************************************************/
 
@@ -551,7 +554,7 @@ final class bbPress {
 					'can_export'            => true,
 					'hierarchical'          => true,
 					'query_var'             => true,
-					'menu_icon'             => '',
+					'menu_icon'             => $menu_icon_prefix ? $menu_icon_prefix . 'forum' : '',
 					'source'                => 'bbpress',
 				)
 			)
@@ -581,7 +584,7 @@ final class bbPress {
 					'can_export'            => true,
 					'hierarchical'          => false,
 					'query_var'             => true,
-					'menu_icon'             => '',
+					'menu_icon'             => $menu_icon_prefix ? $menu_icon_prefix . 'topic' : '',
 					'source'                => 'bbpress',
 				)
 			)
@@ -611,7 +614,7 @@ final class bbPress {
 					'can_export'            => true,
 					'hierarchical'          => false,
 					'query_var'             => true,
-					'menu_icon'             => '',
+					'menu_icon'             => $menu_icon_prefix ? $menu_icon_prefix . 'reply' : '',
 					'source'                => 'bbpress',
 				)
 			)
