@@ -167,6 +167,9 @@ class BBP_Tests_Replies_Template_Revisions extends BBP_UnitTestCase {
 		$revisions = wp_get_post_revisions( $reply_id );
 
 		$this->assertNotEmpty( $revisions );
+		// Keep relative revision dates away from a changing second boundary.
+		$this->update_post_modified( key( $revisions ), gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS - 30 * MINUTE_IN_SECONDS ) );
+		clean_post_cache( key( $revisions ) );
 		return key( $revisions );
 	}
 }
