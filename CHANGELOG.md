@@ -72,6 +72,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Returned a 404 for non-scalar user profile query variables instead of
+  triggering a PHP type error.
 - Kept the reply editor's Forum and Reply To dropdowns synchronized with its
   Topic, and made Forum read-only.
 - Wrapped standalone list items in straightforward topic and reply HTML on
