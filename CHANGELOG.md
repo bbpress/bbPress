@@ -35,7 +35,9 @@ Development for the next bbPress release is in progress. See the active
 - Required permission to manage both forums before moving a topic between them.
 - Kept password-protected topic and reply content out of BuddyPress activity.
 - Kept restricted attachment metadata out of alternate front-end and feed requests.
+- Required validated forum destinations for front-end topic submissions.
 - Enforced BuddyPress group posting permissions during topic and reply submission.
+- Enforced BuddyPress community visibility for group forum content.
 - Respected BuddyPress community visibility in direct group forum reads.
 - Prevented old topic slugs from redirecting visitors to topics they cannot read.
 - Prevented old reply slugs from redirecting visitors to replies they cannot read.
@@ -54,13 +56,21 @@ Development for the next bbPress release is in progress. See the active
 - Restored topic titles on moderated reply lists for people who can read the
   reply and its topic.
 - Preserved forum freshness metadata when its activity query fails.
-- Prevented malformed requests below bbPress route roots from triggering broad
-  permalink guess queries.
+- Prevented malformed and mixed-case requests below bbPress route roots from
+  triggering broad permalink guess queries.
+- Allowed canonical and 404 handling for bbPress routes with empty identifiers.
 - Corrected relative registration times on user profiles when sites use a
   non-UTC timezone.
 - Preserved original topic and reply content when the first logged edit is saved.
+- Used the recorded editor when displaying topic and reply revision logs.
+- Redirected merged topic URLs to their destination topics.
+- Corrected parent-forum freshness when the newest topic belongs to a nested
+  subforum.
 - Returned a 404 instead of guessing unrelated permalinks for incomplete
   bbPress route roots.
+- Kept BuddyPress group topics available when viewing later reply pages.
+- Avoided unindexed relationship metadata scans when recounting forum and topic
+  children.
 - Scoped registered forum and topic count metadata to the correct post type.
 - Removed topic and reply shortcodes from WordPress-generated feed content.
 - Prevented stray post and Page query variables from misclassifying bbPress
@@ -68,6 +78,10 @@ Development for the next bbPress release is in progress. See the active
 - Avoided loading every public topic ID when forum freshness is recalculated.
 - Preserved the original date of pending topics and replies across status changes.
 - Returned a 404 response for feed requests to unregistered views.
+
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-21/)
+
+[Release announcement](https://bbpress.org/blog/2026/10/bbpress-2-6-21-is-out/)
 
 ## 2.6.20 - 2026-10-15
 
@@ -82,23 +96,11 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
-- Required validated forum destinations for front-end topic submissions.
-- Enforced BuddyPress community visibility for group forum content.
 - Kept bbPress post shortcodes literal in WordPress content loops.
 - Strengthened password checks for topic and reply submissions.
 
 ### Fixed
 
-- Prevented malformed and mixed-case requests below bbPress route roots from
-  triggering broad permalink guess queries.
-- Allowed canonical and 404 handling for bbPress routes with empty identifiers.
-- Used the recorded editor when displaying topic and reply revision logs.
-- Redirected merged topic URLs to their destination topics.
-- Corrected parent-forum freshness when the newest topic belongs to a nested
-  subforum.
-- Kept BuddyPress group topics available when viewing later reply pages.
-- Avoided unindexed relationship metadata scans when recounting forum and topic
-  children.
 - Prevented invalid engagement strategy options and filter values from causing
   startup failures or selecting the empty base implementation.
 - Fixed component-specific rewrite callbacks so they receive the WordPress rewrite object instead of failing or being skipped.
