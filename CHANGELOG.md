@@ -42,12 +42,6 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
-- Updated the forum, topic, and reply admin icons to SVG outlines that retain
-  their original Dashicon motifs, and refreshed the About screen logo and bee.
-  Older WordPress versions continue to use Dashicons.
-- Stop after finding the latest public topic during forum freshness
-  recalculation.
-- Added `ugc` alongside `nofollow` to links in topic and reply content.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.
 - Shortened new-content labels and administration metabox titles.
@@ -62,18 +56,7 @@ Development for the next bbPress release is in progress. See the active
 
 - Kept unsafe markup out of forum, topic, and reply titles across import and direct
   WordPress write paths, including titles stored by earlier versions.
-- Avoided retaining incomplete forum visibility caches after database errors.
-- Omitted password-protected content from BuddyPress activity queries.
-- Prevented password-protected forum content from influencing search results.
-- Required permission to manage both forums before moving a topic between them.
-- Kept password-protected topic and reply content out of BuddyPress activity.
-- Kept restricted attachment metadata out of alternate front-end and feed requests.
-- Required validated forum destinations for front-end topic submissions.
-- Enforced BuddyPress group posting permissions during topic and reply submission.
 - Limited block editor topic-tag choices to public discussions in accessible forums.
-- Enforced BuddyPress community visibility for group forum content.
-- Prevented old topic slugs from redirecting visitors to topics they cannot read.
-- Prevented old reply slugs from redirecting visitors to replies they cannot read.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 
@@ -81,6 +64,62 @@ Development for the next bbPress release is in progress. See the active
 
 - Repaired standalone list items beside implied HTML elements, SVG or MathML,
   and literal list-item examples without rewriting the original markup.
+- Fixed legacy user-option engagement lookups for numeric-string object IDs.
+- Kept the Login widget logout link readable when themes style widget links and
+  buttons with conflicting colors.
+- Cache a distinct count of current-site forum-role holders for forum statistics,
+  invalidating it when users or their capabilities change. Use the WordPress
+  installation count for large-installation upgrade decisions.
+- Show an ellipsis for long topic metadata in the default templates, revealing
+  the full text when a link receives focus.
+- Restored the Forums administration menu for moderators.
+- Used the selected WordPress Page title for topic archives.
+- Prevented duplicate forum-root breadcrumbs on archive subpages.
+- Applied filtered topic permalinks in subscriptions and topic pagination.
+- Prevented anonymous topics from incorrectly appearing empty.
+- Respected filtered Keymaster checks in administration user suggestions.
+- Scoped registered forum, topic, and reply metadata to the correct post type.
+- Counted multibyte title characters correctly and improved UTF-8 display-name
+  handling on modern WordPress and PHP versions.
+- Prevented warnings when building BuddyPress member URLs and when bbPress
+  runtime data is accessed before initialization.
+- Prevented PHP warnings when building logout URLs without expected server
+  variables.
+- Prevented PHP deprecation notices in Akismet history and reply-position
+  calculations.
+
+## 2.6.21 - 2026-10-27
+
+### Changed
+
+- Updated the forum, topic, and reply admin icons to SVG outlines that retain
+  their original Dashicon motifs, and refreshed the About screen logo and bee.
+  Older WordPress versions continue to use Dashicons.
+- Added `ugc` alongside `nofollow` to links in topic and reply content.
+- Stopped after finding the latest public topic during forum freshness
+  recalculation.
+
+### Security
+
+- Avoided retaining incomplete forum visibility caches after database errors.
+- Enforced inherited forum passwords in WordPress-rendered topic and reply
+  content.
+- Enforced restricted forum visibility in reply feeds.
+- Omitted password-protected content from BuddyPress activity queries.
+- Prevented password-protected forum content from influencing search results.
+- Required permission to manage both forums before moving a topic between them.
+- Kept password-protected topic and reply content out of BuddyPress activity.
+- Kept restricted attachment metadata out of alternate front-end and feed requests.
+- Required validated forum destinations for front-end topic submissions.
+- Enforced BuddyPress group posting permissions during topic and reply submission.
+- Enforced BuddyPress community visibility for group forum content.
+- Respected BuddyPress community visibility in direct group forum reads.
+- Prevented old topic slugs from redirecting visitors to topics they cannot read.
+- Prevented old reply slugs from redirecting visitors to replies they cannot read.
+- Required HTTPS for Akismet moderation requests.
+
+### Fixed
+
 - Returned a 404 for non-scalar user profile query variables instead of
   triggering a PHP type error.
 - Kept the reply editor's Forum and Reply To dropdowns synchronized with its
@@ -107,35 +146,17 @@ Development for the next bbPress release is in progress. See the active
 - Kept BuddyPress group topics available when viewing later reply pages.
 - Avoided unindexed relationship metadata scans when recounting forum and topic
   children.
+- Scoped registered forum and topic count metadata to the correct post type.
 - Removed topic and reply shortcodes from WordPress-generated feed content.
 - Prevented stray post and Page query variables from misclassifying bbPress
   user routes.
 - Avoided loading every public topic ID when forum freshness is recalculated.
 - Preserved the original date of pending topics and replies across status changes.
-- Fixed legacy user-option engagement lookups for numeric-string object IDs.
 - Returned a 404 response for feed requests to unregistered views.
-- Kept the Login widget logout link readable when themes style widget links and
-  buttons with conflicting colors.
-- Cache a distinct count of current-site forum-role holders for forum statistics,
-  invalidating it when users or their capabilities change. Use the WordPress
-  installation count for large-installation upgrade decisions.
-- Show an ellipsis for long topic metadata in the default templates, revealing
-  the full text when a link receives focus.
-- Restored the Forums administration menu for moderators.
-- Used the selected WordPress Page title for topic archives.
-- Prevented duplicate forum-root breadcrumbs on archive subpages.
-- Applied filtered topic permalinks in subscriptions and topic pagination.
-- Prevented anonymous topics from incorrectly appearing empty.
-- Respected filtered Keymaster checks in administration user suggestions.
-- Scoped registered forum, topic, and reply metadata to the correct post type.
-- Counted multibyte title characters correctly and improved UTF-8 display-name
-  handling on modern WordPress and PHP versions.
-- Prevented warnings when building BuddyPress member URLs and when bbPress
-  runtime data is accessed before initialization.
-- Prevented PHP warnings when building logout URLs without expected server
-  variables.
-- Prevented PHP deprecation notices in Akismet history and reply-position
-  calculations.
+
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-21/)
+
+[Release announcement](https://bbpress.org/blog/2026/10/bbpress-2-6-21-is-out/)
 
 ## 2.6.20 - 2026-10-15
 
