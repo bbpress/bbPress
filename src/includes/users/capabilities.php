@@ -769,6 +769,118 @@ function bbp_profile_update_role( $user_id = 0 ) {
 }
 
 /**
+ * Return the scope where automatic forum role assignment is skipped for a user.
+ *
+ * The all-sites exclusion takes precedence over a site exclusion. It is stored
+ * without a site prefix and applies across every network in the installation.
+ * An explicit forum role is unaffected by either exclusion.
+ *
+ * @since 2.7.0 bbPress (r8160)
+ *
+ * @param int $user_id User ID.
+ * @return string|bool "all_sites" or "site", or false when assignment is automatic.
+ */
+function bbp_get_user_auto_role_exclusion_scope( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$scope   = false;
+
+	if ( ! empty( $user_id ) ) {
+		if ( is_multisite() && ( '1' === (string) get_user_option( '_bbp_auto_role_exclusion_all_sites', $user_id ) ) ) {
+			$scope = 'all_sites';
+		} elseif ( '1' === (string) get_user_option( '_bbp_auto_role_exclusion', $user_id ) ) {
+			$scope = 'site';
+		}
+	}
+
+	// Filter & return.
+	return apply_filters( 'bbp_get_user_auto_role_exclusion_scope', $scope, $user_id );
+}
+
+/**
+ * Return whether automatic forum role assignment is skipped for a user.
+ *
+ * @since 2.7.0 bbPress (r8160)
+ *
+ * @param int $user_id User ID.
+ * @return bool Whether automatic forum role assignment is skipped for this user.
+ */
+function bbp_is_user_auto_role_excluded( $user_id = 0 ) {
+	$user_id  = bbp_get_user_id( $user_id, false, false );
+	$excluded = false !== bbp_get_user_auto_role_exclusion_scope( $user_id );
+
+	// Filter & return.
+	return (bool) apply_filters( 'bbp_is_user_auto_role_excluded', $excluded, $user_id );
+}
+
+/**
+ * Save the automatic forum role assignment exclusion from a user edit.
+ *
+ * @since 2.7.0 bbPress (r8160)
+ *
+ * @param int $user_id User ID.
+ */
+function bbp_profile_update_auto_role_exclusion( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$scope   = 'site';
+
+	if ( isset( $_POST['bbp-auto-role-exclusion-scope'] ) ) {
+		if ( ! is_string( $_POST['bbp-auto-role-exclusion-scope'] ) ) {
+			return;
+		}
+
+		$scope = sanitize_key( wp_unslash( $_POST['bbp-auto-role-exclusion-scope'] ) );
+	}
+
+	if (
+		empty( $user_id )
+		|| ! isset( $_POST['bbp-auto-role-exclusion-present'] )
+		|| ! bbp_is_user_profile_form_post_request( $user_id )
+		|| ! current_user_can( 'manage_options' )
+		|| ! bbp_current_user_can_edit_user_field( 'forum_role', $user_id )
+		|| ( ! is_admin() && bbp_is_user_home_edit() )
+	) {
+		return;
+	}
+
+	// Reject malformed input without changing the stored exclusion.
+	if (
+		! in_array( $scope, array( 'site', 'all_sites' ), true )
+		|| ( isset( $_POST['bbp-auto-role-exclusion'] ) && '1' !== $_POST['bbp-auto-role-exclusion'] )
+		|| ( ( 'all_sites' === $scope ) && ( ! is_multisite() || ! current_user_can( 'manage_network_users' ) ) )
+	) {
+		return;
+	}
+
+	$checked              = isset( $_POST['bbp-auto-role-exclusion'] );
+	$can_manage_all_sites = is_multisite() && current_user_can( 'manage_network_users' );
+	$all_sites_exclusion  = 'all_sites' === bbp_get_user_auto_role_exclusion_scope( $user_id );
+
+	// Site administrators cannot change an all-sites exclusion.
+	if ( $all_sites_exclusion && ! $can_manage_all_sites ) {
+		return;
+	}
+
+	if ( ! $checked ) {
+		// The scope selector only applies when exclusion is enabled.
+		if ( $can_manage_all_sites ) {
+			delete_user_option( $user_id, '_bbp_auto_role_exclusion_all_sites', true );
+		}
+
+		delete_user_option( $user_id, '_bbp_auto_role_exclusion', false );
+	} elseif ( 'all_sites' === $scope ) {
+		// Store the installation-wide value without a site prefix.
+		update_user_option( $user_id, '_bbp_auto_role_exclusion_all_sites', '1', true );
+	} else {
+		// Changing from all sites to this site replaces the all-sites exclusion.
+		if ( $can_manage_all_sites ) {
+			delete_user_option( $user_id, '_bbp_auto_role_exclusion_all_sites', true );
+		}
+
+		update_user_option( $user_id, '_bbp_auto_role_exclusion', '1', false );
+	}
+}
+
+/**
  * Return the forum roles the current user may assign to another user.
  *
  * @since 2.6.17 bbPress (r7513)
@@ -924,6 +1036,11 @@ function bbp_set_current_user_default_role() {
 		return;
 	}
 
+	// Respect the exclusion, but keep an installation-wide Blocked override in force.
+	if ( bbp_is_user_auto_role_excluded( $user_id ) && ( bbp_get_blocked_role() !== bbp_get_user_default_role_override( $user_id ) ) ) {
+		return;
+	}
+
 	// Bail if user is marked as spam or is deleted
 	if ( bbp_is_user_inactive( $user_id ) ) {
 		return;
@@ -958,7 +1075,11 @@ function bbp_set_current_user_default_role() {
 
 	// Add the user to the site
 	if ( true === $add_to_site ) {
-		bbp_set_user_role( $user_id, $new_role );
+		if ( bbp_set_user_role( $user_id, $new_role ) ) {
+			// The role changed on a separate WP_User instance during set_current_user.
+			$bbp->current_user->caps[ $new_role ] = true;
+			$bbp->current_user->get_role_caps();
+		}
 
 	// Don't add the user, but still give them the correct caps dynamically
 	} else {

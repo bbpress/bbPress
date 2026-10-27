@@ -132,8 +132,18 @@ class BBP_Users_Admin {
 							<?php endforeach; ?>
 
 						</select>
+						<p class="description"><?php esc_html_e( 'No role removes the assigned role but does not prevent automatic assignment.', 'bbpress' ); ?></p>
 					</td>
 				</tr>
+
+				<?php if ( current_user_can( 'manage_options' ) && bbp_current_user_can_edit_user_field( 'forum_role', $profileuser->ID ) ) : ?>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Automatic Role', 'bbpress' ); ?></th>
+					<td>
+						<?php bbp_user_auto_role_exclusion_form( $profileuser->ID ); ?>
+					</td>
+				</tr>
+				<?php endif; ?>
 
 			</tbody>
 		</table>

@@ -1607,6 +1607,83 @@ function bbp_edit_user_blog_role() {
 }
 
 /**
+ * Output the automatic forum role assignment exclusion fields.
+ *
+ * @since 2.7.0 bbPress (r8160)
+ *
+ * @param int $user_id User ID.
+ */
+function bbp_user_auto_role_exclusion_form( $user_id = 0 ) {
+	$user_id              = bbp_get_user_id( $user_id, false, false );
+	$scope                = bbp_get_user_auto_role_exclusion_scope( $user_id );
+	$is_multisite         = is_multisite();
+	$can_manage_all_sites = $is_multisite && current_user_can( 'manage_network_users' );
+	$is_locked            = ( 'all_sites' === $scope ) && ! $can_manage_all_sites;
+	$selected_scope       = $scope ? $scope : 'site';
+
+	if ( empty( $user_id ) ) {
+		return;
+	}
+	?>
+
+	<?php if ( ! $is_locked ) : ?>
+		<input type="hidden" name="bbp-auto-role-exclusion-present" value="1" />
+	<?php endif; ?>
+
+	<label for="bbp-auto-role-exclusion">
+		<input type="checkbox" name="bbp-auto-role-exclusion" id="bbp-auto-role-exclusion" value="1" <?php checked( false !== $scope ); ?> <?php disabled( $is_locked ); ?> />
+		<?php
+		if ( $can_manage_all_sites ) {
+			esc_html_e( 'Skip automatic role assignment for this user on:', 'bbpress' );
+		} else {
+			esc_html_e( 'Skip automatic role assignment for this user', 'bbpress' );
+		}
+		?>
+	</label>
+
+	<?php if ( $can_manage_all_sites ) : ?>
+		<label class="screen-reader-text" for="bbp-auto-role-exclusion-scope"><?php esc_html_e( 'Automatic role assignment exclusion scope', 'bbpress' ); ?></label>
+		<select name="bbp-auto-role-exclusion-scope" id="bbp-auto-role-exclusion-scope">
+			<option value="site" <?php selected( 'site', $selected_scope ); ?>><?php esc_html_e( 'This site', 'bbpress' ); ?></option>
+			<option value="all_sites" <?php selected( 'all_sites', $selected_scope ); ?>><?php esc_html_e( 'All sites', 'bbpress' ); ?></option>
+		</select>
+	<?php endif; ?>
+
+	<?php if ( $is_locked ) : ?>
+		<p class="description"><?php esc_html_e( 'Set for all sites by a network administrator.', 'bbpress' ); ?></p>
+	<?php else : ?>
+		<p class="description"><?php esc_html_e( 'Existing and assigned forum roles are unaffected.', 'bbpress' ); ?></p>
+	<?php endif; ?>
+
+	<?php
+}
+
+/**
+ * Output the automatic forum role assignment exclusion for administrators editing a user.
+ *
+ * @since 2.7.0 bbPress (r8160)
+ */
+function bbp_edit_user_auto_role_exclusion() {
+	$user_id = bbp_get_displayed_user_id();
+
+	if (
+		! bbp_is_single_user_edit()
+		|| bbp_is_user_home_edit()
+		|| ! current_user_can( 'manage_options' )
+		|| ! bbp_current_user_can_edit_user_field( 'forum_role', $user_id )
+	) {
+		return;
+	}
+	?>
+
+	<div>
+		<?php bbp_user_auto_role_exclusion_form( $user_id ); ?>
+	</div>
+
+	<?php
+}
+
+/**
  * Output forum role selector (for user edit).
  *
  * @since 2.2.0 bbPress (r4288)
@@ -1643,6 +1720,7 @@ function bbp_edit_user_forums_role() {
 		<?php endforeach; ?>
 
 	</select>
+	<p class="description"><?php esc_html_e( 'No role removes the assigned role but does not prevent automatic assignment.', 'bbpress' ); ?></p>
 
 	<?php
 }

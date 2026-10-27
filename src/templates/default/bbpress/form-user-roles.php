@@ -23,9 +23,11 @@ defined( 'ABSPATH' ) || exit;
 
 <?php if ( bbp_current_user_can_edit_user_field( 'forum_role', bbp_get_displayed_user_id() ) ) : ?>
 	<div>
-		<label for="forum-role"><?php esc_html_e( 'Forum Role', 'bbpress' ); ?></label>
+		<label for="bbp-forums-role"><?php esc_html_e( 'Forum Role', 'bbpress' ); ?></label>
 
 		<?php bbp_edit_user_forums_role(); ?>
 
 	</div>
 <?php endif; ?>
+
+<?php bbp_edit_user_auto_role_exclusion(); ?>

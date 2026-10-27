@@ -388,6 +388,7 @@ add_action( 'make_spam_user', 'bbp_make_spam_user' );
 
 // User role
 add_action( 'bbp_profile_update', 'bbp_profile_update_role' );
+add_action( 'bbp_profile_update', 'bbp_profile_update_auto_role_exclusion' );
 add_action( 'bbp_transition_user_role', 'bbp_run_user_block_actions', 10, 3 );
 add_action( 'bbp_transition_user_role', 'bbp_clear_user_default_role_on_unblock', 10, 3 );
 add_action( 'bbp_transition_user_role', 'bbp_unspam_user_after_unblock', 10, 3 );
