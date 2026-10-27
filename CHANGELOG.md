@@ -72,6 +72,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Repaired standalone list items beside implied HTML elements, SVG or MathML,
+  and literal list-item examples without rewriting the original markup.
 - Returned a 404 for non-scalar user profile query variables instead of
   triggering a PHP type error.
 - Kept the reply editor's Forum and Reply To dropdowns synchronized with its

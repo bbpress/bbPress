@@ -176,8 +176,10 @@ function bbp_kses_data( $data = '' ) {
  * Runs after force_balance_tags(), which closes items but does not supply
  * missing parent lists. Requires the HTML API available in WordPress 6.9.
  * Public HTML APIs validate explicit tag structure before wrappers are added.
- * All original source bytes are retained. Implicit closures, foreign content,
- * and ambiguous literal list-item tags are left unchanged.
+ * All original source bytes are retained, including unrelated implied elements,
+ * foreign content, and literal list-item examples in comments and attributes.
+ * CDATA, slash-adjacent list tags, and LI followed by whitespace and an equals
+ * sign are unchanged. Other ambiguous or unsupported structures also bypass.
  * Code examples and block content are excluded from repair. Fragments without
  * orphan list items and sites using other character encodings are unchanged.
  * Character references retain their spelling for later formatting filters.
@@ -190,7 +192,7 @@ function bbp_kses_data( $data = '' ) {
  * @return string Content with missing unordered list containers supplied.
  */
 function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
-	if ( ! class_exists( 'WP_HTML_Processor' ) || false === stripos( $content, '<li' ) || ! preg_match( '/<li(?=[\t\n\f\r \/>])/i', $content ) || has_blocks( $content ) ) {
+	if ( ! class_exists( 'WP_HTML_Processor' ) || false === stripos( $content, '<li' ) || ! preg_match( '/<li(?=[\t\n\f\r \/>])/i', $content ) || has_blocks( $content ) || false !== strpos( $content, '<![CDATA[' ) ) {
 		return $content;
 	}
 	if ( ! empty( $post_id ) && has_blocks( get_post_field( 'post_content', $post_id, 'raw' ) ) ) {
@@ -209,32 +211,51 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 			break;
 		}
 	}
-	if ( ! $orphan ) {
+	// Ambiguous delimiters can change attribute binding in the temporary copy.
+	if ( ! $orphan || 0 !== preg_match( '/<\/?li(?:\/|[\t\n\f\r ]+=)/i', $content ) ) {
 		return $content;
 	}
 
-	// Match source boundaries only when lexical and semantic tags agree exactly.
+	// Match concrete source tags while allowing implied parser elements.
 	$item_pattern = '/<\/?li(?=[\t\n\f\r \/>])/i';
 	$processor = WP_HTML_Processor::create_fragment( $content );
-	$tags = new WP_HTML_Tag_Processor( $content );
+	// Mark candidates in a disposable copy, including end tags as openers.
+	// The tokenizer then discards lookalikes in attributes and opaque content.
+	// Put the offset first so existing attributes cannot override it.
+	$marker = 'data-bbp-list-offset';
+	$shadow = '';
+	$copied = 0;
+	while ( preg_match( $item_pattern, $content, $item, PREG_OFFSET_CAPTURE, $copied ) ) {
+		$item = $item[0];
+		$shadow .= substr( $content, $copied, $item[1] - $copied ) . '<li ' . $marker . '=' . $item[1] . ' ';
+		$copied = $item[1] + strlen( $item[0] );
+	}
+	$tags = new WP_HTML_Tag_Processor( $shadow . substr( $content, $copied ) );
 	$query = array( 'tag_closers' => 'visit' );
 	$insertions = array();
-	$search = 0;
 	$depth = 0;
 	$end = 0;
-	while ( $tags->next_tag( $query ) ) {
-		if ( ! $processor->next_tag( $query ) || $tags->get_tag() !== $processor->get_tag() || $tags->is_tag_closer() !== $processor->is_tag_closer() || 'html' !== $processor->get_namespace() ) {
+	while ( $processor->next_tag( $query ) ) {
+		// The public class_list() override returns null for virtual nodes.
+		if ( null === $processor->class_list() ) {
+			continue;
+		}
+		$tags->change_parsing_namespace( $processor->get_namespace() );
+		if ( ! $tags->next_tag( $query ) || $tags->get_tag() !== $processor->get_tag() || ( 'LI' !== $tags->get_tag() && $tags->is_tag_closer() !== $processor->is_tag_closer() ) ) {
 			return $content;
 		}
 		if ( 'LI' !== $tags->get_tag() ) {
 			continue;
 		}
-		if ( ! preg_match( $item_pattern, $content, $item, PREG_OFFSET_CAPTURE, $search ) || $tags->is_tag_closer() !== ( '/' === $item[0][0][1] ) ) {
+		if ( null === $tags->get_attribute( $marker ) ) {
 			return $content;
 		}
-		$offset = $item[0][1];
-		$search = $offset + strlen( $item[0][0] );
-		if ( $tags->is_tag_closer() ) {
+		$offset = (int) $tags->get_attribute( $marker );
+		$closing = '/' === $content[ $offset + 1 ];
+		if ( $closing !== $processor->is_tag_closer() ) {
+			return $content;
+		}
+		if ( $closing ) {
 			if ( ! preg_match( '/\G<\/li[\t\n\f\r ]*>/i', $content, $closer, 0, $offset ) ) {
 				return $content;
 			}
@@ -268,7 +289,7 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 			$depth = $processor->get_current_depth();
 		}
 	}
-	if ( $depth || preg_match( $item_pattern, $content, $item, 0, $search ) || $processor->next_tag( $query ) || null !== $processor->get_last_error() || $processor->paused_at_incomplete_token() || $tags->paused_at_incomplete_token() ) {
+	if ( $depth || $tags->next_tag( $query ) || null !== $processor->get_last_error() || $processor->paused_at_incomplete_token() || $tags->paused_at_incomplete_token() ) {
 		return $content;
 	}
 	// Apply insertions only after the whole fragment passes validation.

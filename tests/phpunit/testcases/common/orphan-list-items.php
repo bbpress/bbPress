@@ -58,7 +58,7 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 			'implicit closing boundaries are unchanged' => array( '<div><li>One</div><li>Two', '<div><li>One</div><li>Two' ),
 			'unclosed adjacent items are unchanged' => array( '<li>One<li>Two', '<li>One<li>Two' ),
 			'text boundary' => array( '<li>One</li>Text<li>Two</li>', '<ul><li>One</li></ul>Text<ul><li>Two</li></ul>' ),
-			'ambiguous list tags in comments are unchanged' => array( '<!-- <li>Example</li> --><li>One</li>', '<!-- <li>Example</li> --><li>One</li>' ),
+			'literal list tags in comments' => array( '<!-- <li>Example</li> --><li>One</li>', '<!-- <li>Example</li> --><ul><li>One</li></ul>' ),
 			'comment between items' => array( '<li>One</li><!-- next --><li>Two</li>', '<ul><li>One</li><!-- next --><li>Two</li></ul>' ),
 			'ignored list end' => array( '<!-- <ul> --><li>One</li></ul><li>Two</li>', '<!-- <ul> --><li>One</li></ul><li>Two</li>' ),
 			'ignored list end inside item' => array( '<li>One</ul>Two</li>', '<li>One</ul>Two</li>' ),
@@ -69,7 +69,7 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 			'list end in script' => array( '<li>One<script>"</ul>"</script></li>', '<ul><li>One<script>"</ul>"</script></li></ul>' ),
 			'list end in SVG style' => array( '<li><svg><style></ul></style></svg></li><li>Two</li>', '<li><svg><style></ul></style></svg></li><li>Two</li>' ),
 			'list end in MathML style' => array( '<li><math><style></ul></style></math></li><li>Two</li>', '<li><math><style></ul></style></math></li><li>Two</li>' ),
-			'foreign content is unchanged' => array( '<li><svg><circle /></svg></li>', '<li><svg><circle /></svg></li>' ),
+			'foreign content inside item' => array( '<li><svg><circle /></svg></li>', '<ul><li><svg><circle /></svg></li></ul>' ),
 			'ambiguous list tags in cdata are unchanged' => array( '<![CDATA[<li>Example</li>]]><li>One</li>', '<![CDATA[<li>Example</li>]]><li>One</li>' ),
 			'processing instruction' => array( "<?example?><LI data-x='&copy;'>One</LI>", "<?example?><ul><LI data-x='&copy;'>One</LI></ul>" ),
 			'unchanged case and quotes' => array( "<UL><LI class='item'>One</LI></UL>", "<UL><LI class='item'>One</LI></UL>" ),
@@ -92,8 +92,8 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 			'invalid textarea text' => array( "<textarea>\n\ncaf\xE9</textarea><li>One</li>", "<textarea>\n\ncaf\xE9</textarea><ul><li>One</li></ul>" ),
 			'nested orphans are unchanged' => array( '<li>One<blockquote><li>Two</li></blockquote></li>', '<li>One<blockquote><li>Two</li></blockquote></li>' ),
 			'quoted greater-than attribute' => array( '<LI title=">">One</LI>', '<ul><LI title=">">One</LI></ul>' ),
-			'ambiguous list tags in attributes are unchanged' => array( '<li title="<li>">One</li>', '<li title="<li>">One</li>' ),
-			'ambiguous list tags in scripts are unchanged' => array( '<script>"<li>Example</li>"</script><li>One</li>', '<script>"<li>Example</li>"</script><li>One</li>' ),
+			'literal list tags in attributes' => array( '<li title="<li>">One</li>', '<ul><li title="<li>">One</li></ul>' ),
+			'literal list tags in scripts' => array( '<script>"<li>Example</li>"</script><li>One</li>', '<script>"<li>Example</li>"</script><ul><li>One</li></ul>' ),
 			'nonstandard closing item is unchanged' => array( '<li>One</li title=x>', '<li>One</li title=x>' ),
 			'ignored non-list tag is unchanged' => array( '<li>One</li></span>', '<li>One</li></span>' ),
 			'later malformed run discards earlier repair' => array( '<li>One</li><p>Text</p><li>Two</li></ul>', '<li>One</li><p>Text</p><li>Two</li></ul>' ),
@@ -101,6 +101,44 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 			'textarea' => array( '<textarea><li>Example</li></textarea>', '<textarea><li>Example</li></textarea>' ),
 			'script' => array( '<script>"<li>Example</li>"</script>', '<script>"<li>Example</li>"</script>' ),
 			'escaped code' => array( '<code>&lt;li&gt;Example&lt;/li&gt;</code>', '<code>&lt;li&gt;Example&lt;/li&gt;</code>' ),
+			'implied table body after orphan' => array( '<li>One</li><table><tr><td>Two</td></tr></table>', '<ul><li>One</li></ul><table><tr><td>Two</td></tr></table>' ),
+			'implied table body before orphan' => array( '<table><tr><td>Two</td></tr></table><li>One</li>', '<table><tr><td>Two</td></tr></table><ul><li>One</li></ul>' ),
+			'implied table body inside orphan' => array( '<li>One<table><tr><td>Two</td></tr></table></li>', '<ul><li>One<table><tr><td>Two</td></tr></table></li></ul>' ),
+			'explicit table body' => array( '<li>One</li><table><tbody><tr><td>Two</td></tr></tbody></table>', '<ul><li>One</li></ul><table><tbody><tr><td>Two</td></tr></tbody></table>' ),
+			'implied paragraph end' => array( '<p>Text<li>One</li></p>', '<p>Text<ul><li>One</li></ul></p>' ),
+			'svg after orphan' => array( '<li>One</li><svg><circle /></svg>', '<ul><li>One</li></ul><svg><circle /></svg>' ),
+			'svg before orphan' => array( '<svg><circle /></svg><li>One</li>', '<svg><circle /></svg><ul><li>One</li></ul>' ),
+			'math after orphan' => array( '<li>One</li><math><mi>x</mi></math>', '<ul><li>One</li></ul><math><mi>x</mi></math>' ),
+			'math before orphan' => array( '<math><mi>x</mi></math><li>One</li>', '<math><mi>x</mi></math><ul><li>One</li></ul>' ),
+			'literal list opener in preceding attribute' => array( '<span title="<li>">Text</span><li>One</li>', '<span title="<li>">Text</span><ul><li>One</li></ul>' ),
+			'literal list closer in attribute' => array( '<li title="</li>">One</li>', '<ul><li title="</li>">One</li></ul>' ),
+			'quoted angle brackets beside orphan' => array( '<span title="\'><li>Example</li>">Text</span><li>One</li>', '<span title="\'><li>Example</li>">Text</span><ul><li>One</li></ul>' ),
+			'single quoted list example' => array( '<span title=\'><li>Example</li>\'>Text</span><li>One</li>', '<span title=\'><li>Example</li>\'>Text</span><ul><li>One</li></ul>' ),
+			'unquoted attribute example' => array( '<span title=<li>Text</span><li>One</li>', '<span title=<li>Text</span><ul><li>One</li></ul>' ),
+			'literal list tags in joining comment' => array( '<li>One</li><!-- <li>Example</li> --><li>Two</li>', '<ul><li>One</li><!-- <li>Example</li> --><li>Two</li></ul>' ),
+			'literal list tags in trailing comment' => array( '<li>One</li><!-- <li>Example</li> -->', '<ul><li>One</li></ul><!-- <li>Example</li> -->' ),
+			'unterminated comment with list example' => array( '<li>One</li><!-- <li>Example</li>', '<li>One</li><!-- <li>Example</li>' ),
+			'unterminated attribute with list example' => array( '<li>One</li><span title="<li>Example</li>', '<li>One</li><span title="<li>Example</li>' ),
+			'offset attribute collision' => array( '<li data-bbp-list-offset="99" data-bbp-list-offsetx="100">One</li>', '<ul><li data-bbp-list-offset="99" data-bbp-list-offsetx="100">One</li></ul>' ),
+			'namespace integration point' => array( '<svg><foreignObject><li>One</li></foreignObject></svg>', '<svg><foreignObject><ul><li>One</li></ul></foreignObject></svg>' ),
+			'slash in unquoted attribute is unchanged' => array( '<div a=<li/b=" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>', '<div a=<li/b=" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>' ),
+			'closing slash in unquoted attribute is unchanged' => array( '<div a=</li/b=" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>', '<div a=</li/b=" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>' ),
+			'self closing list example in attribute is unchanged' => array( '<li title="<li/>">One</li>', '<li title="<li/>">One</li>' ),
+			'self closing orphan is unchanged' => array( '<li/>One</li>', '<li/>One</li>' ),
+			'self closing orphan discards earlier repair' => array( '<li>One</li><li/>Two</li>', '<li>One</li><li/>Two</li>' ),
+			'unquoted list example followed by quoted attribute' => array( '<div a=<li b="x"><li title="><li>Example</li>">One</li></div>', '<div a=<li b="x"><ul><li title="><li>Example</li>">One</li></ul></div>' ),
+			'html cdata before foreign content is unchanged' => array( '<li>One</li><![CDATA[<li>Example</li>]]><svg><circle /></svg>', '<li>One</li><![CDATA[<li>Example</li>]]><svg><circle /></svg>' ),
+			'foreign cdata before html breakout is unchanged' => array( '<svg><![CDATA[><li>x</li>]]><li>One</li>', '<svg><![CDATA[><li>x</li>]]><li>One</li>' ),
+			'void elements inside orphan' => array( '<li>One<br>Two<img src="x"></li>', '<ul><li>One<br>Two<img src="x"></li></ul>' ),
+			'whitespace in item closer' => array( '<li>One</li >', '<ul><li>One</li ></ul>' ),
+			'slash tag cannot borrow an attribute marker' => array( '<li/a=<li >One</li>', '<li/a=<li >One</li>' ),
+			'slash tag cannot borrow a closing attribute marker' => array( '<li/a=</li >One</li>', '<li/a=</li >One</li>' ),
+			'slash list example in comment is unchanged' => array( '<!-- <li/> --><li>One</li>', '<!-- <li/> --><li>One</li>' ),
+			'list lookalike attribute name before equals' => array( '<div <li =" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>', '<div <li =" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>' ),
+			'closing lookalike attribute name before equals' => array( '<div </li =" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>', '<div </li =" ><li>One</li><li title="><li>Example</li><li>Second">Two</li></div>' ),
+			'line break before equals is unchanged' => array( "<div <li\n=\" ><li>One</li><li title=\"><li>Example</li><li>Second\">Two</li></div>", "<div <li\n=\" ><li>One</li><li title=\"><li>Example</li><li>Second\">Two</li></div>" ),
+			'real item with equals delimiter is unchanged' => array( '<li ="x">One</li>', '<li ="x">One</li>' ),
+			'equals tag cannot borrow an attribute marker' => array( '<li ="x" a=<li >One</li>', '<li ="x" a=<li >One</li>' ),
 			'block content' => array( '<!-- wp:html --><li>Example</li><!-- /wp:html -->', '<!-- wp:html --><li>Example</li><!-- /wp:html -->' ),
 		);
 	}
@@ -120,6 +158,29 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 				$this->assertStringNotContainsString( '<ul>', $getter( $post_id ) );
 			}
 			$this->assertSame( '<li>One</li><li>Two</li>', get_post_field( 'post_content', $post_id, 'raw' ) );
+		}
+	}
+
+	public function test_content_filters_repair_items_beside_unrelated_markup() {
+		$modern = class_exists( 'WP_HTML_Processor' ) && is_callable( array( WP_HTML_Processor::create_fragment( '' ), 'serialize_token' ) );
+		$fixtures = array(
+			'<li>One</li><table><tr><td>Two</td></tr></table>',
+			'<li>One</li><svg><circle /></svg>',
+			'<li>One</li><math><mi>x</mi></math>',
+			'<!-- <li>Example</li> --><li>One</li>',
+		);
+		foreach ( array( 'bbp_get_topic_content', 'bbp_get_reply_content' ) as $filter ) {
+			foreach ( $fixtures as $content ) {
+				$wrapped = $modern ? str_replace( '<li>One</li>', '<ul><li>One</li></ul>', $content ) : $content;
+				remove_filter( $filter, 'bbp_wrap_orphan_list_items', 35 );
+				try {
+					$expected = apply_filters( $filter, $wrapped );
+				} finally {
+					add_filter( $filter, 'bbp_wrap_orphan_list_items', 35, 2 );
+				}
+				$this->assertSame( $expected, apply_filters( $filter, $content ) );
+			}
+
 		}
 	}
 
@@ -196,7 +257,7 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 	public function test_opaque_payloads_are_preserved() {
 		$modern = class_exists( 'WP_HTML_Processor' ) && is_callable( array( WP_HTML_Processor::create_fragment( '' ), 'serialize_token' ) );
 		foreach ( array( 'iframe', 'noembed', 'noframes', 'script', 'style', 'textarea', 'title', 'xmp' ) as $tag ) {
-			$content = '<' . $tag . '>Example &amp;lt; &lt;b&gt;</' . $tag . '><li>One</li>';
+			$content = '<' . $tag . '>Example &amp;lt; &lt;b&gt; <li>Literal</li></' . $tag . '><li>One</li>';
 			$output  = bbp_wrap_orphan_list_items( $content );
 			$this->assertSame( $modern ? str_replace( '<li>One</li>', '<ul><li>One</li></ul>', $content ) : $content, $output, $tag );
 		}
@@ -279,7 +340,8 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 		}
 	}
 
-	public function test_ambiguous_table_and_foreign_markup_is_unchanged() {
+	public function test_implied_table_and_foreign_markup_retains_its_source() {
+		$modern = class_exists( 'WP_HTML_Processor' ) && is_callable( array( WP_HTML_Processor::create_fragment( '' ), 'serialize_token' ) );
 		$fixtures = array(
 			'<li>One</li><math><annotation-xml encoding="text/html"><p>Two</p></annotation-xml></math>',
 			'<li>One</li><table> <tr><td>Two</td></tr></table>',
@@ -287,7 +349,9 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 			'<li>One</li><table>&#32;<tr><td>Two</td></tr></table>',
 		);
 		foreach ( $fixtures as $content ) {
-			$this->assertSame( $content, bbp_wrap_orphan_list_items( $content ) );
+			$expected = $modern ? str_replace( '<li>One</li>', '<ul><li>One</li></ul>', $content ) : $content;
+			$this->assertSame( $expected, bbp_wrap_orphan_list_items( $content ) );
+			$this->assertSame( $expected, bbp_wrap_orphan_list_items( $expected ) );
 		}
 	}
 
