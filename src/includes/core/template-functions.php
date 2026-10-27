@@ -553,6 +553,12 @@ function bbp_parse_query( $posts_query ) {
 
 		/** Find User *********************************************************/
 
+		// 404 and bail if the user query variable is not scalar
+		if ( ! is_scalar( $bbp_user ) ) {
+			$posts_query->bbp_is_404 = true;
+			return;
+		}
+
 		// Setup the default user variable
 		$the_user = false;
 

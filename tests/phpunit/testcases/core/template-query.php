@@ -81,6 +81,35 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_parse_query
+	 */
+	public function test_parse_query_sets_404_for_non_scalar_user() {
+		$query = $this->set_main_query();
+
+		$this->set_permalink_structure( '/%postname%/' );
+		$query->set( bbp_get_user_rewrite_id(), array( 'profile-slug' ) );
+		bbp_parse_query( $query );
+
+		$this->assertTrue( $query->bbp_is_404 );
+		$this->assertFalse( isset( $query->bbp_is_single_user ) );
+	}
+
+	/**
+	 * @covers ::bbp_parse_query
+	 */
+	public function test_parse_query_finds_user_by_slug_with_pretty_permalinks() {
+		$user_id = $this->factory->user->create( array( 'user_nicename' => 'profile-slug' ) );
+		$query   = $this->set_main_query();
+
+		$this->set_permalink_structure( '/%postname%/' );
+		$query->set( bbp_get_user_rewrite_id(), 'profile-slug' );
+		bbp_parse_query( $query );
+
+		$this->assertTrue( $query->bbp_is_single_user );
+		$this->assertSame( $user_id, $query->get( 'bbp_user_id' ) );
+	}
+
+	/**
 	 * Set and return a new main query.
 	 *
 	 * @return WP_Query Main query.
