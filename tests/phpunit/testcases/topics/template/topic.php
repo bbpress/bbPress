@@ -455,6 +455,75 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_show_topic_lock_alert
+	 * @ticket 3706
+	 */
+	public function test_bbp_show_topic_lock_alert_requires_another_users_lock() {
+		$topic_id             = $this->factory->topic->create();
+		$lock_user_id         = $this->factory->user->create();
+		$moderator_id         = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$old_user_id          = get_current_user_id();
+		$old_current_topic_id = bbpress()->current_topic_id;
+
+		bbp_set_user_role( $moderator_id, bbp_get_keymaster_role() );
+		bbp_set_user_role( $lock_user_id, bbp_get_moderator_role() );
+		update_post_meta( $topic_id, '_edit_lock', time() . ':' . $lock_user_id );
+		bbpress()->current_topic_id = $topic_id;
+		add_filter( 'bbp_is_single_topic', '__return_true' );
+
+		try {
+			$this->set_current_user( $moderator_id );
+			$this->assertTrue( bbp_show_topic_lock_alert() );
+
+			$this->set_current_user( $lock_user_id );
+			$this->assertFalse( bbp_show_topic_lock_alert() );
+
+			$this->set_current_user( $moderator_id );
+			remove_filter( 'bbp_is_single_topic', '__return_true' );
+			$this->assertFalse( bbp_show_topic_lock_alert() );
+		} finally {
+			remove_filter( 'bbp_is_single_topic', '__return_true' );
+			bbpress()->current_topic_id = $old_current_topic_id;
+			$this->set_current_user( $old_user_id );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_topic_lock_description
+	 * @covers ::bbp_get_topic_lock_description
+	 * @ticket 3706
+	 */
+	public function test_bbp_get_topic_lock_description_reports_the_lock_owner_and_filter_args() {
+		$topic_id = $this->factory->topic->create();
+		$user_id  = $this->factory->user->create();
+
+		$this->assertSame( 'Nobody is currently editing this topic.', bbp_get_topic_lock_description( $topic_id ) );
+
+		update_post_meta( $topic_id, '_edit_lock', time() . ':' . $user_id );
+		$this->assertStringContainsString( bbp_get_user_profile_link( $user_id ), bbp_get_topic_lock_description( $topic_id ) );
+
+		$received = null;
+		$filter   = static function( $text, $lock_user_id, $lock_topic_id ) use ( &$received ) {
+			$received = compact( 'text', 'lock_user_id', 'lock_topic_id' );
+
+			return 'filtered-lock-description';
+		};
+
+		add_filter( 'bbp_get_topic_lock_description', $filter, 10, 3 );
+		try {
+			$this->assertSame( 'filtered-lock-description', bbp_get_topic_lock_description( $topic_id ) );
+			$this->expectOutputString( 'filtered-lock-description' );
+			bbp_topic_lock_description( $topic_id );
+		} finally {
+			remove_filter( 'bbp_get_topic_lock_description', $filter, 10 );
+		}
+
+		$this->assertSame( $user_id, $received['lock_user_id'] );
+		$this->assertSame( $topic_id, $received['lock_topic_id'] );
+		$this->assertStringContainsString( bbp_get_user_profile_link( $user_id ), $received['text'] );
+	}
+
+	/**
 	 * @covers ::bbp_topic_type_select
 	 */
 	public function test_bbp_topic_type_select() {

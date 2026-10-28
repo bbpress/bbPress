@@ -79,14 +79,91 @@ class BBP_Tests_Topics_Functions_Topic_Tag extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_topic_tags
 	 * @covers ::bbp_get_topic_tag_names
+	 * @ticket 3706
 	 */
 	public function test_bbp_get_topic_tag_names() {
 		$topic_id = $this->factory->topic->create();
+		$this->assertSame( array(), bbp_get_topic_tags( $topic_id ) );
 		$this->assertSame( '', bbp_get_topic_tag_names( $topic_id ) );
 		wp_set_object_terms( $topic_id, array( 'alpha', 'beta' ), bbp_get_topic_tag_tax_id() );
+		$this->assertEqualSets( array( 'alpha', 'beta' ), wp_list_pluck( bbp_get_topic_tags( $topic_id ), 'name' ) );
 		$this->assertSame( 'alpha, beta', bbp_get_topic_tag_names( $topic_id ) );
 		$this->assertSame( 'alpha | beta', bbp_get_topic_tag_names( $topic_id, ' | ' ) );
+
+		$received = null;
+		$filter   = static function( $topic_tags, $filtered_topic_id ) use ( &$received ) {
+			$received = compact( 'topic_tags', 'filtered_topic_id' );
+
+			return array();
+		};
+
+		add_filter( 'bbp_get_topic_tags', $filter, 10, 2 );
+		try {
+			$this->assertSame( array(), bbp_get_topic_tags( $topic_id ) );
+		} finally {
+			remove_filter( 'bbp_get_topic_tags', $filter, 10 );
+		}
+
+		$this->assertSame( $topic_id, $received['filtered_topic_id'] );
+		$this->assertEqualSets( array( 'alpha', 'beta' ), wp_list_pluck( $received['topic_tags'], 'name' ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_topic_tag_count
+	 * @ticket 3706
+	 */
+	public function test_bbp_update_topic_tag_count_counts_public_topic_statuses() {
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$term     = wp_insert_term( 'Counted tag', $taxonomy );
+		$this->assertFalse( is_wp_error( $term ) );
+
+		$forum_id  = $this->factory->forum->create();
+		$topic_ids = array(
+			$this->factory->topic->create( array( 'post_parent' => $forum_id ) ),
+			$this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_status' => bbp_get_closed_status_id() ) ),
+			$this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_status' => bbp_get_pending_status_id() ) ),
+		);
+
+		foreach ( $topic_ids as $topic_id ) {
+			wp_set_object_terms( $topic_id, $term['term_id'], $taxonomy );
+		}
+
+		$taxonomy_object              = clone get_taxonomy( $taxonomy );
+		$taxonomy_object->object_type = array( bbp_get_topic_post_type(), bbp_get_topic_post_type() . ':variant', 'missing-post-type' );
+		$term_object                  = get_term( $term['term_id'], $taxonomy );
+		$actions                      = array();
+		$before                       = static function( $term_taxonomy_id, $taxonomy_name ) use ( &$actions ) {
+			$actions[] = array( 'before', $term_taxonomy_id, $taxonomy_name );
+		};
+		$after                        = static function( $term_taxonomy_id, $taxonomy_name ) use ( &$actions ) {
+			$actions[] = array( 'after', $term_taxonomy_id, $taxonomy_name );
+		};
+
+		add_action( 'edit_term_taxonomy', $before, 10, 2 );
+		add_action( 'edited_term_taxonomy', $after, 10, 2 );
+		try {
+			bbp_update_topic_tag_count( array( $term_object->term_taxonomy_id ), $taxonomy_object );
+		} finally {
+			remove_action( 'edit_term_taxonomy', $before, 10 );
+			remove_action( 'edited_term_taxonomy', $after, 10 );
+		}
+
+		clean_term_cache( $term['term_id'], $taxonomy );
+		$this->assertSame( 2, get_term( $term['term_id'], $taxonomy )->count );
+		$this->assertSame(
+			array(
+				array( 'before', $term_object->term_taxonomy_id, $taxonomy ),
+				array( 'after', $term_object->term_taxonomy_id, $taxonomy ),
+			),
+			$actions
+		);
+
+		$this->assertNull( bbp_update_topic_tag_count( array(), $taxonomy_object ) );
+		$empty_taxonomy              = clone $taxonomy_object;
+		$empty_taxonomy->object_type = array();
+		$this->assertNull( bbp_update_topic_tag_count( array( $term_object->term_taxonomy_id ), $empty_taxonomy ) );
 	}
 
 	/**

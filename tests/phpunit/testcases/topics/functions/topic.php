@@ -84,6 +84,45 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_insert_topic_update_counts
+	 * @ticket 3706
+	 */
+	public function test_bbp_insert_topic_update_counts_routes_by_topic_status() {
+		$forum_id  = $this->factory->forum->create();
+		$public_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$pending_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		foreach ( array( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' ) as $meta_key ) {
+			update_post_meta( $forum_id, $meta_key, 0 );
+		}
+
+		bbp_insert_topic_update_counts( $public_id, $forum_id );
+
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, true, true ) );
+
+		bbp_insert_topic_update_counts( $pending_id, $forum_id );
+
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count_hidden( $forum_id, true, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_new_topic_handler
 	 */
 	public function test_bbp_new_topic_handler() {
@@ -869,6 +908,107 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 			$_REQUEST         = $old_request;
 			bbpress()->errors = $old_errors;
 			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_toggle_topic
+	 * @ticket 3706
+	 */
+	public function test_bbp_toggle_topic_handles_each_supported_action() {
+		$forum_id       = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$participant_id = $this->factory->user->create();
+		$keymaster_id    = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$old_user_id     = get_current_user_id();
+		$old_get         = $_GET;
+		$old_request     = $_REQUEST;
+		$nonce_suffix    = bbp_get_topic_post_type() . '_' . $topic_id;
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $participant_id );
+		$_GET     = array();
+		$_REQUEST = array();
+
+		try {
+			$received = null;
+			$filter   = static function( $retval, $parsed_args, $original_args ) use ( &$received ) {
+				$received = compact( 'retval', 'parsed_args', 'original_args' );
+
+				return $retval;
+			};
+			$unknown_args = array( 'id' => $topic_id, 'action' => 'unsupported' );
+
+			add_filter( 'bbp_toggle_topic', $filter, 10, 3 );
+			$this->assertSame( 0, bbp_toggle_topic( $unknown_args )['status'] );
+			remove_filter( 'bbp_toggle_topic', $filter, 10 );
+			$this->assertSame( $unknown_args, $received['original_args'] );
+			$this->assertSame( $topic_id, $received['parsed_args']['id'] );
+
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "close-{$nonce_suffix}" );
+			$this->assertSame( $topic_id, bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_close' ) )['status'] );
+			$this->assertTrue( bbp_is_topic_closed( $topic_id ) );
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "close-{$nonce_suffix}" );
+			$this->assertSame( $topic_id, bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_close' ) )['status'] );
+			$this->assertTrue( bbp_is_topic_open( $topic_id ) );
+
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "approve-{$nonce_suffix}" );
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_approve' ) );
+			$this->assertSame( $topic_id, $result['status'] );
+			$this->assertTrue( $result['view_all'] );
+			$this->assertStringContainsString( 'view=all', $result['redirect_to'] );
+			$this->assertTrue( bbp_is_topic_pending( $topic_id ) );
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "approve-{$nonce_suffix}" );
+			$this->assertSame( $topic_id, bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_approve' ) )['status'] );
+			$this->assertTrue( bbp_is_topic_public( $topic_id ) );
+
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "spam-{$nonce_suffix}" );
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_spam' ) );
+			$this->assertSame( $topic_id, $result['status'] );
+			$this->assertTrue( $result['view_all'] );
+			$this->assertTrue( bbp_is_topic_spam( $topic_id ) );
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "spam-{$nonce_suffix}" );
+			$this->assertSame( $topic_id, bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_spam' ) )['status'] );
+			$this->assertTrue( bbp_is_topic_public( $topic_id ) );
+
+			$_GET['super']           = '1';
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "stick-{$nonce_suffix}" );
+			$this->assertTrue( bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_stick' ) )['status'] );
+			$this->assertTrue( bbp_is_topic_super_sticky( $topic_id ) );
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "stick-{$nonce_suffix}" );
+			$this->assertTrue( bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_stick' ) )['status'] );
+			$this->assertFalse( bbp_is_topic_sticky( $topic_id ) );
+
+			$this->set_current_user( $keymaster_id );
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "trash-{$nonce_suffix}" );
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash' ) );
+			$this->assertInstanceOf( 'WP_Post', $result['status'] );
+			$this->assertTrue( $result['view_all'] );
+			$this->assertSame( bbp_add_view_all( bbp_get_topic_permalink( $topic_id ), true ), $result['redirect_to'] );
+			$this->assertSame( bbp_get_trash_status_id(), get_post_status( $topic_id ) );
+
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "untrash-{$nonce_suffix}" );
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash' ) );
+			$this->assertInstanceOf( 'WP_Post', $result['status'] );
+			$this->assertTrue( bbp_is_topic_public( $topic_id ) );
+
+			$this->set_current_user( $participant_id );
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "trash-{$nonce_suffix}" );
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash' ) );
+			$this->assertInstanceOf( 'WP_Post', $result['status'] );
+			$this->assertSame( bbp_add_view_all( bbp_get_forum_permalink( $forum_id ), true ), $result['redirect_to'] );
+
+			$_REQUEST['_ajax_nonce'] = wp_create_nonce( "delete-{$nonce_suffix}" );
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete' ) );
+			$this->assertInstanceOf( 'WP_Post', $result['status'] );
+			$this->assertSame( bbp_get_forum_permalink( $forum_id ), $result['redirect_to'] );
+			$this->assertNull( get_post( $topic_id ) );
+		} finally {
+			remove_filter( 'bbp_toggle_topic', $filter, 10 );
+			$this->set_current_user( $old_user_id );
+			$_GET     = $old_get;
+			$_REQUEST = $old_request;
 		}
 	}
 
