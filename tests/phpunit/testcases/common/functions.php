@@ -2909,6 +2909,315 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_sanitize_anonymous_post_author
+	 */
+	public function test_bbp_sanitize_anonymous_post_author_normalizes_input() {
+		$data = array(
+			'bbp_anonymous_name'    => "Invalid \xC3\x28 Author",
+			'bbp_anonymous_email'   => 'anonymous@example.org',
+			'bbp_anonymous_website' => 'https://example.org/',
+			'custom'                => 'preserved',
+		);
+		$filter = function( $sanitized, $original ) use ( $data ) {
+			$this->assertSame( $data, $original );
+
+			return $sanitized;
+		};
+		$this->assertSame( array(), bbp_sanitize_anonymous_post_author( 'invalid' ) );
+		add_filter( 'bbp_sanitize_anonymous_post_author', $filter, 10, 2 );
+
+		try {
+			$sanitized = bbp_sanitize_anonymous_post_author( $data );
+			$this->assertNotSame( $data['bbp_anonymous_name'], $sanitized['bbp_anonymous_name'] );
+			$this->assertStringNotContainsString( "\xC3", $sanitized['bbp_anonymous_name'] );
+			$this->assertSame( 'anonymous@example.org', $sanitized['bbp_anonymous_email'] );
+			$this->assertSame( 'https://example.org/', $sanitized['bbp_anonymous_website'] );
+			$this->assertSame( 'preserved', $sanitized['custom'] );
+		} finally {
+			remove_filter( 'bbp_sanitize_anonymous_post_author', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_update_anonymous_post_author
+	 */
+	public function test_bbp_update_anonymous_post_author_updates_and_deletes_meta() {
+		$topic_id = $this->factory->topic->create( array( 'post_author' => 0 ) );
+
+		update_post_meta( $topic_id, '_bbp_anonymous_website', 'https://old.example.org/' );
+		bbp_update_anonymous_post_author(
+			$topic_id,
+			array(
+				'bbp_anonymous_name'    => 'Anonymous Author',
+				'bbp_anonymous_email'   => 'anonymous@example.org',
+				'bbp_anonymous_website' => '',
+			),
+			bbp_get_topic_post_type()
+		);
+
+		$this->assertSame( 'Anonymous Author', get_post_meta( $topic_id, '_bbp_anonymous_name', true ) );
+		$this->assertSame( 'anonymous@example.org', get_post_meta( $topic_id, '_bbp_anonymous_email', true ) );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_anonymous_website' ) );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_bbp_check_for_blacklist_uses_strict_moderation_keys() {
+		$old_disallowed_keys = get_option( 'disallowed_keys' );
+		$old_moderation_keys = get_option( 'moderation_keys' );
+		update_option( 'disallowed_keys', 'blocked phrase' );
+		update_option( 'moderation_keys', 'review phrase' );
+
+		try {
+			$this->assertFalse( bbp_check_for_blacklist( array(), 0, '', 'Contains a blocked phrase.' ) );
+			$this->assertTrue( bbp_check_for_blacklist( array(), 0, '', 'Contains a review phrase.' ) );
+			$this->assertTrue( bbp_check_for_blacklist( array(), 0, '', 'Allowed content.' ) );
+		} finally {
+			update_option( 'disallowed_keys', $old_disallowed_keys );
+			update_option( 'moderation_keys', $old_moderation_keys );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_suspend_moderation_notifications
+	 * @covers ::bbp_resume_moderation_notifications
+	 * @covers ::bbp_is_moderation_notifications_suspended
+	 */
+	public function test_bbp_moderation_notification_suspension_tracks_nested_depth() {
+		$had_global = array_key_exists( '_bbp_moderation_notifications_suspended', $GLOBALS );
+		$original   = $had_global ? $GLOBALS['_bbp_moderation_notifications_suspended'] : null;
+		unset( $GLOBALS['_bbp_moderation_notifications_suspended'] );
+
+		try {
+			$this->assertFalse( bbp_is_moderation_notifications_suspended() );
+			$this->assertSame( 1, bbp_suspend_moderation_notifications() );
+			$this->assertSame( 2, bbp_suspend_moderation_notifications() );
+			$this->assertTrue( bbp_is_moderation_notifications_suspended() );
+			$this->assertSame( 1, bbp_resume_moderation_notifications() );
+			$this->assertTrue( bbp_is_moderation_notifications_suspended() );
+			$this->assertSame( 0, bbp_resume_moderation_notifications() );
+			$this->assertFalse( bbp_is_moderation_notifications_suspended() );
+			$this->assertSame( 0, bbp_resume_moderation_notifications() );
+		} finally {
+			if ( $had_global ) {
+				$GLOBALS['_bbp_moderation_notifications_suspended'] = $original;
+			} else {
+				unset( $GLOBALS['_bbp_moderation_notifications_suspended'] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_email_addresses_from_user_ids
+	 */
+	public function test_bbp_get_email_addresses_from_user_ids_chunks_and_deduplicates_users() {
+		$user_ids = array(
+			$this->factory->user->create( array( 'user_email' => 'first@example.org' ) ),
+			$this->factory->user->create( array( 'user_email' => 'second@example.org' ) ),
+			$this->factory->user->create( array( 'user_email' => 'third@example.org' ) ),
+		);
+		$filter = function() {
+			return 2;
+		};
+		$queries = 0;
+		$count_queries = function() use ( &$queries ) {
+			$queries++;
+		};
+		add_filter( 'bbp_get_users_chunk_limit', $filter );
+		add_action( 'pre_get_users', $count_queries );
+
+		try {
+			$this->assertEqualSets(
+				array( 'first@example.org', 'second@example.org', 'third@example.org' ),
+				bbp_get_email_addresses_from_user_ids( array( $user_ids[0], $user_ids[1], $user_ids[0], $user_ids[2] ) )
+			);
+			$this->assertSame( 2, $queries );
+			$this->assertSame( array(), bbp_get_email_addresses_from_user_ids() );
+
+			if ( is_multisite() ) {
+				$user_id = $this->factory->user->create( array( 'user_email' => 'network@example.org' ) );
+				remove_user_from_blog( $user_id, get_current_blog_id() );
+				$this->assertSame( array( 'network@example.org' ), bbp_get_email_addresses_from_user_ids( array( $user_id ) ) );
+			}
+		} finally {
+			remove_filter( 'bbp_get_users_chunk_limit', $filter );
+			remove_action( 'pre_get_users', $count_queries );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_chunk_emails
+	 */
+	public function test_bbp_chunk_emails_sends_additional_chunks_and_returns_first_chunk() {
+		$mail   = array();
+		$limit  = function() {
+			return 2;
+		};
+		$capture = function( $return, $atts ) use ( &$mail ) {
+			$mail[] = $atts;
+
+			return true;
+		};
+		$args = array(
+			'to'          => 'forum@example.org',
+			'subject'     => 'New reply',
+			'message'     => 'A reply was posted.',
+			'headers'     => array(
+				'X-bbPress: test',
+				'Bcc: first@example.org',
+				'Bcc: second@example.org',
+				'Bcc: third@example.org',
+				'Bcc: fourth@example.org',
+				'Bcc: fifth@example.org',
+			),
+			'attachments' => array(),
+		);
+		add_filter( 'bbp_get_bcc_chunk_limit', $limit );
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+
+		try {
+			$filtered = bbp_chunk_emails( $args );
+
+			$this->assertSame(
+				array( 'X-bbPress: test', 'Bcc: first@example.org', 'Bcc: second@example.org' ),
+				$filtered['headers']
+			);
+			$this->assertCount( 2, $mail );
+			$this->assertSame( array( 'X-bbPress: test', 'Bcc: third@example.org', 'Bcc: fourth@example.org' ), $mail[0]['headers'] );
+			$this->assertSame( array( 'X-bbPress: test', 'Bcc: fifth@example.org' ), $mail[1]['headers'] );
+			$this->assertSame( $args['to'], $mail[0]['to'] );
+			$this->assertSame( $args['subject'], $mail[0]['subject'] );
+
+			$below_limit            = $args;
+			$below_limit['headers'] = array( 'X-bbPress: test', 'Bcc: first@example.org' );
+			$this->assertSame( $below_limit, bbp_chunk_emails( $below_limit ) );
+
+			$exact_limit            = $args;
+			$exact_limit['headers'] = array( 'X-bbPress: test', 'Bcc: first@example.org', 'Bcc: second@example.org' );
+			$this->assertSame( $exact_limit, bbp_chunk_emails( $exact_limit ) );
+
+			$without_bcc            = $args;
+			$without_bcc['headers'] = array( 'X-bbPress: test' );
+			$this->assertSame( $without_bcc, bbp_chunk_emails( $without_bcc ) );
+			$this->assertCount( 2, $mail );
+		} finally {
+			remove_filter( 'bbp_get_bcc_chunk_limit', $limit );
+			remove_filter( 'pre_wp_mail', $capture, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_email_header
+	 */
+	public function test_bbp_get_email_header_includes_version_and_applies_filter() {
+		$this->assertSame( 'X-bbPress: ' . bbp_get_version(), bbp_get_email_header() );
+
+		$filter = function( $header ) {
+			$this->assertSame( 'X-bbPress: ' . bbp_get_version(), $header );
+
+			return 'X-bbPress: filtered';
+		};
+		add_filter( 'bbp_get_email_header', $filter );
+
+		try {
+			$this->assertSame( 'X-bbPress: filtered', bbp_get_email_header() );
+		} finally {
+			remove_filter( 'bbp_get_email_header', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_child_counts_list
+	 * @covers ::bbp_get_non_public_child_count
+	 */
+	public function test_bbp_child_count_filters_select_types_and_non_public_statuses() {
+		$forum_id = $this->factory->forum->create();
+		$this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+		$this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+			)
+		);
+		$this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_spam_status_id(),
+			)
+		);
+		$this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_closed_status_id(),
+			)
+		);
+
+		$counts = bbp_filter_child_counts_list(
+			$forum_id,
+			array( bbp_get_topic_post_type() ),
+			array( bbp_get_public_status_id(), bbp_get_pending_status_id() )
+		);
+
+		$this->assertSame( 1, $counts[ bbp_get_topic_post_type() ][ bbp_get_public_status_id() ] );
+		$this->assertSame( 1, $counts[ bbp_get_topic_post_type() ][ bbp_get_pending_status_id() ] );
+		$this->assertArrayNotHasKey( bbp_get_spam_status_id(), $counts[ bbp_get_topic_post_type() ] );
+		$this->assertArrayNotHasKey( bbp_get_closed_status_id(), $counts[ bbp_get_topic_post_type() ] );
+		$this->assertArrayNotHasKey( bbp_get_forum_post_type(), $counts );
+		$this->assertSame( 2, bbp_get_non_public_child_count( $forum_id, bbp_get_topic_post_type() ) );
+		$this->assertFalse( bbp_get_non_public_child_count( 0, bbp_get_topic_post_type() ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_post_author_caches
+	 */
+	public function test_bbp_update_post_author_caches_primes_post_authors() {
+		$user_id = $this->factory->user->create();
+		$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+
+		clean_user_cache( $user_id );
+		$this->assertFalse( wp_cache_get( $user_id, 'users' ) );
+		$this->assertTrue( bbp_update_post_author_caches( array( $post_id, $post_id ) ) );
+		$cached_user = wp_cache_get( $user_id, 'users' );
+		$this->assertIsObject( $cached_user );
+		$this->assertSame( $user_id, (int) $cached_user->ID );
+		$this->assertFalse( bbp_update_post_author_caches() );
+
+		$anonymous_id = $this->factory->post->create( array( 'post_author' => 0 ) );
+		$this->assertFalse( bbp_update_post_author_caches( array( $anonymous_id ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_post_family_caches
+	 */
+	public function test_bbp_update_post_family_caches_primes_related_posts_and_authors() {
+		$user_id    = $this->factory->user->create();
+		$related_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$source_id  = $this->factory->post->create();
+
+		update_post_meta( $source_id, '_bbp_last_reply_id', $related_id );
+		clean_post_cache( $related_id );
+		clean_user_cache( $user_id );
+
+		try {
+			$this->assertFalse( wp_cache_get( $related_id, 'posts' ) );
+			$this->assertFalse( wp_cache_get( $user_id, 'users' ) );
+			$this->assertTrue( bbp_update_post_family_caches( array( $source_id ) ) );
+			$cached_post = wp_cache_get( $related_id, 'posts' );
+			$cached_user = wp_cache_get( $user_id, 'users' );
+			$this->assertIsObject( $cached_post );
+			$this->assertSame( $related_id, (int) $cached_post->ID );
+			$this->assertIsObject( $cached_user );
+			$this->assertSame( $user_id, (int) $cached_user->ID );
+			$this->assertFalse( bbp_update_post_family_caches() );
+		} finally {
+			clean_post_cache( $related_id );
+			clean_user_cache( $user_id );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_set_404
 	 */
 	public function test_bbp_set_404() {
