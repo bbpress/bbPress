@@ -13,6 +13,11 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Fixed
+
+- Removed stale BuddyPress group-forum relationships and root settings when
+  forums are permanently deleted.
+
 ## 2.6.21 - 2026-10-27
 
 ### Changed
