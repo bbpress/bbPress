@@ -62,6 +62,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Removed stale BuddyPress group-forum relationships and root settings when
+  forums are permanently deleted.
 - Repaired standalone list items beside implied HTML elements, SVG or MathML,
   and literal list-item examples without rewriting the original markup.
 - Fixed legacy user-option engagement lookups for numeric-string object IDs.

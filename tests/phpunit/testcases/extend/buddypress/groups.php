@@ -148,6 +148,57 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_maybe_delete_group_forum_root
+	 */
+	public function test_group_forum_root_cleanup_uses_explicit_forum_id() {
+		$root_id = $this->factory->forum->create();
+
+		update_option( '_bbp_group_forums_root_id', $root_id );
+		$this->assertNotFalse( wp_delete_post( $root_id, true ) );
+		$this->assertSame( 0, (int) get_option( '_bbp_group_forums_root_id' ) );
+	}
+
+	/**
+	 * @covers ::bbp_remove_group_id_from_all_forums
+	 */
+	public function test_remove_group_id_from_all_forums_uses_forum_then_group_ids() {
+		$group_id = $this->bp_factory->group->create();
+		$forum_ids = $this->factory->forum->create_many( 2 );
+
+		foreach ( $forum_ids as $forum_id ) {
+			bbp_add_forum_id_to_group( $group_id, $forum_id );
+			bbp_add_group_id_to_forum( $forum_id, $group_id );
+			$this->assertSame( array( $group_id ), bbp_get_forum_group_ids( $forum_id ) );
+		}
+
+		bbp_remove_group_id_from_all_forums( $group_id );
+
+		foreach ( $forum_ids as $forum_id ) {
+			$this->assertSame( array(), bbp_get_forum_group_ids( $forum_id ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_remove_forum_id_from_all_groups
+	 */
+	public function test_deleting_forum_removes_it_from_all_groups() {
+		$group_ids = $this->bp_factory->group->create_many( 2 );
+		$forum_id  = $this->factory->forum->create();
+
+		foreach ( $group_ids as $group_id ) {
+			bbp_add_forum_id_to_group( $group_id, $forum_id );
+			bbp_add_group_id_to_forum( $forum_id, $group_id );
+			$this->assertSame( array( $forum_id ), bbp_get_group_forum_ids( $group_id ) );
+		}
+
+		$this->assertNotFalse( wp_delete_post( $forum_id, true ) );
+
+		foreach ( $group_ids as $group_id ) {
+			$this->assertSame( array(), bbp_get_group_forum_ids( $group_id ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_new_topic_handler
 	 * @covers ::BBP_Forums_Group_Extension::new_topic_redirect_to
 	 */

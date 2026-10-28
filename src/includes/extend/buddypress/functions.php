@@ -19,6 +19,7 @@ add_filter( 'bbp_is_user_home',     'bbp_filter_is_user_home',      10, 1 );
 // Group Forum Root
 add_action( 'load-settings_page_bbpress', 'bbp_maybe_create_group_forum_root' );
 add_action( 'bbp_delete_forum',           'bbp_maybe_delete_group_forum_root' );
+add_action( 'bbp_delete_forum',           'bbp_remove_forum_id_from_all_groups' );
 
 // Moderation notifications
 add_filter( 'bbp_get_moderation_notification_recipient_type_labels',   'bbp_filter_group_moderation_notification_recipient_type_labels' );
@@ -386,7 +387,7 @@ function bbp_member_forums_subscriptions_content() {
 function bbp_maybe_delete_group_forum_root( $forum_id = 0 ) {
 
 	// Bail if no forum ID
-	$forum_id = bbp_get_forum_id();
+	$forum_id = bbp_get_forum_id( $forum_id );
 	if ( empty( $forum_id ) ) {
 		return;
 	}
@@ -459,11 +460,11 @@ function bbp_maybe_create_group_forum_root() {
  */
 
 /**
- * Get forum ID's for a group.
+ * Get forum IDs for a group.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int $group_id Group ID.
  *
  * @return array
  */
@@ -490,11 +491,11 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 }
 
 /**
- * Get group ID's for a forum.
+ * Get group IDs for a forum.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $forum_id Forum id.
+ * @param int $forum_id Forum ID.
  *
  * @return array
  */
@@ -521,11 +522,12 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 }
 
 /**
- * Get forum ID's for a group.
+ * Update forum IDs for a group.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int   $group_id Group ID.
+ * @param array $forum_ids Forum IDs.
  *
  * @return int|bool
  */
@@ -544,11 +546,12 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 }
 
 /**
- * Update group ID's for a forum.
+ * Update group IDs for a forum.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $forum_id Forum id.
+ * @param int   $forum_id Forum ID.
+ * @param array $group_ids Group IDs.
  *
  * @return int|bool
  */
@@ -567,7 +570,8 @@ function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int $forum_id Forum ID.
+ * @param int $group_id Group ID.
  *
  * @return int|bool
  */
@@ -592,11 +596,12 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 }
 
 /**
- * Remove a forum from a group.
+ * Add a forum to a group.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int $group_id Group ID.
+ * @param int $forum_id Forum ID.
  *
  * @return int|bool
  */
@@ -625,7 +630,8 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int $forum_id Forum ID.
+ * @param int $group_id Group ID.
  *
  * @return int|bool
  */
@@ -654,7 +660,8 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int $group_id Group ID.
+ * @param int $forum_id Forum ID.
  *
  * @return int|bool
  */
@@ -679,11 +686,11 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 }
 
 /**
- * Remove a group from all forums.
+ * Remove a group ID from all associated forums.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $group_id Group id.
+ * @param int $group_id Group ID.
  */
 function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 
@@ -697,16 +704,16 @@ function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 
 	// Loop through forums and remove this group from each one
 	foreach ( $forum_ids as $forum_id ) {
-		bbp_remove_group_id_from_forum( $group_id, $forum_id );
+		bbp_remove_group_id_from_forum( $forum_id, $group_id );
 	}
 }
 
 /**
- * Remove a forum from all groups.
+ * Remove a forum ID from all associated groups.
  *
  * @since 2.1.0 bbPress (r3654)
  *
- * @param int $forum_id Forum id.
+ * @param int $forum_id Forum ID.
  */
 function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 
@@ -716,7 +723,7 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 
 	// Loop through groups and remove this forum from each one
 	foreach ( $group_ids as $group_id ) {
-		bbp_remove_forum_id_from_group( $forum_id, $group_id );
+		bbp_remove_forum_id_from_group( $group_id, $forum_id );
 	}
 }
 
