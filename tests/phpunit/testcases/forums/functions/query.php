@@ -115,6 +115,49 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_forum_query_all_subforum_ids
+	 * @ticket 3706
+	 */
+	public function test_bbp_forum_query_all_subforum_ids_includes_every_direct_forum_status() {
+		$this->assertSame( array(), bbp_forum_query_all_subforum_ids( 0 ) );
+
+		$parent_id  = $this->factory->forum->create();
+		$public_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$private_id = $this->factory->forum->create(
+			array(
+				'post_parent' => $parent_id,
+				'post_status' => bbp_get_private_status_id(),
+			)
+		);
+		$hidden_id  = $this->factory->forum->create(
+			array(
+				'post_parent' => $parent_id,
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+		$draft_id   = $this->factory->post->create(
+			array(
+				'post_parent' => $parent_id,
+				'post_status' => 'draft',
+				'post_type'   => bbp_get_forum_post_type(),
+			)
+		);
+		$trash_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		wp_trash_post( $trash_id );
+
+		$this->factory->forum->create( array( 'post_parent' => $public_id ) );
+		$this->factory->post->create( array( 'post_parent' => $parent_id ) );
+
+		$this->assertEqualSets(
+			array( $public_id, $private_id, $hidden_id, $draft_id, $trash_id ),
+			bbp_forum_query_all_subforum_ids( $parent_id )
+		);
+
+		$new_id = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$this->assertContains( $new_id, bbp_forum_query_all_subforum_ids( $parent_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_forum_query_last_reply_id
 	 */
 	public function test_bbp_forum_query_last_reply_id() {

@@ -681,6 +681,199 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_bump_forum_reply_count_hidden
+	 * @ticket 3706
+	 */
+	public function test_bbp_bump_forum_reply_count_hidden_updates_forum_and_ancestor_totals() {
+		$root_id   = $this->factory->forum->create(
+			array(
+				'forum_meta' => array( 'forum_type' => 'category' ),
+			)
+		);
+		$parent_id = $this->factory->forum->create( array( 'post_parent' => $root_id ) );
+		$forum_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+
+		update_post_meta( $forum_id, '_bbp_reply_count_hidden', 2 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', 3 );
+		update_post_meta( $parent_id, '_bbp_reply_count_hidden', 4 );
+		update_post_meta( $parent_id, '_bbp_total_reply_count_hidden', 5 );
+		// Categories cannot have direct replies. Keep a sentinel to prove it is not bumped.
+		update_post_meta( $root_id, '_bbp_reply_count_hidden', 6 );
+		update_post_meta( $root_id, '_bbp_total_reply_count_hidden', 7 );
+
+		$this->assertFalse( bbp_bump_forum_reply_count_hidden( $forum_id, 0 ) );
+		$this->assertSame( 5, bbp_bump_forum_reply_count_hidden( $forum_id, 2 ) );
+		$this->assertSame( 4, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 5, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+		$this->assertSame( 6, bbp_get_forum_reply_count_hidden( $parent_id, false, true ) );
+		$this->assertSame( 7, bbp_get_forum_reply_count_hidden( $parent_id, true, true ) );
+		$this->assertSame( 6, bbp_get_forum_reply_count_hidden( $root_id, false, true ) );
+		$this->assertSame( 9, bbp_get_forum_reply_count_hidden( $root_id, true, true ) );
+
+		$this->assertSame( 8, bbp_bump_forum_reply_count_hidden( $forum_id, 3, false ) );
+		$this->assertSame( 6, bbp_get_forum_reply_count_hidden( $parent_id, false, true ) );
+		$this->assertSame( 7, bbp_get_forum_reply_count_hidden( $parent_id, true, true ) );
+
+		$this->assertSame( 0, bbp_bump_forum_reply_count_hidden( $forum_id, -10 ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $parent_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $parent_id, true, true ) );
+		$this->assertSame( 6, bbp_get_forum_reply_count_hidden( $root_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $root_id, true, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_increase_forum_reply_count_hidden
+	 * @covers ::bbp_decrease_forum_reply_count_hidden
+	 * @covers ::bbp_increase_forum_reply_count
+	 * @covers ::bbp_decrease_forum_reply_count
+	 * @ticket 3706
+	 */
+	public function test_forum_reply_count_helpers_route_by_reply_status() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$public_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$spam_id   = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_spam_status_id(),
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		foreach ( array( '_bbp_reply_count', '_bbp_total_reply_count', '_bbp_reply_count_hidden', '_bbp_total_reply_count_hidden' ) as $meta_key ) {
+			update_post_meta( $forum_id, $meta_key, 0 );
+		}
+
+		bbp_increase_forum_reply_count_hidden( $public_id );
+		bbp_increase_forum_reply_count( $spam_id );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+
+		bbp_decrease_forum_reply_count_hidden( $public_id );
+		bbp_decrease_forum_reply_count( $spam_id );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+
+		bbp_increase_forum_reply_count( $public_id );
+		bbp_increase_forum_reply_count_hidden( $spam_id );
+		bbp_increase_forum_reply_count( $forum_id );
+		bbp_increase_forum_reply_count_hidden( $forum_id );
+		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+
+		bbp_decrease_forum_reply_count( $public_id );
+		bbp_decrease_forum_reply_count_hidden( $spam_id );
+		bbp_decrease_forum_reply_count( $forum_id );
+		bbp_decrease_forum_reply_count_hidden( $forum_id );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_forum_reply_count_hidden
+	 * @ticket 3706
+	 */
+	public function test_bbp_update_forum_reply_count_hidden_recounts_nested_forums() {
+		$parent_id = $this->factory->forum->create(
+			array(
+				'forum_meta' => array( 'forum_type' => 'category' ),
+			)
+		);
+		$forum_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id  = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_spam_status_id(),
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		update_post_meta( $forum_id, '_bbp_reply_count_hidden', 9 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', 9 );
+		update_post_meta( $parent_id, '_bbp_reply_count_hidden', 7 );
+		update_post_meta( $parent_id, '_bbp_total_reply_count_hidden', 20 );
+
+		$this->assertSame( 1, bbp_update_forum_reply_count_hidden( $forum_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+		$this->assertSame( 7, bbp_get_forum_reply_count_hidden( $parent_id, false, true ) );
+		$this->assertSame( 12, bbp_get_forum_reply_count_hidden( $parent_id, true, true ) );
+
+		$this->assertSame( 1, bbp_update_forum_reply_count_hidden( $parent_id ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $parent_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $parent_id, true, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_approved_unapproved_topic_update_forum_reply_count
+	 * @ticket 3706
+	 */
+	public function test_bbp_approved_unapproved_topic_update_forum_reply_count_uses_public_replies() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$this->factory->reply->create_many(
+			2,
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_spam_status_id(),
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		update_post_meta( $forum_id, '_bbp_reply_count', 0 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 0 );
+		bbp_approved_unapproved_topic_update_forum_reply_count();
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+
+		bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id );
+		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+
+		$GLOBALS['wp_current_filter'][] = 'bbp_unapproved_topic';
+		try {
+			bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id );
+		} finally {
+			array_pop( $GLOBALS['wp_current_filter'] );
+		}
+
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_forum_subforum_count
 	 * @ticket BBP2649
 	 */

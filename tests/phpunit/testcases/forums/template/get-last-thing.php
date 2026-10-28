@@ -457,7 +457,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_forum_last_topic_author_link
-	 * @covers ::bbp_get_forum_last_topic_author_link	 */
+	 * @covers ::bbp_get_forum_last_topic_author_link
+	 * @ticket 3706
+	 */
 	public function test_bbp_get_forum_last_topic_author_link() {
 		$u = $this->factory->user->create();
 
@@ -493,6 +495,32 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		// Get the categories last topic author link.
 		$last_topic_author_link = bbp_get_forum_last_topic_author_link( $c );
 		$this->assertSame( bbp_get_user_profile_link( $u ), $last_topic_author_link );
+
+		$received = null;
+		$filter   = static function( $author_link, $forum_id ) use ( &$received ) {
+			$received = compact( 'author_link', 'forum_id' );
+
+			return 'filtered-author-link';
+		};
+
+		add_filter( 'bbp_get_forum_last_topic_author_link', $filter, 10, 2 );
+		try {
+			$this->assertSame( 'filtered-author-link', bbp_get_forum_last_topic_author_link( $f ) );
+
+			ob_start();
+			bbp_forum_last_topic_author_link( $f );
+			$this->assertSame( 'filtered-author-link', ob_get_clean() );
+		} finally {
+			remove_filter( 'bbp_get_forum_last_topic_author_link', $filter, 10 );
+		}
+
+		$this->assertSame(
+			array(
+				'author_link' => bbp_get_user_profile_link( $u ),
+				'forum_id'    => $f,
+			),
+			$received
+		);
 	}
 
 	/**

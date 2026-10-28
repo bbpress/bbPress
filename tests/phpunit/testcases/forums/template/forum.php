@@ -10,6 +10,18 @@
 class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_forum_row_actions
+	 * @ticket 3706
+	 */
+	public function test_bbp_forum_row_actions_fires_its_action() {
+		$before = did_action( 'bbp_forum_row_actions' );
+
+		bbp_forum_row_actions();
+
+		$this->assertSame( $before + 1, did_action( 'bbp_forum_row_actions' ) );
+	}
+
+	/**
 	 * @covers ::bbp_forum_id
 	 * @covers ::bbp_get_forum_id
 	 */
