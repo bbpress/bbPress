@@ -184,6 +184,82 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_insert_reply_update_counts
+	 * @ticket 3706
+	 */
+	public function test_bbp_insert_reply_update_counts_routes_by_reply_status() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$public_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$spam_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_spam_status_id(),
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$pending_topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$pending_reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $pending_topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $pending_topic_id ),
+			)
+		);
+
+		foreach ( array( '_bbp_reply_count', '_bbp_reply_count_hidden' ) as $meta_key ) {
+			update_post_meta( $topic_id, $meta_key, 0 );
+			update_post_meta( $pending_topic_id, $meta_key, 0 );
+		}
+
+		foreach ( array( '_bbp_reply_count', '_bbp_total_reply_count', '_bbp_reply_count_hidden', '_bbp_total_reply_count_hidden' ) as $meta_key ) {
+			update_post_meta( $forum_id, $meta_key, 0 );
+		}
+
+		bbp_insert_reply_update_counts( $public_id, $topic_id, $forum_id );
+
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+
+		bbp_insert_reply_update_counts( $spam_id, $topic_id, $forum_id );
+
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+
+		bbp_insert_reply_update_counts( $pending_reply_id, $pending_topic_id, $forum_id );
+
+		$this->assertSame( 0, bbp_get_topic_reply_count( $pending_topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $pending_topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_reply
 	 */
 	public function test_bbp_update_reply() {
