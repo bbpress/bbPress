@@ -10,6 +10,9 @@ class BBP_Tests_Common_User_Discovery extends BBP_UnitTestCase {
 
 	/**
 	 * A user with only restricted forum content is not a public WordPress author.
+	 *
+	 * @covers ::bbp_exclude_forum_posts_from_user_query
+	 * @covers ::bbp_filter_rest_user_discovery
 	 */
 	public function test_restricted_forum_author_is_not_discovered() {
 		$forum_author_id = $this->factory->user->create();

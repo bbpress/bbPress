@@ -38,6 +38,7 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( 'pre_option_enable_xmlrpc', '__return_true' );
+		$GLOBALS['bbp_xmlrpc_error_post_id']   = 0;
 		$GLOBALS['bbp_xmlrpc_error_post_type'] = '';
 
 		parent::tearDown();
@@ -572,6 +573,7 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	 * XML-RPC clients cannot move the author edit window by changing dates.
 	 *
 	 * @covers ::bbp_validate_xmlrpc_post
+	 * @covers ::bbp_xmlrpc_post_date_changed
 	 */
 	public function test_participant_cannot_change_topic_or_reply_date() {
 		update_option( 'timezone_string', 'America/Chicago' );
@@ -605,6 +607,27 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 		$result    = $this->edit_post( $topic_id, array( 'post_date' => $unchanged ) );
 
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
+	}
+
+	/**
+	 * @covers ::bbp_map_xmlrpc_meta_caps
+	 */
+	public function test_map_xmlrpc_meta_caps_denies_only_failed_post_and_post_type() {
+		$GLOBALS['bbp_xmlrpc_error_post_id']   = 123;
+		$GLOBALS['bbp_xmlrpc_error_post_type'] = bbp_get_topic_post_type();
+
+		$this->assertSame( array( 'edit_posts', 'do_not_allow' ), bbp_map_xmlrpc_meta_caps( array( 'edit_posts' ), 'edit_post', 7, array( 123 ) ) );
+		$this->assertSame( array( 'edit_topics', 'do_not_allow' ), bbp_map_xmlrpc_meta_caps( array( 'edit_topics' ), 'edit_topic', 7, array( 123 ) ) );
+		$this->assertSame( array( 'edit_posts' ), bbp_map_xmlrpc_meta_caps( array( 'edit_posts' ), 'edit_post', 7, array( 456 ) ) );
+		$this->assertSame( array( 'edit_posts' ), bbp_map_xmlrpc_meta_caps( array( 'edit_posts' ), 'edit_post', 7 ) );
+		$this->assertSame( array( 'edit_topics', 'do_not_allow' ), bbp_map_xmlrpc_meta_caps( array( 'edit_topics' ), 'edit_topics', 7 ) );
+		$this->assertSame( array( 'edit_replies' ), bbp_map_xmlrpc_meta_caps( array( 'edit_replies' ), 'edit_replies', 7 ) );
+
+		$GLOBALS['bbp_xmlrpc_error_post_type'] = bbp_get_reply_post_type();
+
+		$this->assertSame( array( 'edit_replies', 'do_not_allow' ), bbp_map_xmlrpc_meta_caps( array( 'edit_replies' ), 'edit_reply', 7, array( 123 ) ) );
+		$this->assertSame( array( 'edit_replies', 'do_not_allow' ), bbp_map_xmlrpc_meta_caps( array( 'edit_replies' ), 'edit_replies', 7 ) );
+		$this->assertSame( array( 'edit_topics' ), bbp_map_xmlrpc_meta_caps( array( 'edit_topics' ), 'edit_topics', 7 ) );
 	}
 
 	/**

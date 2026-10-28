@@ -11,8 +11,8 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	/**
 	 * Shortcodes must continue to run in a classic bbPress Page Template.
 	 *
-	 * @covers bbp_pre_do_shortcode_tag
-	 * @covers bbp_prevent_content_shortcodes
+	 * @covers ::bbp_pre_do_shortcode_tag
+	 * @covers ::bbp_prevent_content_shortcodes
 	 */
 	public function test_shortcodes_run_in_classic_bbpress_page_template() {
 		$page_id         = $this->factory->post->create(
@@ -59,7 +59,7 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	 * bbPress blocks must continue to render in ordinary Page content.
 	 *
 	 * @covers BBP_Blocks::render_block
-	 * @covers bbp_pre_do_shortcode_tag
+	 * @covers ::bbp_pre_do_shortcode_tag
 	 */
 	public function test_bbpress_blocks_run_in_page_content() {
 		$page_id         = $this->factory->post->create(
@@ -101,8 +101,8 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers bbp_pre_do_shortcode_tag
-	 * @covers bbp_prevent_content_shortcodes
+	 * @covers ::bbp_pre_do_shortcode_tag
+	 * @covers ::bbp_prevent_content_shortcodes
 	 */
 	public function test_wordpress_content_keeps_forum_topic_and_reply_shortcodes_literal() {
 		$shortcode = '[bbp_content_probe] [[bbp_content_probe]]';
@@ -162,8 +162,8 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers bbp_pre_do_shortcode_tag
-	 * @covers bbp_prevent_content_shortcodes
+	 * @covers ::bbp_pre_do_shortcode_tag
+	 * @covers ::bbp_prevent_content_shortcodes
 	 */
 	public function test_explicitly_allowed_shortcode_runs_only_in_bbpress_content() {
 		$shortcode = '[bbp_content_allowed] [bbp_content_blocked]';
@@ -207,8 +207,8 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	 *
 	 * @dataProvider get_topic_and_reply_post_types
 	 *
-	 * @covers bbp_pre_do_shortcode_tag
-	 * @covers bbp_prevent_content_shortcodes
+	 * @covers ::bbp_pre_do_shortcode_tag
+	 * @covers ::bbp_prevent_content_shortcodes
 	 *
 	 * @param string $post_type bbPress post type.
 	 */
@@ -274,7 +274,7 @@ class BBP_Tests_Common_Content_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers bbp_prevent_content_shortcodes
+	 * @covers ::bbp_prevent_content_shortcodes
 	 */
 	public function test_private_attachment_gallery_is_not_rendered_from_forum_content() {
 		$private_post_id = $this->factory->post->create( array( 'post_status' => 'private' ) );

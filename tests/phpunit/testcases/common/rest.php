@@ -9,6 +9,53 @@
 class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_get_attachment_parent
+	 */
+	public function test_get_attachment_parent_returns_only_bbpress_parents() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$post_id  = $this->factory->post->create();
+
+		foreach ( array( $forum_id, $topic_id, $reply_id ) as $parent_id ) {
+			$attachment_id = $this->create_attachment( $parent_id );
+
+			$this->assertSame( $parent_id, bbp_get_attachment_parent( $attachment_id )->ID );
+			$this->assertSame( $parent_id, bbp_get_attachment_parent( get_post( $attachment_id ) )->ID );
+		}
+
+		$orphan_id = $this->create_attachment( $forum_id );
+		wp_delete_post( $forum_id, true );
+
+		$this->assertFalse( bbp_get_attachment_parent() );
+		$this->assertFalse( bbp_get_attachment_parent( 999999 ) );
+		$this->assertFalse( bbp_get_attachment_parent( $post_id ) );
+		$this->assertFalse( bbp_get_attachment_parent( $this->create_attachment( $post_id ) ) );
+		$this->assertFalse( bbp_get_attachment_parent( $this->create_attachment( 0 ) ) );
+		$this->assertFalse( bbp_get_attachment_parent( $orphan_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_register_rest_attachment_controller
+	 */
+	public function test_register_rest_attachment_controller_replaces_only_core_controller() {
+		$post_type = get_post_type_object( 'attachment' );
+		$original  = $post_type->rest_controller_class;
+
+		try {
+			$post_type->rest_controller_class = 'WP_REST_Attachments_Controller';
+			bbp_register_rest_attachment_controller();
+			$this->assertSame( 'BBP_REST_Attachments_Controller', $post_type->rest_controller_class );
+
+			$post_type->rest_controller_class = 'Custom_REST_Attachments_Controller';
+			bbp_register_rest_attachment_controller();
+			$this->assertSame( 'Custom_REST_Attachments_Controller', $post_type->rest_controller_class );
+		} finally {
+			$post_type->rest_controller_class = $original;
+		}
+	}
+
+	/**
 	 * Set up REST support for bbPress post types.
 	 */
 	public function setUp(): void {

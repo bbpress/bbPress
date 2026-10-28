@@ -10,6 +10,30 @@
 class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_user_engagements_interface
+	 */
+	public function test_user_engagements_interface_returns_configured_strategy_and_applies_filter() {
+		$strategy = bbpress()->engagements;
+		$calls    = array();
+
+		$filter = function( $interface, $rel_key, $rel_type ) use ( $strategy, &$calls ) {
+			$this->assertSame( $strategy, $interface );
+			$calls[] = array( $rel_key, $rel_type );
+
+			return empty( $rel_key ) ? $interface : 'filtered-interface';
+		};
+		add_filter( 'bbp_user_engagements_interface', $filter, 10, 3 );
+
+		try {
+			$this->assertSame( $strategy, bbp_user_engagements_interface() );
+			$this->assertSame( 'filtered-interface', bbp_user_engagements_interface( '_bbp_favorite', 'post' ) );
+			$this->assertSame( array( array( '', 'post' ), array( '_bbp_favorite', 'post' ) ), $calls );
+		} finally {
+			remove_filter( 'bbp_user_engagements_interface', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers BBP_User_Engagements_User::remove_user_from_object
 	 * @ticket BBP3737
 	 */

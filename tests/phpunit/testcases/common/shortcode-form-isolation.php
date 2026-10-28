@@ -253,6 +253,8 @@ class BBP_Tests_Common_Shortcode_Form_Isolation extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_template_notice_context
+	 *
 	 * @dataProvider notice_context_provider
 	 */
 	public function test_get_template_notice_context_matches_post_action( $action, $matching_context ) {
@@ -291,6 +293,9 @@ class BBP_Tests_Common_Shortcode_Form_Isolation extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @covers ::bbp_is_template_notice_context
+	 */
 	public function test_is_template_notice_context_matches_expected_contexts() {
 		$_POST                    = array( 'action' => 'bbp-new-topic' );
 		$_SERVER['REQUEST_METHOD'] = 'POST';
