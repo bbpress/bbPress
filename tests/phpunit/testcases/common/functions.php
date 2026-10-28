@@ -2706,6 +2706,209 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_post_types
+	 */
+	public function test_bbp_get_post_types_returns_only_matching_bbpress_types() {
+		$this->assertEqualSets(
+			array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+			bbp_get_post_types()
+		);
+		$this->assertSame( array( bbp_get_forum_post_type() ), array_values( bbp_get_post_types( array( 'hierarchical' => true ) ) ) );
+		$this->assertSame( array(), array_values( bbp_get_post_types( array( 'public' => false ) ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_filter_use_block_editor_for_post_type
+	 */
+	public function test_bbp_filter_use_block_editor_for_post_type_disables_bbpress_and_preserves_other_types() {
+		$this->assertFalse( bbp_filter_use_block_editor_for_post_type( true, bbp_get_topic_post_type() ) );
+		$this->assertFalse( bbp_filter_use_block_editor_for_post_type( false, 'post' ) );
+		$this->assertTrue( bbp_filter_use_block_editor_for_post_type( true, 'post' ) );
+
+		$filter = function( $retval, $is_post_type, $using, $post_type ) {
+			$this->assertFalse( $retval );
+			$this->assertTrue( $is_post_type );
+			$this->assertTrue( $using );
+			$this->assertSame( bbp_get_reply_post_type(), $post_type );
+
+			return true;
+		};
+		add_filter( 'bbp_filter_use_block_editor_for_post_type', $filter, 10, 4 );
+
+		try {
+			$this->assertTrue( bbp_filter_use_block_editor_for_post_type( true, bbp_get_reply_post_type() ) );
+		} finally {
+			remove_filter( 'bbp_filter_use_block_editor_for_post_type', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_use_block_editor_for_post_type
+	 */
+	public function test_bbp_filter_use_block_editor_for_post_type_preserves_earlier_filter_decision() {
+		$filter = function() {
+			return false;
+		};
+		add_filter( 'use_block_editor_for_post_type', $filter, 5 );
+
+		try {
+			$this->assertFalse( use_block_editor_for_post_type( 'post' ) );
+		} finally {
+			remove_filter( 'use_block_editor_for_post_type', $filter, 5 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_fix_untrash_post_status
+	 */
+	public function test_bbp_fix_untrash_post_status_restores_bbpress_status_only() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$post_id  = $this->factory->post->create();
+
+		$this->assertSame( bbp_get_private_status_id(), bbp_fix_untrash_post_status( 'draft', $forum_id, bbp_get_private_status_id() ) );
+		$this->assertSame( bbp_get_pending_status_id(), bbp_fix_untrash_post_status( 'draft', $reply_id, bbp_get_pending_status_id() ) );
+		$this->assertSame( 'draft', bbp_fix_untrash_post_status( 'draft', $forum_id, '' ) );
+		$this->assertSame( 'draft', bbp_fix_untrash_post_status( 'draft', $post_id, 'publish' ) );
+		$this->assertSame( 'draft', bbp_fix_untrash_post_status( 'draft', 999999, 'publish' ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_trash_days
+	 */
+	public function test_bbp_get_trash_days_sanitizes_context_and_applies_filter() {
+		$default = defined( 'EMPTY_TRASH_DAYS' ) ? (int) EMPTY_TRASH_DAYS : 30;
+
+		$this->assertSame( $default, bbp_get_trash_days() );
+
+		$filter = function( $days, $context ) use ( $default ) {
+			$this->assertSame( $default, $days );
+			$this->assertSame( 'topiccontext', $context );
+
+			return '7';
+		};
+		add_filter( 'bbp_get_trash_days', $filter, 10, 2 );
+
+		try {
+			$this->assertSame( 7, bbp_get_trash_days( 'Topic Context!' ) );
+		} finally {
+			remove_filter( 'bbp_get_trash_days', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_handle_404
+	 * @covers ::bbp_posts_pre_query
+	 */
+	public function test_bbp_query_short_circuits_follow_custom_404_state() {
+		$query = new WP_Query();
+		$status = null;
+		$filter = function( $status_header, $code ) use ( &$status ) {
+			$status = $code;
+
+			return $status_header;
+		};
+		add_filter( 'status_header', $filter, 10, 2 );
+
+		try {
+			$this->assertFalse( bbp_pre_handle_404( false, $query ) );
+			$this->assertNull( bbp_posts_pre_query( null, $query ) );
+
+			$query->bbp_is_404 = false;
+			$this->assertNull( bbp_posts_pre_query( null, $query ) );
+
+			$query->bbp_is_404 = true;
+			$this->assertTrue( bbp_pre_handle_404( false, $query ) );
+			$this->assertSame( 404, $status );
+			$this->assertTrue( $query->is_404() );
+			$this->assertSame( array(), bbp_posts_pre_query( null, $query ) );
+			$this->assertSame( array( 'existing' ), bbp_posts_pre_query( array( 'existing' ), new WP_Query() ) );
+		} finally {
+			remove_filter( 'status_header', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_handle_404
+	 */
+	public function test_bbp_pre_handle_404_restores_success_status() {
+		$query           = new WP_Query();
+		$query->bbp_is_404 = false;
+		$status          = null;
+		$filter          = function( $status_header, $code ) use ( &$status ) {
+			$status = $code;
+
+			return $status_header;
+		};
+		add_filter( 'status_header', $filter, 10, 2 );
+
+		try {
+			$this->assertTrue( bbp_pre_handle_404( false, $query ) );
+			$this->assertSame( 200, $status );
+		} finally {
+			remove_filter( 'status_header', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_url_scheme
+	 */
+	public function test_bbp_get_url_scheme_matches_ssl_state() {
+		$https = isset( $_SERVER['HTTPS'] ) ? $_SERVER['HTTPS'] : null;
+		$port  = isset( $_SERVER['SERVER_PORT'] ) ? $_SERVER['SERVER_PORT'] : null;
+
+		try {
+			$_SERVER['HTTPS'] = 'off';
+			$_SERVER['SERVER_PORT'] = '80';
+			$this->assertSame( 'http://', bbp_get_url_scheme() );
+
+			$_SERVER['HTTPS'] = 'on';
+			$this->assertSame( 'https://', bbp_get_url_scheme() );
+		} finally {
+			if ( null === $https ) {
+				unset( $_SERVER['HTTPS'] );
+			} else {
+				$_SERVER['HTTPS'] = $https;
+			}
+
+			if ( null === $port ) {
+				unset( $_SERVER['SERVER_PORT'] );
+			} else {
+				$_SERVER['SERVER_PORT'] = $port;
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_is_title_too_long
+	 */
+	public function test_bbp_is_title_too_long_uses_character_length_and_filter() {
+		$max_filter = function() {
+			return 3;
+		};
+		$filter = function( $result, $title, $max, $len ) {
+			$this->assertTrue( $result );
+			$this->assertSame( '猫猫猫猫', $title );
+			$this->assertSame( 3, $max );
+			$this->assertSame( 4, $len );
+
+			return false;
+		};
+		try {
+			add_filter( 'bbp_get_title_max_length', $max_filter );
+			$this->assertFalse( bbp_is_title_too_long( '猫猫猫' ) );
+			$this->assertTrue( bbp_is_title_too_long( '猫猫猫猫' ) );
+
+			add_filter( 'bbp_is_title_too_long', $filter, 10, 4 );
+			$this->assertFalse( bbp_is_title_too_long( '猫猫猫猫' ) );
+		} finally {
+			remove_filter( 'bbp_get_title_max_length', $max_filter );
+			remove_filter( 'bbp_is_title_too_long', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_set_404
 	 */
 	public function test_bbp_set_404() {

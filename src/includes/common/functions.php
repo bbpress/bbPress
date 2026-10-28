@@ -290,6 +290,7 @@ function bbp_get_paged() {
  * filter with
  *
  * @since 2.7.0 bbPress (r7389)
+ * @since 2.7.0 bbPress (r8177) Preserve the incoming value for other post types.
  *
  * @param bool   $using     Optional. Default false. If using.
  * @param string $post_type Optional. Default empty string. The post type to check.
@@ -303,7 +304,7 @@ function bbp_filter_use_block_editor_for_post_type( $using = false, $post_type =
 
 	// Compare post types
 	$is_post_type = in_array( $post_type, $bbp_post_types, true );
-	$retval       = ! $is_post_type;
+	$retval       = $is_post_type ? false : (bool) $using;
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_filter_use_block_editor_for_post_type', $retval, $is_post_type, $using, $post_type );
