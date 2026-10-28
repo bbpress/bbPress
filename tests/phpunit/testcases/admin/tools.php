@@ -155,6 +155,33 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3768
+	 * @covers ::bbp_admin_reset_query_feedback
+	 */
+	public function test_bbp_admin_reset_query_feedback_reports_query_outcomes() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/reset.php';
+
+		$db              = bbp_db();
+		$old_suppression = $db->suppress_errors( true );
+		$args            = array( 'message' => 'Reset: %s' );
+
+		try {
+			$this->assertSame( 'Reset: Skipped.', bbp_admin_reset_query_feedback( $args ) );
+
+			$args['query'] = 'SELECT 1';
+			$this->assertSame( 'Reset: Success!', bbp_admin_reset_query_feedback( $args ) );
+
+			$args['query'] = "DELETE FROM {$db->posts} WHERE 1 = 0";
+			$this->assertSame( 'Reset: Success!', bbp_admin_reset_query_feedback( $args ) );
+
+			$args['query'] = 'SELECT * FROM bbp_missing_reset_feedback_table';
+			$this->assertSame( 'Reset: Failed!', bbp_admin_reset_query_feedback( $args ) );
+		} finally {
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_list
 	 * @ticket 3695
 	 */

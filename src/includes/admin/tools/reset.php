@@ -132,7 +132,7 @@ function bbp_admin_reset_query_feedback( $args = array() ) {
 	// Success/Failure based on query error
 	if ( ! empty( $r['query'] ) ) {
 		$query  = bbp_db()->query( $r['query'] );
-		$result = ! is_wp_error( $query )
+		$result = ( false !== $query ) && ! is_wp_error( $query )
 			? $r['responses']['success']
 			: $r['responses']['failure'];
 
