@@ -155,6 +155,9 @@ class BBP_Tests_Common_Ajax extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Exercise the AJAX headers, which PHP's CLI SAPI cannot expose for assertions.
+	 *
+	 * @covers ::bbp_ajax_headers
 	 * @covers ::bbp_do_ajax
 	 * @covers ::bbp_is_ajax
 	 * @runInSeparateProcess

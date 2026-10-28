@@ -1,5 +1,7 @@
 <?php
 
+class BBP_Tests_Extend_BuddyPress_Notification_Exception extends Exception {}
+
 /**
  * BuddyPress notification tests.
  *
@@ -8,6 +10,58 @@
  * @group notifications
  */
 class BBP_Tests_Extend_BuddyPress_Notifications extends BBP_UnitTestCase {
+
+	private $old_get;
+	private $old_errors;
+	private $old_request;
+	private $old_user;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->old_get     = $_GET;
+		$this->old_errors  = bbpress()->errors;
+		$this->old_request = $_REQUEST;
+		$this->old_user    = get_current_user_id();
+
+		bbpress()->errors = new WP_Error();
+	}
+
+	public function tearDown(): void {
+		$_GET             = $this->old_get;
+		$_REQUEST         = $this->old_request;
+		bbpress()->errors = $this->old_errors;
+		$this->set_current_user( $this->old_user );
+
+		parent::tearDown();
+	}
+
+	private function capture_mark_notifications_redirect( $action ) {
+		$redirect   = null;
+		$requested  = null;
+		$url_filter = static function ( $url, $reply_id ) use ( &$requested ) {
+			$requested = array( $url, $reply_id );
+			return $url;
+		};
+		$filter = static function ( $location, $status ) use ( &$redirect ) {
+			$redirect = array( $location, $status );
+			throw new BBP_Tests_Extend_BuddyPress_Notification_Exception( 'Redirect intercepted.' );
+		};
+		add_filter( 'bbp_get_reply_url', $url_filter, 10, 2 );
+		add_filter( 'wp_redirect', $filter, 10, 2 );
+
+		try {
+			bbp_buddypress_mark_notifications( $action );
+			$this->fail( 'Expected the redirect filter to intercept the redirect.' );
+		} catch ( BBP_Tests_Extend_BuddyPress_Notification_Exception $exception ) {
+			$this->assertSame( 'Redirect intercepted.', $exception->getMessage() );
+		} finally {
+			remove_filter( 'bbp_get_reply_url', $url_filter, 10 );
+			remove_filter( 'wp_redirect', $filter, 10 );
+		}
+
+		return array( $requested, $redirect );
+	}
 
 	private function format_multiple_reply_notification( $count ) {
 		$forum_id = $this->factory->forum->create();
@@ -105,5 +159,142 @@ class BBP_Tests_Extend_BuddyPress_Notifications extends BBP_UnitTestCase {
 
 			$this->assertCount( bbp_get_public_status_id() === $status ? 1 : 0, $notifications );
 		}
+	}
+
+	/**
+	 * @covers ::bbp_filter_notifications_get_registered_components
+	 */
+	public function test_registered_notification_components_include_bbpress_component() {
+		$this->assertSame( array( 'activity', bbp_get_component_name() ), bbp_filter_notifications_get_registered_components( array( 'activity' ) ) );
+		$this->assertSame( array( bbp_get_component_name() ), bbp_filter_notifications_get_registered_components( 'activity' ) );
+	}
+
+	/**
+	 * @covers ::bbp_buddypress_mark_notifications
+	 */
+	public function test_mark_notifications_ignores_unrelated_requests() {
+		$filter = static function () {
+			throw new BBP_Tests_Extend_BuddyPress_Notification_Exception( 'Unexpected redirect.' );
+		};
+		add_filter( 'wp_redirect', $filter );
+
+		$_GET = array();
+		try {
+			$this->assertNull( bbp_buddypress_mark_notifications( 'bbp_mark_read' ) );
+
+			$_GET['topic_id'] = 123;
+			$this->assertNull( bbp_buddypress_mark_notifications( 'other-action' ) );
+		} finally {
+			remove_filter( 'wp_redirect', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_buddypress_mark_notifications
+	 */
+	public function test_mark_notifications_marks_topic_reply_notifications_read() {
+		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$action   = 'bbp_new_reply_' . $topic_id;
+
+		$this->set_current_user( $user_id );
+		$this->assertNotFalse(
+			bp_notifications_add_notification(
+				array(
+					'user_id'          => $user_id,
+					'item_id'          => $reply_id,
+					'component_name'   => bbp_get_component_name(),
+					'component_action' => $action,
+				)
+			)
+		);
+		$this->assertSame( 1, bp_notifications_get_unread_notification_count( $user_id ) );
+
+		$_GET['topic_id']     = $topic_id;
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'bbp_mark_topic_' . $topic_id );
+		$observed             = null;
+		$handler              = static function ( $marked, $handled_user_id, $handled_topic_id, $handled_action ) use ( &$observed ) {
+			$observed = array( $marked, $handled_user_id, $handled_topic_id, $handled_action );
+		};
+		add_action( 'bbp_notifications_handler', $handler, 10, 4 );
+
+		try {
+			list( $requested, $redirect ) = $this->capture_mark_notifications_redirect( 'bbp_mark_read' );
+		} finally {
+			remove_action( 'bbp_notifications_handler', $handler, 10 );
+		}
+
+		$this->assertSame( array( 1, $user_id, $topic_id, 'bbp_mark_read' ), $observed );
+		$this->assertSame( array( bbp_get_reply_url( $reply_id ), $reply_id ), $requested );
+		$this->assertSame( 302, $redirect[1] );
+		$this->assertSame( 0, bp_notifications_get_unread_notification_count( $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_buddypress_mark_notifications
+	 */
+	public function test_mark_notifications_rejects_invalid_nonce() {
+		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		$this->set_current_user( $user_id );
+		bp_notifications_add_notification(
+			array(
+				'user_id'          => $user_id,
+				'item_id'          => $reply_id,
+				'component_name'   => bbp_get_component_name(),
+				'component_action' => 'bbp_new_reply_' . $topic_id,
+			)
+		);
+		$_GET['topic_id']     = $topic_id;
+		$_REQUEST['_wpnonce'] = 'invalid';
+
+		list( $requested, $redirect ) = $this->capture_mark_notifications_redirect( 'bbp_mark_read' );
+
+		$this->assertContains( 'bbp_notification_topic_id', bbpress()->errors->get_error_codes() );
+		$this->assertSame( array( bbp_get_reply_url( $topic_id ), $topic_id ), $requested );
+		$this->assertSame( 302, $redirect[1] );
+		$this->assertSame( 1, bp_notifications_get_unread_notification_count( $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_buddypress_mark_notifications
+	 */
+	public function test_mark_notifications_rejects_user_without_permission() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		$this->set_current_user( $user_id );
+		bp_notifications_add_notification(
+			array(
+				'user_id'          => $user_id,
+				'item_id'          => $reply_id,
+				'component_name'   => bbp_get_component_name(),
+				'component_action' => 'bbp_new_reply_' . $topic_id,
+			)
+		);
+		$_GET['topic_id']     = $topic_id;
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'bbp_mark_topic_' . $topic_id );
+		$deny_edit_user       = static function ( $caps, $cap ) {
+			return ( 'edit_user' === $cap ) ? array( 'do_not_allow' ) : $caps;
+		};
+		add_filter( 'map_meta_cap', $deny_edit_user, 10, 2 );
+
+		try {
+			list( $requested, $redirect ) = $this->capture_mark_notifications_redirect( 'bbp_mark_read' );
+		} finally {
+			remove_filter( 'map_meta_cap', $deny_edit_user, 10 );
+		}
+
+		$this->assertContains( 'bbp_notification_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( array( bbp_get_reply_url( $topic_id ), $topic_id ), $requested );
+		$this->assertSame( 302, $redirect[1] );
+		$this->assertSame( 1, bp_notifications_get_unread_notification_count( $user_id ) );
 	}
 }
