@@ -8,6 +8,11 @@
  */
 class BBP_Tests_Core_Forum_Status extends BBP_UnitTestCase {
 
+	/**
+	 * @covers ::bbp_get_forums_statuses
+	 * @covers ::bbp_get_forums_status
+	 * @covers ::bbp_is_forums_status
+	 */
 	public function test_status_defaults_to_open_and_rejects_invalid_values() {
 		$this->assertSame( array( 'open', 'closed', 'frozen' ), array_keys( bbp_get_forums_statuses() ) );
 		$this->assertSame( 'open', bbp_get_forums_status() );
@@ -43,6 +48,27 @@ class BBP_Tests_Core_Forum_Status extends BBP_UnitTestCase {
 
 		remove_filter( 'bbp_get_forums_statuses', $filter );
 		$this->assertSame( 'open', bbp_get_forums_status() );
+	}
+
+	/**
+	 * @covers ::bbp_user_is_keymaster_or_moderator
+	 * @ticket 3706
+	 */
+	public function test_site_wide_moderator_check_ignores_scoped_moderation() {
+		$forum_id       = $this->factory->forum->create();
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_add_moderator( $forum_id, $participant_id );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		$this->assertFalse( bbp_user_is_keymaster_or_moderator( 0 ) );
+		$this->assertFalse( bbp_user_is_keymaster_or_moderator( $participant_id ) );
+		$this->assertTrue( bbp_user_is_keymaster_or_moderator( $moderator_id ) );
+		$this->assertTrue( bbp_user_is_keymaster_or_moderator( $keymaster_id ) );
 	}
 
 	public function test_policy_helpers_can_be_filtered_for_custom_statuses() {
@@ -98,6 +124,9 @@ class BBP_Tests_Core_Forum_Status extends BBP_UnitTestCase {
 		$this->assertSame( 'open', bbp_get_forum_status( $forum_id ) );
 	}
 
+	/**
+	 * @covers ::bbp_current_user_can_post_in_forums
+	 */
 	public function test_closed_allows_keymasters_but_not_scoped_moderators() {
 		$forum_id = $this->factory->forum->create();
 		$user_id  = $this->factory->user->create();

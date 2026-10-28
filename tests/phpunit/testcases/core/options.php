@@ -303,6 +303,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	 * @covers ::bbp_is_engagements_active
 	 * @covers ::bbp_allow_content_edit
 	 * @covers ::bbp_allow_content_throttle
+	 * @covers ::bbp_allow_moderation_links
 	 * @covers ::bbp_allow_topic_tags
 	 * @covers ::bbp_allow_forum_mods
 	 * @covers ::bbp_allow_super_mods

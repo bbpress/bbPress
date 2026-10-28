@@ -32,6 +32,7 @@ class BBP_Tests_Core_Extend extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_setup_buddypress
+	 * @covers ::buddypress
 	 */
 	public function test_setup_buddypress_provides_the_legacy_helper_and_stops_without_buddypress() {
 		if ( defined( 'BP_VERSION' ) ) {

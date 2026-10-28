@@ -16,6 +16,9 @@ class BBP_Tests_Users_Functions_Statistics extends BBP_UnitTestCase {
 		return $sql;
 	}
 
+	/**
+	 * @covers ::bbp_get_total_forum_users
+	 */
 	public function test_forum_count_cache_handles_zero_and_capability_metadata_changes() {
 		global $wpdb;
 		$user = $this->factory->user->create();
@@ -212,6 +215,9 @@ class BBP_Tests_Users_Functions_Statistics extends BBP_UnitTestCase {
 		return 12345;
 	}
 
+	/**
+	 * @covers ::bbp_is_large_install
+	 */
 	public function test_installation_count_uses_core_cached_count() {
 		update_network_option( null, 'user_count', 10000 );
 		$this->assertSame( 10000, bbp_get_total_users() );

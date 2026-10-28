@@ -353,6 +353,8 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_theme_compat_reset_post
+	 * @covers ::bbp_get_theme_compat_excerpt
 	 * @ticket 3431
 	 */
 	public function test_theme_compat_reset_post_uses_content_for_requested_excerpt() {
@@ -383,6 +385,7 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_theme_compat_excerpt
 	 * @ticket 3431
 	 */
 	public function test_theme_compat_excerpt_does_not_replace_other_posts() {
@@ -450,6 +453,7 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_template_include_theme_compat
 	 * @ticket 3487
 	 * @dataProvider get_theme_compat_template_cases
 	 *
@@ -476,6 +480,8 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	/**
 	 * A root page's shortcode must run even when a bbPress post is ambient.
 	 *
+	 * @covers ::bbp_get_theme_compat_page_content
+	 * @covers ::bbp_template_include_theme_compat
 	 * @dataProvider get_root_page_content_cases
 	 *
 	 * @param string $post_type      Ambient bbPress post type.

@@ -59,6 +59,40 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_redirect
+	 * @ticket 3706
+	 */
+	public function test_redirect_uses_local_url_and_status_with_forum_fallback() {
+		$received = null;
+		$filter   = static function( $location, $status ) use ( &$received ) {
+			$received = compact( 'location', 'status' );
+
+			throw new UnexpectedValueException( 'Stop before exit.' );
+		};
+
+		add_filter( 'wp_redirect', $filter, 10, 2 );
+		try {
+			foreach (
+				array(
+					array( home_url( '/destination/' ), 307, home_url( '/destination/' ) ),
+					array( '', 302, bbp_get_forums_url() ),
+				) as $case
+			) {
+				try {
+					bbp_redirect( $case[0], $case[1] );
+					$this->fail( 'The redirect did not reach the WordPress redirect filter.' );
+				} catch ( UnexpectedValueException $exception ) {
+					$this->assertSame( 'Stop before exit.', $exception->getMessage() );
+					$this->assertSame( $case[2], $received['location'] );
+					$this->assertSame( $case[1], $received['status'] );
+				}
+			}
+		} finally {
+			remove_filter( 'wp_redirect', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_version
 	 * @covers ::bbp_get_version
 	 * @covers ::bbp_db_version
