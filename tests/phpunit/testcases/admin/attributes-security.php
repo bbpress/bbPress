@@ -245,6 +245,9 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertSame( $forum_id, (int) get_post_meta( $topic_id, '_bbp_forum_id', true ) );
 	}
 
+	/**
+	 * @covers ::bbp_user_can_move_reply_to_topic
+	 */
 	public function test_forum_moderator_cannot_move_reply_into_unmoderated_topic() {
 		set_current_screen( 'edit-reply' );
 
@@ -309,6 +312,9 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 		$this->assertSame( 0, (int) get_post_meta( $reply_id, '_bbp_topic_id', true ) );
 	}
 
+	/**
+	 * @covers ::bbp_user_can_move_reply_to_topic
+	 */
 	public function test_new_reply_can_be_published_in_readable_topic() {
 		set_current_screen( 'edit-reply' );
 
@@ -515,6 +521,7 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 
 	/**
 	 * @ticket BBP3724
+	 * @covers ::bbp_user_can_move_reply_to_topic
 	 */
 	public function test_forum_moderator_can_preview_reply_move_into_moderated_topic() {
 		$user_id              = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
@@ -536,6 +543,7 @@ class BBP_Tests_Admin_Attributes_Security extends BBP_UnitTestCase {
 
 	/**
 	 * @ticket BBP3724
+	 * @covers ::bbp_user_can_move_reply_to_topic
 	 */
 	public function test_new_reply_preview_rejects_topic_without_forum() {
 		$user_id  = $this->factory->user->create();

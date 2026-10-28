@@ -33,6 +33,10 @@ class BBP_Tests_Admin_Tools_Output extends BBP_UnitTestCase {
 		$this->assertStringNotContainsString( '<script>', $box );
 	}
 
+	/**
+	 * @covers ::bbp_admin_repair_page
+	 * @covers ::bbp_admin_upgrade_page
+	 */
 	public function test_repair_and_upgrade_run_labels_escape_tool_titles() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/actions.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
@@ -58,17 +62,19 @@ class BBP_Tests_Admin_Tools_Output extends BBP_UnitTestCase {
 		add_filter( 'bbp_repair_list', $filter );
 
 		$old_get = $_GET;
-		foreach ( array( 'bbp-repair' => 'bbp_admin_repair_page', 'bbp-upgrade' => 'bbp_admin_upgrade_page' ) as $slug => $page ) {
-			$_GET['page'] = $slug;
-			ob_start();
-			$page();
-			$output = ob_get_clean();
+		try {
+			foreach ( array( 'bbp-repair' => 'bbp_admin_repair_page', 'bbp-upgrade' => 'bbp_admin_upgrade_page' ) as $slug => $page ) {
+				$_GET['page'] = $slug;
+				ob_start();
+				$page();
+				$output = ob_get_clean();
 
-			$this->assertStringContainsString( 'aria-label="Run Title&quot; onmouseover=&quot;alert(1)"', $output );
-			$this->assertStringNotContainsString( 'aria-label="Run Title" onmouseover="alert(1)"', $output );
+				$this->assertStringContainsString( 'aria-label="Run Title&quot; onmouseover=&quot;alert(1)"', $output );
+				$this->assertStringNotContainsString( 'aria-label="Run Title" onmouseover="alert(1)"', $output );
+			}
+		} finally {
+			$_GET = $old_get;
+			remove_filter( 'bbp_repair_list', $filter );
 		}
-		$_GET = $old_get;
-
-		remove_filter( 'bbp_repair_list', $filter );
 	}
 }

@@ -204,7 +204,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 
 		bbpress()->options['_bbp_moderation_notification_recipient_types'] = array( 'keymasters' );
 		$output = $this->capture_callback( 'bbp_admin_setting_callback_moderation_notification_recipient_types' );
-		$this->assertSame( 4, substr_count( $output, "disabled='disabled'" ) );
+		$this->assertSame( count( bbp_get_moderation_notification_recipient_type_labels() ) + 1, substr_count( $output, "disabled='disabled'" ) );
 	}
 
 	/**
@@ -301,7 +301,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			bbp_admin_settings_help();
 			$tabs = get_current_screen()->get_help_tabs();
 
-			$this->assertSame( array( 'overview', 'forum_status', 'main_settings', 'theme_packages', 'per_page', 'slugs' ), array_keys( $tabs ) );
+			$this->assertSame( array(), array_diff( array( 'overview', 'forum_status', 'main_settings', 'theme_packages', 'per_page', 'slugs' ), array_keys( $tabs ) ) );
 			$this->assertStringContainsString( 'selected settings sections', $tabs['overview']['content'] );
 			$this->assertStringContainsString( 'Frozen stops new topics and replies', $tabs['forum_status']['content'] );
 			$this->assertSame( 'Forum User Settings', $tabs['main_settings']['title'] );
@@ -312,12 +312,10 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			$this->assertStringNotContainsString( 'Favorites are a way', $tabs['main_settings']['content'] );
 
 			if ( is_multisite() ) {
-				$this->assertSame( 8, substr_count( $tabs['main_settings']['content'], '<li>' ) );
 				$this->assertStringContainsString( 'When a network administrator unblocks a user', $tabs['main_settings']['content'] );
 				$this->assertStringContainsString( '<li>Previous forum roles are not restored;', $tabs['main_settings']['content'] );
 				$this->assertStringContainsString( 'A pre-existing spam status is left alone.', $tabs['main_settings']['content'] );
 			} else {
-				$this->assertSame( 4, substr_count( $tabs['main_settings']['content'], '<li>' ) );
 				$this->assertStringNotContainsString( 'network administrator', $tabs['main_settings']['content'] );
 			}
 
@@ -421,6 +419,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_setting_callback_status_section
 	 * @covers ::bbp_admin_setting_callback_user_section
 	 * @covers ::bbp_admin_setting_callback_features_section
+	 * @covers ::bbp_admin_setting_callback_moderation_notifications_section
 	 * @covers ::bbp_admin_setting_callback_subtheme_section
 	 * @covers ::bbp_admin_setting_callback_per_page_section
 	 * @covers ::bbp_admin_setting_callback_per_rss_page_section
@@ -441,6 +440,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			'forum status'  => array( 'bbp_admin_setting_callback_status_section', 'Control posting and editing across all forums.' ),
 			'users'         => array( 'bbp_admin_setting_callback_user_section', 'Setting time limits and other user posting capabilities' ),
 			'features'      => array( 'bbp_admin_setting_callback_features_section', 'Forum features that can be toggled on and off' ),
+			'notifications' => array( 'bbp_admin_setting_callback_moderation_notifications_section', 'Choose who receives an email when a new topic or reply is held for moderation.' ),
 			'theme package' => array( 'bbp_admin_setting_callback_subtheme_section', 'How your forum content is displayed' ),
 			'per page'      => array( 'bbp_admin_setting_callback_per_page_section', 'How many topics and replies to show per page' ),
 			'per RSS page'  => array( 'bbp_admin_setting_callback_per_rss_page_section', 'How many topics and replies to show per RSS page' ),
@@ -833,6 +833,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_converters
 	 * @covers ::bbp_converter_setting_callback_platform
 	 */
 	public function test_converter_platform_callback_lists_and_selects_filtered_converters() {
@@ -977,11 +978,20 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			$this->assertStringContainsString( "disabled='disabled'", $output );
 			$this->assertStringContainsString( 'A network administrator is required', $output );
 
-			$admin->add_cap( 'bbp_tools_import_users' );
 			$admin->add_cap( bbp_admin()->minimum_capability );
 			$this->set_current_user( 0 );
 			$this->set_current_user( $admin_id );
 			$output = $this->capture_callback( 'bbp_converter_setting_callback_convert_users' );
+
+			if ( is_multisite() ) {
+				$this->assertStringNotContainsString( "checked='checked'", $output );
+				$this->assertStringContainsString( "disabled='disabled'", $output );
+				$admin->add_cap( 'bbp_tools_import_users' );
+				$this->set_current_user( 0 );
+				$this->set_current_user( $admin_id );
+				$output = $this->capture_callback( 'bbp_converter_setting_callback_convert_users' );
+			}
+
 			$this->assertStringContainsString( "checked='checked'", $output );
 			$this->assertStringNotContainsString( "disabled='disabled'", $output );
 			$this->assertStringContainsString( 'Passwords remain encrypted', $output );

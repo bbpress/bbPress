@@ -199,6 +199,9 @@ class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 		$this->assertSame( 1, bbp_admin_sanitize_moderation_links( '0' ) );
 	}
 
+	/**
+	 * @covers ::bbp_admin_sanitize_default_role
+	 */
 	public function test_default_role_accepts_registered_choices_only() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
 
@@ -221,6 +224,9 @@ class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 		remove_filter( 'bbp_get_dynamic_roles', $add_role );
 	}
 
+	/**
+	 * @covers ::bbp_admin_sanitize_theme_package_id
+	 */
 	public function test_theme_package_accepts_registered_choices_only() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
 
@@ -233,9 +239,24 @@ class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 
 		$package = "custom'package";
 		bbp_register_theme_package( array( 'id' => $package, 'name' => 'Custom Package' ) );
-		$this->assertSame( $package, bbp_admin_sanitize_theme_package_id( $package ) );
-		update_option( '_bbp_theme_package_id', $package );
-		$this->assertSame( $package, bbp_admin_sanitize_theme_package_id( 'unknown' ) );
-		unset( bbpress()->theme_compat->packages[ $package ] );
+		try {
+			$this->assertSame( $package, bbp_admin_sanitize_theme_package_id( $package ) );
+			update_option( '_bbp_theme_package_id', $package );
+			$this->assertSame( $package, bbp_admin_sanitize_theme_package_id( 'unknown' ) );
+		} finally {
+			unset( bbpress()->theme_compat->packages[ $package ] );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_sanitize_forums_status
+	 */
+	public function test_forums_status_accepts_supported_choices_only() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		$this->assertSame( 'open', bbp_admin_sanitize_forums_status( 'open' ) );
+		$this->assertSame( 'closed', bbp_admin_sanitize_forums_status( 'closed' ) );
+		$this->assertSame( bbp_get_forums_status(), bbp_admin_sanitize_forums_status( 'unknown' ) );
+		$this->assertSame( bbp_get_forums_status(), bbp_admin_sanitize_forums_status( array( 'publish' ) ) );
 	}
 }

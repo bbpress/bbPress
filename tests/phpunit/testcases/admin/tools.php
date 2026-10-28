@@ -1127,11 +1127,119 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_admin_repair_reply_menu_order() {
 		$topic_id = $this->factory->topic->create();
-		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
-		update_post_meta( $reply_id, '_bbp_reply_to', $reply_id );
+		$reply_ids = $this->factory->reply->create_many(
+			2,
+			array(
+				'post_parent' => $topic_id,
+				'menu_order'  => 7,
+			)
+		);
+		update_post_meta( $reply_ids[0], '_bbp_reply_to', $reply_ids[0] );
 
-		$this->assertSame( 1, bbp_admin_repair_reply_menu_order()[0] );
-		$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
+		$this->assertSame( 0, bbp_admin_repair_reply_menu_order()[0] );
+		$this->assertFalse( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
+		$this->assertEqualSets(
+			array( 1, 2 ),
+			array( (int) get_post_field( 'menu_order', $reply_ids[0] ), (int) get_post_field( 'menu_order', $reply_ids[1] ) )
+		);
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_clean_post_meta_cache
+	 */
+	public function test_bbp_admin_repair_clean_post_meta_cache() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+
+		update_post_meta( $topic_id, '_bbp_test_cache', 'stale' );
+		$this->assertSame( 'stale', get_post_meta( $topic_id, '_bbp_test_cache', true ) );
+		$this->assertSame(
+			1,
+			$db->update(
+				$db->postmeta,
+				array( 'meta_value' => 'fresh' ),
+				array( 'post_id' => $topic_id, 'meta_key' => '_bbp_test_cache' )
+			)
+		);
+		$this->assertSame( 'stale', get_post_meta( $topic_id, '_bbp_test_cache', true ) );
+
+		bbp_admin_repair_clean_post_meta_cache( bbp_get_topic_post_type() );
+
+		$this->assertSame( 'fresh', get_post_meta( $topic_id, '_bbp_test_cache', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 */
+	public function test_bbp_admin_repair_topic_tag_count() {
+		$db       = bbp_db();
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$topic_id = $this->factory->topic->create();
+		$term     = wp_insert_term( 'Repair count', $taxonomy );
+		$term_id  = $term['term_id'];
+		$tt_id    = $term['term_taxonomy_id'];
+
+		wp_set_object_terms( $topic_id, array( $term_id ), $taxonomy );
+		$db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $tt_id ) );
+		clean_term_cache( $term_id, $taxonomy );
+		$this->assertSame( 99, get_term( $term_id, $taxonomy )->count );
+
+		$result = bbp_admin_repair_topic_tag_count();
+
+		$this->assertSame( 0, $result[0] );
+		$this->assertSame( 1, get_term( $term_id, $taxonomy )->count );
+
+		$filter = static function () {
+			return 'bbp_missing_topic_tag_taxonomy';
+		};
+		add_filter( 'bbp_get_topic_tag_tax_id', $filter );
+		try {
+			$this->assertSame( 1, bbp_admin_repair_topic_tag_count()[0] );
+		} finally {
+			remove_filter( 'bbp_get_topic_tag_tax_id', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_engagements
+	 */
+	public function test_bbp_admin_upgrade_user_engagements() {
+		$users    = $this->factory->user->create_many( 2 );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $users[0], 'post_parent' => $forum_id ) );
+		$this->factory->reply->create( array( 'post_author' => $users[1], 'post_parent' => $topic_id ) );
+
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		$result = bbp_admin_upgrade_user_engagements();
+
+		$this->assertSame( 0, $result[0] );
+		$this->assertEqualSets( $users, get_post_meta( $topic_id, '_bbp_engagement', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_remove_favorites_from_usermeta
+	 * @covers ::bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta
+	 *
+	 * @dataProvider usermeta_removal_upgrade_provider
+	 */
+	public function test_bbp_admin_upgrade_removes_legacy_usermeta( $callback, $key ) {
+		$user_id  = $this->factory->user->create();
+		$meta_key = bbp_db()->prefix . $key;
+
+		update_user_option( $user_id, $key, '1,2' );
+		$this->assertSame( '1,2', get_user_meta( $user_id, $meta_key, true ) );
+		$this->assertSame( 0, $callback()[0] );
+		$this->assertFalse( metadata_exists( 'user', $user_id, $meta_key ) );
+		$this->assertSame( 1, $callback()[0] );
+	}
+
+	public static function usermeta_removal_upgrade_provider() {
+		return array(
+			'favorites'           => array( 'bbp_admin_upgrade_remove_favorites_from_usermeta', '_bbp_favorites' ),
+			'topic subscriptions' => array( 'bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta', '_bbp_subscriptions' ),
+			'forum subscriptions' => array( 'bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta', '_bbp_forum_subscriptions' ),
+		);
 	}
 
 	/**
