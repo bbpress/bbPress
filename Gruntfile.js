@@ -43,11 +43,26 @@ module.exports = function( grunt ) {
 			'!phpunit.xml.dist'
 		],
 
-		// PostCSS
-		autoprefixer = require('autoprefixer');
+		// Build tools.
+		autoprefixer     = require( 'autoprefixer' ),
+		checkDependencies = require( 'check-dependencies' ),
+		rtlcss            = require( 'rtlcss' );
 
 	// Load tasks.
-	require( 'matchdep' ).filterDev([ 'grunt-*', '!grunt-legacy-util' ]).forEach( grunt.loadNpmTasks );
+	[
+		'@lodder/grunt-postcss',
+		'grunt-checktextdomain',
+		'grunt-contrib-clean',
+		'grunt-contrib-copy',
+		'grunt-contrib-cssmin',
+		'grunt-contrib-watch',
+		'grunt-eslint',
+		'grunt-exec',
+		'grunt-patch-wordpress',
+		'grunt-sass',
+		'grunt-stylelint',
+		'grunt-terser'
+	].forEach( grunt.loadNpmTasks );
 
 	// Load legacy utils
 	grunt.util = require( 'grunt-legacy-util' );
@@ -90,12 +105,6 @@ module.exports = function( grunt ) {
 				src: []
 			}
 		},
-		checkDependencies: {
-			options: {
-				packageManager: 'npm'
-			},
-			src: {}
-		},
 		copy: {
 			files: {
 				files: [
@@ -134,7 +143,7 @@ module.exports = function( grunt ) {
 		},
 		eslint: {
 			options: {
-				overrideConfigFile: '.eslintrc.json'
+				overrideConfigFile: 'eslint.config.js'
 			},
 			grunt: {
 				src: [ 'Gruntfile.js' ]
@@ -228,8 +237,8 @@ module.exports = function( grunt ) {
 				map: false,
 				processors: [
 					autoprefixer({
-						browsers: ['extends @wordpress/browserslist-config'],
-						cascade: false
+						cascade: false,
+						remove: false
 					})
 				],
 				failOnError: false
@@ -244,8 +253,8 @@ module.exports = function( grunt ) {
 				options: {
 					processors: [
 						autoprefixer({
-							browsers: ['extends @wordpress/browserslist-config'],
-							cascade: false
+							cascade: false,
+							remove: false
 						}),
 						require( './bin/normalize-colors' )
 					]
@@ -377,6 +386,43 @@ module.exports = function( grunt ) {
 	});
 
 	// Register tasks.
+
+	// Dependency check task.
+	grunt.registerTask( 'checkDependencies', 'Checks installed npm dependencies.', function() {
+		var result = checkDependencies.sync({
+			packageManager: 'npm'
+		});
+
+		result.log.forEach( function( message ) {
+			grunt.log.writeln( message );
+		} );
+		result.error.forEach( function( message ) {
+			grunt.log.error( message );
+		} );
+
+		return result.depsWereOk;
+	} );
+
+	// RTL CSS task.
+	grunt.registerMultiTask( 'rtlcss', 'Generates right-to-left stylesheets.', function() {
+		var options = this.options({
+			opts: {},
+			saveUnmodified: true
+		});
+
+		this.files.forEach( function( file ) {
+			file.src.filter( function( source ) {
+				return grunt.file.exists( source );
+			} ).forEach( function( source ) {
+				var css    = grunt.file.read( source ),
+					result = rtlcss.process( css, options.opts );
+
+				if ( options.saveUnmodified || css !== result ) {
+					grunt.file.write( file.dest, result );
+				}
+			} );
+		} );
+	} );
 
 	// Color schemes task.
 	grunt.registerTask( 'colors', [ 'sass:colors', 'postcss:colors' ] );

@@ -8,7 +8,7 @@
 		"wp-coding-standards/wpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"phpunit/phpunit": "^9",
-		"yoast/phpunit-polyfills": "^3.0"
+		"yoast/phpunit-polyfills": "^4.0"
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,

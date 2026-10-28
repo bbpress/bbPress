@@ -1,6 +1,6 @@
-
-@import 'variables';
-@import 'mixins';
+@use 'sass:color';
+@use 'variables' as *;
+@use 'mixins' as *;
 
 
 body {
@@ -372,7 +372,7 @@ ul#adminmenu > li.current > a.current:after {
 
 .wp-pointer .wp-pointer-content h3 {
 	background-color: $highlight-color;
-	border-color: darken( $highlight-color, 5% );
+	border-color: color.adjust( $highlight-color, $lightness: -5%, $space: hsl );
 }
 
 .wp-pointer .wp-pointer-content h3:before {

@@ -1,5 +1,7 @@
-$base-color: darken(desaturate(#78cd95, 10%), 10%);
-$highlight-color: desaturate(#467656, 10%);
-$notification-color: desaturate(#2a8c4b, 10%);
-
-@import "../admin";
+@use 'sass:color';
+@use '../variables' with (
+	$base-color: color.adjust( color.adjust( #78cd95, $saturation: -10%, $space: hsl ), $lightness: -10%, $space: hsl ),
+	$highlight-color: color.adjust( #467656, $saturation: -10%, $space: hsl ),
+	$notification-color: color.adjust( #2a8c4b, $saturation: -10%, $space: hsl )
+);
+@use '../admin';
