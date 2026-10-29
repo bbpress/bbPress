@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented paired newlines in imported content from producing duplicate HTML
+  line breaks.
 - Removed stale BuddyPress group-forum relationships and root settings when
   forums are permanently deleted.
 
