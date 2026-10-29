@@ -162,6 +162,20 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Numeric HTML entity fallback callbacks preserve their respective bases.
+	 *
+	 * @covers BBCode::_UnHTMLEncode_chr_callback
+	 * @covers BBCode::_UnHTMLEncode_chr_hexdec_callback
+	 * @ticket 3772
+	 */
+	public function test_html_entity_fallback_callbacks() {
+		$parser = BBCode::getInstance();
+
+		$this->assertSame( 'A', $parser->_UnHTMLEncode_chr_callback( array( '', '41' ) ) );
+		$this->assertSame( 'A', $parser->_UnHTMLEncode_chr_hexdec_callback( array( '', '65' ) ) );
+	}
+
+	/**
 	 * @covers BBCode::IsValidURL
 	 * @covers BBCode::IsValidEmail
 	 * @covers BBCodeEmailAddressValidator::check_email_address
