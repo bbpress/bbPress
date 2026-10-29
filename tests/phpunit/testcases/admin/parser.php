@@ -856,4 +856,125 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		$this->assertSame( 'inline', $parser->stack[1][BBCODE_STACK_CLASS] );
 		$this->assertTrue( $parser->WasLimited() );
 	}
+
+	/**
+	 * Tag dispatch validates parameters and supports each output strategy.
+	 *
+	 * @covers BBCode::DoTag
+	 * @covers BBCode::Internal_DoEnhancedTag
+	 * @ticket BBP3706
+	 */
+	public function test_tag_dispatch_modes_and_plain_output() {
+		$parser = BBCode::getInstance();
+
+		$this->assertTrue( $parser->DoTag( BBCODE_CHECK, 'font', 'Arial', array( '_default' => 'Arial' ), '' ) );
+		$this->assertFalse( $parser->DoTag( BBCODE_CHECK, 'font', '<script>', array( '_default' => '<script>' ), '' ) );
+		$this->assertSame( '<b>Text</b>', $parser->DoTag( BBCODE_OUTPUT, 'b', '', array(), 'Text' ) );
+		$this->assertSame( '<span class="bbcode_acronym" title="Title">ABC</span>', $parser->DoTag( BBCODE_OUTPUT, 'acronym', 'Title', array( '_default' => 'Title' ), 'ABC' ) );
+		$this->assertSame( '<a href="https://example.com" class="bbcode_url">Example</a>', $parser->DoTag( BBCODE_OUTPUT, 'url', 'https://example.com', array(), 'Example' ) );
+
+		$parser->AddRule(
+			'callback',
+			array(
+				'mode'   => BBCODE_MODE_CALLBACK,
+				'method' => function ( $bbcode, $action, $name, $default, $params, $content ) {
+					return BBCODE_CHECK === $action ? true : $name . ':' . $content;
+				},
+			)
+		);
+		$this->assertTrue( $parser->DoTag( BBCODE_CHECK, 'callback', '', array(), '' ) );
+		$this->assertSame( 'callback:Text', $parser->DoTag( BBCODE_OUTPUT, 'callback', '', array(), 'Text' ) );
+		$this->assertFalse( $parser->DoTag( -1, 'b', '', array(), 'Text' ) );
+		$parser->AddRule(
+			'enhanced',
+			array(
+				'mode'     => BBCODE_MODE_ENHANCED,
+				'allow'    => array(
+					'_content'        => '/^Body$/',
+					'_defaultcontent' => '/^(Label|Body)$/',
+					'tone'            => '/^(red|blue)$/',
+				),
+				'default'  => array( 'tone' => 'blue' ),
+				'template' => '<x data-tone="{$tone}">{$_defaultcontent}:{$_content}</x>',
+			)
+		);
+		$this->assertTrue( $parser->DoTag( BBCODE_CHECK, 'enhanced', 'Label', array(), 'Body' ) );
+		$this->assertTrue( $parser->DoTag( BBCODE_CHECK, 'enhanced', '', array(), 'Body' ) );
+		$this->assertFalse( $parser->DoTag( BBCODE_CHECK, 'enhanced', 'Label', array(), 'Invalid' ) );
+		$this->assertSame( '<x data-tone="blue">Label:Body</x>', $parser->DoTag( BBCODE_OUTPUT, 'enhanced', 'Label', array( '_default' => 'Label' ), 'Body' ) );
+		$this->assertSame( '<x data-tone="blue">Body:Body</x>', $parser->DoTag( BBCODE_OUTPUT, 'enhanced', '', array(), 'Body' ) );
+
+		$parser->SetPlainMode();
+		$this->assertSame( '<b>Text</b>', $parser->DoTag( BBCODE_OUTPUT, 'b', '', array(), 'Text' ) );
+		$this->assertSame(
+			'<a href="https://example.com">Example</a>',
+			$parser->DoTag( BBCODE_OUTPUT, 'url', 'https://example.com', array( '_default' => 'https://example.com' ), 'Example' )
+		);
+		$this->assertSame(
+			'<a href="https://example.com">https://example.com</a>',
+			$parser->DoTag( BBCODE_OUTPUT, 'url', 'https://example.com', array( '_default' => 'https://example.com' ), '' )
+		);
+	}
+
+	/**
+	 * Missing end tags use the closing marker paired with the configured opener.
+	 *
+	 * @covers BBCode::Internal_UpdateParamsForMissingEndTag
+	 * @ticket BBP3706
+	 */
+	public function test_missing_end_tag_markers() {
+		$parser = BBCode::getInstance();
+
+		foreach (
+			array(
+				'[' => '[/b]',
+				'<' => '</b>',
+				'{' => '{/b}',
+				'(' => '(/b)',
+				'|' => '|/b|',
+			) as $marker => $expected
+		) {
+			$parser->SetTagMarker( $marker );
+			$params = $parser->Internal_UpdateParamsForMissingEndTag( array( '_name' => 'b' ) );
+			$this->assertSame( $expected, $params['_endtag'] );
+		}
+	}
+
+	/**
+	 * Start and end tokens preserve unknown tags and finish supported tag stacks.
+	 *
+	 * @covers BBCode::Internal_GenerateOutput
+	 * @covers BBCode::Internal_RewindToClass
+	 * @covers BBCode::Internal_FinishTag
+	 * @covers BBCode::Internal_ProcessIsolatedTag
+	 * @covers BBCode::Internal_ParseStartTagToken
+	 * @covers BBCode::Internal_ParseEndTagToken
+	 * @ticket BBP3706
+	 */
+	public function test_tag_token_state_transitions() {
+		$parser = BBCode::getInstance();
+		$parser->stack = array();
+
+		$this->assertTrue( $parser->Internal_RewindToClass( array( 'block' ) ) );
+		$this->assertFalse( $parser->Internal_RewindToClass( array( 'list' ) ) );
+		$this->assertSame( '[missing]x[/missing]', $this->parse_without_errors( '[missing]x[/missing]', $parser ) );
+		$this->assertSame( '[list=invalid]a[/list]', $this->parse_without_errors( '[list=invalid]a[/list]', $parser ) );
+		$this->assertSame( '[*]a', $this->parse_without_errors( '[*]a', $parser ) );
+		$this->assertSame( '[[!!!]]', $this->parse_without_errors( '[[!!!]]', $parser ) );
+		$this->assertSame( "<br />\n", $this->parse_without_errors( '[br]', $parser ) );
+		$this->assertSame( "a<br />\nb", $this->parse_without_errors( 'a  [br]  b', $parser ) );
+		$this->assertStringContainsString( '<div class="bbcode_code_body" style="white-space:pre">x</div>', $this->parse_without_errors( '[code]x[/code]', $parser ) );
+		$this->assertSame( '<b>x</b>', $this->parse_without_errors( '[b]x[/b]', $parser ) );
+		$this->assertSame( '<b>x</b>', $this->parse_without_errors( '[b]x', $parser ) );
+		$this->assertSame( '<b><b>x</b></b>', $this->parse_without_errors( '[b][b]x[/b][/b]', $parser ) );
+		$this->assertSame( '[/b]', $this->parse_without_errors( '[/b]', $parser ) );
+		$this->assertSame(
+			"x\n<div class=\"bbcode_quote\">\n<div class=\"bbcode_quote_head\">Quote:</div>\n<div class=\"bbcode_quote_body\">q</div>\n</div>\ny",
+			$this->parse_without_errors( "x [quote]\n q \n[/quote]\n y", $parser )
+		);
+		$this->assertSame(
+			"<a href=\"https://example.com\" class=\"bbcode_url\"></a>\n<div class=\"bbcode_quote\">\n<div class=\"bbcode_quote_head\">Quote:</div>\n<div class=\"bbcode_quote_body\">q</div>\n</div>\n",
+			$this->parse_without_errors( '[url=https://example.com][quote]q[/quote][/url]', $parser )
+		);
+	}
 }
