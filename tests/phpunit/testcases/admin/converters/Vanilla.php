@@ -142,15 +142,52 @@ class BBP_Tests_Admin_Converters_Vanilla extends BBP_UnitTestCase {
 	 * @ticket BBP3684
 	 */
 	public function test_authenticate_pass_with_legacy_md5_hash() {
-		$metadata = serialize(
-			array(
-				'hash'   => md5( 'legacy-md5-password' ),
-				'method' => '',
-			)
-		);
+		$hash = md5( 'legacy-md5-password' );
 
-		$this->assertTrue( $this->converter->authenticate_pass( 'legacy-md5-password', $metadata ) );
-		$this->assertFalse( $this->converter->authenticate_pass( 'incorrect', $metadata ) );
+		foreach ( array( '', 'Vanilla' ) as $method ) {
+			$metadata = serialize(
+				array(
+					'hash'   => $hash,
+					'method' => $method,
+				)
+			);
+
+			$this->assertTrue( $this->converter->authenticate_pass( 'legacy-md5-password', $metadata ) );
+			$this->assertFalse( $this->converter->authenticate_pass( $hash, $metadata ) );
+			$this->assertFalse( $this->converter->authenticate_pass( 'incorrect', $metadata ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_user_maybe_convert_pass
+	 * @covers Vanilla::authenticate_pass
+	 */
+	public function test_legacy_md5_login_rejects_digest_and_upgrades_original_password() {
+		global $wpdb;
+
+		$password = 'legacy-md5-password';
+		$hash     = md5( $password );
+		$user_id  = $this->factory->user->create( array( 'user_login' => 'vanilla-md5-user' ) );
+
+		$wpdb->update( $wpdb->users, array( 'user_pass' => '' ), array( 'ID' => $user_id ) );
+		update_user_meta( $user_id, '_bbp_password', $this->converter->callback_savepass( $hash, array( 'HashMethod' => '' ) ) );
+		update_user_meta( $user_id, '_bbp_class', 'Vanilla' );
+		clean_user_cache( $user_id );
+
+		$_POST['log'] = 'vanilla-md5-user';
+		$_POST['pwd'] = $hash;
+		bbp_user_maybe_convert_pass();
+
+		$this->assertSame( '', get_userdata( $user_id )->user_pass );
+		$this->assertTrue( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+
+		$_POST['pwd'] = $password;
+		bbp_user_maybe_convert_pass();
+
+		$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+		$this->assertFalse( wp_check_password( $hash, get_userdata( $user_id )->user_pass, $user_id ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_class' ) );
 	}
 
 	/**
@@ -167,6 +204,16 @@ class BBP_Tests_Admin_Converters_Vanilla extends BBP_UnitTestCase {
 
 		$this->assertTrue( $this->converter->authenticate_pass( 'legacy-plain-password', $metadata ) );
 		$this->assertFalse( $this->converter->authenticate_pass( 'incorrect', $metadata ) );
+	}
+
+	/**
+	 * @covers Vanilla::authenticate_pass
+	 */
+	public function test_digest_shaped_legacy_plaintext_fails_closed() {
+		$password = '0123456789abcdef0123456789abcdef';
+		$metadata = serialize( array( 'hash' => $password, 'method' => '' ) );
+
+		$this->assertFalse( $this->converter->authenticate_pass( $password, $metadata ) );
 	}
 
 	/**

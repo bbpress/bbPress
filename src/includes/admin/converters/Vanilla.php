@@ -669,9 +669,16 @@ class Vanilla extends BBP_Converter_Base {
 			return false;
 		}
 
-		$plain_matches = hash_equals( $hash, $password );
-		$md5_matches   = hash_equals( $hash, md5( $password ) );
+		/*
+		 * Legacy MD5 and plaintext imports can share an empty HashMethod. Treat
+		 * digest-shaped values only as MD5 so the stored hash is not a password.
+		 * A plaintext password with this shape cannot be distinguished and must
+		 * be reset.
+		 */
+		if ( preg_match( '/\A[a-f0-9]{32}\z/i', $hash ) ) {
+			return hash_equals( $hash, md5( $password ) );
+		}
 
-		return $plain_matches || $md5_matches;
+		return hash_equals( $hash, $password );
 	}
 }
