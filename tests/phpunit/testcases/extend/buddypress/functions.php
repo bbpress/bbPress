@@ -289,4 +289,93 @@ class BBP_Tests_Extend_BuddyPress_Functions extends BBP_UnitTestCase {
 			}
 		}
 	}
+
+	/**
+	 * @covers ::bbp_group_is_admin
+	 * @covers ::bbp_group_is_mod
+	 * @covers ::bbp_group_is_member
+	 * @covers ::bbp_group_is_banned
+	 * @covers ::bbp_group_is_creator
+	 */
+	public function test_group_member_status_helpers_reflect_current_user_membership() {
+		$creator_id        = $this->factory->user->create();
+		$moderator_id      = $this->factory->user->create();
+		$member_id         = $this->factory->user->create();
+		$banned_id         = $this->factory->user->create();
+		$outsider_id       = $this->factory->user->create();
+		$group_id          = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$group             = groups_get_group( $group_id );
+		$old_group         = isset( buddypress()->groups->current_group ) ? buddypress()->groups->current_group : null;
+		$old_component     = buddypress()->current_component;
+		$old_item          = buddypress()->current_item;
+		$old_single_item   = isset( buddypress()->is_single_item ) ? buddypress()->is_single_item : null;
+
+		groups_join_group( $group_id, $moderator_id );
+		groups_promote_member( $moderator_id, $group_id, 'mod', $creator_id );
+		groups_join_group( $group_id, $member_id );
+		groups_join_group( $group_id, $banned_id );
+		groups_ban_member( $banned_id, $group_id, $creator_id );
+
+		try {
+			buddypress()->groups->current_group = $group;
+			buddypress()->current_component     = 'groups';
+			buddypress()->current_item          = $group->slug;
+			buddypress()->is_single_item        = true;
+			$this->assertTrue( bp_is_group() );
+
+			$this->set_current_user( 0 );
+			$this->reset_group_member_status_cache();
+			$this->assertFalse( bbp_group_is_admin() );
+			$this->assertFalse( bbp_group_is_mod() );
+			$this->assertFalse( bbp_group_is_member() );
+			$this->assertFalse( bbp_group_is_banned() );
+			$this->assertFalse( bbp_group_is_creator() );
+
+			$expectations = array(
+				$creator_id   => array( true, false, true, false, true ),
+				$moderator_id => array( false, true, true, false, false ),
+				$member_id    => array( false, false, true, false, false ),
+				$banned_id    => array( false, false, false, true, false ),
+				$outsider_id  => array( false, false, false, false, false ),
+			);
+
+			foreach ( $expectations as $user_id => $expected ) {
+				$this->set_current_user( $user_id );
+				$this->reset_group_member_status_cache();
+
+				$this->assertSame( $expected[0], bbp_group_is_admin() );
+				$this->assertSame( $expected[1], bbp_group_is_mod() );
+				$this->assertSame( $expected[2], bbp_group_is_member() );
+				$this->assertSame( $expected[3], bbp_group_is_banned() );
+				$this->assertSame( $expected[4], bbp_group_is_creator() );
+			}
+		} finally {
+			$this->set_current_user( $this->old_user );
+			$this->reset_group_member_status_cache();
+			buddypress()->current_component = $old_component;
+			buddypress()->current_item      = $old_item;
+
+			if ( null === $old_group ) {
+				unset( buddypress()->groups->current_group );
+			} else {
+				buddypress()->groups->current_group = $old_group;
+			}
+
+			if ( null === $old_single_item ) {
+				unset( buddypress()->is_single_item );
+			} else {
+				buddypress()->is_single_item = $old_single_item;
+			}
+		}
+	}
+
+	private function reset_group_member_status_cache() {
+		unset(
+			bbpress()->current_user->is_group_admin,
+			bbpress()->current_user->is_group_mod,
+			bbpress()->current_user->is_group_member,
+			bbpress()->current_user->is_group_banned,
+			bbpress()->current_user->is_group_creator
+		);
+	}
 }
