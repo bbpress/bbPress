@@ -143,6 +143,85 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Output helpers decode, encode, normalize, and link parser text.
+	 *
+	 * @covers BBCode::UnHTMLEncode
+	 * @covers BBCode::Wikify
+	 * @covers BBCode::HTMLEncode
+	 * @covers BBCode::FixupOutput
+	 * @ticket BBP3706
+	 */
+	public function test_parser_output_helpers() {
+		$parser = BBCode::getInstance();
+
+		$this->assertSame( 'Tom & Jerry', $parser->UnHTMLEncode( 'Tom &amp; Jerry' ) );
+		$this->assertSame( 'A A', $parser->UnHTMLEncode( '&#x41; &#65;' ) );
+		$this->assertSame( 'Hello_world', $parser->Wikify( '  Hello__world!  ' ) );
+		$this->assertSame( 'A &amp; B &lt; C &quot;D&quot;', $parser->HTMLEncode( 'A & B < C "D"' ) );
+
+		$parser->SetAllowAmpersand();
+		$this->assertSame( 'A & B &lt; C &quot;D&quot;', $parser->HTMLEncode( 'A & B < C "D"' ) );
+
+		$parser->SetDetectURLs();
+		$this->assertSame( 'Visit <a href="https://example.com/">https://example.com</a>', $parser->FixupOutput( 'Visit https://example.com' ) );
+
+		$parser->SetDetectURLs( false );
+		$parser->ClearSmileys();
+		$parser->AddSmiley( ':custom:', 'custom.png' );
+		$smiley = $parser->FixupOutput( ':custom:' );
+		$this->assertStringContainsString( 'custom.png', $smiley );
+		$this->assertStringContainsString( 'class="bbcode_smiley"', $smiley );
+	}
+
+	/**
+	 * Template expansion supports nested values, defaults, scalar types, and flags.
+	 *
+	 * @covers BBCode::FillTemplate
+	 * @ticket BBP3706
+	 */
+	public function test_fill_template_expands_values_and_formatting_flags() {
+		$parser = BBCode::getInstance();
+		$values = array(
+			'user'  => array( 'name' => 'John & Jane' ),
+			'flag'  => true,
+			'count' => 3,
+			'ratio' => 1.5,
+			'text'  => "  Alpha\t Beta  ",
+			'path'  => '/tmp/file.txt',
+			'wiki'  => 'Hello world!',
+			'url'   => 'a b',
+			'lines' => "a\nb",
+			'html'   => "<x>\ny & z",
+			'null'   => null,
+			'object' => (object) array( 'name' => 'Object value' ),
+			'array'  => array( 'value' ),
+			'scalar' => 'value',
+		);
+
+		$this->assertSame( 'John &amp; Jane', $parser->FillTemplate( '{$user.name/h}', $values ) );
+		$this->assertSame( 'fallback', $parser->FillTemplate( '{$missing}', $values, array( 'missing' => 'fallback' ) ) );
+		$this->assertSame( 'true-3-1.5', $parser->FillTemplate( '{$flag}-{$count}-{$ratio}', $values ) );
+		$this->assertSame( 'Alpha Beta', $parser->FillTemplate( '{$text/wt}', $values ) );
+		$this->assertSame( 'file.txt', $parser->FillTemplate( '{$path/b}', $values ) );
+		$this->assertSame( 'Hello_world', $parser->FillTemplate( '{$wiki/k}', $values ) );
+		$this->assertSame( 'a+b', $parser->FillTemplate( '{$url/u}', $values ) );
+		$this->assertSame( "a<br />\nb", $parser->FillTemplate( '{$lines/n}', $values ) );
+		$this->assertSame( "<x>\ny & z", $parser->FillTemplate( '{$html/vh}', $values ) );
+		$this->assertSame( "&lt;x&gt;<br />\ny &amp; z", $parser->FillTemplate( '{$html/hn}', $values ) );
+
+		$parser->SetAllowAmpersand();
+		$this->assertSame( "&lt;x&gt;\ny & z", $parser->FillTemplate( '{$html/eh}', $values ) );
+		$this->assertSame( "&lt;x&gt;\ny &amp; z", $parser->FillTemplate( '{$html/h}', $values ) );
+
+		$this->assertSame( 'insert', $parser->FillTemplate( '{$value}', array( 'value' => 'insert' ), array( 'value' => 'default' ) ) );
+		$this->assertSame( 'default', $parser->FillTemplate( '{$null}', $values, array( 'null' => 'default' ) ) );
+		$this->assertSame( '', $parser->FillTemplate( '{$scalar.child}', $values ) );
+		$this->assertSame( 'Object value', $parser->FillTemplate( '{$object.name}', $values ) );
+		$this->assertSame( '', $parser->FillTemplate( '{$array}', $values ) );
+		$this->assertSame( 'No placeholders', $parser->FillTemplate( 'No placeholders', $values ) );
+	}
+
+	/**
 	 * Scalar parser settings retain their configured values.
 	 *
 	 * @covers BBCode::SetPreTrim
@@ -381,6 +460,43 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		$this->assertFalse( $parser->IsValidURL( 'javascript:alert(1)' ) );
 		$this->assertTrue( $parser->IsValidEmail( 'a@example.com' ) );
 		$this->assertFalse( $parser->IsValidEmail( 'not-an-email' ) );
+	}
+
+	/**
+	 * Email validation enforces local, domain, and length constraints.
+	 *
+	 * @covers BBCodeEmailAddressValidator::check_email_address
+	 * @covers BBCodeEmailAddressValidator::check_local_portion
+	 * @covers BBCodeEmailAddressValidator::check_domain_portion
+	 * @covers BBCodeEmailAddressValidator::check_text_length
+	 * @ticket BBP3706
+	 */
+	public function test_email_validator_components() {
+		$validator = new BBCodeEmailAddressValidator();
+
+		$this->assertTrue( $validator->check_email_address( 'first.last@example.com' ) );
+		$this->assertTrue( $validator->check_email_address( '"a@b"@example.com' ) );
+		$this->assertFalse( $validator->check_email_address( 'a@b@example.com' ) );
+		$this->assertFalse( $validator->check_email_address( "a\0b@example.com" ) );
+
+		$this->assertTrue( $validator->check_local_portion( 'first.last' ) );
+		$this->assertTrue( $validator->check_local_portion( '"quoted value"' ) );
+		$this->assertTrue( $validator->check_local_portion( str_repeat( 'a', 64 ) ) );
+		$this->assertFalse( $validator->check_local_portion( 'first..last' ) );
+		$this->assertFalse( $validator->check_local_portion( str_repeat( 'a', 65 ) ) );
+
+		$this->assertTrue( $validator->check_domain_portion( 'example.com' ) );
+		$this->assertTrue( $validator->check_domain_portion( str_repeat( 'a', 63 ) . '.com' ) );
+		$this->assertTrue( $validator->check_domain_portion( '127.0.0.1' ) );
+		$this->assertTrue( $validator->check_domain_portion( '[127.0.0.1]' ) );
+		$this->assertFalse( $validator->check_domain_portion( 'localhost' ) );
+		$this->assertFalse( $validator->check_domain_portion( '[256.0.0.1]' ) );
+		$this->assertFalse( $validator->check_domain_portion( '-example.com' ) );
+		$this->assertFalse( $validator->check_domain_portion( str_repeat( 'a', 64 ) . '.com' ) );
+
+		$this->assertFalse( $validator->check_text_length( '', 1, 2 ) );
+		$this->assertTrue( $validator->check_text_length( 'ab', 1, 2 ) );
+		$this->assertFalse( $validator->check_text_length( 'abc', 1, 2 ) );
 	}
 
 	/**
