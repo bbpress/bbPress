@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Validate only or simulate the atomic push
+        description: Validate, simulate, or perform the approved atomic push
         required: true
         default: validate
         type: choice
         options:
           - validate
           - dry-run
+          - push
   schedule:
     - cron: '*/10 * * * *'
 
@@ -63,7 +64,7 @@ jobs:
   synchronize:
     name: Synchronize canonical refs
     needs: validate
-    if: ${{ inputs.mode == 'dry-run' || (github.event_name == 'schedule' && needs.validate.outputs.needs_sync == 'true') }}
+    if: ${{ inputs.mode == 'dry-run' || inputs.mode == 'push' || (github.event_name == 'schedule' && needs.validate.outputs.needs_sync == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: github mirror
