@@ -1595,6 +1595,126 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Activity action labels are complete and filterable.
+	 *
+	 * @covers ::bbp_get_activity_actions
+	 * @ticket BBP3706
+	 */
+	public function test_activity_action_labels_are_filterable() {
+		$actions = bbp_get_activity_actions();
+
+		$this->assertSame( array( 'topic', 'reply' ), array_keys( $actions ) );
+		$this->assertStringContainsString( 'started the topic', $actions['topic'] );
+		$this->assertStringContainsString( 'replied to the topic', $actions['reply'] );
+
+		$filter = static function ( $filtered_actions ) {
+			$filtered_actions['topic'] = 'Filtered topic action';
+			return $filtered_actions;
+		};
+		add_filter( 'bbp_get_activity_actions', $filter );
+
+		try {
+			$this->assertSame( 'Filtered topic action', bbp_get_activity_actions()['topic'] );
+		} finally {
+			remove_filter( 'bbp_get_activity_actions', $filter );
+		}
+	}
+
+	/**
+	 * Activity action formatting validates types before supporting interception.
+	 *
+	 * @covers ::bbp_format_activity_action_new_post
+	 * @ticket BBP3706
+	 */
+	public function test_activity_action_formatter_rejects_unknown_types_and_supports_interception() {
+		$this->assertSame( 'Original action', bbp_format_activity_action_new_post( 'unknown', 'Original action', false ) );
+
+		$filter = static function () {
+			return 'Intercepted action';
+		};
+		add_filter( 'pre_bbp_format_activity_action_new_post', $filter );
+
+		try {
+			$this->assertSame( 'Intercepted action', bbp_format_activity_action_new_post( 'topic', 'Original action', false ) );
+		} finally {
+			remove_filter( 'pre_bbp_format_activity_action_new_post', $filter );
+		}
+	}
+
+	/**
+	 * Group activity actions resolve their topic, reply, and forum IDs.
+	 *
+	 * @covers ::bbp_format_activity_action_new_post
+	 * @covers ::bbp_format_activity_action_new_topic
+	 * @covers ::bbp_format_activity_action_new_reply
+	 * @ticket BBP3706
+	 */
+	public function test_group_activity_action_formatters_use_topic_reply_and_forum_links() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create( array( 'post_title' => 'Group Forum' ) );
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'post_author' => $user_id,
+				'post_title'  => 'Group Topic',
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'post_author' => $user_id,
+			)
+		);
+		$user_link  = bbp_get_user_profile_link( $user_id );
+		$topic_link = '<a href="' . esc_url( bbp_get_topic_permalink( $topic_id ) ) . '">' . esc_html( bbp_get_topic_title( $topic_id ) ) . '</a>';
+		$forum_link = '<a href="' . esc_url( bbp_get_forum_permalink( $forum_id ) ) . '">' . esc_html( bbp_get_forum_title( $forum_id ) ) . '</a>';
+		$topic_text = sprintf( bbp_get_activity_actions()['topic'], $user_link, $topic_link, $forum_link );
+		$reply_text = sprintf( bbp_get_activity_actions()['reply'], $user_link, $topic_link, $forum_link );
+		$topic      = (object) array(
+			'component'         => 'groups',
+			'secondary_item_id' => $topic_id,
+			'user_id'           => $user_id,
+		);
+		$reply      = (object) array(
+			'component'         => 'groups',
+			'secondary_item_id' => $reply_id,
+			'user_id'           => $user_id,
+		);
+
+		$topic_action = bbp_format_activity_action_new_topic( 'Original topic action', $topic );
+		$reply_action = bbp_format_activity_action_new_reply( 'Original reply action', $reply );
+
+		$this->assertSame( $topic_text, $topic_action );
+		$this->assertSame( $reply_text, $reply_action );
+		$this->assertStringContainsString( '>Group Topic</a>', $topic_action );
+		$this->assertStringContainsString( '>Group Forum</a>', $topic_action );
+		$this->assertStringContainsString( '>Group Topic</a>', $reply_action );
+		$this->assertStringContainsString( '>Group Forum</a>', $reply_action );
+
+		$post_filter = static function ( $action, $type ) {
+			return $action . ' [' . $type . ']';
+		};
+		$topic_filter = static function ( $action ) {
+			return $action . ' [topic wrapper]';
+		};
+		$reply_filter = static function ( $action ) {
+			return $action . ' [reply wrapper]';
+		};
+		add_filter( 'bbp_format_activity_action_new_post', $post_filter, 10, 2 );
+		add_filter( 'bbp_format_activity_action_new_topic', $topic_filter );
+		add_filter( 'bbp_format_activity_action_new_reply', $reply_filter );
+
+		try {
+			$this->assertSame( $topic_text . ' [topic] [topic wrapper]', bbp_format_activity_action_new_topic( 'Original topic action', $topic ) );
+			$this->assertSame( $reply_text . ' [reply] [reply wrapper]', bbp_format_activity_action_new_reply( 'Original reply action', $reply ) );
+		} finally {
+			remove_filter( 'bbp_format_activity_action_new_post', $post_filter, 10 );
+			remove_filter( 'bbp_format_activity_action_new_topic', $topic_filter );
+			remove_filter( 'bbp_format_activity_action_new_reply', $reply_filter );
+		}
+	}
+
+	/**
 	 * Dynamic activity actions for site-wide forum topics.
 	 *
 	 * @since 2.6.0 bbPress (r6370)
