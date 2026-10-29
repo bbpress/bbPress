@@ -72,9 +72,9 @@ class BBP_Tests_Core_Extend extends BBP_UnitTestCase {
 		$GLOBALS['bp'] = (object) array( 'maintenance_mode' => true );
 		unset( bbpress()->extend->buddypress );
 		try {
-			$this->assertSame( $GLOBALS['bp'], buddypress() );
 			bbp_setup_buddypress();
 
+			$this->assertSame( $GLOBALS['bp'], buddypress() );
 			$this->assertFalse( isset( bbpress()->extend->buddypress ) );
 		} finally {
 			$this->restore_buddypress_state( $had_bp, $old_bp, $had_component, $old_component );

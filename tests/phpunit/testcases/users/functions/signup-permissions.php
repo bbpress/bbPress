@@ -9,15 +9,31 @@
 class BBP_Tests_Users_Functions_Signup_Permissions extends BBP_UnitTestCase {
 
 	protected $old_post;
+	protected $old_errors;
+	protected $old_screen;
 	protected $granted_super_admin;
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->old_post = $_POST;
+		$this->old_post   = $_POST;
+		$this->old_errors = bbpress()->errors;
+		$this->old_screen = array_key_exists( 'current_screen', $GLOBALS )
+			? $GLOBALS['current_screen']
+			: null;
+
+		bbpress()->errors = new WP_Error();
 	}
 
 	public function tearDown(): void {
-		$_POST = $this->old_post;
+		$_POST            = $this->old_post;
+		bbpress()->errors = $this->old_errors;
+
+		if ( null === $this->old_screen ) {
+			unset( $GLOBALS['current_screen'] );
+		} else {
+			$GLOBALS['current_screen'] = $this->old_screen;
+		}
+
 		if ( $this->granted_super_admin ) {
 			revoke_super_admin( $this->granted_super_admin );
 			$this->granted_super_admin = 0;

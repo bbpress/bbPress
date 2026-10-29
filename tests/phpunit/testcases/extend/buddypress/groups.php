@@ -20,6 +20,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $old_allow_anonymous;
 	protected $old_allow_content_throttle;
 	protected $old_moderation_keys;
+	protected $old_forums_status;
 	protected $old_action_variables;
 	protected $old_forum_query;
 	protected $old_topic_query;
@@ -66,12 +67,14 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->old_request = $_REQUEST;
 		$this->old_server  = $_SERVER;
 		$this->old_errors  = bbpress()->errors;
+		bbpress()->errors  = new WP_Error();
 		$this->old_allow_forum_mods = get_option( '_bbp_allow_forum_mods', null );
 		$this->old_community_visibility = get_option( '_bp_community_visibility', null );
 		$this->old_moderation_notification_recipient_types = get_option( '_bbp_moderation_notification_recipient_types', null );
 		$this->old_allow_anonymous = get_option( '_bbp_allow_anonymous', null );
 		$this->old_allow_content_throttle = get_option( '_bbp_allow_content_throttle' );
 		$this->old_moderation_keys = get_option( 'moderation_keys' );
+		$this->old_forums_status = get_option( '_bbp_forums_status', null );
 		$this->old_action_variables = buddypress()->action_variables;
 		$this->old_forum_query       = bbpress()->forum_query;
 		$this->old_topic_query       = bbpress()->topic_query;
@@ -123,19 +126,10 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			update_option( '_bbp_allow_anonymous', $this->old_allow_anonymous );
 		}
 
-		if ( isset( $this->group_extension ) ) {
-			remove_action( 'bbp_new_topic_pre_extras', array( $this->group_extension, 'validate_new_post' ), 10 );
-			remove_action( 'bbp_new_reply_pre_extras', array( $this->group_extension, 'validate_new_post' ), 10 );
-			remove_filter( 'bbp_allow_read_without_spectate', array( $this->group_extension, 'allow_group_forum_read_without_role' ), 10 );
-			remove_filter( 'bbp_current_user_can_access_create_topic_form', array( $this->group_extension, 'form_permissions' ) );
-			remove_filter( 'bbp_current_user_can_access_create_reply_form', array( $this->group_extension, 'form_permissions' ) );
-			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 10 );
-			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99 );
-			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_read_meta_caps' ), 20 );
-			remove_filter( 'bbp_get_excluded_forum_ids', array( $this->group_extension, 'exclude_group_forum_ids' ), 20 );
-			remove_filter( 'bbp_is_forum_restricted_for_user', array( $this->group_extension, 'restrict_inaccessible_group_forums' ), 10 );
-			remove_filter( 'bbp_user_can_view_forum', array( $this->group_extension, 'filter_user_can_view_forum' ), 10 );
-			remove_filter( 'bbp_subscription_user_can_view_forum', array( $this->group_extension, 'subscription_user_can_view_forum' ), 10 );
+		if ( null === $this->old_forums_status ) {
+			delete_option( '_bbp_forums_status' );
+		} else {
+			update_option( '_bbp_forums_status', $this->old_forums_status );
 		}
 
 		unset( buddypress()->groups->current_group );
@@ -1868,6 +1862,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			)
 		);
 
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
 		$this->attach_forum_to_group( $forum_id, $group_id );
 		bbp_add_moderator( $forum_id, $moderator_id );
 		bbp_update_group_forum_ids( $group_id, array( $forum_id, $post_id ) );

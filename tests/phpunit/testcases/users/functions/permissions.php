@@ -11,6 +11,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 	private $allow_super_mods;
 	private $allow_global_access;
 	private $request_method;
+	private $displayed_user;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -20,6 +21,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		$this->request_method      = isset( $_SERVER['REQUEST_METHOD'] )
 			? $_SERVER['REQUEST_METHOD']
 			: null;
+		$this->displayed_user      = bbpress()->displayed_user;
 	}
 
 	public function tearDown(): void {
@@ -57,6 +59,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		$wp_query->bbp_is_single_user_home = false;
 		$wp_query->bbp_is_single_user_profile = false;
 		$wp_query->bbp_is_single_user_subs = false;
+		bbpress()->displayed_user = $this->displayed_user;
 
 		$_POST    = array();
 		$_REQUEST = array();

@@ -14,6 +14,7 @@ class BBP_Tests_Users_Functions_Engagement_Permissions extends BBP_UnitTestCase 
 	protected $old_errors;
 	protected $allow_super_mods;
 	protected $old_is_single_user;
+	protected $old_screen;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -26,11 +27,15 @@ class BBP_Tests_Users_Functions_Engagement_Permissions extends BBP_UnitTestCase 
 		$this->old_is_single_user = isset( bbp_get_wp_query()->bbp_is_single_user )
 			? bbp_get_wp_query()->bbp_is_single_user
 			: null;
+		$this->old_screen         = array_key_exists( 'current_screen', $GLOBALS )
+			? $GLOBALS['current_screen']
+			: null;
 		$home_url                 = wp_parse_url( home_url( '/' ) );
 
 		bbpress()->errors       = new WP_Error();
 		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
 		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		set_current_screen( 'front' );
 	}
 
 	public function tearDown(): void {
@@ -50,6 +55,12 @@ class BBP_Tests_Users_Functions_Engagement_Permissions extends BBP_UnitTestCase 
 		$_REQUEST          = $this->old_request;
 		$_SERVER           = $this->old_server;
 		bbpress()->errors = $this->old_errors;
+
+		if ( null === $this->old_screen ) {
+			unset( $GLOBALS['current_screen'] );
+		} else {
+			$GLOBALS['current_screen'] = $this->old_screen;
+		}
 
 		parent::tearDown();
 	}
