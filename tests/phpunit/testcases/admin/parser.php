@@ -144,6 +144,85 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * The lexer recognizes structural tokens and decoded tag parameters.
+	 *
+	 * @covers BBCodeLexer::__construct
+	 * @covers BBCodeLexer::NextToken
+	 * @covers BBCodeLexer::Internal_DecodeTag
+	 * @covers BBCodeLexer::Internal_ClassifyPiece
+	 * @covers BBCodeLexer::Internal_StripQuotes
+	 * @ticket BBP3706
+	 */
+	public function test_lexer_tokenizes_comments_wiki_rules_and_tag_parameters() {
+		$lexer = new BBCodeLexer( "a\n-----[-- comment][[Page|Title]][url=\"https://example.com\" title=\"Hi there\"]x[/url]" );
+
+		$this->assertSame( BBCODE_TEXT, $lexer->NextToken() );
+		$this->assertSame( 'a', $lexer->text );
+		$this->assertSame( BBCODE_NL, $lexer->NextToken() );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'rule', $lexer->tag['_name'] );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( array( 'wiki', 'Page', 'Title' ), array( $lexer->tag['_name'], $lexer->tag['_default'], $lexer->tag['title'] ) );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'url', $lexer->tag['_name'] );
+		$this->assertSame( 'https://example.com', $lexer->tag['_default'] );
+		$this->assertSame( 'Hi there', $lexer->tag['title'] );
+		$this->assertSame(
+			array(
+				array( 'key' => '', 'value' => 'https://example.com' ),
+				array( 'key' => 'title', 'value' => 'Hi there' ),
+			),
+			$lexer->tag['_params']
+		);
+		$this->assertSame( BBCODE_TEXT, $lexer->NextToken() );
+		$this->assertSame( 'x', $lexer->text );
+		$this->assertSame( BBCODE_ENDTAG, $lexer->NextToken() );
+		$this->assertSame( 'url', $lexer->tag['_name'] );
+		$this->assertTrue( $lexer->tag['_end'] );
+		$this->assertSame( BBCODE_EOI, $lexer->NextToken() );
+	}
+
+	/**
+	 * The lexer supports token pushback, verbatim input, and alternate markers.
+	 *
+	 * @covers BBCodeLexer::__construct
+	 * @covers BBCodeLexer::NextToken
+	 * @covers BBCodeLexer::UngetToken
+	 * @ticket BBP3706
+	 */
+	public function test_lexer_ungets_tokens_preserves_verbatim_and_falls_back_to_default_marker() {
+		$lexer = new BBCodeLexer( '<b>x</b>', '<' );
+		$this->assertSame( '<', $lexer->tagmarker );
+		$this->assertSame( '>', $lexer->end_tagmarker );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'b', $lexer->tag['_name'] );
+		$lexer->UngetToken();
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'b', $lexer->tag['_name'] );
+		$this->assertSame( BBCODE_TEXT, $lexer->NextToken() );
+		$this->assertSame( 'x', $lexer->text );
+		$this->assertSame( BBCODE_ENDTAG, $lexer->NextToken() );
+		$this->assertSame( 'b', $lexer->tag['_name'] );
+
+		$verbatim           = new BBCodeLexer( "[b] x\n[/b]" );
+		$verbatim->verbatim = true;
+		$tokens             = array();
+		$text               = array();
+		for ( $i = 0; $i < 5; $i++ ) {
+			$tokens[] = $verbatim->NextToken();
+			$text[]   = $verbatim->text;
+		}
+
+		$this->assertSame( array( BBCODE_TEXT, BBCODE_WS, BBCODE_TEXT, BBCODE_NL, BBCODE_TEXT ), $tokens );
+		$this->assertSame( array( '[b]', ' ', 'x', "\n", '[/b]' ), $text );
+		$this->assertSame( BBCODE_EOI, $verbatim->NextToken() );
+
+		$fallback = new BBCodeLexer( '[b]x[/b]', '!' );
+		$this->assertSame( '[', $fallback->tagmarker );
+		$this->assertSame( ']', $fallback->end_tagmarker );
+	}
+
+	/**
 	 * @covers BBCodeLexer::NextToken
 	 * @covers BBCodeLexer::PeekToken
 	 * @covers BBCodeLexer::GuessTextLength
