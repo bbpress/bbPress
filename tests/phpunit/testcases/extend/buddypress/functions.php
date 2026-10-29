@@ -184,4 +184,109 @@ class BBP_Tests_Extend_BuddyPress_Functions extends BBP_UnitTestCase {
 			'subscriptions' => array( 'bbp_member_forums_subscriptions_content', 'subscriptions' ),
 		);
 	}
+
+	/**
+	 * @covers ::bbp_get_group_forum_ids
+	 * @covers ::bbp_update_group_forum_ids
+	 * @covers ::bbp_add_forum_id_to_group
+	 * @covers ::bbp_remove_forum_id_from_group
+	 */
+	public function test_group_forum_relationship_helpers_normalize_and_update_ids() {
+		$group_id  = $this->bp_factory->group->create();
+		$forum_ids = $this->factory->forum->create_many( 3 );
+
+		bbp_update_group_forum_ids( $group_id, array( $forum_ids[0], '0', (string) $forum_ids[1] ) );
+		$this->assertSame( array( $forum_ids[0], $forum_ids[1] ), array_values( bbp_get_group_forum_ids( $group_id ) ) );
+
+		bbp_add_forum_id_to_group( $group_id, $forum_ids[2] );
+		bbp_add_forum_id_to_group( $group_id, $forum_ids[2] );
+		$this->assertSame( $forum_ids, array_values( bbp_get_group_forum_ids( $group_id ) ) );
+
+		bbp_remove_forum_id_from_group( $group_id, $forum_ids[1] );
+		bbp_remove_forum_id_from_group( $group_id, $forum_ids[1] );
+		$this->assertSame( array( $forum_ids[0], $forum_ids[2] ), array_values( bbp_get_group_forum_ids( $group_id ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_forum_group_ids
+	 * @covers ::bbp_update_forum_group_ids
+	 * @covers ::bbp_add_group_id_to_forum
+	 * @covers ::bbp_remove_group_id_from_forum
+	 * @covers ::bbp_is_forum_group_forum
+	 */
+	public function test_forum_group_relationship_helpers_normalize_and_update_ids() {
+		$group_ids = $this->bp_factory->group->create_many( 3 );
+		$forum_id  = $this->factory->forum->create();
+
+		$this->assertFalse( bbp_is_forum_group_forum( $forum_id ) );
+
+		bbp_update_forum_group_ids( $forum_id, array( $group_ids[0], '0', (string) $group_ids[1] ) );
+		$this->assertSame( array( $group_ids[0], $group_ids[1] ), array_values( bbp_get_forum_group_ids( $forum_id ) ) );
+		$this->assertTrue( bbp_is_forum_group_forum( $forum_id ) );
+
+		bbp_add_group_id_to_forum( $forum_id, $group_ids[2] );
+		bbp_add_group_id_to_forum( $forum_id, $group_ids[2] );
+		$this->assertSame( $group_ids, array_values( bbp_get_forum_group_ids( $forum_id ) ) );
+
+		bbp_remove_group_id_from_forum( $forum_id, $group_ids[1] );
+		bbp_remove_group_id_from_forum( $forum_id, $group_ids[1] );
+		$this->assertSame( array( $group_ids[0], $group_ids[2] ), array_values( bbp_get_forum_group_ids( $forum_id ) ) );
+
+		bbp_remove_group_id_from_forum( $forum_id, $group_ids[0] );
+		bbp_remove_group_id_from_forum( $forum_id, $group_ids[2] );
+		$this->assertSame( array(), bbp_get_forum_group_ids( $forum_id ) );
+		$this->assertFalse( bbp_is_forum_group_forum( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_group_forum_ids
+	 * @covers ::bbp_update_group_forum_ids
+	 * @covers ::bbp_get_forum_group_ids
+	 */
+	public function test_relationship_helpers_use_current_objects_and_filters() {
+		$group_id             = $this->bp_factory->group->create();
+		$forum_id             = $this->factory->forum->create();
+		$old_group            = isset( buddypress()->groups->current_group ) ? buddypress()->groups->current_group : null;
+		$old_current_forum_id = bbpress()->current_forum_id;
+		$old_query_name       = bbp_get_query_name();
+		$group_filter_args    = null;
+		$forum_filter_args    = null;
+		$group_filter         = static function ( $forum_ids, $filtered_group_id ) use ( &$group_filter_args ) {
+			$group_filter_args = array( $forum_ids, $filtered_group_id );
+			$forum_ids[] = 123;
+			return $forum_ids;
+		};
+		$forum_filter         = static function ( $group_ids, $filtered_forum_id ) use ( &$forum_filter_args ) {
+			$forum_filter_args = array( $group_ids, $filtered_forum_id );
+			$group_ids[] = 456;
+			return $group_ids;
+		};
+
+		buddypress()->groups->current_group = groups_get_group( $group_id );
+		bbpress()->current_forum_id          = $forum_id;
+		bbp_set_query_name( 'bbp_single_forum' );
+		add_filter( 'bbp_get_group_forum_ids', $group_filter, 10, 2 );
+		add_filter( 'bbp_get_forum_group_ids', $forum_filter, 10, 2 );
+
+		try {
+			bbp_update_group_forum_ids( 0, array( $forum_id ) );
+			bbp_update_forum_group_ids( 0, array( $group_id ) );
+
+			$this->assertSame( array( $forum_id, 123 ), bbp_get_group_forum_ids() );
+			$this->assertSame( array( array( $forum_id ), $group_id ), $group_filter_args );
+			$this->assertSame( array( $group_id, 456 ), bbp_get_forum_group_ids() );
+			$this->assertSame( array( array( $group_id ), $forum_id ), $forum_filter_args );
+		} finally {
+			remove_filter( 'bbp_get_group_forum_ids', $group_filter, 10 );
+			remove_filter( 'bbp_get_forum_group_ids', $forum_filter, 10 );
+			bbpress()->current_forum_id = $old_current_forum_id;
+			bbp_set_query_name( $old_query_name );
+
+			if ( null === $old_group ) {
+				unset( buddypress()->groups->current_group );
+			} else {
+				buddypress()->groups->current_group = $old_group;
+			}
+		}
+	}
 }
