@@ -143,6 +143,19 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Automatic URL detection supports one-character email local parts.
+	 *
+	 * @covers BBCode::Internal_AutoDetectURLs
+	 * @ticket 3773
+	 */
+	public function test_auto_detect_urls_links_single_character_email_local_part() {
+		$parser = BBCode::getInstance();
+		$parser->SetDetectURLs();
+
+		$this->assertSame( 'Mail <a href="mailto:a@example.com">a@example.com</a>', $parser->FixupOutput( 'Mail a@example.com' ) );
+	}
+
+	/**
 	 * Configured URL targets override tag targets unless override mode is enabled.
 	 *
 	 * @covers BBCodeLibrary::DoURL

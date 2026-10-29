@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Linked imported email addresses with one-character local parts during
+  automatic URL detection.
 - Ensured configured URL targets override per-tag targets in imported BBCode
   unless override mode is explicitly enabled.
 - Prevented paired newlines in imported content from producing duplicate HTML

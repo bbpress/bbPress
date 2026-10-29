@@ -1351,7 +1351,7 @@ $output = preg_split("/( (?:
 [^\\(\\)\\[\\]\\{\\}<>\\'\\\"\\x00-\\x20\\x7F-\\xFF]+
 )?
 ) | (?:
-[a-zA-Z0-9._-]{2,} @
+[a-zA-Z0-9._-]{1,} @
 (?:
 (?: (?: [a-zA-Z0-9-]{2,} \\. )+
 (?: arpa | com | org | net | edu | gov | mil | int | [a-z]{2}
@@ -1364,7 +1364,7 @@ if (count($output) > 1) {
 $is_a_url = false;
 foreach ($output as $index => $token) {
 if ($is_a_url) {
-if (preg_match("/^[a-zA-Z0-9._-]{2,}@/", $token)) {
+if (preg_match("/^[a-zA-Z0-9._-]{1,}@/", $token)) {
 $url = "mailto:" . $token;
 }
 else if (preg_match("/^(https?:|ftp:)\\/*([^\\/&?#]+)\\/*(.*)\$/", $token, $matches)) {
