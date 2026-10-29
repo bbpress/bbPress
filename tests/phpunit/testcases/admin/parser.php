@@ -222,6 +222,125 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Link renderers validate destinations and honor target settings.
+	 *
+	 * @covers BBCodeLibrary::DoURL
+	 * @covers BBCodeLibrary::DoEmail
+	 * @covers BBCodeLibrary::DoWiki
+	 * @ticket BBP3706
+	 * @ticket 3771
+	 */
+	public function test_library_link_renderers() {
+		$parser  = BBCode::getInstance();
+		$library = new BBCodeLibrary();
+		$params  = array(
+			'_tag'    => '[url]',
+			'_endtag' => '[/url]',
+		);
+
+		$this->assertTrue( $library->DoURL( $parser, BBCODE_CHECK, 'url', false, $params, '' ) );
+		$this->assertSame( '<a href="https://example.com" class="bbcode_url">Example</a>', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'https://example.com', $params, 'Example' ) );
+		$this->assertSame( '[url]Example[/url]', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'javascript:alert(1)', $params, 'Example' ) );
+
+		$parser->SetURLTargetable( true );
+		$params['target'] = '_self';
+		$this->assertStringContainsString( ' target="_self"', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'https://example.com', $params, 'Example' ) );
+		$parser->SetURLTarget( '_blank' );
+		$this->assertStringContainsString( ' target="_blank"', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'https://example.com', $params, 'Example' ) );
+		$parser->SetURLTargetable( 'override' );
+		$this->assertStringContainsString( ' target="_self"', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'https://example.com', $params, 'Example' ) );
+
+		$email_params = array(
+			'_tag'    => '[email]',
+			'_endtag' => '[/email]',
+		);
+		$this->assertTrue( $library->DoEmail( $parser, BBCODE_CHECK, 'email', false, $email_params, '' ) );
+		$this->assertSame( '<a href="mailto:a@example.com" class="bbcode_email">Email</a>', $library->DoEmail( $parser, BBCODE_OUTPUT, 'email', 'a@example.com', $email_params, 'Email' ) );
+		$this->assertSame( '[email]Email[/email]', $library->DoEmail( $parser, BBCODE_OUTPUT, 'email', 'invalid', $email_params, 'Email' ) );
+
+		$this->assertTrue( $library->DoWiki( $parser, BBCODE_CHECK, 'wiki', 'Page Name', array(), '' ) );
+		$this->assertFalse( $library->DoWiki( $parser, BBCODE_CHECK, 'wiki', '!!!', array(), '' ) );
+		$this->assertSame( '<a href="/?page=Page_Name" class="bbcode_wiki">Custom Title</a>', $library->DoWiki( $parser, BBCODE_OUTPUT, 'wiki', 'Page Name', array( 'title' => ' Custom Title ' ), '' ) );
+	}
+
+	/**
+	 * Style and rule renderers normalize supported values.
+	 *
+	 * @covers BBCodeLibrary::DoSize
+	 * @covers BBCodeLibrary::DoFont
+	 * @covers BBCodeLibrary::DoRule
+	 * @ticket BBP3706
+	 */
+	public function test_library_style_and_rule_renderers() {
+		$parser  = BBCode::getInstance();
+		$library = new BBCodeLibrary();
+
+		$this->assertSame( '<span style="font-size:.5em">Text</span>', $library->DoSize( $parser, BBCODE_OUTPUT, 'size', '0', array(), 'Text' ) );
+		$this->assertSame( '<span style="font-size:1.0em">Text</span>', $library->DoSize( $parser, BBCODE_OUTPUT, 'size', 'invalid', array(), 'Text' ) );
+		$this->assertSame( '<span style="font-size:2.5em">Text</span>', $library->DoSize( $parser, BBCODE_OUTPUT, 'size', '7', array(), 'Text' ) );
+		$this->assertSame( '<span style="font-family:\'Arial\',sans-serif,monospace">Text</span>', $library->DoFont( $parser, BBCODE_OUTPUT, 'font', ' Arial, sans, mono ', array(), 'Text' ) );
+		$this->assertTrue( $library->DoRule( $parser, BBCODE_CHECK, 'rule', false, array(), '' ) );
+		$this->assertSame( $parser->GetRuleHTML(), $library->DoRule( $parser, BBCODE_OUTPUT, 'rule', false, array(), '' ) );
+	}
+
+	/**
+	 * Image and quote renderers preserve valid content and reject invalid destinations.
+	 *
+	 * @covers BBCodeLibrary::DoImage
+	 * @covers BBCodeLibrary::DoQuote
+	 * @ticket BBP3706
+	 */
+	public function test_library_image_and_quote_renderers() {
+		$parser  = BBCode::getInstance();
+		$library = new BBCodeLibrary();
+		$params  = array(
+			'_tag'    => '[img]',
+			'_endtag' => '[/img]',
+		);
+
+		$this->assertTrue( $library->DoImage( $parser, BBCODE_CHECK, 'img', false, $params, '' ) );
+		$this->assertSame( '<img src="https://example.com/a.png" alt="a.png" class="bbcode_img" />', $library->DoImage( $parser, BBCODE_OUTPUT, 'img', false, $params, ' https://example.com/a.png ' ) );
+		$this->assertSame( '[img]javascript:alert(1).png[/img]', $library->DoImage( $parser, BBCODE_OUTPUT, 'img', false, $params, 'javascript:alert(1).png' ) );
+
+		$this->assertTrue( $library->DoQuote( $parser, BBCODE_CHECK, 'quote', false, array(), '' ) );
+		$quote = $library->DoQuote(
+			$parser,
+			BBCODE_OUTPUT,
+			'quote',
+			false,
+			array(
+				'name' => 'Author',
+				'date' => 'Today',
+				'url'  => 'https://example.com',
+			),
+			'Quoted text'
+		);
+		$this->assertStringContainsString( '<a href="https://example.com">Author wrote on Today:</a>', $quote );
+		$this->assertStringContainsString( '<div class="bbcode_quote_body">Quoted text</div>', $quote );
+		$this->assertStringContainsString( '<div class="bbcode_quote_head">Quote:</div>', $library->DoQuote( $parser, BBCODE_OUTPUT, 'quote', false, array(), 'Text' ) );
+	}
+
+	/**
+	 * List rendering validates and maps ordered and unordered list styles.
+	 *
+	 * @covers BBCodeLibrary::DoList
+	 * @ticket BBP3706
+	 */
+	public function test_library_list_renderer() {
+		$parser  = BBCode::getInstance();
+		$library = new BBCodeLibrary();
+
+		$this->assertTrue( $library->DoList( $parser, BBCODE_CHECK, 'list', '', array(), '' ) );
+		$this->assertTrue( $library->DoList( $parser, BBCODE_CHECK, 'list', 'I', array(), '' ) );
+		$this->assertTrue( $library->DoList( $parser, BBCODE_CHECK, 'list', 'CIRCLE', array(), '' ) );
+		$this->assertFalse( $library->DoList( $parser, BBCODE_CHECK, 'list', 'invalid', array(), '' ) );
+		$this->assertSame( "\n<ul class=\"bbcode_list\">\n<li>One</li>\n</ul>\n", $library->DoList( $parser, BBCODE_OUTPUT, 'list', '', array(), "<li>One</li>\n" ) );
+		$this->assertSame( "\n<ol class=\"bbcode_list\">\n<li>One</li>\n</ol>\n", $library->DoList( $parser, BBCODE_OUTPUT, 'list', '1', array(), "<li>One</li>\n" ) );
+		$this->assertSame( "\n<ol class=\"bbcode_list\" style=\"list-style-type:upper-roman\">\n<li>One</li>\n</ol>\n", $library->DoList( $parser, BBCODE_OUTPUT, 'list', 'I', array(), "<li>One</li>\n" ) );
+		$this->assertSame( "\n<ul class=\"bbcode_list\" style=\"list-style-type:circle\">\n<li>One</li>\n</ul>\n", $library->DoList( $parser, BBCODE_OUTPUT, 'list', 'CIRCLE', array(), "<li>One</li>\n" ) );
+	}
+
+	/**
 	 * Scalar parser settings retain their configured values.
 	 *
 	 * @covers BBCode::SetPreTrim

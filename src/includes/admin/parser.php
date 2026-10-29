@@ -736,7 +736,7 @@ if ($bbcode->url_targetable !== false && isset($params['target']))
 $target = " target=\"" . htmlspecialchars($params['target']) . "\"";
 else $target = "";
 if ($bbcode->url_target !== false)
-if (!($bbcode->url_targetable == 'override' && isset($params['target'])))
+if (!($bbcode->url_targetable === 'override' && isset($params['target'])))
 $target = " target=\"" . htmlspecialchars($bbcode->url_target) . "\"";
 return '<a href="' . htmlspecialchars($url) . '" class="bbcode_url"' . $target . '>' . $content . '</a>';
 }

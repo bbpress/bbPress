@@ -62,6 +62,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Ensured configured URL targets override per-tag targets in imported BBCode
+  unless override mode is explicitly enabled.
 - Prevented paired newlines in imported content from producing duplicate HTML
   line breaks.
 - Removed stale BuddyPress group-forum relationships and root settings when
