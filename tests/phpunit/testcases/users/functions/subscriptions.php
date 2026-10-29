@@ -357,40 +357,66 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_forum_subscriptions_handler
-	 * @todo   Cover successful toggles in an integration test because bbp_redirect() exits.
+	 * @ticket 3706
 	 */
 	public function test_bbp_forum_subscriptions_handler() {
 		$old_get     = $_GET;
 		$old_request = $_REQUEST;
+		$old_server  = $_SERVER;
 		$old_user    = get_current_user_id();
+		$old_errors  = bbpress()->errors;
+		$home_url    = wp_parse_url( home_url( '/' ) );
 		$user_id     = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$forum_id    = $this->factory->forum->create();
 
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
 		$this->set_current_user( $user_id );
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		bbpress()->errors       = new WP_Error();
 
 		try {
 			$_GET['object_id'] = $forum_id;
+			$this->assertTrue( bbp_current_user_can_toggle_engagement( $forum_id, 'post', 'subscription', 'add' ) );
 			$_REQUEST['_wpnonce'] = 'invalid';
 			$this->assertFalse( bbp_forum_subscriptions_handler( 'bbp_subscribe' ) );
 			$this->assertSame( 'bbp_subscription_object_id', bbpress()->errors->get_error_code() );
 			$this->assertFalse( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
-		} finally {
+
 			bbpress()->errors->remove( 'bbp_subscription_object_id' );
-			$_GET = $old_get;
-			$_REQUEST = $old_request;
+			$_REQUEST['_wpnonce']   = wp_create_nonce( 'toggle-subscription_' . $forum_id );
+			$_REQUEST['redirect_to'] = home_url( '/forum-subscription-return/' );
+			$redirect                = $this->catch_bbp_redirect( function () {
+				bbp_forum_subscriptions_handler( 'bbp_subscribe' );
+			} );
+			$this->assertSame( home_url( '/forum-subscription-return/' ), $redirect );
+			$this->assertTrue( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
+
+			$redirect = $this->catch_bbp_redirect( function () {
+				bbp_forum_subscriptions_handler( 'bbp_unsubscribe' );
+			} );
+			$this->assertSame( home_url( '/forum-subscription-return/' ), $redirect );
+			$this->assertFalse( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
+		} finally {
+			bbpress()->errors = $old_errors;
+			$_GET             = $old_get;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
 			$this->set_current_user( $old_user );
 		}
 	}
 
 	/**
 	 * @covers ::bbp_subscriptions_handler
-	 * @todo   Cover successful toggles in an integration test because bbp_redirect() exits.
+	 * @ticket 3706
 	 */
 	public function test_bbp_subscriptions_handler() {
 		$old_get     = $_GET;
 		$old_request = $_REQUEST;
+		$old_server  = $_SERVER;
 		$old_user    = get_current_user_id();
+		$old_errors  = bbpress()->errors;
+		$home_url    = wp_parse_url( home_url( '/' ) );
 		$user_id     = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$forum_id    = $this->factory->forum->create();
 		$topic_id    = $this->factory->topic->create( array(
@@ -400,22 +426,43 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
 		$this->set_current_user( $user_id );
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		bbpress()->errors       = new WP_Error();
 
 		try {
 			unset( $_GET['object_id'] );
 			$this->assertFalse( bbp_subscriptions_handler( 'bbp_subscribe' ) );
+			$this->assertFalse( bbp_has_errors() );
 
 			$_GET['object_id'] = $topic_id;
+			$this->assertTrue( bbp_current_user_can_toggle_engagement( $topic_id, 'post', 'subscription', 'add' ) );
 			$this->assertFalse( bbp_subscriptions_handler( 'unsupported' ) );
+			$this->assertFalse( bbp_has_errors() );
 
 			$_REQUEST['_wpnonce'] = 'invalid';
 			$this->assertFalse( bbp_subscriptions_handler( 'bbp_subscribe' ) );
 			$this->assertSame( 'bbp_subscription_object_id', bbpress()->errors->get_error_code() );
 			$this->assertFalse( bbp_is_user_subscribed_to_topic( $user_id, $topic_id ) );
-		} finally {
+
 			bbpress()->errors->remove( 'bbp_subscription_object_id' );
-			$_GET = $old_get;
-			$_REQUEST = $old_request;
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'toggle-subscription_post_' . $topic_id );
+			$redirect              = $this->catch_bbp_redirect( function () {
+				bbp_subscriptions_handler( 'bbp_subscribe' );
+			} );
+			$this->assertSame( get_permalink( $topic_id ), $redirect );
+			$this->assertTrue( bbp_is_user_subscribed_to_topic( $user_id, $topic_id ) );
+
+			$redirect = $this->catch_bbp_redirect( function () {
+				bbp_subscriptions_handler( 'bbp_unsubscribe' );
+			} );
+			$this->assertSame( get_permalink( $topic_id ), $redirect );
+			$this->assertFalse( bbp_is_user_subscribed_to_topic( $user_id, $topic_id ) );
+		} finally {
+			bbpress()->errors = $old_errors;
+			$_GET             = $old_get;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
 			$this->set_current_user( $old_user );
 		}
 	}

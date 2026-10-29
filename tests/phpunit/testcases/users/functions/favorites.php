@@ -165,12 +165,15 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_favorites_handler
-	 * @todo   Cover successful toggles in an integration test because bbp_redirect() exits.
+	 * @ticket 3706
 	 */
 	public function test_bbp_favorites_handler() {
 		$old_get     = $_GET;
 		$old_request = $_REQUEST;
+		$old_server  = $_SERVER;
 		$old_user    = get_current_user_id();
+		$old_errors  = bbpress()->errors;
+		$home_url    = wp_parse_url( home_url( '/' ) );
 		$user_id     = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$forum_id    = $this->factory->forum->create();
 		$topic_id    = $this->factory->topic->create( array(
@@ -180,22 +183,42 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
 		$this->set_current_user( $user_id );
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		bbpress()->errors       = new WP_Error();
 
 		try {
 			unset( $_GET['object_id'] );
 			$this->assertFalse( bbp_favorites_handler( 'bbp_favorite_add' ) );
+			$this->assertFalse( bbp_has_errors() );
 
 			$_GET['object_id'] = $topic_id;
 			$this->assertFalse( bbp_favorites_handler( 'unsupported' ) );
+			$this->assertFalse( bbp_has_errors() );
 
 			$_REQUEST['_wpnonce'] = 'invalid';
 			$this->assertFalse( bbp_favorites_handler( 'bbp_favorite_add' ) );
 			$this->assertSame( 'bbp_favorite_nonce', bbpress()->errors->get_error_code() );
 			$this->assertFalse( bbp_is_user_favorite( $user_id, $topic_id ) );
-		} finally {
+
 			bbpress()->errors->remove( 'bbp_favorite_nonce' );
-			$_GET = $old_get;
-			$_REQUEST = $old_request;
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'toggle-favorite_' . $topic_id );
+			$redirect              = $this->catch_bbp_redirect( function () {
+				bbp_favorites_handler( 'bbp_favorite_add' );
+			} );
+			$this->assertSame( get_permalink( $topic_id ), $redirect );
+			$this->assertTrue( bbp_is_user_favorite( $user_id, $topic_id ) );
+
+			$redirect = $this->catch_bbp_redirect( function () {
+				bbp_favorites_handler( 'bbp_favorite_remove' );
+			} );
+			$this->assertSame( get_permalink( $topic_id ), $redirect );
+			$this->assertFalse( bbp_is_user_favorite( $user_id, $topic_id ) );
+		} finally {
+			bbpress()->errors = $old_errors;
+			$_GET             = $old_get;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
 			$this->set_current_user( $old_user );
 		}
 	}

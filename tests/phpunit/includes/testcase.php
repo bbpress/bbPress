@@ -102,6 +102,38 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Run a callback until bbPress attempts to redirect.
+	 *
+	 * Throwing from the WordPress redirect filter interrupts bbp_redirect()
+	 * before it exits the PHPUnit process.
+	 *
+	 * @param callable $callback Callback expected to redirect.
+	 * @return string Redirect location.
+	 */
+	protected function catch_bbp_redirect( $callback ) {
+		$location = null;
+		$filter   = function ( $redirect ) use ( &$location ) {
+			$location = $redirect;
+			throw new RuntimeException( 'bbPress test redirect.' );
+		};
+
+		add_filter( 'wp_redirect', $filter, PHP_INT_MAX );
+
+		try {
+			$callback();
+			$this->fail( 'The callback did not redirect.' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'bbPress test redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+		} finally {
+			remove_filter( 'wp_redirect', $filter, PHP_INT_MAX );
+		}
+
+		return $location;
+	}
+
+	/**
 	 * We can't use grant_super_admin() because we will need to modify
 	 * the list more than once, and grant_super_admin() can only be run
 	 * once because of its global check
