@@ -62,6 +62,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented the user profile engagements section from rendering twice.
 - Linked imported email addresses with one-character local parts during
   automatic URL detection.
 - Ensured configured URL targets override per-tag targets in imported BBCode
