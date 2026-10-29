@@ -361,6 +361,7 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	/**
 	 * Scalar parser settings retain their configured values.
 	 *
+	 * @covers BBCode::__construct
 	 * @covers BBCode::SetPreTrim
 	 * @covers BBCode::GetPreTrim
 	 * @covers BBCode::SetPostTrim
@@ -737,5 +738,122 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		$lexer->RestoreState( $state );
 		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
 		$this->assertSame( 'b', $lexer->tag['_name'] );
+	}
+
+	/**
+	 * The legacy lexer constructor alias reinitializes the input stream.
+	 *
+	 * @covers BBCodeLexer::BBCodeLexer
+	 * @ticket BBP3706
+	 */
+	public function test_legacy_lexer_constructor_reinitializes_input() {
+		$lexer = new BBCodeLexer( 'first [b]' );
+		$this->assertSame( BBCODE_TEXT, $lexer->NextToken() );
+		$this->assertSame( BBCODE_WS, $lexer->NextToken() );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$lexer->BBCodeLexer( '<i>y', '<' );
+
+		$this->assertSame( '<', $lexer->tagmarker );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'i', $lexer->tag['_name'] );
+		$this->assertSame( BBCODE_TEXT, $lexer->NextToken() );
+		$this->assertSame( 'y', $lexer->text );
+	}
+
+	/**
+	 * Parser internals rebuild caches and inspect stack text and token types.
+	 *
+	 * @covers BBCode::Internal_RebuildSmileys
+	 * @covers BBCode::Internal_CollectText
+	 * @covers BBCode::Internal_CollectTextReverse
+	 * @covers BBCode::Internal_DumpStack
+	 * @ticket BBP3706
+	 */
+	public function test_internal_cache_text_and_stack_helpers() {
+		$parser = BBCode::getInstance();
+		$parser->ClearSmileys();
+		$parser->AddSmiley( ':)', 'smile.png' );
+		$parser->AddSmiley( '8-)', 'bigeyes.png' );
+		$parser->Internal_RebuildSmileys();
+
+		$this->assertSame( 1, preg_match( $parser->smiley_regex, ':)' ) );
+		$this->assertSame( 1, preg_match( $parser->smiley_regex, '8-)' ) );
+		$this->assertSame( 0, preg_match( $parser->smiley_regex, 'a:)' ) );
+
+		$text_tokens = array(
+			array( BBCODE_STACK_TEXT => 'a' ),
+			array( BBCODE_STACK_TEXT => 'b' ),
+			array( BBCODE_STACK_TEXT => 'c' ),
+		);
+		$this->assertSame( 'bc', $parser->Internal_CollectText( $text_tokens, 1 ) );
+		$this->assertSame( 'cba', $parser->Internal_CollectTextReverse( $text_tokens, 2, 0 ) );
+		$this->assertSame( 'cb', $parser->Internal_CollectTextReverse( $text_tokens, 2, 1 ) );
+
+		$stack = array(
+			array( BBCODE_STACK_TOKEN => BBCODE_TEXT, BBCODE_STACK_TEXT => '<x>', BBCODE_STACK_CLASS => 'inline' ),
+			array( BBCODE_STACK_TOKEN => BBCODE_WS ),
+			array( BBCODE_STACK_TOKEN => BBCODE_NL ),
+			array( BBCODE_STACK_TOKEN => BBCODE_TAG, BBCODE_STACK_TAG => array( '_name' => 'b' ) ),
+			array( BBCODE_STACK_TOKEN => -1 ),
+		);
+		$this->assertSame( '"&lt;x&gt;" WS NL [b] unknown ', $parser->Internal_DumpStack( $stack, true ) );
+		$parser->stack = $stack;
+		$this->assertSame( "<span style='color: #00C;'>\"&lt;x&gt;\" WS NL [b] unknown </span>", $parser->Internal_DumpStack() );
+	}
+
+	/**
+	 * Whitespace cleanup and output limits update parser state consistently.
+	 *
+	 * @covers BBCode::Internal_ComputeCurrentClass
+	 * @covers BBCode::Internal_CleanupWSByPoppingStack
+	 * @covers BBCode::Internal_CleanupWSByEatingInput
+	 * @covers BBCode::Internal_CleanupWSByIteratingPointer
+	 * @covers BBCode::Internal_LimitText
+	 * @covers BBCode::Internal_DoLimit
+	 * @ticket BBP3706
+	 */
+	public function test_internal_whitespace_and_limit_helpers() {
+		$parser = BBCode::getInstance();
+		$text   = array( BBCODE_STACK_TOKEN => BBCODE_TEXT, BBCODE_STACK_TEXT => 'alpha', BBCODE_STACK_CLASS => 'inline' );
+		$ws     = array( BBCODE_STACK_TOKEN => BBCODE_WS, BBCODE_STACK_TEXT => ' ', BBCODE_STACK_CLASS => 'inline' );
+		$nl     = array( BBCODE_STACK_TOKEN => BBCODE_NL, BBCODE_STACK_TEXT => "\n", BBCODE_STACK_CLASS => 'inline' );
+
+		$parser->stack = array( $text );
+		$parser->Internal_ComputeCurrentClass();
+		$this->assertSame( 'inline', $parser->current_class );
+		$parser->stack = array();
+		$parser->Internal_ComputeCurrentClass();
+		$this->assertSame( 'block', $parser->current_class );
+
+		$stack = array( $text, $nl, $ws );
+		$parser->Internal_CleanupWSByPoppingStack( 'sn', $stack );
+		$this->assertSame( array( $text ), $stack );
+
+		$tokens = array( $ws, $nl, $text );
+		$this->assertSame( 2, $parser->Internal_CleanupWSByIteratingPointer( 'sn', 0, $tokens ) );
+		$newline_tokens = array( $nl, $nl, $text );
+		$this->assertSame( 1, $parser->Internal_CleanupWSByIteratingPointer( 'n', 0, $newline_tokens ) );
+		$this->assertSame( 2, $parser->Internal_CleanupWSByIteratingPointer( 'a', 0, $newline_tokens ) );
+
+		$parser->lexer = new BBCodeLexer( " \t\ntext" );
+		$parser->Internal_CleanupWSByEatingInput( 'a' );
+		$this->assertSame( BBCODE_TEXT, $parser->lexer->NextToken() );
+		$this->assertSame( 'text', $parser->lexer->text );
+		$parser->lexer = new BBCodeLexer( " \ttext" );
+		$parser->Internal_CleanupWSByEatingInput( 's' );
+		$this->assertSame( BBCODE_TEXT, $parser->lexer->NextToken() );
+		$parser->lexer = new BBCodeLexer( "\ntext" );
+		$parser->Internal_CleanupWSByEatingInput( 'n' );
+		$this->assertSame( BBCODE_TEXT, $parser->lexer->NextToken() );
+
+		$this->assertSame( 'alpha beta', $parser->Internal_LimitText( 'alpha beta gamma', 10 ) );
+		$parser->stack         = array( $text, $nl, $ws );
+		$parser->current_class = 'inline';
+		$parser->SetLimitTail( ' [more]' );
+		$this->assertFalse( $parser->WasLimited() );
+		$parser->Internal_DoLimit();
+		$this->assertSame( array( 'alpha', ' [more]' ), array_column( $parser->stack, BBCODE_STACK_TEXT ) );
+		$this->assertSame( 'inline', $parser->stack[1][BBCODE_STACK_CLASS] );
+		$this->assertTrue( $parser->WasLimited() );
 	}
 }
