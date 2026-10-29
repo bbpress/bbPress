@@ -143,6 +143,25 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Configured URL targets override tag targets unless override mode is enabled.
+	 *
+	 * @covers BBCodeLibrary::DoURL
+	 * @ticket 3771
+	 */
+	public function test_library_url_target_modes() {
+		$parser  = BBCode::getInstance();
+		$library = new BBCodeLibrary();
+		$params  = array( 'target' => '_self' );
+
+		$parser->SetURLTargetable( true );
+		$parser->SetURLTarget( '_blank' );
+		$this->assertStringContainsString( ' target="_blank"', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'https://example.com', $params, 'Example' ) );
+
+		$parser->SetURLTargetable( 'override' );
+		$this->assertStringContainsString( ' target="_self"', $library->DoURL( $parser, BBCODE_OUTPUT, 'url', 'https://example.com', $params, 'Example' ) );
+	}
+
+	/**
 	 * @covers BBCode::IsValidURL
 	 * @covers BBCode::IsValidEmail
 	 * @covers BBCodeEmailAddressValidator::check_email_address
