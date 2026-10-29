@@ -1156,7 +1156,7 @@ function GetDefaultSmileyURL() { return "smileys"; }
 function SetEnableSmileys($enable = true) { $this->enable_smileys = $enable; }
 function GetEnableSmileys() { return $this->enable_smileys; }
 function nl2br($string) {
-return preg_replace("/\\x0A|\\x0D|\\x0A\\x0D|\\x0D\\x0A/", "<br />\n", $string);
+return preg_replace("/\\x0A\\x0D|\\x0D\\x0A|\\x0A|\\x0D/", "<br />\n", $string);
 }
 function UnHTMLEncode($string) {
 if (function_exists("html_entity_decode"))

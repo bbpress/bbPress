@@ -129,6 +129,20 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Paired newline sequences produce one HTML line break each.
+	 *
+	 * @covers BBCode::nl2br
+	 * @ticket 3770
+	 */
+	public function test_nl2br_treats_paired_newlines_as_single_sequences() {
+		$parser = BBCode::getInstance();
+
+		$this->assertSame( "a<br />\nb", $parser->nl2br( "a\r\nb" ) );
+		$this->assertSame( "a<br />\nb", $parser->nl2br( "a\n\rb" ) );
+		$this->assertSame( "a<br />\n<br />\nb", $parser->nl2br( "a\r\n\r\nb" ) );
+	}
+
+	/**
 	 * Scalar parser settings retain their configured values.
 	 *
 	 * @covers BBCode::SetPreTrim
