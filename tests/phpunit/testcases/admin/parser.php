@@ -129,6 +129,232 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Scalar parser settings retain their configured values.
+	 *
+	 * @covers BBCode::SetPreTrim
+	 * @covers BBCode::GetPreTrim
+	 * @covers BBCode::SetPostTrim
+	 * @covers BBCode::GetPostTrim
+	 * @covers BBCode::SetRoot
+	 * @covers BBCode::SetRootInline
+	 * @covers BBCode::SetRootBlock
+	 * @covers BBCode::GetRoot
+	 * @covers BBCode::SetDebug
+	 * @covers BBCode::GetDebug
+	 * @covers BBCode::SetTagMarker
+	 * @covers BBCode::GetTagMarker
+	 * @covers BBCode::SetIgnoreNewlines
+	 * @covers BBCode::GetIgnoreNewlines
+	 * @covers BBCode::SetLimit
+	 * @covers BBCode::GetLimit
+	 * @covers BBCode::SetLimitTail
+	 * @covers BBCode::GetLimitTail
+	 * @covers BBCode::SetLimitPrecision
+	 * @covers BBCode::GetLimitPrecision
+	 * @covers BBCode::SetPlainMode
+	 * @covers BBCode::GetPlainMode
+	 * @covers BBCode::SetDetectURLs
+	 * @covers BBCode::GetDetectURLs
+	 * @covers BBCode::SetURLPattern
+	 * @covers BBCode::GetURLPattern
+	 * @covers BBCode::SetURLTargetable
+	 * @covers BBCode::GetURLTargetable
+	 * @covers BBCode::SetURLTarget
+	 * @covers BBCode::GetURLTarget
+	 * @ticket BBP3706
+	 */
+	public function test_scalar_parser_settings_round_trip() {
+		$parser = BBCode::getInstance();
+
+		$this->assertSame( 'block', $parser->GetRoot() );
+		$this->assertSame( '...', $parser->GetLimitTail() );
+		$this->assertSame( 0.15, $parser->GetLimitPrecision() );
+		$this->assertFalse( $parser->GetURLTarget() );
+
+		$parser->SetPreTrim( '<' );
+		$parser->SetPostTrim( '>' );
+		$this->assertSame( '<', $parser->GetPreTrim() );
+		$this->assertSame( '>', $parser->GetPostTrim() );
+
+		$parser->SetRoot( 'columns' );
+		$this->assertSame( 'columns', $parser->GetRoot() );
+		$parser->SetRootInline();
+		$this->assertSame( 'inline', $parser->GetRoot() );
+		$parser->SetRootBlock();
+		$this->assertSame( 'block', $parser->GetRoot() );
+
+		$parser->SetDebug( false );
+		$this->assertFalse( $parser->GetDebug() );
+		$parser->SetDebug();
+		$parser->SetTagMarker( '<' );
+		$parser->SetIgnoreNewlines( false );
+		$this->assertFalse( $parser->GetIgnoreNewlines() );
+		$parser->SetIgnoreNewlines();
+		$parser->SetLimit( 42 );
+		$parser->SetLimitTail( 'more' );
+		$parser->SetLimitPrecision( 0.5 );
+		$parser->SetPlainMode( false );
+		$this->assertFalse( $parser->GetPlainMode() );
+		$parser->SetPlainMode();
+		$parser->SetDetectURLs( false );
+		$this->assertFalse( $parser->GetDetectURLs() );
+		$parser->SetDetectURLs();
+		$parser->SetURLPattern( '<a data-url="{$url/h}">{$text/h}</a>' );
+		$parser->SetURLTargetable( 'override' );
+		$this->assertSame( 'override', $parser->GetURLTargetable() );
+		$parser->SetURLTargetable( true );
+		$parser->SetURLTarget( '_blank' );
+
+		$this->assertTrue( $parser->GetDebug() );
+		$this->assertSame( '<', $parser->GetTagMarker() );
+		$this->assertTrue( $parser->GetIgnoreNewlines() );
+		$this->assertSame( 42, $parser->GetLimit() );
+		$this->assertSame( 'more', $parser->GetLimitTail() );
+		$this->assertSame( 0.5, $parser->GetLimitPrecision() );
+		$this->assertTrue( $parser->GetPlainMode() );
+		$this->assertTrue( $parser->GetDetectURLs() );
+		$this->assertSame( '<a data-url="{$url/h}">{$text/h}</a>', $parser->GetURLPattern() );
+		$this->assertTrue( $parser->GetURLTargetable() );
+		$this->assertSame( '_blank', $parser->GetURLTarget() );
+	}
+
+	/**
+	 * Parser rules can be added, removed, cleared, and restored from defaults.
+	 *
+	 * @covers BBCode::AddRule
+	 * @covers BBCode::RemoveRule
+	 * @covers BBCode::GetRule
+	 * @covers BBCode::ClearRules
+	 * @covers BBCode::GetDefaultRule
+	 * @covers BBCode::SetDefaultRule
+	 * @covers BBCode::GetDefaultRules
+	 * @covers BBCode::SetDefaultRules
+	 * @ticket BBP3706
+	 */
+	public function test_parser_rule_collection_and_defaults() {
+		$parser       = BBCode::getInstance();
+		$default_bold = $parser->GetDefaultRule( 'b' );
+		$custom       = array( 'simple_start' => '<custom>', 'simple_end' => '</custom>' );
+
+		$this->assertIsArray( $default_bold );
+		$this->assertFalse( $parser->GetDefaultRule( 'missing' ) );
+		$parser->ClearRules();
+		$this->assertSame( array(), $parser->tag_rules );
+		$this->assertFalse( $parser->GetRule( 'b' ) );
+
+		$parser->AddRule( 'custom', $custom );
+		$this->assertSame( $custom, $parser->GetRule( 'custom' ) );
+		$parser->RemoveRule( 'custom' );
+		$this->assertFalse( $parser->GetRule( 'custom' ) );
+
+		$parser->SetDefaultRule( 'b' );
+		$this->assertSame( $default_bold, $parser->GetRule( 'b' ) );
+		$parser->AddRule( 'missing', $custom );
+		$parser->SetDefaultRule( 'missing' );
+		$this->assertFalse( $parser->GetRule( 'missing' ) );
+
+		$parser->ClearRules();
+		$parser->SetDefaultRules();
+		$this->assertSame( $parser->GetDefaultRules(), $parser->tag_rules );
+	}
+
+	/**
+	 * Parser resource paths and smiley collections expose their defaults.
+	 *
+	 * @covers BBCode::SetWikiURL
+	 * @covers BBCode::GetWikiURL
+	 * @covers BBCode::GetDefaultWikiURL
+	 * @covers BBCode::SetLocalImgDir
+	 * @covers BBCode::GetLocalImgDir
+	 * @covers BBCode::GetDefaultLocalImgDir
+	 * @covers BBCode::SetLocalImgURL
+	 * @covers BBCode::GetLocalImgURL
+	 * @covers BBCode::GetDefaultLocalImgURL
+	 * @covers BBCode::SetRuleHTML
+	 * @covers BBCode::GetRuleHTML
+	 * @covers BBCode::GetDefaultRuleHTML
+	 * @covers BBCode::AddSmiley
+	 * @covers BBCode::RemoveSmiley
+	 * @covers BBCode::GetSmiley
+	 * @covers BBCode::ClearSmileys
+	 * @covers BBCode::GetDefaultSmiley
+	 * @covers BBCode::SetDefaultSmiley
+	 * @covers BBCode::GetDefaultSmileys
+	 * @covers BBCode::SetDefaultSmileys
+	 * @covers BBCode::SetSmileyDir
+	 * @covers BBCode::GetSmileyDir
+	 * @covers BBCode::GetDefaultSmileyDir
+	 * @covers BBCode::SetSmileyURL
+	 * @covers BBCode::GetSmileyURL
+	 * @covers BBCode::GetDefaultSmileyURL
+	 * @covers BBCode::SetEnableSmileys
+	 * @covers BBCode::GetEnableSmileys
+	 * @ticket BBP3706
+	 */
+	public function test_parser_resource_paths_and_smiley_defaults() {
+		$parser = BBCode::getInstance();
+
+		$this->assertSame( '/?page=', $parser->GetDefaultWikiURL() );
+		$this->assertSame( 'img', $parser->GetDefaultLocalImgDir() );
+		$this->assertSame( 'img', $parser->GetDefaultLocalImgURL() );
+		$this->assertSame( "\n<hr class=\"bbcode_rule\" />\n", $parser->GetDefaultRuleHTML() );
+		$this->assertSame( 'smileys', $parser->GetDefaultSmileyDir() );
+		$this->assertSame( 'smileys', $parser->GetDefaultSmileyURL() );
+
+		$parser->SetWikiURL( '/wiki/' );
+		$parser->SetLocalImgDir( '/tmp/images' );
+		$parser->SetLocalImgURL( 'https://example.com/images' );
+		$parser->SetRuleHTML( '<hr>' );
+		$parser->SetSmileyDir( '/tmp/smileys' );
+		$parser->SetSmileyURL( 'https://example.com/smileys' );
+		$parser->SetEnableSmileys( false );
+
+		$this->assertSame( '/wiki/', $parser->GetWikiURL( 'ignored' ) );
+		$this->assertSame( '/tmp/images', $parser->GetLocalImgDir() );
+		$this->assertSame( 'https://example.com/images', $parser->GetLocalImgURL() );
+		$this->assertSame( '<hr>', $parser->GetRuleHTML() );
+		$this->assertSame( '/tmp/smileys', $parser->GetSmileyDir() );
+		$this->assertSame( 'https://example.com/smileys', $parser->GetSmileyURL() );
+		$this->assertFalse( $parser->GetEnableSmileys() );
+
+		$this->assertSame( 'smile.gif', $parser->GetDefaultSmiley( ':)' ) );
+		$this->assertFalse( $parser->GetDefaultSmiley( ':missing:' ) );
+		$parser->ClearSmileys();
+		$this->assertFalse( $parser->GetSmiley( ':)' ) );
+		$parser->AddSmiley( ':custom:', 'custom.png' );
+		$this->assertSame( 'custom.png', $parser->GetSmiley( ':custom:' ) );
+		$parser->RemoveSmiley( ':custom:' );
+		$this->assertFalse( $parser->GetSmiley( ':custom:' ) );
+		$parser->SetDefaultSmiley( ':)' );
+		$this->assertSame( 'smile.gif', $parser->GetSmiley( ':)' ) );
+		$parser->AddSmiley( ':missing:', 'custom.png' );
+		$parser->SetDefaultSmiley( ':missing:' );
+		$this->assertFalse( $parser->GetSmiley( ':missing:' ) );
+
+		$parser->ClearSmileys();
+		$parser->SetDefaultSmileys();
+		$this->assertSame( $parser->GetDefaultSmileys(), $parser->smileys );
+	}
+
+	/**
+	 * Changing smileys invalidates the parser's cached smiley expression.
+	 *
+	 * @covers BBCode::AddSmiley
+	 * @covers BBCode::Parse
+	 * @ticket BBP3706
+	 */
+	public function test_adding_smiley_after_parsing_rebuilds_smiley_expression() {
+		$parser = BBCode::getInstance();
+
+		$parser->ClearSmileys();
+		$parser->AddSmiley( ':first:', 'first.png' );
+		$this->parse_without_errors( ':first:', $parser );
+		$parser->AddSmiley( ':second:', 'second.png' );
+
+		$this->assertStringContainsString( 'second.png', $this->parse_without_errors( ':second:', $parser ) );
+	}
+
+	/**
 	 * @covers BBCode::IsValidURL
 	 * @covers BBCode::IsValidEmail
 	 * @covers BBCodeEmailAddressValidator::check_email_address
