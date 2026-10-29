@@ -1171,7 +1171,7 @@ function _UnHTMLEncode_chr_callback($match) {
 return chr(hexdec($match[1]));
 }
 function _UnHTMLEncode_chr_hexdec_callback($match) {
-return chr(hexdec($match[1]));
+return chr((int) $match[1]);
 }
 function Wikify($string) {
 return rawurlencode(str_replace(" ", "_",

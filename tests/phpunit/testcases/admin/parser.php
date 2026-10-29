@@ -146,16 +146,21 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	 * Output helpers decode, encode, normalize, and link parser text.
 	 *
 	 * @covers BBCode::UnHTMLEncode
+	 * @covers BBCode::_UnHTMLEncode_chr_callback
+	 * @covers BBCode::_UnHTMLEncode_chr_hexdec_callback
 	 * @covers BBCode::Wikify
 	 * @covers BBCode::HTMLEncode
 	 * @covers BBCode::FixupOutput
 	 * @ticket BBP3706
+	 * @ticket 3772
 	 */
 	public function test_parser_output_helpers() {
 		$parser = BBCode::getInstance();
 
 		$this->assertSame( 'Tom & Jerry', $parser->UnHTMLEncode( 'Tom &amp; Jerry' ) );
 		$this->assertSame( 'A A', $parser->UnHTMLEncode( '&#x41; &#65;' ) );
+		$this->assertSame( 'A', $parser->_UnHTMLEncode_chr_callback( array( '', '41' ) ) );
+		$this->assertSame( 'A', $parser->_UnHTMLEncode_chr_hexdec_callback( array( '', '65' ) ) );
 		$this->assertSame( 'Hello_world', $parser->Wikify( '  Hello__world!  ' ) );
 		$this->assertSame( 'A &amp; B &lt; C &quot;D&quot;', $parser->HTMLEncode( 'A & B < C "D"' ) );
 
