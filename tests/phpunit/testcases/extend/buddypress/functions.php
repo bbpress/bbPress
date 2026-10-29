@@ -1,5 +1,7 @@
 <?php
 
+class BBP_Tests_Extend_BuddyPress_Functions_Redirect_Exception extends Exception {}
+
 /**
  * BuddyPress integration function tests.
  *
@@ -183,6 +185,79 @@ class BBP_Tests_Extend_BuddyPress_Functions extends BBP_UnitTestCase {
 			'favorites'     => array( 'bbp_member_forums_favorites_content', 'favorites' ),
 			'subscriptions' => array( 'bbp_member_forums_subscriptions_content', 'subscriptions' ),
 		);
+	}
+
+	/**
+	 * Group forum root creation requires the request, capability, and nonce.
+	 *
+	 * @covers ::bbp_maybe_create_group_forum_root
+	 * @ticket BBP3706
+	 */
+	public function test_group_forum_root_creation_validates_request_and_redirects() {
+		$old_get        = $_GET;
+		$old_root       = get_option( '_bbp_group_forums_root_id', false );
+		$participant_id = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$redirect       = null;
+		$stop_redirect  = static function ( $location, $status ) use ( &$redirect ) {
+			$redirect = compact( 'location', 'status' );
+			throw new BBP_Tests_Extend_BuddyPress_Functions_Redirect_Exception( 'Redirect intercepted.' );
+		};
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		delete_option( '_bbp_group_forums_root_id' );
+		$forum_count = (int) wp_count_posts( bbp_get_forum_post_type() )->publish;
+
+		try {
+			$this->set_current_user( $keymaster_id );
+			$_GET = array();
+			bbp_maybe_create_group_forum_root();
+			$this->assertSame( $forum_count, (int) wp_count_posts( bbp_get_forum_post_type() )->publish );
+
+			$this->set_current_user( $participant_id );
+			$_GET = array(
+				'create'   => 'bbp-group-forum-root',
+				'_wpnonce' => wp_create_nonce( '_bbp_group_forums_root_id' ),
+			);
+			bbp_maybe_create_group_forum_root();
+			$this->assertSame( $forum_count, (int) wp_count_posts( bbp_get_forum_post_type() )->publish );
+
+			$this->set_current_user( $keymaster_id );
+			$_GET['_wpnonce'] = 'invalid';
+			bbp_maybe_create_group_forum_root();
+			$this->assertSame( $forum_count, (int) wp_count_posts( bbp_get_forum_post_type() )->publish );
+
+			$_GET['_wpnonce'] = wp_create_nonce( '_bbp_group_forums_root_id' );
+			add_filter( 'wp_redirect', $stop_redirect, 1, 2 );
+			try {
+				bbp_maybe_create_group_forum_root();
+				$this->fail( 'Group forum root creation should redirect.' );
+			} catch ( BBP_Tests_Extend_BuddyPress_Functions_Redirect_Exception $exception ) {
+				$this->assertSame( 'Redirect intercepted.', $exception->getMessage() );
+			} finally {
+				remove_filter( 'wp_redirect', $stop_redirect, 1 );
+			}
+
+			$forum_id = (int) get_option( '_bbp_group_forums_root_id' );
+			$this->assertGreaterThan( 0, $forum_id );
+			$this->assertSame( $forum_count + 1, (int) wp_count_posts( bbp_get_forum_post_type() )->publish );
+			$this->assertSame( 'Group Forums', bbp_get_forum_title( $forum_id ) );
+			$this->assertSame( 'category', bbp_get_forum_type( $forum_id ) );
+			$this->assertSame( 302, $redirect['status'] );
+
+			$query = array();
+			wp_parse_str( wp_parse_url( $redirect['location'], PHP_URL_QUERY ), $query );
+			$this->assertSame( array( 'page' => 'bbpress', 'updated' => '1' ), $query );
+		} finally {
+			$_GET = $old_get;
+
+			if ( false === $old_root ) {
+				delete_option( '_bbp_group_forums_root_id' );
+			} else {
+				update_option( '_bbp_group_forums_root_id', $old_root );
+			}
+		}
 	}
 
 	/**
