@@ -205,6 +205,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_repair_user_reply_count_dry_run', bbp_admin()->tools['bbp-user-replies']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_user_favorites', bbp_admin()->tools['bbp-user-favorites']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_user_favorites_dry_run', bbp_admin()->tools['bbp-user-favorites']['callbacks']['dry-run'] );
+		$this->assertSame( 'bbp_admin_repair_user_topic_subscriptions', bbp_admin()->tools['bbp-user-topic-subscriptions']['callbacks']['run'] );
+		$this->assertSame( 'bbp_admin_repair_user_topic_subscriptions_dry_run', bbp_admin()->tools['bbp-user-topic-subscriptions']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_closed_topics', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_closed_topics_dry_run', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['dry-run'] );
 	}
