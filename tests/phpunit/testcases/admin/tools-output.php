@@ -37,7 +37,7 @@ class BBP_Tests_Admin_Tools_Output extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_page
 	 * @covers ::bbp_admin_upgrade_page
 	 */
-	public function test_repair_and_upgrade_run_labels_escape_tool_titles() {
+	public function test_repair_and_upgrade_action_labels_escape_tool_titles() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/actions.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
@@ -54,6 +54,10 @@ class BBP_Tests_Admin_Tools_Output extends BBP_UnitTestCase {
 				'description' => '',
 				'priority'    => 1,
 				'callback'    => '__return_true',
+				'callbacks'   => array(
+					'run'     => '__return_true',
+					'dry-run' => '__return_empty_array',
+				),
 				'overhead'    => 'low',
 				'version'     => array(),
 				'components'  => array(),
@@ -70,7 +74,9 @@ class BBP_Tests_Admin_Tools_Output extends BBP_UnitTestCase {
 				$output = ob_get_clean();
 
 				$this->assertStringContainsString( 'aria-label="Run Title&quot; onmouseover=&quot;alert(1)"', $output );
+				$this->assertStringContainsString( 'aria-label="Dry Run Title&quot; onmouseover=&quot;alert(1)"', $output );
 				$this->assertStringNotContainsString( 'aria-label="Run Title" onmouseover="alert(1)"', $output );
+				$this->assertStringContainsString( '<option value="dry-run" class="hide-if-no-js">Dry Run</option>', $output );
 			}
 		} finally {
 			$_GET = $old_get;

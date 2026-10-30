@@ -82,9 +82,9 @@ function bbp_admin_repair_page() {
 					<label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
 					<select name="action" id="bulk-action-selector-top">
 						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<option value="run" class="hide-if-no-js"><?php esc_html_e( 'Run', 'bbpress' ); ?></option>
+						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
 					</select>
-					<input type="submit" id="doaction" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
+					<input type="submit" name="doaction" id="doaction" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
 				</div>
 				<div class="alignleft actions">
 
@@ -167,19 +167,7 @@ function bbp_admin_repair_page() {
 									<?php endif; ?>
 
 									<div class="row-actions hide-if-no-js">
-										<span class="run">
-											<a href="<?php bbp_admin_repair_tool_run_url( $item ); ?>"
-												id="<?php echo esc_attr( $item['id'] ); ?>"
-												aria-label="<?php
-												printf(
-													/* translators: %s: Repair tool title */
-													esc_attr__( 'Run %s', 'bbpress' ),
-													esc_attr( $item['title'] )
-												);
-											?>">
-												<?php esc_html_e( 'Run', 'bbpress' ); ?>
-											</a>
-										</span>
+										<?php bbp_admin_repair_tool_row_actions( $item ); ?>
 									</div>
 
 									<button type="button" class="toggle-row">
@@ -236,9 +224,9 @@ function bbp_admin_repair_page() {
 					<label for="bulk-action-selector-bottom" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
 					<select name="action2" id="bulk-action-selector-bottom">
 						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<option value="run" class="hide-if-no-js"><?php esc_html_e( 'Run', 'bbpress' ); ?></option>
+						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
 					</select>
-					<input type="submit" id="doaction2" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
+					<input type="submit" name="doaction2" id="doaction2" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
 				</div>
 			</div>
 		</form>
@@ -1352,16 +1340,47 @@ function bbp_admin_repair_sticky() {
  *
  * @since 2.6.0 bbPress (r5668)
  *
- * @return array An array of the status code and the message
+ * @since 2.7.0 bbPress (r8218) Added Dry Run support.
+ *
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_closed_topics() {
+	return bbp_admin_repair_closed_topics_process();
+}
+
+/**
+ * Preview the repair of closed topics.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_closed_topics_dry_run() {
+	return bbp_admin_repair_closed_topics_process( true );
+}
+
+/**
+ * Repair or preview closed topics.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param bool $dry_run Whether to preview changes without updating metadata.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 
 	// Define variables
 	$bbp_db        = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement     = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
 	$result        = esc_html__( 'No closed topics to repair.',        'bbpress' );
 	$changed       = 0;
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking closed topics&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
+	}
 
 	// Results
 	$query         = "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s";
@@ -1373,6 +1392,9 @@ function bbp_admin_repair_closed_topics() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
+	// Ensure Run and Dry Run inspect current database values
+	wp_cache_delete_multiple( wp_parse_id_list( $closed_topics ), 'post_meta' );
+
 	// Loop through each closed topic
 	foreach ( $closed_topics as $closed_topic ) {
 
@@ -1381,7 +1403,10 @@ function bbp_admin_repair_closed_topics() {
 
 		// If we don't have a postmeta _bbp_status value
 		if ( empty( $topic_status ) ) {
-			update_post_meta( $closed_topic, '_bbp_status', 'publish' );
+			if ( ! $dry_run ) {
+				update_post_meta( $closed_topic, '_bbp_status', 'publish' );
+			}
+
 			++$changed; // Keep a count to display at the end
 		}
 	}
@@ -1390,8 +1415,13 @@ function bbp_admin_repair_closed_topics() {
 	unset( $closed_topics, $closed_topic, $topic_status );
 
 	// Complete results
-	/* translators: %d: Number of repaired topics */
-	$result = sprintf( _n( 'Complete! %d closed topic repaired.', 'Complete! %d closed topics repaired.', $changed, 'bbpress' ), $changed );
+	if ( $dry_run ) {
+		/* translators: %d: Number of closed topics that would be repaired */
+		$result = sprintf( _n( 'Dry run complete! %d closed topic would be repaired.', 'Dry run complete! %d closed topics would be repaired.', $changed, 'bbpress' ), $changed );
+	} else {
+		/* translators: %d: Number of repaired topics */
+		$result = sprintf( _n( 'Complete! %d closed topic repaired.', 'Complete! %d closed topics repaired.', $changed, 'bbpress' ), $changed );
+	}
 
 	return array( 0, sprintf( $statement, $result ) );
 }

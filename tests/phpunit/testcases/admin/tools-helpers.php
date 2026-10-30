@@ -13,6 +13,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 	private $old_tools;
 	private $old_user;
 	private $old_pending;
+	private $old_request_method;
+	private $old_notices;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -28,6 +30,10 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->old_tools   = bbp_admin()->tools;
 		$this->old_user    = get_current_user_id();
 		$this->old_pending = get_option( '_bbp_db_pending_upgrades', null );
+		$this->old_notices = bbp_admin()->notices;
+		$this->old_request_method = isset( $_SERVER['REQUEST_METHOD'] )
+			? $_SERVER['REQUEST_METHOD']
+			: null;
 
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
@@ -38,7 +44,14 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$_GET              = $this->old_get;
 		$_REQUEST          = $this->old_request;
 		bbp_admin()->tools = $this->old_tools;
+		bbp_admin()->notices = $this->old_notices;
 		$this->set_current_user( $this->old_user );
+
+		if ( is_null( $this->old_request_method ) ) {
+			unset( $_SERVER['REQUEST_METHOD'] );
+		} else {
+			$_SERVER['REQUEST_METHOD'] = $this->old_request_method;
+		}
 
 		if ( null === $this->old_pending ) {
 			delete_option( '_bbp_db_pending_upgrades' );
@@ -81,9 +94,36 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp-upgrade', $query['page'] );
 		$this->assertSame( array( 'test-upgrade' ), $query['checked'] );
 
+		$url   = bbp_get_admin_repair_tool_action_url( $component, 'dry-run' );
+		$query = array();
+		parse_str( html_entity_decode( wp_parse_url( $url, PHP_URL_QUERY ) ), $query );
+
+		$this->assertSame( 'dry-run', $query['action'] );
+
+		ob_start();
+		bbp_admin_repair_tool_action_url( $component, 'dry-run' );
+		$this->assertSame( esc_url( $url ), ob_get_clean() );
+
 		ob_start();
 		bbp_admin_repair_tool_run_url( $component );
 		$this->assertSame( esc_url( $repair_url ), ob_get_clean() );
+
+		$filter = static function ( $filtered_url ) {
+			return add_query_arg( 'legacy-filter', 'applied', $filtered_url );
+		};
+		add_filter( 'bbp_get_admin_repair_tool_run_url', $filter );
+
+		try {
+			$filtered_url = bbp_get_admin_repair_tool_run_url( $component );
+			$this->assertStringContainsString( 'legacy-filter=applied', $filtered_url );
+			$this->assertSame( $filtered_url, bbp_get_admin_repair_tool_action_url( $component, 'run' ) );
+
+			ob_start();
+			bbp_admin_repair_tool_run_url( $component );
+			$this->assertSame( esc_url( $filtered_url ), ob_get_clean() );
+		} finally {
+			remove_filter( 'bbp_get_admin_repair_tool_run_url', $filter );
+		}
 
 		$_GET['page'] = 'tools';
 		$this->assertSame( '', bbp_get_admin_repair_tool_page_id() );
@@ -117,14 +157,406 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$tools = bbp_get_admin_repair_tools();
 		$this->assertSame( array( 'custom-repair' ), array_keys( $tools ) );
 		$this->assertSame( 'medium', $tools['custom-repair']['overhead'] );
+		$this->assertSame( array( 'run' => '__return_true' ), $tools['custom-repair']['callbacks'] );
 		$this->assertSame( array( 'custom-repair' ), array_keys( bbp_get_admin_repair_tools( 'repair' ) ) );
 		$this->assertSame( array(), bbp_get_admin_repair_tools( 'upgrade' ) );
+
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 11,
+				'callback'  => '__return_false',
+				'callbacks' => array(
+					'run'     => '__return_true',
+					'dry-run' => '__return_empty_array',
+				),
+			)
+		);
+
+		$this->assertSame( '__return_true', bbp_admin()->tools['custom-dry-run']['callback'] );
+		$this->assertSame(
+			array(
+				'run'     => '__return_true',
+				'dry-run' => '__return_empty_array',
+			),
+			bbp_admin()->tools['custom-dry-run']['callbacks']
+		);
 
 		bbp_register_default_repair_tools();
 		$this->assertArrayHasKey( 'bbp-sync-topic-meta', bbp_admin()->tools );
 		$this->assertArrayHasKey( 'bbp-user-favorites-move', bbp_admin()->tools );
 		$this->assertSame( 'repair', bbp_admin()->tools['bbp-sync-topic-meta']['type'] );
 		$this->assertSame( 'upgrade', bbp_admin()->tools['bbp-user-favorites-move']['type'] );
+		$this->assertSame( 'bbp_admin_repair_closed_topics', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['run'] );
+		$this->assertSame( 'bbp_admin_repair_closed_topics_dry_run', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['dry-run'] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_tool_action_label
+	 * @covers ::bbp_get_admin_repair_tool_actions
+	 * @covers ::bbp_get_admin_repair_tool_callback
+	 * @covers ::bbp_get_admin_repair_tool_callbacks
+	 */
+	public function test_repair_tool_action_helpers() {
+		$legacy = $this->tool();
+		$dry_run = $this->tool(
+			array(
+				'callbacks' => array(
+					'run'     => '__return_true',
+					'dry-run' => '__return_empty_array',
+				),
+			)
+		);
+
+		$this->assertSame( array( 'run' => '__return_true' ), bbp_get_admin_repair_tool_callbacks( $legacy ) );
+		$this->assertSame( '__return_empty_array', bbp_get_admin_repair_tool_callback( $dry_run, 'dry-run' ) );
+		$this->assertFalse( bbp_get_admin_repair_tool_callback( $legacy, 'dry-run' ) );
+		$this->assertSame( array( 'run', 'dry-run' ), bbp_get_admin_repair_tool_actions( array( $legacy, $dry_run ) ) );
+		$this->assertSame( 'Run', bbp_admin_repair_tool_action_label( 'run' ) );
+		$this->assertSame( 'Dry Run', bbp_admin_repair_tool_action_label( 'dry-run' ) );
+		$this->assertSame( 'Custom Action', bbp_admin_repair_tool_action_label( 'custom-action' ) );
+
+		$legacy_override                         = $dry_run;
+		$legacy_override['_registered_callback'] = '__return_true';
+		$legacy_override['callback']             = '__return_false';
+		$this->assertSame( array( 'run' => '__return_false' ), bbp_get_admin_repair_tool_callbacks( $legacy_override ) );
+		$this->assertFalse( bbp_get_admin_repair_tool_callback( $legacy_override, 'dry-run' ) );
+
+		$callbacks_override                                = $dry_run;
+		$callbacks_override['_registered_callback']        = '__return_true';
+		$callbacks_override['callbacks']['run']             = '__return_false';
+		$this->assertSame( '__return_false', bbp_get_admin_repair_tool_callback( $callbacks_override, 'run' ) );
+		$this->assertSame( '__return_empty_array', bbp_get_admin_repair_tool_callback( $callbacks_override, 'dry-run' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_routes_dry_run_without_running_or_clearing_pending_upgrade() {
+		$run_called = false;
+		$context    = array();
+		$run        = function () use ( &$run_called ) {
+			$run_called = true;
+			return array( 0, 'Run complete.' );
+		};
+		$dry_run    = function ( $received ) use ( &$context ) {
+			$context = $received;
+			return array( 0, 'Dry run complete.' );
+		};
+
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => $run,
+					'dry-run' => $dry_run,
+				),
+			)
+		);
+
+		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
+		$_GET = array(
+			'action'   => 'dry-run',
+			'checked'  => array( 'custom-dry-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$this->assertFalse( $run_called );
+		$this->assertSame( 'dry-run', $context['action'] );
+		$this->assertSame( 'custom-dry-run', $context['tool']['id'] );
+		$this->assertSame( array( 'custom-dry-run' ), bbp_get_pending_upgrades() );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_closed_topics_dry_run
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_runs_the_registered_closed_topics_dry_run_callback() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+
+		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_closed_status_id() ) );
+		delete_post_meta( $topic_id, '_bbp_status' );
+
+		bbp_admin()->tools = array();
+		bbp_register_default_repair_tools();
+		$_GET = array(
+			'action'   => 'dry-run',
+			'checked'  => array( 'bbp-sync-closed-topics' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_status', true ) );
+		$this->assertStringContainsString( '1 closed topic would be repaired', end( bbp_admin()->notices ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_uses_the_action_for_the_clicked_bulk_button() {
+		$run_called = false;
+		$context    = array();
+
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => function () use ( &$run_called ) {
+						$run_called = true;
+						return array( 0, 'Run complete.' );
+					},
+					'dry-run' => function ( $received ) use ( &$context ) {
+						$context = $received;
+						return array( 0, 'Dry run complete.' );
+					},
+				),
+			)
+		);
+
+		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
+		$_GET = array(
+			'action'    => 'run',
+			'action2'   => 'dry-run',
+			'doaction2' => 'Apply',
+			'checked'   => array( 'custom-dry-run' ),
+			'_wpnonce'  => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$this->assertFalse( $run_called );
+		$this->assertSame( 'dry-run', $context['action'] );
+		$this->assertSame( array( 'custom-dry-run' ), bbp_get_pending_upgrades() );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_preserves_legacy_callback_overrides() {
+		$original_run = false;
+		$dry_run      = false;
+		$override_run = false;
+		$received_args = null;
+
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => function () use ( &$original_run ) {
+						$original_run = true;
+						return array( 0, 'Run complete.' );
+					},
+					'dry-run' => function () use ( &$dry_run ) {
+						$dry_run = true;
+						return array( 0, 'Dry run complete.' );
+					},
+				),
+			)
+		);
+
+		$override = function ( $tools ) use ( &$override_run, &$received_args ) {
+			$tools['custom-dry-run']['callback'] = function () use ( &$override_run, &$received_args ) {
+				$override_run = true;
+				$received_args = func_num_args();
+				return array( 0, 'Overridden run complete.' );
+			};
+			return $tools;
+		};
+		add_filter( 'bbp_get_admin_repair_tools', $override );
+
+		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
+		$_GET = array(
+			'action'   => 'run',
+			'checked'  => array( 'custom-dry-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		try {
+			bbp_admin_repair_handler();
+		} finally {
+			remove_filter( 'bbp_get_admin_repair_tools', $override );
+		}
+
+		$this->assertTrue( $override_run );
+		$this->assertSame( 0, $received_args );
+		$this->assertFalse( $original_run );
+		$this->assertFalse( $dry_run );
+		$this->assertSame( array(), bbp_get_pending_upgrades() );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_preserves_action_keyed_callback_overrides() {
+		$original_run = false;
+		$override_run = false;
+		$dry_run      = function () {
+			return array( 0, 'Dry run complete.' );
+		};
+
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => function () use ( &$original_run ) {
+						$original_run = true;
+						return array( 0, 'Run complete.' );
+					},
+					'dry-run' => $dry_run,
+				),
+			)
+		);
+
+		$override = function ( $tools ) use ( &$override_run ) {
+			$tools['custom-dry-run']['callbacks']['run'] = function () use ( &$override_run ) {
+				$override_run = true;
+				return array( 0, 'Overridden run complete.' );
+			};
+			return $tools;
+		};
+		add_filter( 'bbp_get_admin_repair_tools', $override );
+
+		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
+		$_GET = array(
+			'action'   => 'run',
+			'checked'  => array( 'custom-dry-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		try {
+			$tools     = bbp_get_admin_repair_tools();
+			$callbacks = bbp_get_admin_repair_tool_callbacks( $tools['custom-dry-run'] );
+			$this->assertSame( $dry_run, $callbacks['dry-run'] );
+			bbp_admin_repair_handler();
+		} finally {
+			remove_filter( 'bbp_get_admin_repair_tools', $override );
+		}
+
+		$this->assertTrue( $override_run );
+		$this->assertFalse( $original_run );
+		$this->assertSame( array(), bbp_get_pending_upgrades() );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_ignores_filter_and_search_submissions() {
+		$run_called = false;
+		bbp_admin()->tools = array(
+			'custom-run' => $this->tool(
+				array(
+					'callback' => function () use ( &$run_called ) {
+						$run_called = true;
+						return array( 0, 'Run complete.' );
+					},
+				)
+			),
+		);
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		foreach ( array( 'filter_action', 'search_action' ) as $submit ) {
+			$_GET = array(
+				'action'           => 'run',
+				'checked'          => array( 'custom-run' ),
+				$submit            => 'Submit',
+			);
+			$_REQUEST = $_GET;
+			bbp_admin_repair_handler();
+		}
+
+		$this->assertFalse( $run_called );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_rejects_an_unsupported_dry_run() {
+		$run_called = false;
+		bbp_admin()->tools = array(
+			'custom-run' => $this->tool(
+				array(
+					'callback' => function () use ( &$run_called ) {
+						$run_called = true;
+						return array( 0, 'Run complete.' );
+					},
+				)
+			),
+		);
+		update_option( '_bbp_db_pending_upgrades', array( 'custom-run' ) );
+		$_GET = array(
+			'action'   => 'dry-run',
+			'checked'  => array( 'custom-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$this->assertFalse( $run_called );
+		$this->assertSame( array( 'custom-run' ), bbp_get_pending_upgrades() );
+		$this->assertStringContainsString( 'does not support the Dry Run action', end( bbp_admin()->notices ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_reports_an_invalid_callback_result() {
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'invalid-result',
+				'type'      => 'repair',
+				'title'     => 'Invalid result',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => '__return_empty_array',
+					'dry-run' => '__return_empty_array',
+				),
+			)
+		);
+		$_GET = array(
+			'action'   => 'dry-run',
+			'checked'  => array( 'invalid-result' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$this->assertStringContainsString( 'did not return a valid result for the Dry Run action', end( bbp_admin()->notices ) );
 	}
 
 	/**

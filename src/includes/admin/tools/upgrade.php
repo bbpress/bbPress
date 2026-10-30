@@ -57,9 +57,9 @@ function bbp_admin_upgrade_page() {
 					<label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
 					<select name="action" id="bulk-action-selector-top">
 						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<option value="run" class="hide-if-no-js"><?php esc_html_e( 'Run', 'bbpress' ); ?></option>
+						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
 					</select>
-					<input type="submit" id="doaction" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
+					<input type="submit" name="doaction" id="doaction" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
 				</div>
 				<div class="alignleft actions">
 
@@ -154,19 +154,7 @@ function bbp_admin_upgrade_page() {
 										endif;
 
 									?><div class="row-actions hide-if-no-js">
-										<span class="run">
-											<a href="<?php bbp_admin_repair_tool_run_url( $item ); ?>"
-											id="<?php echo esc_attr( $item['id'] ); ?>"
-											aria-label="<?php
-											printf(
-												/* translators: %s: Repair tool title */
-												esc_attr__( 'Run %s', 'bbpress' ),
-												esc_attr( $item['title'] )
-											);
-											?>">
-												<?php esc_html_e( 'Run', 'bbpress' ); ?>
-											</a>
-										</span>
+										<?php bbp_admin_repair_tool_row_actions( $item ); ?>
 									</div>
 									<button type="button" class="toggle-row">
 										<span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'bbpress' ); ?></span>
@@ -228,9 +216,9 @@ function bbp_admin_upgrade_page() {
 					<label for="bulk-action-selector-bottom" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
 					<select name="action2" id="bulk-action-selector-bottom">
 						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<option value="run" class="hide-if-no-js"><?php esc_html_e( 'Run', 'bbpress' ); ?></option>
+						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
 					</select>
-					<input type="submit" id="doaction2" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
+					<input type="submit" name="doaction2" id="doaction2" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
 				</div>
 			</div>
 		</form>

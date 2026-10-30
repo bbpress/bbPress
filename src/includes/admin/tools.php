@@ -58,8 +58,11 @@ function bbp_admin_tools_box() {
  * Register an admin area repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
+ * @since 2.7.0 bbPress (r8218) Added action-keyed callbacks.
  *
- * @param array $args
+ * @param array $args Repair tool arguments. The callbacks value maps action
+ *                    names to callables. The legacy callback value is used for
+ *                    the Run action when callbacks[run] is not provided.
  * @return void
  */
 function bbp_register_repair_tool( $args = array() ) {
@@ -73,6 +76,7 @@ function bbp_register_repair_tool( $args = array() ) {
 			'title'       => '',
 			'description' => '',
 			'callback'    => '',
+			'callbacks'   => array(),
 			'priority'    => 0,
 			'overhead'    => 'low',
 			'version'     => '',
@@ -85,18 +89,35 @@ function bbp_register_repair_tool( $args = array() ) {
 		'register_repair_tool'
 	);
 
+	// Normalize the legacy callback into the action-keyed callbacks array
+	$callbacks = (array) $r['callbacks'];
+	if ( ! empty( $r['callback'] ) && empty( $callbacks['run'] ) ) {
+		$callbacks['run'] = $r['callback'];
+	}
+
+	// Sanitize action names and discard empty callbacks
+	$normalized_callbacks = array();
+	foreach ( $callbacks as $action => $callback ) {
+		$action = sanitize_key( $action );
+
+		if ( ! empty( $action ) && ! empty( $callback ) ) {
+			$normalized_callbacks[ $action ] = $callback;
+		}
+	}
+
 	// Bail if missing required values
-	if ( empty( $r['id'] ) || empty( $r['priority'] ) || empty( $r['title'] ) || empty( $r['callback'] ) ) {
+	if ( empty( $r['id'] ) || empty( $r['priority'] ) || empty( $r['title'] ) || empty( $normalized_callbacks['run'] ) ) {
 		return;
 	}
 
-	// Add tool to the registered tools array
-	bbp_admin()->tools[ $r['id'] ] = array(
+	// Build the registered tool
+	$tool = array(
 		'type'        => $r['type'],
 		'title'       => $r['title'],
 		'description' => $r['description'],
 		'priority'    => $r['priority'],
-		'callback'    => $r['callback'],
+		'callback'    => $normalized_callbacks['run'],
+		'callbacks'   => $normalized_callbacks,
 		'overhead'    => $r['overhead'],
 		'components'  => $r['components'],
 		'version'     => $r['version'],
@@ -105,6 +126,12 @@ function bbp_register_repair_tool( $args = array() ) {
 		'success'     => $r['success'],
 		'failure'     => $r['failure'],
 	);
+
+	// Retain the original Run callback to detect legacy filter overrides
+	$tool['_registered_callback'] = $normalized_callbacks['run'];
+
+	// Add tool to the registered tools array
+	bbp_admin()->tools[ $r['id'] ] = $tool;
 }
 
 /**
@@ -219,7 +246,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Repair closed topic statuses', 'bbpress' ),
 			'description' => esc_html__( 'Run this if closed topics appear incorrectly.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_closed_topics',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_closed_topics',
+				'dry-run' => 'bbp_admin_repair_closed_topics_dry_run',
+			),
 			'priority'    => 40,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_topic_post_type() )

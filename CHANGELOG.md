@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added action-specific callbacks to forum tools and a Dry Run action for
+  previewing closed-topic status repairs without changing topic metadata.
 - Added an administrator control to skip automatic forum role assignment for a
   user on one site or all sites without changing an explicit forum role.
 - Added configurable actions for blocked users, including cross-site forum

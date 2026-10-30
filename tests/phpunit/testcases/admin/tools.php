@@ -1026,16 +1026,51 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_closed_topics
+	 * @covers ::bbp_admin_repair_closed_topics_dry_run
+	 * @covers ::bbp_admin_repair_closed_topics_process
 	 */
 	public function test_bbp_admin_repair_closed_topics() {
 		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_closed_status_id() ) );
 		delete_post_meta( $topic_id, '_bbp_status' );
+
+		$dry_run = bbp_admin_repair_closed_topics_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 closed topic would be repaired', $dry_run[1] );
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_status', true ) );
 
 		$result = bbp_admin_repair_closed_topics();
 		$this->assertSame( 0, $result[0] );
 		$this->assertStringContainsString( '1 closed topic repaired', $result[1] );
 		$this->assertSame( 'publish', get_post_meta( $topic_id, '_bbp_status', true ) );
 		$this->assertStringContainsString( '0 closed topics repaired', bbp_admin_repair_closed_topics()[1] );
+		$this->assertStringContainsString( '0 closed topics would be repaired', bbp_admin_repair_closed_topics_dry_run()[1] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_closed_topics_dry_run
+	 * @covers ::bbp_admin_repair_closed_topics_process
+	 */
+	public function test_bbp_admin_repair_closed_topics_dry_run_uses_current_metadata() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_closed_status_id() ) );
+
+		update_post_meta( $topic_id, '_bbp_status', 'publish' );
+		$this->assertSame( 'publish', get_post_meta( $topic_id, '_bbp_status', true ) );
+		$this->assertSame(
+			1,
+			$db->delete(
+				$db->postmeta,
+				array(
+					'post_id'  => $topic_id,
+					'meta_key' => '_bbp_status',
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_closed_topics_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 closed topic would be repaired', $dry_run[1] );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_status' ) );
 	}
 
 	/**

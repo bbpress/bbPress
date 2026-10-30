@@ -84,6 +84,31 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  * @param string $component
  */
 function bbp_get_admin_repair_tool_run_url( $component = array() ) {
+	return bbp_get_admin_repair_tool_action_url( $component, 'run' );
+}
+
+/**
+ * Output the URL for a specific repair tool action.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array  $component Repair tool registration.
+ * @param string $action    Repair tool action.
+ */
+function bbp_admin_repair_tool_action_url( $component = array(), $action = 'run' ) {
+	echo esc_url( bbp_get_admin_repair_tool_action_url( $component, $action ) );
+}
+
+/**
+ * Return the URL for a specific repair tool action.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array  $component Repair tool registration.
+ * @param string $action    Repair tool action.
+ * @return string
+ */
+function bbp_get_admin_repair_tool_action_url( $component = array(), $action = 'run' ) {
 
 	// Page
 	$page = ( 'repair' === $component['type'] )
@@ -93,15 +118,211 @@ function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 	// Arguments
 	$args = array(
 		'page'    => $page,
-		'action'  => 'run',
+		'action'  => sanitize_key( $action ),
 		'checked' => array( $component['id'] )
 	);
 
 	// Url
 	$nonced = wp_nonce_url( bbp_get_admin_repair_tool_page_url( $args ), 'bbpress-do-counts' );
 
-	// Filter & return
-	return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
+	/**
+	 * Filters an admin repair tool action URL.
+	 *
+	 * @since 2.7.0 bbPress (r8218)
+	 *
+	 * @param string $nonced   Nonced action URL.
+	 * @param array  $component Repair tool registration.
+	 * @param string $action    Repair tool action.
+	 */
+	$url = apply_filters( 'bbp_get_admin_repair_tool_action_url', $nonced, $component, $action );
+
+	// Preserve the original filter for Run actions
+	if ( 'run' === $action ) {
+		$url = apply_filters( 'bbp_get_admin_repair_tool_run_url', $url, $component );
+	}
+
+	return $url;
+}
+
+/**
+ * Return the action-keyed callbacks for an admin repair tool.
+ *
+ * The legacy callback value is treated as the run callback when an explicit
+ * action-keyed run callback is not available.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array $tool Repair tool registration.
+ * @return array
+ */
+function bbp_get_admin_repair_tool_callbacks( $tool = array() ) {
+	$callbacks = ! empty( $tool['callbacks'] )
+		? (array) $tool['callbacks']
+		: array();
+	$registered_callback = isset( $tool['_registered_callback'] )
+		? $tool['_registered_callback']
+		: false;
+	$legacy_override = ( false !== $registered_callback )
+		&& array_key_exists( 'callback', $tool )
+		&& ( $registered_callback !== $tool['callback'] );
+	$callbacks_override = ( false !== $registered_callback )
+		&& array_key_exists( 'callbacks', $tool )
+		&& ( ! array_key_exists( 'run', $callbacks ) || ( $registered_callback !== $callbacks['run'] ) );
+
+	// A legacy override cannot safely inherit action-specific callbacks
+	if ( $legacy_override && ! $callbacks_override ) {
+		$callbacks = ! empty( $tool['callback'] )
+			? array( 'run' => $tool['callback'] )
+			: array();
+
+	// Explicit action-keyed callbacks win when both public forms are changed
+	} elseif ( empty( $callbacks['run'] ) && ! $callbacks_override && ! empty( $tool['callback'] ) ) {
+		$callbacks['run'] = $tool['callback'];
+	}
+
+	$retval = array();
+	foreach ( $callbacks as $action => $callback ) {
+		$action = sanitize_key( $action );
+
+		if ( ! empty( $action ) && ! empty( $callback ) ) {
+			$retval[ $action ] = $callback;
+		}
+	}
+
+	return $retval;
+}
+
+/**
+ * Return the callback for a specific admin repair tool action.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array  $tool   Repair tool registration.
+ * @param string $action Repair tool action.
+ * @return callable|false
+ */
+function bbp_get_admin_repair_tool_callback( $tool = array(), $action = 'run' ) {
+	$callbacks = bbp_get_admin_repair_tool_callbacks( $tool );
+	$action    = sanitize_key( $action );
+
+	return isset( $callbacks[ $action ] )
+		? $callbacks[ $action ]
+		: false;
+}
+
+/**
+ * Return the actions registered for one or more admin repair tools.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array $tools Repair tool registrations.
+ * @return array
+ */
+function bbp_get_admin_repair_tool_actions( $tools = array() ) {
+	$actions = array();
+
+	foreach ( $tools as $tool ) {
+		$actions = array_merge( $actions, array_keys( bbp_get_admin_repair_tool_callbacks( $tool ) ) );
+	}
+
+	return array_values( array_unique( $actions ) );
+}
+
+/**
+ * Return a human-readable admin repair tool action label.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param string $action Repair tool action.
+ * @return string
+ */
+function bbp_admin_repair_tool_action_label( $action = '' ) {
+	switch ( $action ) {
+		case 'run':
+			$label = esc_html__( 'Run', 'bbpress' );
+			break;
+
+		case 'dry-run':
+			$label = esc_html__( 'Dry Run', 'bbpress' );
+			break;
+
+		default:
+			$label = ucwords( str_replace( '-', ' ', sanitize_key( $action ) ) );
+			break;
+	}
+
+	/**
+	 * Filters a repair tool action label.
+	 *
+	 * @since 2.7.0 bbPress (r8218)
+	 *
+	 * @param string $label  Human-readable action label.
+	 * @param string $action Repair tool action.
+	 */
+	return apply_filters( 'bbp_admin_repair_tool_action_label', $label, $action );
+}
+
+/**
+ * Output bulk actions registered by the available admin repair tools.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array $tools Repair tool registrations.
+ */
+function bbp_admin_repair_tool_bulk_actions( $tools = array() ) {
+	foreach ( bbp_get_admin_repair_tool_actions( $tools ) as $action ) {
+		printf(
+			'<option value="%1$s" class="hide-if-no-js">%2$s</option>',
+			esc_attr( $action ),
+			esc_html( bbp_admin_repair_tool_action_label( $action ) )
+		);
+	}
+}
+
+/**
+ * Output the actions registered by an admin repair tool.
+ *
+ * @since 2.7.0 bbPress (r8218)
+ *
+ * @param array $tool Repair tool registration.
+ */
+function bbp_admin_repair_tool_row_actions( $tool = array() ) {
+	$links = array();
+
+	foreach ( array_keys( bbp_get_admin_repair_tool_callbacks( $tool ) ) as $action ) {
+		$label = bbp_admin_repair_tool_action_label( $action );
+
+		switch ( $action ) {
+			case 'run':
+				/* translators: %s: Repair tool title */
+				$aria_label = sprintf( esc_attr__( 'Run %s', 'bbpress' ), $tool['title'] );
+				$link_id    = $tool['id'];
+				break;
+
+			case 'dry-run':
+				/* translators: %s: Repair tool title */
+				$aria_label = sprintf( esc_attr__( 'Dry Run %s', 'bbpress' ), $tool['title'] );
+				$link_id    = $tool['id'] . '-dry-run';
+				break;
+
+			default:
+				/* translators: %1$s: Action label; %2$s: Repair tool title */
+				$aria_label = sprintf( esc_attr__( '%1$s %2$s', 'bbpress' ), $label, $tool['title'] );
+				$link_id    = $tool['id'] . '-' . $action;
+				break;
+		}
+
+		$links[] = sprintf(
+			'<span class="%1$s"><a href="%2$s" id="%3$s" aria-label="%4$s">%5$s</a></span>',
+			esc_attr( sanitize_html_class( $action ) ),
+			esc_url( bbp_get_admin_repair_tool_action_url( $tool, $action ) ),
+			esc_attr( $link_id ),
+			esc_attr( $aria_label ),
+			esc_html( $label )
+		);
+	}
+
+	echo implode( ' | ', $links );
 }
 
 /**
@@ -132,29 +353,43 @@ function bbp_admin_repair_handler() {
 		return;
 	}
 
-	// Get the current action or bail
-	if ( ! empty( $_GET['action'] ) ) {
+	// Filtering and searching must never run a selected tool action
+	if ( ! empty( $_GET['filter_action'] ) || ! empty( $_GET['search_action'] ) ) {
+		return;
+	}
+
+	// Bail on an ambiguous bulk-action request
+	if ( ! empty( $_GET['doaction'] ) && ! empty( $_GET['doaction2'] ) ) {
+		return;
+	}
+
+	// Get the action belonging to the clicked button, or a row-action URL
+	if ( ! empty( $_GET['doaction2'] ) && ! empty( $_GET['action2'] ) ) {
+		$action = sanitize_key( $_GET['action2'] );
+	} elseif ( ! empty( $_GET['doaction'] ) && ! empty( $_GET['action'] ) ) {
 		$action = sanitize_key( $_GET['action'] );
-	} elseif ( ! empty( $_GET['action2'] ) ) {
+	} elseif ( empty( $_GET['doaction'] ) && empty( $_GET['doaction2'] ) && ! empty( $_GET['action'] ) ) {
+		$action = sanitize_key( $_GET['action'] );
+	} elseif ( empty( $_GET['doaction'] ) && empty( $_GET['doaction2'] ) && ! empty( $_GET['action2'] ) ) {
 		$action = sanitize_key( $_GET['action2'] );
 	} else {
 		return;
 	}
 
-	// Bail if not running an action
-	if ( 'run' !== $action ) {
+	// Bail if no tools were selected
+	if ( empty( $_GET['checked'] ) ) {
 		return;
 	}
 
 	check_admin_referer( 'bbpress-do-counts' );
 
 	// Parse list of checked repairs
-	$checked = ! empty( $_GET['checked'] )
-		? array_map( 'sanitize_key', $_GET['checked'] )
-		: array();
+	$checked = array_map( 'sanitize_key', (array) $_GET['checked'] );
 
 	// Flush all caches before running tools
-	wp_cache_flush();
+	if ( 'run' === $action ) {
+		wp_cache_flush();
+	}
 
 	// Get the list
 	$list = bbp_get_admin_repair_tools();
@@ -165,11 +400,46 @@ function bbp_admin_repair_handler() {
 	// Run through checked repair tools
 	if ( count( $checked ) ) {
 		foreach ( $checked as $item_id ) {
-			if ( isset( $list[ $item_id ] ) && is_callable( $list[ $item_id ]['callback'] ) ) {
-				$messages[] = call_user_func( $list[ $item_id ]['callback'] );
+			if ( ! isset( $list[ $item_id ] ) ) {
+				continue;
+			}
+
+			$tool              = $list[ $item_id ];
+			$callbacks         = bbp_get_admin_repair_tool_callbacks( $tool );
+			$tool['id']        = $item_id;
+			$tool['callback']  = isset( $callbacks['run'] ) ? $callbacks['run'] : false;
+			$tool['callbacks'] = $callbacks;
+			$callback          = isset( $callbacks[ $action ] ) ? $callbacks[ $action ] : false;
+			unset( $tool['_registered_callback'] );
+
+			if ( ! is_callable( $callback ) ) {
+				/* translators: %1$s: Repair tool title; %2$s: Action label */
+				$message    = esc_html__( '%1$s does not support the %2$s action.', 'bbpress' );
+				$messages[] = array( 1, sprintf( $message, $tool['title'], bbp_admin_repair_tool_action_label( $action ) ) );
+				continue;
+			}
+
+			if ( 'run' === $action ) {
+				$result = call_user_func( $callback );
 
 				// Remove from pending
 				bbp_remove_pending_upgrade( $item_id );
+			} else {
+				$result = call_user_func(
+					$callback,
+					array(
+						'action' => $action,
+						'tool'   => $tool
+					)
+				);
+			}
+
+			if ( is_array( $result ) && isset( $result[1] ) ) {
+				$messages[] = $result;
+			} else {
+				/* translators: %1$s: Repair tool title; %2$s: Action label */
+				$message    = esc_html__( '%1$s did not return a valid result for the %2$s action.', 'bbpress' );
+				$messages[] = array( 1, sprintf( $message, $tool['title'], bbp_admin_repair_tool_action_label( $action ) ) );
 			}
 		}
 	}
@@ -182,7 +452,9 @@ function bbp_admin_repair_handler() {
 	}
 
 	// Flush all caches after running tools
-	wp_cache_flush();
+	if ( 'run' === $action ) {
+		wp_cache_flush();
+	}
 }
 
 /**
@@ -260,7 +532,7 @@ function bbp_admin_repair_list_search_form() {
 	<p class="search-box">
 		<label class="screen-reader-text" for="bbp-repair-search-input"><?php esc_html_e( 'Search Tools:', 'bbpress' ); ?></label>
 		<input type="search" id="bbp-repair-search-input" name="s" value="<?php _admin_search_query(); ?>">
-		<input type="submit" id="search-submit" class="button" value="<?php esc_html_e( 'Search Tools', 'bbpress' ); ?>">
+		<input type="submit" name="search_action" id="search-submit" class="button" value="<?php esc_html_e( 'Search Tools', 'bbpress' ); ?>">
 	</p>
 
 	<?php
@@ -590,13 +862,15 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 			}
 
 			// Add to repair list
+			$callbacks = bbp_get_admin_repair_tool_callbacks( $tool );
 			$repair_list[ $tool['priority'] ] = array(
 				'id'          => sanitize_key( $id ),
 				'type'        => $tool['type'],
 				'title'       => $tool['title'],
 				'priority'    => $tool['priority'],
 				'description' => $tool['description'],
-				'callback'    => $tool['callback'],
+				'callback'    => isset( $callbacks['run'] ) ? $callbacks['run'] : '',
+				'callbacks'   => $callbacks,
 				'overhead'    => $tool['overhead'],
 				'version'     => $tool['version'],
 				'components'  => $tool['components']
