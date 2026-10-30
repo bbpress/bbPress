@@ -239,16 +239,46 @@ function bbp_admin_repair_page() {
  * Recount topic replies.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8222) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_topic_reply_count() {
+	return bbp_admin_repair_topic_reply_count_process();
+}
+
+/**
+ * Preview recounting topic replies.
+ *
+ * @since 2.7.0 bbPress (r8222)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_reply_count_dry_run() {
+	return bbp_admin_repair_topic_reply_count_process( true );
+}
+
+/**
+ * Recount or preview topic replies.
+ *
+ * @since 2.7.0 bbPress (r8222)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_reply_count_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the counting process */
-	$statement = esc_html__( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of replies in each topic&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
+	}
 
 	// Post types and status
 	$tpt                = bbp_get_topic_post_type();
@@ -256,35 +286,86 @@ function bbp_admin_repair_topic_reply_count() {
 	$sql_topic_statuses = "'" . implode( "','", bbp_get_public_topic_statuses() ) . "'";
 	$sql_reply_statuses = "'" . implode( "','", bbp_get_public_reply_statuses() ) . "'";
 
-	// Delete the meta key _bbp_reply_count for each topic
-	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
-						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
-						WHERE `posts`.`post_type` = '{$tpt}'
-						AND `postmeta`.`meta_key` = '_bbp_reply_count'";
+	$counts_from_sql = "FROM `{$bbp_db->posts}` AS `topics`
+		LEFT JOIN `{$bbp_db->posts}` AS `replies`
+			ON `replies`.`post_parent` = `topics`.`ID`
+			AND `replies`.`post_status` IN ( {$sql_reply_statuses} )
+			AND `replies`.`post_type` = '{$rpt}'
+		WHERE `topics`.`post_type` = '{$tpt}'
+			AND `topics`.`post_status` IN ( {$sql_topic_statuses} )
+		GROUP BY `topics`.`ID`";
+	$expected_counts_sql = "SELECT `topics`.`ID` AS `topic_id`, COUNT(`replies`.`ID`) AS `reply_count`
+		{$counts_from_sql}";
 
-	if ( false === $bbp_db->query( $sql_delete ) ) {
+	if ( ! $dry_run ) {
+
+		// Delete the meta key _bbp_reply_count for each topic
+		$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
+							LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
+							WHERE `posts`.`post_type` = '{$tpt}'
+							AND `postmeta`.`meta_key` = '_bbp_reply_count'";
+
+		if ( false === $bbp_db->query( $sql_delete ) ) {
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		// Recalculate the meta key _bbp_reply_count for each topic
+		$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
+			SELECT `topics`.`ID` AS `post_id`, '_bbp_reply_count' AS `meta_key`, COUNT(`replies`.`ID`) AS `meta_value`
+			{$counts_from_sql})";
+
+		if ( false === $bbp_db->query( $sql ) ) {
+			return array( 2, sprintf( $statement, $result ) );
+		}
+
+		bbp_admin_repair_clean_post_meta_cache( $tpt );
+
+		return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	}
+
+	$stored_counts_sql = "SELECT `postmeta`.`post_id` AS `topic_id`, COUNT(*) AS `row_count`, MIN(`postmeta`.`meta_value`) AS `reply_count`
+		FROM `{$bbp_db->postmeta}` AS `postmeta`
+		INNER JOIN `{$bbp_db->posts}` AS `topics`
+			ON `topics`.`ID` = `postmeta`.`post_id`
+			AND `topics`.`post_type` = '{$tpt}'
+		WHERE `postmeta`.`meta_key` = '_bbp_reply_count'
+		GROUP BY `postmeta`.`post_id`";
+
+	/*
+	 * Compare expected and stored topic reply counts in both directions. A topic
+	 * must have exactly one stored row containing the calculated count.
+	 */
+	$repair_sql = "SELECT COUNT(DISTINCT repairs.topic_id)
+		FROM (
+			SELECT expected.topic_id
+			FROM ( {$expected_counts_sql} ) AS expected
+			LEFT JOIN ( {$stored_counts_sql} ) AS stored
+				ON stored.topic_id = expected.topic_id
+			WHERE stored.topic_id IS NULL
+				OR stored.row_count <> 1
+				OR NOT ( CAST(stored.reply_count AS BINARY) <=> CAST(expected.reply_count AS BINARY) )
+			UNION ALL
+			SELECT stored.topic_id
+			FROM ( {$stored_counts_sql} ) AS stored
+			LEFT JOIN ( {$expected_counts_sql} ) AS expected
+				ON expected.topic_id = stored.topic_id
+			WHERE expected.topic_id IS NULL
+		) AS repairs";
+	$repair_count = (int) $bbp_db->get_var( $repair_sql );
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 3, sprintf( $statement, $result ) );
+	}
+
+	if ( empty( $repair_count ) ) {
+		$result = esc_html__( 'No topic reply counts to repair.', 'bbpress' );
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Recalculate the meta key _bbp_reply_count for each topic
-	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
-			SELECT `topics`.`ID` AS `post_id`, '_bbp_reply_count' AS `meta_key`, COUNT(`replies`.`ID`) As `meta_value`
-				FROM `{$bbp_db->posts}` AS `topics`
-					LEFT JOIN `{$bbp_db->posts}` as `replies`
-						ON  `replies`.`post_parent` = `topics`.`ID`
-						AND `replies`.`post_status` IN ( {$sql_reply_statuses} )
-						AND `replies`.`post_type`   = '{$rpt}'
-				WHERE `topics`.`post_type` = '{$tpt}'
-					AND `topics`.`post_status` IN ( {$sql_topic_statuses} )
-				GROUP BY `topics`.`ID`)";
+	/* translators: %d: Number of topics whose reply counts would be repaired */
+	$result = sprintf( _n( 'Dry run complete! Reply counts would be repaired in %d topic.', 'Dry run complete! Reply counts would be repaired in %d topics.', $repair_count, 'bbpress' ), $repair_count );
 
-	if ( false === $bbp_db->query( $sql ) ) {
-		return array( 2, sprintf( $statement, $result ) );
-	}
-
-	bbp_admin_repair_clean_post_meta_cache( $tpt );
-
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**

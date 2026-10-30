@@ -208,6 +208,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_reply_count
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
 	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_topic_reply_count() {
@@ -225,11 +227,170 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			return $statuses;
 		};
 		add_filter( 'bbp_get_public_reply_statuses', $public_statuses );
+		$dry_run = bbp_admin_repair_topic_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame( 9, bbp_get_topic_reply_count( $topic_id, true ) );
+
 		$result = bbp_admin_repair_topic_reply_count();
+		$this->assertSame( 1, bbp_admin_repair_topic_reply_count_dry_run()[0] );
 		remove_filter( 'bbp_get_public_reply_statuses', $public_statuses );
 
 		$this->assertSame( 0, $result[0] );
 		$this->assertSame( 3, bbp_get_topic_reply_count( $topic_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_reply_count
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_reply_count_uses_current_database_values() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		bbp_update_topic_reply_count( $topic_id, 1 );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $topic_id,
+					'meta_key'   => '_bbp_reply_count',
+					'meta_value' => 1,
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_topic_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			2,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_reply_count'", $topic_id ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_topic_reply_count()[0] );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_reply_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_reply_count
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_reply_count_repairs_missing_meta() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		bbp_update_topic_reply_count( $topic_id, 1 );
+		$this->assertSame(
+			1,
+			$db->delete( $db->postmeta, array( 'post_id' => $topic_id, 'meta_key' => '_bbp_reply_count' ) )
+		);
+
+		$dry_run = bbp_admin_repair_topic_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			0,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_reply_count'", $topic_id ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_topic_reply_count()[0] );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_reply_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_reply_count
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_reply_count_detects_malformed_meta_strings() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		bbp_update_topic_reply_count( $topic_id, 1 );
+		$this->assertSame(
+			1,
+			$db->update( $db->postmeta, array( 'meta_value' => '01' ), array( 'post_id' => $topic_id, 'meta_key' => '_bbp_reply_count' ) )
+		);
+
+		$dry_run = bbp_admin_repair_topic_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			'01',
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_reply_count'", $topic_id ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_topic_reply_count()[0] );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_reply_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_reply_count
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_reply_count_run_clears_stale_cache_when_database_matches() {
+		$topic_id = $this->factory->topic->create();
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		bbp_update_topic_reply_count( $topic_id, 1 );
+		$this->assertSame( '1', get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+		$meta_cache                     = wp_cache_get( $topic_id, 'post_meta' );
+		$meta_cache['_bbp_reply_count'] = array( '99' );
+		$this->assertTrue( wp_cache_set( $topic_id, $meta_cache, 'post_meta' ) );
+		$this->assertSame( '99', get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+
+		$this->assertSame( 1, bbp_admin_repair_topic_reply_count_dry_run()[0] );
+		$this->assertSame( '99', get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_reply_count()[0] );
+		$this->assertSame( '1', get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_reply_count
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_reply_count_repairs_non_public_topic_meta() {
+		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id() ) );
+
+		update_post_meta( $topic_id, '_bbp_reply_count', 7 );
+		$dry_run = bbp_admin_repair_topic_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame( '7', get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_reply_count()[0] );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_reply_count' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_reply_count_dry_run_counts_multiple_topics() {
+		$topic_ids = $this->factory->topic->create_many( 3 );
+
+		foreach ( $topic_ids as $topic_id ) {
+			bbp_update_topic_reply_count( $topic_id, 0 );
+		}
+
+		update_post_meta( reset( $topic_ids ), '_bbp_reply_count', 9 );
+		update_post_meta( end( $topic_ids ), '_bbp_reply_count', 9 );
+
+		$dry_run = bbp_admin_repair_topic_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 2 topics', $dry_run[1] );
+		$this->assertSame( '9', get_post_meta( reset( $topic_ids ), '_bbp_reply_count', true ) );
+		$this->assertSame( '9', get_post_meta( end( $topic_ids ), '_bbp_reply_count', true ) );
 	}
 
 	/**
