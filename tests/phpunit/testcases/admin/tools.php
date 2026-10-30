@@ -2505,21 +2505,33 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
 	 */
 	public function test_bbp_admin_repair_user_roles() {
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
 		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		bbp_set_user_role( $user_id, bbp_get_blocked_role() );
 
+		$dry_run = bbp_admin_repair_user_roles_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
+
 		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
+		$this->assertSame( 1, bbp_admin_repair_user_roles_dry_run()[0] );
 	}
 
 	/**
 	 * @ticket BBP3262
 	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
 	 */
 	public function test_role_repair_does_not_remove_role_for_empty_mapped_role() {
-		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$user_id   = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		$empty_map = function ( $roles ) {
 			$roles['subscriber'] = '';
 			return $roles;
@@ -2529,11 +2541,270 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'bbp_get_user_role_map', $empty_map );
 
 		try {
+			$this->assertSame( 1, bbp_admin_repair_user_roles_dry_run()[0] );
+			$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 			$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
 			$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 		} finally {
 			remove_filter( 'bbp_get_user_role_map', $empty_map );
 		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_reports_missing_role_map() {
+		$user_id   = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$empty_map = static function () {
+			return array();
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_blocked_role() );
+		add_filter( 'bbp_get_user_role_map', $empty_map );
+
+		try {
+			$this->assertSame( 1, bbp_admin_repair_user_roles_dry_run()[0] );
+			$this->assertSame( 1, bbp_admin_repair_user_roles()[0] );
+			$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
+		} finally {
+			remove_filter( 'bbp_get_user_role_map', $empty_map );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_repairs_users_without_roles() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Single-site only.' );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$cap_key = $db->get_blog_prefix() . 'capabilities';
+
+		delete_user_meta( $user_id, $cap_key );
+		clean_user_cache( $user_id );
+		$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
+
+		$dry_run = bbp_admin_repair_user_roles_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
+
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_restarts_shrinking_pages_during_run() {
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$db       = bbp_db();
+		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$cap_key  = $db->get_blog_prefix() . 'capabilities';
+		$call     = 0;
+		$offsets  = array();
+		$get_page = static function ( $results, $query ) use ( &$call, &$offsets, $cap_key, $user_id ) {
+			if ( ! isset( $query->query_vars['meta_key'] ) || ( $cap_key !== $query->query_vars['meta_key'] ) ) {
+				return $results;
+			}
+
+			$offsets[] = (int) $query->query_vars['offset'];
+			++$call;
+
+			return ( 1 === $call ) ? array( $user_id ) : array();
+		};
+
+		delete_user_meta( $user_id, $cap_key );
+		clean_user_cache( $user_id );
+		add_filter( 'users_pre_query', $get_page, 10, 2 );
+
+		try {
+			$this->assertSame( 0, bbp_admin_repair_user_roles_dry_run()[0] );
+			$this->assertSame( array( 0, 1000 ), $offsets );
+			$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
+
+			$call    = 0;
+			$offsets = array();
+
+			$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+			$this->assertSame( array( 0, 0 ), $offsets );
+			$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
+		} finally {
+			remove_filter( 'users_pre_query', $get_page, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_advances_past_rows_that_remain() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Single-site only.' );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$db          = bbp_db();
+		$user_id     = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$cap_key     = $db->get_blog_prefix() . 'capabilities';
+		$offsets     = array();
+		$get_page    = static function ( $results, $query ) use ( &$offsets, $cap_key, $user_id ) {
+			if ( ! isset( $query->query_vars['meta_key'] ) || ( $cap_key !== $query->query_vars['meta_key'] ) ) {
+				return $results;
+			}
+
+			$offset    = (int) $query->query_vars['offset'];
+			$offsets[] = $offset;
+
+			return empty( $offset ) ? array( $user_id ) : array();
+		};
+		$filter_role = static function ( $role, $filtered_user_id ) use ( $user_id ) {
+			return ( $user_id === $filtered_user_id ) ? bbp_get_default_role() : $role;
+		};
+
+		delete_user_meta( $user_id, $cap_key );
+		clean_user_cache( $user_id );
+		add_filter( 'users_pre_query', $get_page, 10, 2 );
+		add_filter( 'bbp_get_user_role', $filter_role, 10, 2 );
+
+		try {
+			$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+			$this->assertSame( array( 0, 1 ), $offsets );
+			$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
+		} finally {
+			remove_filter( 'users_pre_query', $get_page, 10 );
+			remove_filter( 'bbp_get_user_role', $filter_role, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_repairs_extra_role_for_blocked_user() {
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$user_id   = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$blocked   = bbp_get_blocked_role();
+		$extra     = bbp_get_participant_role();
+		$block_map = static function ( $roles ) use ( $blocked ) {
+			$roles['subscriber'] = $blocked;
+			return $roles;
+		};
+		$user      = get_userdata( $user_id );
+
+		$user->add_role( $blocked );
+		$user->add_role( $extra );
+		add_filter( 'bbp_get_user_role_map', $block_map );
+
+		try {
+			$dry_run = bbp_admin_repair_user_roles_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+			$this->assertContains( $extra, get_userdata( $user_id )->roles );
+
+			$run = bbp_admin_repair_user_roles();
+			$this->assertSame( 0, $run[0] );
+			$this->assertStringContainsString( 'Complete! 1 users updated', $run[1] );
+			$this->assertSame( array( $blocked ), array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) ) );
+		} finally {
+			remove_filter( 'bbp_get_user_role_map', $block_map );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_counts_users_with_multiple_blog_roles_once() {
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$user    = get_userdata( $user_id );
+
+		$user->add_role( 'subscriber' );
+		bbp_set_user_role( $user_id, bbp_get_blocked_role() );
+
+		$dry_run = bbp_admin_repair_user_roles_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
+
+		$run = bbp_admin_repair_user_roles();
+		$this->assertSame( 0, $run[0] );
+		$this->assertStringContainsString( 'Complete! 1 users updated', $run[1] );
+		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_simulates_multiple_forum_roles() {
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$user    = get_userdata( $user_id );
+
+		$user->add_role( 'subscriber' );
+		bbp_remove_user_role( $user_id );
+		$user = get_userdata( $user_id );
+		$user->add_role( bbp_get_moderator_role() );
+		$user->add_role( bbp_get_spectator_role() );
+
+		$dry_run = bbp_admin_repair_user_roles_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '2 users would be updated', $dry_run[1] );
+		$this->assertSame(
+			array( bbp_get_moderator_role(), bbp_get_spectator_role() ),
+			array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) )
+		);
+
+		$run = bbp_admin_repair_user_roles();
+		$this->assertSame( 0, $run[0] );
+		$this->assertStringContainsString( 'Complete! 2 users updated', $run[1] );
+		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
+	}
+
+	/**
+	 * @group multisite
+	 * @covers ::bbp_admin_repair_user_roles
+	 * @covers ::bbp_admin_repair_user_roles_dry_run
+	 * @covers ::bbp_admin_repair_user_roles_process
+	 */
+	public function test_bbp_admin_repair_user_roles_repairs_empty_multisite_capabilities() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite only.' );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$cap_key = $db->get_blog_prefix() . 'capabilities';
+
+		update_user_meta( $user_id, $cap_key, array() );
+		clean_user_cache( $user_id );
+		$this->assertSame( array(), get_user_meta( $user_id, $cap_key, true ) );
+
+		$dry_run = bbp_admin_repair_user_roles_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertSame( array(), get_user_meta( $user_id, $cap_key, true ) );
+
+		$run = bbp_admin_repair_user_roles();
+		$this->assertSame( 0, $run[0] );
+		$this->assertStringContainsString( 'Complete! 1 users updated', $run[1] );
+		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
 	/**

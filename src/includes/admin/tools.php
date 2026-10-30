@@ -461,7 +461,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Remap all users to default forum roles', 'bbpress' ),
 			'description' => esc_html__( 'Run this if users have issues accessing the forums.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_user_roles',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_user_roles',
+				'dry-run' => 'bbp_admin_repair_user_roles_dry_run',
+			),
 			'priority'    => 100,
 			'overhead'    => 'low',
 			'components'  => array( bbp_get_user_rewrite_id() )
