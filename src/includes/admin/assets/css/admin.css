@@ -140,7 +140,7 @@ body.rtl .about-wrap .bbp-badge {
 
 /* Admin Menu */
 
-#adminmenu li.wp-has-current-submenu a .bbp-menu-count {
+#adminmenu li.wp-has-current-submenu > a .bbp-menu-count {
 	background-color: rgba(0, 0, 0, 0.65);
 	color: #fff;
 }
