@@ -1229,22 +1229,52 @@ function bbp_admin_repair_user_reply_count_process( $dry_run = false ) {
  * Repair user favorites.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8226) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_user_favorites() {
+	return bbp_admin_repair_user_favorites_process();
+}
+
+/**
+ * Preview repairing user favorites.
+ *
+ * @since 2.7.0 bbPress (r8226)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_user_favorites_dry_run() {
+	return bbp_admin_repair_user_favorites_process( true );
+}
+
+/**
+ * Repair or preview user favorites.
+ *
+ * @since 2.7.0 bbPress (r8226)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_user_favorites_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Removing unpublished topics from user favorites&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking unpublished topics in user favorites&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Removing unpublished topics from user favorites&hellip; %s', 'bbpress' );
+	}
 
 	// Query for users with favorites
 	$key       = $bbp_db->prefix . '_bbp_favorites';
 	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
-	if ( is_wp_error( $users ) ) {
+	if ( is_wp_error( $users ) || ! empty( $bbp_db->last_error ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -1253,12 +1283,17 @@ function bbp_admin_repair_user_favorites() {
 	$sql_select = "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$sql_type}' AND `post_status` IN ({$sql_status})";
 
 	$topics = $bbp_db->get_col( $sql_select );
-	if ( is_wp_error( $topics ) ) {
+	if ( is_wp_error( $topics ) || ! empty( $bbp_db->last_error ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	$values = array();
+	$values             = array();
+	$current_favorites  = array();
+	$expected_favorites = array();
 	foreach ( $users as $user ) {
+		$user_id                         = (int) $user->user_id;
+		$current_favorites[ $user_id ][] = (string) $user->favorites;
+
 		if ( empty( $user->favorites ) || ! is_string( $user->favorites ) ) {
 			continue;
 		}
@@ -1268,29 +1303,71 @@ function bbp_admin_repair_user_favorites() {
 			continue;
 		}
 
-		$favorites_joined = implode( ',', $favorites );
-		$values[]         = "('{$user->user_id}', '{$key}', '{$favorites_joined}')";
+		$favorites_joined                 = implode( ',', $favorites );
+		$values[]                         = "('{$user_id}', '{$key}', '{$favorites_joined}')";
+		$expected_favorites[ $user_id ][] = $favorites_joined;
 
 		// Cleanup
 		unset( $favorites, $favorites_joined );
 	}
 
 	if ( ! count( $values ) ) {
-		$result = esc_html__( 'Nothing to remove!', 'bbpress' );
+		$result = $dry_run
+			? esc_html__( 'No user favorites to repair.', 'bbpress' )
+			: esc_html__( 'Nothing to remove!', 'bbpress' );
+
+		return array( $dry_run ? 1 : 0, sprintf( $statement, $result ) );
+	}
+
+	if ( $dry_run ) {
+		$repair_count = 0;
+		$user_ids     = array_unique( array_merge( array_keys( $current_favorites ), array_keys( $expected_favorites ) ) );
+
+		foreach ( $user_ids as $user_id ) {
+			$current  = isset( $current_favorites[ $user_id ] ) ? $current_favorites[ $user_id ] : array();
+			$expected = isset( $expected_favorites[ $user_id ] ) ? $expected_favorites[ $user_id ] : array();
+			sort( $current, SORT_STRING );
+			sort( $expected, SORT_STRING );
+
+			if ( $current !== $expected ) {
+				++$repair_count;
+			}
+		}
+
+		if ( empty( $repair_count ) ) {
+			$result = esc_html__( 'No user favorites to repair.', 'bbpress' );
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		/* translators: %d: Number of users whose favorites would be repaired */
+		$result = sprintf( _n( 'Dry run complete! Favorites would be repaired for %d user.', 'Dry run complete! Favorites would be repaired for %d users.', $repair_count, 'bbpress' ), $repair_count );
+
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
-	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
+	if ( false === $bbp_db->query( $sql_delete ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
+	$insert_error = false;
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
-		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
-			return array( 5, sprintf( $statement, $result ) );
+		if ( false === $bbp_db->query( $sql_insert ) ) {
+			$insert_error = true;
+			break;
 		}
+	}
+
+	// Clear cached favorites for users affected by the direct database update
+	$user_ids = wp_parse_id_list( array_keys( $current_favorites ) );
+	if ( ! empty( $user_ids ) ) {
+		wp_cache_delete_multiple( $user_ids, 'user_meta' );
+	}
+
+	if ( $insert_error ) {
+		return array( 5, sprintf( $statement, $result ) );
 	}
 
 	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );

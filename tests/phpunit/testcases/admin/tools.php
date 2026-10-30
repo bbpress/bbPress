@@ -1770,16 +1770,246 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
 	 */
 	public function test_bbp_admin_repair_user_favorites() {
+		$db      = bbp_db();
 		$user_id = $this->factory->user->create();
 		$live_id = $this->factory->topic->create();
 		$old_id  = $this->factory->topic->create();
-		$key     = bbp_db()->prefix . '_bbp_favorites';
+		$key     = $db->prefix . '_bbp_favorites';
 		wp_trash_post( $old_id );
 		update_user_meta( $user_id, $key, "{$live_id},{$old_id}" );
+		$this->assertSame( "{$live_id},{$old_id}", get_user_meta( $user_id, $key, true ) );
+
+		$dry_run = bbp_admin_repair_user_favorites_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Favorites would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame( "{$live_id},{$old_id}", get_user_meta( $user_id, $key, true ) );
+		$this->assertSame(
+			"{$live_id},{$old_id}",
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
+		);
 
 		$this->assertSame( 0, bbp_admin_repair_user_favorites()[0] );
+		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
+		$this->assertSame( 1, bbp_admin_repair_user_favorites_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_does_nothing_without_surviving_favorites() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+		$old_id  = $this->factory->topic->create();
+		$key     = $db->prefix . '_bbp_favorites';
+
+		wp_trash_post( $old_id );
+		update_user_meta( $user_id, $key, $old_id );
+
+		$dry_run = bbp_admin_repair_user_favorites_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No user favorites to repair', $dry_run[1] );
+		$this->assertSame(
+			(string) $old_id,
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
+		);
+
+		$run = bbp_admin_repair_user_favorites();
+		$this->assertSame( 0, $run[0] );
+		$this->assertStringContainsString( 'Nothing to remove', $run[1] );
+		$this->assertSame(
+			(string) $old_id,
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
+		);
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_removes_rows_without_surviving_favorites() {
+		$db       = bbp_db();
+		$user_ids = $this->factory->user->create_many( 2 );
+		$live_id  = $this->factory->topic->create();
+		$old_id   = $this->factory->topic->create();
+		$key      = $db->prefix . '_bbp_favorites';
+
+		wp_trash_post( $old_id );
+		update_user_meta( $user_ids[0], $key, "{$live_id},{$old_id}" );
+		update_user_meta( $user_ids[1], $key, $old_id );
+
+		$dry_run = bbp_admin_repair_user_favorites_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Favorites would be repaired for 2 users', $dry_run[1] );
+		$this->assertSame( 2, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = '{$key}'" ) );
+
+		$this->assertSame( 0, bbp_admin_repair_user_favorites()[0] );
+		$this->assertSame(
+			(string) $live_id,
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_ids[0], $key ) )
+		);
+		$this->assertNull(
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_ids[1], $key ) )
+		);
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_repairs_duplicate_rows() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+		$live_id = $this->factory->topic->create();
+		$old_id  = $this->factory->topic->create();
+		$key     = $db->prefix . '_bbp_favorites';
+
+		wp_trash_post( $old_id );
+		update_user_meta( $user_id, $key, "{$live_id},{$old_id}" );
+		add_user_meta( $user_id, $key, $old_id );
+
+		$dry_run = bbp_admin_repair_user_favorites_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Favorites would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame(
+			2,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_user_favorites()[0] );
+		$this->assertSame( array( (string) $live_id ), get_user_meta( $user_id, $key, false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_normalizes_repeated_live_topics() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+		$live_id = $this->factory->topic->create();
+		$key     = $db->prefix . '_bbp_favorites';
+
+		update_user_meta( $user_id, $key, "{$live_id},{$live_id}" );
+		$dry_run = bbp_admin_repair_user_favorites_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Favorites would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame(
+			"{$live_id},{$live_id}",
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_user_favorites()[0] );
+		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_dry_run_reports_read_errors() {
+		$db              = bbp_db();
+		$old_suppression = $db->suppress_errors( true );
+		$old_usermeta    = $db->usermeta;
+		$old_posts       = $db->posts;
+
+		try {
+			$db->usermeta = 'bbp_missing_favorites_usermeta';
+			$this->assertSame( 1, bbp_admin_repair_user_favorites_dry_run()[0] );
+
+			$db->usermeta = $old_usermeta;
+			$db->posts    = 'bbp_missing_favorites_posts';
+			$this->assertSame( 2, bbp_admin_repair_user_favorites_dry_run()[0] );
+		} finally {
+			$db->usermeta = $old_usermeta;
+			$db->posts    = $old_posts;
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_reports_delete_errors() {
+		$db              = bbp_db();
+		$user_id         = $this->factory->user->create();
+		$live_id         = $this->factory->topic->create();
+		$key             = $db->prefix . '_bbp_favorites';
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db, $key ) {
+			$sql_delete = "DELETE FROM `{$db->usermeta}` WHERE `meta_key` = '{$key}'";
+
+			return ( $query === $sql_delete )
+				? 'DELETE FROM bbp_missing_favorites_usermeta'
+				: $query;
+		};
+
+		update_user_meta( $user_id, $key, "{$live_id},999999" );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$this->assertSame( 4, bbp_admin_repair_user_favorites()[0] );
+			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_reports_insert_errors_and_clears_cache() {
+		$db              = bbp_db();
+		$user_id         = $this->factory->user->create();
+		$live_id         = $this->factory->topic->create();
+		$key             = $db->prefix . '_bbp_favorites';
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			$sql_insert = "INSERT INTO `{$db->usermeta}`";
+
+			return ( 0 === strpos( $query, $sql_insert ) )
+				? 'INSERT INTO bbp_missing_favorites_usermeta (`user_id`) VALUES (1)'
+				: $query;
+		};
+
+		update_user_meta( $user_id, $key, "{$live_id},999999" );
+		$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$this->assertSame( 5, bbp_admin_repair_user_favorites()[0] );
+			$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_favorites_dry_run
+	 * @covers ::bbp_admin_repair_user_favorites_process
+	 */
+	public function test_bbp_admin_repair_user_favorites_dry_run_reports_clean_values() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+		$live_id = $this->factory->topic->create();
+		$key     = $db->prefix . '_bbp_favorites';
+
+		update_user_meta( $user_id, $key, $live_id );
+		$dry_run = bbp_admin_repair_user_favorites_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No user favorites to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
