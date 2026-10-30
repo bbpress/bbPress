@@ -145,6 +145,11 @@ body.rtl .about-wrap .bbp-badge {
 	color: #fff;
 }
 
+#adminmenu li.wp-has-current-submenu .wp-submenu li.current a .bbp-menu-count {
+	background-color: #d63638;
+	background-color: var(--wp-admin-theme-color, #d63638);
+}
+
 /* Dashicons */
 
 th .bbp_forums_column::before,
