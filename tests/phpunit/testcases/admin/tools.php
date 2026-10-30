@@ -701,6 +701,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
 	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_topic_hidden_reply_count() {
@@ -745,13 +747,159 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_topic_reply_count_hidden( $t, true );
 		$this->assertSame( 0, $count );
 
-		// Repair the topic hidden reply count meta.
-		add_filter( 'bbp_get_non_public_topic_statuses', '__return_empty_array' );
-		bbp_admin_repair_topic_hidden_reply_count();
-		remove_filter( 'bbp_get_non_public_topic_statuses', '__return_empty_array' );
+		// Preview and repair the topic hidden reply count meta.
+		$dry_run = bbp_admin_repair_topic_hidden_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Hidden reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertFalse( metadata_exists( 'post', $t, '_bbp_reply_count_hidden' ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_hidden_reply_count()[0] );
+		$this->assertSame( 1, bbp_admin_repair_topic_hidden_reply_count_dry_run()[0] );
 
 		$count = bbp_get_topic_reply_count_hidden( $t, true );
 		$this->assertSame( 2, $count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_hidden_reply_count_uses_current_database_values() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		bbp_spam_reply( $reply_id );
+		bbp_update_topic_reply_count_hidden( $topic_id, 1 );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $topic_id,
+					'meta_key'   => '_bbp_reply_count_hidden',
+					'meta_value' => 1,
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_topic_hidden_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Hidden reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			2,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_reply_count_hidden'", $topic_id ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_topic_hidden_reply_count()[0] );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_reply_count_hidden', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_hidden_reply_count_detects_malformed_meta_strings() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		bbp_spam_reply( $reply_id );
+		bbp_update_topic_reply_count_hidden( $topic_id, 1 );
+		$this->assertSame(
+			1,
+			$db->update( $db->postmeta, array( 'meta_value' => '01' ), array( 'post_id' => $topic_id, 'meta_key' => '_bbp_reply_count_hidden' ) )
+		);
+
+		$dry_run = bbp_admin_repair_topic_hidden_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Hidden reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			'01',
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_reply_count_hidden'", $topic_id ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_topic_hidden_reply_count()[0] );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_reply_count_hidden', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_hidden_reply_count_removes_meta_without_hidden_replies() {
+		$topic_id = $this->factory->topic->create();
+
+		update_post_meta( $topic_id, '_bbp_reply_count_hidden', 7 );
+		$dry_run = bbp_admin_repair_topic_hidden_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Hidden reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame( '7', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_hidden_reply_count()[0] );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_reply_count_hidden' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_hidden_reply_count_removes_stored_zero_without_hidden_replies() {
+		$topic_id = $this->factory->topic->create();
+
+		$this->assertSame( '0', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+		$dry_run = bbp_admin_repair_topic_hidden_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Hidden reply counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame( '0', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_hidden_reply_count()[0] );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_reply_count_hidden' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_hidden_reply_count_run_clears_stale_cache_when_database_matches() {
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		bbp_spam_reply( $reply_id );
+		bbp_update_topic_reply_count_hidden( $topic_id, 1 );
+		$this->assertSame( '1', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+		$meta_cache                            = wp_cache_get( $topic_id, 'post_meta' );
+		$meta_cache['_bbp_reply_count_hidden'] = array( '99' );
+		$this->assertTrue( wp_cache_set( $topic_id, $meta_cache, 'post_meta' ) );
+		$this->assertSame( '99', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+
+		$this->assertSame( 1, bbp_admin_repair_topic_hidden_reply_count_dry_run()[0] );
+		$this->assertSame( '99', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_hidden_reply_count()[0] );
+		$this->assertSame( '1', get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count_process
+	 */
+	public function test_bbp_admin_repair_topic_hidden_reply_count_dry_run_counts_multiple_topics() {
+		$topic_ids = $this->factory->topic->create_many( 3 );
+
+		delete_post_meta_by_key( '_bbp_reply_count_hidden' );
+		update_post_meta( reset( $topic_ids ), '_bbp_reply_count_hidden', 9 );
+		update_post_meta( end( $topic_ids ), '_bbp_reply_count_hidden', 9 );
+
+		$dry_run = bbp_admin_repair_topic_hidden_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Hidden reply counts would be repaired in 2 topics', $dry_run[1] );
+		$this->assertSame( '9', get_post_meta( reset( $topic_ids ), '_bbp_reply_count_hidden', true ) );
+		$this->assertSame( '9', get_post_meta( end( $topic_ids ), '_bbp_reply_count_hidden', true ) );
 	}
 
 	/**

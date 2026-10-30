@@ -570,50 +570,131 @@ function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
  * Recount non-public replies per topic (pending/spammed/trashed).
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8223) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_topic_hidden_reply_count() {
+	return bbp_admin_repair_topic_hidden_reply_count_process();
+}
+
+/**
+ * Preview recounting non-public replies per topic.
+ *
+ * @since 2.7.0 bbPress (r8223)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_hidden_reply_count_dry_run() {
+	return bbp_admin_repair_topic_hidden_reply_count_process( true );
+}
+
+/**
+ * Recount or preview non-public replies per topic.
+ *
+ * @since 2.7.0 bbPress (r8223)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_hidden_reply_count_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the counting process */
-	$statement = esc_html__( 'Counting the number of pending, spammed, and trashed replies in each topic&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of pending, spammed, and trashed replies in each topic&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of pending, spammed, and trashed replies in each topic&hellip; %s', 'bbpress' );
+	}
 
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
-
-	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
-						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
-						WHERE `posts`.`post_type` = '{$tpt}'
-						AND `postmeta`.`meta_key` = '_bbp_reply_count_hidden'";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
 
 	// Reply statuses
 	$sta = bbp_get_non_public_reply_statuses();
 
 	// SQL
 	$sql_status = "'" . implode( "','", $sta ) . "'";
+	$counts_from_sql = "FROM `{$bbp_db->posts}` AS `replies`
+		INNER JOIN `{$bbp_db->posts}` AS `topics`
+			ON `topics`.`ID` = `replies`.`post_parent`
+			AND `topics`.`post_type` = '{$tpt}'
+		WHERE `replies`.`post_type` = '{$rpt}'
+			AND `replies`.`post_status` IN ({$sql_status})
+		GROUP BY `topics`.`ID`";
+	$expected_counts_sql = "SELECT `topics`.`ID` AS `topic_id`, COUNT(`replies`.`ID`) AS `hidden_reply_count`
+		{$counts_from_sql}";
 
-	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
-		SELECT `topics`.`ID`, '_bbp_reply_count_hidden', COUNT(`replies`.`ID`) AS `meta_value`
-			FROM `{$bbp_db->posts}` AS `replies`
-			INNER JOIN `{$bbp_db->posts}` AS `topics`
-				ON `topics`.`ID` = `replies`.`post_parent`
-				AND `topics`.`post_type` = '{$tpt}'
-			WHERE `replies`.`post_type` = '{$rpt}'
-				AND `replies`.`post_status` IN ({$sql_status})
-			GROUP BY `topics`.`ID`)";
-	if ( false === $bbp_db->query( $sql ) ) {
-		return array( 2, sprintf( $statement, $result ) );
+	if ( ! $dry_run ) {
+		$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
+							LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
+							WHERE `posts`.`post_type` = '{$tpt}'
+							AND `postmeta`.`meta_key` = '_bbp_reply_count_hidden'";
+		if ( false === $bbp_db->query( $sql_delete ) ) {
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
+			SELECT `topics`.`ID`, '_bbp_reply_count_hidden', COUNT(`replies`.`ID`) AS `meta_value`
+			{$counts_from_sql})";
+		if ( false === $bbp_db->query( $sql ) ) {
+			return array( 2, sprintf( $statement, $result ) );
+		}
+
+		bbp_admin_repair_clean_post_meta_cache( $tpt );
+
+		return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
 	}
 
-	bbp_admin_repair_clean_post_meta_cache( $tpt );
+	$stored_counts_sql = "SELECT `postmeta`.`post_id` AS `topic_id`, COUNT(*) AS `row_count`, MIN(`postmeta`.`meta_value`) AS `hidden_reply_count`
+		FROM `{$bbp_db->postmeta}` AS `postmeta`
+		INNER JOIN `{$bbp_db->posts}` AS `topics`
+			ON `topics`.`ID` = `postmeta`.`post_id`
+			AND `topics`.`post_type` = '{$tpt}'
+		WHERE `postmeta`.`meta_key` = '_bbp_reply_count_hidden'
+		GROUP BY `postmeta`.`post_id`";
 
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	/*
+	 * Compare expected and stored hidden reply counts in both directions. A topic
+	 * with hidden replies must have exactly one row containing the calculated count.
+	 * Topics without hidden replies have no expected row because Run removes their
+	 * stored meta, including zero-valued rows.
+	 */
+	$repair_sql = "SELECT COUNT(DISTINCT repairs.topic_id)
+		FROM (
+			SELECT expected.topic_id
+			FROM ( {$expected_counts_sql} ) AS expected
+			LEFT JOIN ( {$stored_counts_sql} ) AS stored
+				ON stored.topic_id = expected.topic_id
+			WHERE stored.topic_id IS NULL
+				OR stored.row_count <> 1
+				OR NOT ( CAST(stored.hidden_reply_count AS BINARY) <=> CAST(expected.hidden_reply_count AS BINARY) )
+			UNION ALL
+			SELECT stored.topic_id
+			FROM ( {$stored_counts_sql} ) AS stored
+			LEFT JOIN ( {$expected_counts_sql} ) AS expected
+				ON expected.topic_id = stored.topic_id
+			WHERE expected.topic_id IS NULL
+		) AS repairs";
+	$repair_count = (int) $bbp_db->get_var( $repair_sql );
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 3, sprintf( $statement, $result ) );
+	}
+
+	if ( empty( $repair_count ) ) {
+		$result = esc_html__( 'No hidden reply counts to repair.', 'bbpress' );
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	/* translators: %d: Number of topics whose hidden reply counts would be repaired */
+	$result = sprintf( _n( 'Dry run complete! Hidden reply counts would be repaired in %d topic.', 'Dry run complete! Hidden reply counts would be repaired in %d topics.', $repair_count, 'bbpress' ), $repair_count );
+
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
