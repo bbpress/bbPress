@@ -393,7 +393,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recount replies for each user', 'bbpress' ),
 			'description' => esc_html__( 'Run this to get fresh reply counts for all users.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_user_reply_count',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_user_reply_count',
+				'dry-run' => 'bbp_admin_repair_user_reply_count_dry_run',
+			),
 			'priority'    => 80,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_reply_post_type(), bbp_get_user_rewrite_id() )
