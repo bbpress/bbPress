@@ -274,6 +274,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Admin::add_upgrade_count
+	 * @ticket 3775
 	 * @ticket 3706
 	 */
 	public function test_upgrade_count_is_added_only_to_tools_menu() {
@@ -294,8 +295,9 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 
 		$this->assertSame( 'Dashboard', $GLOBALS['menu'][0][0] );
 		$this->assertSame( array( 'manage_options', 'tools.php' ), array_slice( $GLOBALS['menu'][1], 1 ) );
-		$this->assertStringContainsString( 'awaiting-mod count-2', $GLOBALS['menu'][1][0] );
-		$this->assertStringContainsString( 'pending-count">2</span>', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( 'awaiting-mod bbp-menu-count count-2', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( 'pending-count" aria-hidden="true">2</span>', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( '2 pending upgrades', $GLOBALS['menu'][1][0] );
 	}
 
 	/**

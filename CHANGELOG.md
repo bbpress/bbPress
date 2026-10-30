@@ -62,6 +62,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Styled pending database upgrade counts consistently in the administration menu.
 - Prevented the user profile engagements section from rendering twice.
 - Linked imported email addresses with one-character local parts during
   automatic URL detection.

@@ -60,6 +60,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_pending_upgrade_count
 	 * @covers ::bbp_get_pending_upgrades
 	 * @covers ::bbp_maybe_append_pending_upgrade_count
+	 * @ticket 3775
 	 */
 	public function test_pending_upgrades_are_filtered_by_registered_tool_type() {
 		if ( ! function_exists( 'bbp_admin' ) ) {
@@ -94,8 +95,12 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 			$this->assertSame( 2, bbp_get_pending_upgrade_count( 'upgrade' ) );
 			$this->assertSame( 1, bbp_get_pending_upgrade_count( 'repair' ) );
 			$this->assertSame(
-				'Updates <span class="awaiting-mod count-2"><span class="pending-count">2</span></span>',
+				'Updates <span class="awaiting-mod bbp-menu-count count-2"><span class="pending-count" aria-hidden="true">2</span><span class="screen-reader-text">2 pending upgrades</span></span>',
 				bbp_maybe_append_pending_upgrade_count( 'Updates', 'upgrade' )
+			);
+			$this->assertSame(
+				'Repairs <span class="awaiting-mod bbp-menu-count count-1"><span class="pending-count" aria-hidden="true">1</span><span class="screen-reader-text">1 pending upgrade</span></span>',
+				bbp_maybe_append_pending_upgrade_count( 'Repairs', 'repair' )
 			);
 			$this->assertSame( 'Updates', bbp_maybe_append_pending_upgrade_count( 'Updates', 'missing-type' ) );
 		} finally {
