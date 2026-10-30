@@ -8,6 +8,29 @@
 class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_maybe_append_pending_upgrade_count
+	 * @ticket 3775
+	 */
+	public function test_pending_upgrade_count_uses_admin_menu_bubble_markup() {
+		update_option( '_bbp_db_pending_upgrades', array( 'one', 'two' ) );
+
+		try {
+			$this->assertSame(
+				'Updates <span class="awaiting-mod bbp-menu-count count-2"><span class="pending-count" aria-hidden="true">2</span><span class="screen-reader-text">2 pending upgrades</span></span>',
+				bbp_maybe_append_pending_upgrade_count( 'Updates' )
+			);
+
+			update_option( '_bbp_db_pending_upgrades', array( 'one' ) );
+			$this->assertSame(
+				'Updates <span class="awaiting-mod bbp-menu-count count-1"><span class="pending-count" aria-hidden="true">1</span><span class="screen-reader-text">1 pending upgrade</span></span>',
+				bbp_maybe_append_pending_upgrade_count( 'Updates' )
+			);
+		} finally {
+			delete_option( '_bbp_db_pending_upgrades' );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_install
 	 * @todo   Implement test_bbp_is_install().
 	 */

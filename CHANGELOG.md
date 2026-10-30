@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Styled pending database upgrade counts consistently in the administration menu.
 - Linked imported email addresses with one-character local parts during
   automatic URL detection.
 - Ensured configured URL targets override per-tag targets in imported BBCode

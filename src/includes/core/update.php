@@ -655,8 +655,11 @@ function bbp_maybe_append_pending_upgrade_count( $string = '', $type = '' ) {
 
 	// Append the count to the string
 	if ( ! empty( $count ) ) {
-		$suffix = ' <span class="awaiting-mod count-' . absint( $count ) . '"><span class="pending-count">' . bbp_number_format( $count ) . '</span></span>';
-		$string = "{$string}{$suffix}";
+		$count_i18n = bbp_number_format_i18n( $count );
+		/* translators: %s: Number of pending upgrades. */
+		$text        = sprintf( _n( '%s pending upgrade', '%s pending upgrades', $count, 'bbpress' ), $count_i18n );
+		$suffix      = ' <span class="awaiting-mod bbp-menu-count count-' . absint( $count ) . '"><span class="pending-count" aria-hidden="true">' . esc_html( $count_i18n ) . '</span><span class="screen-reader-text">' . esc_html( $text ) . '</span></span>';
+		$string      = "{$string}{$suffix}";
 	}
 
 	// Return the string, maybe with a count
