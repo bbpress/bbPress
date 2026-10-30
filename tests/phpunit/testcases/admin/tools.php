@@ -1301,6 +1301,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_reply_menu_order
+	 * @covers ::bbp_admin_repair_reply_menu_order_dry_run
+	 * @covers ::bbp_admin_repair_reply_menu_order_process
 	 */
 	public function test_bbp_admin_repair_reply_menu_order() {
 		$topic_id = $this->factory->topic->create();
@@ -1313,7 +1315,189 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		);
 		update_post_meta( $reply_ids[0], '_bbp_reply_to', $reply_ids[0] );
 
-		$this->assertSame( 0, bbp_admin_repair_reply_menu_order()[0] );
+		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 self-referential reply relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '2 reply positions would be recalculated', $dry_run[1] );
+		$this->assertTrue( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
+		$this->assertSame( array( 7, 7 ), array_map( 'intval', wp_list_pluck( get_posts( array( 'post__in' => $reply_ids, 'post_type' => bbp_get_reply_post_type(), 'orderby' => 'post__in' ) ), 'menu_order' ) ) );
+
+		$result = bbp_admin_repair_reply_menu_order();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 self-referential reply relationship was removed', $result[1] );
+		$this->assertStringContainsString( '2 reply positions were recalculated', $result[1] );
+		$this->assertFalse( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
+		$this->assertEqualSets(
+			array( 1, 2 ),
+			array( (int) get_post_field( 'menu_order', $reply_ids[0] ), (int) get_post_field( 'menu_order', $reply_ids[1] ) )
+		);
+		$this->assertSame( 1, bbp_admin_repair_reply_menu_order_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_reply_menu_order
+	 * @covers ::bbp_admin_repair_reply_menu_order_dry_run
+	 * @covers ::bbp_admin_repair_reply_menu_order_process
+	 */
+	public function test_bbp_admin_repair_reply_menu_order_repairs_self_relationship_without_duplicate_positions() {
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'menu_order'  => 1,
+			)
+		);
+		update_post_meta( $reply_id, '_bbp_reply_to', $reply_id );
+
+		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 self-referential reply relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '0 reply positions would be recalculated', $dry_run[1] );
+		$this->assertTrue( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
+
+		$result = bbp_admin_repair_reply_menu_order();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 self-referential reply relationship was removed', $result[1] );
+		$this->assertStringContainsString( '0 reply positions were recalculated', $result[1] );
+		$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_reply_menu_order_dry_run
+	 * @covers ::bbp_admin_repair_reply_menu_order_process
+	 */
+	public function test_bbp_admin_repair_reply_menu_order_dry_run_uses_current_relationship_metadata() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'menu_order'  => 1,
+			)
+		);
+
+		$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $reply_id,
+					'meta_key'   => '_bbp_reply_to',
+					'meta_value' => $reply_id,
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 self-referential reply relationship would be removed', $dry_run[1] );
+		$this->assertTrue( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_reply_menu_order_dry_run
+	 * @covers ::bbp_admin_repair_reply_menu_order_process
+	 */
+	public function test_bbp_admin_repair_reply_menu_order_dry_run_uses_current_menu_order() {
+		$db        = bbp_db();
+		$topic_id  = $this->factory->topic->create();
+		$reply_ids = array(
+			$this->factory->reply->create(
+				array(
+					'post_parent' => $topic_id,
+					'menu_order'  => 1,
+				)
+			),
+			$this->factory->reply->create(
+				array(
+					'post_parent' => $topic_id,
+					'menu_order'  => 2,
+				)
+			),
+		);
+
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $reply_ids[0] ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $reply_ids[1] ) );
+		$this->assertSame( 1, $db->update( $db->posts, array( 'menu_order' => 7 ), array( 'ID' => $reply_ids[0] ) ) );
+		$this->assertSame( 1, $db->update( $db->posts, array( 'menu_order' => 7 ), array( 'ID' => $reply_ids[1] ) ) );
+
+		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '2 reply positions would be recalculated', $dry_run[1] );
+		$this->assertSame( 7, (int) get_post_field( 'menu_order', $reply_ids[0] ) );
+		$this->assertSame( 7, (int) get_post_field( 'menu_order', $reply_ids[1] ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_reply_menu_order
+	 * @covers ::bbp_admin_repair_reply_menu_order_dry_run
+	 * @covers ::bbp_admin_repair_reply_menu_order_process
+	 */
+	public function test_bbp_admin_repair_reply_menu_order_counts_only_changed_positions() {
+		$topic_id = $this->factory->topic->create();
+		$reply_ids = $this->factory->reply->create_many(
+			2,
+			array(
+				'post_parent' => $topic_id,
+				'menu_order'  => 1,
+			)
+		);
+
+		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 reply position would be recalculated', $dry_run[1] );
+
+		$result = bbp_admin_repair_reply_menu_order();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 reply position was recalculated', $result[1] );
+		$this->assertEqualSets(
+			array( 1, 2 ),
+			array( (int) get_post_field( 'menu_order', $reply_ids[0] ), (int) get_post_field( 'menu_order', $reply_ids[1] ) )
+		);
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_reply_menu_order
+	 * @covers ::bbp_admin_repair_reply_menu_order_process
+	 */
+	public function test_bbp_admin_repair_reply_menu_order_run_uses_current_database_values() {
+		$db        = bbp_db();
+		$topic_id  = $this->factory->topic->create();
+		$reply_ids = array(
+			$this->factory->reply->create(
+				array(
+					'post_parent' => $topic_id,
+					'menu_order'  => 1,
+				)
+			),
+			$this->factory->reply->create(
+				array(
+					'post_parent' => $topic_id,
+					'menu_order'  => 2,
+				)
+			),
+		);
+
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $reply_ids[0] ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $reply_ids[1] ) );
+		$this->assertFalse( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
+		$this->assertSame( 1, $db->update( $db->posts, array( 'menu_order' => 7 ), array( 'ID' => $reply_ids[0] ) ) );
+		$this->assertSame( 1, $db->update( $db->posts, array( 'menu_order' => 7 ), array( 'ID' => $reply_ids[1] ) ) );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $reply_ids[0],
+					'meta_key'   => '_bbp_reply_to',
+					'meta_value' => $reply_ids[0],
+				)
+			)
+		);
+
+		$result = bbp_admin_repair_reply_menu_order();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 self-referential reply relationship was removed', $result[1] );
+		$this->assertStringContainsString( '2 reply positions were recalculated', $result[1] );
 		$this->assertFalse( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
 		$this->assertEqualSets(
 			array( 1, 2 ),

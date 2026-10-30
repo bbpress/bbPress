@@ -1686,19 +1686,50 @@ function bbp_admin_repair_topic_meta() {
  * Recalculate reply menu order.
  *
  * @since 2.6.0 bbPress (r5368)
+ * @since 2.7.0 bbPress (r8220) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_reply_menu_order() {
+	return bbp_admin_repair_reply_menu_order_process();
+}
+
+/**
+ * Preview the recalculation of reply menu order.
+ *
+ * @since 2.7.0 bbPress (r8220)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_reply_menu_order_dry_run() {
+	return bbp_admin_repair_reply_menu_order_process( true );
+}
+
+/**
+ * Recalculate or preview reply menu order.
+ *
+ * @since 2.7.0 bbPress (r8220)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Recalculating reply menu order&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'No reply positions to recalculate.',         'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
 
-	// Delete cases where `_bbp_reply_to` was accidentally set to itself
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`" ) ) ) {
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking reply menu order&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Recalculating reply menu order&hellip; %s', 'bbpress' );
+	}
+
+	// Get cases where `_bbp_reply_to` was accidentally set to itself
+	$reply_to_posts = $bbp_db->get_col( "SELECT `post_id` FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`" );
+	if ( ! empty( $bbp_db->last_error ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -1707,7 +1738,7 @@ function bbp_admin_repair_reply_menu_order() {
 
 	// Get an array of reply id's to update the menu oder for each reply
 	$replies = $bbp_db->get_results(
-		"SELECT `a`.`ID` FROM `{$bbp_db->posts}` AS `a`
+		"SELECT `a`.`ID`, `a`.`post_parent` FROM `{$bbp_db->posts}` AS `a`
 		INNER JOIN (
 			SELECT `menu_order`, `post_parent`
 			FROM `{$bbp_db->posts}`
@@ -1720,19 +1751,81 @@ function bbp_admin_repair_reply_menu_order() {
 		OBJECT_K
 	);
 
-	// Bail if no replies returned
-	if ( empty( $replies ) ) {
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 2, sprintf( $statement, $result ) );
+	}
+
+	$relationship_count = count( $reply_to_posts );
+	$reply_ids          = wp_parse_id_list( array_keys( $replies ) );
+	$topic_ids          = wp_parse_id_list( wp_list_pluck( $replies, 'post_parent' ) );
+	$post_ids           = array_merge( $reply_ids, $topic_ids );
+	$position_repairs   = array();
+
+	// Ensure current reply relationships are visible after direct database work
+	$reply_to_posts = wp_parse_id_list( $reply_to_posts );
+	if ( ! empty( $reply_to_posts ) ) {
+		wp_cache_delete_multiple( $reply_to_posts, 'post_meta' );
+	}
+	if ( ! empty( $post_ids ) ) {
+		wp_cache_delete_multiple( $post_ids, 'posts' );
+		wp_cache_delete_multiple( $post_ids, 'post_meta' );
+	}
+
+	// Identify replies whose position would actually change
+	foreach ( $replies as $reply ) {
+		$reply_id       = (int) $reply->ID;
+		$topic_id       = bbp_get_reply_topic_id( $reply_id );
+		$new_position   = bbp_get_reply_position_raw( $reply_id, $topic_id );
+		$position       = (int) get_post_field( 'menu_order', $reply_id );
+
+		if ( $new_position !== $position ) {
+			$position_repairs[ $reply_id ] = $new_position;
+		}
+	}
+
+	$position_count = count( $position_repairs );
+
+	// Bail if no repairs are needed
+	if ( empty( $relationship_count ) && empty( $position_count ) ) {
+		$result = esc_html__( 'No reply positions or relationships to repair.', 'bbpress' );
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Recalculate the menu order position for each reply
-	foreach ( $replies as $reply ) {
-		bbp_update_reply_position( $reply->ID );
+	// Delete self-referential reply relationships
+	if ( ! $dry_run && ! empty( $relationship_count ) ) {
+		$relationship_count = $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`" );
+		if ( false === $relationship_count ) {
+			return array( 3, sprintf( $statement, $result ) );
+		}
+	}
+
+	// Recalculate changed menu order positions when not previewing
+	if ( ! $dry_run ) {
+		$position_count = 0;
+		foreach ( $position_repairs as $reply_id => $new_position ) {
+			if ( false !== bbp_update_reply_position( $reply_id, $new_position ) ) {
+				++$position_count;
+			}
+		}
 	}
 
 	// Cleanup
-	unset( $replies, $reply );
+	unset( $reply_to_posts, $replies, $reply, $reply_ids, $topic_ids, $post_ids, $reply_id, $topic_id, $new_position, $position, $position_repairs );
 
 	// Complete results
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	if ( $dry_run ) {
+		/* translators: %d: Number of self-referential reply relationships that would be removed */
+		$relationships = sprintf( _n( 'Dry run complete! %d self-referential reply relationship would be removed.', 'Dry run complete! %d self-referential reply relationships would be removed.', $relationship_count, 'bbpress' ), $relationship_count );
+		/* translators: %d: Number of reply positions that would be recalculated */
+		$positions = sprintf( _n( '%d reply position would be recalculated.', '%d reply positions would be recalculated.', $position_count, 'bbpress' ), $position_count );
+	} else {
+		/* translators: %d: Number of removed self-referential reply relationships */
+		$relationships = sprintf( _n( 'Complete! %d self-referential reply relationship was removed.', 'Complete! %d self-referential reply relationships were removed.', $relationship_count, 'bbpress' ), $relationship_count );
+		/* translators: %d: Number of recalculated reply positions */
+		$positions = sprintf( _n( '%d reply position was recalculated.', '%d reply positions were recalculated.', $position_count, 'bbpress' ), $position_count );
+	}
+
+	$result = $relationships . ' ' . $positions;
+
+	return array( 0, sprintf( $statement, $result ) );
 }

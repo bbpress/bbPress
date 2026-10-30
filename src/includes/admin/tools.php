@@ -221,7 +221,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recalculate position of each reply in each topic', 'bbpress' ),
 			'description' => esc_html__( 'Run this if replies appear in the wrong order.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_reply_menu_order',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_reply_menu_order',
+				'dry-run' => 'bbp_admin_repair_reply_menu_order_dry_run',
+			),
 			'priority'    => 30,
 			'overhead'    => 'high',
 			'components'  => array( bbp_get_reply_post_type() )
