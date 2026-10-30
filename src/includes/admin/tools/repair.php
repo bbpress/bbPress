@@ -1273,31 +1273,110 @@ function bbp_admin_repair_freshness() {
  * Repair the relationship of sticky topics to the actual parent forum.
  *
  * @since 2.3.0 bbPress (r4695)
+ * @since 2.7.0 bbPress (r8219) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_sticky() {
+	return bbp_admin_repair_sticky_process();
+}
+
+/**
+ * Preview the repair of sticky topic relationships.
+ *
+ * @since 2.7.0 bbPress (r8219)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_sticky_dry_run() {
+	return bbp_admin_repair_sticky_process( true );
+}
+
+/**
+ * Repair or preview sticky topic relationships.
+ *
+ * @since 2.7.0 bbPress (r8219)
+ *
+ * @param bool $dry_run Whether to preview changes without updating metadata.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_sticky_process( $dry_run = false ) {
 
 	// Define variables
 	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Repairing the sticky topic to the parent forum relationships&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$changed   = 0;
+	$topic_ids = array();
 
-	$forums    = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "'" );
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking sticky topic relationships&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Repairing the sticky topic to the parent forum relationships&hellip; %s', 'bbpress' );
+	}
+
+	$forums = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "'" );
 
 	// Bail if no forums found
 	if ( empty( $forums ) || is_wp_error( $forums ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
+	// Ensure Run and Dry Run inspect current forum metadata
+	wp_cache_delete_multiple( wp_parse_id_list( $forums ), 'post_meta' );
+
 	// Loop through forums and get their sticky topics
 	foreach ( $forums as $forum ) {
 		$forum_stickies[ $forum ] = get_post_meta( $forum, '_bbp_sticky_topics', true );
+
+		if ( is_array( $forum_stickies[ $forum ] ) ) {
+			$topic_ids = array_merge( $topic_ids, $forum_stickies[ $forum ] );
+		}
 	}
 
 	// Cleanup
 	unset( $forums, $forum );
+
+	// Ensure Run and Dry Run inspect current topic data and metadata
+	$topic_ids = wp_parse_id_list( $topic_ids );
+	if ( ! empty( $topic_ids ) ) {
+		wp_cache_delete_multiple( $topic_ids, 'posts' );
+		wp_cache_delete_multiple( $topic_ids, 'post_meta' );
+	}
+
+	// Get current super-sticky topics without relying on the options cache
+	$option_name    = '_bbp_super_sticky_topics';
+	$option_default = array();
+	$super_stickies = apply_filters( "pre_option_{$option_name}", false, $option_name, $option_default );
+
+	// The generic pre-option filter was introduced in WordPress 6.1
+	if ( version_compare( get_bloginfo( 'version' ), '6.1', '>=' ) ) {
+		$super_stickies = apply_filters( 'pre_option', $super_stickies, $option_name, $option_default );
+	}
+
+	// Get the stored value when the pre-option filters do not short-circuit
+	if ( false === $super_stickies ) {
+		$option = $bbp_db->get_row(
+			$bbp_db->prepare(
+				"SELECT option_value FROM `{$bbp_db->options}` WHERE option_name = %s LIMIT 1",
+				$option_name
+			)
+		);
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array( 2, sprintf( $statement, $result ) );
+		}
+
+		$super_stickies = is_object( $option )
+			? apply_filters( "option_{$option_name}", maybe_unserialize( $option->option_value ), $option_name )
+			: apply_filters( "default_option_{$option_name}", $option_default, $option_name, true );
+	}
+
+	$super_stickies = ( empty( $super_stickies ) || ! is_array( $super_stickies ) )
+		? array()
+		: wp_parse_id_list( $super_stickies );
+	$super_stickies = (array) apply_filters( 'bbp_get_super_stickies', $super_stickies );
 
 	// Loop through each forum with sticky topics
 	foreach ( $forum_stickies as $forum_id => $stickies ) {
@@ -1307,13 +1386,24 @@ function bbp_admin_repair_sticky() {
 			continue;
 		}
 
-		// Loop through each sticky topic
-		foreach ( $stickies as $id => $topic_id ) {
+		// Normalize malformed sticky metadata
+		if ( ! is_array( $stickies ) ) {
+			$forum_stickies[ $forum_id ] = array();
+			++$changed;
+		} else {
 
-			// If the topic is not a super sticky, and the forum ID does not
-			// match the topic's forum ID, unset the forum's sticky meta.
-			if ( ! bbp_is_topic_super_sticky( $topic_id ) && ( bbp_get_topic_forum_id( $topic_id ) ) !== $forum_id ) {
-				unset( $forum_stickies[ $forum_id ][ $id ] );
+			// Loop through each sticky topic
+			foreach ( $stickies as $id => $topic_id ) {
+				$topic_id        = bbp_get_topic_id( $topic_id );
+				$is_super_sticky = in_array( $topic_id, $super_stickies, true );
+				$is_super_sticky = (bool) apply_filters( 'bbp_is_topic_super_sticky', $is_super_sticky, $topic_id );
+
+				// If the topic is not a super sticky, and the forum ID does not
+				// match the topic's forum ID, unset the forum's sticky meta.
+				if ( ! $is_super_sticky && ( bbp_get_topic_forum_id( $topic_id ) ) !== $forum_id ) {
+					unset( $forum_stickies[ $forum_id ][ $id ] );
+					++$changed;
+				}
 			}
 		}
 
@@ -1323,11 +1413,21 @@ function bbp_admin_repair_sticky() {
 			: '';
 
 		// Update the forum's sticky topics meta
-		update_post_meta( $forum_id, '_bbp_sticky_topics', $stickers );
+		if ( ! $dry_run ) {
+			update_post_meta( $forum_id, '_bbp_sticky_topics', $stickers );
+		}
 	}
 
 	// Complete results
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	if ( $dry_run ) {
+		/* translators: %d: Number of sticky topic relationships that would be repaired */
+		$result = sprintf( _n( 'Dry run complete! %d sticky topic relationship would be repaired.', 'Dry run complete! %d sticky topic relationships would be repaired.', $changed, 'bbpress' ), $changed );
+	} else {
+		/* translators: %d: Number of repaired sticky topic relationships */
+		$result = sprintf( _n( 'Complete! %d sticky topic relationship repaired.', 'Complete! %d sticky topic relationships repaired.', $changed, 'bbpress' ), $changed );
+	}
+
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**

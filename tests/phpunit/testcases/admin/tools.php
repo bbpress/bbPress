@@ -1011,17 +1011,159 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_sticky
+	 * @covers ::bbp_admin_repair_sticky_dry_run
+	 * @covers ::bbp_admin_repair_sticky_process
 	 */
 	public function test_bbp_admin_repair_sticky() {
 		$first_forum  = $this->factory->forum->create();
 		$second_forum = $this->factory->forum->create();
 		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $first_forum ) );
+		$super_id     = $this->factory->topic->create( array( 'post_parent' => $first_forum ) );
 		update_post_meta( $first_forum, '_bbp_sticky_topics', array( $topic_id ) );
-		update_post_meta( $second_forum, '_bbp_sticky_topics', array( $topic_id ) );
+		update_post_meta( $second_forum, '_bbp_sticky_topics', array( $topic_id, $super_id ) );
+		update_option( '_bbp_super_sticky_topics', array( $super_id ) );
 
-		$this->assertSame( 0, bbp_admin_repair_sticky()[0] );
+		$dry_run = bbp_admin_repair_sticky_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 sticky topic relationship would be repaired', $dry_run[1] );
 		$this->assertSame( array( $topic_id ), get_post_meta( $first_forum, '_bbp_sticky_topics', true ) );
-		$this->assertSame( '', get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+		$this->assertSame( array( $topic_id, $super_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+
+		$result = bbp_admin_repair_sticky();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 sticky topic relationship repaired', $result[1] );
+		$this->assertSame( array( $topic_id ), get_post_meta( $first_forum, '_bbp_sticky_topics', true ) );
+		$this->assertSame( array( $super_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+		$this->assertStringContainsString( '0 sticky topic relationships would be repaired', bbp_admin_repair_sticky_dry_run()[1] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_sticky_dry_run
+	 * @covers ::bbp_admin_repair_sticky_process
+	 */
+	public function test_bbp_admin_repair_sticky_dry_run_uses_current_metadata() {
+		$db           = bbp_db();
+		$first_forum  = $this->factory->forum->create();
+		$second_forum = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $first_forum ) );
+
+		update_post_meta( $second_forum, '_bbp_sticky_topics', array() );
+		$this->assertSame( array(), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+		$this->assertSame(
+			1,
+			$db->update(
+				$db->postmeta,
+				array( 'meta_value' => maybe_serialize( array( $topic_id ) ) ),
+				array(
+					'post_id'  => $second_forum,
+					'meta_key' => '_bbp_sticky_topics',
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_sticky_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 sticky topic relationship would be repaired', $dry_run[1] );
+		$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_sticky_dry_run
+	 * @covers ::bbp_admin_repair_sticky_process
+	 */
+	public function test_bbp_admin_repair_sticky_dry_run_uses_current_topic_parent() {
+		$db           = bbp_db();
+		$first_forum  = $this->factory->forum->create();
+		$second_forum = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $first_forum ) );
+
+		update_post_meta( $second_forum, '_bbp_sticky_topics', array( $topic_id ) );
+		$this->assertSame( $first_forum, (int) get_post_field( 'post_parent', $topic_id ) );
+		$this->assertSame( 1, $db->update( $db->posts, array( 'post_parent' => $second_forum ), array( 'ID' => $topic_id ) ) );
+
+		$dry_run = bbp_admin_repair_sticky_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '0 sticky topic relationships would be repaired', $dry_run[1] );
+		$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_sticky_dry_run
+	 * @covers ::bbp_admin_repair_sticky_process
+	 */
+	public function test_bbp_admin_repair_sticky_dry_run_uses_current_super_stickies() {
+		$db           = bbp_db();
+		$first_forum  = $this->factory->forum->create();
+		$second_forum = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $first_forum ) );
+
+		update_post_meta( $second_forum, '_bbp_sticky_topics', array( $topic_id ) );
+		update_option( '_bbp_super_sticky_topics', array() );
+		$this->assertSame( array(), bbp_get_super_stickies() );
+		$this->assertSame(
+			1,
+			$db->update(
+				$db->options,
+				array( 'option_value' => maybe_serialize( array( $topic_id ) ) ),
+				array( 'option_name' => '_bbp_super_sticky_topics' )
+			)
+		);
+
+		$dry_run = bbp_admin_repair_sticky_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '0 sticky topic relationships would be repaired', $dry_run[1] );
+		$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_sticky
+	 * @covers ::bbp_admin_repair_sticky_dry_run
+	 * @covers ::bbp_admin_repair_sticky_process
+	 */
+	public function test_bbp_admin_repair_sticky_preserves_filtered_super_stickies() {
+		$first_forum  = $this->factory->forum->create();
+		$second_forum = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $first_forum ) );
+		$filter       = static function () use ( $topic_id ) {
+			return array( $topic_id );
+		};
+
+		update_post_meta( $second_forum, '_bbp_sticky_topics', array( $topic_id ) );
+		add_filter( 'pre_option__bbp_super_sticky_topics', $filter );
+
+		try {
+			$dry_run = bbp_admin_repair_sticky_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( '0 sticky topic relationships would be repaired', $dry_run[1] );
+			$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+
+			$result = bbp_admin_repair_sticky();
+			$this->assertSame( 0, $result[0] );
+			$this->assertStringContainsString( '0 sticky topic relationships repaired', $result[1] );
+			$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
+		} finally {
+			remove_filter( 'pre_option__bbp_super_sticky_topics', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_sticky
+	 * @covers ::bbp_admin_repair_sticky_dry_run
+	 * @covers ::bbp_admin_repair_sticky_process
+	 */
+	public function test_bbp_admin_repair_sticky_handles_malformed_metadata() {
+		$forum_id = $this->factory->forum->create();
+		update_post_meta( $forum_id, '_bbp_sticky_topics', 'malformed' );
+
+		$dry_run = bbp_admin_repair_sticky_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 sticky topic relationship would be repaired', $dry_run[1] );
+		$this->assertSame( 'malformed', get_post_meta( $forum_id, '_bbp_sticky_topics', true ) );
+
+		$result = bbp_admin_repair_sticky();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 sticky topic relationship repaired', $result[1] );
+		$this->assertSame( '', get_post_meta( $forum_id, '_bbp_sticky_topics', true ) );
 	}
 
 	/**
