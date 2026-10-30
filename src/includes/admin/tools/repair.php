@@ -933,27 +933,108 @@ function bbp_admin_repair_forum_hidden_reply_count() {
  * Recount topics by the users.
  *
  * @since 2.1.0 bbPress (r3890)
+ * @since 2.7.0 bbPress (r8224) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_user_topic_count() {
+	return bbp_admin_repair_user_topic_count_process();
+}
+
+/**
+ * Preview recounting topics by the users.
+ *
+ * @since 2.7.0 bbPress (r8224)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_user_topic_count_dry_run() {
+	return bbp_admin_repair_user_topic_count_process( true );
+}
+
+/**
+ * Recount or preview topics by the users.
+ *
+ * @since 2.7.0 bbPress (r8224)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_user_topic_count_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db      = bbp_db();
-	/* translators: %s: Status of the counting process */
-	$statement   = esc_html__( 'Counting the number of topics each user has created&hellip; %s', 'bbpress' );
-	$result      = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
 
-	$sql_type    = bbp_get_topic_post_type();
-	$sql_status  = "'" . implode( "','", bbp_get_public_topic_statuses() ) . "'";
-	$sql_select  = "SELECT `post_author`, COUNT(*) as `_count` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$sql_type}' AND `post_status` IN ({$sql_status}) AND `post_author` > 0 GROUP BY `post_author`";
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of topics each user has created&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of topics each user has created&hellip; %s', 'bbpress' );
+	}
+
+	$sql_type   = bbp_get_topic_post_type();
+	$sql_status = "'" . implode( "','", bbp_get_public_topic_statuses() ) . "'";
+	$key        = $bbp_db->prefix . '_bbp_topic_count';
+	$counts_from_sql = "FROM `{$bbp_db->posts}`
+		WHERE `post_type` = '{$sql_type}'
+			AND `post_status` IN ({$sql_status})
+			AND `post_author` > 0
+		GROUP BY `post_author`";
+
+	if ( $dry_run ) {
+		$expected_counts_sql = "SELECT `post_author` AS `user_id`, COUNT(*) AS `topic_count`
+			{$counts_from_sql}";
+		$stored_counts_sql = "SELECT `user_id`, COUNT(*) AS `row_count`, MIN(`meta_value`) AS `topic_count`
+			FROM `{$bbp_db->usermeta}`
+			WHERE `meta_key` = '{$key}'
+			GROUP BY `user_id`";
+
+		/*
+		 * Compare expected and stored user topic counts in both directions. A user
+		 * with public topics must have exactly one row containing the calculated count.
+		 */
+		$repair_sql = "SELECT COUNT(DISTINCT repairs.user_id)
+			FROM (
+				SELECT expected.user_id
+				FROM ( {$expected_counts_sql} ) AS expected
+				LEFT JOIN ( {$stored_counts_sql} ) AS stored
+					ON stored.user_id = expected.user_id
+				WHERE stored.user_id IS NULL
+					OR stored.row_count <> 1
+					OR NOT ( CAST(stored.topic_count AS BINARY) <=> CAST(expected.topic_count AS BINARY) )
+				UNION ALL
+				SELECT stored.user_id
+				FROM ( {$stored_counts_sql} ) AS stored
+				LEFT JOIN ( {$expected_counts_sql} ) AS expected
+					ON expected.user_id = stored.user_id
+				WHERE expected.user_id IS NULL
+			) AS repairs";
+		$repair_count = (int) $bbp_db->get_var( $repair_sql );
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array( 5, sprintf( $statement, $result ) );
+		}
+
+		if ( empty( $repair_count ) ) {
+			$result = esc_html__( 'No user topic counts to repair.', 'bbpress' );
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		/* translators: %d: Number of users whose topic counts would be repaired */
+		$result = sprintf( _n( 'Dry run complete! Topic counts would be repaired for %d user.', 'Dry run complete! Topic counts would be repaired for %d users.', $repair_count, 'bbpress' ), $repair_count );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	$sql_select  = "SELECT `post_author`, COUNT(*) AS `_count` {$counts_from_sql}";
 	$insert_rows = $bbp_db->get_results( $sql_select );
 
 	if ( ! empty( $bbp_db->last_error ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$key           = $bbp_db->prefix . '_bbp_topic_count';
 	$user_ids      = (array) $bbp_db->get_col( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 	$insert_values = array();
 

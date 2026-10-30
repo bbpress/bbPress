@@ -1370,6 +1370,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
 	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_user_topic_count() {
@@ -1383,10 +1385,143 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		bbp_update_user_topic_count( $user_id, 9 );
 		$this->assertSame( 9, bbp_get_user_topic_count( $user_id, true ) );
 
-		$result = bbp_admin_repair_user_topic_count();
+		$dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame( 9, bbp_get_user_topic_count( $user_id, true ) );
 
+		$result = bbp_admin_repair_user_topic_count();
 		$this->assertSame( 0, $result[0] );
 		$this->assertSame( 2, bbp_get_user_topic_count( $user_id, true ) );
+		$this->assertSame( 1, bbp_admin_repair_user_topic_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
+	 */
+	public function test_bbp_admin_repair_user_topic_count_uses_current_database_values() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+
+		$this->factory->topic->create( array( 'post_author' => $user_id ) );
+		bbp_update_user_topic_count( $user_id, 1 );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->usermeta,
+				array(
+					'user_id'    => $user_id,
+					'meta_key'   => $db->prefix . '_bbp_topic_count',
+					'meta_value' => 1,
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame(
+			2,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $db->prefix . '_bbp_topic_count' ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_user_topic_count()[0] );
+		$this->assertSame( array( '1' ), get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
+	 */
+	public function test_bbp_admin_repair_user_topic_count_repairs_missing_meta() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+
+		$this->factory->topic->create( array( 'post_author' => $user_id ) );
+		delete_user_meta( $user_id, $db->prefix . '_bbp_topic_count' );
+
+		$dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 1 user', $dry_run[1] );
+		$this->assertFalse( metadata_exists( 'user', $user_id, $db->prefix . '_bbp_topic_count' ) );
+
+		$this->assertSame( 0, bbp_admin_repair_user_topic_count()[0] );
+		$this->assertSame( array( '1' ), get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
+	 */
+	public function test_bbp_admin_repair_user_topic_count_detects_malformed_meta_strings() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+
+		$this->factory->topic->create_many( 2, array( 'post_author' => $user_id ) );
+		bbp_update_user_topic_count( $user_id, 2 );
+		$this->assertSame(
+			1,
+			$db->update( $db->usermeta, array( 'meta_value' => '02' ), array( 'user_id' => $user_id, 'meta_key' => $db->prefix . '_bbp_topic_count' ) )
+		);
+
+		$dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame(
+			'02',
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $db->prefix . '_bbp_topic_count' ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_user_topic_count()[0] );
+		$this->assertSame( array( '2' ), get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
+	 */
+	public function test_bbp_admin_repair_user_topic_count_run_clears_stale_cache_when_database_matches() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+
+		$this->factory->topic->create( array( 'post_author' => $user_id ) );
+		bbp_update_user_topic_count( $user_id, 1 );
+		$this->assertSame( '1', get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', true ) );
+		$meta_cache = wp_cache_get( $user_id, 'user_meta' );
+		$meta_cache[ $db->prefix . '_bbp_topic_count' ] = array( '99' );
+		$this->assertTrue( wp_cache_set( $user_id, $meta_cache, 'user_meta' ) );
+		$this->assertSame( '99', get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', true ) );
+
+		$this->assertSame( 1, bbp_admin_repair_user_topic_count_dry_run()[0] );
+		$this->assertSame( '99', get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_user_topic_count()[0] );
+		$this->assertSame( '1', get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
+	 */
+	public function test_bbp_admin_repair_user_topic_count_dry_run_counts_multiple_users() {
+		$user_ids = $this->factory->user->create_many( 3 );
+
+		foreach ( $user_ids as $user_id ) {
+			$this->factory->topic->create( array( 'post_author' => $user_id ) );
+			bbp_update_user_topic_count( $user_id, 9 );
+		}
+
+		$dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 3 users', $dry_run[1] );
+
+		foreach ( $user_ids as $user_id ) {
+			$this->assertSame( 9, bbp_get_user_topic_count( $user_id, true ) );
+		}
 	}
 
 	/**
@@ -1417,6 +1552,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
 	 * @covers ::bbp_admin_repair_user_reply_count
 	 * @ticket BBP2664
 	 */
@@ -1428,6 +1565,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 7, bbp_get_user_topic_count( $user_id, true ) );
 		$this->assertSame( 8, bbp_get_user_reply_count( $user_id, true ) );
 
+		$topic_dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $topic_dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 1 user', $topic_dry_run[1] );
+		$this->assertSame( 7, bbp_get_user_topic_count( $user_id, true ) );
+
 		$topic_result = bbp_admin_repair_user_topic_count();
 		$reply_result = bbp_admin_repair_user_reply_count();
 
@@ -1435,6 +1577,27 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 0, $reply_result[0] );
 		$this->assertSame( 0, bbp_get_user_topic_count( $user_id, true ) );
 		$this->assertSame( 0, bbp_get_user_reply_count( $user_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_user_topic_count_process
+	 */
+	public function test_bbp_admin_repair_user_topic_count_removes_stored_zero_without_public_topics() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+
+		bbp_update_user_topic_count( $user_id, 0 );
+		$this->assertSame( '0', get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', true ) );
+
+		$dry_run = bbp_admin_repair_user_topic_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired for 1 user', $dry_run[1] );
+		$this->assertSame( '0', get_user_meta( $user_id, $db->prefix . '_bbp_topic_count', true ) );
+
+		$this->assertSame( 0, bbp_admin_repair_user_topic_count()[0] );
+		$this->assertFalse( metadata_exists( 'user', $user_id, $db->prefix . '_bbp_topic_count' ) );
 	}
 
 	/**
