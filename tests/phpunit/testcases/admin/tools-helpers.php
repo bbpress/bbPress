@@ -211,6 +211,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_repair_user_forum_subscriptions_dry_run', bbp_admin()->tools['bbp-user-forum-subscriptions']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_user_roles', bbp_admin()->tools['bbp-user-role-map']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_user_roles_dry_run', bbp_admin()->tools['bbp-user-role-map']['callbacks']['dry-run'] );
+		$this->assertSame( 'bbp_admin_upgrade_user_engagements', bbp_admin()->tools['bbp-user-topic-engagements-move']['callbacks']['run'] );
+		$this->assertSame( 'bbp_admin_upgrade_user_engagements_dry_run', bbp_admin()->tools['bbp-user-topic-engagements-move']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_closed_topics', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_closed_topics_dry_run', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['dry-run'] );
 	}
@@ -297,6 +299,40 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'dry-run', $context['action'] );
 		$this->assertSame( 'custom-dry-run', $context['tool']['id'] );
 		$this->assertSame( array( 'custom-dry-run' ), bbp_get_pending_upgrades() );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_preserves_pending_upgrade_for_failed_run() {
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-run',
+				'type'      => 'upgrade',
+				'title'     => 'Custom run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run' => function () {
+						return array( 2, 'Run failed.', 'success' => false );
+					},
+				),
+			)
+		);
+
+		update_option( '_bbp_db_pending_upgrades', array( 'custom-run' ) );
+		$_GET = array(
+			'action'   => 'run',
+			'checked'  => array( 'custom-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$this->assertSame( array( 'custom-run' ), bbp_get_pending_upgrades() );
+		$this->assertStringContainsString( 'Run failed.', end( bbp_admin()->notices ) );
 	}
 
 	/**

@@ -231,21 +231,46 @@ function bbp_admin_upgrade_page() {
  * Upgrade user engagements for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6320)
+ * @since 2.7.0 bbPress (r8230) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_engagements() {
+	return bbp_admin_upgrade_user_engagements_process();
+}
+
+/**
+ * Preview upgrading user engagements for bbPress 2.6 and higher.
+ *
+ * @since 2.7.0 bbPress (r8230)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_user_engagements_dry_run() {
+	return bbp_admin_upgrade_user_engagements_process( true );
+}
+
+/**
+ * Upgrade or preview upgrading user engagements.
+ *
+ * @since 2.7.0 bbPress (r8230)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the upgrade process */
-	$statement = esc_html__( 'Upgrading user engagements&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'No engagements to upgrade.',            'bbpress' );
+	$bbp_db         = bbp_db();
+	$failed         = esc_html__( 'Failed!', 'bbpress' );
+	$no_engagements = esc_html__( 'No engagements to upgrade.', 'bbpress' );
 
-	// Delete previous engagements
-	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'";
-	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
-		return array( 1, sprintf( $statement, $result ) );
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking user engagements&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the upgrade process */
+		$statement = esc_html__( 'Upgrading user engagements&hellip; %s', 'bbpress' );
 	}
 
 	// Post types and statuses
@@ -253,23 +278,76 @@ function bbp_admin_upgrade_user_engagements() {
 	$rpt = bbp_get_reply_post_type();
 	$pps = bbp_get_public_status_id();
 	$cps = bbp_get_closed_status_id();
-	$sql = "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
-			SELECT postmeta.meta_value, '_bbp_engagement', posts.post_author
+	$sql_select = "SELECT topics.ID AS post_id, '_bbp_engagement' AS meta_key, posts.post_author AS meta_value
 				FROM {$bbp_db->posts} AS posts
-				LEFT JOIN {$bbp_db->postmeta} AS postmeta
+				INNER JOIN {$bbp_db->postmeta} AS postmeta
 					ON posts.ID = postmeta.post_id
 					AND postmeta.meta_key = '_bbp_topic_id'
+				INNER JOIN {$bbp_db->posts} AS topics
+					ON topics.ID = postmeta.meta_value
+					AND topics.post_type = %s
 				WHERE posts.post_type IN (%s, %s)
 					AND posts.post_status IN (%s, %s)
-				GROUP BY postmeta.meta_value, posts.post_author)";
+				GROUP BY topics.ID, posts.post_author";
+	$prepare    = $bbp_db->prepare( $sql_select, $tpt, $tpt, $rpt, $pps, $cps );
+
+	// Count the rows that Run would replace and insert
+	$current_count = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'" );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	$expected_count = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM ({$prepare}) AS engagements" );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			3,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	if ( $dry_run ) {
+		if ( empty( $current_count ) && empty( $expected_count ) ) {
+			return array( 1, sprintf( $statement, $no_engagements ) );
+		}
+
+		/* translators: %1$s: Number of current engagement rows; %2$s: Number of upgraded engagements */
+		$result = sprintf( esc_html__( 'Dry run complete! %1$s current engagement rows would be replaced with %2$s upgraded engagements.', 'bbpress' ), bbp_number_format( $current_count ), bbp_number_format( $expected_count ) );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	// Delete previous engagements
+	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'";
+	if ( false === $bbp_db->query( $sql_delete ) ) {
+		return array(
+			4,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
 
 	// Run the big query
-	$prepare     = $bbp_db->prepare( $sql, $tpt, $rpt, $pps, $cps );
-	$engagements = $bbp_db->query( $prepare );
+	$sql_insert  = "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) ({$prepare})";
+	$engagements = $bbp_db->query( $sql_insert );
+	bbp_admin_repair_clean_post_meta_cache( $tpt );
 
-	// Bail if no closed topics found
-	if ( empty( $engagements ) || is_wp_error( $engagements ) ) {
-		return array( 1, sprintf( $statement, $result ) );
+	// Bail if the insert failed
+	if ( false === $engagements ) {
+		return array(
+			5,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Bail if no engagements were found
+	if ( empty( $engagements ) ) {
+		return array( 1, sprintf( $statement, $no_engagements ) );
 	}
 
 	// Complete results

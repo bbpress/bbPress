@@ -3376,18 +3376,177 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_upgrade_user_engagements
+	 * @covers ::bbp_admin_upgrade_user_engagements_dry_run
+	 * @covers ::bbp_admin_upgrade_user_engagements_process
 	 */
 	public function test_bbp_admin_upgrade_user_engagements() {
-		$users    = $this->factory->user->create_many( 2 );
+		$db       = bbp_db();
+		$users    = $this->factory->user->create_many( 3 );
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create( array( 'post_author' => $users[0], 'post_parent' => $forum_id ) );
+		$topic_2  = $this->factory->topic->create( array( 'post_author' => $users[2], 'post_parent' => $forum_id ) );
 		$this->factory->reply->create( array( 'post_author' => $users[1], 'post_parent' => $topic_id ) );
+		$this->factory->reply->create( array( 'post_author' => $users[1], 'post_parent' => $topic_id ) );
+		$this->factory->reply->create( array( 'post_author' => $users[2], 'post_parent' => $topic_id, 'post_status' => bbp_get_spam_status_id() ) );
 
 		delete_post_meta( $topic_id, '_bbp_engagement' );
+		delete_post_meta( $topic_2, '_bbp_engagement' );
+		add_post_meta( $topic_id, '_bbp_engagement', 999999 );
+		add_post_meta( $forum_id, '_bbp_engagement', 888888 );
+		$stored = $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement' ORDER BY meta_id", ARRAY_A );
+		$this->assertSame(
+			array(
+				array( 'post_id' => (string) $topic_id, 'meta_value' => '999999' ),
+				array( 'post_id' => (string) $forum_id, 'meta_value' => '888888' ),
+			),
+			$stored
+		);
+
+		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '2 current engagement rows would be replaced with 3 upgraded engagements', $dry_run[1] );
+		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement' ORDER BY meta_id", ARRAY_A ) );
+
 		$result = bbp_admin_upgrade_user_engagements();
 
 		$this->assertSame( 0, $result[0] );
-		$this->assertEqualSets( $users, get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		$this->assertStringContainsString( '3 engagements upgraded', $result[1] );
+		$this->assertEqualSets( array( $users[0], $users[1] ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		$this->assertSame( array( (string) $users[2] ), get_post_meta( $topic_2, '_bbp_engagement', false ) );
+		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_engagement', false ) );
+
+		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '3 current engagement rows would be replaced with 3 upgraded engagements', $dry_run[1] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_engagements
+	 * @covers ::bbp_admin_upgrade_user_engagements_dry_run
+	 * @covers ::bbp_admin_upgrade_user_engagements_process
+	 */
+	public function test_bbp_admin_upgrade_user_engagements_reports_no_data() {
+		$this->assertSame( 1, bbp_admin_upgrade_user_engagements_dry_run()[0] );
+		$this->assertSame( 1, bbp_admin_upgrade_user_engagements()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_engagements
+	 * @covers ::bbp_admin_upgrade_user_engagements_dry_run
+	 * @covers ::bbp_admin_upgrade_user_engagements_process
+	 */
+	public function test_bbp_admin_upgrade_user_engagements_removes_stale_rows_with_no_expected_engagements() {
+		$db       = bbp_db();
+		$topic_id = $this->factory->topic->create();
+
+		delete_post_meta( $topic_id, '_bbp_topic_id' );
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		add_post_meta( $topic_id, '_bbp_engagement', 999999 );
+
+		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 current engagement rows would be replaced with 0 upgraded engagements', $dry_run[1] );
+		$this->assertSame( '999999', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
+
+		$this->assertSame( 1, bbp_admin_upgrade_user_engagements()[0] );
+		$this->assertNull( $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_engagements_dry_run
+	 * @covers ::bbp_admin_upgrade_user_engagements_process
+	 */
+	public function test_bbp_admin_upgrade_user_engagements_dry_run_reports_read_errors() {
+		$db              = bbp_db();
+		$old_suppression = $db->suppress_errors( true );
+		$old_postmeta    = $db->postmeta;
+		$old_posts       = $db->posts;
+
+		try {
+			$db->postmeta = 'bbp_missing_engagement_postmeta';
+			$result = bbp_admin_upgrade_user_engagements_dry_run();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+
+			$db->postmeta = $old_postmeta;
+			$db->posts    = 'bbp_missing_engagement_posts';
+			$result = bbp_admin_upgrade_user_engagements_dry_run();
+			$this->assertSame( 3, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+		} finally {
+			$db->postmeta = $old_postmeta;
+			$db->posts    = $old_posts;
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_engagements
+	 * @covers ::bbp_admin_upgrade_user_engagements_process
+	 */
+	public function test_bbp_admin_upgrade_user_engagements_reports_delete_errors() {
+		$db              = bbp_db();
+		$user_id         = $this->factory->user->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			$sql_delete = "DELETE FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement'";
+
+			return ( $query === $sql_delete )
+				? 'DELETE FROM bbp_missing_engagement_postmeta'
+				: $query;
+		};
+
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		add_post_meta( $topic_id, '_bbp_engagement', 999999 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 4, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+			$this->assertSame( array( '999999' ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_engagements
+	 * @covers ::bbp_admin_upgrade_user_engagements_process
+	 */
+	public function test_bbp_admin_upgrade_user_engagements_reports_insert_errors_and_clears_cache() {
+		$db              = bbp_db();
+		$user_id         = $this->factory->user->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			$sql_insert = "INSERT INTO {$db->postmeta} (post_id, meta_key, meta_value)";
+
+			return ( 0 === strpos( $query, $sql_insert ) )
+				? 'INSERT INTO bbp_missing_engagement_postmeta (`post_id`) VALUES (1)'
+				: $query;
+		};
+
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		add_post_meta( $topic_id, '_bbp_engagement', 999999 );
+		$this->assertSame( array( '999999' ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 5, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+			$this->assertSame( array(), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
 	}
 
 	/**

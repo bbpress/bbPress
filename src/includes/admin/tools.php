@@ -478,7 +478,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user topic engagements', 'bbpress' ),
 			'description' => esc_html__( 'Copies engagements from user meta to topic meta.', 'bbpress' ),
-			'callback'    => 'bbp_admin_upgrade_user_engagements',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_upgrade_user_engagements',
+				'dry-run' => 'bbp_admin_upgrade_user_engagements_dry_run',
+			),
 			'priority'    => 105,
 			'version'     => '2.6.0',
 			'overhead'    => 'high',

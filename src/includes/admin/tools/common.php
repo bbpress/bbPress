@@ -422,8 +422,10 @@ function bbp_admin_repair_handler() {
 			if ( 'run' === $action ) {
 				$result = call_user_func( $callback );
 
-				// Remove from pending
-				bbp_remove_pending_upgrade( $item_id );
+				// Remove successful runs from pending
+				if ( ! is_array( $result ) || ! isset( $result['success'] ) || ( false !== $result['success'] ) ) {
+					bbp_remove_pending_upgrade( $item_id );
+				}
 			} else {
 				$result = call_user_func(
 					$callback,
