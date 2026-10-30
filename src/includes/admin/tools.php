@@ -444,7 +444,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Remove unpublished forums from user subscriptions', 'bbpress' ),
 			'description' => esc_html__( 'Run this to remove trashed or deleted forums from all user subscriptions.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_user_forum_subscriptions',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_user_forum_subscriptions',
+				'dry-run' => 'bbp_admin_repair_user_forum_subscriptions_dry_run',
+			),
 			'priority'    => 95,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_forum_post_type(), bbp_get_user_rewrite_id() )

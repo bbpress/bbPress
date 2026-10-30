@@ -1524,21 +1524,51 @@ function bbp_admin_repair_user_topic_subscriptions_process( $dry_run = false ) {
  * Clean the user forum subscriptions.
  *
  * @since 2.5.0 bbPress (r5157)
+ * @since 2.7.0 bbPress (r8228) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_user_forum_subscriptions() {
+	return bbp_admin_repair_user_forum_subscriptions_process();
+}
+
+/**
+ * Preview cleaning the user forum subscriptions.
+ *
+ * @since 2.7.0 bbPress (r8228)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_user_forum_subscriptions_dry_run() {
+	return bbp_admin_repair_user_forum_subscriptions_process( true );
+}
+
+/**
+ * Clean or preview the user forum subscriptions.
+ *
+ * @since 2.7.0 bbPress (r8228)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_user_forum_subscriptions_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Removing trashed forums from user subscriptions&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking trashed forums in user subscriptions&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Removing trashed forums from user subscriptions&hellip; %s', 'bbpress' );
+	}
 
 	$key       = $bbp_db->prefix . '_bbp_forum_subscriptions';
 	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
-	if ( is_wp_error( $users ) ) {
+	if ( is_wp_error( $users ) || ! empty( $bbp_db->last_error ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -1547,12 +1577,17 @@ function bbp_admin_repair_user_forum_subscriptions() {
 	$sql_select  = "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$sql_type}' AND `post_status` IN ({$sql_status})";
 
 	$forums = $bbp_db->get_col( $sql_select );
-	if ( is_wp_error( $forums ) ) {
+	if ( is_wp_error( $forums ) || ! empty( $bbp_db->last_error ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	$values = array();
+	$values                 = array();
+	$current_subscriptions  = array();
+	$expected_subscriptions = array();
 	foreach ( $users as $user ) {
+		$user_id                             = (int) $user->user_id;
+		$current_subscriptions[ $user_id ][] = (string) $user->subscriptions;
+
 		if ( empty( $user->subscriptions ) || ! is_string( $user->subscriptions ) ) {
 			continue;
 		}
@@ -1562,29 +1597,71 @@ function bbp_admin_repair_user_forum_subscriptions() {
 			continue;
 		}
 
-		$subscriptions_joined = implode( ',', $subscriptions );
-		$values[]             = "('{$user->user_id}', '{$key}', '{$subscriptions_joined}')";
+		$subscriptions_joined                 = implode( ',', $subscriptions );
+		$values[]                             = "('{$user_id}', '{$key}', '{$subscriptions_joined}')";
+		$expected_subscriptions[ $user_id ][] = $subscriptions_joined;
 
 		// Cleanup
 		unset( $subscriptions, $subscriptions_joined );
 	}
 
 	if ( ! count( $values ) ) {
-		$result = esc_html__( 'Nothing to remove!', 'bbpress' );
+		$result = $dry_run
+			? esc_html__( 'No user forum subscriptions to repair.', 'bbpress' )
+			: esc_html__( 'Nothing to remove!', 'bbpress' );
+
+		return array( $dry_run ? 1 : 0, sprintf( $statement, $result ) );
+	}
+
+	if ( $dry_run ) {
+		$repair_count = 0;
+		$user_ids     = array_unique( array_merge( array_keys( $current_subscriptions ), array_keys( $expected_subscriptions ) ) );
+
+		foreach ( $user_ids as $user_id ) {
+			$current  = isset( $current_subscriptions[ $user_id ] ) ? $current_subscriptions[ $user_id ] : array();
+			$expected = isset( $expected_subscriptions[ $user_id ] ) ? $expected_subscriptions[ $user_id ] : array();
+			sort( $current, SORT_STRING );
+			sort( $expected, SORT_STRING );
+
+			if ( $current !== $expected ) {
+				++$repair_count;
+			}
+		}
+
+		if ( empty( $repair_count ) ) {
+			$result = esc_html__( 'No user forum subscriptions to repair.', 'bbpress' );
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		/* translators: %d: Number of users whose forum subscriptions would be repaired */
+		$result = sprintf( _n( 'Dry run complete! Forum subscriptions would be repaired for %d user.', 'Dry run complete! Forum subscriptions would be repaired for %d users.', $repair_count, 'bbpress' ), $repair_count );
+
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
-	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
+	if ( false === $bbp_db->query( $sql_delete ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
+	$insert_error = false;
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
-		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
-			return array( 5, sprintf( $statement, $result ) );
+		if ( false === $bbp_db->query( $sql_insert ) ) {
+			$insert_error = true;
+			break;
 		}
+	}
+
+	// Clear cached subscriptions for users affected by the direct database update
+	$user_ids = wp_parse_id_list( array_keys( $current_subscriptions ) );
+	if ( ! empty( $user_ids ) ) {
+		wp_cache_delete_multiple( $user_ids, 'user_meta' );
+	}
+
+	if ( $insert_error ) {
+		return array( 5, sprintf( $statement, $result ) );
 	}
 
 	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
