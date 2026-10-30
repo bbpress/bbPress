@@ -193,6 +193,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_repair_sticky_dry_run', bbp_admin()->tools['bbp-sync-all-topics-sticky']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_reply_menu_order', bbp_admin()->tools['bbp-sync-all-reply-positions']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_reply_menu_order_dry_run', bbp_admin()->tools['bbp-sync-all-reply-positions']['callbacks']['dry-run'] );
+		$this->assertSame( 'bbp_admin_repair_topic_voice_count', bbp_admin()->tools['bbp-topic-engagements']['callbacks']['run'] );
+		$this->assertSame( 'bbp_admin_repair_topic_voice_count_dry_run', bbp_admin()->tools['bbp-topic-engagements']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_closed_topics', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_closed_topics_dry_run', bbp_admin()->tools['bbp-sync-closed-topics']['callbacks']['dry-run'] );
 	}

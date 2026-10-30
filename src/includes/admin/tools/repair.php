@@ -291,35 +291,55 @@ function bbp_admin_repair_topic_reply_count() {
  * Recount topic voices.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8221) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_topic_voice_count() {
+	return bbp_admin_repair_topic_voice_count_process();
+}
+
+/**
+ * Preview recounting topic voices.
+ *
+ * @since 2.7.0 bbPress (r8221)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_voice_count_dry_run() {
+	return bbp_admin_repair_topic_voice_count_process( true );
+}
+
+/**
+ * Recount or preview topic voices.
+ *
+ * @since 2.7.0 bbPress (r8221)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the counting process */
-	$statement = esc_html__( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$result = esc_html__( 'Failed!', 'bbpress' );
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of voices in each topic&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
+	}
 
 	$tpt = bbp_get_topic_post_type();
-
-	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
-						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
-						WHERE `posts`.`post_type` = '{$tpt}'
-						AND `postmeta`.`meta_key` IN ( '_bbp_voice_count', '_bbp_engagement' )";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
 
 	// Post types and status
 	$rpt                = bbp_get_reply_post_type();
 	$sql_topic_statuses = "'" . implode( "','", bbp_get_public_topic_statuses() ) . "'";
 	$sql_reply_statuses = "'" . implode( "','", bbp_get_public_reply_statuses() ) . "'";
 
-	$engagements_sql = $bbp_db->prepare( "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
-		SELECT topics.ID, '_bbp_engagement', posts.post_author
-			FROM {$bbp_db->posts} AS posts
+	$engagements_from_sql = $bbp_db->prepare( "FROM {$bbp_db->posts} AS posts
 			INNER JOIN {$bbp_db->postmeta} AS postmeta
 				ON posts.ID = postmeta.post_id
 				AND postmeta.meta_key = '_bbp_topic_id'
@@ -330,35 +350,139 @@ function bbp_admin_repair_topic_voice_count() {
 					( posts.post_type = %s AND posts.post_status IN ({$sql_topic_statuses}) )
 					OR ( posts.post_type = %s AND posts.post_status IN ({$sql_reply_statuses}) )
 				)
-				AND posts.post_author > 0
-			GROUP BY topics.ID, posts.post_author)",
+				AND posts.post_author > 0",
 		$tpt,
 		$tpt,
 		$rpt
 	);
 
-	if ( false === $bbp_db->query( $engagements_sql ) ) {
-		return array( 2, sprintf( $statement, $result ) );
+	if ( ! $dry_run ) {
+		$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
+							LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
+							WHERE `posts`.`post_type` = '{$tpt}'
+							AND `postmeta`.`meta_key` IN ( '_bbp_voice_count', '_bbp_engagement' )";
+		if ( false === $bbp_db->query( $sql_delete ) ) {
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		$engagements_sql = "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
+			SELECT topics.ID, '_bbp_engagement', posts.post_author
+			{$engagements_from_sql}
+			GROUP BY topics.ID, posts.post_author)";
+		if ( false === $bbp_db->query( $engagements_sql ) ) {
+			return array( 2, sprintf( $statement, $result ) );
+		}
+
+		$voice_count_sql = $bbp_db->prepare( "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
+			SELECT engagements.post_id, '_bbp_voice_count', COUNT(DISTINCT engagements.meta_value)
+				FROM {$bbp_db->postmeta} AS engagements
+				INNER JOIN {$bbp_db->posts} AS topics
+					ON topics.ID = engagements.post_id
+					AND topics.post_type = %s
+				WHERE engagements.meta_key = '_bbp_engagement'
+				GROUP BY engagements.post_id)",
+			$tpt
+		);
+
+		if ( false === $bbp_db->query( $voice_count_sql ) ) {
+			return array( 3, sprintf( $statement, $result ) );
+		}
+
+		bbp_admin_repair_clean_post_meta_cache( $tpt );
+
+		return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
 	}
 
-	$voice_count_sql = $bbp_db->prepare( "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
-		SELECT engagements.post_id, '_bbp_voice_count', COUNT(DISTINCT engagements.meta_value)
-			FROM {$bbp_db->postmeta} AS engagements
-			INNER JOIN {$bbp_db->posts} AS topics
-				ON topics.ID = engagements.post_id
-				AND topics.post_type = %s
-			WHERE engagements.meta_key = '_bbp_engagement'
-			GROUP BY engagements.post_id)",
+	$expected_engagements_sql = "SELECT topics.ID AS topic_id, posts.post_author AS user_id
+		{$engagements_from_sql}
+		GROUP BY topics.ID, posts.post_author";
+	$stored_engagements_sql   = $bbp_db->prepare( "SELECT postmeta.post_id AS topic_id, postmeta.meta_value AS user_id, COUNT(*) AS row_count
+		FROM {$bbp_db->postmeta} AS postmeta
+		INNER JOIN {$bbp_db->posts} AS topics
+			ON topics.ID = postmeta.post_id
+			AND topics.post_type = %s
+		WHERE postmeta.meta_key = '_bbp_engagement'
+		GROUP BY postmeta.post_id, postmeta.meta_value",
 		$tpt
 	);
 
-	if ( false === $bbp_db->query( $voice_count_sql ) ) {
-		return array( 3, sprintf( $statement, $result ) );
+	/*
+	 * Compare expected and stored engagement rows in both directions. Grouping
+	 * stored rows also identifies duplicate relationships that Run will remove.
+	 */
+	$engagement_repair_sql = "SELECT COUNT(DISTINCT repairs.topic_id)
+		FROM (
+			SELECT expected.topic_id
+			FROM ( {$expected_engagements_sql} ) AS expected
+			LEFT JOIN ( {$stored_engagements_sql} ) AS stored
+				ON stored.topic_id = expected.topic_id
+				AND CAST(stored.user_id AS BINARY) = CAST(expected.user_id AS BINARY)
+			WHERE stored.topic_id IS NULL
+				OR stored.row_count <> 1
+			UNION ALL
+			SELECT stored.topic_id
+			FROM ( {$stored_engagements_sql} ) AS stored
+			LEFT JOIN ( {$expected_engagements_sql} ) AS expected
+				ON expected.topic_id = stored.topic_id
+				AND CAST(expected.user_id AS BINARY) = CAST(stored.user_id AS BINARY)
+			WHERE expected.topic_id IS NULL
+		) AS repairs";
+	$engagement_repair_count = (int) $bbp_db->get_var( $engagement_repair_sql );
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 4, sprintf( $statement, $result ) );
 	}
 
-	bbp_admin_repair_clean_post_meta_cache( $tpt );
+	$expected_voice_counts_sql = "SELECT expected.topic_id, COUNT(*) AS voice_count
+		FROM ( {$expected_engagements_sql} ) AS expected
+		GROUP BY expected.topic_id";
+	$stored_voice_counts_sql   = $bbp_db->prepare( "SELECT postmeta.post_id AS topic_id, COUNT(*) AS row_count, MIN(postmeta.meta_value) AS voice_count
+		FROM {$bbp_db->postmeta} AS postmeta
+		INNER JOIN {$bbp_db->posts} AS topics
+			ON topics.ID = postmeta.post_id
+			AND topics.post_type = %s
+		WHERE postmeta.meta_key = '_bbp_voice_count'
+		GROUP BY postmeta.post_id",
+		$tpt
+	);
 
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	/*
+	 * Compare expected and stored voice-count rows in both directions. A stored
+	 * topic must have exactly one row containing the calculated count.
+	 */
+	$voice_repair_sql = "SELECT COUNT(DISTINCT repairs.topic_id)
+		FROM (
+			SELECT expected.topic_id
+			FROM ( {$expected_voice_counts_sql} ) AS expected
+			LEFT JOIN ( {$stored_voice_counts_sql} ) AS stored
+				ON stored.topic_id = expected.topic_id
+			WHERE stored.topic_id IS NULL
+				OR stored.row_count <> 1
+				OR NOT ( CAST(stored.voice_count AS BINARY) <=> CAST(expected.voice_count AS BINARY) )
+			UNION ALL
+			SELECT stored.topic_id
+			FROM ( {$stored_voice_counts_sql} ) AS stored
+			LEFT JOIN ( {$expected_voice_counts_sql} ) AS expected
+				ON expected.topic_id = stored.topic_id
+			WHERE expected.topic_id IS NULL
+		) AS repairs";
+	$voice_repair_count = (int) $bbp_db->get_var( $voice_repair_sql );
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 5, sprintf( $statement, $result ) );
+	}
+
+	if ( empty( $engagement_repair_count ) && empty( $voice_repair_count ) ) {
+		$result = esc_html__( 'No topic engagements or voice counts to repair.', 'bbpress' );
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	/* translators: %d: Number of topics whose engagements would be repaired */
+	$engagements = sprintf( _n( 'Dry run complete! Engagements would be repaired in %d topic.', 'Dry run complete! Engagements would be repaired in %d topics.', $engagement_repair_count, 'bbpress' ), $engagement_repair_count );
+	/* translators: %d: Number of topics whose voice counts would be repaired */
+	$voice_counts = sprintf( _n( 'Voice counts would be repaired in %d topic.', 'Voice counts would be repaired in %d topics.', $voice_repair_count, 'bbpress' ), $voice_repair_count );
+
+	return array( 0, sprintf( $statement, $engagements . ' ' . $voice_counts ) );
 }
 
 /**

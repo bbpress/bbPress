@@ -234,6 +234,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_voice_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
 	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_topic_voice_count() {
@@ -282,6 +284,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		// Delete the topic _bbp_voice_count meta key.
 		$this->assertTrue( delete_post_meta_by_key( '_bbp_voice_count' ) );
+		delete_post_meta( $t, '_bbp_engagement', $pending_user_id );
 
 		$count = bbp_get_topic_voice_count( $t );
 		$this->assertSame( '0', $count );
@@ -292,7 +295,19 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			return $statuses;
 		};
 		add_filter( 'bbp_get_public_reply_statuses', $public_statuses );
-		bbp_admin_repair_topic_voice_count();
+
+		$engagements = get_post_meta( $t, '_bbp_engagement', false );
+		$dry_run     = bbp_admin_repair_topic_voice_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Engagements would be repaired in 1 topic', $dry_run[1] );
+		$this->assertStringContainsString( 'Voice counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame( $engagements, get_post_meta( $t, '_bbp_engagement', false ) );
+		$this->assertFalse( metadata_exists( 'post', $t, '_bbp_voice_count' ) );
+
+		$result = bbp_admin_repair_topic_voice_count();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( 'Complete!', $result[1] );
+		$this->assertSame( 1, bbp_admin_repair_topic_voice_count_dry_run()[0] );
 		remove_filter( 'bbp_get_public_reply_statuses', $public_statuses );
 
 		$count = bbp_get_topic_voice_count( $t );
@@ -301,6 +316,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
 	 */
 	public function test_bbp_admin_repair_topic_voice_count_excludes_anonymous_authors() {
 		$forum_id = $this->factory->forum->create();
@@ -321,9 +337,205 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			),
 		) );
 
-		bbp_admin_repair_topic_voice_count();
+		$result = bbp_admin_repair_topic_voice_count();
 
+		$this->assertSame( 0, $result[0] );
 		$this->assertSame( 0, bbp_get_topic_voice_count( $topic_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_voice_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
+	 */
+	public function test_bbp_admin_repair_topic_voice_count_uses_current_database_values() {
+		$db        = bbp_db();
+		$user_id   = $this->factory->user->create();
+		$forum_id  = $this->factory->forum->create();
+		$topic_id  = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_voice_count', false ) );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $topic_id,
+					'meta_key'   => '_bbp_engagement',
+					'meta_value' => $user_id,
+				)
+			)
+		);
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $topic_id,
+					'meta_key'   => '_bbp_voice_count',
+					'meta_value' => 99,
+				)
+			)
+		);
+
+		$dry_run = bbp_admin_repair_topic_voice_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Engagements would be repaired in 1 topic', $dry_run[1] );
+		$this->assertStringContainsString( 'Voice counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			2,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) )
+		);
+		$this->assertSame(
+			2,
+			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_voice_count'", $topic_id ) )
+		);
+
+		$result = bbp_admin_repair_topic_voice_count();
+		$this->assertSame( 0, $result[0] );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_voice_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_voice_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
+	 */
+	public function test_bbp_admin_repair_topic_voice_count_detects_malformed_meta_strings() {
+		$db        = bbp_db();
+		$user_id   = $this->factory->user->create();
+		$forum_id  = $this->factory->forum->create();
+		$topic_id  = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+		$malformed_user_id = '0' . $user_id;
+
+		$this->assertSame(
+			1,
+			$db->update( $db->postmeta, array( 'meta_value' => $malformed_user_id ), array( 'post_id' => $topic_id, 'meta_key' => '_bbp_engagement' ) )
+		);
+		$this->assertSame(
+			1,
+			$db->update( $db->postmeta, array( 'meta_value' => '01' ), array( 'post_id' => $topic_id, 'meta_key' => '_bbp_voice_count' ) )
+		);
+
+		$dry_run = bbp_admin_repair_topic_voice_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Engagements would be repaired in 1 topic', $dry_run[1] );
+		$this->assertStringContainsString( 'Voice counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertSame(
+			$malformed_user_id,
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) )
+		);
+		$this->assertSame(
+			'01',
+			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_voice_count'", $topic_id ) )
+		);
+
+		$this->assertSame( 0, bbp_admin_repair_topic_voice_count()[0] );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		$this->assertSame( array( '1' ), get_post_meta( $topic_id, '_bbp_voice_count', false ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_voice_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
+	 */
+	public function test_bbp_admin_repair_topic_voice_count_run_clears_stale_cache_when_database_matches() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+
+		$this->assertSame( '1', get_post_meta( $topic_id, '_bbp_voice_count', true ) );
+		$meta_cache                       = wp_cache_get( $topic_id, 'post_meta' );
+		$meta_cache['_bbp_voice_count']   = array( '99' );
+		$this->assertTrue( wp_cache_set( $topic_id, $meta_cache, 'post_meta' ) );
+		$this->assertSame( '99', get_post_meta( $topic_id, '_bbp_voice_count', true ) );
+
+		$this->assertSame( 1, bbp_admin_repair_topic_voice_count_dry_run()[0] );
+		$this->assertSame( '99', get_post_meta( $topic_id, '_bbp_voice_count', true ) );
+
+		$result = bbp_admin_repair_topic_voice_count();
+		$this->assertSame( 0, $result[0] );
+		$this->assertSame( '1', get_post_meta( $topic_id, '_bbp_voice_count', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_voice_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
+	 */
+	public function test_bbp_admin_repair_topic_voice_count_repairs_non_public_topic_meta() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+
+		update_post_meta( $topic_id, '_bbp_engagement', $user_id );
+		update_post_meta( $topic_id, '_bbp_voice_count', 1 );
+
+		$dry_run = bbp_admin_repair_topic_voice_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Engagements would be repaired in 1 topic', $dry_run[1] );
+		$this->assertStringContainsString( 'Voice counts would be repaired in 1 topic', $dry_run[1] );
+		$this->assertTrue( metadata_exists( 'post', $topic_id, '_bbp_engagement' ) );
+		$this->assertTrue( metadata_exists( 'post', $topic_id, '_bbp_voice_count' ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_voice_count()[0] );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_engagement' ) );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_voice_count' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_voice_count_process
+	 */
+	public function test_bbp_admin_repair_topic_voice_count_dry_run_counts_multiple_topics() {
+		$user_id   = $this->factory->user->create();
+		$forum_id  = $this->factory->forum->create();
+		$topic_ids = $this->factory->topic->create_many(
+			3,
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			)
+		);
+
+		update_post_meta( reset( $topic_ids ), '_bbp_voice_count', 99 );
+		update_post_meta( end( $topic_ids ), '_bbp_voice_count', 99 );
+
+		$dry_run = bbp_admin_repair_topic_voice_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Engagements would be repaired in 0 topics', $dry_run[1] );
+		$this->assertStringContainsString( 'Voice counts would be repaired in 2 topics', $dry_run[1] );
+		$this->assertSame( '99', get_post_meta( reset( $topic_ids ), '_bbp_voice_count', true ) );
+		$this->assertSame( '99', get_post_meta( end( $topic_ids ), '_bbp_voice_count', true ) );
 	}
 
 	/**
