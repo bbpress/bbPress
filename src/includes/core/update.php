@@ -395,7 +395,11 @@ function bbp_version_updater() {
 					bbp_add_pending_upgrade( 'bbp-user-favorites-move' );
 				}
 
-				bbp_admin_upgrade_user_topic_subscriptions();
+				$topic_subscriptions = bbp_admin_upgrade_user_topic_subscriptions();
+				if ( isset( $topic_subscriptions['success'] ) && ( false === $topic_subscriptions['success'] ) ) {
+					bbp_add_pending_upgrade( 'bbp-user-topic-subscriptions-move' );
+				}
+
 				bbp_admin_upgrade_user_forum_subscriptions();
 			}
 

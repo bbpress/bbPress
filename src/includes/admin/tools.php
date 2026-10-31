@@ -514,7 +514,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user topic subscriptions', 'bbpress' ),
 			'description' => esc_html__( 'Copies topic subscriptions from user meta to topic meta.', 'bbpress' ),
-			'callback'    => 'bbp_admin_upgrade_user_topic_subscriptions',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_upgrade_user_topic_subscriptions',
+				'dry-run' => 'bbp_admin_upgrade_user_topic_subscriptions_dry_run',
+			),
 			'priority'    => 115,
 			'version'     => '2.6.0',
 			'overhead'    => 'high',

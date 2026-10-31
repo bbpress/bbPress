@@ -3700,33 +3700,131 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_dry_run
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_process
 	 */
 	public function test_bbp_admin_upgrade_user_topic_subscriptions() {
-
-		$u = $this->factory->user->create_many( 2 );
-
-		$f = $this->factory->forum->create();
-
-		$t = $this->factory->topic->create( array(
-			'post_parent' => $f,
-			'topic_meta' => array(
-				'forum_id' => $f,
-			),
-		) );
+		$db       = bbp_db();
+		$users    = $this->factory->user->create_many( 2 );
+		$forum_id = $this->factory->forum->create();
+		$topics   = array(
+			$this->factory->topic->create( array( 'post_parent' => $forum_id ) ),
+			$this->factory->topic->create( array( 'post_parent' => $forum_id ) ),
+		);
+		$key      = $db->prefix . '_bbp_subscriptions';
 
 		// Create 2.5.x user meta topic subscriptions.
-		update_user_option( $u[0], '_bbp_subscriptions', $t );
-		update_user_option( $u[1], '_bbp_subscriptions', $t );
+		update_user_option( $users[0], '_bbp_subscriptions', $topics[0] . ',' . $topics[0] . ',invalid' );
+		add_user_meta( $users[0], $key, $topics[1] . ',' . $topics[0] );
+		update_user_option( $users[1], '_bbp_subscriptions', $topics[0] . ',' . $topics[1] );
+		add_post_meta( $topics[0], '_bbp_subscription', $users[1] );
+		$stored = $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_subscription' ORDER BY meta_id", ARRAY_A );
+
+		$dry_run = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '3 topic subscriptions would be upgraded', $dry_run[1] );
+		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_subscription' ORDER BY meta_id", ARRAY_A ) );
 
 		// Upgrade the user topic subscriptions.
-		bbp_admin_upgrade_user_topic_subscriptions();
+		$result = bbp_admin_upgrade_user_topic_subscriptions();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '3 topic subscriptions upgraded', $result[1] );
 
-		$expected            = array( $u[0], $u[1] );
-		$topic_subscribers   = bbp_get_topic_subscribers( $t );
-		$post_meta_topic_sub = get_post_meta( $t, '_bbp_subscription', false );
+		$this->assertEqualSets( $users, bbp_get_topic_subscribers( $topics[0] ) );
+		$this->assertEqualSets( $users, get_post_meta( $topics[0], '_bbp_subscription', false ) );
+		$this->assertEqualSets( $users, get_post_meta( $topics[1], '_bbp_subscription', false ) );
 
-		$this->assertEqualSets( $expected, $topic_subscribers );
-		$this->assertEqualSets( $expected, $post_meta_topic_sub );
+		$dry_run = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No topic subscriptions to upgrade', $dry_run[1] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_dry_run
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_process
+	 */
+	public function test_bbp_admin_upgrade_user_topic_subscriptions_reports_no_data() {
+		$this->assertSame( 1, bbp_admin_upgrade_user_topic_subscriptions_dry_run()[0] );
+		$this->assertSame( 1, bbp_admin_upgrade_user_topic_subscriptions()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_dry_run
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_process
+	 */
+	public function test_bbp_admin_upgrade_user_topic_subscriptions_reports_read_errors() {
+		$db              = bbp_db();
+		$old_suppression = $db->suppress_errors( true );
+		$old_usermeta    = $db->usermeta;
+		$old_postmeta    = $db->postmeta;
+		$user_id         = $this->factory->user->create();
+		$topic_id        = $this->factory->topic->create();
+
+		update_user_option( $user_id, '_bbp_subscriptions', $topic_id );
+
+		try {
+			$db->usermeta = 'bbp_missing_topic_subscriptions_usermeta';
+			$result       = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+			$this->assertSame( 2, bbp_admin_upgrade_user_topic_subscriptions()[0] );
+
+			$db->usermeta = $old_usermeta;
+			$db->postmeta = 'bbp_missing_topic_subscriptions_postmeta';
+			$result       = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
+			$this->assertSame( 3, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+			$this->assertSame( 3, bbp_admin_upgrade_user_topic_subscriptions()[0] );
+		} finally {
+			$db->usermeta = $old_usermeta;
+			$db->postmeta = $old_postmeta;
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_dry_run
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions_process
+	 */
+	public function test_bbp_admin_upgrade_user_topic_subscriptions_reports_write_errors() {
+		$db        = bbp_db();
+		$user_id   = $this->factory->user->create();
+		$topic_ids = $this->factory->topic->create_many( 3 );
+		$filter    = static function ( $check, $object_id, $meta_key ) use ( $topic_ids ) {
+			return ( ( $topic_ids[1] === $object_id ) && ( '_bbp_subscription' === $meta_key ) )
+				? false
+				: $check;
+		};
+
+		update_user_option( $user_id, '_bbp_subscriptions', implode( ',', $topic_ids ) );
+		add_user_meta( $user_id, $db->prefix . '_bbp_subscriptions', $topic_ids[1] );
+		add_filter( 'add_post_metadata', $filter, 10, 3 );
+
+		try {
+			$result = bbp_admin_upgrade_user_topic_subscriptions();
+			$this->assertSame( 4, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed! 2 topic subscriptions upgraded; 1 topic subscription failed.', $result[1] );
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[0], '_bbp_subscription', false ) );
+			$this->assertSame( array(), get_post_meta( $topic_ids[1], '_bbp_subscription', false ) );
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[2], '_bbp_subscription', false ) );
+
+			$dry_run = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( '1 topic subscription would be upgraded', $dry_run[1] );
+		} finally {
+			remove_filter( 'add_post_metadata', $filter, 10 );
+		}
+
+		$result = bbp_admin_upgrade_user_topic_subscriptions();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 topic subscription upgraded', $result[1] );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[1], '_bbp_subscription', false ) );
 	}
 
 	/**
