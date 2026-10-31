@@ -189,6 +189,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertArrayHasKey( 'bbp-user-favorites-move', bbp_admin()->tools );
 		$this->assertSame( 'repair', bbp_admin()->tools['bbp-sync-topic-meta']['type'] );
 		$this->assertSame( 'upgrade', bbp_admin()->tools['bbp-user-favorites-move']['type'] );
+		$this->assertSame( 'bbp_admin_repair_topic_meta', bbp_admin()->tools['bbp-sync-topic-meta']['callbacks']['run'] );
+		$this->assertSame( 'bbp_admin_repair_topic_meta_dry_run', bbp_admin()->tools['bbp-sync-topic-meta']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_sticky', bbp_admin()->tools['bbp-sync-all-topics-sticky']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_sticky_dry_run', bbp_admin()->tools['bbp-sync-all-topics-sticky']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_reply_menu_order', bbp_admin()->tools['bbp-sync-all-reply-positions']['callbacks']['run'] );
