@@ -857,43 +857,392 @@ function bbp_admin_repair_topic_hidden_reply_count_process( $dry_run = false ) {
  * Recount forum topics.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8242) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_forum_topic_count() {
+	return bbp_admin_repair_forum_topic_count_process();
+}
+
+/**
+ * Preview recounting forum topics.
+ *
+ * @since 2.7.0 bbPress (r8242)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_topic_count_dry_run() {
+	return bbp_admin_repair_forum_topic_count_process( true );
+}
+
+/**
+ * Compare calculated forum topic counts with their stored metadata.
+ *
+ * This helper reads directly from the database so Dry Run does not populate or
+ * invalidate persistent object caches.
+ *
+ * @since 2.7.0 bbPress (r8242)
+ *
+ * @return array Status code, countable forum IDs, and number of forums to repair.
+ */
+function bbp_admin_repair_forum_topic_count_get_status() {
+	$bbp_db             = bbp_db();
+	$fpt                = bbp_get_forum_post_type();
+	$tpt                = bbp_get_topic_post_type();
+	$rpt                = bbp_get_reply_post_type();
+	$countable_statuses = array_values( array_unique( array_filter( bbp_get_countable_forum_statuses() ) ) );
+	$public_statuses    = array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) );
+	$hidden_statuses    = array_values( array_unique( array_filter( bbp_get_non_public_topic_statuses() ) ) );
+	$meta_keys          = array( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' );
+
+	$forum_rows = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `ID`, `post_parent`, `post_status`
+			FROM `{$bbp_db->posts}`
+			WHERE `post_type` = %s
+			ORDER BY `ID`",
+			$fpt
+		),
+		ARRAY_A
+	);
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 3 );
+	}
+
+	$topic_rows = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `post_parent` AS `forum_id`, `post_status`, COUNT(*) AS `topic_count`
+			FROM `{$bbp_db->posts}`
+			WHERE `post_type` = %s
+			GROUP BY `post_parent`, `post_status`",
+			$tpt
+		),
+		ARRAY_A
+	);
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 4 );
+	}
+
+	$key_placeholders = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+	$meta_rows        = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`, `forummeta`.`meta_value`
+			FROM `{$bbp_db->postmeta}` AS `forummeta`
+			INNER JOIN `{$bbp_db->posts}` AS `forums`
+				ON `forums`.`ID` = `forummeta`.`post_id`
+			WHERE `forums`.`post_type` = %s
+				AND `forummeta`.`meta_key` IN ( {$key_placeholders} )
+			ORDER BY `forummeta`.`post_id`, `forummeta`.`meta_id`",
+			array_merge( array( $fpt ), $meta_keys )
+		),
+		ARRAY_A
+	);
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 5 );
+	}
+
+	$forums              = array();
+	$countable_forum_ids = array();
+	$children            = array();
+	$direct_counts       = array();
+	$stored              = array();
+	$countable_lookup    = array_fill_keys( $countable_statuses, true );
+	$hidden_lookup       = array_fill_keys( $hidden_statuses, true );
+
+	foreach ( $forum_rows as $forum ) {
+		$forum_id            = (int) $forum['ID'];
+		$forums[ $forum_id ] = array(
+			'parent_id' => (int) $forum['post_parent'],
+			'status'    => $forum['post_status'],
+		);
+
+		if ( isset( $countable_lookup[ $forum['post_status'] ] ) ) {
+			$countable_forum_ids[] = $forum_id;
+			$children[ (int) $forum['post_parent'] ][] = $forum_id;
+		}
+	}
+
+	foreach ( $topic_rows as $topic ) {
+		$forum_id = (int) $topic['forum_id'];
+		$status   = $topic['post_status'];
+		$count    = (int) $topic['topic_count'];
+
+		if ( isset( $hidden_lookup[ $status ] ) ) {
+			$direct_counts[ $forum_id ]['hidden'] = isset( $direct_counts[ $forum_id ]['hidden'] )
+				? $direct_counts[ $forum_id ]['hidden'] + $count
+				: $count;
+		}
+	}
+
+	foreach ( $meta_rows as $meta ) {
+		$stored[ (int) $meta['post_id'] ][] = array(
+			'key'   => $meta['meta_key'],
+			'value' => $meta['meta_value'],
+		);
+	}
+
+	$expected         = array();
+	$visiting         = array();
+	$error_code       = 0;
+	$get_public_count = static function ( $forum_id ) use ( $bbp_db, $fpt, $tpt, $rpt, $public_statuses ) {
+		$sql = "SELECT
+						p.post_type AS type,
+						p.post_status AS status,
+						COUNT( * ) AS count
+					FROM {$bbp_db->posts} AS p
+					WHERE p.post_parent = %d
+						AND p.post_type IN ( %s, %s )
+					GROUP BY p.post_status, p.post_type
+					UNION ALL
+					SELECT
+						r.post_type AS type,
+						r.post_status AS status,
+						COUNT( * ) AS count
+					FROM {$bbp_db->posts} AS r
+						INNER JOIN {$bbp_db->posts} AS t
+							ON r.post_parent = t.ID
+					WHERE t.post_parent = %d
+						AND t.post_type = %s
+						AND r.post_type = %s
+					GROUP BY r.post_status, r.post_type";
+		$query = $bbp_db->prepare( $sql, $forum_id, $fpt, $tpt, $forum_id, $tpt, $rpt );
+
+		/* This filter is documented in bbp_get_child_counts(). */
+		$query   = apply_filters( 'bbp_get_child_counts_query', $query, $forum_id, $fpt );
+		$results = $bbp_db->get_results( $query, ARRAY_A );
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return false;
+		}
+
+		$counts   = wp_list_pluck( $results, 'type', 'type' );
+		$statuses = get_post_stati();
+		foreach ( $results as $row ) {
+			if ( ! is_array( $counts[ $row['type'] ] ) ) {
+				$counts[ $row['type'] ] = array_fill_keys( $statuses, 0 );
+			}
+
+			$counts[ $row['type'] ][ $row['status'] ] = bbp_number_not_negative( $row['count'] );
+		}
+
+		$counts   = (array) apply_filters( 'bbp_get_child_counts', $counts, $forum_id );
+		$types    = array_flip( array( $tpt ) );
+		$statuses = array_flip( $public_statuses );
+		$filtered = array();
+
+		foreach ( $counts as $type => $type_counts ) {
+			if ( ! isset( $types[ $type ] ) ) {
+				continue;
+			}
+
+			if ( ! empty( $statuses ) ) {
+				$type_counts = array_intersect_key( $type_counts, $statuses );
+			}
+
+			$filtered[ $type ] = $type_counts;
+		}
+
+		$filtered = (array) apply_filters( 'bbp_filter_child_counts_list', $filtered, $forum_id, $types, $statuses );
+		$count    = isset( $filtered[ $tpt ] )
+			? bbp_number_not_negative( array_sum( array_values( $filtered[ $tpt ] ) ) )
+			: 0;
+
+		return (int) apply_filters( 'bbp_get_public_child_count', $count, $forum_id, $tpt );
+	};
+	$calculate = static function ( $forum_id ) use ( &$calculate, &$expected, &$visiting, &$error_code, $children, $direct_counts, $forums, $get_public_count ) {
+		$forum_id = (int) $forum_id;
+
+		if ( isset( $expected[ $forum_id ] ) ) {
+			return $expected[ $forum_id ];
+		}
+
+		if ( isset( $visiting[ $forum_id ] ) || ! isset( $forums[ $forum_id ] ) ) {
+			$error_code = 6;
+			return false;
+		}
+
+		$visiting[ $forum_id ] = true;
+		$public                = $get_public_count( $forum_id );
+		if ( false === $public ) {
+			$error_code = 9;
+			return false;
+		}
+
+		$hidden                = isset( $direct_counts[ $forum_id ]['hidden'] ) ? (int) $direct_counts[ $forum_id ]['hidden'] : 0;
+		$total_public          = $public;
+		$total_hidden          = $hidden;
+		$subforum_ids          = isset( $children[ $forum_id ] ) ? $children[ $forum_id ] : array();
+		$subforum_ids          = array_map( 'absint', (array) apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id ) );
+
+		foreach ( $subforum_ids as $subforum_id ) {
+			$subforum = $calculate( $subforum_id );
+			if ( false === $subforum ) {
+				return false;
+			}
+
+			$total_public += (int) apply_filters( 'bbp_update_forum_topic_count', $subforum['total_public'], $subforum_id );
+			$total_hidden += (int) apply_filters( 'bbp_get_forum_topic_count_hidden_int', $subforum['total_hidden'], $subforum_id );
+		}
+
+		unset( $visiting[ $forum_id ] );
+
+		$expected[ $forum_id ] = array(
+			'_bbp_topic_count'              => (string) $public,
+			'_bbp_total_topic_count'        => (string) $total_public,
+			'_bbp_topic_count_hidden'       => (string) $hidden,
+			'_bbp_total_topic_count_hidden' => (string) $total_hidden,
+			'total_public'                  => $total_public,
+			'total_hidden'                  => $total_hidden,
+		);
+
+		return $expected[ $forum_id ];
+	};
+
+	foreach ( $countable_forum_ids as $forum_id ) {
+		if ( false === $calculate( $forum_id ) ) {
+			return array( 'code' => $error_code );
+		}
+	}
+
+	$repair_count = 0;
+	foreach ( array_keys( $forums ) as $forum_id ) {
+		$rows = isset( $stored[ $forum_id ] ) ? $stored[ $forum_id ] : array();
+
+		if ( ! isset( $expected[ $forum_id ] ) ) {
+			if ( ! empty( $rows ) ) {
+				++$repair_count;
+			}
+			continue;
+		}
+
+		$needs_repair = ( count( $meta_keys ) !== count( $rows ) );
+		foreach ( $meta_keys as $meta_key ) {
+			$matches = array();
+			foreach ( $rows as $row ) {
+				if ( $meta_key === $row['key'] ) {
+					$matches[] = $row['value'];
+				}
+			}
+
+			if ( ( 1 !== count( $matches ) ) || ( reset( $matches ) !== $expected[ $forum_id ][ $meta_key ] ) ) {
+				$needs_repair = true;
+			}
+		}
+
+		if ( $needs_repair ) {
+			++$repair_count;
+		}
+	}
+
+	return array(
+		'code'         => 0,
+		'forum_ids'    => $countable_forum_ids,
+		'repair_count' => $repair_count,
+	);
+}
+
+/**
+ * Repair or preview repairing forum topic counts.
+ *
+ * @since 2.7.0 bbPress (r8242)
+ *
+ * @param bool $dry_run Whether to preview the repair without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_topic_count_process( $dry_run = false ) {
 
 	// Define variables
 	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the counting process */
-	$statement = esc_html__( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$fpt       = bbp_get_forum_post_type();
+	$meta_keys = array( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' );
 
-	$fpt = bbp_get_forum_post_type();
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of topics in each forum&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
+	}
 
-	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
-						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
-						WHERE `posts`.`post_type` = '{$fpt}'
-						AND `postmeta`.`meta_key` IN ( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' )";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
+	$status = bbp_admin_repair_forum_topic_count_get_status();
+	if ( ! empty( $status['code'] ) ) {
+		return array(
+			$status['code'],
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	if ( empty( $status['repair_count'] ) ) {
+		$result = esc_html__( 'No forum topic counts to repair.', 'bbpress' );
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$forums = get_posts(
-		array(
-			'fields'      => 'ids',
-			'post_type'   => $fpt,
-			'post_status' => bbp_get_countable_forum_statuses(),
-			'numberposts' => -1
-		)
-	);
+	if ( $dry_run ) {
+		/* translators: %d: Number of forums whose topic counts would be repaired */
+		$result = sprintf( _n( 'Dry run complete! Topic counts would be repaired in %d forum.', 'Dry run complete! Topic counts would be repaired in %d forums.', $status['repair_count'], 'bbpress' ), $status['repair_count'] );
 
-	if ( ! empty( $forums ) ) {
-		foreach ( $forums as $forum_id ) {
-			bbp_update_forum_topic_count( $forum_id );
-			bbp_update_forum_topic_count_hidden( $forum_id );
-		}
-	} else {
-		return array( 2, sprintf( $statement, $result ) );
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	$clean_cache = static function () use ( $fpt ) {
+		return bbp_admin_repair_clean_post_meta_cache_batched( array( $fpt ) );
+	};
+
+	if ( ! $clean_cache() ) {
+		return array(
+			7,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	$key_placeholders = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+	$sql_delete       = $bbp_db->prepare(
+		"DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
+		INNER JOIN `{$bbp_db->posts}` AS `posts`
+			ON `posts`.`ID` = `postmeta`.`post_id`
+		WHERE `posts`.`post_type` = %s
+			AND `postmeta`.`meta_key` IN ( {$key_placeholders} )",
+		array_merge( array( $fpt ), $meta_keys )
+	);
+	if ( false === $bbp_db->query( $sql_delete ) ) {
+		$clean_cache();
+
+		return array(
+			1,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
+
+	foreach ( $status['forum_ids'] as $forum_id ) {
+		bbp_update_forum_topic_count( $forum_id );
+		bbp_update_forum_topic_count_hidden( $forum_id );
+	}
+
+	if ( ! $clean_cache() ) {
+		return array(
+			7,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	$status = bbp_admin_repair_forum_topic_count_get_status();
+	if ( ! empty( $status['code'] ) || ! empty( $status['repair_count'] ) ) {
+		return array(
+			empty( $status['code'] ) ? 8 : $status['code'],
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
 	}
 
 	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );

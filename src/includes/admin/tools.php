@@ -284,7 +284,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recount topics in each forum', 'bbpress' ),
 			'description' => esc_html__( 'Run this if the number of topics in any forums are incorrect.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_forum_topic_count',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_forum_topic_count',
+				'dry-run' => 'bbp_admin_repair_forum_topic_count_dry_run',
+			),
 			'priority'    => 45,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_forum_post_type(), bbp_get_topic_post_type() )
