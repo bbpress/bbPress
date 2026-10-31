@@ -1634,6 +1634,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
 	 * @ticket BBP3332
 	 */
 	public function test_bbp_admin_repair_forum_subforum_count() {
@@ -1659,6 +1662,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$empty_forum_id = $this->factory->forum->create();
 		bbp_update_forum_subforum_count( $empty_forum_id, 99 );
 
+		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Subforum counts would be repaired in 6 forums', $dry_run[1] );
+		$this->assertSame( 99, bbp_get_forum_subforum_count( $empty_forum_id, true ) );
+
 		$result = bbp_admin_repair_forum_subforum_count();
 
 		$this->assertSame( 0, $result[0] );
@@ -1667,6 +1675,306 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertSame( 3, bbp_get_forum_subforum_count( $parent_id, true ) );
 		}
 		$this->assertSame( 0, bbp_get_forum_subforum_count( $empty_forum_id, true ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_subforum_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_dry_run_is_read_only_and_repairs_malformed_rows() {
+		$db        = bbp_db();
+		$parent_id = $this->factory->forum->create();
+
+		$this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		delete_post_meta( $parent_id, '_bbp_forum_subforum_count' );
+		add_post_meta( $parent_id, '_bbp_forum_subforum_count', 99 );
+		add_post_meta( $parent_id, '_bbp_forum_subforum_count', 99 );
+		$this->assertSame( array( '99', '99' ), get_post_meta( $parent_id, '_bbp_forum_subforum_count', false ) );
+		$cached_before = wp_cache_get( $parent_id, 'post_meta' );
+		$rows_before   = $db->get_results( $db->prepare( "SELECT meta_key, meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_forum_subforum_count' ORDER BY meta_id", $parent_id ), ARRAY_A );
+
+		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Subforum counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( $rows_before, $db->get_results( $db->prepare( "SELECT meta_key, meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_forum_subforum_count' ORDER BY meta_id", $parent_id ), ARRAY_A ) );
+		$this->assertSame( $cached_before, wp_cache_get( $parent_id, 'post_meta' ) );
+
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $parent_id, true ) );
+		$this->assertSame( array( '1' ), get_post_meta( $parent_id, '_bbp_forum_subforum_count', false ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_subforum_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_excludes_non_countable_children() {
+		$db        = bbp_db();
+		$parent_id = $this->factory->forum->create();
+		$child_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+
+		$this->assertNotFalse( $db->update( $db->posts, array( 'post_status' => 'draft' ), array( 'ID' => $child_id ) ) );
+		wp_cache_delete( $child_id, 'posts' );
+		update_post_meta( $parent_id, '_bbp_forum_subforum_count', 99 );
+
+		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Subforum counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $parent_id, true ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_subforum_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_repairs_case_variant_meta_keys() {
+		$db        = bbp_db();
+		$parent_id = $this->factory->forum->create();
+
+		$this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		delete_post_meta( $parent_id, '_bbp_forum_subforum_count' );
+		$this->assertNotFalse( $db->insert(
+			$db->postmeta,
+			array(
+				'post_id'    => $parent_id,
+				'meta_key'   => '_BBP_Forum_Subforum_Count',
+				'meta_value' => 1,
+			)
+		) );
+		wp_cache_delete( $parent_id, 'post_meta' );
+
+		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Subforum counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( '_BBP_Forum_Subforum_Count', $db->get_var( $db->prepare( "SELECT meta_key FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_forum_subforum_count'", $parent_id ) ) );
+
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( array( '_bbp_forum_subforum_count' ), $db->get_col( $db->prepare( "SELECT meta_key FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_forum_subforum_count'", $parent_id ) ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_subforum_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_preserves_unregistered_status_rows() {
+		$db              = bbp_db();
+		$eligible_id     = $this->factory->forum->create();
+		$unregistered_id = $this->factory->forum->create();
+
+		$this->assertNotFalse( $db->update( $db->posts, array( 'post_status' => 'bbp-unknown' ), array( 'ID' => $unregistered_id ) ) );
+		wp_cache_delete( $unregistered_id, 'posts' );
+		update_post_meta( $eligible_id, '_bbp_forum_subforum_count', 99 );
+		update_post_meta( $unregistered_id, '_bbp_forum_subforum_count', 77 );
+
+		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Subforum counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( '0', get_post_meta( $eligible_id, '_bbp_forum_subforum_count', true ) );
+		$this->assertSame( '77', get_post_meta( $unregistered_id, '_bbp_forum_subforum_count', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_reports_read_errors_without_writes() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filters   = array(
+			3 => static function ( $query ) use ( $db ) {
+				return ( false !== strpos( $query, 'SELECT `forums`.`ID`, COUNT( `children`.`ID` )' ) )
+					? str_replace( "FROM `{$db->posts}` AS `forums`", 'FROM `bbp_missing_subforum_count_forums` AS `forums`', $query )
+					: $query;
+			},
+			4 => static function ( $query ) use ( $db ) {
+				return ( false !== strpos( $query, 'SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`' ) )
+					? str_replace( "FROM `{$db->postmeta}`", 'FROM `bbp_missing_subforum_count_meta`', $query )
+					: $query;
+			},
+		);
+
+		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
+
+		try {
+			foreach ( $query_filters as $code => $query_filter ) {
+				add_filter( 'query', $query_filter );
+
+				$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+				$this->assertSame( $code, $dry_run[0] );
+				$this->assertFalse( $dry_run['success'] );
+				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+
+				$run = bbp_admin_repair_forum_subforum_count();
+				$this->assertSame( $code, $run[0] );
+				$this->assertFalse( $run['success'] );
+				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+
+				remove_filter( 'query', $query_filter );
+			}
+		} finally {
+			foreach ( $query_filters as $query_filter ) {
+				remove_filter( 'query', $query_filter );
+			}
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_reports_delete_errors_and_can_retry() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) {
+			return ( 0 === strpos( $query, 'DELETE `forummeta`' ) )
+				? 'DELETE FROM `bbp_missing_subforum_count_meta`'
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_subforum_count();
+			$this->assertSame( 1, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_stops_before_writes_on_cache_query_errors() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
+				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_subforum_count_cache`', $query )
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_subforum_count();
+			$this->assertSame( 5, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_reports_count_errors_and_can_retry() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( false !== strpos( $query, "SELECT COUNT(*) FROM {$db->posts} WHERE post_parent" ) )
+				? str_replace( "FROM {$db->posts}", 'FROM bbp_missing_subforum_count_children', $query )
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_subforum_count();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_forum_subforum_count' ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_reports_update_errors_and_can_retry() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "INSERT INTO `{$db->postmeta}`" ) )
+				? 'INSERT INTO `bbp_missing_subforum_count_meta` (`post_id`) VALUES (1)'
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_subforum_count();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_forum_subforum_count' ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_subforum_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_count
+	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status
+	 * @covers ::bbp_admin_repair_forum_subforum_count_process
+	 */
+	public function test_bbp_admin_repair_forum_subforum_count_reports_no_data() {
+		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum subforum counts to repair', $dry_run[1] );
+
+		$run = bbp_admin_repair_forum_subforum_count();
+		$this->assertSame( 1, $run[0] );
+		$this->assertStringContainsString( 'No forum subforum counts to repair', $run[1] );
 	}
 
 	/**

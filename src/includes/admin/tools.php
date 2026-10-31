@@ -301,7 +301,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recount subforums in each forum', 'bbpress' ),
 			'description' => esc_html__( 'Run this if the number of subforums in any forums are incorrect.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_forum_subforum_count',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_forum_subforum_count',
+				'dry-run' => 'bbp_admin_repair_forum_subforum_count_dry_run',
+			),
 			'priority'    => 47,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_forum_post_type() )
