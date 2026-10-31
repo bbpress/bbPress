@@ -550,7 +550,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Remove favorites from user-meta', 'bbpress' ),
 			'description' => esc_html__( 'Run this to delete old data (after confirming successful favorites upgrade)', 'bbpress' ),
-			'callback'    => 'bbp_admin_upgrade_remove_favorites_from_usermeta',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_upgrade_remove_favorites_from_usermeta',
+				'dry-run' => 'bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run',
+			),
 			'priority'    => 125,
 			'version'     => '2.6.1',
 			'overhead'    => 'medium',

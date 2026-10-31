@@ -994,36 +994,90 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
  * Remove favorites data from user meta for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6281)
+ * @since 2.7.0 bbPress (r8234) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta() {
+	return bbp_admin_upgrade_remove_favorites_from_usermeta_process();
+}
+
+/**
+ * Preview removing favorites data from user meta for bbPress 2.6 and higher.
+ *
+ * @since 2.7.0 bbPress (r8234)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run() {
+	return bbp_admin_upgrade_remove_favorites_from_usermeta_process( true );
+}
+
+/**
+ * Remove or preview removing favorites data from user meta.
+ *
+ * @since 2.7.0 bbPress (r8234)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the upgrade process */
-	$statement = esc_html__( 'Remove favorites from usermeta&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'No favorites to remove.',                   'bbpress' );
-	$total     = 0;
-	$key       = $bbp_db->prefix . '_bbp_favorites';
+	$bbp_db = bbp_db();
+	$failed = esc_html__( 'Failed!', 'bbpress' );
+	$result = esc_html__( 'No favorites to remove.', 'bbpress' );
+	$key    = $bbp_db->prefix . '_bbp_favorites';
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking favorites in usermeta&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the upgrade process */
+		$statement = esc_html__( 'Remove favorites from usermeta&hellip; %s', 'bbpress' );
+	}
 
 	// Results
-	$query     = "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id";
-	$prepare   = $bbp_db->prepare( $query, $key );
-	$favs      = $bbp_db->get_results( $prepare );
+	$query   = "SELECT COUNT(*) FROM {$bbp_db->usermeta} WHERE meta_key = %s";
+	$prepare = $bbp_db->prepare( $query, $key );
+	$total   = (int) $bbp_db->get_var( $prepare );
 
-	// Bail if no favorites found
-	if ( empty( $favs ) || is_wp_error( $favs ) ) {
+	// Bail if favorites could not be read
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Bail if no favorites were found
+	if ( empty( $total ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
+	if ( $dry_run ) {
+		/* translators: %s: Number of favorites that would be deleted */
+		$result = sprintf( _n( 'Dry run complete! %s favorite would be deleted.', 'Dry run complete! %s favorites would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
 	// Delete all user-meta with this key
-	delete_metadata( 'user', false, $key, false, true );
-	$total = count( $favs );
+	if ( false === delete_metadata( 'user', false, $key, false, true ) ) {
+		/* translators: %s: Number of favorites that could not be deleted */
+		$result = sprintf( _n( 'Failed! %s favorite could not be deleted.', 'Failed! %s favorites could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+
+		return array(
+			3,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
 
 	// Complete results
-	/* translators: %d: Number of deleted favorites */
-	$result = sprintf( _n( 'Complete! %d favorite deleted.', 'Complete! %d favorites deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of deleted favorites */
+	$result = sprintf( _n( 'Complete! %s favorite deleted.', 'Complete! %s favorites deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
