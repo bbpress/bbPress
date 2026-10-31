@@ -1696,46 +1696,357 @@ function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
  * Recount forum replies.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8245) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_forum_reply_count() {
+	return bbp_admin_repair_forum_reply_count_process();
+}
+
+/**
+ * Preview recounting forum replies.
+ *
+ * @since 2.7.0 bbPress (r8245)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_reply_count_dry_run() {
+	return bbp_admin_repair_forum_reply_count_process( true );
+}
+
+/**
+ * Compare calculated forum reply counts with their stored metadata.
+ *
+ * This helper reads directly from the database so Dry Run does not populate or
+ * invalidate persistent object caches.
+ *
+ * @since 2.7.0 bbPress (r8245)
+ *
+ * @return array Status code, countable forum IDs, and number of forums to repair.
+ */
+function bbp_admin_repair_forum_reply_count_get_status() {
+	$bbp_db             = bbp_db();
+	$fpt                = bbp_get_forum_post_type();
+	$tpt                = bbp_get_topic_post_type();
+	$rpt                = bbp_get_reply_post_type();
+	$countable_statuses = array_values( array_unique( array_filter( bbp_get_countable_forum_statuses() ) ) );
+	$topic_statuses     = array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) );
+	$reply_statuses     = array_values( array_unique( array_filter( bbp_get_public_reply_statuses() ) ) );
+	$meta_keys          = array( '_bbp_reply_count', '_bbp_total_reply_count' );
+	$type_key           = '_bbp_forum_type';
+
+	$forum_rows = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `ID`, `post_parent`, `post_status`
+			FROM `{$bbp_db->posts}`
+			WHERE `post_type` = %s
+			ORDER BY `ID`",
+			$fpt
+		),
+		ARRAY_A
+	);
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 3 );
+	}
+
+	$topic_status_sql = ! empty( $topic_statuses )
+		? 'AND `topics`.`post_status` IN ( ' . implode( ', ', array_fill( 0, count( $topic_statuses ), '%s' ) ) . ' )'
+		: 'AND 1 = 0';
+	$reply_status_sql = ! empty( $reply_statuses )
+		? 'AND `replies`.`post_status` IN ( ' . implode( ', ', array_fill( 0, count( $reply_statuses ), '%s' ) ) . ' )'
+		: 'AND 1 = 0';
+	$reply_args       = array_merge( array( $tpt ), $topic_statuses, array( $rpt ), $reply_statuses );
+	$reply_rows       = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `topics`.`post_parent` AS `forum_id`, COUNT(*) AS `reply_count`
+			FROM `{$bbp_db->posts}` AS `replies`
+			INNER JOIN `{$bbp_db->posts}` AS `topics`
+				ON `replies`.`post_parent` = `topics`.`ID`
+			WHERE `topics`.`post_type` = %s
+				{$topic_status_sql}
+				AND `replies`.`post_type` = %s
+				{$reply_status_sql}
+			GROUP BY `topics`.`post_parent`",
+			$reply_args
+		),
+		ARRAY_A
+	);
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 4 );
+	}
+
+	$key_placeholders = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+	$meta_rows        = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`, `forummeta`.`meta_value`
+			FROM `{$bbp_db->postmeta}` AS `forummeta`
+			INNER JOIN `{$bbp_db->posts}` AS `forums`
+				ON `forums`.`ID` = `forummeta`.`post_id`
+			WHERE `forums`.`post_type` = %s
+				AND (
+					BINARY `forummeta`.`meta_key` = BINARY %s
+					OR `forummeta`.`meta_key` IN ( {$key_placeholders} )
+				)
+			ORDER BY `forummeta`.`post_id`, `forummeta`.`meta_id`",
+			array_merge( array( $fpt, $type_key ), $meta_keys )
+		),
+		ARRAY_A
+	);
+
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 5 );
+	}
+
+	$forums              = array();
+	$countable_forum_ids = array();
+	$children            = array();
+	$direct_counts       = array();
+	$forum_types         = array();
+	$stored              = array();
+	$countable_lookup    = array_fill_keys( $countable_statuses, true );
+
+	foreach ( $forum_rows as $forum ) {
+		$forum_id            = (int) $forum['ID'];
+		$forums[ $forum_id ] = array(
+			'parent_id' => (int) $forum['post_parent'],
+			'status'    => $forum['post_status'],
+		);
+
+		if ( isset( $countable_lookup[ $forum['post_status'] ] ) ) {
+			$countable_forum_ids[] = $forum_id;
+			$children[ (int) $forum['post_parent'] ][] = $forum_id;
+		}
+	}
+
+	foreach ( $reply_rows as $reply ) {
+		$direct_counts[ (int) $reply['forum_id'] ] = (int) $reply['reply_count'];
+	}
+
+	foreach ( $meta_rows as $meta ) {
+		$forum_id = (int) $meta['post_id'];
+
+		if ( $type_key === $meta['meta_key'] ) {
+			if ( ! isset( $forum_types[ $forum_id ] ) ) {
+				$forum_types[ $forum_id ] = maybe_unserialize( $meta['meta_value'] );
+			}
+
+			continue;
+		}
+
+		$stored[ $forum_id ][] = array(
+			'key'   => $meta['meta_key'],
+			'value' => $meta['meta_value'],
+		);
+	}
+
+	$expected   = array();
+	$visiting   = array();
+	$error_code = 0;
+	$calculate  = static function ( $forum_id ) use ( &$calculate, &$expected, &$visiting, &$error_code, $children, $direct_counts, $forums, $forum_types, $topic_statuses, $reply_statuses ) {
+		$forum_id = (int) apply_filters( 'bbp_get_forum_id', (int) $forum_id, $forum_id );
+
+		if ( isset( $expected[ $forum_id ] ) ) {
+			return $expected[ $forum_id ];
+		}
+
+		if ( isset( $visiting[ $forum_id ] ) || ! isset( $forums[ $forum_id ] ) ) {
+			$error_code = 6;
+			return false;
+		}
+
+		$visiting[ $forum_id ] = true;
+		$forum_type             = isset( $forum_types[ $forum_id ] ) ? $forum_types[ $forum_id ] : 'forum';
+
+		if ( empty( $forum_type ) ) {
+			$forum_type = 'forum';
+		}
+
+		$forum_type  = apply_filters( 'bbp_get_forum_type', $forum_type, $forum_id );
+		$is_category = ( ! empty( $forum_type ) && ( 'category' === $forum_type ) );
+		$is_category = (bool) apply_filters( 'bbp_is_forum_category', $is_category, $forum_id );
+		$direct      = $is_category || empty( $topic_statuses ) || empty( $reply_statuses )
+			? 0
+			: bbp_number_not_negative( isset( $direct_counts[ $forum_id ] ) ? $direct_counts[ $forum_id ] : 0 );
+		$total       = $direct;
+		$subforum_ids = isset( $children[ $forum_id ] ) ? $children[ $forum_id ] : array();
+		rsort( $subforum_ids, SORT_NUMERIC );
+		$subforum_ids = array_map( 'absint', (array) apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id ) );
+
+		foreach ( $subforum_ids as $subforum_id ) {
+			$subforum = $calculate( $subforum_id );
+			if ( false === $subforum ) {
+				return false;
+			}
+
+			$total += (int) apply_filters( 'bbp_update_forum_reply_count', $subforum['total'], $subforum['forum_id'] );
+		}
+
+		unset( $visiting[ $forum_id ] );
+
+		$expected[ $forum_id ] = array(
+			'_bbp_reply_count'       => (string) $direct,
+			'_bbp_total_reply_count' => (string) $total,
+			'forum_id'               => $forum_id,
+			'total'                  => $total,
+		);
+
+		return $expected[ $forum_id ];
+	};
+
+	foreach ( $countable_forum_ids as $forum_id ) {
+		if ( false === $calculate( $forum_id ) ) {
+			return array( 'code' => $error_code );
+		}
+	}
+
+	$repair_count = 0;
+	foreach ( array_keys( $forums ) as $forum_id ) {
+		$rows = isset( $stored[ $forum_id ] ) ? $stored[ $forum_id ] : array();
+
+		if ( ! isset( $expected[ $forum_id ] ) ) {
+			if ( ! empty( $rows ) ) {
+				++$repair_count;
+			}
+			continue;
+		}
+
+		$needs_repair = ( count( $meta_keys ) !== count( $rows ) );
+		foreach ( $meta_keys as $meta_key ) {
+			$matches = array();
+			foreach ( $rows as $row ) {
+				if ( $meta_key === $row['key'] ) {
+					$matches[] = $row['value'];
+				}
+			}
+
+			if ( ( 1 !== count( $matches ) ) || ( reset( $matches ) !== $expected[ $forum_id ][ $meta_key ] ) ) {
+				$needs_repair = true;
+			}
+		}
+
+		if ( $needs_repair ) {
+			++$repair_count;
+		}
+	}
+
+	return array(
+		'code'         => 0,
+		'forum_ids'    => $countable_forum_ids,
+		'repair_count' => $repair_count,
+	);
+}
+
+/**
+ * Repair or preview repairing forum reply counts.
+ *
+ * @since 2.7.0 bbPress (r8245)
+ *
+ * @param bool $dry_run Whether to preview the repair without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_reply_count_process( $dry_run = false ) {
 
 	// Define variables
 	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the counting process */
-	$statement = esc_html__( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$fpt       = bbp_get_forum_post_type();
+	$meta_keys = array( '_bbp_reply_count', '_bbp_total_reply_count' );
 
-	// Post type
-	$fpt = bbp_get_forum_post_type();
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of replies in each forum&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
+	}
 
-	// Delete the meta keys _bbp_reply_count and _bbp_total_reply_count for each forum
-	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
-						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
-						WHERE `posts`.`post_type` = '{$fpt}'
-						AND `postmeta`.`meta_key` IN ( '_bbp_reply_count', '_bbp_total_reply_count' )";
+	$status = bbp_admin_repair_forum_reply_count_get_status();
+	if ( ! empty( $status['code'] ) ) {
+		return array(
+			$status['code'],
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
 
-	if ( false === $bbp_db->query( $sql_delete ) ) {
+	$clean_cache = static function () use ( $fpt ) {
+		return bbp_admin_repair_clean_post_meta_cache_batched( array( $fpt ) );
+	};
+
+	if ( empty( $status['repair_count'] ) ) {
+		$result = esc_html__( 'No forum reply counts to repair.', 'bbpress' );
+
+		if ( ! $dry_run && ! $clean_cache() ) {
+			return array(
+				7,
+				sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+				'success' => false,
+			);
+		}
+
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
-	$forums = get_posts(
-		array(
-			'fields'      => 'ids',
-			'post_type'   => $fpt,
-			'post_status' => bbp_get_countable_forum_statuses(),
-			'numberposts' => -1
-		)
+	if ( $dry_run ) {
+		/* translators: %d: Number of forums whose reply counts would be repaired */
+		$result = sprintf( _n( 'Dry run complete! Reply counts would be repaired in %d forum.', 'Dry run complete! Reply counts would be repaired in %d forums.', $status['repair_count'], 'bbpress' ), $status['repair_count'] );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	if ( ! $clean_cache() ) {
+		return array(
+			7,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	// Delete the meta keys _bbp_reply_count and _bbp_total_reply_count for each forum
+	$key_placeholders = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+	$sql_delete       = $bbp_db->prepare(
+		"DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
+		INNER JOIN `{$bbp_db->posts}` AS `posts`
+			ON `posts`.`ID` = `postmeta`.`post_id`
+		WHERE `posts`.`post_type` = %s
+			AND `postmeta`.`meta_key` IN ( {$key_placeholders} )",
+		array_merge( array( $fpt ), $meta_keys )
 	);
 
-	if ( ! empty( $forums ) ) {
-		foreach ( $forums as $forum_id ) {
-			bbp_update_forum_reply_count( $forum_id );
-		}
-	} else {
-		return array( 2, sprintf( $statement, $result ) );
+	if ( false === $bbp_db->query( $sql_delete ) ) {
+		$clean_cache();
+
+		return array(
+			1,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
+
+	foreach ( $status['forum_ids'] as $forum_id ) {
+		bbp_update_forum_reply_count( $forum_id );
+	}
+
+	if ( ! $clean_cache() ) {
+		return array(
+			7,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	$status = bbp_admin_repair_forum_reply_count_get_status();
+	if ( ! empty( $status['code'] ) || ! empty( $status['repair_count'] ) ) {
+		return array(
+			empty( $status['code'] ) ? 8 : $status['code'],
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
 	}
 
 	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );

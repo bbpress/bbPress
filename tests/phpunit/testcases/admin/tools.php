@@ -2020,6 +2020,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count() {
 		$c = $this->factory->forum->create( array(
@@ -2124,8 +2127,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_forum_reply_count( $f, true, true );
 		$this->assertSame( 0, $count );
 
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 2 forums', $dry_run[1] );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $c, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $f, true, true ) );
+
 		// Repair the forum reply count meta.
-		bbp_admin_repair_forum_reply_count();
+		$result = bbp_admin_repair_forum_reply_count();
+		$this->assertSame( 0, $result[0] );
 
 		// Category reply count.
 		$count = bbp_get_forum_reply_count( $c, false, true );
@@ -2142,6 +2152,675 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		// Forum total reply count.
 		$count = bbp_get_forum_reply_count( $f, true, true );
 		$this->assertSame( 2, $count );
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_dry_run_is_read_only_and_repairs_malformed_rows() {
+		$db       = bbp_db();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		delete_post_meta( $forum_id, '_bbp_reply_count' );
+		delete_post_meta( $forum_id, '_bbp_total_reply_count' );
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $forum_id,
+					'meta_key'   => '_BBP_Reply_Count',
+					'meta_value' => 99,
+				)
+			)
+		);
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $forum_id,
+					'meta_key'   => '_BBP_Forum_Type ',
+					'meta_value' => 'category',
+				)
+			)
+		);
+		$this->assertNotFalse(
+			$db->insert(
+				$db->postmeta,
+				array(
+					'post_id'    => $forum_id,
+					'meta_key'   => '_bbp_fórum_type',
+					'meta_value' => 'category',
+				)
+			)
+		);
+		add_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		add_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		wp_cache_delete( $forum_id, 'post_meta' );
+		$rows_before   = $db->get_results( $db->prepare( "SELECT meta_key, meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key IN ( '_bbp_reply_count', '_bbp_total_reply_count' ) ORDER BY meta_id", $forum_id ), ARRAY_A );
+		$cached_before = wp_cache_get( $forum_id, 'post_meta' );
+
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( $rows_before, $db->get_results( $db->prepare( "SELECT meta_key, meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key IN ( '_bbp_reply_count', '_bbp_total_reply_count' ) ORDER BY meta_id", $forum_id ), ARRAY_A ) );
+		$this->assertSame( $cached_before, wp_cache_get( $forum_id, 'post_meta' ) );
+
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( array( '1' ), get_post_meta( $forum_id, '_bbp_reply_count', false ) );
+		$this->assertSame( array( '1' ), get_post_meta( $forum_id, '_bbp_total_reply_count', false ) );
+		$this->assertSame( 'category', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND BINARY meta_key = %s", $forum_id, '_BBP_Forum_Type ' ) ) );
+		$this->assertSame( 'category', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND BINARY meta_key = %s", $forum_id, '_bbp_fórum_type' ) ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_preserves_number_not_negative_filter() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$filter   = static function ( $number ) {
+			return ( 1 === $number ) ? 3 : $number;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'bbp_number_not_negative', $filter );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+			$this->assertSame( 3, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( 3, bbp_get_forum_reply_count( $forum_id, true, true ) );
+			$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		} finally {
+			remove_filter( 'bbp_number_not_negative', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_uses_first_unserialized_forum_type() {
+		$db       = bbp_db();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		delete_post_meta( $forum_id, '_bbp_forum_type' );
+		$this->assertNotFalse( $db->insert( $db->postmeta, array( 'post_id' => $forum_id, 'meta_key' => '_bbp_forum_type', 'meta_value' => 's:8:"category";' ) ) );
+		$this->assertNotFalse( $db->insert( $db->postmeta, array( 'post_id' => $forum_id, 'meta_key' => '_bbp_forum_type', 'meta_value' => 'forum' ) ) );
+		wp_cache_delete( $forum_id, 'post_meta' );
+		$this->assertSame( 's:8:"category";', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_forum_type' ORDER BY meta_id LIMIT 1", $forum_id ) ) );
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_excludes_non_public_replies_and_topics() {
+		$forum_id        = $this->factory->forum->create();
+		$public_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$spam_topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_status' => bbp_get_spam_status_id() ) );
+
+		$this->factory->reply->create( array( 'post_parent' => $public_topic_id ) );
+		$this->factory->reply->create( array( 'post_parent' => $public_topic_id, 'post_status' => bbp_get_spam_status_id() ) );
+		$this->factory->reply->create( array( 'post_parent' => $spam_topic_id ) );
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_preserves_recursive_count_filters() {
+		$parent_id = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$forum_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id  = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$filter    = static function ( $count, $filtered_forum_id ) use ( $forum_id ) {
+			return ( $forum_id === $filtered_forum_id ) ? $count + 2 : $count;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		update_post_meta( $parent_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'bbp_update_forum_reply_count', $filter, 10, 2 );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+			$this->assertSame( 3, bbp_get_forum_reply_count( $parent_id, true, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+			$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		} finally {
+			remove_filter( 'bbp_update_forum_reply_count', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_preserves_forum_type_filters() {
+		$forum_id       = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$type_filter    = static function ( $type, $filtered_forum_id ) use ( $forum_id ) {
+			return ( $forum_id === $filtered_forum_id ) ? 'category' : $type;
+		};
+		$category_filter = static function ( $is_category, $filtered_forum_id ) use ( $forum_id ) {
+			return ( $forum_id === $filtered_forum_id ) ? false : $is_category;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'bbp_get_forum_type', $type_filter, 10, 2 );
+		add_filter( 'bbp_is_forum_category', $category_filter, 10, 2 );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+			$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+			$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		} finally {
+			remove_filter( 'bbp_get_forum_type', $type_filter, 10 );
+			remove_filter( 'bbp_is_forum_category', $category_filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_preserves_filtered_forum_ids() {
+		$source_id = $this->factory->forum->create();
+		$target_id = $this->factory->forum->create();
+		$topic_id  = $this->factory->topic->create( array( 'post_parent' => $target_id ) );
+		$filter    = static function ( $forum_id ) use ( $source_id, $target_id ) {
+			return ( $source_id === $forum_id ) ? $target_id : $forum_id;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		update_post_meta( $source_id, '_bbp_reply_count', 99 );
+		update_post_meta( $source_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'bbp_get_forum_id', $filter );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+			$this->assertFalse( metadata_exists( 'post', $source_id, '_bbp_reply_count' ) );
+			$this->assertSame( '1', get_post_meta( $target_id, '_bbp_reply_count', true ) );
+			$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		} finally {
+			remove_filter( 'bbp_get_forum_id', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_uses_filtered_child_id_for_recursive_count_filter() {
+		$parent_id = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$source_id = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$target_id = $this->factory->forum->create();
+		$topic_id  = $this->factory->topic->create( array( 'post_parent' => $target_id ) );
+		$id_filter = static function ( $forum_id ) use ( $source_id, $target_id ) {
+			return ( $source_id === $forum_id ) ? $target_id : $forum_id;
+		};
+		$count_filter = static function ( $count, $forum_id ) use ( $target_id ) {
+			return ( $target_id === $forum_id ) ? $count + 2 : $count;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		delete_post_meta( $source_id, '_bbp_reply_count' );
+		delete_post_meta( $source_id, '_bbp_total_reply_count' );
+		update_post_meta( $parent_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'bbp_get_forum_id', $id_filter );
+		add_filter( 'bbp_update_forum_reply_count', $count_filter, 10, 2 );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+			$this->assertSame( 3, bbp_get_forum_reply_count( $parent_id, true, true ) );
+			$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		} finally {
+			remove_filter( 'bbp_get_forum_id', $id_filter );
+			remove_filter( 'bbp_update_forum_reply_count', $count_filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_preserves_filtered_child_order() {
+		$parent_id  = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$first_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$second_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$first_topic_id  = $this->factory->topic->create( array( 'post_parent' => $first_id ) );
+		$second_topic_id = $this->factory->topic->create( array( 'post_parent' => $second_id ) );
+		$filter     = static function ( $forum_ids, $forum_id ) use ( $parent_id ) {
+			return ( $parent_id === $forum_id ) ? array_slice( $forum_ids, 0, 1 ) : $forum_ids;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $first_topic_id ) );
+		$this->factory->reply->create_many( 2, array( 'post_parent' => $second_topic_id ) );
+		update_post_meta( $parent_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'bbp_forum_query_subforum_ids', $filter, 10, 2 );
+
+		try {
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+			$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+			$this->assertSame( 2, bbp_get_forum_reply_count( $parent_id, true, true ) );
+			$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_handles_empty_public_statuses() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$filters  = array(
+			'bbp_get_public_topic_statuses' => '__return_empty_array',
+			'bbp_get_public_reply_statuses' => '__return_empty_array',
+		);
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		foreach ( $filters as $hook => $filter ) {
+			update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+			update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+			add_filter( $hook, $filter );
+
+			try {
+				$this->assertSame( 0, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+				$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+				$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+				$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+				$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+			} finally {
+				remove_filter( $hook, $filter );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_filtered_cycles() {
+		$parent_id = $this->factory->forum->create();
+		$forum_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$filter    = static function ( $forum_ids, $filtered_forum_id ) use ( $parent_id, $forum_id ) {
+			return ( $forum_id === $filtered_forum_id ) ? array( $parent_id ) : $forum_ids;
+		};
+
+		update_post_meta( $parent_id, '_bbp_reply_count', 99 );
+		add_filter( 'bbp_forum_query_subforum_ids', $filter, 10, 2 );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 6, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_reply_count();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( '99', get_post_meta( $parent_id, '_bbp_reply_count', true ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_filtered_non_forum_ids() {
+		$forum_id = $this->factory->forum->create();
+		$filter   = static function ( $forum_ids, $filtered_forum_id ) use ( $forum_id ) {
+			return ( $forum_id === $filtered_forum_id ) ? array( 999999 ) : $forum_ids;
+		};
+
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		add_filter( 'bbp_forum_query_subforum_ids', $filter, 10, 2 );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+			$this->assertSame( 6, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_reply_count();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_database_cycles() {
+		$db       = bbp_db();
+		$forum_id = $this->factory->forum->create();
+
+		$this->assertSame( 1, $db->update( $db->posts, array( 'post_parent' => $forum_id ), array( 'ID' => $forum_id ) ) );
+		wp_cache_delete( $forum_id, 'posts' );
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 6, $dry_run[0] );
+		$this->assertFalse( $dry_run['success'] );
+
+		$result = bbp_admin_repair_forum_reply_count();
+		$this->assertSame( 6, $result[0] );
+		$this->assertFalse( $result['success'] );
+		$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_removes_rows_from_uncountable_forums() {
+		$db       = bbp_db();
+		$forum_id = $this->factory->forum->create();
+
+		$this->assertSame( 1, $db->update( $db->posts, array( 'post_status' => 'draft' ), array( 'ID' => $forum_id ) ) );
+		wp_cache_delete( $forum_id, 'posts' );
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 1 forum', $dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_reply_count' ) );
+		$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_total_reply_count' ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_run_clears_stale_cache_when_database_matches() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
+				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_reply_count_cache`', $query )
+				: $query;
+		};
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$cached                                      = wp_cache_get( $forum_id, 'post_meta' );
+		$cached['_bbp_reply_count']                  = array( '99' );
+		$cached['_bbp_total_reply_count']            = array( '99' );
+		wp_cache_set( $forum_id, $cached, 'post_meta' );
+		$this->assertSame( 99, bbp_get_forum_reply_count( $forum_id, true, true ) );
+
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+		$this->assertSame( 99, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_reply_count();
+			$this->assertSame( 7, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( 99, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_read_errors_without_writes() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filters   = array(
+			3 => static function ( $query ) use ( $db ) {
+				return ( false !== strpos( $query, 'SELECT `ID`, `post_parent`, `post_status`' ) )
+					? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_reply_count_forums`', $query )
+					: $query;
+			},
+			4 => static function ( $query ) use ( $db ) {
+				return ( false !== strpos( $query, 'SELECT `topics`.`post_parent` AS `forum_id`' ) )
+					? str_replace( "FROM `{$db->posts}` AS `replies`", 'FROM `bbp_missing_forum_reply_count_replies` AS `replies`', $query )
+					: $query;
+			},
+			5 => static function ( $query ) use ( $db ) {
+				return ( false !== strpos( $query, 'SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`' ) )
+					? str_replace( "FROM `{$db->postmeta}`", 'FROM `bbp_missing_forum_reply_count_meta`', $query )
+					: $query;
+			},
+		);
+
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+
+		try {
+			foreach ( $query_filters as $code => $query_filter ) {
+				add_filter( 'query', $query_filter );
+
+				$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+				$this->assertSame( $code, $dry_run[0] );
+				$this->assertFalse( $dry_run['success'] );
+
+				$result = bbp_admin_repair_forum_reply_count();
+				$this->assertSame( $code, $result[0] );
+				$this->assertFalse( $result['success'] );
+				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
+
+				remove_filter( 'query', $query_filter );
+			}
+		} finally {
+			foreach ( $query_filters as $query_filter ) {
+				remove_filter( 'query', $query_filter );
+			}
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_delete_errors_and_can_retry() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) {
+			return ( 0 === strpos( $query, 'DELETE `postmeta`' ) )
+				? 'DELETE FROM `bbp_missing_forum_reply_count_meta`'
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_reply_count();
+			$this->assertSame( 1, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_stops_before_writes_on_cache_query_errors() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
+				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_reply_count_cache`', $query )
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_reply_count();
+			$this->assertSame( 7, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_update_errors_and_can_retry() {
+		$db              = bbp_db();
+		$forum_id        = $this->factory->forum->create();
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "INSERT INTO `{$db->postmeta}`" ) )
+				? 'INSERT INTO `bbp_missing_forum_reply_count_meta` (`post_id`) VALUES (1)'
+				: $query;
+		};
+
+		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_forum_reply_count();
+			$this->assertSame( 8, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_reply_count' ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count_process
+	 */
+	public function test_bbp_admin_repair_forum_reply_count_reports_no_data() {
+		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum reply counts to repair', $dry_run[1] );
+
+		$result = bbp_admin_repair_forum_reply_count();
+		$this->assertSame( 1, $result[0] );
+		$this->assertStringContainsString( 'No forum reply counts to repair', $result[1] );
 	}
 
 	/**

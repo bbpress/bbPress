@@ -335,7 +335,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recount replies in each forum', 'bbpress' ),
 			'description' => esc_html__( 'Run this if the number of replies in any forums are incorrect.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_forum_reply_count',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_forum_reply_count',
+				'dry-run' => 'bbp_admin_repair_forum_reply_count_dry_run',
+			),
 			'priority'    => 55,
 			'overhead'    => 'high',
 			'components'  => array( bbp_get_forum_post_type(), bbp_get_reply_post_type() )
