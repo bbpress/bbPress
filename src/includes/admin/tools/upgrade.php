@@ -363,18 +363,63 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
  * Previously named: bbp_admin_repair_group_forum_relationships().
  *
  * @since 2.6.0 bbPress (r6496)
+ * @since 2.7.0 bbPress (r8237) Added Dry Run support.
  *
- * @return If a wp_error() occurs and no converted forums are found.
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_group_forum_relationships() {
+	return bbp_admin_upgrade_group_forum_relationships_process();
+}
+
+/**
+ * Preview upgrading group forum ID mappings after a bbPress 1.x conversion.
+ *
+ * @since 2.7.0 bbPress (r8237)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_group_forum_relationships_dry_run() {
+	return bbp_admin_upgrade_group_forum_relationships_process( true );
+}
+
+/**
+ * Upgrade or preview upgrading converted group forum ID mappings.
+ *
+ * @since 2.7.0 bbPress (r8237)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the upgrade process */
-	$statement = esc_html__( 'Upgrading BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
-	$g_count   = 0;
-	$f_count   = 0;
-	$s_count   = 0;
+	$bbp_db           = bbp_db();
+	$no_data          = esc_html__( 'No converted group forums to upgrade.', 'bbpress' );
+	$g_count          = 0;
+	$f_count          = 0;
+	$s_count          = 0;
+	$failure_progress = static function ( $reason, $groups, $forums, $statuses, $dry_run ) {
+		if ( $dry_run ) {
+			return $reason;
+		}
+
+		return sprintf(
+			/* translators: %1$s: Failure reason; %2$s: Number of groups updated; %3$s: Number of forums updated; %4$s: Number of forum statuses synced */
+			esc_html__( '%1$s Progress: %2$s groups updated; %3$s forums updated; %4$s forum statuses synced.', 'bbpress' ),
+			$reason,
+			bbp_number_format( $groups ),
+			bbp_number_format( $forums ),
+			bbp_number_format( $statuses )
+		);
+	};
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the upgrade process */
+		$statement = esc_html__( 'Upgrading BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
+	}
 
 	// Copy the BuddyPress filter here, incase BuddyPress is not active
 	$prefix            = apply_filters( 'bp_core_get_table_prefix', $bbp_db->base_prefix );
@@ -382,25 +427,90 @@ function bbp_admin_upgrade_group_forum_relationships() {
 	$groups_meta_table = $prefix . 'bp_groups_groupmeta';
 
 	// Get the converted forum IDs
-	$forum_ids = $bbp_db->query(
+	$results = $bbp_db->get_results(
 		"SELECT `forum`.`ID`, `forummeta`.`meta_value`
 			FROM `{$bbp_db->posts}` AS `forum`
 				LEFT JOIN `{$bbp_db->postmeta}` AS `forummeta`
 					ON `forum`.`ID` = `forummeta`.`post_id`
 					AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
 			WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
-			GROUP BY `forum`.`ID`"
+			GROUP BY `forum`.`ID`
+			ORDER BY `forum`.`ID`"
 	);
 
-	// Bail if forum IDs returned an error
-	if ( is_wp_error( $forum_ids ) || empty( $bbp_db->last_result ) ) {
-		return array( 2, sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ) );
+	// Bail if converted forum IDs could not be read
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failure_progress( esc_html__( 'Failed! Converted forums could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+			'success' => false,
+		);
 	}
 
-	// Stash the last results
-	$results = $bbp_db->last_result;
+	// Validate converted forum ID mappings before updating any data
+	$converted_forum_ids = array();
+	$native_forum_ids    = array();
+	$forum_group_ids     = array();
+	foreach ( $results as $group_forums ) {
+		$new_id = (string) $group_forums->ID;
 
-	// Update each group forum
+		if ( empty( $group_forums->meta_value ) ) {
+			$native_forum_ids[ $new_id ] = true;
+			continue;
+		}
+
+		$converted_forum_ids[ $new_id ] = (string) $group_forums->meta_value;
+		$forum_group_ids[ $new_id ]     = wp_parse_id_list( get_post_meta( $group_forums->ID, '_bbp_group_ids', true ) );
+	}
+
+	// Bail if no converted forum IDs were found
+	if ( empty( $converted_forum_ids ) ) {
+		return array( 1, sprintf( $statement, $no_data ) );
+	}
+
+	// Validate forum-side relationship markers before planning changes
+	$marked_group_forums = array();
+	$skip_forum_ids      = array();
+	foreach ( $converted_forum_ids as $new_id => $legacy_id ) {
+		$new_id           = (string) $new_id;
+		$stored_group_ids = $forum_group_ids[ $new_id ];
+
+		foreach ( $stored_group_ids as $stored_group_id ) {
+			$stored_forum_ids = $bbp_db->get_var( $bbp_db->prepare( "SELECT `meta_value` FROM `{$groups_meta_table}` WHERE `group_id` = %d AND `meta_key` = %s ORDER BY `group_id` LIMIT 1", $stored_group_id, 'forum_id' ) );
+			if ( ! empty( $bbp_db->last_error ) ) {
+				return array(
+					3,
+					sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+					'success' => false,
+				);
+			}
+
+			$serialized     = is_serialized( $stored_forum_ids );
+			$marker_current = in_array( (int) $new_id, wp_parse_id_list( maybe_unserialize( $stored_forum_ids ) ), true );
+			$marker_legacy  = ! $serialized && ( (string) $stored_forum_ids === (string) $legacy_id );
+
+			if ( $marker_current || $marker_legacy ) {
+				if ( ! isset( $marked_group_forums[ $stored_group_id ] ) ) {
+					$marked_group_forums[ $stored_group_id ] = array();
+				}
+
+				$marked_group_forums[ $stored_group_id ][] = $new_id;
+			}
+
+			if ( $serialized ) {
+				$skip_forum_ids[ $new_id ] = true;
+			}
+		}
+
+		if ( count( $stored_group_ids ) > 1 ) {
+			$skip_forum_ids[ $new_id ] = true;
+		}
+	}
+
+	// Plan each group-forum relationship before updating any data
+	$relationship_plans   = array();
+	$planned_groups       = array();
+	$planned_legacy_ids   = array();
 	foreach ( $results as $group_forums ) {
 
 		// Only update if is a converted forum
@@ -408,47 +518,221 @@ function bbp_admin_upgrade_group_forum_relationships() {
 			continue;
 		}
 
-		// Attempt to update group meta
-		$updated = $bbp_db->query( $bbp_db->prepare( "UPDATE `{$groups_meta_table}` SET `meta_value` = %d WHERE `meta_key` = %s AND `meta_value` = %s", $group_forums->ID, 'forum_id', $group_forums->meta_value ) );
+		$new_id           = (string) $group_forums->ID;
+		$stored_group_ids = $forum_group_ids[ $new_id ];
 
-		// Bump the count
-		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
-			++$g_count;
+		// Leave modern and many-to-many relationships unchanged
+		if ( isset( $skip_forum_ids[ $new_id ] ) ) {
+			continue;
 		}
 
-		// Update group to forum relationship data
-		$group_id = (int) $bbp_db->get_var( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}'" );
-		if ( ! empty( $group_id ) ) {
+		// Get the group connected to the legacy forum ID
+		$legacy_group_ids = array_values( array_unique( array_map( 'intval', $bbp_db->get_col( $bbp_db->prepare( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = %s AND `meta_value` = %s ORDER BY `group_id`", 'forum_id', $group_forums->meta_value ) ) ) ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array(
+				3,
+				sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+				'success' => false,
+			);
+		}
 
-			// Update the group to forum meta connection in forums
-			update_post_meta( $group_forums->ID, '_bbp_group_ids', array( $group_id ) );
+		// Fall back to an already-converted group ID on reruns
+		$current_group_ids = array_values( array_unique( array_map( 'intval', $bbp_db->get_col( $bbp_db->prepare( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = %s AND `meta_value` = %d ORDER BY `group_id`", 'forum_id', $group_forums->ID ) ) ) ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array(
+				3,
+				sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+				'success' => false,
+			);
+		}
 
-			// Get the group status
-			$group_status = $bbp_db->get_var( "SELECT `status` FROM `{$groups_table}` WHERE `id` = '{$group_id}'" );
+		$available_legacy_group_ids = array();
+		$available_current_group_ids = array();
 
-			// Sync up forum visibility based on group status
-			switch ( $group_status ) {
+		foreach ( $legacy_group_ids as $candidate_group_id ) {
+			if ( ! isset( $marked_group_forums[ $candidate_group_id ] ) || in_array( $new_id, $marked_group_forums[ $candidate_group_id ], true ) ) {
+				$available_legacy_group_ids[] = $candidate_group_id;
+			}
+		}
 
-				// Public groups have public forums
-				case 'public' :
-					bbp_publicize_forum( $group_forums->ID );
+		foreach ( $current_group_ids as $candidate_group_id ) {
+			if ( ! isset( $marked_group_forums[ $candidate_group_id ] ) || in_array( $new_id, $marked_group_forums[ $candidate_group_id ], true ) ) {
+				$available_current_group_ids[] = $candidate_group_id;
+			}
+		}
 
-					// Bump the count for output later
-					++$s_count;
-					break;
+		$stored_group_id = ! empty( $stored_group_ids ) ? reset( $stored_group_ids ) : 0;
+		$stored_group_id = in_array( $stored_group_id, $legacy_group_ids, true ) || in_array( $stored_group_id, $current_group_ids, true )
+			? $stored_group_id
+			: 0;
 
-				// Private/hidden groups have hidden forums
-				case 'private' :
-				case 'hidden'  :
-					bbp_hide_forum( $group_forums->ID );
-
-					// Bump the count for output later
-					++$s_count;
-					break;
+		if ( ! empty( $stored_group_id ) ) {
+			$group_id           = $stored_group_id;
+			$legacy_group_match = in_array( $stored_group_id, $legacy_group_ids, true );
+		} else {
+			if ( ( count( $available_legacy_group_ids ) > 1 ) || ( count( $available_current_group_ids ) > 1 ) ) {
+				return array(
+					7,
+					sprintf( $statement, $failure_progress( esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+					'success' => false,
+				);
 			}
 
-			// Bump the count for output later
-			++$f_count;
+			$legacy_group_id    = ! empty( $available_legacy_group_ids ) ? reset( $available_legacy_group_ids ) : 0;
+			$current_group_id   = ! empty( $available_current_group_ids ) ? reset( $available_current_group_ids ) : 0;
+			$group_id           = ! empty( $legacy_group_id ) ? $legacy_group_id : $current_group_id;
+			$legacy_group_match = ! empty( $legacy_group_id );
+		}
+
+		if ( empty( $group_id ) ) {
+			continue;
+		}
+
+		$needs_group_update = $legacy_group_match && ( (string) $group_forums->meta_value !== $new_id );
+
+		if ( $needs_group_update ) {
+			$legacy_id = (string) $group_forums->meta_value;
+
+			if ( isset( $planned_legacy_ids[ $legacy_id ] ) && ( $planned_legacy_ids[ $legacy_id ] !== $new_id ) ) {
+				return array(
+					7,
+					sprintf( $statement, esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) ),
+					'success' => false,
+				);
+			}
+
+			if ( ( $legacy_id !== $new_id ) && isset( $native_forum_ids[ $legacy_id ] ) ) {
+				return array(
+					7,
+					sprintf( $statement, esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) ),
+					'success' => false,
+				);
+			}
+
+			$planned_legacy_ids[ $legacy_id ] = $new_id;
+		}
+
+		if ( isset( $planned_groups[ $group_id ] ) && ( $planned_groups[ $group_id ] !== $new_id ) ) {
+			return array(
+				7,
+				sprintf( $statement, $failure_progress( esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+				'success' => false,
+			);
+		}
+
+		$planned_groups[ $group_id ] = $new_id;
+
+		// Get the group status
+		$group_status = $bbp_db->get_var( $bbp_db->prepare( "SELECT `status` FROM `{$groups_table}` WHERE `id` = %d", $group_id ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array(
+				4,
+				sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress groups could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+				'success' => false,
+			);
+		}
+
+		// Plan forum metadata and visibility changes
+		$needs_forum_update = ( array( $group_id ) !== $stored_group_ids );
+		$target_visibility  = '';
+
+		switch ( $group_status ) {
+			case 'public' :
+				$target_visibility = bbp_get_public_status_id();
+				break;
+
+			case 'private' :
+			case 'hidden'  :
+				$target_visibility = bbp_get_hidden_status_id();
+				break;
+		}
+
+		$current_visibility  = bbp_get_forum_visibility( $group_forums->ID );
+		$hidden_forum_ids    = wp_parse_id_list( get_option( '_bbp_hidden_forums', array() ) );
+		$private_forum_ids   = wp_parse_id_list( get_option( '_bbp_private_forums', array() ) );
+		$is_hidden           = in_array( (int) $group_forums->ID, $hidden_forum_ids, true );
+		$is_private          = in_array( (int) $group_forums->ID, $private_forum_ids, true );
+		$options_need_update = ( bbp_get_public_status_id() === $target_visibility )
+			? ( $is_hidden || $is_private )
+			: ( bbp_get_hidden_status_id() === $target_visibility ) && ( ! $is_hidden || $is_private );
+		$needs_status_update = ! empty( $target_visibility ) && ( ( $target_visibility !== $current_visibility ) || $options_need_update );
+		$relationship_plans[] = array(
+			'forum_id'           => (int) $group_forums->ID,
+			'legacy_id'          => (string) $group_forums->meta_value,
+			'group_id'           => $group_id,
+			'current_visibility' => $current_visibility,
+			'target_visibility'  => $target_visibility,
+			'update_group'       => $needs_group_update,
+			'update_forum'       => $needs_forum_update,
+			'update_status'      => $needs_status_update,
+		);
+
+		if ( $dry_run ) {
+			$g_count += (int) $needs_group_update;
+			$f_count += (int) $needs_forum_update;
+			$s_count += (int) $needs_status_update;
+		}
+	}
+
+	if ( ! $dry_run ) {
+		foreach ( $relationship_plans as $relationship ) {
+			$forum_id          = $relationship['forum_id'];
+			$group_id          = $relationship['group_id'];
+			$current_visibility = $relationship['current_visibility'];
+			$target_visibility  = $relationship['target_visibility'];
+
+			if ( $relationship['update_forum'] ) {
+				$updated = update_post_meta( $forum_id, '_bbp_group_ids', array( $group_id ) );
+				if ( false === $updated ) {
+					return array(
+						8,
+						sprintf( $statement, $failure_progress( esc_html__( 'Failed! Forum group metadata could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+						'success' => false,
+					);
+				}
+
+				++$f_count;
+			}
+
+			if ( $relationship['update_group'] ) {
+				// Attempt to update group meta
+				$updated = $bbp_db->query( $bbp_db->prepare( "UPDATE `{$groups_meta_table}` SET `meta_value` = %d WHERE `group_id` = %d AND `meta_key` = %s AND `meta_value` = %s", $forum_id, $group_id, 'forum_id', $relationship['legacy_id'] ) );
+				if ( empty( $updated ) ) {
+					return array(
+						5,
+						sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+						'success' => false,
+					);
+				}
+
+				++$g_count;
+			}
+
+			if ( $relationship['update_status'] ) {
+				if ( bbp_get_public_status_id() === $target_visibility ) {
+					bbp_publicize_forum( $forum_id, $current_visibility );
+				} else {
+					bbp_hide_forum( $forum_id, $current_visibility );
+				}
+
+				$hidden_forum_ids  = wp_parse_id_list( get_option( '_bbp_hidden_forums', array() ) );
+				$private_forum_ids = wp_parse_id_list( get_option( '_bbp_private_forums', array() ) );
+				$is_hidden         = in_array( $forum_id, $hidden_forum_ids, true );
+				$is_private        = in_array( $forum_id, $private_forum_ids, true );
+				$options_synced    = ( bbp_get_public_status_id() === $target_visibility )
+					? ( ! $is_hidden && ! $is_private )
+					: ( bbp_get_hidden_status_id() === $target_visibility ) && $is_hidden && ! $is_private;
+
+				if ( ( bbp_get_forum_visibility( $forum_id ) !== $target_visibility ) || ! $options_synced ) {
+					return array(
+						9,
+						sprintf( $statement, $failure_progress( esc_html__( 'Failed! Forum visibility could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+						'success' => false,
+					);
+				}
+
+				++$s_count;
+			}
 		}
 	}
 
@@ -471,40 +755,86 @@ function bbp_admin_upgrade_group_forum_relationships() {
 			'numberposts' => 1
 		)
 	);
+	$root_forum_id    = ! empty( $posts ) ? (int) $posts[0]->ID : 0;
+	$rename_root      = ! empty( $root_forum_id ) && ( 'Default Forum' === $posts[0]->post_title );
+	$update_root      = ! empty( $root_forum_id ) && ( (int) get_option( '_bbp_group_forums_root_id' ) !== $root_forum_id );
+	$legacy_role_ids  = array( 'member', 'inactive', 'blocked', 'moderator', 'keymaster' );
+	$legacy_roles     = array();
+
+	foreach ( $legacy_role_ids as $role_id ) {
+		if ( ! empty( get_role( $role_id ) ) ) {
+			$legacy_roles[] = $role_id;
+		}
+	}
 
 	// Found the group root forum
-	if ( ! empty( $posts ) ) {
+	if ( ! empty( $root_forum_id ) && ! $dry_run ) {
 
 		// Rename 'Default Forum'  since it's now visible in sitewide forums
-		if ( 'Default Forum' === $posts[0]->post_title ) {
-			wp_update_post(
+		if ( $rename_root ) {
+			$updated = wp_update_post(
 				array(
 					'ID'         => $posts[0]->ID,
 					'post_title' => esc_html__( 'Group Forums', 'bbpress' ),
 					'post_name'  => esc_html__( 'group-forums', 'bbpress' ),
-				)
+				),
+				true
 			);
+
+			if ( is_wp_error( $updated ) ) {
+				return array(
+					6,
+					sprintf( $statement, $failure_progress( esc_html__( 'Failed! The group forums root could not be renamed.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+					'success' => false,
+				);
+			}
 		}
 
 		// Update the group forums root metadata
-		update_option( '_bbp_group_forums_root_id', $posts[0]->ID );
+		if ( $update_root ) {
+			update_option( '_bbp_group_forums_root_id', $root_forum_id );
+			if ( (int) get_option( '_bbp_group_forums_root_id' ) !== $root_forum_id ) {
+				return array(
+					10,
+					sprintf( $statement, $failure_progress( esc_html__( 'Failed! The group forums root setting could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
+					'success' => false,
+				);
+			}
+		}
 	}
 
 	// Remove old bbPress 1.1 roles (BuddyPress)
-	remove_role( 'member'    );
-	remove_role( 'inactive'  );
-	remove_role( 'blocked'   );
-	remove_role( 'moderator' );
-	remove_role( 'keymaster' );
+	if ( ! $dry_run ) {
+		foreach ( $legacy_roles as $role_id ) {
+			remove_role( $role_id );
+		}
+	}
 
 	// Complete results
-	$result = sprintf(
-		/* translators: %1$s: Number of groups updated; %2$s: Number of forums updated; %3$s: Number of forum statuses synced */
-		esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ),
-		bbp_number_format( $g_count ),
-		bbp_number_format( $f_count ),
-		bbp_number_format( $s_count )
-	);
+	if ( $dry_run ) {
+		$role_list = ! empty( $legacy_roles )
+			? implode( ', ', $legacy_roles )
+			: esc_html__( 'none', 'bbpress' );
+		$result = sprintf(
+			/* translators: %1$s: Number of groups that would be updated; %2$s: Number of forums that would be updated; %3$s: Number of forum statuses that would be synced; %4$s: Number of group root settings that would be updated; %5$s: Number of forums that would be renamed; %6$s: Number of legacy roles that would be removed; %7$s: Legacy role IDs */
+			esc_html__( 'Dry run complete! %1$s groups would be updated; %2$s forums would be updated; %3$s forum statuses would be synced; %4$s group root settings would be updated; %5$s forums would be renamed; %6$s legacy roles would be removed (%7$s).', 'bbpress' ),
+			bbp_number_format( $g_count ),
+			bbp_number_format( $f_count ),
+			bbp_number_format( $s_count ),
+			bbp_number_format( (int) $update_root ),
+			bbp_number_format( (int) $rename_root ),
+			bbp_number_format( count( $legacy_roles ) ),
+			$role_list
+		);
+	} else {
+		$result = sprintf(
+			/* translators: %1$s: Number of groups updated; %2$s: Number of forums updated; %3$s: Number of forum statuses synced */
+			esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ),
+			bbp_number_format( $g_count ),
+			bbp_number_format( $f_count ),
+			bbp_number_format( $s_count )
+		);
+	}
 
 	// Return
 	return array( 0, sprintf( $statement, $result ) );

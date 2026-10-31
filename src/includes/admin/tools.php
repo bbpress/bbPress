@@ -604,7 +604,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade BuddyPress Group Forum relationships', 'bbpress' ),
 			'description' => esc_html__( 'Run this if you just upgraded BuddyPress Forums from Legacy.', 'bbpress' ),
-			'callback'    => 'bbp_admin_upgrade_group_forum_relationship',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_upgrade_group_forum_relationships',
+				'dry-run' => 'bbp_admin_upgrade_group_forum_relationships_dry_run',
+			),
 			'priority'    => 140,
 			'version'     => esc_html__( 'Any', 'bbpress' ),
 			'overhead'    => 'low',
