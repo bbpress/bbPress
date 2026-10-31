@@ -84,7 +84,7 @@ function bbp_admin_repair_clean_post_meta_cache_batched( $post_types = array(), 
 	$last_post_id = 0;
 
 	do {
-		$post_ids = $bbp_db->get_col(
+		$post_ids   = $bbp_db->get_col(
 			$bbp_db->prepare(
 				"SELECT DISTINCT `post_id` FROM `{$bbp_db->postmeta}`
 				WHERE `meta_key` = %s
@@ -109,6 +109,83 @@ function bbp_admin_repair_clean_post_meta_cache_batched( $post_types = array(), 
 	} while ( 1000 === $post_count );
 
 	return true;
+}
+
+/**
+ * Delete orphaned freshness metadata in bounded batches.
+ *
+ * Cache entries are cleared before and after each delete so another request
+ * cannot leave deleted metadata in a persistent object cache.
+ *
+ * @since 2.7.0 bbPress (r8241)
+ *
+ * @param array $post_types Post types whose freshness metadata is valid.
+ * @param array $meta_keys  Freshness metadata keys to delete.
+ * @return int Zero on success, 1 on a delete error, or 14 on a read error.
+ */
+function bbp_admin_repair_delete_orphaned_freshness_batched( $post_types = array(), $meta_keys = array() ) {
+	$bbp_db     = bbp_db();
+	$post_types = array_values( array_unique( array_filter( (array) $post_types ) ) );
+	$meta_keys  = array_values( array_unique( array_filter( (array) $meta_keys ) ) );
+
+	if ( empty( $post_types ) || empty( $meta_keys ) ) {
+		return 0;
+	}
+
+	$post_type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+	$meta_key_placeholders  = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+	$last_post_id           = -1;
+
+	do {
+		$query_args = array_merge( $post_types, $meta_keys, array( $last_post_id ) );
+		$post_ids   = $bbp_db->get_col(
+			$bbp_db->prepare(
+				"SELECT DISTINCT `freshness`.`post_id`
+				FROM `{$bbp_db->postmeta}` AS `freshness`
+				LEFT JOIN `{$bbp_db->posts}` AS `content`
+					ON `freshness`.`post_id` = `content`.`ID`
+					AND `content`.`post_type` IN ( {$post_type_placeholders} )
+				WHERE `freshness`.`meta_key` IN ( {$meta_key_placeholders} )
+					AND `content`.`ID` IS NULL
+					AND `freshness`.`post_id` > %d
+				ORDER BY `freshness`.`post_id`
+				LIMIT 1000",
+				$query_args
+			)
+		);
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return 14;
+		}
+
+		$post_ids   = array_values( array_unique( array_map( 'intval', $post_ids ) ) );
+		$post_count = count( $post_ids );
+
+		if ( ! empty( $post_ids ) ) {
+			wp_cache_delete_multiple( $post_ids, 'post_meta' );
+
+			$post_id_placeholders = implode( ', ', array_fill( 0, $post_count, '%d' ) );
+			$delete_args          = array_merge( $post_ids, $meta_keys );
+			$deleted              = $bbp_db->query(
+				$bbp_db->prepare(
+					"DELETE FROM `{$bbp_db->postmeta}`
+					WHERE `post_id` IN ( {$post_id_placeholders} )
+						AND `meta_key` IN ( {$meta_key_placeholders} )",
+					$delete_args
+				)
+			);
+
+			wp_cache_delete_multiple( $post_ids, 'post_meta' );
+
+			if ( false === $deleted ) {
+				return 1;
+			}
+
+			$last_post_id = (int) end( $post_ids );
+		}
+	} while ( 1000 === $post_count );
+
+	return 0;
 }
 
 /**
@@ -1982,136 +2059,264 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
  * Repair the last post in every topic and forum.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8241) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_freshness() {
+	return bbp_admin_repair_freshness_process();
+}
+
+/**
+ * Preview repairing the last post in every topic and forum.
+ *
+ * @since 2.7.0 bbPress (r8241)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_freshness_dry_run() {
+	return bbp_admin_repair_freshness_process( true );
+}
+
+/**
+ * Repair or preview repairing the last post in every topic and forum.
+ *
+ * @since 2.7.0 bbPress (r8241)
+ *
+ * @param bool $dry_run Whether to preview the rebuild without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_freshness_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db           = bbp_db();
+	$failed           = esc_html__( 'Failed!', 'bbpress' );
+	$fpt              = bbp_get_forum_post_type();
+	$tpt              = bbp_get_topic_post_type();
+	$rpt              = bbp_get_reply_post_type();
+	$pps              = bbp_get_public_status_id();
+	$keys             = array( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );
+	$key_placeholders = implode( ', ', array_fill( 0, count( $keys ), '%s' ) );
 
-	// First, delete everything.
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' )" ) ) ) {
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking latest post in every topic and forum&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
+	}
+
+	$topic_count = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM `{$bbp_db->posts}` WHERE `post_type` = %s", $tpt ) );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			11,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$forum_count = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM `{$bbp_db->posts}` WHERE `post_type` = %s", $fpt ) );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			12,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$stale_count = $bbp_db->get_var(
+		$bbp_db->prepare(
+			"SELECT COUNT( `freshness`.`meta_id` )
+			FROM `{$bbp_db->postmeta}` AS `freshness`
+			LEFT JOIN `{$bbp_db->posts}` AS `content`
+				ON `freshness`.`post_id` = `content`.`ID`
+				AND `content`.`post_type` IN ( %s, %s )
+			WHERE `freshness`.`meta_key` IN ( {$key_placeholders} )
+				AND `content`.`ID` IS NULL",
+			array_merge( array( $fpt, $tpt ), $keys )
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			13,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$topic_count = (int) $topic_count;
+	$forum_count = (int) $forum_count;
+	$stale_count = (int) $stale_count;
+
+	if ( empty( $topic_count ) && empty( $forum_count ) && empty( $stale_count ) ) {
+		$result = esc_html__( 'No topic or forum freshness data to recalculate.', 'bbpress' );
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Post types and status
-	$fpt = bbp_get_forum_post_type();
-	$tpt = bbp_get_topic_post_type();
-	$rpt = bbp_get_reply_post_type();
-	$pps = bbp_get_public_status_id();
+	$topic_result = sprintf(
+		/* translators: %s: Number of topics */
+		esc_html( _n( '%s topic would be recalculated.', '%s topics would be recalculated.', $topic_count, 'bbpress' ) ),
+		bbp_number_format( $topic_count )
+	);
+	$forum_result = sprintf(
+		/* translators: %s: Number of forums */
+		esc_html( _n( '%s forum would be recalculated.', '%s forums would be recalculated.', $forum_count, 'bbpress' ) ),
+		bbp_number_format( $forum_count )
+	);
+	$stale_result = sprintf(
+		/* translators: %s: Number of orphaned freshness rows */
+		esc_html( _n( '%s orphaned freshness row would be removed.', '%s orphaned freshness rows would be removed.', $stale_count, 'bbpress' ) ),
+		bbp_number_format( $stale_count )
+	);
 
-	// Next, give all the topics with replies the ID their last reply.
-	if ( is_wp_error(
-		$bbp_db->query(
+	if ( $dry_run ) {
+		$result = esc_html__( 'Dry run complete!', 'bbpress' ) . ' ' . $topic_result . ' ' . $forum_result . ' ' . $stale_result;
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	$forums = $bbp_db->get_col(
+		$bbp_db->prepare(
+			"SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` != %s",
+			$fpt,
+			'auto-draft'
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			10,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$clean_cache = static function () use ( $fpt, $tpt ) {
+		return bbp_admin_repair_clean_post_meta_cache_batched( array( $fpt, $tpt ) );
+	};
+
+	if ( ! $clean_cache() ) {
+		return array(
+			14,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$orphan_result = bbp_admin_repair_delete_orphaned_freshness_batched( array( $fpt, $tpt ), $keys );
+	if ( ! empty( $orphan_result ) ) {
+		return array(
+			$orphan_result,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$delete_args  = array_merge( $keys, array( $fpt, $tpt ) );
+	$delete_query = $bbp_db->prepare(
+		"DELETE `freshness`
+		FROM `{$bbp_db->postmeta}` AS `freshness`
+		INNER JOIN `{$bbp_db->posts}` AS `content`
+			ON `freshness`.`post_id` = `content`.`ID`
+		WHERE `freshness`.`meta_key` IN ( {$key_placeholders} )
+			AND `content`.`post_type` IN ( %s, %s )",
+		$delete_args
+	);
+
+	if ( false === $bbp_db->query( $delete_query ) ) {
+		$clean_cache();
+
+		return array(
+			1,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$queries = array(
+		2 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` )"
-		)
-	) ) {
-		return array( 2, sprintf( $statement, $result ) );
-	}
-
-	// For any remaining topics, give a reply ID of 0.
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `reply`.`post_status` = %s AND `topic`.`post_type` = %s AND `reply`.`post_type` = %s
+			GROUP BY `topic`.`ID` )",
+			$pps,
+			$tpt,
+			$rpt
+		),
+		3 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_reply_id', 0
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_reply_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )"
-		)
-	) ) {
-		return array( 3, sprintf( $statement, $result ) );
-	}
-
-	// Now we give all the forums with topics the ID their last topic.
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = %s )",
+			$tpt
+		),
+		4 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_last_topic_id', MAX( `topic`.`ID` )
 			FROM `{$bbp_db->posts}` AS `forum` INNER JOIN `{$bbp_db->posts}` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
-			WHERE `topic`.`post_status` = '{$pps}' AND `forum`.`post_type` = '{$fpt}' AND `topic`.`post_type` = '{$tpt}'
-			GROUP BY `forum`.`ID` )"
-		)
-	) ) {
-		return array( 4, sprintf( $statement, $result ) );
-	}
-
-	// For any remaining forums, give a topic ID of 0.
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `topic`.`post_status` = %s AND `forum`.`post_type` = %s AND `topic`.`post_type` = %s
+			GROUP BY `forum`.`ID` )",
+			$pps,
+			$fpt,
+			$tpt
+		),
+		5 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_topic_id', 0
 			FROM `{$bbp_db->posts}` AS `forum` LEFT JOIN `{$bbp_db->postmeta}` AS `topic`
 			ON `forum`.`ID` = `topic`.`post_id` AND `topic`.`meta_key` = '_bbp_last_topic_id'
-			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = '{$fpt}' )"
-		)
-	) ) {
-		return array( 5, sprintf( $statement, $result ) );
-	}
-
-	// After that, we give all the topics with replies the ID their last reply (again, this time for a different reason).
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = %s )",
+			$fpt
+		),
+		6 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` )"
-		)
-	) ) {
-		return array( 6, sprintf( $statement, $result ) );
-	}
-
-	// For any remaining topics, give a reply ID of themself.
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `reply`.`post_status` = %s AND `topic`.`post_type` = %s AND `reply`.`post_type` = %s
+			GROUP BY `topic`.`ID` )",
+			$pps,
+			$tpt,
+			$rpt
+		),
+		7 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_active_id', `ID`
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )"
-		)
-	) ) {
-		return array( 7, sprintf( $statement, $result ) );
-	}
-
-	// Give topics with replies their last update time.
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = %s )",
+			$tpt
+		),
+		8 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` )"
-		)
-	) ) {
-		return array( 8, sprintf( $statement, $result ) );
-	}
-
-	// Give topics without replies their last update time.
-	if ( is_wp_error(
-		$bbp_db->query(
+			WHERE `reply`.`post_status` = %s AND `topic`.`post_type` = %s AND `reply`.`post_type` = %s
+			GROUP BY `topic`.`ID` )",
+			$pps,
+			$tpt,
+			$rpt
+		),
+		9 => $bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_active_time', `post_date`
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_time'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )"
-		)
-	) ) {
-		return array( 9, sprintf( $statement, $result ) );
-	}
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = %s )",
+			$tpt
+		),
+	);
 
-	// Forums need to know what their last active item is as well. Now it gets a bit more complex to do in the database.
-	$forums = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$fpt}' and `post_status` != 'auto-draft'" );
-	if ( is_wp_error( $forums ) ) {
-		return array( 10, sprintf( $statement, $result ) );
+	foreach ( $queries as $code => $query ) {
+		if ( false === $bbp_db->query( $query ) ) {
+			$clean_cache();
+
+			return array(
+				$code,
+				sprintf( $statement, $failed ),
+				'success' => false
+			);
+		}
 	}
 
 	// Loop through forums
@@ -2128,8 +2333,32 @@ function bbp_admin_repair_freshness() {
 		}
 	}
 
-	// Complete results
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	if ( ! $clean_cache() ) {
+		return array(
+			14,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+
+	$topic_result = sprintf(
+		/* translators: %s: Number of topics */
+		esc_html( _n( '%s topic recalculated.', '%s topics recalculated.', $topic_count, 'bbpress' ) ),
+		bbp_number_format( $topic_count )
+	);
+	$forum_result = sprintf(
+		/* translators: %s: Number of forums */
+		esc_html( _n( '%s forum recalculated.', '%s forums recalculated.', $forum_count, 'bbpress' ) ),
+		bbp_number_format( $forum_count )
+	);
+	$stale_result = sprintf(
+		/* translators: %s: Number of orphaned freshness rows */
+		esc_html( _n( '%s orphaned freshness row removed.', '%s orphaned freshness rows removed.', $stale_count, 'bbpress' ) ),
+		bbp_number_format( $stale_count )
+	);
+	$result = esc_html__( 'Complete!', 'bbpress' ) . ' ' . $topic_result . ' ' . $forum_result . ' ' . $stale_result;
+
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
