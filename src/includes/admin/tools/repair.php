@@ -891,18 +891,21 @@ function bbp_admin_repair_forum_topic_count_get_status() {
 	$fpt                = bbp_get_forum_post_type();
 	$tpt                = bbp_get_topic_post_type();
 	$rpt                = bbp_get_reply_post_type();
-	$countable_statuses = array_values( array_unique( array_filter( bbp_get_countable_forum_statuses() ) ) );
+	$countable_statuses = bbp_get_string_array_values( bbp_get_countable_forum_statuses() );
 	$public_statuses    = array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) );
 	$hidden_statuses    = array_values( array_unique( array_filter( bbp_get_non_public_topic_statuses() ) ) );
 	$meta_keys          = array( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' );
 
-	$forum_rows = $bbp_db->get_results(
+	$countable_sql = ! empty( $countable_statuses )
+		? '`post_status` IN ( ' . implode( ', ', array_fill( 0, count( $countable_statuses ), '%s' ) ) . ' )'
+		: '0';
+	$forum_rows   = $bbp_db->get_results(
 		$bbp_db->prepare(
-			"SELECT `ID`, `post_parent`, `post_status`
+			"SELECT `ID`, `post_parent`, `post_status`, {$countable_sql} AS `is_countable`
 			FROM `{$bbp_db->posts}`
 			WHERE `post_type` = %s
 			ORDER BY `ID`",
-			$fpt
+			array_merge( $countable_statuses, array( $fpt ) )
 		),
 		ARRAY_A
 	);
@@ -950,7 +953,6 @@ function bbp_admin_repair_forum_topic_count_get_status() {
 	$children            = array();
 	$direct_counts       = array();
 	$stored              = array();
-	$countable_lookup    = array_fill_keys( $countable_statuses, true );
 	$hidden_lookup       = array_fill_keys( $hidden_statuses, true );
 
 	foreach ( $forum_rows as $forum ) {
@@ -960,7 +962,7 @@ function bbp_admin_repair_forum_topic_count_get_status() {
 			'status'    => $forum['post_status'],
 		);
 
-		if ( isset( $countable_lookup[ $forum['post_status'] ] ) ) {
+		if ( ! empty( $forum['is_countable'] ) ) {
 			$countable_forum_ids[] = $forum_id;
 			$children[ (int) $forum['post_parent'] ][] = $forum_id;
 		}
@@ -1730,19 +1732,22 @@ function bbp_admin_repair_forum_reply_count_get_status() {
 	$fpt                = bbp_get_forum_post_type();
 	$tpt                = bbp_get_topic_post_type();
 	$rpt                = bbp_get_reply_post_type();
-	$countable_statuses = array_values( array_unique( array_filter( bbp_get_countable_forum_statuses() ) ) );
+	$countable_statuses = bbp_get_string_array_values( bbp_get_countable_forum_statuses() );
 	$topic_statuses     = array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) );
 	$reply_statuses     = array_values( array_unique( array_filter( bbp_get_public_reply_statuses() ) ) );
 	$meta_keys          = array( '_bbp_reply_count', '_bbp_total_reply_count' );
 	$type_key           = '_bbp_forum_type';
 
-	$forum_rows = $bbp_db->get_results(
+	$countable_sql = ! empty( $countable_statuses )
+		? '`post_status` IN ( ' . implode( ', ', array_fill( 0, count( $countable_statuses ), '%s' ) ) . ' )'
+		: '0';
+	$forum_rows   = $bbp_db->get_results(
 		$bbp_db->prepare(
-			"SELECT `ID`, `post_parent`, `post_status`
+			"SELECT `ID`, `post_parent`, `post_status`, {$countable_sql} AS `is_countable`
 			FROM `{$bbp_db->posts}`
 			WHERE `post_type` = %s
 			ORDER BY `ID`",
-			$fpt
+			array_merge( $countable_statuses, array( $fpt ) )
 		),
 		ARRAY_A
 	);
@@ -1806,7 +1811,6 @@ function bbp_admin_repair_forum_reply_count_get_status() {
 	$direct_counts       = array();
 	$forum_types         = array();
 	$stored              = array();
-	$countable_lookup    = array_fill_keys( $countable_statuses, true );
 
 	foreach ( $forum_rows as $forum ) {
 		$forum_id            = (int) $forum['ID'];
@@ -1815,7 +1819,7 @@ function bbp_admin_repair_forum_reply_count_get_status() {
 			'status'    => $forum['post_status'],
 		);
 
-		if ( isset( $countable_lookup[ $forum['post_status'] ] ) ) {
+		if ( ! empty( $forum['is_countable'] ) ) {
 			$countable_forum_ids[] = $forum_id;
 			$children[ (int) $forum['post_parent'] ][] = $forum_id;
 		}

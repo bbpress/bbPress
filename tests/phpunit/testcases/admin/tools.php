@@ -2405,6 +2405,50 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_forum_topic_count
+	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
+	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
+	 */
+	public function test_forum_topic_and_reply_count_dry_runs_use_database_status_collation() {
+		$db        = bbp_db();
+		$parent_id = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$forum_id  = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id  = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$this->assertSame( 1, $db->update( $db->posts, array( 'post_status' => 'PuBLish' ), array( 'ID' => $forum_id ) ) );
+		clean_post_cache( $forum_id );
+
+		foreach ( array( $parent_id, $forum_id ) as $counted_forum_id ) {
+			delete_post_meta( $counted_forum_id, '_bbp_topic_count' );
+			delete_post_meta( $counted_forum_id, '_bbp_total_topic_count' );
+			delete_post_meta( $counted_forum_id, '_bbp_topic_count_hidden' );
+			delete_post_meta( $counted_forum_id, '_bbp_total_topic_count_hidden' );
+			delete_post_meta( $counted_forum_id, '_bbp_reply_count' );
+			delete_post_meta( $counted_forum_id, '_bbp_total_reply_count' );
+		}
+
+		$topic_dry_run = bbp_admin_repair_forum_topic_count_dry_run();
+		$this->assertSame( 0, $topic_dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired in 2 forums', $topic_dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_topic_count()[0] );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $parent_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, true, true ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_topic_count_dry_run()[0] );
+
+		$reply_dry_run = bbp_admin_repair_forum_reply_count_dry_run();
+		$this->assertSame( 0, $reply_dry_run[0] );
+		$this->assertStringContainsString( 'Reply counts would be repaired in 2 forums', $reply_dry_run[1] );
+		$this->assertSame( 0, bbp_admin_repair_forum_reply_count()[0] );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $parent_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
