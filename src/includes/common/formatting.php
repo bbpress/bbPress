@@ -1035,7 +1035,7 @@ function bbp_format_user_display_name( $display_name = '' ) {
 		}
 
 	// Fallback to deprecated WordPress & PHP functions
-	} elseif ( seems_utf8( $display_name ) === false ) {
+	} elseif ( seems_utf8( $display_name ) === false ) { // phpcs:ignore WordPress.WP.DeprecatedFunctions.seems_utf8Found -- Compatibility fallback for WordPress versions before 6.9 without mbstring.
 		$retval = utf8_encode( $display_name ); // phpcs:ignore
 	}
 
