@@ -36,6 +36,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->set_current_user( $this->old_current_user );
 	}
 
+	protected function assert_unique_html_ids( $html ) {
+		preg_match_all( '/\sid="([^"]+)"/', $html, $matches );
+		$duplicates = array_filter(
+			array_count_values( $matches[1] ),
+			static function ( $count ) {
+				return 1 < $count;
+			}
+		);
+
+		$this->assertSame( array(), $duplicates, 'Duplicate HTML IDs: ' . implode( ', ', array_keys( $duplicates ) ) );
+	}
+
 	/**
 	 * @covers ::bbp_admin_repair_page
 	 */
@@ -44,6 +56,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$original_tools = bbp_admin()->tools;
 		$_GET           = array( 'page' => 'bbp-repair' );
 		bbp_register_default_repair_tools();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'bbp-test-select-action',
+				'type'      => 'repair',
+				'title'     => 'Test select action',
+				'callbacks' => array(
+					'run'    => '__return_true',
+					'select' => '__return_true',
+				),
+				'priority'  => 999,
+			)
+		);
 
 		try {
 			ob_start();
@@ -53,6 +77,43 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertStringContainsString( 'name="page" value="bbp-repair"', $output );
 			$this->assertStringContainsString( 'name="checked[]"', $output );
 			$this->assertStringContainsString( 'name="_wpnonce"', $output );
+			$this->assertStringContainsString( 'id="bbp-repair-tool-bbp-sync-topic-meta"', $output );
+			$this->assertStringContainsString( 'class="bbp-repair-tools inactive"', $output );
+			$this->assertStringContainsString( 'id="cb-select-bbp-sync-topic-meta"', $output );
+			$this->assertStringContainsString( 'id="bbp-sync-topic-meta"', $output );
+			$this->assertStringContainsString( 'id="cb-select-bbp-test-select-action"', $output );
+			$this->assertStringContainsString( 'id="bbp-test-select-action-select"', $output );
+			$this->assertStringContainsString( 'Select Recalculate parent topic for each reply', $output );
+			$this->assert_unique_html_ids( $output );
+		} finally {
+			$_GET              = $original_get;
+			bbp_admin()->tools = $original_tools;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_page
+	 */
+	public function test_bbp_admin_upgrade() {
+		$original_get   = $_GET;
+		$original_tools = bbp_admin()->tools;
+		$_GET           = array( 'page' => 'bbp-upgrade' );
+		bbp_register_default_repair_tools();
+
+		try {
+			ob_start();
+			bbp_admin_upgrade_page();
+			$output = ob_get_clean();
+
+			$this->assertStringContainsString( 'name="page" value="bbp-upgrade"', $output );
+			$this->assertStringContainsString( 'name="checked[]"', $output );
+			$this->assertStringContainsString( 'name="_wpnonce"', $output );
+			$this->assertStringContainsString( 'id="bbp-repair-tool-bbp-user-topic-engagements-move"', $output );
+			$this->assertStringContainsString( 'class="bbp-repair-tools inactive"', $output );
+			$this->assertStringContainsString( 'id="cb-select-bbp-user-topic-engagements-move"', $output );
+			$this->assertStringContainsString( 'id="bbp-user-topic-engagements-move"', $output );
+			$this->assertStringContainsString( 'Select Upgrade user topic engagements', $output );
+			$this->assert_unique_html_ids( $output );
 		} finally {
 			$_GET              = $original_get;
 			bbp_admin()->tools = $original_tools;
@@ -4906,7 +4967,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 			$run = bbp_admin_repair_user_roles();
 			$this->assertSame( 0, $run[0] );
-			$this->assertStringContainsString( 'Complete! 1 users updated', $run[1] );
+			$this->assertStringContainsString( 'Complete! 1 user updated', $run[1] );
 			$this->assertSame( array( $blocked ), array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) ) );
 		} finally {
 			remove_filter( 'bbp_get_user_role_map', $block_map );
@@ -4933,7 +4994,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 1 users updated', $run[1] );
+		$this->assertStringContainsString( 'Complete! 1 user updated', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
@@ -4994,7 +5055,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 1 users updated', $run[1] );
+		$this->assertStringContainsString( 'Complete! 1 user updated', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 

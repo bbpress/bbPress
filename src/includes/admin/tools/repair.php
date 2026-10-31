@@ -278,7 +278,7 @@ function bbp_admin_repair_page() {
 								<span class="sorting-indicator"></span>
 							</a>
 						</th>
-						<th scope="col" id="components" class="manage-column column-components">
+						<th scope="col" id="bbp-tool-components" class="manage-column column-components">
 							<span><?php esc_html_e( 'Components', 'bbpress' ); ?></span>
 						</th>
 						<th scope="col" id="overhead" class="manage-column column-overhead sortable <?php echo ( 'overhead' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
@@ -307,12 +307,25 @@ function bbp_admin_repair_page() {
 
 					<?php if ( ! empty( $tools ) ) : ?>
 
-						<?php foreach ( $tools as $item ) : ?>
+						<?php foreach ( $tools as $item ) :
 
-							<tr id="bbp-repair-tools" class="inactive">
+							$item_html_id = str_replace( '_', '-', $item['id'] );
+							$select_id    = 'cb-select-' . $item_html_id;
+
+							?>
+
+							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive">
 								<th scope="row" class="check-column">
-									<label class="screen-reader-text" for="<?php echo esc_attr( str_replace( '_', '-', $item['id'] ) ); ?>"></label>
-									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( str_replace( '_', '-', $item['id'] ) ); ?>">
+									<label class="screen-reader-text" for="<?php echo esc_attr( $select_id ); ?>">
+										<?php
+										printf(
+											/* translators: %s: Repair tool title */
+											esc_html__( 'Select %s', 'bbpress' ),
+											esc_html( $item['title'] )
+										);
+										?>
+									</label>
+									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( $select_id ); ?>">
 								</th>
 								<td class="bbp-tool-title column-primary column-description"
 									data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
@@ -3420,8 +3433,8 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
 		/* translators: %s: Number of users whose forum role would be updated */
 		$result = sprintf( _n( 'Dry run complete! %s user would be updated.', 'Dry run complete! %s users would be updated.', $changed, 'bbpress' ), bbp_number_format( $changed ) );
 	} else {
-		/* translators: %s: Number of updated users */
-		$result = sprintf( esc_html__( 'Complete! %s users updated.', 'bbpress' ), bbp_number_format( $changed ) );
+		/* translators: %s: Number of users whose forum role was updated */
+		$result = sprintf( _n( 'Complete! %s user updated.', 'Complete! %s users updated.', $changed, 'bbpress' ), bbp_number_format( $changed ) );
 	}
 
 	return array( 0, sprintf( $statement, $result ) );

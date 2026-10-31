@@ -96,7 +96,7 @@ function bbp_admin_upgrade_page() {
 								<span class="sorting-indicator"></span>
 							</a>
 						</th>
-						<th scope="col" id="version" class="manage-column column-version sortable <?php echo ( 'version' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
+						<th scope="col" id="bbp-tool-version" class="manage-column column-version sortable <?php echo ( 'version' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
 							<a href="
 								<?php
 								echo esc_url(
@@ -112,7 +112,7 @@ function bbp_admin_upgrade_page() {
 								<span class="sorting-indicator"></span>
 							</a>
 						</th>
-						<th scope="col" id="components" class="manage-column column-components">
+						<th scope="col" id="bbp-tool-components" class="manage-column column-components">
 							<?php esc_html_e( 'Components', 'bbpress' ); ?>
 						</th>
 						<th scope="col" id="overhead" class="manage-column column-overhead sortable <?php echo ( 'overhead' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
@@ -138,12 +138,25 @@ function bbp_admin_upgrade_page() {
 
 					<?php if ( ! empty( $tools ) ) : ?>
 
-						<?php foreach ( $tools as $item ) : ?>
+						<?php foreach ( $tools as $item ) :
 
-							<tr id="bbp-repair-tools" class="inactive">
+							$item_html_id = str_replace( '_', '-', $item['id'] );
+							$select_id    = 'cb-select-' . $item_html_id;
+
+							?>
+
+							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive">
 								<th scope="row" class="check-column">
-									<label class="screen-reader-text" for="<?php echo esc_attr( str_replace( '_', '-', $item['id'] ) ); ?>"></label>
-									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( str_replace( '_', '-', $item['id'] ) ); ?>">
+									<label class="screen-reader-text" for="<?php echo esc_attr( $select_id ); ?>">
+										<?php
+										printf(
+											/* translators: %s: Upgrade tool title */
+											esc_html__( 'Select %s', 'bbpress' ),
+											esc_html( $item['title'] )
+										);
+										?>
+									</label>
+									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( $select_id ); ?>">
 								</th>
 								<td class="bbp-tool-title column-primary column-description" data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
 									<strong><?php echo esc_html( $item['title'] ); ?></strong><?php
