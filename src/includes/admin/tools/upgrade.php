@@ -1086,36 +1086,90 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = fa
  * Remove topic subscriptions data from user meta for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6281)
+ * @since 2.7.0 bbPress (r8235) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
+	return bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process();
+}
+
+/**
+ * Preview removing topic subscriptions data from user meta for bbPress 2.6 and higher.
+ *
+ * @since 2.7.0 bbPress (r8235)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run() {
+	return bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( true );
+}
+
+/**
+ * Remove or preview removing topic subscriptions data from user meta.
+ *
+ * @since 2.7.0 bbPress (r8235)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the upgrade process */
-	$statement = esc_html__( 'Remove topic subscriptions from usermeta&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'No topic subscriptions to remove.',                   'bbpress' );
-	$total     = 0;
-	$key       = $bbp_db->prefix . '_bbp_subscriptions';
+	$bbp_db = bbp_db();
+	$failed = esc_html__( 'Failed!', 'bbpress' );
+	$result = esc_html__( 'No topic subscriptions to remove.', 'bbpress' );
+	$key    = $bbp_db->prefix . '_bbp_subscriptions';
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking topic subscriptions in usermeta&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the upgrade process */
+		$statement = esc_html__( 'Remove topic subscriptions from usermeta&hellip; %s', 'bbpress' );
+	}
 
 	// Results
-	$query     = "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id";
-	$prepare   = $bbp_db->prepare( $query, $key );
-	$subs      = $bbp_db->get_results( $prepare );
+	$query   = "SELECT COUNT(*) FROM {$bbp_db->usermeta} WHERE meta_key = %s";
+	$prepare = $bbp_db->prepare( $query, $key );
+	$total   = (int) $bbp_db->get_var( $prepare );
 
-	// Bail if no forum favorites found
-	if ( empty( $subs ) || is_wp_error( $subs ) ) {
+	// Bail if topic subscriptions could not be read
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Bail if no topic subscriptions were found
+	if ( empty( $total ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
+	if ( $dry_run ) {
+		/* translators: %s: Number of topic subscriptions that would be deleted */
+		$result = sprintf( _n( 'Dry run complete! %s topic subscription would be deleted.', 'Dry run complete! %s topic subscriptions would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
 	// Delete all user-meta with this key
-	delete_metadata( 'user', false, $key, false, true );
-	$total = count( $subs );
+	if ( false === delete_metadata( 'user', false, $key, false, true ) ) {
+		/* translators: %s: Number of topic subscriptions that could not be deleted */
+		$result = sprintf( _n( 'Failed! %s topic subscription could not be deleted.', 'Failed! %s topic subscriptions could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+
+		return array(
+			3,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
 
 	// Complete results
-	/* translators: %d: Number of deleted topic subscriptions */
-	$result = sprintf( _n( 'Complete! %d topic subscription deleted.', 'Complete! %d topic subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of deleted topic subscriptions */
+	$result = sprintf( _n( 'Complete! %s topic subscription deleted.', 'Complete! %s topic subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
