@@ -33,6 +33,85 @@ function bbp_admin_repair_clean_post_meta_cache( $post_type = '' ) {
 }
 
 /**
+ * Clear cached metadata for repaired bbPress posts in bounded batches.
+ *
+ * @since 2.7.0 bbPress (r8239)
+ *
+ * @param array  $post_types Post type names to clear.
+ * @param string $meta_key   Optional metadata key whose existing posts should also be cleared.
+ * @return bool True on success, false on a database error.
+ */
+function bbp_admin_repair_clean_post_meta_cache_batched( $post_types = array(), $meta_key = '' ) {
+	$bbp_db     = bbp_db();
+	$post_types = array_values( array_unique( array_filter( (array) $post_types ) ) );
+
+	if ( empty( $post_types ) ) {
+		return true;
+	}
+
+	$placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+	$last_post_id = 0;
+
+	do {
+		$query_args = array_merge( $post_types, array( $last_post_id ) );
+		$post_ids   = $bbp_db->get_col(
+			$bbp_db->prepare(
+				"SELECT `ID` FROM `{$bbp_db->posts}`
+				WHERE `post_type` IN ( {$placeholders} )
+					AND `ID` > %d
+				ORDER BY `ID`
+				LIMIT 1000",
+				$query_args
+			)
+		);
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return false;
+		}
+
+		$post_ids   = wp_parse_id_list( $post_ids );
+		$post_count = count( $post_ids );
+		if ( ! empty( $post_ids ) ) {
+			wp_cache_delete_multiple( $post_ids, 'post_meta' );
+			$last_post_id = (int) end( $post_ids );
+		}
+	} while ( 1000 === $post_count );
+
+	if ( empty( $meta_key ) ) {
+		return true;
+	}
+
+	$last_post_id = 0;
+
+	do {
+		$post_ids = $bbp_db->get_col(
+			$bbp_db->prepare(
+				"SELECT DISTINCT `post_id` FROM `{$bbp_db->postmeta}`
+				WHERE `meta_key` = %s
+					AND `post_id` > %d
+				ORDER BY `post_id`
+				LIMIT 1000",
+				$meta_key,
+				$last_post_id
+			)
+		);
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return false;
+		}
+
+		$post_ids   = wp_parse_id_list( $post_ids );
+		$post_count = count( $post_ids );
+		if ( ! empty( $post_ids ) ) {
+			wp_cache_delete_multiple( $post_ids, 'post_meta' );
+			$last_post_id = (int) end( $post_ids );
+		}
+	} while ( 1000 === $post_count );
+
+	return true;
+}
+
+/**
  * Admin repair page.
  *
  * @since 2.6.0 bbPress (r6277) Converted from bbPress 1.2
@@ -2335,75 +2414,333 @@ function bbp_admin_repair_forum_visibility() {
  * Repair the parent forum meta for each topic and reply.
  *
  * @since 2.1.0 bbPress (r3884)
+ * @since 2.7.0 bbPress (r8239) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_forum_meta() {
+	return bbp_admin_repair_forum_meta_process();
+}
+
+/**
+ * Preview repairing the parent forum meta for each forum, topic, and reply.
+ *
+ * @since 2.7.0 bbPress (r8239)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_meta_dry_run() {
+	return bbp_admin_repair_forum_meta_process( true );
+}
+
+/**
+ * Repair or preview repairing the parent forum meta for each post.
+ *
+ * @since 2.7.0 bbPress (r8239)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Recalculating the forum for each post&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
+	$bbp_db = bbp_db();
+	$failed = esc_html__( 'Failed!', 'bbpress' );
+	$tpt    = bbp_get_topic_post_type();
+	$rpt    = bbp_get_reply_post_type();
+	$fmt    = bbp_get_forum_post_type();
 
-	// First, delete everything.
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_forum_id'" ) ) ) {
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the forum for each post&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Recalculating the forum for each post&hellip; %s', 'bbpress' );
+	}
+
+	// Count forums that do not point to their parent forums exactly once
+	$forum_repairs = $bbp_db->get_var(
+		$bbp_db->prepare(
+			"SELECT COUNT(*) FROM (
+				SELECT `forum`.`ID`
+				FROM `{$bbp_db->posts}` AS `forum`
+				LEFT JOIN `{$bbp_db->postmeta}` AS `forummeta`
+					ON `forummeta`.`post_id` = `forum`.`ID`
+					AND `forummeta`.`meta_key` = %s
+				WHERE `forum`.`post_type` = %s
+				GROUP BY `forum`.`ID`
+				HAVING COUNT( `forummeta`.`meta_id` ) <> 1
+					OR SUM( CASE WHEN CAST( `forummeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
+					OR NOT ( CAST( MAX( `forummeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( MAX( `forum`.`post_parent` ) AS CHAR ) AS BINARY ) )
+			) AS `forum_repairs`",
+			'_bbp_forum_id',
+			$fmt,
+			'_bbp_forum_id'
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			4,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Count topics that do not point to their parent forums exactly once
+	$topic_repairs = $bbp_db->get_var(
+		$bbp_db->prepare(
+			"SELECT COUNT(*) FROM (
+				SELECT `topic`.`ID`
+				FROM `{$bbp_db->posts}` AS `topic`
+				LEFT JOIN `{$bbp_db->postmeta}` AS `topicmeta`
+					ON `topicmeta`.`post_id` = `topic`.`ID`
+					AND `topicmeta`.`meta_key` = %s
+				WHERE `topic`.`post_type` = %s
+				GROUP BY `topic`.`ID`
+				HAVING COUNT( `topicmeta`.`meta_id` ) <> 1
+					OR SUM( CASE WHEN CAST( `topicmeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
+					OR NOT ( CAST( MAX( `topicmeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( MAX( `topic`.`post_parent` ) AS CHAR ) AS BINARY ) )
+			) AS `topic_repairs`",
+			'_bbp_forum_id',
+			$tpt,
+			'_bbp_forum_id'
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			5,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Count replies that do not point to their topics' parent forums exactly once
+	$reply_repairs = $bbp_db->get_var(
+		$bbp_db->prepare(
+			"SELECT COUNT(*) FROM (
+				SELECT `reply`.`ID`
+				FROM `{$bbp_db->posts}` AS `reply`
+				INNER JOIN `{$bbp_db->posts}` AS `topic`
+					ON `reply`.`post_parent` = `topic`.`ID`
+				LEFT JOIN `{$bbp_db->postmeta}` AS `replymeta`
+					ON `replymeta`.`post_id` = `reply`.`ID`
+					AND `replymeta`.`meta_key` = %s
+				WHERE `topic`.`post_type` = %s
+					AND `reply`.`post_type` = %s
+				GROUP BY `reply`.`ID`
+				HAVING COUNT( `replymeta`.`meta_id` ) <> 1
+					OR SUM( CASE WHEN CAST( `replymeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
+					OR NOT ( CAST( MAX( `replymeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( MAX( `topic`.`post_parent` ) AS CHAR ) AS BINARY ) )
+			) AS `reply_repairs`",
+			'_bbp_forum_id',
+			$tpt,
+			$rpt,
+			'_bbp_forum_id'
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			6,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Count relationships that do not belong to a forum, topic, or valid reply
+	$stale_count = $bbp_db->get_var(
+		$bbp_db->prepare(
+			"SELECT COUNT( `forummeta`.`meta_id` )
+			FROM `{$bbp_db->postmeta}` AS `forummeta`
+			LEFT JOIN `{$bbp_db->posts}` AS `forum`
+				ON `forummeta`.`post_id` = `forum`.`ID`
+				AND `forum`.`post_type` = %s
+			LEFT JOIN `{$bbp_db->posts}` AS `topic`
+				ON `forummeta`.`post_id` = `topic`.`ID`
+				AND `topic`.`post_type` = %s
+			LEFT JOIN `{$bbp_db->posts}` AS `reply`
+				ON `forummeta`.`post_id` = `reply`.`ID`
+				AND `reply`.`post_type` = %s
+			LEFT JOIN `{$bbp_db->posts}` AS `parent`
+				ON `reply`.`post_parent` = `parent`.`ID`
+				AND `parent`.`post_type` = %s
+			WHERE `forummeta`.`meta_key` = %s
+				AND `forum`.`ID` IS NULL
+				AND `topic`.`ID` IS NULL
+				AND `parent`.`ID` IS NULL",
+			$fmt,
+			$tpt,
+			$rpt,
+			$tpt,
+			'_bbp_forum_id'
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			7,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	$forum_repairs = (int) $forum_repairs;
+	$topic_repairs = (int) $topic_repairs;
+	$reply_repairs = (int) $reply_repairs;
+	$stale_count   = (int) $stale_count;
+	$post_types    = array( $fmt, $tpt, $rpt );
+
+	// Bail if no repairs are needed
+	if ( empty( $forum_repairs ) && empty( $topic_repairs ) && empty( $reply_repairs ) && empty( $stale_count ) ) {
+		if ( ! $dry_run && ! bbp_admin_repair_clean_post_meta_cache_batched( $post_types ) ) {
+			return array(
+				8,
+				sprintf( $statement, $failed ),
+				'success' => false,
+			);
+		}
+
+		$result = esc_html__( 'No forum relationships to repair.', 'bbpress' );
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Post types and status
-	$tpt = bbp_get_topic_post_type();
-	$rpt = bbp_get_reply_post_type();
-	$fmt = bbp_get_forum_post_type();
+	$forum_result = sprintf(
+		/* translators: %s: Number of forum relationships */
+		esc_html( _n( '%s forum relationship would be repaired.', '%s forum relationships would be repaired.', $forum_repairs, 'bbpress' ) ),
+		bbp_number_format( $forum_repairs )
+	);
+	$topic_result = sprintf(
+		/* translators: %s: Number of topic relationships */
+		esc_html( _n( '%s topic relationship would be repaired.', '%s topic relationships would be repaired.', $topic_repairs, 'bbpress' ) ),
+		bbp_number_format( $topic_repairs )
+	);
+	$reply_result = sprintf(
+		/* translators: %s: Number of reply relationships */
+		esc_html( _n( '%s reply relationship would be repaired.', '%s reply relationships would be repaired.', $reply_repairs, 'bbpress' ) ),
+		bbp_number_format( $reply_repairs )
+	);
+	$stale_result = sprintf(
+		/* translators: %s: Number of orphaned relationships */
+		esc_html( _n( '%s orphaned relationship would be removed.', '%s orphaned relationships would be removed.', $stale_count, 'bbpress' ) ),
+		bbp_number_format( $stale_count )
+	);
 
-	// Next, give all the topics their parent forum id.
-	if ( is_wp_error(
-		$bbp_db->query(
+	if ( $dry_run ) {
+		$result = esc_html__( 'Dry run complete!', 'bbpress' ) . ' ' . $forum_result . ' ' . $topic_result . ' ' . $reply_result . ' ' . $stale_result;
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	if ( ! bbp_admin_repair_clean_post_meta_cache_batched( $post_types, '_bbp_forum_id' ) ) {
+		return array(
+			8,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// First, delete everything
+	if ( false === $bbp_db->query( $bbp_db->prepare( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = %s", '_bbp_forum_id' ) ) ) {
+		return array(
+			1,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Give every topic its parent forum ID
+	$inserted_topics = $bbp_db->query(
+		$bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
-			FROM `$bbp_db->posts`
-				AS `topic`
-			WHERE `topic`.`post_type` = '{$tpt}'
-			GROUP BY `topic`.`ID` )"
+			FROM `{$bbp_db->posts}` AS `topic`
+			WHERE `topic`.`post_type` = %s
+			GROUP BY `topic`.`ID` )",
+			$tpt
 		)
-	) ) {
-		return array( 2, sprintf( $statement, $result ) );
+	);
+
+	if ( false === $inserted_topics ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
 	}
 
-	// Next, give all the forums their parent forum id.
-	if ( is_wp_error(
-		$bbp_db->query(
+	// Give every forum its parent forum ID
+	$inserted_forums = $bbp_db->query(
+		$bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`
-			FROM `$bbp_db->posts`
-				AS `forum`
-			WHERE `forum`.`post_type` = '{$fmt}'
-			GROUP BY `forum`.`ID` )"
+			FROM `{$bbp_db->posts}` AS `forum`
+			WHERE `forum`.`post_type` = %s
+			GROUP BY `forum`.`ID` )",
+			$fmt
 		)
-	) ) {
-		return array( 2, sprintf( $statement, $result ) );
+	);
+
+	if ( false === $inserted_forums ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
 	}
 
-	// Next, give all the replies their parent forum id.
-	if ( is_wp_error(
-		$bbp_db->query(
+	// Give every reply its topic's parent forum ID
+	$inserted_replies = $bbp_db->query(
+		$bbp_db->prepare(
 			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `reply`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
-			FROM `$bbp_db->posts`
-				AS `reply`
-			INNER JOIN `$bbp_db->posts`
-				AS `topic`
+			FROM `{$bbp_db->posts}` AS `reply`
+			INNER JOIN `{$bbp_db->posts}` AS `topic`
 				ON `reply`.`post_parent` = `topic`.`ID`
-			WHERE `topic`.`post_type` = '{$tpt}'
-				AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `reply`.`ID` )"
+			WHERE `topic`.`post_type` = %s
+				AND `reply`.`post_type` = %s
+			GROUP BY `reply`.`ID` )",
+			$tpt,
+			$rpt
 		)
-	) ) {
-		return array( 3, sprintf( $statement, $result ) );
+	);
+
+	if ( false === $inserted_replies ) {
+		return array(
+			3,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
 	}
 
-	// Complete results
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	if ( ! bbp_admin_repair_clean_post_meta_cache_batched( $post_types ) ) {
+		return array(
+			8,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	$forum_result = sprintf(
+		/* translators: %s: Number of forum relationships */
+		esc_html( _n( '%s forum relationship repaired.', '%s forum relationships repaired.', $forum_repairs, 'bbpress' ) ),
+		bbp_number_format( $forum_repairs )
+	);
+	$topic_result = sprintf(
+		/* translators: %s: Number of topic relationships */
+		esc_html( _n( '%s topic relationship repaired.', '%s topic relationships repaired.', $topic_repairs, 'bbpress' ) ),
+		bbp_number_format( $topic_repairs )
+	);
+	$reply_result = sprintf(
+		/* translators: %s: Number of reply relationships */
+		esc_html( _n( '%s reply relationship repaired.', '%s reply relationships repaired.', $reply_repairs, 'bbpress' ) ),
+		bbp_number_format( $reply_repairs )
+	);
+	$stale_result = sprintf(
+		/* translators: %s: Number of orphaned relationships */
+		esc_html( _n( '%s orphaned relationship removed.', '%s orphaned relationships removed.', $stale_count, 'bbpress' ) ),
+		bbp_number_format( $stale_count )
+	);
+	$result = esc_html__( 'Complete!', 'bbpress' ) . ' ' . $forum_result . ' ' . $topic_result . ' ' . $reply_result . ' ' . $stale_result;
+
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
@@ -2465,10 +2802,12 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 				WHERE `topic`.`post_type` = %s
 				GROUP BY `topic`.`ID`
 				HAVING COUNT( `topicmeta`.`meta_id` ) <> 1
+					OR SUM( CASE WHEN CAST( `topicmeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
 					OR NOT ( CAST( MAX( `topicmeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( `topic`.`ID` AS CHAR ) AS BINARY ) )
 			) AS `topic_repairs`",
 			'_bbp_topic_id',
-			$tpt
+			$tpt,
+			'_bbp_topic_id'
 		)
 	);
 	if ( ! empty( $bbp_db->last_error ) ) {
@@ -2494,11 +2833,13 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 					AND `reply`.`post_type` = %s
 				GROUP BY `reply`.`ID`, `topic`.`ID`
 				HAVING COUNT( `replymeta`.`meta_id` ) <> 1
+					OR SUM( CASE WHEN CAST( `replymeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
 					OR NOT ( CAST( MAX( `replymeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( `topic`.`ID` AS CHAR ) AS BINARY ) )
 			) AS `reply_repairs`",
 			'_bbp_topic_id',
 			$tpt,
-			$rpt
+			$rpt,
+			'_bbp_topic_id'
 		)
 	);
 	if ( ! empty( $bbp_db->last_error ) ) {
@@ -2544,73 +2885,9 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 	$reply_repairs = (int) $reply_repairs;
 	$stale_count   = (int) $stale_count;
 
-	// Clear relevant post metadata caches in bounded batches
-	$clear_meta = static function ( $include_relationships = false ) use ( $bbp_db, $tpt, $rpt ) {
-		$last_post_id = 0;
-
-		do {
-			$post_ids = $bbp_db->get_col(
-				$bbp_db->prepare(
-					"SELECT `ID` FROM `{$bbp_db->posts}`
-					WHERE `post_type` IN ( %s, %s )
-						AND `ID` > %d
-					ORDER BY `ID`
-					LIMIT 1000",
-					$tpt,
-					$rpt,
-					$last_post_id
-				)
-			);
-
-			if ( ! empty( $bbp_db->last_error ) ) {
-				return false;
-			}
-
-			$post_ids   = wp_parse_id_list( $post_ids );
-			$post_count = count( $post_ids );
-			if ( ! empty( $post_ids ) ) {
-				wp_cache_delete_multiple( $post_ids, 'post_meta' );
-				$last_post_id = (int) end( $post_ids );
-			}
-		} while ( 1000 === $post_count );
-
-		if ( ! $include_relationships ) {
-			return true;
-		}
-
-		$last_post_id = 0;
-
-		do {
-			$post_ids = $bbp_db->get_col(
-				$bbp_db->prepare(
-					"SELECT DISTINCT `post_id` FROM `{$bbp_db->postmeta}`
-					WHERE `meta_key` = %s
-						AND `post_id` > %d
-					ORDER BY `post_id`
-					LIMIT 1000",
-					'_bbp_topic_id',
-					$last_post_id
-				)
-			);
-
-			if ( ! empty( $bbp_db->last_error ) ) {
-				return false;
-			}
-
-			$post_ids   = wp_parse_id_list( $post_ids );
-			$post_count = count( $post_ids );
-			if ( ! empty( $post_ids ) ) {
-				wp_cache_delete_multiple( $post_ids, 'post_meta' );
-				$last_post_id = (int) end( $post_ids );
-			}
-		} while ( 1000 === $post_count );
-
-		return true;
-	};
-
 	// Bail if no repairs are needed
 	if ( empty( $topic_repairs ) && empty( $reply_repairs ) && empty( $stale_count ) ) {
-		if ( ! $dry_run && ! $clear_meta() ) {
+		if ( ! $dry_run && ! bbp_admin_repair_clean_post_meta_cache_batched( array( $tpt, $rpt ) ) ) {
 			return array(
 				7,
 				sprintf( $statement, $failed ),
@@ -2644,7 +2921,7 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	if ( ! $clear_meta( true ) ) {
+	if ( ! bbp_admin_repair_clean_post_meta_cache_batched( array( $tpt, $rpt ), '_bbp_topic_id' ) ) {
 		return array(
 			7,
 			sprintf( $statement, $failed ),
@@ -2705,7 +2982,7 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 		);
 	}
 
-	if ( ! $clear_meta() ) {
+	if ( ! bbp_admin_repair_clean_post_meta_cache_batched( array( $tpt, $rpt ) ) ) {
 		return array(
 			7,
 			sprintf( $statement, $failed ),
