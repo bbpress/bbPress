@@ -619,6 +619,89 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_version_updater
 	 */
+	public function test_version_updater_does_not_keep_successful_forum_subscriptions_pending() {
+		$old_db_version = get_option( '_bbp_db_version', null );
+		$old_pending    = get_option( '_bbp_db_pending_upgrades', null );
+		$user_id        = $this->factory->user->create();
+		$forum_id       = $this->factory->forum->create();
+		$small_install  = static function () {
+			return false;
+		};
+
+		update_user_option( $user_id, '_bbp_forum_subscriptions', $forum_id );
+		update_option( '_bbp_db_version', 260 );
+		delete_option( '_bbp_db_pending_upgrades' );
+		add_filter( 'bbp_is_large_install', $small_install );
+
+		try {
+			bbp_version_updater();
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $forum_id, '_bbp_subscription', false ) );
+			$this->assertNotContains( 'bbp-user-forum-subscriptions-move', bbp_get_pending_upgrades() );
+			$this->assertSame( (int) bbp_get_db_version(), (int) bbp_get_db_version_raw() );
+		} finally {
+			remove_filter( 'bbp_is_large_install', $small_install );
+
+			if ( null === $old_db_version ) {
+				delete_option( '_bbp_db_version' );
+			} else {
+				update_option( '_bbp_db_version', $old_db_version );
+			}
+
+			if ( null === $old_pending ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $old_pending );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_version_updater
+	 */
+	public function test_version_updater_keeps_failed_forum_subscriptions_pending() {
+		$old_db_version    = get_option( '_bbp_db_version', null );
+		$old_pending       = get_option( '_bbp_db_pending_upgrades', null );
+		$user_id           = $this->factory->user->create();
+		$forum_id          = $this->factory->forum->create();
+		$fail_subscription = static function ( $check, $object_id, $meta_key ) {
+			return ( '_bbp_subscription' === $meta_key ) ? false : $check;
+		};
+		$small_install     = static function () {
+			return false;
+		};
+
+		update_user_option( $user_id, '_bbp_forum_subscriptions', $forum_id );
+		update_option( '_bbp_db_version', 260 );
+		delete_option( '_bbp_db_pending_upgrades' );
+		add_filter( 'add_post_metadata', $fail_subscription, 10, 3 );
+		add_filter( 'bbp_is_large_install', $small_install );
+
+		try {
+			bbp_version_updater();
+			$this->assertContains( 'bbp-user-forum-subscriptions-move', bbp_get_pending_upgrades() );
+			$this->assertNotContains( 'bbp-user-topic-subscriptions-move', bbp_get_pending_upgrades() );
+			$this->assertSame( (int) bbp_get_db_version(), (int) bbp_get_db_version_raw() );
+		} finally {
+			remove_filter( 'add_post_metadata', $fail_subscription, 10 );
+			remove_filter( 'bbp_is_large_install', $small_install );
+
+			if ( null === $old_db_version ) {
+				delete_option( '_bbp_db_version' );
+			} else {
+				update_option( '_bbp_db_version', $old_db_version );
+			}
+
+			if ( null === $old_pending ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $old_pending );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_version_updater
+	 */
 	public function test_version_updater_removes_saved_converter_query() {
 		update_option( '_bbp_db_version', 263 );
 		update_option( '_bbp_converter_query', 'UPDATE users SET user_pass = saved_hash' );

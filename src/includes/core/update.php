@@ -400,7 +400,10 @@ function bbp_version_updater() {
 					bbp_add_pending_upgrade( 'bbp-user-topic-subscriptions-move' );
 				}
 
-				bbp_admin_upgrade_user_forum_subscriptions();
+				$forum_subscriptions = bbp_admin_upgrade_user_forum_subscriptions();
+				if ( isset( $forum_subscriptions['success'] ) && ( false === $forum_subscriptions['success'] ) ) {
+					bbp_add_pending_upgrade( 'bbp-user-forum-subscriptions-move' );
+				}
 			}
 
 			/**

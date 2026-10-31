@@ -834,60 +834,158 @@ function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) 
  * Upgrade user forum subscriptions for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6193)
+ * @since 2.7.0 bbPress (r8233) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_forum_subscriptions() {
+	return bbp_admin_upgrade_user_forum_subscriptions_process();
+}
+
+/**
+ * Preview upgrading user forum subscriptions for bbPress 2.6 and higher.
+ *
+ * @since 2.7.0 bbPress (r8233)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_user_forum_subscriptions_dry_run() {
+	return bbp_admin_upgrade_user_forum_subscriptions_process( true );
+}
+
+/**
+ * Upgrade or preview upgrading user forum subscriptions.
+ *
+ * @since 2.7.0 bbPress (r8233)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the upgrade process */
-	$statement = esc_html__( 'Upgrading user forum subscriptions&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'No forum subscriptions to upgrade.',            'bbpress' );
-	$total     = 0;
-	$old_key   = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$new_key   = '_bbp_subscription';
+	$bbp_db          = bbp_db();
+	$failed          = esc_html__( 'Failed!', 'bbpress' );
+	$result          = esc_html__( 'No forum subscriptions to upgrade.', 'bbpress' );
+	$total           = 0;
+	$failed_total    = 0;
+	$old_key         = $bbp_db->prefix . '_bbp_forum_subscriptions';
+	$new_key         = '_bbp_subscription';
+	$planned_user_id = null;
+	$planned         = array();
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking user forum subscriptions&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the upgrade process */
+		$statement = esc_html__( 'Upgrading user forum subscriptions&hellip; %s', 'bbpress' );
+	}
 
 	// Results
-	$query     = "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id";
+	$query     = "SELECT user_id, meta_value FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id, umeta_id";
 	$prepare   = $bbp_db->prepare( $query, $old_key );
 	$subs      = $bbp_db->get_results( $prepare );
 
-	// Bail if no forum subscriptions found
-	if ( empty( $subs ) || is_wp_error( $subs ) ) {
+	// Bail if forum subscriptions could not be read
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Bail if no forum subscriptions were found
+	if ( empty( $subs ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Loop through each user's forum subscriptions
 	foreach ( $subs as $meta ) {
+		$user_id = (int) $meta->user_id;
+
+		// Bound relationship state to one user at a time
+		if ( $planned_user_id !== $user_id ) {
+			$planned_user_id = $user_id;
+			$planned         = array();
+		}
 
 		// Get post IDs
-		$post_ids = explode( ',', $meta->meta_value );
+		$post_ids = array_filter( wp_parse_id_list( $meta->meta_value ) );
 
 		// Add user ID to all subscribed forums
 		foreach ( $post_ids as $post_id ) {
 
-			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s", $post_id, $new_key, $meta->user_id ) ) ) {
+			// Skip relationships already processed for this user
+			if ( isset( $planned[ $post_id ] ) ) {
+				continue;
+			}
+
+			// Skip relationships that already exist
+			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $new_key, $user_id ) );
+			if ( ! empty( $bbp_db->last_error ) ) {
+				return array(
+					3,
+					sprintf( $statement, $failed ),
+					'success' => false,
+				);
+			}
+
+			if ( ! empty( $exists ) ) {
+				$planned[ $post_id ] = true;
+				continue;
+			}
+
+			$planned[ $post_id ] = true;
+
+			if ( $dry_run ) {
+				++$total;
 				continue;
 			}
 
 			// Add the post meta
-			$added = add_post_meta( $post_id, $new_key, $meta->user_id, false );
-
-			// Bump counts if successfully added
-			if ( ! empty( $added ) ) {
-				++$total;
+			if ( false === add_post_meta( $post_id, $new_key, $user_id, false ) ) {
+				++$failed_total;
+				continue;
 			}
+
+			++$total;
 		}
 	}
 
 	// Cleanup
-	unset( $subs, $added, $post_ids );
+	unset( $subs, $post_ids, $planned );
+
+	if ( $dry_run ) {
+		if ( empty( $total ) ) {
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		/* translators: %s: Number of forum subscriptions that would be upgraded */
+		$result = sprintf( _n( 'Dry run complete! %s forum subscription would be upgraded.', 'Dry run complete! %s forum subscriptions would be upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	if ( ! empty( $failed_total ) ) {
+		/* translators: %s: Number of upgraded forum subscriptions */
+		$upgraded = sprintf( _n( '%s forum subscription upgraded', '%s forum subscriptions upgraded', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of forum subscriptions that failed */
+		$failures = sprintf( _n( '%s forum subscription failed', '%s forum subscriptions failed', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+		/* translators: %1$s: Upgraded forum subscriptions; %2$s: Forum subscriptions that failed */
+		$result = sprintf( esc_html__( 'Failed! %1$s; %2$s.', 'bbpress' ), $upgraded, $failures );
+
+		return array(
+			4,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
 
 	// Complete results
-	/* translators: %d: Number of upgraded forum subscriptions */
-	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of upgraded forum subscriptions */
+	$result = sprintf( _n( 'Complete! %s forum subscription upgraded.', 'Complete! %s forum subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
