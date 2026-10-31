@@ -1479,50 +1479,215 @@ function bbp_admin_repair_forum_subforum_count_process( $dry_run = false ) {
  * Recount topic in each topic-tag.
  *
  * @since 2.6.0 bbPress (r6256)
+ * @since 2.7.0 bbPress (r8244) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_topic_tag_count() {
+	return bbp_admin_repair_topic_tag_count_process();
+}
 
-	// Define variables
-	/* translators: %s: Status of the counting process */
-	$statement = esc_html__( 'Counting the number of topics in each topic-tag&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'Failed!', 'bbpress' );
-	$tax_id    = bbp_get_topic_tag_tax_id();
-	$terms     = get_terms(
-		array(
-			'taxonomy'   => $tax_id,
-			'hide_empty' => false
-		)
+/**
+ * Preview recounting topics in each topic-tag.
+ *
+ * @since 2.7.0 bbPress (r8244)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_tag_count_dry_run() {
+	return bbp_admin_repair_topic_tag_count_process( true );
+}
+
+/**
+ * Compare calculated topic-tag counts with their stored taxonomy counts.
+ *
+ * @since 2.7.0 bbPress (r8244)
+ *
+ * @param object $taxonomy Topic-tag taxonomy object.
+ * @return array Status code, term taxonomy IDs, and number of tags to repair.
+ */
+function bbp_admin_repair_topic_tag_count_get_status( $taxonomy ) {
+	$bbp_db          = bbp_db();
+	$tax_id          = $taxonomy->name;
+	$object_types    = (array) $taxonomy->object_type;
+	$object_statuses = array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) );
+
+	foreach ( $object_types as &$object_type ) {
+		list( $object_type ) = explode( ':', $object_type );
+	}
+	unset( $object_type );
+
+	$object_types = array_values( array_unique( array_filter( $object_types, 'post_type_exists' ) ) );
+	$type_sql     = 'AND 1 = 0';
+	$type_args    = array();
+
+	if ( ! empty( $object_types ) && ! empty( $object_statuses ) ) {
+		$status_placeholders = implode( ', ', array_fill( 0, count( $object_statuses ), '%s' ) );
+		$type_placeholders   = implode( ', ', array_fill( 0, count( $object_types ), '%s' ) );
+		$type_sql            = "AND `content`.`post_status` IN ( {$status_placeholders} )
+			AND `content`.`post_type` IN ( {$type_placeholders} )";
+		$type_args           = array_merge( $object_statuses, $object_types );
+	}
+
+	$query_args = array_merge( $type_args, array( $tax_id ) );
+	$rows       = $bbp_db->get_results(
+		$bbp_db->prepare(
+			"SELECT `termtaxonomy`.`term_taxonomy_id`, `termtaxonomy`.`count` AS `stored_count`, COUNT( `content`.`ID` ) AS `expected_count`
+			FROM `{$bbp_db->term_taxonomy}` AS `termtaxonomy`
+			INNER JOIN `{$bbp_db->terms}` AS `terms`
+				ON `terms`.`term_id` = `termtaxonomy`.`term_id`
+			LEFT JOIN `{$bbp_db->term_relationships}` AS `relationships`
+				ON `relationships`.`term_taxonomy_id` = `termtaxonomy`.`term_taxonomy_id`
+			LEFT JOIN `{$bbp_db->posts}` AS `content`
+				ON `content`.`ID` = `relationships`.`object_id`
+				{$type_sql}
+			WHERE `termtaxonomy`.`taxonomy` = %s
+			GROUP BY `termtaxonomy`.`term_taxonomy_id`, `termtaxonomy`.`count`
+			ORDER BY `termtaxonomy`.`term_taxonomy_id`",
+			$query_args
+		),
+		ARRAY_A
 	);
 
-	// Get the term IDs
-	$tt_ids   = wp_list_pluck( $terms, 'term_taxonomy_id' );
-	$ints     = array_map( 'intval', $tt_ids );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array( 'code' => 3 );
+	}
+
+	$term_taxonomy_ids = array();
+	$repair_count      = 0;
+	foreach ( $rows as $row ) {
+		$term_taxonomy_ids[] = (int) $row['term_taxonomy_id'];
+		if ( (int) $row['stored_count'] !== (int) $row['expected_count'] ) {
+			++$repair_count;
+		}
+	}
+
+	return array(
+		'code'              => 0,
+		'term_taxonomy_ids' => $term_taxonomy_ids,
+		'repair_count'      => $repair_count,
+	);
+}
+
+/**
+ * Repair or preview repairing topic-tag counts.
+ *
+ * @since 2.7.0 bbPress (r8244)
+ *
+ * @param bool $dry_run Whether to preview the repair without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
+
+	// Define variables
+	$result   = esc_html__( 'Failed!', 'bbpress' );
+	$tax_id   = bbp_get_topic_tag_tax_id();
 	$taxonomy = get_taxonomy( $tax_id );
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking the number of topics in each topic-tag&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the counting process */
+		$statement = esc_html__( 'Counting the number of topics in each topic-tag&hellip; %s', 'bbpress' );
+	}
 
 	// Bail if taxonomy does not exist
 	if ( empty( $taxonomy ) ) {
+		return array(
+			1,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	$callback = ! empty( $taxonomy->update_count_callback )
+		? $taxonomy->update_count_callback
+		: '_update_post_term_count';
+
+	if ( ! is_callable( $callback ) ) {
+		return array(
+			2,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	if ( ( 'bbp_update_topic_tag_count' === $callback ) && empty( $taxonomy->object_type ) ) {
+		$result = esc_html__( 'The topic-tag taxonomy has no object types to count.', 'bbpress' );
+
+		return array(
+			2,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	// Preserve legacy Run support for custom callbacks that cannot be previewed.
+	if ( 'bbp_update_topic_tag_count' !== $callback ) {
+		if ( $dry_run ) {
+			$result = esc_html__( 'Dry Run is unavailable for the configured topic-tag count callback.', 'bbpress' );
+
+			return array(
+				2,
+				sprintf( $statement, $result ),
+				'success' => false,
+			);
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $tax_id,
+				'hide_empty' => false,
+			)
+		);
+		$ints = array_map( 'intval', wp_list_pluck( $terms, 'term_taxonomy_id' ) );
+		call_user_func( $callback, $ints, $taxonomy );
+
+		if ( ! empty( $ints ) ) {
+			clean_term_cache( $ints, '', false );
+		}
+
+		return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	}
+
+	$status = bbp_admin_repair_topic_tag_count_get_status( $taxonomy );
+	if ( ! empty( $status['code'] ) ) {
+		return array(
+			$status['code'],
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
+
+	if ( empty( $status['repair_count'] ) ) {
+		$result = esc_html__( 'No topic-tag counts to repair.', 'bbpress' );
+
+		if ( ! $dry_run && ! empty( $status['term_taxonomy_ids'] ) ) {
+			clean_term_cache( $status['term_taxonomy_ids'], '', false );
+		}
+
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Custom callback
-	if ( ! empty( $taxonomy->update_count_callback ) ) {
+	if ( $dry_run ) {
+		/* translators: %d: Number of topic-tags whose topic counts would be repaired */
+		$result = sprintf( _n( 'Dry run complete! Topic counts would be repaired in %d topic-tag.', 'Dry run complete! Topic counts would be repaired in %d topic-tags.', $status['repair_count'], 'bbpress' ), $status['repair_count'] );
 
-		// Bail if callback is not callable
-		if ( ! is_callable( $taxonomy->update_count_callback ) ) {
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		call_user_func( $taxonomy->update_count_callback, $ints, $taxonomy );
-
-	// Generic callback fallback
-	} else {
-		_update_post_term_count( $ints, $taxonomy );
+		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	// Bust the cache
-	clean_term_cache( $ints, '', false );
+	call_user_func( $callback, $status['term_taxonomy_ids'], $taxonomy );
+	clean_term_cache( $status['term_taxonomy_ids'], '', false );
+
+	$status = bbp_admin_repair_topic_tag_count_get_status( $taxonomy );
+	if ( ! empty( $status['code'] ) || ! empty( $status['repair_count'] ) ) {
+		return array(
+			empty( $status['code'] ) ? 4 : $status['code'],
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
 
 	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
 }

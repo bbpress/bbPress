@@ -201,6 +201,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_repair_forum_topic_count_dry_run', bbp_admin()->tools['bbp-forum-topics']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_forum_subforum_count', bbp_admin()->tools['bbp-forum-subforums']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_forum_subforum_count_dry_run', bbp_admin()->tools['bbp-forum-subforums']['callbacks']['dry-run'] );
+		$this->assertSame( 'bbp_admin_repair_topic_tag_count', bbp_admin()->tools['bbp-topic-tags']['callbacks']['run'] );
+		$this->assertSame( 'bbp_admin_repair_topic_tag_count_dry_run', bbp_admin()->tools['bbp-topic-tags']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_sticky', bbp_admin()->tools['bbp-sync-all-topics-sticky']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_sticky_dry_run', bbp_admin()->tools['bbp-sync-all-topics-sticky']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_reply_menu_order', bbp_admin()->tools['bbp-sync-all-reply-positions']['callbacks']['run'] );

@@ -5906,34 +5906,330 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_get_status
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
 	 */
 	public function test_bbp_admin_repair_topic_tag_count() {
-		$db       = bbp_db();
-		$taxonomy = bbp_get_topic_tag_tax_id();
-		$topic_id = $this->factory->topic->create();
-		$term     = wp_insert_term( 'Repair count', $taxonomy );
-		$term_id  = $term['term_id'];
-		$tt_id    = $term['term_taxonomy_id'];
+		$db           = bbp_db();
+		$taxonomy     = bbp_get_topic_tag_tax_id();
+		$term         = wp_insert_term( 'Repair count', $taxonomy );
+		$term_id      = $term['term_id'];
+		$tt_id        = $term['term_taxonomy_id'];
+		$topic_ids    = array(
+			$this->factory->topic->create(),
+			$this->factory->topic->create( array( 'post_status' => bbp_get_closed_status_id() ) ),
+			$this->factory->topic->create( array( 'post_status' => bbp_get_spam_status_id() ) ),
+			$this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id() ) ),
+		);
 
-		wp_set_object_terms( $topic_id, array( $term_id ), $taxonomy );
+		foreach ( $topic_ids as $topic_id ) {
+			wp_set_object_terms( $topic_id, array( $term_id ), $taxonomy );
+		}
+
 		$db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $tt_id ) );
 		clean_term_cache( $term_id, $taxonomy );
 		$this->assertSame( 99, get_term( $term_id, $taxonomy )->count );
+		$cached_before = wp_cache_get( $term_id, 'terms' );
+		$edit_before   = did_action( 'edit_term_taxonomy' );
+		$edited_before = did_action( 'edited_term_taxonomy' );
+
+		$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired in 1 topic-tag', $dry_run[1] );
+		$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $tt_id ) ) );
+		$this->assertEquals( $cached_before, wp_cache_get( $term_id, 'terms' ) );
+		$this->assertSame( $edit_before, did_action( 'edit_term_taxonomy' ) );
+		$this->assertSame( $edited_before, did_action( 'edited_term_taxonomy' ) );
 
 		$result = bbp_admin_repair_topic_tag_count();
 
 		$this->assertSame( 0, $result[0] );
-		$this->assertSame( 1, get_term( $term_id, $taxonomy )->count );
+		$this->assertSame( 2, get_term( $term_id, $taxonomy )->count );
+		$this->assertSame( 1, bbp_admin_repair_topic_tag_count_dry_run()[0] );
+	}
 
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_get_status
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_counts_only_tags_that_need_repair() {
+		$db       = bbp_db();
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$terms    = array(
+			wp_insert_term( 'Correct count', $taxonomy ),
+			wp_insert_term( 'Stale count', $taxonomy ),
+			wp_insert_term( 'Empty stale count', $taxonomy ),
+		);
+
+		foreach ( array( 0, 1 ) as $index ) {
+			$topic_id = $this->factory->topic->create();
+			wp_set_object_terms( $topic_id, array( $terms[ $index ]['term_id'] ), $taxonomy );
+		}
+
+		foreach ( array( 1, 2 ) as $index ) {
+			$this->assertSame( 1, $db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $terms[ $index ]['term_taxonomy_id'] ) ) );
+		}
+
+		$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( 'Topic counts would be repaired in 2 topic-tags', $dry_run[1] );
+		$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $terms[1]['term_taxonomy_id'] ) ) );
+		$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $terms[2]['term_taxonomy_id'] ) ) );
+
+		$this->assertSame( 0, bbp_admin_repair_topic_tag_count()[0] );
+		$this->assertSame( 1, get_term( $terms[0]['term_id'], $taxonomy )->count );
+		$this->assertSame( 1, get_term( $terms[1]['term_id'], $taxonomy )->count );
+		$this->assertSame( 0, get_term( $terms[2]['term_id'], $taxonomy )->count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_get_status
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_run_clears_stale_cache_when_database_matches() {
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$term     = wp_insert_term( 'Stale cache', $taxonomy );
+		$topic_id = $this->factory->topic->create();
+
+		wp_set_object_terms( $topic_id, array( $term['term_id'] ), $taxonomy );
+		$cached        = get_term( $term['term_id'], $taxonomy );
+		$cached->count = 99;
+		wp_cache_set( $term['term_id'], $cached, 'terms' );
+		$this->assertSame( 99, get_term( $term['term_id'], $taxonomy )->count );
+
+		$this->assertSame( 1, bbp_admin_repair_topic_tag_count_dry_run()[0] );
+		$this->assertSame( 99, get_term( $term['term_id'], $taxonomy )->count );
+
+		$this->assertSame( 1, bbp_admin_repair_topic_tag_count()[0] );
+		$this->assertSame( 1, get_term( $term['term_id'], $taxonomy )->count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_reports_missing_taxonomy() {
 		$filter = static function () {
 			return 'bbp_missing_topic_tag_taxonomy';
 		};
+
 		add_filter( 'bbp_get_topic_tag_tax_id', $filter );
+
 		try {
-			$this->assertSame( 1, bbp_admin_repair_topic_tag_count()[0] );
+			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+			$this->assertSame( 1, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_topic_tag_count();
+			$this->assertSame( 1, $result[0] );
+			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'bbp_get_topic_tag_tax_id', $filter );
 		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_reports_uncallable_callback() {
+		$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
+		$callback = $taxonomy->update_count_callback;
+
+		$taxonomy->update_count_callback = 'bbp_missing_topic_tag_count_callback';
+
+		try {
+			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_topic_tag_count();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			$taxonomy->update_count_callback = $callback;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_fails_closed_in_dry_run_for_custom_count_callback() {
+		$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
+		$callback = $taxonomy->update_count_callback;
+		$term     = wp_insert_term( 'Custom callback', $taxonomy->name );
+		$calls    = array();
+
+		$taxonomy->update_count_callback = static function ( $term_taxonomy_ids, $taxonomy_object ) use ( &$calls ) {
+			$calls[] = array( $term_taxonomy_ids, $taxonomy_object );
+		};
+
+		try {
+			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+			$this->assertStringContainsString( 'Dry Run is unavailable for the configured topic-tag count callback', $dry_run[1] );
+			$this->assertSame( array(), $calls );
+
+			$this->assertSame( 0, bbp_admin_repair_topic_tag_count()[0] );
+			$this->assertCount( 1, $calls );
+			$this->assertSame( array( $term['term_taxonomy_id'] ), $calls[0][0] );
+			$this->assertSame( $taxonomy, $calls[0][1] );
+		} finally {
+			$taxonomy->update_count_callback = $callback;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_fails_closed_in_dry_run_for_generic_callback() {
+		$db       = bbp_db();
+		$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
+		$callback = $taxonomy->update_count_callback;
+		$term     = wp_insert_term( 'Generic callback', $taxonomy->name );
+		$topic_id = $this->factory->topic->create();
+
+		wp_set_object_terms( $topic_id, array( $term['term_id'] ), $taxonomy->name );
+		$this->assertSame( 1, $db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $term['term_taxonomy_id'] ) ) );
+		$taxonomy->update_count_callback = '';
+
+		try {
+			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+			$this->assertStringContainsString( 'Dry Run is unavailable for the configured topic-tag count callback', $dry_run[1] );
+			$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $term['term_taxonomy_id'] ) ) );
+
+			$this->assertSame( 0, bbp_admin_repair_topic_tag_count()[0] );
+			$this->assertSame( 1, get_term( $term['term_id'], $taxonomy->name )->count );
+		} finally {
+			$taxonomy->update_count_callback = $callback;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_fails_closed_without_object_types() {
+		$db           = bbp_db();
+		$taxonomy     = get_taxonomy( bbp_get_topic_tag_tax_id() );
+		$object_types = $taxonomy->object_type;
+		$term         = wp_insert_term( 'No object type', $taxonomy->name );
+
+		$this->assertSame( 1, $db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $term['term_taxonomy_id'] ) ) );
+		$taxonomy->object_type = array();
+
+		try {
+			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+			$this->assertStringContainsString( 'topic-tag taxonomy has no object types to count', $dry_run[1] );
+
+			$result = bbp_admin_repair_topic_tag_count();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $term['term_taxonomy_id'] ) ) );
+		} finally {
+			$taxonomy->object_type = $object_types;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_get_status
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_reports_read_errors_without_writes() {
+		$db              = bbp_db();
+		$taxonomy        = bbp_get_topic_tag_tax_id();
+		$term            = wp_insert_term( 'Read error', $taxonomy );
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( false !== strpos( $query, 'SELECT `termtaxonomy`.`term_taxonomy_id`' ) )
+				? str_replace( "FROM `{$db->term_taxonomy}`", 'FROM `bbp_missing_topic_tag_count_taxonomy`', $query )
+				: $query;
+		};
+
+		$this->assertSame( 1, $db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $term['term_taxonomy_id'] ) ) );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+			$this->assertSame( 3, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_topic_tag_count();
+			$this->assertSame( 3, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $term['term_taxonomy_id'] ) ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_get_status
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_reports_update_errors_and_can_retry() {
+		$db              = bbp_db();
+		$taxonomy        = bbp_get_topic_tag_tax_id();
+		$term            = wp_insert_term( 'Update error', $taxonomy );
+		$old_suppression = $db->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "UPDATE `{$db->term_taxonomy}` SET `count`" ) )
+				? str_replace( "UPDATE `{$db->term_taxonomy}`", 'UPDATE `bbp_missing_topic_tag_count_taxonomy`', $query )
+				: $query;
+		};
+
+		$this->assertSame( 1, $db->update( $db->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $term['term_taxonomy_id'] ) ) );
+		add_filter( 'query', $query_filter );
+
+		try {
+			$result = bbp_admin_repair_topic_tag_count();
+			$this->assertSame( 4, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $term['term_taxonomy_id'] ) ) );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$db->suppress_errors( $old_suppression );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_topic_tag_count()[0] );
+		$this->assertSame( 0, get_term( $term['term_id'], $taxonomy )->count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_tag_count
+	 * @covers ::bbp_admin_repair_topic_tag_count_dry_run
+	 * @covers ::bbp_admin_repair_topic_tag_count_get_status
+	 * @covers ::bbp_admin_repair_topic_tag_count_process
+	 */
+	public function test_bbp_admin_repair_topic_tag_count_reports_no_data() {
+		$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No topic-tag counts to repair', $dry_run[1] );
+
+		$result = bbp_admin_repair_topic_tag_count();
+		$this->assertSame( 1, $result[0] );
+		$this->assertStringContainsString( 'No topic-tag counts to repair', $result[1] );
 	}
 
 	/**

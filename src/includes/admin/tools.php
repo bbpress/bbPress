@@ -318,7 +318,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recount topics in each topic-tag', 'bbpress' ),
 			'description' => esc_html__( 'Run this if the number of topics in any topic-tags are incorrect.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_topic_tag_count',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_topic_tag_count',
+				'dry-run' => 'bbp_admin_repair_topic_tag_count_dry_run',
+			),
 			'priority'    => 50,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_topic_post_type(), bbp_get_topic_tag_tax_id() )
