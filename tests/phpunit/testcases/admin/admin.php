@@ -433,10 +433,18 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$cache_key    = 'bbp_pending_counts';
 		wp_cache_delete( $cache_key, 'bbpress_posts' );
 
-		$queries_before = get_num_queries();
+		$pending_count_queries = 0;
+		$count_pending_queries = function( $query ) use ( &$pending_count_queries ) {
+			if ( false !== strpos( $query, 'COUNT(*) AS pending_count' ) ) {
+				$pending_count_queries++;
+			}
+
+			return $query;
+		};
+		add_filter( 'query', $count_pending_queries );
+
 		bbp_admin()->add_pending_counts();
-		$queries_after  = get_num_queries();
-		$this->assertSame( $queries_before + 1, $queries_after );
+		$this->assertSame( 1, $pending_count_queries );
 		$this->assertSame(
 			array(
 				'last_changed'   => $last_changed,
@@ -454,7 +462,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$GLOBALS['menu'][0][0] = 'Topics';
 		$GLOBALS['menu'][1][0] = 'Replies';
 		bbp_admin()->add_pending_counts();
-		$this->assertSame( $queries_after, get_num_queries() );
+		$this->assertSame( 1, $pending_count_queries );
 		$this->assertStringContainsString( '1 Topic pending', $GLOBALS['menu'][0][0] );
 		$this->assertStringContainsString( '1 Reply pending', $GLOBALS['menu'][1][0] );
 
@@ -466,9 +474,9 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$GLOBALS['menu'][0][0] = 'Topics';
 		$GLOBALS['menu'][1][0] = 'Replies';
 		$this->assertTrue( current_user_can( 'moderate' ) );
-		$queries_before_refresh = get_num_queries();
 		bbp_admin()->add_pending_counts();
-		$this->assertSame( $queries_before_refresh + 1, get_num_queries() );
+		remove_filter( 'query', $count_pending_queries );
+		$this->assertSame( 2, $pending_count_queries );
 		$this->assertSame( 'Topics', $GLOBALS['menu'][0][0] );
 		$this->assertSame( 'Replies', $GLOBALS['menu'][1][0] );
 	}
