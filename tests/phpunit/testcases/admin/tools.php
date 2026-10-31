@@ -3760,6 +3760,98 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process
+	 */
+	public function test_bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_supports_dry_run() {
+		$db       = bbp_db();
+		$user_ids = $this->factory->user->create_many( 2 );
+		$key      = $db->prefix . '_bbp_forum_subscriptions';
+
+		update_user_option( $user_ids[0], '_bbp_forum_subscriptions', '1,2' );
+		add_user_meta( $user_ids[0], $key, '2,3' );
+		update_user_option( $user_ids[1], '_bbp_forum_subscriptions', '3,4' );
+		$stored = $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A );
+
+		$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '3 forum subscriptions would be deleted', $dry_run[1] );
+		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
+
+		$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '3 forum subscriptions deleted', $result[1] );
+		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
+
+		$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum subscriptions to remove', $dry_run[1] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process
+	 */
+	public function test_bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_reports_read_errors() {
+		$db              = bbp_db();
+		$old_suppression = $db->suppress_errors( true );
+		$old_usermeta    = $db->usermeta;
+
+		try {
+			$db->usermeta = 'bbp_missing_forum_subscriptions_delete_usermeta';
+			$result       = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+
+			$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			$db->usermeta = $old_usermeta;
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run
+	 * @covers ::bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process
+	 */
+	public function test_bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_reports_write_errors() {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+		$key     = $db->prefix . '_bbp_forum_subscriptions';
+		$filter  = static function ( $check, $object_id, $meta_key ) use ( $key ) {
+			return ( $key === $meta_key ) ? false : $check;
+		};
+
+		update_user_option( $user_id, '_bbp_forum_subscriptions', '1,2' );
+		add_filter( 'delete_user_metadata', $filter, 10, 3 );
+
+		try {
+			$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
+			$this->assertSame( 3, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed! 1 forum subscription could not be deleted.', $result[1] );
+			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
+
+			$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
+			$this->assertSame( 0, $dry_run[0] );
+			$this->assertStringContainsString( '1 forum subscription would be deleted', $dry_run[1] );
+		} finally {
+			remove_filter( 'delete_user_metadata', $filter, 10 );
+		}
+
+		$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 forum subscription deleted', $result[1] );
+		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
+	}
+
+	/**
 	 * @covers ::bbp_admin_upgrade_user_favorites
 	 * @covers ::bbp_admin_upgrade_user_favorites_dry_run
 	 * @covers ::bbp_admin_upgrade_user_favorites_process
