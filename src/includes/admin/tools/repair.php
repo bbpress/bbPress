@@ -2393,21 +2393,245 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
  * Repair the private and hidden forums.
  *
  * @since 2.2.0 bbPress (r4105)
+ * @since 2.7.0 bbPress (r8240) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_forum_visibility() {
-	/* translators: %s: Status of the repair process */
-	$statement = esc_html__( 'Recalculating forum visibility&hellip; %s', 'bbpress' );
+	return bbp_admin_repair_forum_visibility_process();
+}
 
-	// Bail if queries returned errors
-	if ( ! bbp_repair_forum_visibility() ) {
-		return array( 2, sprintf( $statement, esc_html__( 'Failed!',   'bbpress' ) ) );
+/**
+ * Preview repairing the private and hidden forum options.
+ *
+ * @since 2.7.0 bbPress (r8240)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_visibility_dry_run() {
+	return bbp_admin_repair_forum_visibility_process( true );
+}
 
-	// Complete results
+/**
+ * Repair or preview repairing the private and hidden forum options.
+ *
+ * @since 2.7.0 bbPress (r8240)
+ *
+ * @param bool $dry_run Whether to preview changes without updating options.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
+	$bbp_db = bbp_db();
+	$failed = esc_html__( 'Failed!', 'bbpress' );
+	$fmt    = bbp_get_forum_post_type();
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking forum visibility&hellip; %s', 'bbpress' );
 	} else {
-		return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+		/* translators: %s: Status of the repair process */
+		$statement = esc_html__( 'Recalculating forum visibility&hellip; %s', 'bbpress' );
 	}
+
+	$private_forums = $bbp_db->get_col(
+		$bbp_db->prepare(
+			"SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s ORDER BY `ID`",
+			$fmt,
+			bbp_get_private_status_id()
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	$hidden_forums = $bbp_db->get_col(
+		$bbp_db->prepare(
+			"SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s ORDER BY `ID`",
+			$fmt,
+			bbp_get_hidden_status_id()
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			3,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	$private_forums = wp_parse_id_list( $private_forums );
+	$hidden_forums  = wp_parse_id_list( $hidden_forums  );
+
+	$read_option = static function ( $option_name, $option_default ) use ( $bbp_db ) {
+		$option_value = apply_filters( "pre_option_{$option_name}", false, $option_name, $option_default );
+
+		// The generic pre-option filter was introduced in WordPress 6.1
+		if ( version_compare( get_bloginfo( 'version' ), '6.1', '>=' ) ) {
+			$option_value = apply_filters( 'pre_option', $option_value, $option_name, $option_default );
+		}
+
+		if ( false !== $option_value ) {
+			return array( true, $option_value );
+		}
+
+		$option = $bbp_db->get_row(
+			$bbp_db->prepare(
+				"SELECT `option_value` FROM `{$bbp_db->options}` WHERE `option_name` = %s LIMIT 1",
+				$option_name
+			)
+		);
+
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array( false, $option_default );
+		}
+
+		$option_value = is_object( $option )
+			? apply_filters( "option_{$option_name}", maybe_unserialize( $option->option_value ), $option_name )
+			: apply_filters( "default_option_{$option_name}", $option_default, $option_name, true );
+
+		return array( true, $option_value );
+	};
+
+	list( $private_read, $stored_private ) = $read_option( '_bbp_private_forums', array() );
+	if ( ! $private_read ) {
+		return array(
+			4,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	list( $hidden_read, $stored_hidden ) = $read_option( '_bbp_hidden_forums', array() );
+	if ( ! $hidden_read ) {
+		return array(
+			5,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	$clear_option_cache = static function ( $option_name ) {
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( $option_name, 'options' );
+	};
+
+	$write_option = static function ( $option_name, $option_value ) use ( $bbp_db, $clear_option_cache ) {
+		$clear_option_cache( $option_name );
+		update_option( $option_name, $option_value );
+
+		$option = $bbp_db->get_row(
+			$bbp_db->prepare(
+				"SELECT `option_value` FROM `{$bbp_db->options}` WHERE `option_name` = %s LIMIT 1",
+				$option_name
+			)
+		);
+
+		if ( ! empty( $bbp_db->last_error ) || ! is_object( $option ) || ( maybe_unserialize( $option->option_value ) !== $option_value ) ) {
+			return false;
+		}
+
+		$clear_option_cache( $option_name );
+		return true;
+	};
+
+	$change_count = static function ( $stored, $expected ) {
+		$is_default = ( '' === $stored );
+		$valid      = $is_default || ( is_array( $stored ) && ( array_values( $stored ) === $stored ) );
+		$stored_ids = is_array( $stored )
+			? bbp_get_unique_array_values( wp_parse_id_list( $stored ) )
+			: array();
+		$changes    = array_unique( array_merge( array_diff( $stored_ids, $expected ), array_diff( $expected, $stored_ids ) ) );
+		$count      = count( $changes );
+
+		if ( $valid && ! $is_default ) {
+			foreach ( $stored as $forum_id ) {
+				if ( ! is_int( $forum_id ) || ( $forum_id < 1 ) ) {
+					$valid = false;
+					break;
+				}
+			}
+		}
+
+		if ( $valid && ! $is_default && ( count( $stored ) !== count( $stored_ids ) ) ) {
+			$valid = false;
+		}
+
+		// Include malformed or duplicate option values, but ignore ID order
+		if ( empty( $count ) && ! $valid ) {
+			$count = 1;
+		}
+
+		return $count;
+	};
+
+	$private_changes = $change_count( $stored_private, $private_forums );
+	$hidden_changes  = $change_count( $stored_hidden,  $hidden_forums  );
+
+	if ( empty( $private_changes ) && empty( $hidden_changes ) ) {
+		if ( ! $dry_run ) {
+			$clear_option_cache( '_bbp_private_forums' );
+			$clear_option_cache( '_bbp_hidden_forums'  );
+		}
+
+		$result = esc_html__( 'No forum visibility entries to repair.', 'bbpress' );
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	$private_result = sprintf(
+		/* translators: %s: Number of private forum visibility entries */
+		esc_html( _n( '%s private forum visibility entry would be repaired.', '%s private forum visibility entries would be repaired.', $private_changes, 'bbpress' ) ),
+		bbp_number_format( $private_changes )
+	);
+	$hidden_result = sprintf(
+		/* translators: %s: Number of hidden forum visibility entries */
+		esc_html( _n( '%s hidden forum visibility entry would be repaired.', '%s hidden forum visibility entries would be repaired.', $hidden_changes, 'bbpress' ) ),
+		bbp_number_format( $hidden_changes )
+	);
+
+	if ( $dry_run ) {
+		$result = esc_html__( 'Dry run complete!', 'bbpress' ) . ' ' . $private_result . ' ' . $hidden_result;
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	if ( ! empty( $private_changes ) ) {
+		if ( ! $write_option( '_bbp_private_forums', $private_forums ) ) {
+			return array(
+				6,
+				sprintf( $statement, $failed ),
+				'success' => false,
+			);
+		}
+	}
+
+	if ( ! empty( $hidden_changes ) ) {
+		if ( ! $write_option( '_bbp_hidden_forums', $hidden_forums ) ) {
+			return array(
+				7,
+				sprintf( $statement, $failed ),
+				'success' => false,
+			);
+		}
+	}
+
+	$private_result = sprintf(
+		/* translators: %s: Number of private forum visibility entries */
+		esc_html( _n( '%s private forum visibility entry repaired.', '%s private forum visibility entries repaired.', $private_changes, 'bbpress' ) ),
+		bbp_number_format( $private_changes )
+	);
+	$hidden_result = sprintf(
+		/* translators: %s: Number of hidden forum visibility entries */
+		esc_html( _n( '%s hidden forum visibility entry repaired.', '%s hidden forum visibility entries repaired.', $hidden_changes, 'bbpress' ) ),
+		bbp_number_format( $hidden_changes )
+	);
+	$result = esc_html__( 'Complete!', 'bbpress' ) . ' ' . $private_result . ' ' . $hidden_result;
+
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**

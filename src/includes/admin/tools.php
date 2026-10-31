@@ -182,7 +182,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Recalculate private and hidden forums', 'bbpress' ),
 			'description' => esc_html__( 'Run this if non-public forums are publicly visible.', 'bbpress' ),
-			'callback'    => 'bbp_admin_repair_forum_visibility',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_forum_visibility',
+				'dry-run' => 'bbp_admin_repair_forum_visibility_dry_run',
+			),
 			'priority'    => 15,
 			'overhead'    => 'low',
 			'components'  => array( bbp_get_forum_post_type() )

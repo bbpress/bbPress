@@ -3030,6 +3030,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
 	 */
 	public function test_bbp_admin_repair_forum_visibility() {
 		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
@@ -3037,9 +3039,329 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_option( '_bbp_private_forums', array() );
 		update_option( '_bbp_hidden_forums', array() );
 
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 private forum visibility entry would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 hidden forum visibility entry would be repaired', $dry_run[1] );
+		$this->assertSame( array(), get_option( '_bbp_private_forums' ) );
+		$this->assertSame( array(), get_option( '_bbp_hidden_forums' ) );
+
+		$result = bbp_admin_repair_forum_visibility();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 private forum visibility entry repaired', $result[1] );
+		$this->assertStringContainsString( '1 hidden forum visibility entry repaired', $result[1] );
+		$this->assertSame( array( $private_id ), get_option( '_bbp_private_forums' ) );
+		$this->assertSame( array( $hidden_id ), get_option( '_bbp_hidden_forums' ) );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_canonicalizes_malformed_options() {
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$hidden_id  = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$private    = array( (string) $private_id, (string) $private_id, 999 );
+		$hidden     = 'malformed';
+
+		update_option( '_bbp_private_forums', $private );
+		update_option( '_bbp_hidden_forums', $hidden );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 private forum visibility entry would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 hidden forum visibility entry would be repaired', $dry_run[1] );
+		$this->assertSame( $private, get_option( '_bbp_private_forums' ) );
+		$this->assertSame( $hidden, get_option( '_bbp_hidden_forums' ) );
+
 		$this->assertSame( 0, bbp_admin_repair_forum_visibility()[0] );
-		$this->assertContains( $private_id, get_option( '_bbp_private_forums' ) );
-		$this->assertContains( $hidden_id, get_option( '_bbp_hidden_forums' ) );
+		$this->assertSame( array( $private_id ), get_option( '_bbp_private_forums' ) );
+		$this->assertSame( array( $hidden_id ), get_option( '_bbp_hidden_forums' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_ignores_option_order() {
+		$older_id  = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$newer_id  = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$private   = array( $newer_id, $older_id );
+
+		update_option( '_bbp_private_forums', $private );
+		update_option( '_bbp_hidden_forums', array() );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertSame( $private, get_option( '_bbp_private_forums' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_accepts_default_empty_options() {
+		update_option( '_bbp_private_forums', '' );
+		update_option( '_bbp_hidden_forums', '' );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertSame( '', get_option( '_bbp_private_forums' ) );
+		$this->assertSame( '', get_option( '_bbp_hidden_forums' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_repairs_object_options() {
+		$private = (object) array( 'malformed' => 999 );
+
+		update_option( '_bbp_private_forums', $private );
+		update_option( '_bbp_hidden_forums', array() );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 private forum visibility entry would be repaired', $dry_run[1] );
+		$this->assertEquals( $private, get_option( '_bbp_private_forums' ) );
+
+		$this->assertSame( 0, bbp_admin_repair_forum_visibility()[0] );
+		$this->assertSame( array(), get_option( '_bbp_private_forums' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reports_private_read_errors() {
+		global $wpdb;
+
+		$old_posts       = $wpdb->posts;
+		$old_suppression = $wpdb->suppress_errors( true );
+		$wpdb->posts     = 'bbp_missing_forum_visibility_posts';
+
+		try {
+			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_visibility();
+			$this->assertSame( 2, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			$wpdb->posts = $old_posts;
+			$wpdb->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reports_hidden_read_errors() {
+		global $wpdb;
+
+		$old_suppression = $wpdb->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $wpdb ) {
+			return ( false !== strpos( $query, "`post_status` = 'hidden'" ) )
+				? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_forum_visibility_posts`', $query )
+				: $query;
+		};
+
+		add_filter( 'query', $query_filter );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+			$this->assertSame( 3, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_visibility();
+			$this->assertSame( 3, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$wpdb->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reports_private_option_read_errors() {
+		global $wpdb;
+
+		$old_suppression = $wpdb->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $wpdb ) {
+			return ( false !== strpos( $query, "`option_name` = '_bbp_private_forums'" ) )
+				? str_replace( "FROM `{$wpdb->options}`", 'FROM `bbp_missing_forum_visibility_options`', $query )
+				: $query;
+		};
+
+		add_filter( 'query', $query_filter );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+			$this->assertSame( 4, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_visibility();
+			$this->assertSame( 4, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$wpdb->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reports_hidden_option_read_errors() {
+		global $wpdb;
+
+		$old_suppression = $wpdb->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $wpdb ) {
+			return ( false !== strpos( $query, "`option_name` = '_bbp_hidden_forums'" ) )
+				? str_replace( "FROM `{$wpdb->options}`", 'FROM `bbp_missing_forum_visibility_options`', $query )
+				: $query;
+		};
+
+		add_filter( 'query', $query_filter );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+			$this->assertSame( 5, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_visibility();
+			$this->assertSame( 5, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$wpdb->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reads_database_when_cache_is_correct() {
+		$db         = bbp_db();
+		$option     = '_bbp_private_forums';
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+
+		update_option( $option, array( $private_id ) );
+		$this->assertSame( array( $private_id ), get_option( $option ) );
+		$this->assertSame( 1, $db->update( $db->options, array( 'option_value' => maybe_serialize( array() ) ), array( 'option_name' => $option ) ) );
+		$this->assertSame( array( $private_id ), get_option( $option ) );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 0, $dry_run[0] );
+		$this->assertStringContainsString( '1 private forum visibility entry would be repaired', $dry_run[1] );
+		$this->assertSame( array(), maybe_unserialize( $db->get_var( $db->prepare( "SELECT option_value FROM {$db->options} WHERE option_name = %s", $option ) ) ) );
+		$this->assertSame( array( $private_id ), get_option( $option ) );
+
+		$this->assertSame( 0, bbp_admin_repair_forum_visibility()[0] );
+		$this->assertSame( array( $private_id ), maybe_unserialize( $db->get_var( $db->prepare( "SELECT option_value FROM {$db->options} WHERE option_name = %s", $option ) ) ) );
+		$this->assertSame( array( $private_id ), get_option( $option ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_dry_run
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_repairs_stale_cache_on_noop_run() {
+		$option     = '_bbp_private_forums';
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+
+		update_option( $option, array( $private_id ) );
+		$alloptions = wp_load_alloptions();
+		$this->assertArrayHasKey( $option, $alloptions );
+		$alloptions[ $option ] = maybe_serialize( array() );
+		wp_cache_set( 'alloptions', $alloptions, 'options' );
+		wp_cache_delete( $option, 'options' );
+		$this->assertSame( array(), get_option( $option ) );
+
+		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
+		$this->assertSame( 1, $dry_run[0] );
+		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertSame( array(), get_option( $option ) );
+
+		$result = bbp_admin_repair_forum_visibility();
+		$this->assertSame( 1, $result[0] );
+		$this->assertSame( array( $private_id ), get_option( $option ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reports_private_update_errors() {
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$filter     = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+
+		update_option( '_bbp_private_forums', array() );
+		add_filter( 'pre_update_option__bbp_private_forums', $filter, 10, 2 );
+
+		try {
+			$result = bbp_admin_repair_forum_visibility();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( array(), get_option( '_bbp_private_forums' ) );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_private_forums', $filter, 10 );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_visibility()[0] );
+		$this->assertSame( array( $private_id ), get_option( '_bbp_private_forums' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_visibility
+	 * @covers ::bbp_admin_repair_forum_visibility_process
+	 */
+	public function test_bbp_admin_repair_forum_visibility_reports_hidden_update_errors() {
+		$private_id = $this->factory->forum->create( array( 'post_status' => bbp_get_private_status_id() ) );
+		$hidden_id  = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$filter     = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+
+		update_option( '_bbp_private_forums', array() );
+		update_option( '_bbp_hidden_forums', array() );
+		add_filter( 'pre_update_option__bbp_hidden_forums', $filter, 10, 2 );
+
+		try {
+			$result = bbp_admin_repair_forum_visibility();
+			$this->assertSame( 7, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( array( $private_id ), get_option( '_bbp_private_forums' ) );
+			$this->assertSame( array(), get_option( '_bbp_hidden_forums' ) );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_hidden_forums', $filter, 10 );
+		}
+
+		$this->assertSame( 0, bbp_admin_repair_forum_visibility()[0] );
+		$this->assertSame( array( $hidden_id ), get_option( '_bbp_hidden_forums' ) );
 	}
 
 	/**
