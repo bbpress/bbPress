@@ -496,7 +496,10 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user topic favorites', 'bbpress' ),
 			'description' => esc_html__( 'Copies favorites from user meta to topic meta.', 'bbpress' ),
-			'callback'    => 'bbp_admin_upgrade_user_favorites',
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_upgrade_user_favorites',
+				'dry-run' => 'bbp_admin_upgrade_user_favorites_dry_run',
+			),
 			'priority'    => 110,
 			'version'     => '2.6.0',
 			'overhead'    => 'high',

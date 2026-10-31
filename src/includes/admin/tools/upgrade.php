@@ -514,60 +514,158 @@ function bbp_admin_upgrade_group_forum_relationships() {
  * Upgrade user favorites for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6176)
+ * @since 2.7.0 bbPress (r8231) Added Dry Run support.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_favorites() {
+	return bbp_admin_upgrade_user_favorites_process();
+}
+
+/**
+ * Preview upgrading user favorites for bbPress 2.6 and higher.
+ *
+ * @since 2.7.0 bbPress (r8231)
+ *
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_user_favorites_dry_run() {
+	return bbp_admin_upgrade_user_favorites_process( true );
+}
+
+/**
+ * Upgrade or preview upgrading user favorites.
+ *
+ * @since 2.7.0 bbPress (r8231)
+ *
+ * @param bool $dry_run Whether to preview changes without updating data.
+ * @return array An array of the status code and the message.
+ */
+function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db    = bbp_db();
-	/* translators: %s: Status of the upgrade process */
-	$statement = esc_html__( 'Upgrading user favorites&hellip; %s', 'bbpress' );
-	$result    = esc_html__( 'No favorites to upgrade.',            'bbpress' );
-	$total     = 0;
-	$old_key   = $bbp_db->prefix . '_bbp_favorites';
-	$new_key   = '_bbp_favorite';
+	$bbp_db          = bbp_db();
+	$failed          = esc_html__( 'Failed!', 'bbpress' );
+	$result          = esc_html__( 'No favorites to upgrade.', 'bbpress' );
+	$total           = 0;
+	$failed_total    = 0;
+	$old_key         = $bbp_db->prefix . '_bbp_favorites';
+	$new_key         = '_bbp_favorite';
+	$planned_user_id = null;
+	$planned         = array();
+
+	if ( $dry_run ) {
+		/* translators: %s: Status of the dry-run process */
+		$statement = esc_html__( 'Checking user favorites&hellip; %s', 'bbpress' );
+	} else {
+		/* translators: %s: Status of the upgrade process */
+		$statement = esc_html__( 'Upgrading user favorites&hellip; %s', 'bbpress' );
+	}
 
 	// Results
-	$query     = "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s";
+	$query     = "SELECT user_id, meta_value FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id, umeta_id";
 	$prepare   = $bbp_db->prepare( $query, $old_key );
 	$favs      = $bbp_db->get_results( $prepare );
 
-	// Bail if no closed topics found
-	if ( empty( $favs ) || is_wp_error( $favs ) ) {
+	// Bail if favorites could not be read
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false,
+		);
+	}
+
+	// Bail if no favorites were found
+	if ( empty( $favs ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Loop through each user's favorites
 	foreach ( $favs as $meta ) {
+		$user_id = (int) $meta->user_id;
+
+		// Bound relationship state to one user at a time
+		if ( $planned_user_id !== $user_id ) {
+			$planned_user_id = $user_id;
+			$planned         = array();
+		}
 
 		// Get post IDs
-		$post_ids = explode( ',', $meta->meta_value );
+		$post_ids = array_filter( wp_parse_id_list( $meta->meta_value ) );
 
 		// Add user ID to all favorited posts
 		foreach ( $post_ids as $post_id ) {
 
-			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s", $post_id, $new_key, $meta->user_id ) ) ) {
+			// Skip relationships already processed for this user
+			if ( isset( $planned[ $post_id ] ) ) {
+				continue;
+			}
+
+			// Skip relationships that already exist
+			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $new_key, $user_id ) );
+			if ( ! empty( $bbp_db->last_error ) ) {
+				return array(
+					3,
+					sprintf( $statement, $failed ),
+					'success' => false,
+				);
+			}
+
+			if ( ! empty( $exists ) ) {
+				$planned[ $post_id ] = true;
+				continue;
+			}
+
+			$planned[ $post_id ] = true;
+
+			if ( $dry_run ) {
+				++$total;
 				continue;
 			}
 
 			// Add the post meta
-			$added = add_post_meta( $post_id, $new_key, $meta->user_id, false );
-
-			// Bump counts if successfully added
-			if ( ! empty( $added ) ) {
-				++$total;
+			if ( false === add_post_meta( $post_id, $new_key, $user_id, false ) ) {
+				++$failed_total;
+				continue;
 			}
+
+			++$total;
 		}
 	}
 
 	// Cleanup
-	unset( $favs, $added, $post_ids );
+	unset( $favs, $post_ids, $planned );
+
+	if ( $dry_run ) {
+		if ( empty( $total ) ) {
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		/* translators: %s: Number of favorites that would be upgraded */
+		$result = sprintf( _n( 'Dry run complete! %s favorite would be upgraded.', 'Dry run complete! %s favorites would be upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+
+		return array( 0, sprintf( $statement, $result ) );
+	}
+
+	if ( ! empty( $failed_total ) ) {
+		/* translators: %s: Number of upgraded favorites */
+		$upgraded = sprintf( _n( '%s favorite upgraded', '%s favorites upgraded', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of favorites that failed */
+		$failures = sprintf( _n( '%s favorite failed', '%s favorites failed', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+		/* translators: %1$s: Upgraded favorites; %2$s: Favorites that failed */
+		$result = sprintf( esc_html__( 'Failed! %1$s; %2$s.', 'bbpress' ), $upgraded, $failures );
+
+		return array(
+			4,
+			sprintf( $statement, $result ),
+			'success' => false,
+		);
+	}
 
 	// Complete results
-	/* translators: %d: Number of upgraded favorites */
-	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of upgraded favorites */
+	$result = sprintf( _n( 'Complete! %s favorite upgraded.', 'Complete! %s favorites upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }

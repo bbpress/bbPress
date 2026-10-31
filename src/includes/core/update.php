@@ -390,7 +390,11 @@ function bbp_version_updater() {
 			 * Upgrade user favorites and subscriptions
 			 */
 			if ( $raw_db_version < 261 ) {
-				bbp_admin_upgrade_user_favorites();
+				$favorites = bbp_admin_upgrade_user_favorites();
+				if ( isset( $favorites['success'] ) && ( false === $favorites['success'] ) ) {
+					bbp_add_pending_upgrade( 'bbp-user-favorites-move' );
+				}
+
 				bbp_admin_upgrade_user_topic_subscriptions();
 				bbp_admin_upgrade_user_forum_subscriptions();
 			}
