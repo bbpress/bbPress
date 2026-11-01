@@ -186,6 +186,7 @@ function bbp_add_options() {
  *
  * @since 2.0.0 bbPress (r3421)
  * @since 2.7.0 bbPress (r8252) Delete temporary forum tool run state.
+ * @since 2.7.0 bbPress (r8253) Delete built-in tool batch checkpoints.
  */
 function bbp_delete_options() {
 
@@ -199,6 +200,11 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_run_upgrade' );
 	delete_option( '_bbp_tools_run_status_repair' );
 	delete_option( '_bbp_tools_run_status_upgrade' );
+
+	// Delete checkpoints without requiring the administration tools to be loaded
+	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-sync-closed-topics' ) as $tool_id ) {
+		delete_option( '_bbp_tool_batch_' . md5( $tool_id ) );
+	}
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_delete_options' );

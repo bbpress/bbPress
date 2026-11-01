@@ -372,6 +372,38 @@ function bbp_admin_repair_tool_normalize_result( $result = array() ) {
 }
 
 /**
+ * Return the maximum work items in one built-in tool batch.
+ *
+ * @since 2.7.0 bbPress (r8253)
+ *
+ * @param string $tool_id Repair or upgrade tool ID.
+ * @return int Batch size between 1 and 1000.
+ */
+function bbp_admin_repair_tool_batch_size( $tool_id = '' ) {
+	/**
+	 * Filters the work limit for one built-in repair or upgrade batch.
+	 *
+	 * @since 2.7.0 bbPress (r8253)
+	 *
+	 * @param int    $size    Maximum work items, limited to between 1 and 1000.
+	 * @param string $tool_id Repair or upgrade tool ID.
+	 */
+	return max( 1, min( 1000, (int) apply_filters( 'bbp_admin_repair_tool_batch_size', 100, $tool_id ) ) );
+}
+
+/**
+ * Return the option name for a built-in tool's next batch checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8253)
+ *
+ * @param string $tool_id Repair or upgrade tool ID.
+ * @return string
+ */
+function bbp_admin_repair_tool_batch_option_name( $tool_id = '' ) {
+	return '_bbp_tool_batch_' . md5( sanitize_key( $tool_id ) );
+}
+
+/**
  * Run every batch of a repair or upgrade during a small-site update.
  *
  * Legacy callbacks complete after one call. Batched callbacks continue until

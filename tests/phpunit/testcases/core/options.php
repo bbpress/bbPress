@@ -197,6 +197,24 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_delete_options
+	 */
+	public function test_bbp_delete_options_removes_builtin_tool_batch_checkpoints() {
+		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-sync-closed-topics' );
+		foreach ( $tools as $tool_id ) {
+			$this->set_option( '_bbp_tool_batch_' . md5( $tool_id ), array( 'cursor' => 10 ) );
+		}
+		foreach ( array_keys( bbp_get_default_options() ) as $option ) {
+			$this->remember_option( $option );
+		}
+
+		bbp_delete_options();
+		foreach ( $tools as $tool_id ) {
+			$this->assertFalse( get_option( '_bbp_tool_batch_' . md5( $tool_id ), false ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_setup_option_filters
 	 */
 	public function test_bbp_setup_option_filters_supports_custom_defaults() {

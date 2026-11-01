@@ -47,6 +47,13 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Process legacy favorites, topic subscriptions, forum subscriptions, and
+  closed-topic repairs in resumable batches, preserving automatic completion
+  during small-site upgrades and read-only previews of the next batch. Legacy-data
+  cleanup waits for unfinished migrations.
+- Direct callers of these batched callbacks should use
+  `bbp_admin_repair_tool_run_automatically()`, or normalize each result with
+  `bbp_admin_repair_tool_normalize_result()` and continue until `complete` is true.
 - Moved repair and upgrade page-load callbacks onto the shared
   `bbp_admin_load_tools_repair_upgrade` action. Extensions that remove these
   callbacks should use the shared action instead of the WordPress page-load actions.

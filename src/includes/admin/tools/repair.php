@@ -3930,6 +3930,7 @@ function bbp_admin_repair_sticky_process( $dry_run = false ) {
  * @since 2.6.0 bbPress (r5668)
  *
  * @since 2.7.0 bbPress (r8218) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8253) Process one resumable batch per call.
  *
  * @return array An array of the status code and the message.
  */
@@ -3959,9 +3960,13 @@ function bbp_admin_repair_closed_topics_dry_run() {
 function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db        = bbp_db();
-	$result        = esc_html__( '0 closed topics to repair.',         'bbpress' );
-	$changed       = 0;
+	$bbp_db  = bbp_db();
+	$tool_id = 'bbp-sync-closed-topics';
+	$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
+	$state   = get_option( $option, false );
+	$result  = esc_html__( '0 closed topics to repair.', 'bbpress' );
+	$failed  = esc_html__( 'Failed!', 'bbpress' );
+	$changed = 0;
 
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
@@ -3971,15 +3976,43 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		$statement = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
 	}
 
-	// Results
-	$query         = "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s";
-	$prepare       = $bbp_db->prepare( $query, bbp_get_topic_post_type(), bbp_get_closed_status_id() );
-	$closed_topics = $bbp_db->get_col( $prepare );
-
-	// Bail if no closed topics found
-	if ( empty( $closed_topics ) || is_wp_error( $closed_topics ) ) {
-		return array( 1, sprintf( $statement, $result ) );
+	if ( false === $state ) {
+		$upper_id = $bbp_db->get_var( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND post_status = %s ORDER BY ID DESC LIMIT 1", bbp_get_topic_post_type(), bbp_get_closed_status_id() ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array(
+				2,
+				sprintf( $statement, $failed ),
+				'success' => false
+			);
+		}
+		$state = array(
+			'cursor'   => 0,
+			'upper_id' => (int) $upper_id
+		);
+	} elseif (
+		! is_array( $state ) || ! isset( $state['cursor'], $state['upper_id'] ) ||
+		! is_int( $state['cursor'] ) || ! is_int( $state['upper_id'] ) ||
+		( $state['cursor'] < 0 ) || ( $state['upper_id'] < 0 )
+	) {
+		return array(
+			5,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
 	}
+
+	// Inspect one extra ID to determine whether another bounded batch remains
+	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
+	$closed_topics = $bbp_db->get_col( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND post_status = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT %d", bbp_get_topic_post_type(), bbp_get_closed_status_id(), $state['cursor'], $state['upper_id'], $size + 1 ) );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return array(
+			2,
+			sprintf( $statement, $failed ),
+			'success' => false
+		);
+	}
+	$complete      = count( $closed_topics ) <= $size;
+	$closed_topics = array_slice( $closed_topics, 0, $size );
 
 	// Ensure Run and Dry Run inspect current database values
 	wp_cache_delete_multiple( wp_parse_id_list( $closed_topics ), 'post_meta' );
@@ -3989,30 +4022,71 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 
 		// Check if the closed topic already has a postmeta _bbp_status value
 		$topic_status = get_post_meta( $closed_topic, '_bbp_status', true );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return array(
+				3,
+				sprintf( $statement, $failed ),
+				'success' => false
+			);
+		}
 
 		// If we don't have a postmeta _bbp_status value
 		if ( empty( $topic_status ) ) {
 			if ( ! $dry_run ) {
-				update_post_meta( $closed_topic, '_bbp_status', 'publish' );
+				if ( false === update_post_meta( $closed_topic, '_bbp_status', 'publish' ) ) {
+					return array(
+						4,
+						sprintf( $statement, $failed ),
+						'success' => false
+					);
+				}
 			}
 
 			++$changed; // Keep a count to display at the end
 		}
 	}
 
-	// Cleanup
-	unset( $closed_topics, $closed_topic, $topic_status );
+	// Dry Run never advances or removes the saved Run checkpoint
+	if ( ! $dry_run ) {
+		if ( $complete ) {
+			delete_option( $option );
+			$saved = false === get_option( $option, false );
+		} else {
+			$state['cursor'] = (int) end( $closed_topics );
+			update_option( $option, $state, false );
+			$saved = get_option( $option, false ) === $state;
+		}
+		if ( ! $saved ) {
+			return array(
+				5,
+				sprintf( $statement, $failed ),
+				'success' => false
+			);
+		}
+	}
+
+	if ( empty( $closed_topics ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
 
 	// Complete results
 	if ( $dry_run ) {
 		/* translators: %d: Number of closed topics that would be repaired */
-		$result = sprintf( _n( '%d closed topic would be repaired.', '%d closed topics would be repaired.', $changed, 'bbpress' ), $changed );
+		$result = sprintf( _n( '%d closed topic would be repaired in this batch.', '%d closed topics would be repaired in this batch.', $changed, 'bbpress' ), $changed );
 	} else {
 		/* translators: %d: Number of repaired topics */
-		$result = sprintf( _n( 'Complete! %d closed topic repaired.', 'Complete! %d closed topics repaired.', $changed, 'bbpress' ), $changed );
+		$result = sprintf( _n( '%d closed topic repaired.', '%d closed topics repaired.', $changed, 'bbpress' ), $changed );
+		$status = $complete
+			? esc_html__( 'Complete!', 'bbpress' )
+			: esc_html__( 'Batch complete!', 'bbpress' );
+		$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
 	}
 
-	return array( 0, sprintf( $statement, $result ) );
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $complete
+	);
 }
 
 /**

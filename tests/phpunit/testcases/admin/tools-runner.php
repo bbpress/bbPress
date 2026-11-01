@@ -860,6 +860,100 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertSame( array( 'one', 'one', 'one', 'two' ), $this->calls );
 	}
 
+	public function test_builtin_migrations_continue_through_the_bulk_and_ajax_handlers() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
+		$tools = array(
+			'bbp-user-favorites-move' => array( '_bbp_favorites', '_bbp_favorite' ),
+			'bbp-user-topic-subscriptions-move' => array( '_bbp_subscriptions', '_bbp_subscription' ),
+			'bbp-user-forum-subscriptions-move' => array( '_bbp_forum_subscriptions', '_bbp_subscription' ),
+		);
+		$ids     = array_keys( $tools );
+		$user_id = $this->factory->user->create();
+		$posts   = array();
+		foreach ( $tools as $tool_id => $keys ) {
+			$posts[ $tool_id ] = $this->factory->post->create_many( 3 );
+			add_user_meta( $user_id, bbp_db()->prefix . $keys[0], implode( ',', $posts[ $tool_id ] ) );
+		}
+		update_option( '_bbp_db_pending_upgrades', $ids );
+		$batch_size = static function () {
+			return 2;
+		};
+		add_filter( 'bbp_admin_repair_tool_batch_size', $batch_size );
+		bbp_register_default_repair_tools();
+		$run_id = '';
+
+		try {
+			foreach ( $ids as $index => $tool_id ) {
+				$_GET = array(
+					'page'          => 'bbp-upgrade',
+					'action'        => 'run',
+					'checked'       => array_slice( $ids, $index ),
+					'bbp-tools-run' => $run_id,
+					'_wpnonce'      => wp_create_nonce( 'bbpress-do-counts' )
+				);
+				$_REQUEST                  = $_GET;
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				bbp_admin_repair_handler();
+
+				$state  = bbp_admin_repair_tool_get_run_state( 'upgrade' );
+				$run_id = $state['id'];
+				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
+				$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+				$this->assertSame( array(), get_post_meta( $posts[ $tool_id ][2], $tools[ $tool_id ][1], false ) );
+
+				$response = $this->ajax( 'upgrade', $tool_id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $run_id );
+				$this->assertTrue( $response['success'] );
+				$this->assertTrue( $response['data']['complete'] );
+				$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+				$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false ) );
+			}
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $batch_size );
+		}
+
+		$this->assertSame( array(), bbp_get_pending_upgrades() );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
+		foreach ( $tools as $tool_id => $keys ) {
+			foreach ( $posts[ $tool_id ] as $post_id ) {
+				$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, $keys[1], false ) );
+			}
+		}
+	}
+
+	public function test_failed_first_migration_batch_cannot_be_followed_by_destructive_bulk_cleanup() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->topic->create_many( 3 );
+		$key     = bbp_db()->prefix . '_bbp_favorites';
+		add_user_meta( $user_id, $key, implode( ',', $posts ) );
+		bbp_register_default_repair_tools();
+		$fail = static function ( $check, $post_id, $meta_key ) use ( $posts ) {
+			return ( ( $posts[1] === $post_id ) && ( '_bbp_favorite' === $meta_key ) ) ? false : $check;
+		};
+		add_filter( 'add_post_metadata', $fail, 10, 3 );
+		$_GET = array(
+			'page'     => 'bbp-upgrade',
+			'action'   => 'run',
+			'checked'  => array( 'bbp-user-favorites-move', 'bbp-user-favorites-delete' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' )
+		);
+		$_REQUEST                  = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		try {
+			bbp_admin_repair_handler();
+		} finally {
+			remove_filter( 'add_post_metadata', $fail, 10 );
+		}
+		$this->assertSame( implode( ',', $posts ), get_user_meta( $user_id, $key, true ) );
+		$this->assertSame( array(), get_post_meta( $posts[1], '_bbp_favorite', false ) );
+		$this->assertStringContainsString( 'Finish the upgrade', end( bbp_admin()->notices ) );
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-user-favorites-move', 'bbp_admin_upgrade_user_favorites' ) );
+		$this->assertSame( 0, bbp_admin_upgrade_remove_favorites_from_usermeta()[0] );
+		foreach ( $posts as $post_id ) {
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, '_bbp_favorite', false ) );
+		}
+	}
+
 	/**
 	 * @ticket 3777
 	 * @covers ::bbp_admin_repair_handler
