@@ -2328,8 +2328,16 @@ function bbp_reply_enforce_visibility() {
 
 		bbp_set_404( $query );
 
-		// Stop WordPress from rendering a feed body after visibility failed.
-		$query->is_feed = false;
+		// Prevent later templates from using the denied object.
+		$query->is_feed           = false;
+		$query->is_embed          = false;
+		$query->posts             = array();
+		$query->post              = null;
+		$query->post_count        = 0;
+		$query->found_posts       = 0;
+		$query->max_num_pages     = 0;
+		$query->queried_object    = null;
+		$query->queried_object_id = 0;
 	}
 }
 
