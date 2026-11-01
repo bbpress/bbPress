@@ -326,6 +326,149 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		return $posts;
 	}
 
+	private function checkpoint_corruptions( $user_meta = false ) {
+		$cases = array(
+			'not an array'       => array( 'state', 'broken' ),
+			'missing cursor'     => array( 'cursor', null ),
+			'missing bound'      => array( 'upper_id', null ),
+			'string cursor'      => array( 'cursor', '0' ),
+			'string bound'       => array( 'upper_id', '9999999' ),
+			'negative cursor'    => array( 'cursor', -1 ),
+			'negative bound'     => array( 'upper_id', -1 ),
+			'cursor past bound'  => array( 'cursor', PHP_INT_MAX ),
+		);
+		if ( $user_meta ) {
+			$cases += array(
+				'missing offset'       => array( 'offset', null ),
+				'missing fingerprint'  => array( 'row_hash', null ),
+				'string offset'        => array( 'offset', '2' ),
+				'negative offset'      => array( 'offset', -1 ),
+				'impossible offset'    => array( 'offset', PHP_INT_MAX ),
+				'offset at list end'   => array( 'offset', 5 ),
+				'invalid fingerprint'  => array( 'row_hash', 'invalid' ),
+				'empty fingerprint'    => array( 'row_hash', '' ),
+				'offset without row'   => array( 'cursor', 0 ),
+				'fingerprint at start' => array( 'offset', 0 ),
+			);
+		}
+		return $cases;
+	}
+
+	public function malformed_upgrade_checkpoints() {
+		$cases = array();
+		foreach ( $this->upgrade_tools() as $name => $tool ) {
+			foreach ( $this->checkpoint_corruptions( true ) as $case => $change ) {
+				$cases[ $name . ': ' . $case ] = array_merge( $tool, $change );
+			}
+		}
+		return $cases;
+	}
+
+	public function malformed_closed_topic_checkpoints() {
+		return $this->checkpoint_corruptions();
+	}
+
+	private function corrupt_checkpoint( $option, $field, $value ) {
+		$state = get_option( $option );
+		if ( 'state' === $field ) {
+			$state = $value;
+		} elseif ( null === $value ) {
+			unset( $state[ $field ] );
+		} else {
+			$state[ $field ] = $value;
+		}
+		update_option( $option, $state, false );
+	}
+
+	/**
+	 * @dataProvider malformed_upgrade_checkpoints
+	 */
+	public function test_malformed_upgrade_checkpoints_restart_safely_and_preview_without_writes( $tool_id, $old_key, $new_key, $callback, $field, $value ) {
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->post->create_many( 5 );
+		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		add_user_meta( $user_id, bbp_db()->prefix . $old_key, implode( ',', $posts ) );
+		call_user_func( $callback );
+		$this->corrupt_checkpoint( $option, $field, $value );
+		$before  = $this->stored_data();
+		$preview = call_user_func( $callback . '_dry_run' );
+		$this->assertSame( 0, $preview[0] );
+		$this->assertStringContainsString( 'Saved progress is invalid. Previewing from the beginning.', $preview[1] );
+		$this->assertSame( $before, $this->stored_data() );
+		$result = call_user_func( $callback );
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( 'Saved progress was invalid. Restarting from the beginning.', $result[1] );
+		$this->assertFalse( $result['complete'] );
+		$this->assertSame( array(), get_post_meta( $posts[2], $new_key, false ) );
+		$this->finish( $callback );
+		$this->assertFalse( get_option( $option, false ) );
+		foreach ( $posts as $post_id ) {
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, $new_key, false ) );
+		}
+	}
+
+	/**
+	 * @dataProvider malformed_closed_topic_checkpoints
+	 */
+	public function test_malformed_closed_topic_checkpoints_restart_safely_and_preview_without_writes( $field, $value ) {
+		$posts  = $this->closed_topics( 5 );
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-sync-closed-topics' );
+		bbp_admin_repair_closed_topics();
+		$this->corrupt_checkpoint( $option, $field, $value );
+		$before  = $this->stored_data();
+		$preview = bbp_admin_repair_closed_topics_dry_run();
+		$this->assertSame( 0, $preview[0] );
+		$this->assertStringContainsString( 'Saved progress is invalid. Previewing from the beginning.', $preview[1] );
+		$this->assertSame( $before, $this->stored_data() );
+		$result = bbp_admin_repair_closed_topics();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( 'Saved progress was invalid. Restarting from the beginning.', $result[1] );
+		$this->assertFalse( $result['complete'] );
+		$this->assertSame( '', get_post_meta( $posts[2], '_bbp_status', true ) );
+		$this->finish( 'bbp_admin_repair_closed_topics' );
+		$this->assertFalse( get_option( $option, false ) );
+		foreach ( $posts as $post_id ) {
+			$this->assertSame( 'publish', get_post_meta( $post_id, '_bbp_status', true ) );
+		}
+	}
+
+	/**
+	 * @dataProvider upgrade_tools
+	 */
+	public function test_a_changed_shorter_list_is_normal_and_does_not_restart_the_whole_upgrade( $tool_id, $old_key, $new_key, $callback ) {
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->post->create_many( 5 );
+		$key     = bbp_db()->prefix . $old_key;
+		add_user_meta( $user_id, $key, implode( ',', $posts ) );
+		call_user_func( $callback );
+		update_user_meta( $user_id, $key, $posts[4] );
+		$preview = call_user_func( $callback . '_dry_run' );
+		$this->assertStringNotContainsString( 'Saved progress is invalid', $preview[1] );
+		$result = call_user_func( $callback );
+		$this->assertTrue( $result['complete'] );
+		$this->assertStringNotContainsString( 'Saved progress was invalid', $result[1] );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $posts[4], $new_key, false ) );
+	}
+
+	/**
+	 * @dataProvider upgrade_tools
+	 */
+	public function test_a_deleted_source_row_is_normal_and_does_not_skip_the_next_list( $tool_id, $old_key, $new_key, $callback ) {
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->post->create_many( 5 );
+		$key     = bbp_db()->prefix . $old_key;
+		$row_id  = add_user_meta( $user_id, $key, implode( ',', array_slice( $posts, 0, 3 ) ) );
+		add_user_meta( $user_id, $key, implode( ',', array_slice( $posts, 3 ) ) );
+		call_user_func( $callback );
+		delete_metadata_by_mid( 'user', $row_id );
+		$result = call_user_func( $callback );
+		$this->assertTrue( $result['complete'] );
+		$this->assertStringNotContainsString( 'Saved progress was invalid', $result[1] );
+		$this->assertSame( array(), get_post_meta( $posts[2], $new_key, false ) );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $posts[3], $new_key, false ) );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $posts[4], $new_key, false ) );
+	}
+
 	public function test_closed_topics_are_bounded_preserve_statuses_and_preview_the_next_batch() {
 		$posts  = $this->closed_topics( 5 );
 		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-sync-closed-topics' );
@@ -392,6 +535,51 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$this->finish( 'bbp_admin_repair_closed_topics' );
 	}
 
+	public function test_deleting_a_processed_topic_does_not_make_its_checkpoint_malformed() {
+		$posts = $this->closed_topics( 5 );
+		bbp_admin_repair_closed_topics();
+		wp_delete_post( $posts[1], true );
+		$result = bbp_admin_repair_closed_topics();
+		$this->assertStringNotContainsString( 'Saved progress was invalid', $result[1] );
+		$this->assertSame( 'publish', get_post_meta( $posts[3], '_bbp_status', true ) );
+		$this->assertSame( '', get_post_meta( $posts[4], '_bbp_status', true ) );
+		$this->finish( 'bbp_admin_repair_closed_topics' );
+	}
+
+	public function test_translated_restart_notices_preserve_literal_percent_signs_and_placeholders() {
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->post->create_many( 5 );
+		$option  = bbp_admin_repair_tool_batch_option_name( 'bbp-user-favorites-move' );
+		add_user_meta( $user_id, bbp_db()->prefix . '_bbp_favorites', implode( ',', $posts ) );
+		bbp_admin_upgrade_user_favorites();
+		update_option( $option, 'broken', false );
+		$translations = array(
+			'Saved progress is invalid. Previewing from the beginning.' => 'Saved progress is invalid (100%). Previewing from the beginning: %s.',
+			'Saved progress was invalid. Restarting from the beginning.' => 'Saved progress was invalid (100%). Restarting from the beginning: %s.',
+		);
+		$translate = static function ( $translated, $text, $domain ) use ( $translations ) {
+			return ( 'bbpress' === $domain ) && isset( $translations[ $text ] ) ? $translations[ $text ] : $translated;
+		};
+		add_filter( 'gettext', $translate, 10, 3 );
+		try {
+			$before  = $this->stored_data();
+			$preview = bbp_admin_upgrade_user_favorites_dry_run();
+			$this->assertSame( 0, $preview[0] );
+			$this->assertStringContainsString( $translations['Saved progress is invalid. Previewing from the beginning.'], $preview[1] );
+			$this->assertSame( $before, $this->stored_data() );
+			$result = bbp_admin_upgrade_user_favorites();
+			$this->assertSame( 0, $result[0] );
+			$this->assertStringContainsString( $translations['Saved progress was invalid. Restarting from the beginning.'], $result[1] );
+			$this->assertStringContainsString( '0 favorite relationships added', $result[1] );
+		} finally {
+			remove_filter( 'gettext', $translate, 10 );
+		}
+		$this->finish( 'bbp_admin_upgrade_user_favorites' );
+		foreach ( $posts as $post_id ) {
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, '_bbp_favorite', false ) );
+		}
+	}
+
 	public function test_small_site_updater_completes_all_three_real_migrations_automatically() {
 		$this->check_small_site_updater( false );
 	}
@@ -400,7 +588,15 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$this->check_small_site_updater( true );
 	}
 
-	private function check_small_site_updater( $exhaust ) {
+	public function test_small_site_updater_recovers_malformed_checkpoints_automatically() {
+		$this->check_small_site_updater( false, true );
+	}
+
+	public function test_small_site_budget_exhaustion_recovers_malformed_checkpoints_and_stays_resumable() {
+		$this->check_small_site_updater( true, true );
+	}
+
+	private function check_small_site_updater( $exhaust, $malformed = false ) {
 		$user_id = $this->factory->user->create();
 		$tools   = $this->upgrade_tools();
 		$posts   = array();
@@ -409,6 +605,9 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				? $this->factory->forum->create_many( 5 )
 				: $this->factory->topic->create_many( 5 );
 			add_user_meta( $user_id, bbp_db()->prefix . $tool[1], implode( ',', $posts[ $name ] ) );
+			if ( $malformed ) {
+				update_option( bbp_admin_repair_tool_batch_option_name( $tool[0] ), 'broken', false );
+			}
 		}
 		update_option( '_bbp_db_version', 260 );
 		delete_option( '_bbp_db_pending_upgrades' );

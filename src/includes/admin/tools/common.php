@@ -404,6 +404,29 @@ function bbp_admin_repair_tool_batch_option_name( $tool_id = '' ) {
 }
 
 /**
+ * Check the integer fields and bounds of a saved tool checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8254)
+ *
+ * @param mixed $state        Saved checkpoint.
+ * @param array $extra_fields Additional nonnegative integer fields to check.
+ * @return bool
+ */
+function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = array() ) {
+	if ( ! is_array( $state ) ) {
+		return false;
+	}
+
+	foreach ( array_merge( array( 'cursor', 'upper_id' ), $extra_fields ) as $field ) {
+		if ( ! isset( $state[ $field ] ) || ! is_int( $state[ $field ] ) || ( $state[ $field ] < 0 ) ) {
+			return false;
+		}
+	}
+
+	return $state['cursor'] <= $state['upper_id'];
+}
+
+/**
  * Run every batch of a repair or upgrade during a small-site update.
  *
  * Legacy callbacks complete after one call. Batched callbacks continue until
@@ -545,6 +568,28 @@ function bbp_admin_repair_tool_dry_run_message( $message = '', $success = true )
 	}
 
 	return implode( "\n", $lines );
+}
+
+/**
+ * Add a restart explanation to a tool's result statement when needed.
+ *
+ * @since 2.7.0 bbPress (r8254)
+ *
+ * @param string $statement Tool result statement containing a %s placeholder.
+ * @param bool   $restarted Whether invalid saved progress requires a restart.
+ * @param bool   $dry_run   Whether only the restart is being previewed.
+ * @return string
+ */
+function bbp_admin_repair_tool_restart_statement( $statement, $restarted = false, $dry_run = false ) {
+	if ( ! $restarted ) {
+		return $statement;
+	}
+
+	$message = $dry_run
+		? esc_html__( 'Saved progress is invalid. Previewing from the beginning.', 'bbpress' )
+		: esc_html__( 'Saved progress was invalid. Restarting from the beginning.', 'bbpress' );
+
+	return sprintf( $statement, str_replace( '%', '%%', $message ) . "\n%s" );
 }
 
 /**

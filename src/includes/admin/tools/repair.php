@@ -3953,6 +3953,7 @@ function bbp_admin_repair_closed_topics_dry_run() {
  * Repair or preview closed topics.
  *
  * @since 2.7.0 bbPress (r8218)
+ * @since 2.7.0 bbPress (r8254) Safely restart malformed checkpoints.
  *
  * @param bool $dry_run Whether to preview changes without updating metadata.
  * @return array An array of the status code and the message.
@@ -3976,6 +3977,12 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		$statement = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
 	}
 
+	$restarted = ( false !== $state ) && ! bbp_admin_repair_tool_is_valid_checkpoint( $state );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $restarted, $dry_run );
+	if ( $restarted ) {
+		$state = false;
+	}
+
 	if ( false === $state ) {
 		$upper_id = $bbp_db->get_var( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND post_status = %s ORDER BY ID DESC LIMIT 1", bbp_get_topic_post_type(), bbp_get_closed_status_id() ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
@@ -3988,16 +3995,6 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		$state = array(
 			'cursor'   => 0,
 			'upper_id' => (int) $upper_id
-		);
-	} elseif (
-		! is_array( $state ) || ! isset( $state['cursor'], $state['upper_id'] ) ||
-		! is_int( $state['cursor'] ) || ! is_int( $state['upper_id'] ) ||
-		( $state['cursor'] < 0 ) || ( $state['upper_id'] < 0 )
-	) {
-		return array(
-			5,
-			sprintf( $statement, $failed ),
-			'success' => false
 		);
 	}
 

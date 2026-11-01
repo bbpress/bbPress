@@ -868,6 +868,34 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
 }
 
 /**
+ * Check the stored fields of a legacy user-meta checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8254)
+ *
+ * @param mixed $state Saved checkpoint.
+ * @return bool
+ */
+function bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state ) {
+	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'offset' ) ) ) {
+		return false;
+	}
+
+	if ( ! isset( $state['row_hash'] ) || ! is_string( $state['row_hash'] ) ) {
+		return false;
+	}
+
+	if ( 0 === $state['offset'] ) {
+		return '' === $state['row_hash'];
+	}
+
+	if ( 0 === $state['cursor'] ) {
+		return false;
+	}
+
+	return 1 === preg_match( '/^[a-f0-9]{32}$/D', $state['row_hash'] );
+}
+
+/**
  * Upgrade one bounded batch of legacy user-meta relationships.
  *
  * The checkpoint includes a fixed upper user-meta ID and a position within a
@@ -876,6 +904,7 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
  * safe. Dry Run reads the same next batch without saving any progress.
  *
  * @since 2.7.0 bbPress (r8253)
+ * @since 2.7.0 bbPress (r8254) Safely restart malformed checkpoints.
  *
  * @param string $tool_id Repair or upgrade tool ID.
  * @param string $old_key Legacy user-meta key.
@@ -888,12 +917,32 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 	$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
 	$state  = get_option( $option, false );
 	$batch  = array(
-		'code'     => 0,
-		'added'    => 0,
-		'failed'   => 0,
-		'complete' => false,
-		'found'    => false
+		'code'      => 0,
+		'added'     => 0,
+		'failed'    => 0,
+		'complete'  => false,
+		'found'     => false,
+		'restarted' => false
 	);
+
+	$valid = ( false === $state ) || bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state );
+
+	// Changed or deleted rows are normal; an impossible offset in an unchanged row is not
+	if ( $valid && ! empty( $state['offset'] ) ) {
+		$meta = $bbp_db->get_row( $bbp_db->prepare( "SELECT user_id, meta_value FROM {$bbp_db->usermeta} WHERE umeta_id = %d AND meta_key = %s LIMIT 1", $state['cursor'], $old_key ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		if ( ! empty( $meta ) && ( md5( (int) $meta->user_id . ':' . $meta->meta_value ) === $state['row_hash'] ) ) {
+			$valid = $state['offset'] < count( array_filter( wp_parse_id_list( $meta->meta_value ) ) );
+		}
+	}
+
+	if ( ! $valid ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
 
 	if ( false === $state ) {
 		$upper_id = $bbp_db->get_var( $bbp_db->prepare( "SELECT umeta_id FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY umeta_id DESC LIMIT 1", $old_key ) );
@@ -918,15 +967,6 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 				return $batch;
 			}
 		}
-	} elseif (
-		! is_array( $state ) ||
-		! isset( $state['cursor'], $state['offset'], $state['upper_id'], $state['row_hash'] ) ||
-		! is_int( $state['cursor'] ) || ! is_int( $state['offset'] ) || ! is_int( $state['upper_id'] ) ||
-		! is_string( $state['row_hash'] ) ||
-		( $state['cursor'] < 0 ) || ( $state['offset'] < 0 ) || ( $state['upper_id'] < 0 )
-	) {
-		$batch['code'] = 5;
-		return $batch;
 	}
 
 	$size    = bbp_admin_repair_tool_batch_size( $tool_id );
@@ -1087,6 +1127,8 @@ function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
 	$total        = $batch['added'];
 	$failed_total = $batch['failed'];
 
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+
 	if ( ! empty( $batch['code'] ) && ( 4 !== $batch['code'] ) ) {
 		return array(
 			$batch['code'],
@@ -1197,6 +1239,8 @@ function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) 
 	$total        = $batch['added'];
 	$failed_total = $batch['failed'];
 
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+
 	if ( ! empty( $batch['code'] ) && ( 4 !== $batch['code'] ) ) {
 		return array(
 			$batch['code'],
@@ -1306,6 +1350,8 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
 	$batch        = bbp_admin_upgrade_user_meta_batch( 'bbp-user-forum-subscriptions-move', $old_key, $new_key, $dry_run );
 	$total        = $batch['added'];
 	$failed_total = $batch['failed'];
+
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 
 	if ( ! empty( $batch['code'] ) && ( 4 !== $batch['code'] ) ) {
 		return array(

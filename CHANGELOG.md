@@ -77,6 +77,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Restart built-in tool batches safely when saved progress is malformed, while
+  keeping Dry Run previews read-only and allowing normal content changes.
 - Styled pending database upgrade counts consistently in the administration menu.
 - Prevented the user profile engagements section from rendering twice.
 - Linked imported email addresses with one-character local parts during
