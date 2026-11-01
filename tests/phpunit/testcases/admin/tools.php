@@ -83,7 +83,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertStringContainsString( 'id="bbp-sync-topic-meta"', $output );
 			$this->assertStringContainsString( 'id="cb-select-bbp-test-select-action"', $output );
 			$this->assertStringContainsString( 'id="bbp-test-select-action-select"', $output );
-			$this->assertStringContainsString( 'Select Recalculate parent topic for each reply', $output );
+			$this->assertStringContainsString( 'Select Recalculate topic references', $output );
 			$this->assert_unique_html_ids( $output );
 		} finally {
 			$_GET              = $original_get;
@@ -1686,11 +1686,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_topic_count_reports_no_data() {
 		$dry_run = bbp_admin_repair_forum_topic_count_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum topic counts to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum topic counts to repair', $dry_run[1] );
 
 		$run = bbp_admin_repair_forum_topic_count();
 		$this->assertSame( 1, $run[0] );
-		$this->assertStringContainsString( 'No forum topic counts to repair', $run[1] );
+		$this->assertStringContainsString( '0 forum topic counts to repair', $run[1] );
 	}
 
 	/**
@@ -2031,11 +2031,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_subforum_count_reports_no_data() {
 		$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum subforum counts to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum subforum counts to repair', $dry_run[1] );
 
 		$run = bbp_admin_repair_forum_subforum_count();
 		$this->assertSame( 1, $run[0] );
-		$this->assertStringContainsString( 'No forum subforum counts to repair', $run[1] );
+		$this->assertStringContainsString( '0 forum subforum counts to repair', $run[1] );
 	}
 
 	/**
@@ -2713,11 +2713,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_hidden_reply_count_reports_no_data() {
 		$dry_run = bbp_admin_repair_forum_hidden_reply_count_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum hidden reply counts to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum hidden reply counts to repair', $dry_run[1] );
 
 		$result = bbp_admin_repair_forum_hidden_reply_count();
 		$this->assertSame( 1, $result[0] );
-		$this->assertStringContainsString( 'No forum hidden reply counts to repair', $result[1] );
+		$this->assertStringContainsString( '0 forum hidden reply counts to repair', $result[1] );
 	}
 
 	/**
@@ -3518,11 +3518,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_reply_count_reports_no_data() {
 		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum reply counts to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum reply counts to repair', $dry_run[1] );
 
 		$result = bbp_admin_repair_forum_reply_count();
 		$this->assertSame( 1, $result[0] );
-		$this->assertStringContainsString( 'No forum reply counts to repair', $result[1] );
+		$this->assertStringContainsString( '0 forum reply counts to repair', $result[1] );
 	}
 
 	/**
@@ -4065,7 +4065,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No user favorites to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 user favorites to repair', $dry_run[1] );
 		$this->assertSame(
 			(string) $old_id,
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4261,7 +4261,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, $live_id );
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No user favorites to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 user favorites to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
@@ -4310,7 +4310,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No user topic subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 user topic subscriptions to repair', $dry_run[1] );
 		$this->assertSame(
 			(string) $old_id,
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4506,7 +4506,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, $live_id );
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No user topic subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 user topic subscriptions to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
@@ -4555,7 +4555,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No user forum subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 user forum subscriptions to repair', $dry_run[1] );
 		$this->assertSame(
 			(string) $old_id,
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4751,7 +4751,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, $live_id );
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No user forum subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 user forum subscriptions to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
@@ -4767,7 +4767,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
 		$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
@@ -4846,7 +4846,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
@@ -4962,12 +4962,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$dry_run = bbp_admin_repair_user_roles_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+			$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
 			$this->assertContains( $extra, get_userdata( $user_id )->roles );
 
 			$run = bbp_admin_repair_user_roles();
 			$this->assertSame( 0, $run[0] );
-			$this->assertStringContainsString( 'Complete! 1 user updated', $run[1] );
+			$this->assertStringContainsString( 'Complete! 1 user was assigned the default forum role', $run[1] );
 			$this->assertSame( array( $blocked ), array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) ) );
 		} finally {
 			remove_filter( 'bbp_get_user_role_map', $block_map );
@@ -4989,12 +4989,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
 		$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 1 user updated', $run[1] );
+		$this->assertStringContainsString( 'Complete! 1 user was assigned the default forum role', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
@@ -5016,7 +5016,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '2 users would be updated', $dry_run[1] );
+		$this->assertStringContainsString( '2 users would be assigned the default forum role', $dry_run[1] );
 		$this->assertSame(
 			array( bbp_get_moderator_role(), bbp_get_spectator_role() ),
 			array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) )
@@ -5024,7 +5024,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 2 users updated', $run[1] );
+		$this->assertStringContainsString( 'Complete! 2 users were assigned the default forum role', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
@@ -5050,12 +5050,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be updated', $dry_run[1] );
+		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
 		$this->assertSame( array(), get_user_meta( $user_id, $cap_key, true ) );
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 1 user updated', $run[1] );
+		$this->assertStringContainsString( 'Complete! 1 user was assigned the default forum role', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
@@ -5179,11 +5179,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_freshness_reports_no_data() {
 		$dry_run = bbp_admin_repair_freshness_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No topic or forum freshness data to recalculate', $dry_run[1] );
+		$this->assertStringContainsString( '0 topic or forum freshness records to recalculate', $dry_run[1] );
 
 		$run = bbp_admin_repair_freshness();
 		$this->assertSame( 1, $run[0] );
-		$this->assertStringContainsString( 'No topic or forum freshness data to recalculate', $run[1] );
+		$this->assertStringContainsString( '0 topic or forum freshness records to recalculate', $run[1] );
 	}
 
 	/**
@@ -5444,16 +5444,16 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_sticky_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 sticky topic relationship would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 sticky topic assignment would be repaired', $dry_run[1] );
 		$this->assertSame( array( $topic_id ), get_post_meta( $first_forum, '_bbp_sticky_topics', true ) );
 		$this->assertSame( array( $topic_id, $super_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
 
 		$result = bbp_admin_repair_sticky();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 sticky topic relationship repaired', $result[1] );
+		$this->assertStringContainsString( '1 sticky topic assignment repaired', $result[1] );
 		$this->assertSame( array( $topic_id ), get_post_meta( $first_forum, '_bbp_sticky_topics', true ) );
 		$this->assertSame( array( $super_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
-		$this->assertStringContainsString( '0 sticky topic relationships would be repaired', bbp_admin_repair_sticky_dry_run()[1] );
+		$this->assertStringContainsString( '0 sticky topic assignments would be repaired', bbp_admin_repair_sticky_dry_run()[1] );
 	}
 
 	/**
@@ -5482,7 +5482,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_sticky_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 sticky topic relationship would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 sticky topic assignment would be repaired', $dry_run[1] );
 		$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
 	}
 
@@ -5502,7 +5502,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_sticky_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 sticky topic relationships would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '0 sticky topic assignments would be repaired', $dry_run[1] );
 		$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
 	}
 
@@ -5530,7 +5530,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_sticky_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 sticky topic relationships would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '0 sticky topic assignments would be repaired', $dry_run[1] );
 		$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
 	}
 
@@ -5553,12 +5553,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$dry_run = bbp_admin_repair_sticky_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '0 sticky topic relationships would be repaired', $dry_run[1] );
+			$this->assertStringContainsString( '0 sticky topic assignments would be repaired', $dry_run[1] );
 			$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
 
 			$result = bbp_admin_repair_sticky();
 			$this->assertSame( 0, $result[0] );
-			$this->assertStringContainsString( '0 sticky topic relationships repaired', $result[1] );
+			$this->assertStringContainsString( '0 sticky topic assignments repaired', $result[1] );
 			$this->assertSame( array( $topic_id ), get_post_meta( $second_forum, '_bbp_sticky_topics', true ) );
 		} finally {
 			remove_filter( 'pre_option__bbp_super_sticky_topics', $filter );
@@ -5576,12 +5576,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_sticky_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 sticky topic relationship would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 sticky topic assignment would be repaired', $dry_run[1] );
 		$this->assertSame( 'malformed', get_post_meta( $forum_id, '_bbp_sticky_topics', true ) );
 
 		$result = bbp_admin_repair_sticky();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 sticky topic relationship repaired', $result[1] );
+		$this->assertStringContainsString( '1 sticky topic assignment repaired', $result[1] );
 		$this->assertSame( '', get_post_meta( $forum_id, '_bbp_sticky_topics', true ) );
 	}
 
@@ -5661,7 +5661,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum visibility entries to repair.', $dry_run[1] );
 	}
 
 	/**
@@ -5704,7 +5704,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum visibility entries to repair.', $dry_run[1] );
 		$this->assertSame( $private, get_option( '_bbp_private_forums' ) );
 	}
 
@@ -5718,7 +5718,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum visibility entries to repair.', $dry_run[1] );
 		$this->assertSame( '', get_option( '_bbp_private_forums' ) );
 		$this->assertSame( '', get_option( '_bbp_hidden_forums' ) );
 	}
@@ -5907,7 +5907,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_visibility_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum visibility entries to repair.', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum visibility entries to repair.', $dry_run[1] );
 		$this->assertSame( array(), get_option( $option ) );
 
 		$result = bbp_admin_repair_forum_visibility();
@@ -5988,10 +5988,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_meta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 forum relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 topic relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 reply relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 orphaned relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum parent reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 topic parent forum reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 reply parent forum reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 orphaned parent forum reference would be removed', $dry_run[1] );
 		$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 		$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_forum_id', true ) );
 		$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_forum_id', true ) );
@@ -5999,10 +5999,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$result = bbp_admin_repair_forum_meta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 forum relationship repaired', $result[1] );
-		$this->assertStringContainsString( '1 topic relationship repaired', $result[1] );
-		$this->assertStringContainsString( '1 reply relationship repaired', $result[1] );
-		$this->assertStringContainsString( '1 orphaned relationship removed', $result[1] );
+		$this->assertStringContainsString( '1 forum parent reference repaired', $result[1] );
+		$this->assertStringContainsString( '1 topic parent forum reference repaired', $result[1] );
+		$this->assertStringContainsString( '1 reply parent forum reference repaired', $result[1] );
+		$this->assertStringContainsString( '1 orphaned parent forum reference removed', $result[1] );
 		$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 		$this->assertSame( (string) $forum_id, get_post_meta( $topic_id, '_bbp_forum_id', true ) );
 		$this->assertSame( (string) $forum_id, get_post_meta( $reply_id, '_bbp_forum_id', true ) );
@@ -6010,7 +6010,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_meta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum relationships to repair.', $dry_run[1] );
+		$this->assertStringContainsString( '0 parent forum references to repair.', $dry_run[1] );
 	}
 
 	/**
@@ -6030,9 +6030,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_forum_meta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 forum relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 topic relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 reply relationship would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum parent reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 topic parent forum reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 reply parent forum reference would be repaired', $dry_run[1] );
 		$this->assertNull( $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 		$this->assertSame( $forum_id . ' ', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_forum_id' ) ) );
 		$this->assertSame( 2, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s", $reply_id, '_bbp_forum_id' ) ) );
@@ -6448,14 +6448,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$forum_dry_run = bbp_admin_repair_forum_meta_dry_run();
 		$this->assertSame( 0, $forum_dry_run[0] );
-		$this->assertStringContainsString( '1 forum relationship would be repaired', $forum_dry_run[1] );
-		$this->assertStringContainsString( '1 topic relationship would be repaired', $forum_dry_run[1] );
-		$this->assertStringContainsString( '1 reply relationship would be repaired', $forum_dry_run[1] );
+		$this->assertStringContainsString( '1 forum parent reference would be repaired', $forum_dry_run[1] );
+		$this->assertStringContainsString( '1 topic parent forum reference would be repaired', $forum_dry_run[1] );
+		$this->assertStringContainsString( '1 reply parent forum reference would be repaired', $forum_dry_run[1] );
 
 		$topic_dry_run = bbp_admin_repair_topic_meta_dry_run();
 		$this->assertSame( 0, $topic_dry_run[0] );
-		$this->assertStringContainsString( '1 topic relationship would be repaired', $topic_dry_run[1] );
-		$this->assertStringContainsString( '1 reply relationship would be repaired', $topic_dry_run[1] );
+		$this->assertStringContainsString( '1 topic self-reference would be repaired', $topic_dry_run[1] );
+		$this->assertStringContainsString( '1 reply parent topic reference would be repaired', $topic_dry_run[1] );
 		$this->assertSame( 3, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE CAST(meta_key AS BINARY) = CAST('_BBP_FORUM_ID' AS BINARY)" ) );
 		$this->assertSame( 2, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE CAST(meta_key AS BINARY) = CAST('_BBP_TOPIC_ID' AS BINARY)" ) );
 
@@ -6572,25 +6572,25 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_topic_meta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 topic relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 reply relationship would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '1 orphaned relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1 topic self-reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 reply parent topic reference would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '1 orphaned topic reference would be removed', $dry_run[1] );
 		$this->assertSame( '999', get_post_meta( $orphan_reply_id, '_bbp_topic_id', true ) );
 		$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_topic_id', true ) );
 		$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_topic_id', true ) );
 
 		$result = bbp_admin_repair_topic_meta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 topic relationship repaired', $result[1] );
-		$this->assertStringContainsString( '1 reply relationship repaired', $result[1] );
-		$this->assertStringContainsString( '1 orphaned relationship removed', $result[1] );
+		$this->assertStringContainsString( '1 topic self-reference repaired', $result[1] );
+		$this->assertStringContainsString( '1 reply parent topic reference repaired', $result[1] );
+		$this->assertStringContainsString( '1 orphaned topic reference removed', $result[1] );
 		$this->assertFalse( metadata_exists( 'post', $orphan_reply_id, '_bbp_topic_id' ) );
 		$this->assertSame( (string) $topic_id, get_post_meta( $topic_id, '_bbp_topic_id', true ) );
 		$this->assertSame( (string) $topic_id, get_post_meta( $reply_id, '_bbp_topic_id', true ) );
 
 		$dry_run = bbp_admin_repair_topic_meta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No topic relationships to repair.', $dry_run[1] );
+		$this->assertStringContainsString( '0 topic references to repair.', $dry_run[1] );
 	}
 
 	/**
@@ -6617,8 +6617,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_topic_meta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 topic relationships would be repaired', $dry_run[1] );
-		$this->assertStringContainsString( '3 reply relationships would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '3 topic self-references would be repaired', $dry_run[1] );
+		$this->assertStringContainsString( '3 reply parent topic references would be repaired', $dry_run[1] );
 		$this->assertNull( $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s", $null_topic_id, '_bbp_topic_id' ) ) );
 		$this->assertSame( $spaced_topic_id . ' ', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s", $spaced_topic_id, '_bbp_topic_id' ) ) );
 		$this->assertSame( 2, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s", $duplicate_topic_id, '_bbp_topic_id' ) ) );
@@ -6666,7 +6666,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_topic_meta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1,001 orphaned relationships would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1,001 orphaned topic references would be removed', $dry_run[1] );
 		$this->assertSame( 1001, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = %s", '_bbp_topic_id' ) ) );
 
 		add_filter( 'query', $query_filter );
@@ -7073,14 +7073,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 self-referential reply relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1 self-referential reply-to reference would be removed', $dry_run[1] );
 		$this->assertStringContainsString( '2 reply positions would be recalculated', $dry_run[1] );
 		$this->assertTrue( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
 		$this->assertSame( array( 7, 7 ), array_map( 'intval', wp_list_pluck( get_posts( array( 'post__in' => $reply_ids, 'post_type' => bbp_get_reply_post_type(), 'orderby' => 'post__in' ) ), 'menu_order' ) ) );
 
 		$result = bbp_admin_repair_reply_menu_order();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 self-referential reply relationship was removed', $result[1] );
+		$this->assertStringContainsString( '1 self-referential reply-to reference was removed', $result[1] );
 		$this->assertStringContainsString( '2 reply positions were recalculated', $result[1] );
 		$this->assertFalse( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
 		$this->assertEqualSets(
@@ -7107,13 +7107,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 self-referential reply relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1 self-referential reply-to reference would be removed', $dry_run[1] );
 		$this->assertStringContainsString( '0 reply positions would be recalculated', $dry_run[1] );
 		$this->assertTrue( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
 
 		$result = bbp_admin_repair_reply_menu_order();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 self-referential reply relationship was removed', $result[1] );
+		$this->assertStringContainsString( '1 self-referential reply-to reference was removed', $result[1] );
 		$this->assertStringContainsString( '0 reply positions were recalculated', $result[1] );
 		$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
 	}
@@ -7146,7 +7146,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_reply_menu_order_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 self-referential reply relationship would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1 self-referential reply-to reference would be removed', $dry_run[1] );
 		$this->assertTrue( metadata_exists( 'post', $reply_id, '_bbp_reply_to' ) );
 	}
 
@@ -7252,7 +7252,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$result = bbp_admin_repair_reply_menu_order();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 self-referential reply relationship was removed', $result[1] );
+		$this->assertStringContainsString( '1 self-referential reply-to reference was removed', $result[1] );
 		$this->assertStringContainsString( '2 reply positions were recalculated', $result[1] );
 		$this->assertFalse( metadata_exists( 'post', $reply_ids[0], '_bbp_reply_to' ) );
 		$this->assertEqualSets(
@@ -7606,11 +7606,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_topic_tag_count_reports_no_data() {
 		$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No topic-tag counts to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 topic-tag counts to repair', $dry_run[1] );
 
 		$result = bbp_admin_repair_topic_tag_count();
 		$this->assertSame( 1, $result[0] );
-		$this->assertStringContainsString( 'No topic-tag counts to repair', $result[1] );
+		$this->assertStringContainsString( '0 topic-tag counts to repair', $result[1] );
 	}
 
 	/**
@@ -7643,20 +7643,23 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '2 current engagement rows would be replaced with 3 upgraded engagements', $dry_run[1] );
+		$this->assertStringContainsString( '2 existing engagement rows would be cleared before rebuilding.', $dry_run[1] );
+		$this->assertStringContainsString( '3 engagement rows would be created from topic and reply authors.', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement' ORDER BY meta_id", ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_user_engagements();
 
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 engagements upgraded', $result[1] );
+		$this->assertStringContainsString( '2 existing engagement rows cleared before rebuilding.', $result[1] );
+		$this->assertStringContainsString( '3 engagement rows created from topic and reply authors.', $result[1] );
 		$this->assertEqualSets( array( $users[0], $users[1] ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
 		$this->assertSame( array( (string) $users[2] ), get_post_meta( $topic_2, '_bbp_engagement', false ) );
 		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_engagement', false ) );
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 current engagement rows would be replaced with 3 upgraded engagements', $dry_run[1] );
+		$this->assertStringContainsString( '3 existing engagement rows would be cleared before rebuilding.', $dry_run[1] );
+		$this->assertStringContainsString( '3 engagement rows would be created from topic and reply authors.', $dry_run[1] );
 	}
 
 	/**
@@ -7684,10 +7687,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 current engagement rows would be replaced with 0 upgraded engagements', $dry_run[1] );
+		$this->assertStringContainsString( '1 existing engagement row would be cleared before rebuilding.', $dry_run[1] );
+		$this->assertStringContainsString( '0 engagement rows would be created from topic and reply authors.', $dry_run[1] );
 		$this->assertSame( '999999', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
 
-		$this->assertSame( 1, bbp_admin_upgrade_user_engagements()[0] );
+		$result = bbp_admin_upgrade_user_engagements();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( '1 existing engagement row cleared before rebuilding.', $result[1] );
+		$this->assertStringContainsString( '0 engagement rows created from topic and reply authors.', $result[1] );
 		$this->assertNull( $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
 	}
 
@@ -7831,17 +7838,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 favorites would be deleted', $dry_run[1] );
+		$this->assertStringContainsString( '3 favorite user-meta rows would be deleted', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 favorites deleted', $result[1] );
+		$this->assertStringContainsString( '3 favorite user-meta rows deleted', $result[1] );
 		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
 
 		$dry_run = bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No favorites to remove', $dry_run[1] );
+		$this->assertStringContainsString( '0 favorite user-meta rows to remove', $dry_run[1] );
 	}
 
 	/**
@@ -7890,19 +7897,19 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 1 favorite could not be deleted.', $result[1] );
+			$this->assertStringContainsString( 'Failed! 1 favorite user-meta row could not be deleted.', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
 
 			$dry_run = bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 favorite would be deleted', $dry_run[1] );
+			$this->assertStringContainsString( '1 favorite user-meta row would be deleted', $dry_run[1] );
 		} finally {
 			remove_filter( 'delete_user_metadata', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 favorite deleted', $result[1] );
+		$this->assertStringContainsString( '1 favorite user-meta row deleted', $result[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
 	}
 
@@ -7923,17 +7930,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 topic subscriptions would be deleted', $dry_run[1] );
+		$this->assertStringContainsString( '3 topic subscription user-meta rows would be deleted', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 topic subscriptions deleted', $result[1] );
+		$this->assertStringContainsString( '3 topic subscription user-meta rows deleted', $result[1] );
 		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
 
 		$dry_run = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No topic subscriptions to remove', $dry_run[1] );
+		$this->assertStringContainsString( '0 topic subscription user-meta rows to remove', $dry_run[1] );
 	}
 
 	/**
@@ -7982,19 +7989,19 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 1 topic subscription could not be deleted.', $result[1] );
+			$this->assertStringContainsString( 'Failed! 1 topic subscription user-meta row could not be deleted.', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
 
 			$dry_run = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 topic subscription would be deleted', $dry_run[1] );
+			$this->assertStringContainsString( '1 topic subscription user-meta row would be deleted', $dry_run[1] );
 		} finally {
 			remove_filter( 'delete_user_metadata', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 topic subscription deleted', $result[1] );
+		$this->assertStringContainsString( '1 topic subscription user-meta row deleted', $result[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
 	}
 
@@ -8015,17 +8022,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 forum subscriptions would be deleted', $dry_run[1] );
+		$this->assertStringContainsString( '3 forum subscription user-meta rows would be deleted', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 forum subscriptions deleted', $result[1] );
+		$this->assertStringContainsString( '3 forum subscription user-meta rows deleted', $result[1] );
 		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
 
 		$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum subscriptions to remove', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum subscription user-meta rows to remove', $dry_run[1] );
 	}
 
 	/**
@@ -8074,19 +8081,19 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 1 forum subscription could not be deleted.', $result[1] );
+			$this->assertStringContainsString( 'Failed! 1 forum subscription user-meta row could not be deleted.', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
 
 			$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 forum subscription would be deleted', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum subscription user-meta row would be deleted', $dry_run[1] );
 		} finally {
 			remove_filter( 'delete_user_metadata', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 forum subscription deleted', $result[1] );
+		$this->assertStringContainsString( '1 forum subscription user-meta row deleted', $result[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
 	}
 
@@ -8110,13 +8117,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_favorites_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 favorites would be upgraded', $dry_run[1] );
+		$this->assertStringContainsString( '3 favorite relationships would be added to topic meta from user meta', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_favorite' ORDER BY meta_id", ARRAY_A ) );
 
 		// Upgrade the user favorites.
 		$result = bbp_admin_upgrade_user_favorites();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 favorites upgraded', $result[1] );
+		$this->assertStringContainsString( '3 favorite relationships added to topic meta', $result[1] );
 
 		$this->assertEqualSets( $users, bbp_get_topic_favoriters( $topics[0] ) );
 		$this->assertEqualSets( $users, get_post_meta( $topics[0], '_bbp_favorite', false ) );
@@ -8124,7 +8131,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_favorites_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No favorites to upgrade', $dry_run[1] );
+		$this->assertStringContainsString( '0 favorite relationships to upgrade', $dry_run[1] );
 	}
 
 	/**
@@ -8195,21 +8202,21 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_user_favorites();
 			$this->assertSame( 4, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 2 favorites upgraded; 1 favorite failed.', $result[1] );
+			$this->assertStringContainsString( "Failed!\n2 favorite relationships added.\n1 favorite relationship could not be added.", $result[1] );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[0], '_bbp_favorite', false ) );
 			$this->assertSame( array(), get_post_meta( $topic_ids[1], '_bbp_favorite', false ) );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[2], '_bbp_favorite', false ) );
 
 			$dry_run = bbp_admin_upgrade_user_favorites_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 favorite would be upgraded', $dry_run[1] );
+			$this->assertStringContainsString( '1 favorite relationship would be added to topic meta from user meta', $dry_run[1] );
 		} finally {
 			remove_filter( 'add_post_metadata', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_user_favorites();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 favorite upgraded', $result[1] );
+		$this->assertStringContainsString( '1 favorite relationship added to topic meta', $result[1] );
 		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[1], '_bbp_favorite', false ) );
 	}
 
@@ -8237,13 +8244,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 topic subscriptions would be upgraded', $dry_run[1] );
+		$this->assertStringContainsString( '3 topic subscription relationships would be added to topic meta from user meta', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_subscription' ORDER BY meta_id", ARRAY_A ) );
 
 		// Upgrade the user topic subscriptions.
 		$result = bbp_admin_upgrade_user_topic_subscriptions();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 topic subscriptions upgraded', $result[1] );
+		$this->assertStringContainsString( '3 topic subscription relationships added to topic meta', $result[1] );
 
 		$this->assertEqualSets( $users, bbp_get_topic_subscribers( $topics[0] ) );
 		$this->assertEqualSets( $users, get_post_meta( $topics[0], '_bbp_subscription', false ) );
@@ -8251,7 +8258,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No topic subscriptions to upgrade', $dry_run[1] );
+		$this->assertStringContainsString( '0 topic subscription relationships to upgrade', $dry_run[1] );
 	}
 
 	/**
@@ -8324,21 +8331,21 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_user_topic_subscriptions();
 			$this->assertSame( 4, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 2 topic subscriptions upgraded; 1 topic subscription failed.', $result[1] );
+			$this->assertStringContainsString( "Failed!\n2 topic subscription relationships added.\n1 topic subscription relationship could not be added.", $result[1] );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[0], '_bbp_subscription', false ) );
 			$this->assertSame( array(), get_post_meta( $topic_ids[1], '_bbp_subscription', false ) );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[2], '_bbp_subscription', false ) );
 
 			$dry_run = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 topic subscription would be upgraded', $dry_run[1] );
+			$this->assertStringContainsString( '1 topic subscription relationship would be added to topic meta from user meta', $dry_run[1] );
 		} finally {
 			remove_filter( 'add_post_metadata', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_user_topic_subscriptions();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 topic subscription upgraded', $result[1] );
+		$this->assertStringContainsString( '1 topic subscription relationship added to topic meta', $result[1] );
 		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[1], '_bbp_subscription', false ) );
 	}
 
@@ -8362,13 +8369,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_forum_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 forum subscriptions would be upgraded', $dry_run[1] );
+		$this->assertStringContainsString( '3 forum subscription relationships would be added to forum meta from user meta', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_subscription' ORDER BY meta_id", ARRAY_A ) );
 
 		// Upgrade the user forum subscriptions.
 		$result = bbp_admin_upgrade_user_forum_subscriptions();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 forum subscriptions upgraded', $result[1] );
+		$this->assertStringContainsString( '3 forum subscription relationships added to forum meta', $result[1] );
 
 		$this->assertEqualSets( $users, bbp_get_forum_subscribers( $forums[0] ) );
 		$this->assertEqualSets( $users, get_post_meta( $forums[0], '_bbp_subscription', false ) );
@@ -8376,7 +8383,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_forum_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( 'No forum subscriptions to upgrade', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum subscription relationships to upgrade', $dry_run[1] );
 	}
 
 	/**
@@ -8449,21 +8456,21 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_user_forum_subscriptions();
 			$this->assertSame( 4, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 2 forum subscriptions upgraded; 1 forum subscription failed.', $result[1] );
+			$this->assertStringContainsString( "Failed!\n2 forum subscription relationships added.\n1 forum subscription relationship could not be added.", $result[1] );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $forum_ids[0], '_bbp_subscription', false ) );
 			$this->assertSame( array(), get_post_meta( $forum_ids[1], '_bbp_subscription', false ) );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $forum_ids[2], '_bbp_subscription', false ) );
 
 			$dry_run = bbp_admin_upgrade_user_forum_subscriptions_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 forum subscription would be upgraded', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum subscription relationship would be added to forum meta from user meta', $dry_run[1] );
 		} finally {
 			remove_filter( 'add_post_metadata', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_user_forum_subscriptions();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 forum subscription upgraded', $result[1] );
+		$this->assertStringContainsString( '1 forum subscription relationship added to forum meta', $result[1] );
 		$this->assertSame( array( (string) $user_id ), get_post_meta( $forum_ids[1], '_bbp_subscription', false ) );
 	}
 

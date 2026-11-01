@@ -447,6 +447,7 @@ class BBP_Admin {
 		$tags['span'] = array(
 			'class' => 1
 		);
+		$tags['br'] = array();
 
 		// Parse the message and remove unsafe tags
 		$text = wp_kses( $message, $tags );
@@ -1111,6 +1112,7 @@ class BBP_Admin {
 		// Footer JS
 		wp_register_script( 'bbp-admin-blocks',     $this->js_url . 'blocks' . $suffix . '.js', $block_js_dependencies, $version, true );
 		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge'  . $suffix . '.js', array(),                $version, true );
+		wp_register_script( 'bbp-admin-tools-js',   $this->js_url . 'tools'  . $suffix . '.js', array( 'jquery' ),      $version, true );
 	}
 
 	/**

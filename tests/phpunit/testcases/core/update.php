@@ -452,6 +452,78 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_run_automatically
+	 */
+	public function test_small_site_automatic_runner_completes_every_batch_and_can_run_again() {
+		$old_pending = get_option( '_bbp_db_pending_upgrades', null );
+		$calls       = 0;
+		$batch       = 0;
+		$callback    = function() use ( &$calls, &$batch ) {
+			++$calls;
+			++$batch;
+
+			return array(
+				0,
+				( $batch < 3 ) ? 'More batches remain.' : 'Complete.',
+				'complete' => ( $batch >= 3 )
+			);
+		};
+
+		delete_option( '_bbp_db_pending_upgrades' );
+
+		try {
+			$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-test-automatic', $callback ) );
+			$this->assertSame( 3, $calls );
+
+			$batch = 0;
+			$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-test-automatic', $callback ) );
+			$this->assertSame( 6, $calls );
+			$this->assertNotContains( 'bbp-test-automatic', bbp_get_pending_upgrades() );
+		} finally {
+			if ( null === $old_pending ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $old_pending );
+			}
+		}
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_run_automatically
+	 */
+	public function test_small_site_automatic_runner_keeps_an_unfinished_tool_pending() {
+		$old_pending = get_option( '_bbp_db_pending_upgrades', null );
+		$calls       = 0;
+		$limit       = static function() {
+			return 2;
+		};
+		$callback = function() use ( &$calls ) {
+			++$calls;
+
+			return array( 0, 'More batches remain.', 'complete' => false );
+		};
+
+		delete_option( '_bbp_db_pending_upgrades' );
+		add_filter( 'bbp_admin_repair_tool_automatic_batch_limit', $limit );
+
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( 'bbp-test-automatic', $callback ) );
+			$this->assertSame( 2, $calls );
+			$this->assertContains( 'bbp-test-automatic', bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_automatic_batch_limit', $limit );
+
+			if ( null === $old_pending ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $old_pending );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_version_updater
 	 */
 	public function test_version_updater_does_not_keep_successful_favorites_pending() {

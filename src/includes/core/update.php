@@ -390,34 +390,23 @@ function bbp_version_updater() {
 			 * Upgrade user favorites and subscriptions
 			 */
 			if ( $raw_db_version < 261 ) {
-				$favorites = bbp_admin_upgrade_user_favorites();
-				if ( isset( $favorites['success'] ) && ( false === $favorites['success'] ) ) {
-					bbp_add_pending_upgrade( 'bbp-user-favorites-move' );
-				}
-
-				$topic_subscriptions = bbp_admin_upgrade_user_topic_subscriptions();
-				if ( isset( $topic_subscriptions['success'] ) && ( false === $topic_subscriptions['success'] ) ) {
-					bbp_add_pending_upgrade( 'bbp-user-topic-subscriptions-move' );
-				}
-
-				$forum_subscriptions = bbp_admin_upgrade_user_forum_subscriptions();
-				if ( isset( $forum_subscriptions['success'] ) && ( false === $forum_subscriptions['success'] ) ) {
-					bbp_add_pending_upgrade( 'bbp-user-forum-subscriptions-move' );
-				}
+				bbp_admin_repair_tool_run_automatically( 'bbp-user-favorites-move', 'bbp_admin_upgrade_user_favorites' );
+				bbp_admin_repair_tool_run_automatically( 'bbp-user-topic-subscriptions-move', 'bbp_admin_upgrade_user_topic_subscriptions' );
+				bbp_admin_repair_tool_run_automatically( 'bbp-user-forum-subscriptions-move', 'bbp_admin_upgrade_user_forum_subscriptions' );
 			}
 
 			/**
 			 * Upgrade user engagements
 			 */
 			if ( $raw_db_version < 262 ) {
-				bbp_admin_upgrade_user_engagements();
+				bbp_admin_repair_tool_run_automatically( 'bbp-user-topic-engagements-move', 'bbp_admin_upgrade_user_engagements' );
 			}
 
 			/**
 			 * Repair forum hidden reply count
 			 */
 			if ( $raw_db_version < 263 ) {
-				bbp_admin_repair_forum_hidden_reply_count();
+				bbp_admin_repair_tool_run_automatically( 'bbp-forum-hidden-replies', 'bbp_admin_repair_forum_hidden_reply_count' );
 			}
 
 		// Large installs require manual intervention

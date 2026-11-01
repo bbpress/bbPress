@@ -106,6 +106,7 @@ class BBP_Tests_Admin_Actions extends BBP_UnitTestCase {
 	 * @covers ::bbp_register_admin_scripts
 	 * @covers ::bbp_register_admin_settings
 	 * @covers ::bbp_admin_tool_box
+	 * @covers ::bbp_admin_load_tools_repair_upgrade
 	 *
 	 * @dataProvider admin_action_provider
 	 */
@@ -128,14 +129,15 @@ class BBP_Tests_Admin_Actions extends BBP_UnitTestCase {
 
 	public static function admin_action_provider() {
 		return array(
-			'admin init'        => array( 'bbp_admin_init', 'bbp_admin_init' ),
-			'admin menu'        => array( 'bbp_admin_menu', 'bbp_admin_menu' ),
-			'admin head'        => array( 'bbp_admin_head', 'bbp_admin_head' ),
-			'admin notices'     => array( 'bbp_admin_notices', 'bbp_admin_notices' ),
-			'importers'         => array( 'bbp_register_importers', 'bbp_register_importers' ),
-			'admin scripts'     => array( 'bbp_register_admin_scripts', 'bbp_register_admin_scripts' ),
-			'admin settings'    => array( 'bbp_register_admin_settings', 'bbp_register_admin_settings' ),
-			'admin tool box'    => array( 'bbp_admin_tool_box', 'bbp_admin_tool_box' ),
+			'admin init'         => array( 'bbp_admin_init', 'bbp_admin_init' ),
+			'admin menu'         => array( 'bbp_admin_menu', 'bbp_admin_menu' ),
+			'admin head'         => array( 'bbp_admin_head', 'bbp_admin_head' ),
+			'admin notices'      => array( 'bbp_admin_notices', 'bbp_admin_notices' ),
+			'importers'          => array( 'bbp_register_importers', 'bbp_register_importers' ),
+			'admin scripts'      => array( 'bbp_register_admin_scripts', 'bbp_register_admin_scripts' ),
+			'admin settings'     => array( 'bbp_register_admin_settings', 'bbp_register_admin_settings' ),
+			'admin tool box'     => array( 'bbp_admin_tool_box', 'bbp_admin_tool_box' ),
+			'repair upgrade'     => array( 'bbp_admin_load_tools_repair_upgrade', 'bbp_admin_load_tools_repair_upgrade' ),
 		);
 	}
 

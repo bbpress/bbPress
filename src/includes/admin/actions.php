@@ -49,6 +49,8 @@ add_action( 'menu_order',              'bbp_admin_menu_order'              );
 add_filter( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
 add_filter( 'admin_body_class',        'bbp_admin_icon_body_class'        );
 add_action( 'bbp_register',            'bbp_register_admin_icons',     1 );
+add_action( 'load-tools_page_bbp-repair',  'bbp_admin_load_tools_repair_upgrade' );
+add_action( 'load-tools_page_bbp-upgrade', 'bbp_admin_load_tools_repair_upgrade' );
 
 // Hook on to admin_init
 add_action( 'bbp_admin_init', 'bbp_register_importers'          );
@@ -82,22 +84,23 @@ add_action( 'bbp_deactivation', 'bbp_delete_rewrite_rules' );
 // New Site
 add_action( 'bbp_new_site', 'bbp_setup_new_site', 8 );
 
-// Load the default repair tools
-add_action( 'load-tools_page_bbp-repair',  'bbp_register_default_repair_tools' );
-add_action( 'load-tools_page_bbp-upgrade', 'bbp_register_default_repair_tools' );
+// Repair and upgrade tools
+add_action( 'bbp_register_repair_tools',           'bbp_register_default_repair_tools'          );
+add_action( 'bbp_admin_load_tools_repair_upgrade', 'bbp_register_repair_tools'                  );
+add_action( 'bbp_admin_load_tools_repair_upgrade', 'bbp_admin_tools_repair_help'                );
+add_action( 'bbp_admin_load_tools_repair_upgrade', 'bbp_admin_repair_handler'                   );
+add_action( 'bbp_admin_load_tools_repair_upgrade', 'bbp_admin_tools_repair_upgrade_notices', 20 );
 
-// Contextual Helpers
+// Contextual help for other admin pages
 add_action( 'load-settings_page_bbpress',    'bbp_admin_settings_help'        );
-add_action( 'load-tools_page_bbp-repair',    'bbp_admin_tools_repair_help'    );
-add_action( 'load-tools_page_bbp-upgrade',   'bbp_admin_tools_repair_help'    );
 add_action( 'load-tools_page_bbp-converter', 'bbp_admin_tools_converter_help' );
 add_action( 'load-tools_page_bbp-reset',     'bbp_admin_tools_reset_help'     );
 
-// Handle submission of Tools pages
-add_action( 'load-tools_page_bbp-repair',  'bbp_admin_repair_handler' );
-add_action( 'load-tools_page_bbp-upgrade', 'bbp_admin_repair_handler' );
-add_action( 'load-tools_page_bbp-reset',   'bbp_admin_reset_handler'  );
-add_action( 'bbp_admin_tool_box',          'bbp_admin_tools_box'      );
+// Handle Reset Forums submissions
+add_action( 'load-tools_page_bbp-reset', 'bbp_admin_reset_handler' );
+
+// Output sections on the WordPress Tools page
+add_action( 'bbp_admin_tool_box', 'bbp_admin_tools_box' );
 
 // Add sample permalink filter
 add_filter( 'post_type_link', 'bbp_filter_sample_permalink', 10, 4 );
@@ -116,6 +119,8 @@ add_action( 'wp_ajax_bbp_converter_process', 'bbp_setup_converter', 2 );
 
 // Preview reply topic changes
 add_action( 'wp_ajax_bbp_reply_topic_forum', 'bbp_ajax_reply_topic_forum' );
+add_action( 'wp_ajax_bbp_tools_process',      'bbp_admin_repair_ajax_handler' );
+add_action( 'wp_ajax_bbp_tools_run_status',   'bbp_admin_repair_tool_run_status_ajax_handler' );
 
 // Add New User
 add_action( 'user_new_form', 'bbp_add_user_form_role_field', 10, 1 );
@@ -239,6 +244,15 @@ function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
 }
 
 /** Sub-Actions ***************************************************************/
+
+/**
+ * Piggy back the repair and upgrade tools page-load actions.
+ *
+ * @since 2.7.0 bbPress (r8252)
+ */
+function bbp_admin_load_tools_repair_upgrade() {
+	do_action( 'bbp_admin_load_tools_repair_upgrade' );
+}
 
 /**
  * Piggy back admin_init action.

@@ -154,10 +154,18 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 			$this->remember_option( $option );
 		}
 		$this->remember_option( '_bbp_test_option' );
+		$this->remember_option( '_bbp_tools_run_repair' );
+		$this->remember_option( '_bbp_tools_run_upgrade' );
+		$this->remember_option( '_bbp_tools_run_status_repair' );
+		$this->remember_option( '_bbp_tools_run_status_upgrade' );
 		$this->remember_option( 'bbp_test_unrelated' );
 
 		$this->set_option( '_bbp_root_slug', 'delete-me' );
 		$this->set_option( '_bbp_test_option', 'delete-me-too' );
+		$this->set_option( '_bbp_tools_run_repair', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_run_upgrade', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_run_status_repair', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_run_status_upgrade', array( 'temporary' ) );
 		$this->set_option( 'bbp_test_unrelated', 'keep' );
 
 		$called = 0;
@@ -181,6 +189,10 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertSame( 1, $called );
 		$this->assertFalse( get_option( '_bbp_root_slug', false ) );
 		$this->assertFalse( get_option( '_bbp_test_option', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_run_repair', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_run_upgrade', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_run_status_repair', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_run_status_upgrade', false ) );
 		$this->assertSame( 'keep', get_option( 'bbp_test_unrelated' ) );
 	}
 

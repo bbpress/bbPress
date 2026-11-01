@@ -59,6 +59,17 @@ function bbp_admin_tools_box() {
  *
  * @since 2.6.0 bbPress (r5885)
  * @since 2.7.0 bbPress (r8218) Added action-keyed callbacks.
+ * @since 2.7.0 bbPress (r8252) Added per-tool cache flushing control.
+ *
+ * Run callbacks can opt into shared batching by returning a false complete
+ * value until their final batch. Legacy results are complete after one call.
+ * Batched tools must register on the bbp_register_repair_tools action so AJAX
+ * continuation requests can register their callback again.
+ * Automatic small-site upgrades use the same result contract and continue
+ * successful batches within their request safety limits. Batched callbacks
+ * must save their own progress, tolerate retries, and invalidate the cache
+ * entries they change between batches. The shared runner flushes the whole
+ * cache only around the initial Run request and after a tool's final batch.
  *
  * @param array $args Repair tool arguments. The callbacks value maps action
  *                    names to callables. The legacy callback value is used for
@@ -77,6 +88,7 @@ function bbp_register_repair_tool( $args = array() ) {
 			'description' => '',
 			'callback'    => '',
 			'callbacks'   => array(),
+			'flush_cache' => true,
 			'priority'    => 0,
 			'overhead'    => 'low',
 			'version'     => '',
@@ -118,6 +130,7 @@ function bbp_register_repair_tool( $args = array() ) {
 		'priority'    => $r['priority'],
 		'callback'    => $normalized_callbacks['run'],
 		'callbacks'   => $normalized_callbacks,
+		'flush_cache' => (bool) $r['flush_cache'],
 		'overhead'    => $r['overhead'],
 		'components'  => $r['components'],
 		'version'     => $r['version'],
@@ -135,6 +148,23 @@ function bbp_register_repair_tool( $args = array() ) {
 }
 
 /**
+ * Register the complete set of repair and upgrade tools.
+ *
+ * The shared action allows default and third-party batched tools to register
+ * for both normal tools page requests and AJAX continuation requests.
+ *
+ * @since 2.7.0 bbPress (r8252)
+ */
+function bbp_register_repair_tools() {
+	/**
+	 * Fires when repair and upgrade tools should be registered.
+	 *
+	 * @since 2.7.0 bbPress (r8252)
+	 */
+	do_action( 'bbp_register_repair_tools' );
+}
+
+/**
  * Register the default repair tools.
  *
  * @since 2.6.0 bbPress (r5885)
@@ -146,7 +176,7 @@ function bbp_register_default_repair_tools() {
 		array(
 			'id'          => 'bbp-sync-topic-meta',
 			'type'        => 'repair',
-			'title'       => esc_html__( 'Recalculate parent topic for each reply', 'bbpress' ),
+			'title'       => esc_html__( 'Recalculate topic references', 'bbpress' ),
 			'description' => esc_html__( 'Run this if replies appear in the wrong topics.', 'bbpress' ),
 			'callbacks'   => array(
 				'run'     => 'bbp_admin_repair_topic_meta',
@@ -154,7 +184,7 @@ function bbp_register_default_repair_tools() {
 			),
 			'priority'    => 5,
 			'overhead'    => 'low',
-			'components'  => array( bbp_get_reply_post_type() )
+			'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 		)
 	);
 
@@ -163,15 +193,15 @@ function bbp_register_default_repair_tools() {
 		array(
 			'id'          => 'bbp-sync-forum-meta',
 			'type'        => 'repair',
-			'title'       => esc_html__( 'Recalculate parent forum for each topic and reply', 'bbpress' ),
-			'description' => esc_html__( 'Run this if topics or replies appear in the wrong forums.', 'bbpress' ),
+			'title'       => esc_html__( 'Recalculate parent forum references', 'bbpress' ),
+			'description' => esc_html__( 'Run this if forums, topics, or replies have incorrect parent forums.', 'bbpress' ),
 			'callbacks'   => array(
 				'run'     => 'bbp_admin_repair_forum_meta',
 				'dry-run' => 'bbp_admin_repair_forum_meta_dry_run',
 			),
 			'priority'    => 10,
 			'overhead'    => 'low',
-			'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
+			'components'  => array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 		)
 	);
 
@@ -214,7 +244,7 @@ function bbp_register_default_repair_tools() {
 		array(
 			'id'          => 'bbp-sync-all-topics-sticky',
 			'type'        => 'repair',
-			'title'       => esc_html__( 'Recalculate sticky relationship of each topic', 'bbpress' ),
+			'title'       => esc_html__( 'Recalculate sticky topic assignments', 'bbpress' ),
 			'description' => esc_html__( 'Run this if sticky topics appear incorrectly.', 'bbpress' ),
 			'callbacks'   => array(
 				'run'     => 'bbp_admin_repair_sticky',

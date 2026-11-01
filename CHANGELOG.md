@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added shared support for resumable batches in repair and upgrade tools, including
+  automatic completion during small-site updates, sequential progress for bulk
+  selections, and Pause and Resume controls.
 - Added action-specific callbacks to forum tools and Dry Run actions for
   previewing supported repairs without changing stored data.
 - Added an administrator control to skip automatic forum role assignment for a
@@ -44,6 +47,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Moved repair and upgrade page-load callbacks onto the shared
+  `bbp_admin_load_tools_repair_upgrade` action. Extensions that remove these
+  callbacks should use the shared action instead of the WordPress page-load actions.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.
 - Shortened new-content labels and administration metabox titles.

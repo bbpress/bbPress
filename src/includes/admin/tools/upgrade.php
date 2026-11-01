@@ -276,7 +276,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 	// Define variables
 	$bbp_db         = bbp_db();
 	$failed         = esc_html__( 'Failed!', 'bbpress' );
-	$no_engagements = esc_html__( 'No engagements to upgrade.', 'bbpress' );
+	$no_engagements = esc_html__( '0 engagements to upgrade.', 'bbpress' );
 
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
@@ -328,15 +328,23 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 			return array( 1, sprintf( $statement, $no_engagements ) );
 		}
 
-		/* translators: %1$s: Number of current engagement rows; %2$s: Number of upgraded engagements */
-		$result = sprintf( esc_html__( 'Dry run complete! %1$s current engagement rows would be replaced with %2$s upgraded engagements.', 'bbpress' ), bbp_number_format( $current_count ), bbp_number_format( $expected_count ) );
+		/* translators: %s: Number of existing engagement rows that would be cleared before rebuilding */
+		$delete_result = sprintf( _n( '%s existing engagement row would be cleared before rebuilding.', '%s existing engagement rows would be cleared before rebuilding.', $current_count, 'bbpress' ), bbp_number_format( $current_count ) );
+		/* translators: %s: Number of engagement rows that would be created from topic and reply authors */
+		$create_result = sprintf( _n( '%s engagement row would be created from topic and reply authors.', '%s engagement rows would be created from topic and reply authors.', $expected_count, 'bbpress' ), bbp_number_format( $expected_count ) );
+		$result        = $delete_result . "\n" . $create_result;
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
+	if ( empty( $current_count ) && empty( $expected_count ) ) {
+		return array( 1, sprintf( $statement, $no_engagements ) );
+	}
+
 	// Delete previous engagements
 	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
+	$deleted    = $bbp_db->query( $sql_delete );
+	if ( false === $deleted ) {
 		return array(
 			4,
 			sprintf( $statement, $failed ),
@@ -358,14 +366,12 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 		);
 	}
 
-	// Bail if no engagements were found
-	if ( empty( $engagements ) ) {
-		return array( 1, sprintf( $statement, $no_engagements ) );
-	}
-
 	// Complete results
-	/* translators: %d: Number of upgraded engagements */
-	$result = sprintf( _n( 'Complete! %d engagement upgraded.', 'Complete! %d engagements upgraded.', $engagements, 'bbpress' ), bbp_number_format( $engagements ) );
+	/* translators: %s: Number of existing engagement rows cleared before rebuilding */
+	$delete_result = sprintf( _n( '%s existing engagement row cleared before rebuilding.', '%s existing engagement rows cleared before rebuilding.', $deleted, 'bbpress' ), bbp_number_format( $deleted ) );
+	/* translators: %s: Number of engagement rows created from topic and reply authors */
+	$create_result = sprintf( _n( '%s engagement row created from topic and reply authors.', '%s engagement rows created from topic and reply authors.', $engagements, 'bbpress' ), bbp_number_format( $engagements ) );
+	$result        = esc_html__( 'Complete!', 'bbpress' ) . "\n" . $delete_result . "\n" . $create_result;
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -407,7 +413,7 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
 
 	// Define variables
 	$bbp_db           = bbp_db();
-	$no_data          = esc_html__( 'No converted group forums to upgrade.', 'bbpress' );
+	$no_data          = esc_html__( '0 converted group forums to upgrade.', 'bbpress' );
 	$g_count          = 0;
 	$f_count          = 0;
 	$s_count          = 0;
@@ -416,14 +422,16 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
 			return $reason;
 		}
 
-		return sprintf(
-			/* translators: %1$s: Failure reason; %2$s: Number of groups updated; %3$s: Number of forums updated; %4$s: Number of forum statuses synced */
-			esc_html__( '%1$s Progress: %2$s groups updated; %3$s forums updated; %4$s forum statuses synced.', 'bbpress' ),
-			$reason,
-			bbp_number_format( $groups ),
-			bbp_number_format( $forums ),
-			bbp_number_format( $statuses )
+		$results = array(
+			/* translators: %s: Number of groups updated */
+			sprintf( _n( '%s group updated', '%s groups updated', $groups, 'bbpress' ), bbp_number_format( $groups ) ),
+			/* translators: %s: Number of forums updated */
+			sprintf( _n( '%s forum updated', '%s forums updated', $forums, 'bbpress' ), bbp_number_format( $forums ) ),
+			/* translators: %s: Number of forum statuses synced */
+			sprintf( _n( '%s forum status synced', '%s forum statuses synced', $statuses, 'bbpress' ), bbp_number_format( $statuses ) )
 		);
+
+		return $reason . "\n" . esc_html__( 'Progress:', 'bbpress' ) . "\n" . implode( ".\n", $results ) . '.';
 	};
 
 	if ( $dry_run ) {
@@ -828,25 +836,31 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
 		$role_list = ! empty( $legacy_roles )
 			? implode( ', ', $legacy_roles )
 			: esc_html__( 'none', 'bbpress' );
-		$result = sprintf(
-			/* translators: %1$s: Number of groups that would be updated; %2$s: Number of forums that would be updated; %3$s: Number of forum statuses that would be synced; %4$s: Number of group root settings that would be updated; %5$s: Number of forums that would be renamed; %6$s: Number of legacy roles that would be removed; %7$s: Legacy role IDs */
-			esc_html__( 'Dry run complete! %1$s groups would be updated; %2$s forums would be updated; %3$s forum statuses would be synced; %4$s group root settings would be updated; %5$s forums would be renamed; %6$s legacy roles would be removed (%7$s).', 'bbpress' ),
-			bbp_number_format( $g_count ),
-			bbp_number_format( $f_count ),
-			bbp_number_format( $s_count ),
-			bbp_number_format( (int) $update_root ),
-			bbp_number_format( (int) $rename_root ),
-			bbp_number_format( count( $legacy_roles ) ),
-			$role_list
+		$results   = array(
+			/* translators: %s: Number of groups that would be updated */
+			sprintf( _n( '%s group would be updated', '%s groups would be updated', $g_count, 'bbpress' ), bbp_number_format( $g_count ) ),
+			/* translators: %s: Number of forums that would be updated */
+			sprintf( _n( '%s forum would be updated', '%s forums would be updated', $f_count, 'bbpress' ), bbp_number_format( $f_count ) ),
+			/* translators: %s: Number of forum statuses that would be synced */
+			sprintf( _n( '%s forum status would be synced', '%s forum statuses would be synced', $s_count, 'bbpress' ), bbp_number_format( $s_count ) ),
+			/* translators: %s: Number of group root settings that would be updated */
+			sprintf( _n( '%s group root setting would be updated', '%s group root settings would be updated', (int) $update_root, 'bbpress' ), bbp_number_format( (int) $update_root ) ),
+			/* translators: %s: Number of forums that would be renamed */
+			sprintf( _n( '%s forum would be renamed', '%s forums would be renamed', (int) $rename_root, 'bbpress' ), bbp_number_format( (int) $rename_root ) ),
+			/* translators: %1$s: Number of legacy roles that would be removed; %2$s: Legacy role IDs */
+			sprintf( _n( '%1$s legacy role would be removed (%2$s)', '%1$s legacy roles would be removed (%2$s)', count( $legacy_roles ), 'bbpress' ), bbp_number_format( count( $legacy_roles ) ), $role_list )
 		);
+		$result    = implode( ".\n", $results ) . '.';
 	} else {
-		$result = sprintf(
-			/* translators: %1$s: Number of groups updated; %2$s: Number of forums updated; %3$s: Number of forum statuses synced */
-			esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ),
-			bbp_number_format( $g_count ),
-			bbp_number_format( $f_count ),
-			bbp_number_format( $s_count )
+		$results = array(
+			/* translators: %s: Number of groups updated */
+			sprintf( _n( '%s group updated', '%s groups updated', $g_count, 'bbpress' ), bbp_number_format( $g_count ) ),
+			/* translators: %s: Number of forums updated */
+			sprintf( _n( '%s forum updated', '%s forums updated', $f_count, 'bbpress' ), bbp_number_format( $f_count ) ),
+			/* translators: %s: Number of forum statuses synced */
+			sprintf( _n( '%s forum status synced', '%s forum statuses synced', $s_count, 'bbpress' ), bbp_number_format( $s_count ) )
 		);
+		$result  = esc_html__( 'Complete!', 'bbpress' ) . "\n" . implode( ".\n", $results ) . '.';
 	}
 
 	// Return
@@ -889,7 +903,7 @@ function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
 	// Define variables
 	$bbp_db          = bbp_db();
 	$failed          = esc_html__( 'Failed!', 'bbpress' );
-	$result          = esc_html__( 'No favorites to upgrade.', 'bbpress' );
+	$result          = esc_html__( '0 favorite relationships to upgrade.', 'bbpress' );
 	$total           = 0;
 	$failed_total    = 0;
 	$old_key         = $bbp_db->prefix . '_bbp_favorites';
@@ -985,19 +999,18 @@ function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
 			return array( 1, sprintf( $statement, $result ) );
 		}
 
-		/* translators: %s: Number of favorites that would be upgraded */
-		$result = sprintf( _n( 'Dry run complete! %s favorite would be upgraded.', 'Dry run complete! %s favorites would be upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of favorite relationships that would be added to topic meta */
+		$result = sprintf( _n( '%s favorite relationship would be added to topic meta from user meta.', '%s favorite relationships would be added to topic meta from user meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	if ( ! empty( $failed_total ) ) {
-		/* translators: %s: Number of upgraded favorites */
-		$upgraded = sprintf( _n( '%s favorite upgraded', '%s favorites upgraded', $total, 'bbpress' ), bbp_number_format( $total ) );
-		/* translators: %s: Number of favorites that failed */
-		$failures = sprintf( _n( '%s favorite failed', '%s favorites failed', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
-		/* translators: %1$s: Upgraded favorites; %2$s: Favorites that failed */
-		$result = sprintf( esc_html__( 'Failed! %1$s; %2$s.', 'bbpress' ), $upgraded, $failures );
+		/* translators: %s: Number of favorite relationships added to topic meta */
+		$added    = sprintf( _n( '%s favorite relationship added', '%s favorite relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of favorite relationships that could not be added */
+		$failures = sprintf( _n( '%s favorite relationship could not be added', '%s favorite relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+		$result = esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.';
 
 		return array(
 			4,
@@ -1007,8 +1020,8 @@ function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
 	}
 
 	// Complete results
-	/* translators: %s: Number of upgraded favorites */
-	$result = sprintf( _n( 'Complete! %s favorite upgraded.', 'Complete! %s favorites upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of favorite relationships added to topic meta */
+	$result = sprintf( _n( 'Complete! %s favorite relationship added to topic meta.', 'Complete! %s favorite relationships added to topic meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -1049,13 +1062,13 @@ function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) 
 	// Define variables
 	$bbp_db          = bbp_db();
 	$failed          = esc_html__( 'Failed!', 'bbpress' );
-	$result          = esc_html__( 'No topic subscriptions to upgrade.', 'bbpress' );
 	$total           = 0;
 	$failed_total    = 0;
 	$old_key         = $bbp_db->prefix . '_bbp_subscriptions';
 	$new_key         = '_bbp_subscription';
 	$planned_user_id = null;
 	$planned         = array();
+	$result          = esc_html__( '0 topic subscription relationships to upgrade.', 'bbpress' );
 
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
@@ -1145,19 +1158,18 @@ function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) 
 			return array( 1, sprintf( $statement, $result ) );
 		}
 
-		/* translators: %s: Number of topic subscriptions that would be upgraded */
-		$result = sprintf( _n( 'Dry run complete! %s topic subscription would be upgraded.', 'Dry run complete! %s topic subscriptions would be upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of topic subscription relationships that would be added to topic meta */
+		$result = sprintf( _n( '%s topic subscription relationship would be added to topic meta from user meta.', '%s topic subscription relationships would be added to topic meta from user meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	if ( ! empty( $failed_total ) ) {
-		/* translators: %s: Number of upgraded topic subscriptions */
-		$upgraded = sprintf( _n( '%s topic subscription upgraded', '%s topic subscriptions upgraded', $total, 'bbpress' ), bbp_number_format( $total ) );
-		/* translators: %s: Number of topic subscriptions that failed */
-		$failures = sprintf( _n( '%s topic subscription failed', '%s topic subscriptions failed', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
-		/* translators: %1$s: Upgraded topic subscriptions; %2$s: Topic subscriptions that failed */
-		$result = sprintf( esc_html__( 'Failed! %1$s; %2$s.', 'bbpress' ), $upgraded, $failures );
+		/* translators: %s: Number of topic subscription relationships added to topic meta */
+		$added    = sprintf( _n( '%s topic subscription relationship added', '%s topic subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of topic subscription relationships that could not be added */
+		$failures = sprintf( _n( '%s topic subscription relationship could not be added', '%s topic subscription relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+		$result = esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.';
 
 		return array(
 			4,
@@ -1167,8 +1179,8 @@ function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) 
 	}
 
 	// Complete results
-	/* translators: %s: Number of upgraded topic subscriptions */
-	$result = sprintf( _n( 'Complete! %s topic subscription upgraded.', 'Complete! %s topic subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of topic subscription relationships added to topic meta */
+	$result = sprintf( _n( 'Complete! %s topic subscription relationship added to topic meta.', 'Complete! %s topic subscription relationships added to topic meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -1209,7 +1221,7 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
 	// Define variables
 	$bbp_db          = bbp_db();
 	$failed          = esc_html__( 'Failed!', 'bbpress' );
-	$result          = esc_html__( 'No forum subscriptions to upgrade.', 'bbpress' );
+	$result          = esc_html__( '0 forum subscription relationships to upgrade.', 'bbpress' );
 	$total           = 0;
 	$failed_total    = 0;
 	$old_key         = $bbp_db->prefix . '_bbp_forum_subscriptions';
@@ -1305,19 +1317,18 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
 			return array( 1, sprintf( $statement, $result ) );
 		}
 
-		/* translators: %s: Number of forum subscriptions that would be upgraded */
-		$result = sprintf( _n( 'Dry run complete! %s forum subscription would be upgraded.', 'Dry run complete! %s forum subscriptions would be upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of forum subscription relationships that would be added to forum meta */
+		$result = sprintf( _n( '%s forum subscription relationship would be added to forum meta from user meta.', '%s forum subscription relationships would be added to forum meta from user meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	if ( ! empty( $failed_total ) ) {
-		/* translators: %s: Number of upgraded forum subscriptions */
-		$upgraded = sprintf( _n( '%s forum subscription upgraded', '%s forum subscriptions upgraded', $total, 'bbpress' ), bbp_number_format( $total ) );
-		/* translators: %s: Number of forum subscriptions that failed */
-		$failures = sprintf( _n( '%s forum subscription failed', '%s forum subscriptions failed', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
-		/* translators: %1$s: Upgraded forum subscriptions; %2$s: Forum subscriptions that failed */
-		$result = sprintf( esc_html__( 'Failed! %1$s; %2$s.', 'bbpress' ), $upgraded, $failures );
+		/* translators: %s: Number of forum subscription relationships added to forum meta */
+		$added    = sprintf( _n( '%s forum subscription relationship added', '%s forum subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of forum subscription relationships that could not be added */
+		$failures = sprintf( _n( '%s forum subscription relationship could not be added', '%s forum subscription relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+		$result = esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.';
 
 		return array(
 			4,
@@ -1327,8 +1338,8 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
 	}
 
 	// Complete results
-	/* translators: %s: Number of upgraded forum subscriptions */
-	$result = sprintf( _n( 'Complete! %s forum subscription upgraded.', 'Complete! %s forum subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of forum subscription relationships added to forum meta */
+	$result = sprintf( _n( 'Complete! %s forum subscription relationship added to forum meta.', 'Complete! %s forum subscription relationships added to forum meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -1369,7 +1380,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = fa
 	// Define variables
 	$bbp_db = bbp_db();
 	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$result = esc_html__( 'No favorites to remove.', 'bbpress' );
+	$result = esc_html__( '0 favorite user-meta rows to remove.', 'bbpress' );
 	$key    = $bbp_db->prefix . '_bbp_favorites';
 
 	if ( $dry_run ) {
@@ -1400,16 +1411,16 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = fa
 	}
 
 	if ( $dry_run ) {
-		/* translators: %s: Number of favorites that would be deleted */
-		$result = sprintf( _n( 'Dry run complete! %s favorite would be deleted.', 'Dry run complete! %s favorites would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of favorite user-meta rows that would be deleted */
+		$result = sprintf( _n( '%s favorite user-meta row would be deleted.', '%s favorite user-meta rows would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	// Delete all user-meta with this key
 	if ( false === delete_metadata( 'user', false, $key, false, true ) ) {
-		/* translators: %s: Number of favorites that could not be deleted */
-		$result = sprintf( _n( 'Failed! %s favorite could not be deleted.', 'Failed! %s favorites could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of favorite user-meta rows that could not be deleted */
+		$result = sprintf( _n( 'Failed! %s favorite user-meta row could not be deleted.', 'Failed! %s favorite user-meta rows could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array(
 			3,
@@ -1419,8 +1430,8 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = fa
 	}
 
 	// Complete results
-	/* translators: %s: Number of deleted favorites */
-	$result = sprintf( _n( 'Complete! %s favorite deleted.', 'Complete! %s favorites deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of deleted favorite user-meta rows */
+	$result = sprintf( _n( 'Complete! %s favorite user-meta row deleted.', 'Complete! %s favorite user-meta rows deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -1461,7 +1472,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dr
 	// Define variables
 	$bbp_db = bbp_db();
 	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$result = esc_html__( 'No topic subscriptions to remove.', 'bbpress' );
+	$result = esc_html__( '0 topic subscription user-meta rows to remove.', 'bbpress' );
 	$key    = $bbp_db->prefix . '_bbp_subscriptions';
 
 	if ( $dry_run ) {
@@ -1492,16 +1503,16 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dr
 	}
 
 	if ( $dry_run ) {
-		/* translators: %s: Number of topic subscriptions that would be deleted */
-		$result = sprintf( _n( 'Dry run complete! %s topic subscription would be deleted.', 'Dry run complete! %s topic subscriptions would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of topic subscription user-meta rows that would be deleted */
+		$result = sprintf( _n( '%s topic subscription user-meta row would be deleted.', '%s topic subscription user-meta rows would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	// Delete all user-meta with this key
 	if ( false === delete_metadata( 'user', false, $key, false, true ) ) {
-		/* translators: %s: Number of topic subscriptions that could not be deleted */
-		$result = sprintf( _n( 'Failed! %s topic subscription could not be deleted.', 'Failed! %s topic subscriptions could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of topic subscription user-meta rows that could not be deleted */
+		$result = sprintf( _n( 'Failed! %s topic subscription user-meta row could not be deleted.', 'Failed! %s topic subscription user-meta rows could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array(
 			3,
@@ -1511,8 +1522,8 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dr
 	}
 
 	// Complete results
-	/* translators: %s: Number of deleted topic subscriptions */
-	$result = sprintf( _n( 'Complete! %s topic subscription deleted.', 'Complete! %s topic subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of deleted topic subscription user-meta rows */
+	$result = sprintf( _n( 'Complete! %s topic subscription user-meta row deleted.', 'Complete! %s topic subscription user-meta rows deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -1553,7 +1564,7 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process( $dr
 	// Define variables
 	$bbp_db = bbp_db();
 	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$result = esc_html__( 'No forum subscriptions to remove.', 'bbpress' );
+	$result = esc_html__( '0 forum subscription user-meta rows to remove.', 'bbpress' );
 	$key    = $bbp_db->prefix . '_bbp_forum_subscriptions';
 
 	if ( $dry_run ) {
@@ -1584,16 +1595,16 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process( $dr
 	}
 
 	if ( $dry_run ) {
-		/* translators: %s: Number of forum subscriptions that would be deleted */
-		$result = sprintf( _n( 'Dry run complete! %s forum subscription would be deleted.', 'Dry run complete! %s forum subscriptions would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of forum subscription user-meta rows that would be deleted */
+		$result = sprintf( _n( '%s forum subscription user-meta row would be deleted.', '%s forum subscription user-meta rows would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
 	// Delete all user-meta with this key
 	if ( false === delete_metadata( 'user', false, $key, false, true ) ) {
-		/* translators: %s: Number of forum subscriptions that could not be deleted */
-		$result = sprintf( _n( 'Failed! %s forum subscription could not be deleted.', 'Failed! %s forum subscriptions could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+		/* translators: %s: Number of forum subscription user-meta rows that could not be deleted */
+		$result = sprintf( _n( 'Failed! %s forum subscription user-meta row could not be deleted.', 'Failed! %s forum subscription user-meta rows could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 		return array(
 			3,
@@ -1603,8 +1614,8 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process( $dr
 	}
 
 	// Complete results
-	/* translators: %s: Number of deleted forum subscriptions */
-	$result = sprintf( _n( 'Complete! %s forum subscription deleted.', 'Complete! %s forum subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
+	/* translators: %s: Number of deleted forum subscription user-meta rows */
+	$result = sprintf( _n( 'Complete! %s forum subscription user-meta row deleted.', 'Complete! %s forum subscription user-meta rows deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }

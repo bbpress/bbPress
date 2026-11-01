@@ -157,18 +157,20 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$tools = bbp_get_admin_repair_tools();
 		$this->assertSame( array( 'custom-repair' ), array_keys( $tools ) );
 		$this->assertSame( 'medium', $tools['custom-repair']['overhead'] );
+		$this->assertTrue( $tools['custom-repair']['flush_cache'] );
 		$this->assertSame( array( 'run' => '__return_true' ), $tools['custom-repair']['callbacks'] );
 		$this->assertSame( array( 'custom-repair' ), array_keys( bbp_get_admin_repair_tools( 'repair' ) ) );
 		$this->assertSame( array(), bbp_get_admin_repair_tools( 'upgrade' ) );
 
 		bbp_register_repair_tool(
 			array(
-				'id'        => 'custom-dry-run',
-				'type'      => 'repair',
-				'title'     => 'Custom dry run',
-				'priority'  => 11,
-				'callback'  => '__return_false',
-				'callbacks' => array(
+				'id'          => 'custom-dry-run',
+				'type'        => 'repair',
+				'title'       => 'Custom dry run',
+				'priority'    => 11,
+				'flush_cache' => false,
+				'callback'    => '__return_false',
+				'callbacks'   => array(
 					'run'     => '__return_true',
 					'dry-run' => '__return_empty_array',
 				),
@@ -176,6 +178,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		);
 
 		$this->assertSame( '__return_true', bbp_admin()->tools['custom-dry-run']['callback'] );
+		$this->assertFalse( bbp_admin()->tools['custom-dry-run']['flush_cache'] );
 		$this->assertSame(
 			array(
 				'run'     => '__return_true',
@@ -189,8 +192,12 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertArrayHasKey( 'bbp-user-favorites-move', bbp_admin()->tools );
 		$this->assertSame( 'repair', bbp_admin()->tools['bbp-sync-topic-meta']['type'] );
 		$this->assertSame( 'upgrade', bbp_admin()->tools['bbp-user-favorites-move']['type'] );
+		$this->assertSame( 'Recalculate topic references', bbp_admin()->tools['bbp-sync-topic-meta']['title'] );
+		$this->assertSame( array( 'topic', 'reply' ), bbp_admin()->tools['bbp-sync-topic-meta']['components'] );
 		$this->assertSame( 'bbp_admin_repair_topic_meta', bbp_admin()->tools['bbp-sync-topic-meta']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_topic_meta_dry_run', bbp_admin()->tools['bbp-sync-topic-meta']['callbacks']['dry-run'] );
+		$this->assertSame( 'Recalculate parent forum references', bbp_admin()->tools['bbp-sync-forum-meta']['title'] );
+		$this->assertSame( array( 'forum', 'topic', 'reply' ), bbp_admin()->tools['bbp-sync-forum-meta']['components'] );
 		$this->assertSame( 'bbp_admin_repair_forum_meta', bbp_admin()->tools['bbp-sync-forum-meta']['callbacks']['run'] );
 		$this->assertSame( 'bbp_admin_repair_forum_meta_dry_run', bbp_admin()->tools['bbp-sync-forum-meta']['callbacks']['dry-run'] );
 		$this->assertSame( 'bbp_admin_repair_forum_visibility', bbp_admin()->tools['bbp-sync-forum-visibility']['callbacks']['run'] );
@@ -299,7 +306,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		};
 		$dry_run    = function ( $received ) use ( &$context ) {
 			$context = $received;
-			return array( 0, 'Dry run complete.' );
+			return array( 0, "1 row would be updated.\n2 rows would be created." );
 		};
 
 		bbp_admin()->tools = array();
@@ -331,6 +338,84 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'dry-run', $context['action'] );
 		$this->assertSame( 'custom-dry-run', $context['tool']['id'] );
 		$this->assertSame( array( 'custom-dry-run' ), bbp_get_pending_upgrades() );
+		$notice = end( bbp_admin()->notices );
+		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $notice );
+		$this->assertStringNotContainsString( 'normal Run', $notice );
+		$this->assertStringContainsString( '1 row would be updated.', $notice );
+		$this->assertStringContainsString( '2 rows would be created.', $notice );
+		$this->assertSame( 3, substr_count( $notice, '<br>' ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_reports_a_successful_dry_run_with_nothing_to_change() {
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => '__return_empty_array',
+					'dry-run' => function () {
+						return array( 1, 'No rows need repair.' );
+					},
+				),
+			)
+		);
+
+		$_GET = array(
+			'action'   => 'dry-run',
+			'checked'  => array( 'custom-dry-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$notice = end( bbp_admin()->notices );
+		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $notice );
+		$this->assertStringContainsString( 'No rows need repair.', $notice );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_reports_a_dry_run_that_predicts_failure() {
+		bbp_admin()->tools = array();
+		bbp_register_repair_tool(
+			array(
+				'id'        => 'custom-dry-run',
+				'type'      => 'repair',
+				'title'     => 'Custom dry run',
+				'priority'  => 10,
+				'callbacks' => array(
+					'run'     => '__return_empty_array',
+					'dry-run' => function () {
+						return array( 2, 'Rows could not be read.' );
+					},
+				),
+			)
+		);
+
+		$_GET = array(
+			'action'   => 'dry-run',
+			'checked'  => array( 'custom-dry-run' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+		);
+		$_REQUEST = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		bbp_admin_repair_handler();
+
+		$notice = end( bbp_admin()->notices );
+		$this->assertStringContainsString( 'notice error', $notice );
+		$this->assertStringContainsString( 'Dry run failed! No changes were made.', $notice );
+		$this->assertStringNotContainsString( 'normal Run', $notice );
+		$this->assertStringContainsString( 'Rows could not be read.', $notice );
 	}
 
 	/**
@@ -364,7 +449,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		bbp_admin_repair_handler();
 
 		$this->assertSame( array( 'custom-run' ), bbp_get_pending_upgrades() );
-		$this->assertStringContainsString( 'Run failed.', end( bbp_admin()->notices ) );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
+		$this->assertStringContainsString( '<strong>Custom run</strong><br>Run failed.', end( bbp_admin()->notices ) );
 	}
 
 	/**
@@ -390,6 +476,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		bbp_admin_repair_handler();
 
 		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_status', true ) );
+		$this->assertStringNotContainsString( 'normal Run', end( bbp_admin()->notices ) );
 		$this->assertStringContainsString( '1 closed topic would be repaired', end( bbp_admin()->notices ) );
 	}
 
@@ -414,7 +501,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 					},
 					'dry-run' => function ( $received ) use ( &$context ) {
 						$context = $received;
-						return array( 0, 'Dry run complete.' );
+						return array( 0, '1 row would be updated.' );
 					},
 				),
 			)
@@ -461,7 +548,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 					},
 					'dry-run' => function () use ( &$dry_run ) {
 						$dry_run = true;
-						return array( 0, 'Dry run complete.' );
+						return array( 0, '1 row would be updated.' );
 					},
 				),
 			)
@@ -506,7 +593,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$original_run = false;
 		$override_run = false;
 		$dry_run      = function () {
-			return array( 0, 'Dry run complete.' );
+			return array( 0, '1 row would be updated.' );
 		};
 
 		bbp_admin()->tools = array();

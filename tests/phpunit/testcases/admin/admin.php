@@ -764,7 +764,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$scripts        = clone wp_scripts();
 		$styles         = clone wp_styles();
 		$style_handles  = array( 'bbp-admin-css', 'bbp-admin-blocks' );
-		$script_handles = array( 'bbp-admin-common-js', 'bbp-admin-topics-js', 'bbp-admin-replies-js', 'bbp-converter', 'bbp-admin-blocks', 'bbp-admin-badge-js' );
+		$script_handles = array( 'bbp-admin-common-js', 'bbp-admin-topics-js', 'bbp-admin-replies-js', 'bbp-converter', 'bbp-admin-blocks', 'bbp-admin-badge-js', 'bbp-admin-tools-js' );
 		foreach ( $style_handles as $handle ) {
 			wp_deregister_style( $handle );
 		}
@@ -779,8 +779,11 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			$this->assertTrue( wp_style_is( 'bbp-admin-blocks', 'registered' ) );
 			$this->assertTrue( wp_script_is( 'bbp-admin-common-js', 'registered' ) );
 			$this->assertTrue( wp_script_is( 'bbp-admin-blocks', 'registered' ) );
+			$this->assertTrue( wp_script_is( 'bbp-admin-tools-js', 'registered' ) );
 			$this->assertContains( 'suggest', wp_scripts()->registered['bbp-admin-common-js']->deps );
+			$this->assertContains( 'jquery', wp_scripts()->registered['bbp-admin-tools-js']->deps );
 			$this->assertTrue( wp_scripts()->registered['bbp-admin-blocks']->extra['group'] > 0 );
+			$this->assertTrue( wp_scripts()->registered['bbp-admin-tools-js']->extra['group'] > 0 );
 
 			set_current_screen( bbp_get_topic_post_type() );
 			$admin->enqueue_styles();

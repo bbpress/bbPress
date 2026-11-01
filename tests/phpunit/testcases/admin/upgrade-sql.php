@@ -50,7 +50,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 groups would be updated; 1 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "1 group would be updated.\n1 forum would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( $legacy_id, $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 1 ) ) );
 		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_group_ids', false ) );
 
@@ -77,7 +77,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum status would be synced', $dry_run[1] );
 		$this->assertSame( '42', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 7 ) ) );
 		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_group_ids', false ) );
 		$this->assertSame( bbp_get_public_status_id(), bbp_get_forum_visibility( $forum_id ) );
@@ -101,12 +101,12 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		try {
 			$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 			$this->assertSame( 1, $dry_run[0] );
-			$this->assertStringContainsString( 'No converted group forums to upgrade.', $dry_run[1] );
+			$this->assertStringContainsString( '0 converted group forums to upgrade.', $dry_run[1] );
 			$this->assertNotNull( get_role( 'member' ) );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
 			$this->assertSame( 1, $result[0] );
-			$this->assertStringContainsString( 'No converted group forums to upgrade.', $result[1] );
+			$this->assertStringContainsString( '0 converted group forums to upgrade.', $result[1] );
 			$this->assertNotNull( get_role( 'member' ) );
 		} finally {
 			remove_role( 'member' );
@@ -226,7 +226,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_group_forum_relationships();
 			$this->assertSame( 5, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( '0 groups updated; 1 forums updated', $result[1] );
+			$this->assertStringContainsString( "0 groups updated.\n1 forum updated", $result[1] );
 			$this->assertSame( '42', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 7 ) ) );
 			$this->assertSame( array( 7 ), get_post_meta( $forum_id, '_bbp_group_ids', true ) );
 		} finally {
@@ -279,7 +279,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 	}
 
 	/**
@@ -347,7 +347,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		try {
 			$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 forum statuses would be synced', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum status would be synced', $dry_run[1] );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
 			$this->assertSame( 9, $result[0] );
@@ -380,7 +380,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 forum statuses would be synced', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum status would be synced', $dry_run[1] );
 		$this->assertContains( $forum_id, bbp_get_hidden_forum_ids() );
 		$this->assertSame( bbp_get_public_status_id(), bbp_get_forum_visibility( $forum_id ) );
 
@@ -409,7 +409,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 forum statuses would be synced', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum status would be synced', $dry_run[1] );
 		$this->assertNotContains( $forum_id, bbp_get_hidden_forum_ids() );
 		$this->assertContains( $forum_id, bbp_get_private_forum_ids() );
 
@@ -438,12 +438,12 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 1 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n1 forum would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_group_ids', false ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '0 groups updated; 1 forums updated; 0 forum statuses synced', $result[1] );
+		$this->assertStringContainsString( "0 groups updated.\n1 forum updated.\n0 forum statuses synced", $result[1] );
 		$this->assertSame( array( 7 ), get_post_meta( $forum_id, '_bbp_group_ids', true ) );
 	}
 
@@ -462,7 +462,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 1 forums would be updated; 1 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n1 forum would be updated.\n1 forum status would be synced", $dry_run[1] );
 
 		$this->assertSame( 0, bbp_admin_upgrade_group_forum_relationships()[0] );
 		$this->assertSame( array( 7 ), get_post_meta( $forum_id, '_bbp_group_ids', true ) );
@@ -470,7 +470,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 	}
 
 	/**
@@ -492,7 +492,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$before = $wpdb->get_col( "SELECT meta_value FROM `{$this->groupmeta_table}` ORDER BY group_id" );
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( $before, $wpdb->get_col( "SELECT meta_value FROM `{$this->groupmeta_table}` ORDER BY group_id" ) );
 		$this->assertSame( array( 7, 9 ), get_post_meta( $forum_id, '_bbp_group_ids', true ) );
 
@@ -519,7 +519,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( $forum_ids, $wpdb->get_var( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = 7" ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
@@ -547,7 +547,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( $stored_forum_ids, $wpdb->get_var( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = 7" ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
@@ -600,7 +600,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '2 groups would be updated; 2 forums would be updated; 1 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "2 groups would be updated.\n2 forums would be updated.\n1 forum status would be synced", $dry_run[1] );
 		$this->assertSame( array( '42', (string) $forum_ids[0] ), $wpdb->get_col( "SELECT meta_value FROM `{$this->groupmeta_table}` ORDER BY group_id" ) );
 
 		$this->assertSame( 0, bbp_admin_upgrade_group_forum_relationships()[0] );
@@ -611,7 +611,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 	}
 
 	/**
@@ -627,7 +627,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 groups would be updated; 0 forums would be updated; 0 forum statuses would be synced', $dry_run[1] );
+		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( array(), get_post_meta( $forum_ids[0], '_bbp_group_ids', false ) );
 		$this->assertSame( array(), get_post_meta( $forum_ids[1], '_bbp_group_ids', false ) );
 
@@ -736,7 +736,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		try {
 			$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 group root settings would be updated; 1 forums would be renamed; 1 legacy roles would be removed (member)', $dry_run[1] );
+			$this->assertStringContainsString( "1 group root setting would be updated.\n1 forum would be renamed.\n1 legacy role would be removed (member)", $dry_run[1] );
 			$this->assertSame( 'Default Forum', get_post( $forum_id )->post_title );
 			$this->assertSame( $old_root_forum, get_option( '_bbp_group_forums_root_id', null ) );
 			$this->assertNotNull( get_role( 'member' ) );

@@ -185,6 +185,7 @@ function bbp_add_options() {
  * This is destructive, so existing settings will be destroyed.
  *
  * @since 2.0.0 bbPress (r3421)
+ * @since 2.7.0 bbPress (r8252) Delete temporary forum tool run state.
  */
 function bbp_delete_options() {
 
@@ -192,6 +193,12 @@ function bbp_delete_options() {
 	foreach ( array_keys( bbp_get_default_options() ) as $key ) {
 		delete_option( $key );
 	}
+
+	// Delete non-default temporary options
+	delete_option( '_bbp_tools_run_repair' );
+	delete_option( '_bbp_tools_run_upgrade' );
+	delete_option( '_bbp_tools_run_status_repair' );
+	delete_option( '_bbp_tools_run_status_upgrade' );
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_delete_options' );
