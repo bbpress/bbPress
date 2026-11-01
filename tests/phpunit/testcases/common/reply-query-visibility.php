@@ -156,6 +156,58 @@ class BBP_Tests_Common_Reply_Query_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_reply_enforce_visibility
+	 */
+	public function test_single_reply_embed_stops_after_parent_topic_visibility_failure() {
+		$topic_author_id = $this->create_user_with_bbp_role( bbp_get_participant_role() );
+		$fixture        = $this->create_reply_visibility_fixture( $topic_author_id );
+		$embed_url      = add_query_arg(
+			array(
+				'embed'     => 'true',
+				'post_type' => bbp_get_reply_post_type(),
+				'p'         => $fixture['pending_reply'],
+			),
+			'/'
+		);
+		$blocked_users  = array(
+			0,
+			$this->create_user_without_role(),
+			$this->create_user_with_bbp_role( bbp_get_participant_role() ),
+		);
+		$allowed_users  = array(
+			$topic_author_id,
+			$this->create_user_with_bbp_role( bbp_get_moderator_role() ),
+			$this->create_user_with_bbp_role( bbp_get_keymaster_role() ),
+		);
+
+		foreach ( $blocked_users as $user_id ) {
+			$this->set_current_user( $user_id );
+			$this->go_to_without_reregistering_blocks( $embed_url );
+			$this->assertTrue( $GLOBALS['wp_query']->is_embed() );
+
+			bbp_reply_enforce_visibility();
+
+			$this->assertTrue( $GLOBALS['wp_query']->is_404() );
+			$this->assertFalse( $GLOBALS['wp_query']->is_embed() );
+			$this->assertSame( array(), $GLOBALS['wp_query']->posts );
+			$this->assertNull( $GLOBALS['wp_query']->post );
+			$this->assertSame( 0, $GLOBALS['wp_query']->post_count );
+		}
+
+		foreach ( $allowed_users as $user_id ) {
+			$this->set_current_user( $user_id );
+			$this->go_to_without_reregistering_blocks( $embed_url );
+			$this->assertTrue( $GLOBALS['wp_query']->is_embed() );
+
+			bbp_reply_enforce_visibility();
+
+			$this->assertFalse( $GLOBALS['wp_query']->is_404() );
+			$this->assertTrue( $GLOBALS['wp_query']->is_embed() );
+			$this->assertSame( $fixture['pending_reply'], $GLOBALS['wp_query']->post->ID );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_public_topic_replies_where
 	 * @covers ::_bbp_has_replies_where
 	 */
