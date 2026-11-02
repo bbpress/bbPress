@@ -647,7 +647,7 @@ function bbp_user_can_embed_post( $post_id = 0 ) {
 		$forum_id = bbp_get_reply_forum_id( $post->ID );
 	}
 
-	if ( ! $forum_id || ! in_array( get_post_status( $forum_id ), array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ), true ) ) {
+	if ( ! $forum_id || ! bbp_is_forum_visibility_valid( $forum_id ) ) {
 		return false;
 	}
 

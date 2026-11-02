@@ -38,6 +38,7 @@ function bbp_get_forum_caps() {
  * Maps forum capabilities
  *
  * @since 2.2.0 bbPress (r4244)
+ * @since 2.6.22 bbPress (r8269) Use the filtered public-status list.
  *
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
@@ -107,7 +108,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$post_type = get_post_type_object( $_post->post_type );
 
 					// Post is public
-					if ( bbp_get_public_status_id() === $_post->post_status ) {
+					if ( bbp_is_forum_public( $_post->ID, false ) ) {
 
 						// Anonymous users do not have caps, but can 'exist'
 						if ( bbp_is_anonymous() ) {
@@ -126,17 +127,17 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
 						$caps = array( 'spectate' );
 
-					// Private
+					// Hidden
 					} elseif ( bbp_get_hidden_status_id() === $_post->post_status ) {
 						$caps = array( $post_type->cap->read_hidden_posts );
 
-					// Hidden
+					// Private
 					} elseif ( bbp_get_private_status_id() === $_post->post_status ) {
 						$caps = array( $post_type->cap->read_private_posts );
 
-					// Unknown, so map to private
+					// Unknown, so map to hidden
 					} else {
-						$caps = array( $post_type->cap->read_private_posts );
+						$caps = array( $post_type->cap->read_hidden_posts );
 					}
 				}
 			}

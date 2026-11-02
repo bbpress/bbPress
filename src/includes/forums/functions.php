@@ -745,7 +745,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Visibility ******************************************************/
 
-	if ( current_user_can( 'manage_forum_attributes', $forum_id ) && ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array_keys( bbp_get_forum_visibilities() ), true ) ) {
+	if ( current_user_can( 'manage_forum_attributes', $forum_id ) && ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], bbp_get_forum_visibility_ids(), true ) ) {
 
 		// Get forums current visibility
 		$old_visibility = bbp_get_forum_visibility( $forum_id );
@@ -2589,6 +2589,21 @@ function bbp_get_forum_visibilities( $forum_id = 0 ) {
 }
 
 /**
+ * Return the forum visibility IDs.
+ *
+ * Forum visibilities are stored as post status strings. This helper returns
+ * the keys from bbp_get_forum_visibilities() without their labels.
+ *
+ * @since 2.6.22 bbPress (r8269)
+ *
+ * @param int $forum_id Optional. Forum id.
+ * @return string[] Forum visibility IDs.
+ */
+function bbp_get_forum_visibility_ids( $forum_id = 0 ) {
+	return bbp_get_string_array_values( array_keys( bbp_get_forum_visibilities( $forum_id ) ) );
+}
+
+/**
  * Return array of public forum statuses.
  *
  * @since 2.6.0 bbPress (r6922)
@@ -2705,6 +2720,61 @@ function bbp_get_password_protected_forum_ids() {
 }
 
 /**
+ * Return forum IDs whose statuses have no explicit visibility handling.
+ *
+ * WordPress queries only recognize registered post statuses, but forum status
+ * values can contain arbitrary strings. Statuses that are not explicitly
+ * public, private, or hidden are treated like hidden forums.
+ *
+ * @since 2.6.22 bbPress (r8269)
+ *
+ * @return int[] Forum IDs.
+ */
+function bbp_get_unclassified_forum_ids() {
+	/*
+	 * Countable statuses are a separate extension point. Only visibilities with
+	 * explicit handling belong in this access-control list.
+	 */
+	$statuses = bbp_get_string_array_values(
+		array_merge(
+			bbp_get_public_forum_statuses(),
+			array(
+				bbp_get_private_status_id(),
+				bbp_get_hidden_status_id()
+			)
+		)
+	);
+	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
+	$cache_key    = 'bbp_unclassified_forum_ids:' . md5( serialize( $statuses ) ) . ':' . $last_changed;
+	$forum_ids    = wp_cache_get( $cache_key, 'bbpress_posts' );
+
+	if ( false === $forum_ids ) {
+		$bbp_db = bbp_db();
+
+		if ( empty( $statuses ) ) {
+			$query = $bbp_db->prepare(
+				"SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s",
+				bbp_get_forum_post_type()
+			);
+		} else {
+			$placeholders = implode( ', ', array_fill( 0, count( $statuses ), 'CAST( %s AS BINARY )' ) );
+			$query        = $bbp_db->prepare(
+				"SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND CAST( post_status AS BINARY ) NOT IN ({$placeholders})",
+				array_merge( array( bbp_get_forum_post_type() ), $statuses )
+			);
+		}
+
+		$forum_ids = wp_parse_id_list( $bbp_db->get_col( $query ) );
+
+		if ( empty( $bbp_db->last_error ) ) {
+			wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
+		}
+	}
+
+	return (array) apply_filters( 'bbp_get_unclassified_forum_ids', $forum_ids );
+}
+
+/**
  * Returns the forum IDs that should be excluded from various views & queries,
  * based on the current user's capabilities.
  *
@@ -2716,6 +2786,7 @@ function bbp_get_password_protected_forum_ids() {
  * engagements API usages, please see: bbp_allow_forums_of_user()
  *
  * @since 2.6.0 bbPress (r6426)
+ * @since 2.6.22 bbPress (r8269) Treat unclassified forum statuses like hidden forums.
  *
  * @return array Forum IDs to exclude, or an empty array
  */
@@ -2731,35 +2802,26 @@ function bbp_get_excluded_forum_ids() {
 		? bbp_get_hidden_forum_ids()
 		: array();
 
-	// Merge private & hidden forums together, and remove any empties
-	$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) )
-		? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
+	// Unclassified forum visibilities use the hidden-forum capability.
+	$unclassified = ! current_user_can( 'read_hidden_forums' )
+		? bbp_get_unclassified_forum_ids()
+		: array();
+
+	// Merge excluded forums together, and remove any empties.
+	$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) || ! empty( $unclassified ) )
+		? array_filter( wp_parse_id_list( array_merge( $private, $hidden, $unclassified ) ) )
 		: array();
 
 	// Include every descendant, even below a forum with a non-countable status.
-	// Large exclusion lists need batched child lookups instead of one query per
-	// forum on a cold cache.
-	if ( count( $forum_ids ) > 20 ) {
+	if ( ! empty( $forum_ids ) ) {
 		$forum_ids = bbp_forum_query_all_descendant_ids( $forum_ids );
-	} else {
-		$parents = $forum_ids;
-		while ( ! empty( $parents ) ) {
-			$parent_id = array_shift( $parents );
-
-			foreach ( bbp_forum_query_all_subforum_ids( $parent_id ) as $forum_id ) {
-				if ( ! in_array( $forum_id, $forum_ids, true ) ) {
-					$forum_ids[] = $forum_id;
-					$parents[]   = $forum_id;
-				}
-			}
-		}
 	}
 
 	// Normalize forum IDs after adding descendants
 	$forum_ids = wp_parse_id_list( $forum_ids );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden );
+	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden, $unclassified );
 }
 
 /**
@@ -3047,7 +3109,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 				'post_status',
 				array_unique(
 					array_merge(
-						array_keys( bbp_get_forum_visibilities() ),
+						bbp_get_forum_visibility_ids(),
 						$content_post_statuses
 					)
 				)

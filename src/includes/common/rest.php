@@ -369,9 +369,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		}
 
 		foreach ( $visibility_forum_ids as $visibility_forum_id ) {
-			$forum_visibilities = array_keys( bbp_get_forum_visibilities( $visibility_forum_id ) );
-
-			if ( ! in_array( bbp_get_forum_visibility( $visibility_forum_id ), $forum_visibilities, true ) ) {
+			if ( ! bbp_is_forum_visibility_valid( $visibility_forum_id ) ) {
 				return false;
 			}
 		}

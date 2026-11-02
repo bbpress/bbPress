@@ -425,6 +425,36 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_is_forum_public
+	 */
+	public function test_read_forum_honors_filtered_public_statuses() {
+		$forum_id = $this->factory->post->create(
+			array(
+				'post_author' => 0,
+				'post_status' => 'draft',
+				'post_type'   => bbp_get_forum_post_type(),
+			)
+		);
+		$filter   = function( $statuses ) {
+			$statuses[] = 'draft';
+
+			return $statuses;
+		};
+
+		add_filter( 'bbp_get_public_forum_statuses', $filter );
+
+		try {
+			add_filter( 'bbp_allow_anonymous', '__return_true' );
+			$this->assertTrue( bbp_is_forum_public( $forum_id, false ) );
+			$this->assertSame( array( 'exist' ), bbp_map_forum_meta_caps( array(), 'read_forum', 0, array( $forum_id ) ) );
+		} finally {
+			remove_filter( 'bbp_allow_anonymous', '__return_true' );
+			remove_filter( 'bbp_get_public_forum_statuses', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
 	 * @covers ::bbp_get_excluded_forum_ids
 	 */
 	public function test_public_forum_tree_remains_readable() {
@@ -437,6 +467,261 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 		$this->assertTrue( current_user_can( 'read_forum', $posts['child_id'] ) );
 		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
 		$this->assertEmpty( bbp_get_excluded_forum_ids() );
+	}
+
+	/**
+	 * @covers ::bbp_get_unclassified_forum_ids
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_query_excludes_published_content_below_forums_with_unclassified_statuses() {
+		foreach ( array( 'draft', 'pending', 'future', 'trash', 'bbp-unknown' ) as $status ) {
+			$posts     = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+			$post_data = array(
+				'ID'          => $posts['parent_id'],
+				'post_status' => $status,
+			);
+
+			if ( 'future' === $status ) {
+				$post_data['post_date']     = gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS );
+				$post_data['post_date_gmt'] = $post_data['post_date'];
+			}
+
+			wp_update_post( $post_data );
+			$this->set_current_user( 0 );
+
+			$this->assertSame( $status, get_post_status( $posts['parent_id'] ) );
+			$this->assertEqualSets(
+				array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] ),
+				array_intersect( bbp_get_excluded_forum_ids(), array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] ) )
+			);
+
+			$query = new WP_Query( array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+
+			$this->assertNotContains( $posts['topic_id'], $query->posts );
+			$this->assertNotContains( $posts['reply_id'], $query->posts );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_unclassified_forum_ids
+	 */
+	public function test_unclassified_forum_cache_invalidates_on_status_change() {
+		$forum_id = $this->factory->forum->create();
+
+		$this->assertNotContains( $forum_id, bbp_get_unclassified_forum_ids() );
+
+		wp_update_post( array( 'ID' => $forum_id, 'post_status' => 'draft' ) );
+		$this->assertContains( $forum_id, bbp_get_unclassified_forum_ids() );
+
+		wp_update_post( array( 'ID' => $forum_id, 'post_status' => bbp_get_public_status_id() ) );
+		$this->assertNotContains( $forum_id, bbp_get_unclassified_forum_ids() );
+	}
+
+	/**
+	 * @covers ::bbp_get_unclassified_forum_ids
+	 * @covers ::bbp_get_excluded_forum_ids
+	 */
+	public function test_unclassified_forum_status_comparison_is_binary() {
+		$bbp_db   = bbp_db();
+		$forum_id = $this->factory->forum->create();
+
+		foreach ( array( 'Publish', 'publish ', 'Hidden' ) as $status ) {
+			$bbp_db->update(
+				$bbp_db->posts,
+				array( 'post_status' => $status ),
+				array( 'ID' => $forum_id )
+			);
+			clean_post_cache( $forum_id );
+
+			$this->assertSame( $status, get_post_status( $forum_id ) );
+			$this->assertContains( $forum_id, bbp_get_unclassified_forum_ids() );
+			$this->assertContains( $forum_id, bbp_get_excluded_forum_ids() );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_unclassified_forum_ids
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::_bbp_forum_visibility_where
+	 */
+	public function test_mixed_search_and_direct_queries_exclude_content_below_unclassified_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+		$marker  = 'unclassified-forum-query-marker';
+		$post_id = $this->factory->post->create( array( 'post_content' => $marker ) );
+
+		wp_update_post( array( 'ID' => $posts['parent_id'], 'post_status' => 'bbp-unknown' ) );
+		wp_update_post( array( 'ID' => $posts['topic_id'], 'post_content' => $marker ) );
+		wp_update_post( array( 'ID' => $posts['reply_id'], 'post_content' => $marker ) );
+		$this->set_current_user( 0 );
+
+		$query = new WP_Query( array(
+			'post_type'      => array( 'post', bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			's'              => $marker,
+		) );
+
+		$this->assertContains( $post_id, $query->posts );
+		$this->assertNotContains( $posts['topic_id'], $query->posts );
+		$this->assertNotContains( $posts['reply_id'], $query->posts );
+
+		foreach ( array( 'topic_id', 'reply_id' ) as $post_key ) {
+			$query = new WP_Query( array(
+				'post_type' => get_post_type( $posts[ $post_key ] ),
+				'p'         => $posts[ $post_key ],
+			) );
+
+			$this->assertEmpty( $query->posts );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_allow_forums_of_user
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_participant_cannot_query_published_content_below_draft_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+		$user_id = $this->factory->user->create();
+
+		wp_update_post( array( 'ID' => $posts['parent_id'], 'post_status' => 'draft' ) );
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$query = new WP_Query( array(
+			'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+		) );
+
+		$this->assertContains( $posts['parent_id'], bbp_get_excluded_forum_ids() );
+		$this->assertNotContains( $posts['topic_id'], $query->posts );
+		$this->assertNotContains( $posts['reply_id'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_allow_forums_of_user
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_moderator_can_query_published_content_below_draft_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+		$user_id = $this->factory->user->create();
+		$setting = get_option( '_bbp_allow_forum_mods', null );
+
+		wp_update_post( array( 'ID' => $posts['parent_id'], 'post_status' => 'draft' ) );
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		update_option( '_bbp_allow_forum_mods', false );
+
+		try {
+			$query = new WP_Query( array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+
+			$this->assertNotContains( $posts['parent_id'], bbp_get_excluded_forum_ids() );
+			$this->assertContains( $posts['topic_id'], $query->posts );
+			$this->assertContains( $posts['reply_id'], $query->posts );
+		} finally {
+			if ( null === $setting ) {
+				delete_option( '_bbp_allow_forum_mods' );
+			} else {
+				update_option( '_bbp_allow_forum_mods', $setting );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_unclassified_forum_ids
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_unclassified_forum_ids_use_filtered_public_forum_statuses() {
+		$posts        = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+		$forum_id     = $posts['parent_id'];
+		$label_filter = function( $visibilities ) {
+			$visibilities['draft'] = 'Draft';
+
+			return $visibilities;
+		};
+		$public_filter = function( $statuses ) {
+			$statuses[] = 'draft';
+
+			return $statuses;
+		};
+
+		wp_update_post( array( 'ID' => $forum_id, 'post_status' => 'draft' ) );
+		$this->assertContains( $forum_id, bbp_get_unclassified_forum_ids() );
+
+		add_filter( 'bbp_get_forum_visibilities', $label_filter );
+		try {
+			$this->set_current_user( 0 );
+			$this->assertContains( $forum_id, bbp_get_unclassified_forum_ids() );
+			$this->assertContains( $forum_id, bbp_get_excluded_forum_ids() );
+
+			$query = new WP_Query( array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+
+			$this->assertNotContains( $posts['topic_id'], $query->posts );
+			$this->assertNotContains( $posts['reply_id'], $query->posts );
+		} finally {
+			remove_filter( 'bbp_get_forum_visibilities', $label_filter );
+		}
+
+		add_filter( 'bbp_get_public_forum_statuses', $public_filter );
+
+		try {
+			$this->set_current_user( 0 );
+			$this->assertNotContains( $forum_id, bbp_get_unclassified_forum_ids() );
+			$this->assertNotContains( $forum_id, bbp_get_excluded_forum_ids() );
+
+			$query = new WP_Query( array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+
+			$this->assertContains( $posts['topic_id'], $query->posts );
+			$this->assertContains( $posts['reply_id'], $query->posts );
+		} finally {
+			remove_filter( 'bbp_get_public_forum_statuses', $public_filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_allow_forums_of_user
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_map_forum_meta_caps
+	 */
+	public function test_hidden_forum_reader_can_read_unclassified_forum_tree() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+		$user_id = $this->factory->user->create();
+
+		wp_update_post( array( 'ID' => $posts['parent_id'], 'post_status' => 'draft' ) );
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$user = get_user_by( 'id', $user_id );
+		$user->add_cap( 'read_hidden_forums' );
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( current_user_can( 'read_forum', $posts['parent_id'] ) );
+		$this->assertEmpty(
+			array_intersect(
+				bbp_get_excluded_forum_ids(),
+				array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] )
+			)
+		);
 	}
 
 	/**
@@ -539,6 +824,41 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 			),
 			bbp_get_forum_visibilities()
 		);
+	}
+
+	/**
+	 * @covers ::bbp_get_forum_visibility_ids
+	 */
+	public function test_bbp_get_forum_visibility_ids() {
+		$filter = function( $visibilities ) {
+			$visibilities['archived'] = 'Archived';
+
+			return $visibilities;
+		};
+
+		$this->assertSame(
+			array(
+				bbp_get_public_status_id(),
+				bbp_get_private_status_id(),
+				bbp_get_hidden_status_id(),
+			),
+			bbp_get_forum_visibility_ids()
+		);
+
+		add_filter( 'bbp_get_forum_visibilities', $filter );
+		try {
+			$this->assertSame(
+				array(
+					bbp_get_public_status_id(),
+					bbp_get_private_status_id(),
+					bbp_get_hidden_status_id(),
+					'archived',
+				),
+				bbp_get_forum_visibility_ids()
+			);
+		} finally {
+			remove_filter( 'bbp_get_forum_visibilities', $filter );
+		}
 	}
 
 	/**
