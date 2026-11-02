@@ -60,7 +60,8 @@ add_filter( 'rest_request_before_callbacks', 'bbp_filter_rest_user_discovery',  
 
 // Filter WordPress post data for forums, pending dates, and anonymous posts
 add_filter( 'wp_insert_post_data', 'bbp_filter_admin_forum_post_data', 20, 2 );
-add_filter( 'wp_insert_post_data', 'bbp_set_pending_post_date_gmt',     25    );
+add_filter( 'wp_insert_post_data', 'bbp_fix_new_post_date_pairs',      10, 4 );
+add_filter( 'wp_insert_post_data', 'bbp_set_pending_post_date_gmt',    25    );
 add_filter( 'wp_insert_post_data', 'bbp_fix_post_author',              30, 2 );
 
 // Fix untrash post status after a topic or reply is re-instated

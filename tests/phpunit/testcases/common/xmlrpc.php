@@ -575,6 +575,7 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	 */
 	public function test_participant_cannot_change_topic_or_reply_date() {
 		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
 
 		$user_id  = $this->create_participant();
 		$forum_id = $this->factory->forum->create();
@@ -605,6 +606,121 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 		$result    = $this->edit_post( $topic_id, array( 'post_date' => $unchanged ) );
 
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
+	}
+
+	/**
+	 * XML-RPC clients may send back an unchanged repeated local hour.
+	 *
+	 * @covers ::bbp_validate_xmlrpc_post
+	 * @covers ::bbp_xmlrpc_post_date_changed
+	 * @covers ::bbp_xmlrpc_wp_insert_post_data
+	 * @dataProvider data_unchanged_post_dates
+	 *
+	 * @param string $post_date     Local post date.
+	 * @param string $post_date_gmt GMT post date.
+	 */
+	public function test_participant_can_roundtrip_unchanged_post_date( $post_date, $post_date_gmt ) {
+		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
+
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $forum_id,
+				'post_date'     => $post_date,
+				'post_date_gmt' => $post_date_gmt,
+				'topic_meta'    => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		$local_result = $this->edit_post( $topic_id, array( 'post_date' => new IXR_Date( mysql2date( 'Ymd\\TH:i:s', $post_date, false ) ) ) );
+		$gmt_result   = $this->edit_post( $topic_id, array( 'post_date_gmt' => new IXR_Date( mysql2date( 'Ymd\\TH:i:s', $post_date_gmt, false ) ) ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $local_result );
+		$this->assertNotInstanceOf( 'IXR_Error', $gmt_result );
+		$this->assertSame( $post_date, get_post_field( 'post_date', $topic_id ) );
+		$this->assertSame( $post_date_gmt, get_post_field( 'post_date_gmt', $topic_id ) );
+	}
+
+	/**
+	 * Data provider for unchanged post dates exposed by XML-RPC.
+	 *
+	 * @return array[] Local and GMT dates.
+	 */
+	public function data_unchanged_post_dates() {
+		return array(
+			'first repeated hour'  => array( '2025-11-02 01:30:00', '2025-11-02 06:30:00' ),
+			'second repeated hour' => array( '2025-11-02 01:30:00', '2025-11-02 07:30:00' ),
+			'ordinary date'        => array( '2025-07-01 12:30:00', '2025-07-01 17:30:00' ),
+		);
+	}
+
+	/**
+	 * A derived GMT date for a legacy pending post must round-trip unchanged.
+	 *
+	 * @covers ::bbp_validate_xmlrpc_post
+	 * @covers ::bbp_xmlrpc_post_date_changed
+	 * @covers ::bbp_xmlrpc_wp_insert_post_data
+	 */
+	public function test_participant_can_roundtrip_legacy_zero_gmt_date() {
+		global $wpdb;
+
+		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
+
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_status' => bbp_get_pending_status_id(), 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$post_date = get_post_field( 'post_date', $topic_id );
+
+		$wpdb->update( $wpdb->posts, array( 'post_date_gmt' => '0000-00-00 00:00:00' ), array( 'ID' => $topic_id ) );
+		clean_post_cache( $topic_id );
+
+		$result = $this->edit_post( $topic_id, array( 'post_date_gmt' => new IXR_Date( mysql2date( 'Ymd\\TH:i:s', get_gmt_from_date( $post_date ), false ) ), 'post_content' => 'Updated content.' ) );
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( 'Updated content.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertSame( $post_date, get_post_field( 'post_date', $topic_id ) );
+	}
+
+	/**
+	 * An unchanged offset date must preserve its stored repeated-hour occurrence.
+	 *
+	 * @covers ::bbp_validate_xmlrpc_post
+	 * @covers ::bbp_xmlrpc_post_date_changed
+	 * @covers ::bbp_xmlrpc_wp_insert_post_data
+	 */
+	public function test_participant_can_roundtrip_unchanged_offset_date() {
+		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
+
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $forum_id,
+				'post_date'     => '2025-11-02 01:30:00',
+				'post_date_gmt' => '2025-11-02 07:30:00',
+				'topic_meta'    => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		foreach ( array( '-06:00', '-05:00' ) as $offset ) {
+			$result = $this->edit_post( $topic_id, array( 'post_date' => new IXR_Date( '20251102T01:30:00' . $offset ) ) );
+
+			$this->assertNotInstanceOf( 'IXR_Error', $result );
+		}
+
+		$this->assertSame( '2025-11-02 01:30:00', get_post_field( 'post_date', $topic_id ) );
+		$this->assertSame( '2025-11-02 07:30:00', get_post_field( 'post_date_gmt', $topic_id ) );
+
+		$result = $this->edit_post( $topic_id, array( 'post_date_gmt' => new IXR_Date( '20251102T06:30:00' ) ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( '2025-11-02 07:30:00', get_post_field( 'post_date_gmt', $topic_id ) );
 	}
 
 	/**

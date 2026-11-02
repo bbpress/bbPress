@@ -309,6 +309,21 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_approve_reply
+	 */
+	public function test_bbp_approve_reply_preserves_existing_gmt_date() {
+		update_option( 'timezone_string', 'America/Chicago' );
+
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id(), 'post_date' => '2025-11-02 01:30:00', 'post_date_gmt' => '2025-11-02 07:30:00', 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) ) );
+
+		$this->assertSame( $reply_id, bbp_approve_reply( $reply_id ) );
+		$this->assertSame( '2025-11-02 01:30:00', get_post_field( 'post_date', $reply_id ) );
+		$this->assertSame( '2025-11-02 07:30:00', get_post_field( 'post_date_gmt', $reply_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_unapprove_reply
 	 */
 	public function test_bbp_unapprove_reply() {

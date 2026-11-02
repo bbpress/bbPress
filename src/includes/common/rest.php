@@ -257,17 +257,18 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			? get_gmt_from_date( $post->post_date )
 			: $post->post_date_gmt;
 
-		foreach ( array(
-			'date'     => false,
-			'date_gmt' => true,
-		) as $field => $is_gmt ) {
-			if ( ! $request->has_param( $field ) ) {
-				continue;
+		if ( $request->has_param( 'date' ) ) {
+			$dates = is_string( $request['date'] ) ? rest_get_date_with_gmt( $request['date'], false ) : false;
+
+			if ( empty( $dates ) || ( $post->post_date !== $dates[0] ) ) {
+				return true;
 			}
+		}
 
-			$dates = is_string( $request[ $field ] ) ? rest_get_date_with_gmt( $request[ $field ], $is_gmt ) : false;
+		if ( $request->has_param( 'date_gmt' ) ) {
+			$dates = is_string( $request['date_gmt'] ) ? rest_get_date_with_gmt( $request['date_gmt'], true ) : false;
 
-			if ( empty( $dates ) || ( $post->post_date !== $dates[0] ) || ( $post_date_gmt !== $dates[1] ) ) {
+			if ( empty( $dates ) || ( $post_date_gmt !== $dates[1] ) ) {
 				return true;
 			}
 		}

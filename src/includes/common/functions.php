@@ -313,6 +313,54 @@ function bbp_get_string_array_values( $arr = array() ) {
 }
 
 /**
+ * Fix date pairs for new topics and replies.
+ *
+ * WordPress derives the GMT date from the local date, which cannot distinguish
+ * between occurrences of a repeated daylight-saving hour. Start with the
+ * current GMT date instead, and derive its unambiguous local date.
+ *
+ * This compatibility shim may become unnecessary if WordPress Core resolves
+ * default post dates from GMT instead of local time.
+ *
+ * @since 2.6.22 bbPress (r8261)
+ *
+ * @see https://core.trac.wordpress.org/ticket/34435
+ *
+ * @param array $data                Processed post data.
+ * @param array $postarr             Sanitized post data.
+ * @param array $unsanitized_postarr Original post data.
+ * @param bool  $update              Whether this is an existing post.
+ * @return array Filtered post data.
+ */
+function bbp_fix_new_post_date_pairs( $data = array(), $postarr = array(), $unsanitized_postarr = array(), $update = true ) {
+	$zero_date = '0000-00-00 00:00:00';
+
+	if (
+		! empty( $update )
+		|| ! isset( $data['post_type'], $data['post_status'] )
+		|| ! in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true )
+		|| ( ! empty( $unsanitized_postarr['post_date'] ) && ( $zero_date !== $unsanitized_postarr['post_date'] ) )
+		|| ( ! empty( $unsanitized_postarr['post_date_gmt'] ) && ( $zero_date !== $unsanitized_postarr['post_date_gmt'] ) )
+	) {
+		return $data;
+	}
+
+	$date_floating_statuses = get_post_stati( array( 'date_floating' => true ) );
+
+	if ( ( bbp_get_pending_status_id() !== $data['post_status'] ) && in_array( $data['post_status'], $date_floating_statuses, true ) ) {
+		return $data;
+	}
+
+	$post_date_gmt = current_time( 'mysql', true );
+	$post_date     = get_date_from_gmt( $post_date_gmt );
+
+	$data['post_date']         = $data['post_modified']     = $post_date;
+	$data['post_date_gmt']     = $data['post_modified_gmt'] = $post_date_gmt;
+
+	return $data;
+}
+
+/**
  * Set the GMT date for pending topics and replies.
  *
  * WordPress leaves the GMT date empty for pending posts, which can cause a

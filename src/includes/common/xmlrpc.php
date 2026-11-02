@@ -224,21 +224,23 @@ function bbp_xmlrpc_post_date_changed( $post_data, $post ) {
 		return false;
 	}
 
-	if ( ! empty( $post_data['post_date_gmt'] ) && ( $post_data['post_date_gmt'] instanceof IXR_Date ) ) {
-		$iso_date = rtrim( $post_data['post_date_gmt']->getIso(), 'Z' ) . 'Z';
-	} elseif ( ! empty( $post_data['post_date'] ) && ( $post_data['post_date'] instanceof IXR_Date ) ) {
-		$iso_date = $post_data['post_date']->getIso();
-	} else {
-		return true;
-	}
-
-	$local = ! empty( $iso_date ) ? iso8601_to_datetime( $iso_date ) : false;
-	$gmt   = ! empty( $iso_date ) ? iso8601_to_datetime( $iso_date, 'gmt' ) : false;
 	$post_date_gmt = ( '0000-00-00 00:00:00' === $post->post_date_gmt )
 		? get_gmt_from_date( $post->post_date )
 		: $post->post_date_gmt;
 
-	return empty( $local ) || empty( $gmt ) || ( $post->post_date !== $local ) || ( $post_date_gmt !== $gmt );
+	if ( ! empty( $post_data['post_date_gmt'] ) && ( $post_data['post_date_gmt'] instanceof IXR_Date ) ) {
+		$iso_date = rtrim( $post_data['post_date_gmt']->getIso(), 'Z' ) . 'Z';
+		$gmt      = iso8601_to_datetime( $iso_date, 'gmt' );
+
+		return empty( $gmt ) || ( $post_date_gmt !== $gmt );
+	} elseif ( ! empty( $post_data['post_date'] ) && ( $post_data['post_date'] instanceof IXR_Date ) ) {
+		$iso_date = $post_data['post_date']->getIso();
+		$local    = iso8601_to_datetime( $iso_date );
+
+		return empty( $local ) || ( $post->post_date !== $local );
+	} else {
+		return true;
+	}
 }
 
 /**
@@ -281,6 +283,17 @@ function bbp_xmlrpc_wp_insert_post_data( $post_data = array() ) {
 
 	if ( empty( $post_id ) || ! in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
 		return $post_data;
+	}
+
+	// Participants cannot move their edit window, including through ambiguous
+	// local dates during a repeated daylight-saving hour.
+	if ( ! current_user_can( 'moderate', $post_id ) ) {
+		$post = get_post( $post_id );
+
+		if ( ! empty( $post ) ) {
+			$post_data['post_date']     = $post->post_date;
+			$post_data['post_date_gmt'] = $post->post_date_gmt;
+		}
 	}
 
 	$title     = isset( $post_data['post_title'] ) ? wp_unslash( $post_data['post_title'] ) : '';
