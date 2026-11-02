@@ -2220,7 +2220,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return $url;
 		}
 
-		return trailingslashit( $new ) . bbpress()->edit_id  . '/';
+		return trailingslashit( $new ) . bbp_get_edit_slug() . '/';
 	}
 
 	/**
