@@ -51,9 +51,13 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_is_forum_visibility_valid( $post_id ) );
 		$this->assertFalse( bbp_is_forum_visibility_valid( 0 ) );
 
-		$filter = function( $visibilities, $forum_id ) use ( $public_id ) {
+		$filter = function( $visibilities, $forum_id ) use ( $draft_id, $public_id ) {
 			if ( $public_id === $forum_id ) {
 				unset( $visibilities[ bbp_get_public_status_id() ] );
+			}
+
+			if ( $draft_id === $forum_id ) {
+				$visibilities['draft'] = 'Draft';
 			}
 
 			return $visibilities;
@@ -63,6 +67,7 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 
 		try {
 			$this->assertFalse( bbp_is_forum_visibility_valid( $public_id ) );
+			$this->assertTrue( bbp_is_forum_visibility_valid( $draft_id ) );
 		} finally {
 			remove_filter( 'bbp_get_forum_visibilities', $filter, 10 );
 		}
@@ -109,6 +114,79 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_is_forum_public
+	 */
+	public function test_public_forum_skips_non_forum_ancestors() {
+		$post_id  = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$forum_id = $this->factory->forum->create();
+		$filter   = function( $ancestors, $check_forum_id ) use ( $forum_id, $post_id ) {
+			if ( $forum_id === $check_forum_id ) {
+				$ancestors[] = $post_id;
+			}
+
+			return $ancestors;
+		};
+
+		add_filter( 'bbp_get_forum_ancestors', $filter, 10, 2 );
+
+		try {
+			$this->assertTrue( bbp_is_forum_public( $forum_id ) );
+		} finally {
+			remove_filter( 'bbp_get_forum_ancestors', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_is_forum_public
+	 */
+	public function test_public_forum_preserves_visibility_filter() {
+		$forum_id = $this->factory->forum->create();
+		$filter   = function( $retval, $count, $check_forum_id, $status_name ) use ( $forum_id ) {
+			return ( ( $forum_id === $check_forum_id ) && ( bbp_get_public_status_id() === $status_name ) )
+				? false
+				: $retval;
+		};
+
+		add_filter( 'bbp_is_forum_visibility', $filter, 10, 4 );
+
+		try {
+			$this->assertFalse( bbp_is_forum_public( $forum_id ) );
+		} finally {
+			remove_filter( 'bbp_is_forum_visibility', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_is_forum_public
+	 */
+	public function test_public_forum_allows_mixed_filtered_statuses_in_tree() {
+		$public_parent = $this->factory->forum->create();
+		$draft_child   = $this->factory->forum->create( array( 'post_parent' => $public_parent ) );
+		$draft_parent  = $this->factory->forum->create();
+		$public_child  = $this->factory->forum->create( array( 'post_parent' => $draft_parent ) );
+		$filter        = function( $statuses ) {
+			$statuses[] = 'draft';
+
+			return $statuses;
+		};
+
+		wp_update_post( array( 'ID' => $draft_child, 'post_status' => 'draft' ) );
+		wp_update_post( array( 'ID' => $draft_parent, 'post_status' => 'draft' ) );
+
+		$this->assertFalse( bbp_is_forum_public( $draft_child, true ) );
+		$this->assertFalse( bbp_is_forum_public( $public_child, true ) );
+
+		add_filter( 'bbp_get_public_forum_statuses', $filter );
+
+		try {
+			$this->assertTrue( bbp_is_forum_public( $draft_child, true ) );
+			$this->assertTrue( bbp_is_forum_public( $public_child, true ) );
+		} finally {
+			remove_filter( 'bbp_get_public_forum_statuses', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_forum_restricted
 	 */
 	public function test_bbp_is_forum_restricted() {
@@ -124,6 +202,11 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 			'post_parent' => $child_id,
 			'post_status' => bbp_get_hidden_status_id(),
 		) );
+		$draft_id       = $this->factory->forum->create();
+		$draft_child_id = $this->factory->forum->create( array(
+			'post_parent' => $draft_id,
+		) );
+		wp_update_post( array( 'ID' => $draft_id, 'post_status' => 'draft' ) );
 
 		$this->assertFalse( bbp_is_forum_restricted( $public_id ) );
 		$this->assertTrue( bbp_is_forum_restricted( $private_id ) );
@@ -131,6 +214,23 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 		$this->assertTrue( bbp_is_forum_restricted( $child_id, true ) );
 		$this->assertTrue( bbp_is_forum_restricted( $hidden_id ) );
 		$this->assertTrue( bbp_is_forum_restricted( $hidden_id, true ) );
+		$this->assertTrue( bbp_is_forum_restricted( $draft_id ) );
+		$this->assertFalse( bbp_is_forum_restricted( $draft_child_id ) );
+		$this->assertTrue( bbp_is_forum_restricted( $draft_child_id, true ) );
+
+		$public_filter = function( $statuses ) {
+			$statuses[] = 'draft';
+
+			return $statuses;
+		};
+		add_filter( 'bbp_get_public_forum_statuses', $public_filter );
+
+		try {
+			$this->assertFalse( bbp_is_forum_restricted( $draft_id ) );
+			$this->assertFalse( bbp_is_forum_restricted( $draft_child_id, true ) );
+		} finally {
+			remove_filter( 'bbp_get_public_forum_statuses', $public_filter );
+		}
 	}
 
 	/**

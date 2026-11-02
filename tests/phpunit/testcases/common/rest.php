@@ -377,6 +377,38 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	/**
 	 * @covers BBP_REST_Posts_Controller::check_read_permission
 	 */
+	public function test_visibility_map_status_remains_restricted_for_rest() {
+		$posts          = $this->create_forum_content();
+		$participant_id = $this->factory->user->create();
+		$hidden_user_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$filter         = function( $visibilities ) {
+			$visibilities['archived'] = 'Archived';
+
+			return $visibilities;
+		};
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $hidden_user_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		get_user_by( 'id', $hidden_user_id )->add_cap( 'read_hidden_forums' );
+		wp_update_post( array( 'ID' => $posts['forum_id'], 'post_status' => 'archived' ) );
+		add_filter( 'bbp_get_forum_visibilities', $filter );
+
+		try {
+			$this->assertSame( 'archived', get_post_status( $posts['forum_id'] ) );
+			$this->assert_item_status( 401, $posts );
+			$this->assert_item_status( 403, $posts, $participant_id );
+			$this->assert_item_status( 200, $posts, $hidden_user_id );
+			$this->assert_item_status( 200, $posts, $moderator_id );
+		} finally {
+			remove_filter( 'bbp_get_forum_visibilities', $filter );
+		}
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 */
 	public function test_anonymous_user_can_read_public_content_without_forum() {
 		$topic_ids = $this->factory->topic->create_many(
 			2,

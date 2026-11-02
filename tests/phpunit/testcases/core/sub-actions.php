@@ -608,6 +608,61 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_user_can_embed_post
+	 */
+	public function test_oembed_visibility_map_status_remains_restricted() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+		$participant_id = $this->factory->user->create();
+		$hidden_user_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$filter         = function( $visibilities ) {
+			$visibilities['archived'] = 'Archived';
+
+			return $visibilities;
+		};
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $hidden_user_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		get_user_by( 'id', $hidden_user_id )->add_cap( 'read_hidden_forums' );
+		wp_update_post( array( 'ID' => $forum_id, 'post_status' => 'archived' ) );
+		add_filter( 'bbp_get_forum_visibilities', $filter );
+
+		try {
+			$this->assertSame( 'archived', get_post_status( $forum_id ) );
+
+			foreach ( array( 0, $participant_id ) as $user_id ) {
+				$this->set_current_user( $user_id );
+				$this->assertFalse( bbp_user_can_embed_post( $topic_id ) );
+				$this->assertFalse( bbp_user_can_embed_post( $reply_id ) );
+			}
+
+			foreach ( array( $hidden_user_id, $moderator_id ) as $user_id ) {
+				$this->set_current_user( $user_id );
+				$this->assertTrue( bbp_user_can_embed_post( $topic_id ) );
+				$this->assertTrue( bbp_user_can_embed_post( $reply_id ) );
+			}
+		} finally {
+			remove_filter( 'bbp_get_forum_visibilities', $filter );
+		}
+	}
+
+	/**
 	 * @dataProvider canonical_redirect_post_id_provider
 	 *
 	 * @covers ::bbp_get_canonical_redirect_post_id

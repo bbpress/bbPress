@@ -271,11 +271,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 						array(
 							'post_type'      => bbp_get_forum_post_type(),
 							'posts_per_page' => -1,
-							'post_status'    => array(
-								bbp_get_public_status_id(),
-								bbp_get_private_status_id(),
-								bbp_get_hidden_status_id(),
-							),
+							'post_status'    => bbp_get_forum_visibility_ids(),
 						)
 					);
 

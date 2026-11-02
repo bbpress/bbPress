@@ -1604,7 +1604,7 @@ function bbp_is_forum_visibility_valid( $forum_id = 0 ) {
 		return false;
 	}
 
-	return in_array( get_post_status( $forum_id ), array_keys( bbp_get_forum_visibilities( $forum_id ) ), true );
+	return in_array( get_post_status( $forum_id ), bbp_get_forum_visibility_ids( $forum_id ), true );
 }
 
 /**
@@ -1770,18 +1770,45 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
  * Is the forum public?
  *
  * @since 2.0.0 bbPress (r2998)
+ * @since 2.6.22 bbPress (r8269) Use the filtered public-status list.
  *
  * @param int $forum_id Optional. Forum id.
  * @param bool $check_ancestors Check if the ancestors are public.
- * @return bool True if closed, false if not.
+ * @return bool True if public, false if not.
  */
 function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 
 	// Get the forum ID
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Check if the forum and all of it's ancestors are public
-	$retval   = bbp_is_forum_visibility( $forum_id, bbp_get_public_status_id(), $check_ancestors );
+	// Check if the forum and all of its ancestors are public
+	$forum_ids = ! empty( $forum_id ) ? array( $forum_id ) : array();
+	if ( $check_ancestors && ! empty( $forum_id ) ) {
+		$forum_ids = array_merge( $forum_ids, bbp_get_forum_ancestors( $forum_id ) );
+	}
+
+	$public = bbp_get_public_forum_statuses();
+	$retval = ! empty( $forum_ids );
+
+	foreach ( $forum_ids as $visibility_id ) {
+		// Preserve the direct check, but skip ancestors that are not forums.
+		if ( ( $forum_id !== $visibility_id ) && ! bbp_is_forum( $visibility_id ) ) {
+			continue;
+		}
+
+		$is_public = false;
+		foreach ( $public as $public_status ) {
+			if ( bbp_is_forum_visibility( $visibility_id, $public_status, false ) ) {
+				$is_public = true;
+				break;
+			}
+		}
+
+		if ( ! $is_public ) {
+			$retval = false;
+			break;
+		}
+	}
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_forum_public', $retval, $forum_id, $check_ancestors );
@@ -1831,17 +1858,42 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 }
 
 /**
- * Is the forum private or hidden?
+ * Is the forum unclassified, private, or hidden?
  *
  * @since 2.6.17 bbPress (r7473)
+ * @since 2.6.22 bbPress (r8269) Treat unclassified statuses as restricted.
  *
  * @param int  $forum_id Optional. Forum id.
  * @param bool $check_ancestors Whether to check the forum ancestors.
- * @return bool True if private or hidden, false if not.
+ * @return bool True if unclassified, private, or hidden, false if not.
  */
 function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
-	$retval   = bbp_is_forum_private( $forum_id, $check_ancestors ) || bbp_is_forum_hidden( $forum_id, $check_ancestors );
+	$forum_id       = bbp_get_forum_id( $forum_id );
+	$visibility_ids = ! empty( $forum_id ) ? array( $forum_id ) : array();
+	$unclassified   = false;
+
+	if ( $check_ancestors && ! empty( $forum_id ) ) {
+		$visibility_ids = array_merge( $visibility_ids, bbp_get_forum_ancestors( $forum_id ) );
+	}
+
+	foreach ( $visibility_ids as $visibility_id ) {
+		if ( ! bbp_is_forum( $visibility_id ) ) {
+			continue;
+		}
+
+		$is_classified = bbp_is_forum_public( $visibility_id, false )
+			|| bbp_is_forum_private( $visibility_id, false )
+			|| bbp_is_forum_hidden( $visibility_id, false );
+
+		if ( ! $is_classified ) {
+			$unclassified = true;
+			break;
+		}
+	}
+
+	$retval = $unclassified
+		|| bbp_is_forum_private( $forum_id, $check_ancestors )
+		|| bbp_is_forum_hidden( $forum_id, $check_ancestors );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_forum_restricted', $retval, $forum_id, $check_ancestors );
@@ -1850,10 +1902,12 @@ function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
 /**
  * Is the forum restricted from a user?
  *
- * Checks the forum and its ancestors for private or hidden visibility, and
- * whether the user is a forum moderator or can otherwise read the forum.
+ * Checks the forum and its ancestors for unclassified, private, or hidden
+ * visibility, and whether the user is a forum moderator or can otherwise read
+ * the forum.
  *
  * @since 2.6.17 bbPress (r7503)
+ * @since 2.6.22 bbPress (r8269) Treat unclassified statuses as restricted.
  *
  * @param int $forum_id Optional. Forum ID.
  * @param int $user_id  Optional. User ID. Defaults to 0.

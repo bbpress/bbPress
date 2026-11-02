@@ -89,7 +89,7 @@ class BBP_Tests_Forums_Functions_Capabilities extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_map_forum_meta_caps
 	 */
-	public function test_read_forum_maps_restricted_and_unknown_statuses() {
+	public function test_read_forum_maps_restricted_and_unclassified_statuses() {
 		$user_id   = $this->factory->user->create();
 		$author_id = $this->factory->user->create();
 		$private   = $this->factory->forum->create( array( 'post_author' => $author_id, 'post_status' => bbp_get_private_status_id() ) );
@@ -106,7 +106,37 @@ class BBP_Tests_Forums_Functions_Capabilities extends BBP_UnitTestCase {
 
 		$this->assertSame( array( $post_type->cap->read_private_posts ), bbp_map_forum_meta_caps( array(), 'read_forum', $user_id, array( $private ) ) );
 		$this->assertSame( array( $post_type->cap->read_hidden_posts ), bbp_map_forum_meta_caps( array(), 'read_forum', $user_id, array( $hidden ) ) );
-		$this->assertSame( array( $post_type->cap->read_private_posts ), bbp_map_forum_meta_caps( array(), 'read_forum', $user_id, array( $unknown ) ) );
+		$this->assertSame( array( $post_type->cap->read_hidden_posts ), bbp_map_forum_meta_caps( array(), 'read_forum', $user_id, array( $unknown ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_is_forum_public
+	 */
+	public function test_read_forum_honors_filtered_public_statuses() {
+		$forum_id = $this->factory->post->create(
+			array(
+				'post_author' => 0,
+				'post_status' => 'draft',
+				'post_type'   => bbp_get_forum_post_type(),
+			)
+		);
+		$filter   = function( $statuses ) {
+			$statuses[] = 'draft';
+
+			return $statuses;
+		};
+
+		add_filter( 'bbp_get_public_forum_statuses', $filter );
+
+		try {
+			add_filter( 'bbp_allow_anonymous', '__return_true' );
+			$this->assertTrue( bbp_is_forum_public( $forum_id, false ) );
+			$this->assertSame( array( 'exist' ), bbp_map_forum_meta_caps( array(), 'read_forum', 0, array( $forum_id ) ) );
+		} finally {
+			remove_filter( 'bbp_allow_anonymous', '__return_true' );
+			remove_filter( 'bbp_get_public_forum_statuses', $filter );
+		}
 	}
 
 	/**
