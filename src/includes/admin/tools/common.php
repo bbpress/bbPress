@@ -427,6 +427,34 @@ function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = arra
 }
 
 /**
+ * Save a tool checkpoint, or remove it after the final batch.
+ *
+ * @since 2.7.0 bbPress (r8259)
+ *
+ * @param string $tool_id  Repair or upgrade tool ID.
+ * @param array  $state    Next batch checkpoint.
+ * @param bool   $complete Whether the tool has completed.
+ * @return bool Whether the stored checkpoint matches the requested state.
+ */
+function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = false ) {
+	$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+
+	if ( $complete ) {
+		if ( ! delete_option( $option ) ) {
+			// WordPress may cache a missing option even when its deletion fails
+			wp_cache_delete( $option, 'options' );
+			wp_cache_delete( 'alloptions', 'options' );
+			wp_cache_delete( 'notoptions', 'options' );
+		}
+		$saved = false === get_option( $option, false );
+		return $saved && empty( bbp_db()->last_error );
+	}
+
+	update_option( $option, $state, false );
+	return get_option( $option, false ) === $state;
+}
+
+/**
  * Run every batch of a repair or upgrade during a small-site update.
  *
  * Legacy callbacks complete after one call. Batched callbacks continue until

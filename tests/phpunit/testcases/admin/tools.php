@@ -7643,23 +7643,23 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '2 existing engagement rows would be cleared before rebuilding.', $dry_run[1] );
-		$this->assertStringContainsString( '3 engagement rows would be created from topic and reply authors.', $dry_run[1] );
+		$this->assertStringContainsString( '2 stale or duplicate engagement rows would be cleaned up in this batch.', $dry_run[1] );
+		$this->assertStringContainsString( '3 missing engagements would be added from topic and reply authors in this batch.', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement' ORDER BY meta_id", ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_user_engagements();
 
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '2 existing engagement rows cleared before rebuilding.', $result[1] );
-		$this->assertStringContainsString( '3 engagement rows created from topic and reply authors.', $result[1] );
+		$this->assertStringContainsString( '2 stale or duplicate engagement rows cleaned up.', $result[1] );
+		$this->assertStringContainsString( '3 missing engagements added from topic and reply authors.', $result[1] );
 		$this->assertEqualSets( array( $users[0], $users[1] ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
 		$this->assertSame( array( (string) $users[2] ), get_post_meta( $topic_2, '_bbp_engagement', false ) );
 		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_engagement', false ) );
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 existing engagement rows would be cleared before rebuilding.', $dry_run[1] );
-		$this->assertStringContainsString( '3 engagement rows would be created from topic and reply authors.', $dry_run[1] );
+		$this->assertStringContainsString( '0 stale or duplicate engagement rows would be cleaned up in this batch.', $dry_run[1] );
+		$this->assertStringContainsString( '0 missing engagements would be added from topic and reply authors in this batch.', $dry_run[1] );
 	}
 
 	/**
@@ -7687,14 +7687,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 existing engagement row would be cleared before rebuilding.', $dry_run[1] );
-		$this->assertStringContainsString( '0 engagement rows would be created from topic and reply authors.', $dry_run[1] );
+		$this->assertStringContainsString( '1 stale or duplicate engagement row would be cleaned up in this batch.', $dry_run[1] );
+		$this->assertStringContainsString( '0 missing engagements would be added from topic and reply authors in this batch.', $dry_run[1] );
 		$this->assertSame( '999999', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
 
 		$result = bbp_admin_upgrade_user_engagements();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 existing engagement row cleared before rebuilding.', $result[1] );
-		$this->assertStringContainsString( '0 engagement rows created from topic and reply authors.', $result[1] );
+		$this->assertStringContainsString( '1 stale or duplicate engagement row cleaned up.', $result[1] );
+		$this->assertStringContainsString( '0 missing engagements added from topic and reply authors.', $result[1] );
 		$this->assertNull( $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
 	}
 
@@ -7703,6 +7703,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_upgrade_user_engagements_process
 	 */
 	public function test_bbp_admin_upgrade_user_engagements_dry_run_reports_read_errors() {
+		$this->factory->topic->create();
 		$db              = bbp_db();
 		$old_suppression = $db->suppress_errors( true );
 		$old_postmeta    = $db->postmeta;
@@ -7733,31 +7734,25 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_upgrade_user_engagements_process
 	 */
 	public function test_bbp_admin_upgrade_user_engagements_reports_delete_errors() {
-		$db              = bbp_db();
 		$user_id         = $this->factory->user->create();
 		$topic_id        = $this->factory->topic->create( array( 'post_author' => $user_id ) );
-		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			$sql_delete = "DELETE FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement'";
-
-			return ( $query === $sql_delete )
-				? 'DELETE FROM bbp_missing_engagement_postmeta'
-				: $query;
+		$delete_filter   = static function ( $delete, $meta_id ) {
+			$meta = get_metadata_by_mid( 'post', $meta_id );
+			return ( '_bbp_engagement' === $meta->meta_key ) ? false : $delete;
 		};
 
 		delete_post_meta( $topic_id, '_bbp_engagement' );
 		add_post_meta( $topic_id, '_bbp_engagement', 999999 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'delete_post_metadata_by_mid', $delete_filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
 			$this->assertSame( 4, $result[0] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( array( '999999' ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+			$this->assertSame( array( '999999', (string) $user_id ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
-			$db->suppress_errors( $old_suppression );
+			remove_filter( 'delete_post_metadata_by_mid', $delete_filter, 10 );
 		}
 	}
 
@@ -7765,13 +7760,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_upgrade_user_engagements
 	 * @covers ::bbp_admin_upgrade_user_engagements_process
 	 */
-	public function test_bbp_admin_upgrade_user_engagements_reports_insert_errors_and_clears_cache() {
+	public function test_bbp_admin_upgrade_user_engagements_reports_insert_errors_and_preserves_existing_rows() {
 		$db              = bbp_db();
 		$user_id         = $this->factory->user->create();
 		$topic_id        = $this->factory->topic->create( array( 'post_author' => $user_id ) );
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db ) {
-			$sql_insert = "INSERT INTO {$db->postmeta} (post_id, meta_key, meta_value)";
+			$sql_insert = "INSERT INTO `{$db->postmeta}`";
 
 			return ( 0 === strpos( $query, $sql_insert ) )
 				? 'INSERT INTO bbp_missing_engagement_postmeta (`post_id`) VALUES (1)'
@@ -7788,7 +7783,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertSame( 5, $result[0] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( array(), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+			$this->assertSame( array( '999999' ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );

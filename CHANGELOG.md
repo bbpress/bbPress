@@ -47,10 +47,11 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
-- Process legacy favorites, topic subscriptions, forum subscriptions, and
-  closed-topic repairs in resumable batches, preserving automatic completion
-  during small-site upgrades and read-only previews of the next batch. Legacy-data
-  cleanup waits for unfinished migrations.
+- Process legacy favorites, topic subscriptions, forum subscriptions, topic
+  engagements, and closed-topic repairs in resumable batches, preserving automatic
+  completion during small-site upgrades and read-only previews of the next batch.
+  Legacy-data cleanup waits for unfinished migrations. Engagement upgrades retain
+  valid rows while adding missing relationships and cleaning up stale or duplicate rows.
 - Direct callers of these batched callbacks should use
   `bbp_admin_repair_tool_run_automatically()`, or normalize each result with
   `bbp_admin_repair_tool_normalize_result()` and continue until `complete` is true.

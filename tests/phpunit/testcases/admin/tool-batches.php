@@ -364,7 +364,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		return $cases;
 	}
 
-	public function malformed_closed_topic_checkpoints() {
+	public function malformed_checkpoints() {
 		return $this->checkpoint_corruptions();
 	}
 
@@ -408,7 +408,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider malformed_closed_topic_checkpoints
+	 * @dataProvider malformed_checkpoints
 	 */
 	public function test_malformed_closed_topic_checkpoints_restart_safely_and_preview_without_writes( $field, $value ) {
 		$posts  = $this->closed_topics( 5 );
@@ -580,7 +580,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		}
 	}
 
-	public function test_small_site_updater_completes_all_three_real_migrations_automatically() {
+	public function test_small_site_updater_completes_all_four_real_migrations_automatically() {
 		$this->check_small_site_updater( false );
 	}
 
@@ -609,6 +609,14 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				update_option( bbp_admin_repair_tool_batch_option_name( $tool[0] ), 'broken', false );
 			}
 		}
+		$tools['engagements'] = array( 'bbp-user-topic-engagements-move', '', '_bbp_engagement', 'bbp_admin_upgrade_user_engagements' );
+		$posts['engagements'] = $this->factory->topic->create_many( 5, array( 'post_author' => $user_id ) );
+		foreach ( $posts['engagements'] as $post_id ) {
+			delete_post_meta( $post_id, '_bbp_engagement' );
+		}
+		if ( $malformed ) {
+			update_option( bbp_admin_repair_tool_batch_option_name( $tools['engagements'][0] ), 'broken', false );
+		}
 		update_option( '_bbp_db_version', 260 );
 		delete_option( '_bbp_db_pending_upgrades' );
 		add_filter( 'bbp_is_large_install', '__return_false' );
@@ -635,5 +643,343 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, $tool[2], false ) );
 			}
 		}
+	}
+
+	private function engagement_rows() {
+		$db = bbp_db();
+		return $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement' ORDER BY post_id, meta_value", ARRAY_A );
+	}
+
+	private function expected_engagement_rows() {
+		$db = bbp_db();
+		return $db->get_results( $db->prepare(
+			"SELECT topics.ID AS post_id, posts.post_author AS meta_value
+			FROM {$db->posts} AS posts
+			INNER JOIN {$db->postmeta} AS postmeta ON posts.ID = postmeta.post_id AND postmeta.meta_key = '_bbp_topic_id'
+			INNER JOIN {$db->posts} AS topics ON topics.ID = postmeta.meta_value AND topics.post_type = %s
+			WHERE posts.post_type IN (%s, %s) AND posts.post_status IN (%s, %s)
+			GROUP BY topics.ID, posts.post_author ORDER BY post_id, meta_value",
+			bbp_get_topic_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type(), bbp_get_public_status_id(), bbp_get_closed_status_id()
+		), ARRAY_A );
+	}
+
+	public function test_engagement_batches_match_the_original_rebuild_and_preserve_valid_rows() {
+		$db       = bbp_db();
+		$users    = $this->factory->user->create_many( 3 );
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $users[0] ) );
+		$other    = $this->factory->topic->create( array( 'post_author' => $users[2], 'post_status' => bbp_get_closed_status_id() ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $users[1] ) );
+		$this->factory->reply->create_many( 5, array( 'post_parent' => $topic_id, 'post_author' => $users[1] ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => 0 ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $users[2], 'post_status' => bbp_get_spam_status_id() ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $users[2], 'post_status' => bbp_get_trash_status_id() ) );
+		add_post_meta( $reply_id, '_bbp_topic_id', $topic_id );
+		add_post_meta( 999999, '_bbp_topic_id', $topic_id );
+		$post_id = $this->factory->post->create();
+		add_post_meta( $post_id, '_bbp_topic_id', $topic_id );
+
+		// Keep an existing valid row, while rebuilding missing rows and cleaning bad ones
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		delete_post_meta( $other, '_bbp_engagement' );
+		$valid_id = add_post_meta( $topic_id, '_bbp_engagement', $users[0] );
+		add_post_meta( $topic_id, '_bbp_engagement', $users[0] );
+		add_post_meta( $topic_id, '_bbp_engagement', '0' . $users[0] );
+		add_post_meta( $topic_id, '_bbp_engagement', 999999 );
+		add_post_meta( $post_id, '_bbp_engagement', $users[0] );
+		add_post_meta( 999999, '_bbp_engagement', $users[0] );
+		$expected = $this->expected_engagement_rows();
+		$option   = bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' );
+		$upper    = (int) $db->get_var( "SELECT MAX(meta_id) FROM {$db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement')" );
+		$ids      = array_map( 'intval', $db->get_col( "SELECT meta_id FROM {$db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') ORDER BY meta_id" ) );
+		$cursor   = 0;
+
+		for ( $i = 0; $i < 30; ++$i ) {
+			$before  = $this->stored_data();
+			$preview = bbp_admin_upgrade_user_engagements_dry_run();
+			$this->assertSame( 0, $preview[0] );
+			$predicted = bbp_admin_upgrade_user_engagements_batch( true );
+			$this->assertSame( $before, $this->stored_data() );
+			$batch = bbp_admin_upgrade_user_engagements_batch();
+			$this->assertSame( 0, $batch['code'] );
+			$this->assertSame( $predicted['added'], $batch['added'] );
+			$this->assertSame( $predicted['removed'], $batch['removed'] );
+			$this->assertSame( $predicted['complete'], $batch['complete'] );
+			$this->assertLessThanOrEqual( 2, $batch['added'] + $batch['removed'] );
+			$this->assertNotFalse( get_metadata_by_mid( 'post', $valid_id ) );
+			if ( $batch['complete'] ) {
+				break;
+			}
+			$state = get_option( $option );
+			$this->assertSame( $upper, $state['upper_id'] );
+			$scanned = array_filter( $ids, static function ( $id ) use ( $state, $cursor ) {
+				return ( $id > $cursor ) && ( $id <= $state['cursor'] );
+			} );
+			$this->assertCount( 2, $scanned );
+			$cursor = $state['cursor'];
+		}
+		$this->assertTrue( $batch['complete'] );
+		$this->assertFalse( get_option( $option, false ) );
+		$this->assertSame( $expected, $this->engagement_rows() );
+		$this->assertSame( array_map( 'strval', array( $users[0], $users[1], 0 ) ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( $expected, $this->engagement_rows() );
+		$this->assertNotFalse( get_metadata_by_mid( 'post', $valid_id ) );
+	}
+
+	public function test_engagement_key_variants_preserve_source_rows_and_create_canonical_engagements() {
+		$users    = $this->factory->user->create_many( 2 );
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $users[0] ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $users[1] ) );
+		delete_post_meta( $reply_id, '_bbp_topic_id' );
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		$sources = array(
+			add_post_meta( $reply_id, '_BBP_TOPIC_ID', $topic_id ),
+			add_post_meta( $reply_id, '_bbp_topic_id ', $topic_id ),
+		);
+		add_post_meta( $topic_id, '_BBP_ENGAGEMENT', $users[0] );
+		add_post_meta( $topic_id, '_bbp_engagement ', $users[1] );
+		$expected = $this->expected_engagement_rows();
+		$before   = $this->stored_data();
+		bbp_admin_upgrade_user_engagements_dry_run();
+		$this->assertSame( $before, $this->stored_data() );
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		foreach ( $sources as $meta_id ) {
+			$this->assertNotFalse( get_metadata_by_mid( 'post', $meta_id ) );
+		}
+		$this->assertSame( $expected, $this->engagement_rows() );
+		$this->assertEqualSets( array_map( 'strval', $users ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( $expected, $this->engagement_rows() );
+	}
+
+	public function test_new_engagement_source_rows_wait_for_the_next_run() {
+		$user_id = $this->factory->user->create();
+		$topics  = $this->factory->topic->create_many( 3, array( 'post_author' => $user_id ) );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$this->assertFalse( bbp_admin_upgrade_user_engagements()['complete'] );
+		$new_topic = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+		delete_post_meta( $new_topic, '_bbp_engagement' );
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( array(), get_post_meta( $new_topic, '_bbp_engagement', false ) );
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $new_topic, '_bbp_engagement', false ) );
+	}
+
+	/**
+	 * @dataProvider malformed_checkpoints
+	 */
+	public function test_malformed_engagement_checkpoints_restart_without_preview_writes( $field, $value ) {
+		$topics = $this->factory->topic->create_many( 4 );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' );
+		$this->assertFalse( bbp_admin_upgrade_user_engagements()['complete'] );
+		$this->corrupt_checkpoint( $option, $field, $value );
+		$new_topic = $this->factory->topic->create();
+		delete_post_meta( $new_topic, '_bbp_engagement' );
+		$before  = $this->stored_data();
+		$preview = bbp_admin_upgrade_user_engagements_dry_run();
+		$this->assertSame( 0, $preview[0] );
+		$this->assertStringContainsString( 'Saved progress is invalid.', $preview[1] );
+		$this->assertSame( $before, $this->stored_data() );
+		$result = bbp_admin_upgrade_user_engagements();
+		$this->assertSame( 0, $result[0] );
+		$this->assertStringContainsString( 'Saved progress was invalid.', $result[1] );
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+	}
+
+	public function test_engagement_write_failures_keep_progress_and_retry_without_duplicates() {
+		$user_id = $this->factory->user->create();
+		$topics  = $this->factory->topic->create_many( 3, array( 'post_author' => $user_id ) );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$fail = static function ( $check, $post_id, $key ) use ( $topics ) {
+			return ( $topics[1] === $post_id ) && ( '_bbp_engagement' === $key ) ? false : $check;
+		};
+		add_filter( 'add_post_metadata', $fail, 10, 3 );
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 5, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' ) )['cursor'] );
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $topics[0], '_bbp_engagement', false ) );
+		} finally {
+			remove_filter( 'add_post_metadata', $fail, 10 );
+		}
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+	}
+
+	public function test_engagement_initial_checkpoint_failures_write_nothing_and_remain_pending() {
+		$this->factory->topic->create_many( 3 );
+		$tool_id = 'bbp-user-topic-engagements-move';
+		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$fail    = static function ( $value, $old ) {
+			return $old;
+		};
+		$before = $this->engagement_rows();
+		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+			$this->assertSame( $before, $this->engagement_rows() );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, 'bbp_admin_upgrade_user_engagements' ) );
+		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+	}
+
+	public function test_engagement_progress_save_failures_can_be_retried_safely() {
+		$topics = $this->factory->topic->create_many( 5 );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' );
+		$this->assertFalse( bbp_admin_upgrade_user_engagements()['complete'] );
+		$state = get_option( $option );
+		$fail  = static function ( $value, $old ) {
+			return $old;
+		};
+		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertSame( $state, get_option( $option ) );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
+		}
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+	}
+
+	public function test_engagement_final_checkpoint_delete_failures_remain_pending_and_retry_safely() {
+		$db      = bbp_db();
+		$tool_id = 'bbp-user-topic-engagements-move';
+		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$topics  = $this->factory->topic->create_many( 3 );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$this->assertFalse( bbp_admin_upgrade_user_engagements()['complete'] );
+		$state = get_option( $option );
+		$fail  = static function ( $query ) use ( $db, $option ) {
+			return ( 0 === strpos( $query, 'DELETE FROM' ) ) && ( false !== strpos( $query, $db->options ) ) && ( false !== strpos( $query, $option ) )
+				? 'DELETE FROM bbp_missing_checkpoint_options'
+				: $query;
+		};
+		$suppress = $db->suppress_errors( true );
+		add_filter( 'query', $fail );
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertSame( $state, get_option( $option ) );
+			$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( $tool_id, 'bbp_admin_upgrade_user_engagements' ) );
+			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+			$this->assertSame( $state, get_option( $option ) );
+		} finally {
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppress );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, 'bbp_admin_upgrade_user_engagements' ) );
+		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+		$this->assertFalse( get_option( $option, false ) );
+		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+	}
+
+	public function test_engagement_partial_cleanup_failures_can_be_retried_without_recreating_removed_rows() {
+		$post_id = $this->factory->post->create();
+		$meta    = array();
+		for ( $i = 0; $i < 3; ++$i ) {
+			$meta[] = add_post_meta( $post_id, '_bbp_engagement', 999999 );
+		}
+		$fail = static function ( $delete, $meta_id ) use ( $meta ) {
+			return ( $meta[1] === (int) $meta_id ) ? false : $delete;
+		};
+		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
+		try {
+			$result = bbp_admin_upgrade_user_engagements();
+			$this->assertSame( 4, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' ) )['cursor'] );
+			$this->assertFalse( get_metadata_by_mid( 'post', $meta[0] ) );
+			$this->assertNotFalse( get_metadata_by_mid( 'post', $meta[1] ) );
+		} finally {
+			remove_filter( 'delete_post_metadata_by_mid', $fail, 10 );
+		}
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( array(), get_post_meta( $post_id, '_bbp_engagement', false ) );
+		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+	}
+
+	public function test_engagement_read_failures_preserve_saved_progress_and_preview_data() {
+		$db     = bbp_db();
+		$topics = $this->factory->topic->create_many( 3 );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$this->assertFalse( bbp_admin_upgrade_user_engagements()['complete'] );
+		$before = $this->stored_data();
+		$fail   = static function ( $query ) {
+			return ( 0 === strpos( $query, 'SELECT topics.ID AS post_id, posts.post_author AS user_id' ) )
+				? "SELECT ID FROM bbp_missing_engagement_posts"
+				: $query;
+		};
+		$suppress = $db->suppress_errors( true );
+		add_filter( 'query', $fail );
+		try {
+			foreach ( array( 'bbp_admin_upgrade_user_engagements', 'bbp_admin_upgrade_user_engagements_dry_run' ) as $callback ) {
+				$result = call_user_func( $callback );
+				$this->assertSame( 3, $result[0] );
+				$this->assertFalse( $result['success'] );
+				$this->assertFalse( $result['complete'] );
+				$this->assertSame( $before, $this->stored_data() );
+			}
+		} finally {
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppress );
+		}
+		$this->finish( 'bbp_admin_upgrade_user_engagements' );
+		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
+	}
+
+	public function test_small_site_engagement_write_failures_remain_pending_and_resumable() {
+		$tool_id  = 'bbp-user-topic-engagements-move';
+		$user_id  = $this->factory->user->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+		$fail = static function ( $check, $post_id, $key ) {
+			return ( '_bbp_engagement' === $key ) ? false : $check;
+		};
+		update_option( '_bbp_db_version', 261 );
+		delete_option( '_bbp_db_pending_upgrades' );
+		add_filter( 'bbp_is_large_install', '__return_false' );
+		add_filter( 'add_post_metadata', $fail, 10, 3 );
+		try {
+			bbp_version_updater();
+		} finally {
+			remove_filter( 'bbp_is_large_install', '__return_false' );
+			remove_filter( 'add_post_metadata', $fail, 10 );
+		}
+		$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+		$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, 'bbp_admin_upgrade_user_engagements' ) );
+		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+		$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
 	}
 }

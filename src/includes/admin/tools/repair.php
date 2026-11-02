@@ -4045,15 +4045,10 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 
 	// Dry Run never advances or removes the saved Run checkpoint
 	if ( ! $dry_run ) {
-		if ( $complete ) {
-			delete_option( $option );
-			$saved = false === get_option( $option, false );
-		} else {
+		if ( ! $complete ) {
 			$state['cursor'] = (int) end( $closed_topics );
-			update_option( $option, $state, false );
-			$saved = get_option( $option, false ) === $state;
 		}
-		if ( ! $saved ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
 			return array(
 				5,
 				sprintf( $statement, $failed ),

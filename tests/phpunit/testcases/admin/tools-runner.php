@@ -866,13 +866,21 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 			'bbp-user-favorites-move' => array( '_bbp_favorites', '_bbp_favorite' ),
 			'bbp-user-topic-subscriptions-move' => array( '_bbp_subscriptions', '_bbp_subscription' ),
 			'bbp-user-forum-subscriptions-move' => array( '_bbp_forum_subscriptions', '_bbp_subscription' ),
+			'bbp-user-topic-engagements-move' => array( '', '_bbp_engagement' ),
 		);
 		$ids     = array_keys( $tools );
 		$user_id = $this->factory->user->create();
 		$posts   = array();
 		foreach ( $tools as $tool_id => $keys ) {
-			$posts[ $tool_id ] = $this->factory->post->create_many( 3 );
-			add_user_meta( $user_id, bbp_db()->prefix . $keys[0], implode( ',', $posts[ $tool_id ] ) );
+			if ( empty( $keys[0] ) ) {
+				$posts[ $tool_id ] = $this->factory->topic->create_many( 3, array( 'post_author' => $user_id ) );
+				foreach ( $posts[ $tool_id ] as $post_id ) {
+					delete_post_meta( $post_id, $keys[1] );
+				}
+			} else {
+				$posts[ $tool_id ] = $this->factory->post->create_many( 3 );
+				add_user_meta( $user_id, bbp_db()->prefix . $keys[0], implode( ',', $posts[ $tool_id ] ) );
+			}
 		}
 		update_option( '_bbp_db_pending_upgrades', $ids );
 		$batch_size = static function () {

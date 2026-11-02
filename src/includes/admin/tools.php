@@ -528,13 +528,13 @@ function bbp_register_default_repair_tools() {
 		)
 	);
 
-	// Migrate topic engagements to post-meta
+	// Rebuild topic engagements from topic and reply authors
 	bbp_register_repair_tool(
 		array(
 			'id'          => 'bbp-user-topic-engagements-move',
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user topic engagements', 'bbpress' ),
-			'description' => esc_html__( 'Copies engagements from user meta to topic meta.', 'bbpress' ),
+			'description' => esc_html__( 'Rebuilds topic engagements from topic and reply authors.', 'bbpress' ),
 			'callbacks'   => array(
 				'run'     => 'bbp_admin_upgrade_user_engagements',
 				'dry-run' => 'bbp_admin_upgrade_user_engagements_dry_run',

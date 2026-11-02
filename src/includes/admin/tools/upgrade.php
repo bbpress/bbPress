@@ -245,6 +245,7 @@ function bbp_admin_upgrade_page() {
  *
  * @since 2.6.0 bbPress (r6320)
  * @since 2.7.0 bbPress (r8230) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8259) Process one resumable batch per call.
  *
  * @return array An array of the status code and the message.
  */
@@ -264,6 +265,130 @@ function bbp_admin_upgrade_user_engagements_dry_run() {
 }
 
 /**
+ * Reconcile one bounded batch of engagements with topic and reply authors.
+ *
+ * Scan source relationships and existing engagements together by metadata ID.
+ * Preserve valid engagements, add missing ones, and remove only stale or duplicate
+ * rows. Newly added rows need no further work and fall outside the fixed upper ID.
+ * Failed batches can be retried without clearing or duplicating valid data.
+ *
+ * @since 2.7.0 bbPress (r8259)
+ *
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Batch status, additions, removals, and completion flag.
+ */
+function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
+	$bbp_db  = bbp_db();
+	$tool_id = 'bbp-user-topic-engagements-move';
+	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	$batch   = array(
+		'code'      => 0,
+		'added'     => 0,
+		'removed'   => 0,
+		'complete'  => false,
+		'found'     => false,
+		'restarted' => false
+	);
+
+	if ( ( false !== $state ) && ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+
+	if ( false === $state ) {
+		$upper_id = $bbp_db->get_var( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') ORDER BY meta_id DESC LIMIT 1" );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$state = array(
+			'cursor'   => 0,
+			'upper_id' => (int) $upper_id
+		);
+		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+			bbp_add_pending_upgrade( $tool_id );
+			$batch['code'] = 6;
+			return $batch;
+		}
+	}
+
+	$size = bbp_admin_repair_tool_batch_size( $tool_id );
+	$rows = $bbp_db->get_results( $bbp_db->prepare( "SELECT meta_id, post_id, meta_value, (meta_key = '_bbp_topic_id') AS is_source FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['cursor'], $state['upper_id'], $size + 1 ) );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		$batch['code'] = 2;
+		return $batch;
+	}
+	$complete       = count( $rows ) <= $size;
+	$rows           = array_slice( $rows, 0, $size );
+	$batch['found'] = ! empty( $rows );
+	$planned        = array();
+
+	// Use the same source rules for adding missing and identifying stale engagements
+	$source = $bbp_db->prepare(
+		"SELECT topics.ID AS post_id, posts.post_author AS user_id
+		FROM {$bbp_db->posts} AS posts
+		INNER JOIN {$bbp_db->postmeta} AS postmeta
+			ON posts.ID = postmeta.post_id AND postmeta.meta_key = '_bbp_topic_id'
+		INNER JOIN {$bbp_db->posts} AS topics
+			ON topics.ID = postmeta.meta_value AND topics.post_type = %s
+		WHERE posts.post_type IN (%s, %s) AND posts.post_status IN (%s, %s)",
+		bbp_get_topic_post_type(),
+		bbp_get_topic_post_type(),
+		bbp_get_reply_post_type(),
+		bbp_get_public_status_id(),
+		bbp_get_closed_status_id()
+	);
+
+	foreach ( $rows as $row ) {
+		// Classify keys with the same database collation used by the source query
+		$is_source = (bool) $row->is_source;
+		$where     = $is_source
+			? $bbp_db->prepare( ' AND postmeta.meta_id = %d', $row->meta_id )
+			: $bbp_db->prepare( ' AND topics.ID = %d AND posts.post_author = %d', $row->post_id, $row->meta_value );
+		$relation  = $bbp_db->get_row( $source . $where . ' LIMIT 1' );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 3;
+			return $batch;
+		}
+
+		$exists = null;
+		if ( ! empty( $relation ) ) {
+			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_engagement' AND BINARY meta_value = %s ORDER BY meta_id LIMIT 1", $relation->post_id, $relation->user_id ) );
+			if ( ! empty( $bbp_db->last_error ) ) {
+				$batch['code'] = 3;
+				return $batch;
+			}
+		}
+
+		if ( $is_source ) {
+			if ( ! empty( $relation ) && empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] ) ) {
+				if ( ! $dry_run && ! add_post_meta( $relation->post_id, '_bbp_engagement', $relation->user_id, false ) ) {
+					$batch['code'] = 5;
+					return $batch;
+				}
+				$planned[ $relation->post_id ][ $relation->user_id ] = true;
+				++$batch['added'];
+			}
+		} elseif ( (int) $exists !== (int) $row->meta_id ) {
+			if ( ! $dry_run && ! delete_metadata_by_mid( 'post', $row->meta_id ) ) {
+				$batch['code'] = 4;
+				return $batch;
+			}
+			++$batch['removed'];
+		}
+		$state['cursor'] = (int) $row->meta_id;
+	}
+
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+		$batch['code'] = 6;
+		return $batch;
+	}
+	$batch['complete'] = $complete;
+
+	return $batch;
+}
+
+/**
  * Upgrade or preview upgrading user engagements.
  *
  * @since 2.7.0 bbPress (r8230)
@@ -274,7 +399,6 @@ function bbp_admin_upgrade_user_engagements_dry_run() {
 function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
 	// Define variables
-	$bbp_db         = bbp_db();
 	$failed         = esc_html__( 'Failed!', 'bbpress' );
 	$no_engagements = esc_html__( '0 engagements to upgrade.', 'bbpress' );
 
@@ -286,94 +410,42 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 		$statement = esc_html__( 'Upgrading user engagements&hellip; %s', 'bbpress' );
 	}
 
-	// Post types and statuses
-	$tpt = bbp_get_topic_post_type();
-	$rpt = bbp_get_reply_post_type();
-	$pps = bbp_get_public_status_id();
-	$cps = bbp_get_closed_status_id();
-	$sql_select = "SELECT topics.ID AS post_id, '_bbp_engagement' AS meta_key, posts.post_author AS meta_value
-				FROM {$bbp_db->posts} AS posts
-				INNER JOIN {$bbp_db->postmeta} AS postmeta
-					ON posts.ID = postmeta.post_id
-					AND postmeta.meta_key = '_bbp_topic_id'
-				INNER JOIN {$bbp_db->posts} AS topics
-					ON topics.ID = postmeta.meta_value
-					AND topics.post_type = %s
-				WHERE posts.post_type IN (%s, %s)
-					AND posts.post_status IN (%s, %s)
-				GROUP BY topics.ID, posts.post_author";
-	$prepare    = $bbp_db->prepare( $sql_select, $tpt, $tpt, $rpt, $pps, $cps );
-
-	// Count the rows that Run would replace and insert
-	$current_count = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'" );
-	if ( ! empty( $bbp_db->last_error ) ) {
+	$batch     = bbp_admin_upgrade_user_engagements_batch( $dry_run );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( ! empty( $batch['code'] ) ) {
 		return array(
-			2,
+			$batch['code'],
 			sprintf( $statement, $failed ),
-			'success' => false,
+			'success'  => false,
+			'complete' => false
 		);
 	}
-
-	$expected_count = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM ({$prepare}) AS engagements" );
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			3,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	if ( $dry_run ) {
-		if ( empty( $current_count ) && empty( $expected_count ) ) {
-			return array( 1, sprintf( $statement, $no_engagements ) );
-		}
-
-		/* translators: %s: Number of existing engagement rows that would be cleared before rebuilding */
-		$delete_result = sprintf( _n( '%s existing engagement row would be cleared before rebuilding.', '%s existing engagement rows would be cleared before rebuilding.', $current_count, 'bbpress' ), bbp_number_format( $current_count ) );
-		/* translators: %s: Number of engagement rows that would be created from topic and reply authors */
-		$create_result = sprintf( _n( '%s engagement row would be created from topic and reply authors.', '%s engagement rows would be created from topic and reply authors.', $expected_count, 'bbpress' ), bbp_number_format( $expected_count ) );
-		$result        = $delete_result . "\n" . $create_result;
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	if ( empty( $current_count ) && empty( $expected_count ) ) {
+	if ( ! $batch['found'] && $batch['complete'] ) {
 		return array( 1, sprintf( $statement, $no_engagements ) );
 	}
 
-	// Delete previous engagements
-	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'";
-	$deleted    = $bbp_db->query( $sql_delete );
-	if ( false === $deleted ) {
-		return array(
-			4,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
+	if ( $dry_run ) {
+		/* translators: %s: Number of missing engagements that would be added */
+		$added = sprintf( _n( '%s missing engagement would be added from topic and reply authors in this batch.', '%s missing engagements would be added from topic and reply authors in this batch.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
+		/* translators: %s: Number of stale or duplicate engagement rows that would be removed */
+		$removed = sprintf( _n( '%s stale or duplicate engagement row would be cleaned up in this batch.', '%s stale or duplicate engagement rows would be cleaned up in this batch.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
+		$result  = $added . "\n" . $removed;
+	} else {
+		/* translators: %s: Number of missing engagements added */
+		$added = sprintf( _n( '%s missing engagement added from topic and reply authors.', '%s missing engagements added from topic and reply authors.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
+		/* translators: %s: Number of stale or duplicate engagement rows removed */
+		$removed = sprintf( _n( '%s stale or duplicate engagement row cleaned up.', '%s stale or duplicate engagement rows cleaned up.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
+		$status  = $batch['complete']
+			? esc_html__( 'Complete!', 'bbpress' )
+			: esc_html__( 'Batch complete!', 'bbpress' );
+		$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $added . "\n" . $removed;
 	}
 
-	// Run the big query
-	$sql_insert  = "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) ({$prepare})";
-	$engagements = $bbp_db->query( $sql_insert );
-	bbp_admin_repair_clean_post_meta_cache( $tpt );
-
-	// Bail if the insert failed
-	if ( false === $engagements ) {
-		return array(
-			5,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of existing engagement rows cleared before rebuilding */
-	$delete_result = sprintf( _n( '%s existing engagement row cleared before rebuilding.', '%s existing engagement rows cleared before rebuilding.', $deleted, 'bbpress' ), bbp_number_format( $deleted ) );
-	/* translators: %s: Number of engagement rows created from topic and reply authors */
-	$create_result = sprintf( _n( '%s engagement row created from topic and reply authors.', '%s engagement rows created from topic and reply authors.', $engagements, 'bbpress' ), bbp_number_format( $engagements ) );
-	$result        = esc_html__( 'Complete!', 'bbpress' ) . "\n" . $delete_result . "\n" . $create_result;
-
-	return array( 0, sprintf( $statement, $result ) );
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete']
+	);
 }
 
 /**
@@ -959,13 +1031,10 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 		);
 
 		// Preserve the source even if the first batch fails or is interrupted
-		if ( ! $dry_run ) {
-			update_option( $option, $state, false );
-			if ( get_option( $option, false ) !== $state ) {
-				bbp_add_pending_upgrade( $tool_id );
-				$batch['code'] = 5;
-				return $batch;
-			}
+		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+			bbp_add_pending_upgrade( $tool_id );
+			$batch['code'] = 5;
+			return $batch;
 		}
 	}
 
@@ -1057,18 +1126,9 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 	}
 	$batch['complete'] = empty( $remaining );
 
-	if ( ! $dry_run ) {
-		if ( $batch['complete'] ) {
-			delete_option( $option );
-			$saved = false === get_option( $option, false );
-		} else {
-			update_option( $option, $state, false );
-			$saved = get_option( $option, false ) === $state;
-		}
-		if ( ! $saved ) {
-			$batch['code']     = 5;
-			$batch['complete'] = false;
-		}
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] ) ) {
+		$batch['code']     = 5;
+		$batch['complete'] = false;
 	}
 
 	return $batch;
