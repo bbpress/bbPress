@@ -61,6 +61,25 @@ function bbp_filter_rest_user_discovery( $response, $handler, $request ) {
 class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 	/**
+	 * Require public parent topics in REST reply collections.
+	 *
+	 * @since 2.6.22 bbPress (r8276)
+	 *
+	 * @param array                $prepared_args Optional. Prepared WP_Query arguments.
+	 * @param WP_REST_Request|null $request       Optional. Full details about the request.
+	 * @return array Query arguments.
+	 */
+	protected function prepare_items_query( $prepared_args = array(), $request = null ) {
+		$query_args = parent::prepare_items_query( $prepared_args, $request );
+
+		if ( ( bbp_get_reply_post_type() === $this->post_type ) && ! current_user_can( 'edit_others_replies' ) ) {
+			$query_args['_bbp_public_topic_replies'] = true;
+		}
+
+		return $query_args;
+	}
+
+	/**
 	 * Apply bbPress's strict block list before creating a topic or reply.
 	 *
 	 * @since 2.6.19 bbPress (r7623)
