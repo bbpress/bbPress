@@ -8,12 +8,40 @@
  */
 class BBP_Tests_Common_Reply_Query_Visibility extends BBP_UnitTestCase {
 
+	/**
+	 * Enable the extension-supported bbPress REST routes.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		add_filter( 'bbp_register_forum_post_type', array( $this, 'enable_rest_support' ) );
+		add_filter( 'bbp_register_topic_post_type', array( $this, 'enable_rest_support' ) );
+		add_filter( 'bbp_register_reply_post_type', array( $this, 'enable_rest_support' ) );
+		bbp_register_post_types();
+	}
+
 	public function tearDown(): void {
+		remove_filter( 'bbp_register_forum_post_type', array( $this, 'enable_rest_support' ) );
+		remove_filter( 'bbp_register_topic_post_type', array( $this, 'enable_rest_support' ) );
+		remove_filter( 'bbp_register_reply_post_type', array( $this, 'enable_rest_support' ) );
+
 		$this->set_current_user( 0 );
 		$this->go_to_without_reregistering_blocks( '/' );
 		unset( $_GET['view'] );
 
 		parent::tearDown();
+	}
+
+	/**
+	 * Enable REST support for a bbPress post type.
+	 *
+	 * @param array $args Post type arguments.
+	 * @return array Filtered post type arguments.
+	 */
+	public function enable_rest_support( $args ) {
+		$args['show_in_rest'] = true;
+
+		return $args;
 	}
 
 	/**
@@ -76,6 +104,95 @@ class BBP_Tests_Common_Reply_Query_Visibility extends BBP_UnitTestCase {
 
 			$this->assertContains( $fixture['pending_reply'], $post_ids );
 		}
+	}
+
+	/**
+	 * @covers ::bbp_exclude_replies_from_non_public_topics
+	 * @covers ::bbp_public_topic_replies_where
+	 */
+	public function test_rest_search_excludes_reply_under_pending_topic() {
+		$fixture = $this->create_reply_visibility_fixture();
+		$post_id = $this->factory->post->create(
+			array( 'post_title' => 'Pending parent reply sentinel' )
+		);
+
+		$this->set_current_user( 0 );
+
+		foreach ( array( 'Pending parent reply sentinel', 'pending-reply-body-sentinel' ) as $search_term ) {
+			$request = new WP_REST_Request( 'GET', '/wp/v2/search' );
+			$request->set_param( 'search', $search_term );
+			$request->set_param( 'subtype', bbp_get_reply_post_type() );
+			$response = rest_get_server()->dispatch( $request );
+			$ids      = wp_list_pluck( $response->get_data(), 'id' );
+
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertNotContains( $fixture['pending_reply'], $ids );
+		}
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/search' );
+		$request->set_param( 'search', 'Pending parent reply sentinel' );
+		$response = rest_get_server()->dispatch( $request );
+		$ids      = wp_list_pluck( $response->get_data(), 'id' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertContains( $post_id, $ids );
+		$this->assertNotContains( $fixture['pending_reply'], $ids );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/search' );
+		$request->set_param( 'search', 'Public parent reply sentinel' );
+		$request->set_param( 'subtype', bbp_get_reply_post_type() );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertContains( $fixture['public_reply'], wp_list_pluck( $response->get_data(), 'id' ) );
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::prepare_items_query
+	 * @covers ::bbp_public_topic_replies_where
+	 */
+	public function test_rest_reply_collection_does_not_count_reply_under_pending_topic() {
+		$this->create_reply_visibility_fixture();
+		$this->set_current_user( 0 );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/reply' );
+		$request->set_param( 'search', 'pending-reply-body-sentinel' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array(), $response->get_data() );
+		$this->assertSame( 0, (int) $response->get_headers()['X-WP-Total'] );
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::prepare_items_query
+	 * @covers ::bbp_public_topic_replies_where
+	 */
+	public function test_moderator_rest_reply_collection_includes_reply_under_pending_topic() {
+		$fixture = $this->create_reply_visibility_fixture();
+		$user_id = $this->create_user_with_bbp_role( bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/reply' );
+		$request->set_param( 'search', 'pending-reply-body-sentinel' );
+		$response = rest_get_server()->dispatch( $request );
+		$ids      = wp_list_pluck( $response->get_data(), 'id' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( $fixture['pending_reply'] ), $ids );
+		$this->assertSame( 1, (int) $response->get_headers()['X-WP-Total'] );
+	}
+
+	/**
+	 * @covers ::bbp_exclude_replies_from_non_public_topics
+	 * @covers ::bbp_public_topic_replies_where
+	 */
+	public function test_reply_sitemap_excludes_reply_under_pending_topic() {
+		$fixture = $this->create_reply_visibility_fixture();
+		$sitemap = new WP_Sitemaps_Posts();
+		$urls    = wp_list_pluck( $sitemap->get_url_list( 1, bbp_get_reply_post_type() ), 'loc' );
+
+		$this->assertContains( get_permalink( $fixture['public_reply'] ), $urls );
+		$this->assertNotContains( get_permalink( $fixture['pending_reply'] ), $urls );
 	}
 
 	/**
@@ -277,15 +394,19 @@ class BBP_Tests_Common_Reply_Query_Visibility extends BBP_UnitTestCase {
 			'pending_topic' => $pending_topic_id,
 			'public_reply'  => $this->factory->reply->create(
 				array(
-					'post_parent' => $public_topic_id,
-					'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $public_topic_id ),
+					'post_content' => 'public-reply-body-sentinel',
+					'post_parent'  => $public_topic_id,
+					'post_title'   => 'Public parent reply sentinel',
+					'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $public_topic_id ),
 				)
 			),
 			'pending_reply' => $this->factory->reply->create(
 				array(
-					'post_parent' => $pending_topic_id,
-					'post_status' => bbp_get_public_status_id(),
-					'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $pending_topic_id ),
+					'post_content' => 'pending-reply-body-sentinel',
+					'post_parent'  => $pending_topic_id,
+					'post_status'  => bbp_get_public_status_id(),
+					'post_title'   => 'Pending parent reply sentinel',
+					'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $pending_topic_id ),
 				)
 			),
 		);

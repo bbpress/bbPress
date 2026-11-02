@@ -17,6 +17,14 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Verify public reply discovery filters are registered.
+	 */
+	public function test_public_reply_discovery_filters_are_registered() {
+		$this->assertSame( 10, has_filter( 'rest_post_search_query', 'bbp_exclude_replies_from_non_public_topics' ) );
+		$this->assertSame( 10, has_filter( 'wp_sitemaps_posts_query_args', 'bbp_exclude_replies_from_non_public_topics' ) );
+	}
+
+	/**
 	 * @covers ::_bbp_filter_locale
 	 * @covers ::bbp_plugin_locale
 	 */

@@ -69,6 +69,24 @@ function bbp_exclude_forum_posts_from_user_query( $args, $request = null ) {
 }
 
 /**
+ * Exclude replies from non-public topics in WordPress discovery queries.
+ *
+ * @since 2.6.22 bbPress (r8276)
+ *
+ * @param array $query_args Query arguments.
+ * @return array Query arguments.
+ */
+function bbp_exclude_replies_from_non_public_topics( $query_args = array() ) {
+	$post_types = bbp_get_string_array_values( isset( $query_args['post_type'] ) ? $query_args['post_type'] : array() );
+
+	if ( in_array( bbp_get_reply_post_type(), $post_types, true ) ) {
+		$query_args['_bbp_public_topic_replies'] = true;
+	}
+
+	return $query_args;
+}
+
+/**
  * Exclude replies in non-public topics from public bbPress queries.
  *
  * Existing bbPress loops use a query flag to opt in. Generic public WordPress
