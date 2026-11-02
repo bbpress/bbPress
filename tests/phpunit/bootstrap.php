@@ -38,6 +38,17 @@ tests_add_filter( 'muplugins_loaded', '_load_loader' );
 echo "Loading WordPress bootstrap...\n";
 require( WP_TESTS_DIR . '/includes/bootstrap.php' );
 
+// BuddyPress may cache the upload path before the WordPress test bootstrap
+// removes its temporary directory. Restore it before any tests run.
+if ( defined( 'BBP_TESTS_BUDDYPRESS' ) ) {
+	$uploads = wp_upload_dir( null, false );
+
+	if ( ! wp_mkdir_p( $uploads['basedir'] ) ) {
+		fwrite( STDERR, "The WordPress test uploads directory could not be created.\n" );
+		exit( 1 );
+	}
+}
+
 echo "Loading bbPress testcase...\n";
 require( BBP_TESTS_DIR . '/includes/testcase.php' );
 require( BBP_TESTS_DIR . '/includes/factory.php' );
