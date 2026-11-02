@@ -528,6 +528,43 @@ function bbp_register_default_repair_tools() {
 		)
 	);
 
+	// Historical mentions share their saved progress with WP-CLI.
+	bbp_register_repair_tool(
+		array(
+			'id'          => 'bbp-mentions',
+			'type'        => 'repair',
+			'flush_cache' => false,
+			'title'       => esc_html__( 'Rebuild user mentions', 'bbpress' ),
+			'description' => esc_html__( 'Index historical mentions without sending email. Run continues saved batches automatically; keep this page open until complete. Dry Run previews the next batch without saving changes.', 'bbpress' ),
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_repair_user_mentions',
+				'dry-run' => 'bbp_admin_repair_user_mentions_dry_run'
+			),
+			'priority'    => 102,
+			'overhead'    => 'medium',
+			'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
+		)
+	);
+
+	// Upgrade existing mention history with the same resumable repair batches.
+	bbp_register_repair_tool(
+		array(
+			'id'          => 'bbp-user-mentions',
+			'type'        => 'upgrade',
+			'flush_cache' => false,
+			'title'       => esc_html__( 'Upgrade user mentions', 'bbpress' ),
+			'description' => esc_html__( 'Index historical mentions without sending email. Run continues saved batches automatically; keep this page open until complete. Dry Run previews the next batch without saving changes.', 'bbpress' ),
+			'callbacks'   => array(
+				'run'     => 'bbp_admin_upgrade_user_mentions',
+				'dry-run' => 'bbp_admin_upgrade_user_mentions_dry_run'
+			),
+			'priority'    => 145,
+			'version'     => '2.7.0',
+			'overhead'    => 'medium',
+			'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
+		)
+	);
+
 	// Rebuild topic engagements from topic and reply authors
 	bbp_register_repair_tool(
 		array(

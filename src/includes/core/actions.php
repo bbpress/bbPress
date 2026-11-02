@@ -45,6 +45,16 @@ add_action( 'after_setup_theme',        'bbp_after_setup_theme',      10    );
 add_action( 'setup_theme',              'bbp_setup_theme',            10    );
 add_action( 'set_current_user',         'bbp_setup_current_user',     10    );
 add_action( 'profile_update',           'bbp_profile_update',         10, 2 ); // user_id and old_user_data
+
+// Mentions are indexed on save and emailed after publication hooks finish.
+add_action( 'wp_after_insert_post',              'bbp_save_post_mentions',                     20, 4 );
+add_action( 'before_delete_post',                'bbp_delete_post_mentions'                          );
+add_action( 'bbp_shutdown',                      'bbp_send_mention_notifications'                    );
+add_action( 'bbp_post_notify_subscribers',       'bbp_record_mention_subscription_recipients', 10, 3 );
+add_action( 'bbp_post_notify_forum_subscribers', 'bbp_record_mention_subscription_recipients', 10, 3 );
+add_action( 'profile_update',                    'bbp_save_mention_email_preference'                 );
+add_action( 'bbp_user_edit_notifications',       'bbp_mention_email_settings'                        );
+
 add_action( 'user_register',            'bbp_user_register',          10    );
 add_action( 'login_form_login',         'bbp_login_form_login',       10    );
 add_action( 'template_redirect',        'bbp_template_redirect',      8     ); // Before BuddyPress's 10 [BB2225]
@@ -57,6 +67,7 @@ add_action( 'rest_api_init',            'bbp_rest_api_init',          10    );
 add_action( 'xmlrpc_call',              'bbp_xmlrpc_call',            10, 3 );
 add_action( 'transition_post_status',   'bbp_transition_post_status', 10, 3 );
 add_action( 'post_updated',             'bbp_post_updated',           10, 3 );
+add_action( 'shutdown',                 'bbp_shutdown',               10    );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above.

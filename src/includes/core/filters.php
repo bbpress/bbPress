@@ -77,6 +77,9 @@ add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 // User profile fields
 add_filter( 'show_password_fields', 'bbp_filter_user_edit_password_fields', 10, 2 );
 
+// Store new mention relationships independently of legacy user-meta lists.
+add_filter( 'bbp_user_engagements_interface', 'bbp_filter_mention_engagements_interface', 5, 3 );
+
 // Safe titles and reply title fallback
 add_filter( 'the_title', 'bbp_filter_post_title',        1, 2 );
 add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );

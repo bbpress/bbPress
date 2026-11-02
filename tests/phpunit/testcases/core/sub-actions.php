@@ -95,6 +95,7 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 	 * @covers ::bbp_widgets_init
 	 * @covers ::bbp_setup_current_user
 	 * @covers ::bbp_setup_engagements
+	 * @covers ::bbp_shutdown
 	 * @covers ::bbp_load_textdomain
 	 * @covers ::bbp_register_post_types
 	 * @covers ::bbp_register_post_statuses
@@ -135,6 +136,7 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 			'bbp_widgets_init',
 			'bbp_setup_current_user',
 			'bbp_setup_engagements',
+			'bbp_shutdown',
 			'bbp_load_textdomain',
 			'bbp_register_post_types',
 			'bbp_register_post_statuses',

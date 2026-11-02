@@ -266,6 +266,18 @@ class BBP_Forums_Component extends BP_Component {
 			);
 		}
 
+		// Mention history is private to the owner and authorized profile editors.
+		$sub_nav[] = array(
+			'name'            => esc_html__( 'Mentions', 'bbpress' ),
+			'slug'            => bbp_get_user_mentions_slug(),
+			'parent_url'      => $forums_link,
+			'parent_slug'     => $this->slug,
+			'screen_function' => 'bbp_member_forums_screen_mentions',
+			'position'        => 70,
+			'item_css_id'     => 'mentions',
+			'user_has_access' => bbp_current_user_can_view_mentions( bp_displayed_user_id() ? bp_displayed_user_id() : bp_loggedin_user_id() )
+		);
+
 		// Favorite topics
 		if ( bbp_is_favorites_active() ) {
 			$sub_nav[] = array(

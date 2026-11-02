@@ -15,6 +15,17 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added mention email notifications for new posts and mentions introduced by
+  edits, once per person per post, with a new global per-user email preference
+  that defaults to off for backward compatibility, and a private profile history
+  of topics and replies where a user is mentioned.
+- Added resumable mention backfilling through the forum upgrade and repair tools
+  and `wp bbp mentions backfill`, without emailing historical mentions. Small
+  sites backfill automatically during the bbPress 2.7 upgrade; larger sites and
+  scans that reach the shared runner's limits remain pending. Both admin tools
+  offer a Dry Run preview of the next batch without changing saved progress.
+  Admin runs advance automatically while the page is open and can be paused
+  and resumed without restarting the scan.
 - Added shared support for resumable batches in repair and upgrade tools, including
   automatic completion during small-site updates, sequential progress for bulk
   selections, and Pause and Resume controls.

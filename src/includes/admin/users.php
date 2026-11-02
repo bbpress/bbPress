@@ -38,13 +38,14 @@ class BBP_Users_Admin {
 	 */
 	private function setup_actions() {
 
+		// User profile edit/display actions
+		add_action( 'show_user_profile', array( $this, 'secondary_role_display' ) );
+		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
+
 		// Bail if in network admin
 		if ( is_network_admin() ) {
 			return;
 		}
-
-		// User profile edit/display actions
-		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
 
 		// WordPress user screen
 		// Remove the bottom list table "change forum role" dropdown from WordPress < 4.6.
@@ -73,7 +74,7 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Default interface for setting a forum role.
+	 * Display forum profile settings and role controls.
 	 *
 	 * @since 2.2.0 bbPress (r4301)
 	 * @since 2.6.19 bbPress (r7685) Show only assignable roles.
@@ -83,18 +84,31 @@ class BBP_Users_Admin {
 	 */
 	public static function secondary_role_display( $profileuser ) {
 
+		// bbPress also invokes these hooks on its front-end profile forms.
+		if ( ! is_admin() && in_array( current_filter(), array( 'show_user_profile', 'edit_user_profile' ), true ) ) {
+			return;
+		}
+
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) ) {
 			return;
 		}
 
-		// Get the roles this user may assign.
-		$dynamic_roles = bbp_get_user_editable_forum_roles( $profileuser->ID ); ?>
+		// Keep site-specific role controls off personal and network profiles.
+		$show_roles         = ! is_network_admin() && ( 'show_user_profile' !== current_filter() );
+		$show_notifications = bbp_current_user_can_edit_user_field( 'email', $profileuser->ID );
+		$dynamic_roles      = $show_roles ? bbp_get_user_editable_forum_roles( $profileuser->ID ) : array();
+
+		if ( ! $show_roles && ! $show_notifications ) {
+			return;
+		} ?>
 
 		<h2><?php esc_html_e( 'Forums', 'bbpress' ); ?></h2>
 
 		<table class="form-table">
 			<tbody>
+				<?php if ( $show_roles ) : ?>
+
 				<tr>
 					<th><label for="bbp-forums-role"><?php esc_html_e( 'Forum Role', 'bbpress' ); ?></label></th>
 					<td>
@@ -141,6 +155,17 @@ class BBP_Users_Admin {
 					<th scope="row"><?php esc_html_e( 'Automatic Role', 'bbpress' ); ?></th>
 					<td>
 						<?php bbp_user_auto_role_exclusion_form( $profileuser->ID ); ?>
+					</td>
+				</tr>
+				<?php endif; ?>
+
+				<?php endif; ?>
+
+				<?php if ( $show_notifications ) : ?>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Notifications', 'bbpress' ); ?></th>
+					<td>
+						<?php bbp_mention_email_settings( $profileuser ); ?>
 					</td>
 				</tr>
 				<?php endif; ?>

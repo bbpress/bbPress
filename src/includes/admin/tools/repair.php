@@ -10,6 +10,130 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Run or preview one resumable batch of historical mention indexing.
+ *
+ * The shared tools runner checks its nonce before invoking this callback.
+ * Completed passes restart on the next Run. Continuation requests acknowledge
+ * the saved completion, including when WP-CLI finishes the shared checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param string $type    Tool type: repair or upgrade.
+ * @param bool   $dry_run Preview changes without saving them.
+ * @return array Status, feedback, and a complete flag for the tools handler.
+ */
+function bbp_admin_repair_user_mentions( $type = 'repair', $dry_run = false ) {
+	$type = ( 'upgrade' === $type ) ? 'upgrade' : 'repair';
+	if ( ! current_user_can( 'bbp_tools_' . $type . '_page' ) ) {
+		$message = ( 'upgrade' === $type )
+			? __( 'You do not have permission to upgrade forums.', 'bbpress' )
+			: __( 'You do not have permission to repair forums.', 'bbpress' );
+
+		return array(
+			1,
+			new WP_Error( 'bbp_mention_backfill_permission', $message ),
+			'success'  => false,
+			'complete' => false
+		);
+	}
+
+	$previous = bbp_get_mention_backfill_status();
+	$restart  = ! empty( $previous['complete'] ) && ! wp_doing_ajax() && empty( $_GET['bbp-tools-run'] );
+	$tool_id  = ( 'upgrade' === $type ) ? 'bbp-user-mentions' : 'bbp-mentions';
+	$size     = bbp_admin_repair_tool_batch_size( $tool_id );
+
+	return bbp_admin_repair_user_mentions_process( $size, $restart, $dry_run );
+}
+
+/**
+ * Process one mention batch for the interactive tools or automatic updater.
+ *
+ * Callers control access and whether a completed scan should restart.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param int  $batch_size Maximum post rows to examine.
+ * @param bool $restart    Start a new scan instead of resuming saved progress.
+ * @param bool $dry_run    Preview changes without saving them.
+ * @return array Status, feedback, and a complete flag for the tools handler.
+ */
+function bbp_admin_repair_user_mentions_process( $batch_size = 100, $restart = false, $dry_run = false ) {
+	$state = bbp_backfill_mentions( $batch_size, $restart, $dry_run );
+	if ( is_wp_error( $state ) ) {
+		return array(
+			1,
+			$state,
+			'success'  => false,
+			'complete' => false
+		);
+	}
+
+	if ( $dry_run ) {
+		$message = sprintf(
+			/* translators: 1: Number of topics and replies checked, 2: Mentions to add, 3: Mentions to remove */
+			__( 'Topics and replies checked: %1$s. Mentions to add: %2$s. Mentions to remove: %3$s.', 'bbpress' ),
+			number_format_i18n( $state['posts'] ),
+			number_format_i18n( $state['added'] ),
+			number_format_i18n( $state['removed'] )
+		);
+		$history = sprintf(
+			/* translators: %s: Number of posts whose historical mentions need notification records */
+			_n( 'Email history would be updated for %s post to prevent notifications for old mentions.', 'Email history would be updated for %s posts to prevent notifications for old mentions.', $state['baselines'], 'bbpress' ),
+			number_format_i18n( $state['baselines'] )
+		);
+		$progress = $state['more']
+			? __( 'More posts remain. Run continues automatically until finished. Keep this page open while it runs.', 'bbpress' )
+			: __( 'This preview reaches the end of the scan.', 'bbpress' );
+		if ( ! $state['scanned'] ) {
+			$progress = __( 'No posts remain to scan.', 'bbpress' );
+		}
+
+		return array(
+			0,
+			esc_html( $message . "\n" . $history . "\n" . $progress ),
+			'complete' => false
+		);
+	}
+
+	return array(
+		0,
+		esc_html( bbp_admin_mention_backfill_message( $state ) ),
+		'complete' => (bool) $state['complete']
+	);
+}
+
+/**
+ * Preview the next mention repair batch without changing saved progress.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @return array Status and feedback for the tools handler.
+ */
+function bbp_admin_repair_user_mentions_dry_run() {
+	return bbp_admin_repair_user_mentions( 'repair', true );
+}
+
+/**
+ * Describe saved mention indexing progress.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param array $state Saved backfill progress.
+ * @return string Progress or completion message.
+ */
+function bbp_admin_mention_backfill_message( $state ) {
+	if ( $state['complete'] ) {
+		/* translators: %s: Number of topics and replies processed */
+		$message = __( 'Mention scan complete: %s topics and replies processed. No historical mention emails were sent.', 'bbpress' );
+	} else {
+		/* translators: %s: Number of topics and replies processed */
+		$message = __( 'Mention scan in progress: %s topics and replies processed. No historical mention emails are sent.', 'bbpress' );
+	}
+
+	return sprintf( $message, number_format_i18n( $state['processed'] ) );
+}
+
 /** Helpers *******************************************************************/
 
 /**

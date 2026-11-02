@@ -104,6 +104,7 @@ function bbp_get_default_options() {
 
 			'_bbp_user_slug'            => 'users',         // User profile slug
 			'_bbp_user_engs_slug'       => 'engagements',   // User engagements slug
+			'_bbp_user_mentions_slug'   => 'mentions',      // User mentions slug
 			'_bbp_user_favs_slug'       => 'favorites',     // User favorites slug
 			'_bbp_user_subs_slug'       => 'subscriptions', // User subscriptions slug
 			'_bbp_topic_archive_slug'   => 'topics',        // Topic archive slug
@@ -1209,6 +1210,18 @@ function bbp_get_user_engagements_slug( $default = 'engagements' ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_user_engagements_slug', get_option( '_bbp_user_engs_slug', $default ) );
+}
+
+/**
+ * Return the user mentions slug.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param string $default Default slug.
+ * @return string
+ */
+function bbp_get_user_mentions_slug( $default = 'mentions' ) {
+	return apply_filters( 'bbp_get_user_mentions_slug', get_option( '_bbp_user_mentions_slug', $default ) );
 }
 
 /**

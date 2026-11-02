@@ -600,6 +600,17 @@ function bbp_get_user_engagements_rewrite_id() {
 }
 
 /**
+ * Return the user mentions rewrite ID.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @return string
+ */
+function bbp_get_user_mentions_rewrite_id() {
+	return bbpress()->mentions_id;
+}
+
+/**
  * Return the unique ID for topic view rewrite rules.
  *
  * @since 2.1.0 bbPress (r3762)

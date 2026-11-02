@@ -126,6 +126,8 @@ defined( 'ABSPATH' ) || exit;
 
 	</fieldset>
 
+	<?php bbp_get_template_part( 'form', 'user-notifications' ); ?>
+
 	<?php if ( ! bbp_is_user_home_edit() && current_user_can( 'promote_user', bbp_get_displayed_user_id() ) ) : ?>
 
 		<h2 class="entry-title"><?php esc_html_e( 'User Role', 'bbpress' ); ?></h2>

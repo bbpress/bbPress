@@ -241,6 +241,44 @@ function bbp_admin_upgrade_page() {
 }
 
 /**
+ * Upgrade historical mention relationships for bbPress 2.7 and higher.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @return array Upgrade status, feedback, and completion state.
+ */
+function bbp_admin_upgrade_user_mentions() {
+	return bbp_admin_repair_user_mentions( 'upgrade' );
+}
+
+/**
+ * Resume one mention batch during an authorized small-site version update.
+ *
+ * Automatic calls must not restart a scan that another worker has completed.
+ * The shared automatic runner controls locking and request safety limits.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @return array Upgrade status, feedback, and completion state.
+ */
+function bbp_admin_upgrade_user_mentions_automatically() {
+	$size = bbp_admin_repair_tool_batch_size( 'bbp-user-mentions' );
+
+	return bbp_admin_repair_user_mentions_process( $size );
+}
+
+/**
+ * Preview the next mention upgrade batch without changing saved progress.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @return array Status and feedback for the tools handler.
+ */
+function bbp_admin_upgrade_user_mentions_dry_run() {
+	return bbp_admin_repair_user_mentions( 'upgrade', true );
+}
+
+/**
  * Upgrade user engagements for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6320)

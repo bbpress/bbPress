@@ -239,7 +239,7 @@ final class bbPress {
 		/** Versions **********************************************************/
 
 		$this->version    = '2.7.0-alpha-4';
-		$this->db_version = '264';
+		$this->db_version = '270';
 
 		/** Paths *************************************************************/
 
@@ -301,6 +301,7 @@ final class bbPress {
 		$this->paged_id          = apply_filters( 'bbp_paged_id',       'paged'           );
 		$this->search_id         = apply_filters( 'bbp_search_id',      'bbp_search'      );
 		$this->engagements_id    = apply_filters( 'bbp_engagements_id', 'bbp_engagements' );
+		$this->mentions_id       = apply_filters( 'bbp_mentions_id',    'bbp_mentions'    );
 
 		/** Queries ***********************************************************/
 
@@ -400,6 +401,8 @@ final class bbPress {
 		// Users
 		require $this->includes_dir . 'users/capabilities.php';
 		require $this->includes_dir . 'users/engagements.php';
+		require $this->includes_dir . 'users/mentions.php';
+		require $this->includes_dir . 'users/mentions-backfill.php';
 		require $this->includes_dir . 'users/functions.php';
 		require $this->includes_dir . 'users/template.php';
 		require $this->includes_dir . 'users/options.php';
@@ -417,6 +420,11 @@ final class bbPress {
 		if ( is_admin() ) {
 			require $this->includes_dir . 'admin/icons.php';
 			require $this->includes_dir . 'admin/actions.php';
+		}
+
+		// Command-line tools
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			require $this->includes_dir . 'users/mentions-cli.php';
 		}
 	}
 
@@ -977,6 +985,7 @@ final class bbPress {
 		add_rewrite_tag( '%' . bbp_get_user_favorites_rewrite_id()     . '%', '([1]{1,})' ); // User Favorites tag
 		add_rewrite_tag( '%' . bbp_get_user_subscriptions_rewrite_id() . '%', '([1]{1,})' ); // User Subscriptions tag
 		add_rewrite_tag( '%' . bbp_get_user_engagements_rewrite_id()   . '%', '([1]{1,})' ); // User Engagements tag
+		add_rewrite_tag( '%' . bbp_get_user_mentions_rewrite_id()      . '%', '([1]{1,})' ); // User Mentions tag
 		add_rewrite_tag( '%' . bbp_get_user_topics_rewrite_id()        . '%', '([1]{1,})' ); // User Topics Tag
 		add_rewrite_tag( '%' . bbp_get_user_replies_rewrite_id()       . '%', '([1]{1,})' ); // User Replies Tag
 	}
@@ -1019,6 +1028,7 @@ final class bbPress {
 		$user_favs_slug     = bbp_get_user_favorites_slug();
 		$user_subs_slug     = bbp_get_user_subscriptions_slug();
 		$user_engs_slug     = bbp_get_user_engagements_slug();
+		$user_ment_slug     = bbp_get_user_mentions_slug();
 
 		// Unique rewrite ID's
 		$feed_id            = 'feed';
@@ -1032,6 +1042,7 @@ final class bbPress {
 		$user_tops_id       = bbp_get_user_topics_rewrite_id();
 		$user_reps_id       = bbp_get_user_replies_rewrite_id();
 		$user_engs_id       = bbp_get_user_engagements_rewrite_id();
+		$user_ment_id       = bbp_get_user_mentions_rewrite_id();
 
 		// Rewrite rule matches used repeatedly below
 		$root_rule    = '/([^/]+)/?$';
@@ -1051,11 +1062,13 @@ final class bbPress {
 		$favs_rule       = '/([^/]+)/' . $user_favs_slug     . '/?$';
 		$subs_rule       = '/([^/]+)/' . $user_subs_slug     . '/?$';
 		$engs_rule       = '/([^/]+)/' . $user_engs_slug     . '/?$';
+		$ment_rule       = '/([^/]+)/' . $user_ment_slug     . '/?$';
 		$tops_paged_rule = '/([^/]+)/' . $topic_archive_slug . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$reps_paged_rule = '/([^/]+)/' . $reply_archive_slug . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$favs_paged_rule = '/([^/]+)/' . $user_favs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$subs_paged_rule = '/([^/]+)/' . $user_subs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$engs_paged_rule = '/([^/]+)/' . $user_engs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
+		$ment_paged_rule = '/([^/]+)/' . $user_ment_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 
 		// Edit Forum|Topic|Reply|Topic-tag
 		add_rewrite_rule( $forum_slug . $edit_rule, 'index.php?' . bbp_get_forum_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
@@ -1069,11 +1082,13 @@ final class bbPress {
 		add_rewrite_rule( $user_slug . $favs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_favs_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $subs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_subs_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $engs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_engs_id . '=1&' . $paged_id . '=$matches[2]', $priority );
+		add_rewrite_rule( $user_slug . $ment_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_ment_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $tops_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_tops_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $reps_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_reps_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $favs_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_favs_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $subs_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_subs_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $engs_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_engs_id . '=1',                               $priority );
+		add_rewrite_rule( $user_slug . $ment_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_ment_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $edit_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $edit_id      . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $root_rule,       'index.php?' . $user_id  . '=$matches[1]',                                                       $priority );
 

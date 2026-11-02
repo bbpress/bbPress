@@ -64,4 +64,6 @@ if ( 1 !== bbp_get_topic_reply_count( $topic_id, true ) ) {
 	WP_CLI::error( 'The smoke-test topic reply count is incorrect.' );
 }
 
+require __DIR__ . '/mentions.php';
+
 echo esc_url_raw( bbp_get_forum_permalink( $forum_id ) );

@@ -273,14 +273,14 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( 263, (int) bbp_get_db_version_raw() );
 
 		do_action( 'current_screen', $screen );
-		$this->assertSame( 264, (int) bbp_get_db_version_raw() );
+		$this->assertSame( (int) bbp_get_db_version(), (int) bbp_get_db_version_raw() );
 		$this->assertFalse( get_option( '_bbp_converter_query' ) );
 
 		update_option( '_bbp_db_version', 263 );
 		$this->set_current_user( $site_admin_id );
 		$this->assertTrue( current_user_can( 'manage_options' ) );
 		bbp_setup_updater( $screen );
-		$this->assertSame( 264, (int) bbp_get_db_version_raw() );
+		$this->assertSame( (int) bbp_get_db_version(), (int) bbp_get_db_version_raw() );
 	}
 
 	/**
@@ -781,7 +781,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		bbp_version_updater();
 
 		$this->assertFalse( get_option( '_bbp_converter_query' ) );
-		$this->assertSame( 264, (int) bbp_get_db_version_raw() );
+		$this->assertSame( (int) bbp_get_db_version(), (int) bbp_get_db_version_raw() );
 	}
 
 	/**
@@ -914,5 +914,47 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 				revoke_super_admin( $user_id );
 			}
 		}
+	}
+
+	/**
+	 * @group mentions
+	 * @dataProvider mention_upgrade_installations
+	 */
+	public function test_mention_upgrade_defers_large_sites_and_skips_unneeded_scans( $version, $complete, $pending, $large ) {
+		update_option( '_bbp_db_version', $version );
+		delete_option( '_bbp_db_pending_upgrades' );
+		delete_option( '_bbp_mention_backfill' );
+		if ( $complete ) {
+			update_option( '_bbp_mention_backfill', array( 'cursor' => 1, 'upper' => 1, 'processed' => 0, 'complete' => true ) );
+		}
+		$queries = array();
+		$record = function( $sql ) use ( &$queries ) { $queries[] = $sql; return $sql; };
+		$size = static function() use ( $large ) { return $large; };
+		add_filter( 'query', $record );
+		add_filter( 'bbp_is_large_install', $size );
+		try {
+			bbp_version_updater();
+		} finally {
+			remove_filter( 'query', $record );
+			remove_filter( 'bbp_is_large_install', $size );
+		}
+		$this->assertSame( $pending, in_array( 'bbp-user-mentions', bbp_get_pending_upgrades(), true ) );
+		$this->assertSame( 270, (int) bbp_get_db_version_raw() );
+		$this->assertStringNotContainsString( bbp_db()->posts, implode( "\n", $queries ) );
+		$this->assertStringNotContainsString( bbp_db()->users, implode( "\n", $queries ) );
+		if ( ! $complete ) {
+			$this->assertSame( array(), bbp_get_mention_backfill_status() );
+		}
+		bbp_version_updater();
+		$this->assertSame( $pending ? 1 : 0, count( bbp_get_pending_upgrades() ) );
+	}
+
+	public static function mention_upgrade_installations() {
+		return array(
+			'large installation'    => array( 264, false, true, true ),
+			'completed backfill'    => array( 264, true, false, false ),
+			'fresh installation'    => array( 0, false, false, false ),
+			'already upgraded'      => array( 270, false, false, false ),
+		);
 	}
 }

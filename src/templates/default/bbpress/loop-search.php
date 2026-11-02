@@ -10,6 +10,10 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+$search_title = bbp_is_single_user_mentions()
+	? __( 'Mentions', 'bbpress' )
+	: __( 'Search Results', 'bbpress' );
+
 do_action( 'bbp_template_before_search_results_loop' ); ?>
 
 <ul id="bbp-search-results" class="forums bbp-search-results">
@@ -20,7 +24,7 @@ do_action( 'bbp_template_before_search_results_loop' ); ?>
 
 		<div class="bbp-search-content">
 
-			<?php esc_html_e( 'Search Results', 'bbpress' ); ?>
+			<?php echo esc_html( $search_title ); ?>
 
 		</div><!-- .bbp-search-content -->
 
@@ -42,7 +46,7 @@ do_action( 'bbp_template_before_search_results_loop' ); ?>
 
 		<div class="bbp-search-content">
 
-			<?php esc_html_e( 'Search Results', 'bbpress' ); ?>
+			<?php echo esc_html( $search_title ); ?>
 
 		</div><!-- .bbp-search-content -->
 

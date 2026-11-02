@@ -441,6 +441,20 @@ function bbp_version_updater() {
 				bbp_add_pending_upgrade( 'bbp-forum-hidden-replies' );
 			}
 		}
+
+		/** 2.7 Branch ********************************************************/
+
+		// Backfill small sites automatically; leave larger or unfinished scans pending.
+		if ( $raw_db_version < 270 ) {
+			$mentions = bbp_get_mention_backfill_status();
+			if ( empty( $mentions['complete'] ) ) {
+				if ( bbp_is_large_install() ) {
+					bbp_add_pending_upgrade( 'bbp-user-mentions' );
+				} else {
+					bbp_admin_repair_tool_run_automatically( 'bbp-user-mentions', 'bbp_admin_upgrade_user_mentions_automatically' );
+				}
+			}
+		}
 	}
 
 	/** All done! *************************************************************/

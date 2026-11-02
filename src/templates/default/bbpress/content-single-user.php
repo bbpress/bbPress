@@ -37,6 +37,10 @@ defined( 'ABSPATH' ) || exit;
 				bbp_get_template_part( 'user', 'engagements' );
 			endif;
 
+			if ( bbp_is_single_user_mentions() ) :
+				bbp_get_template_part( 'user', 'mentions' );
+			endif;
+
 			if ( bbp_is_single_user_topics() ) :
 				bbp_get_template_part( 'user', 'topics-created'  );
 			endif;

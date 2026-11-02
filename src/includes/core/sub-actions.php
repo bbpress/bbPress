@@ -177,6 +177,15 @@ function bbp_setup_engagements() {
 	do_action( 'bbp_setup_engagements' );
 }
 
+/**
+ * Run bbPress actions before PHP shuts down.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ */
+function bbp_shutdown() {
+	do_action( 'bbp_shutdown' );
+}
+
 /** Supplemental Actions ******************************************************/
 
 /**

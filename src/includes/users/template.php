@@ -1990,6 +1990,64 @@ function bbp_get_user_engagements_url( $user_id = 0 ) {
 	return apply_filters( 'bbp_get_user_engagements_url', $url, $user_id );
 }
 
+/** Mentions ******************************************************************/
+
+/**
+ * Return a user's mention history URL.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param int $user_id Profile owner ID.
+ * @return string|false
+ */
+function bbp_get_user_mentions_url( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id );
+	if ( ! $user_id ) {
+		return false;
+	}
+
+	$intercept = bbp_maybe_intercept( 'bbp_pre_get_user_mentions_url', func_get_args() );
+	if ( bbp_is_intercepted( $intercept ) ) {
+		return $intercept;
+	}
+
+	$url = bbp_get_user_profile_url( $user_id );
+	$url = bbp_use_pretty_urls()
+		? user_trailingslashit( trailingslashit( $url ) . bbp_get_user_mentions_slug() )
+		: add_query_arg( bbp_get_user_mentions_rewrite_id(), '1', $url );
+
+	return apply_filters( 'bbp_get_user_mentions_url', $url, $user_id );
+}
+
+/**
+ * Display the email preference on front-end and administration profiles.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param WP_User|null $user User being edited, or the displayed user.
+ */
+function bbp_mention_email_settings( $user = null ) {
+	// bbPress also invokes the WordPress profile hooks on its front-end form.
+	if ( ! is_admin() && in_array( current_filter(), array( 'show_user_profile', 'edit_user_profile' ), true ) ) {
+		return;
+	}
+
+	$user_id = ( $user instanceof WP_User ) ? $user->ID : bbp_get_displayed_user_id();
+	if ( ! bbp_current_user_can_edit_user_field( 'email', $user_id ) ) {
+		return;
+	}
+
+	?>
+	<div class="bbp-mention-email-settings">
+		<label>
+			<input name="bbp_mention_email" id="bbp_mention_email" class="checkbox" type="checkbox" value="1" <?php checked( bbp_is_user_mention_email_enabled( $user_id ) ); ?> />
+			<?php esc_html_e( 'Email me when someone mentions me in a forum discussion.', 'bbpress' ); ?>
+		</label>
+		<?php wp_nonce_field( 'bbp-mention-preferences-' . $user_id, '_bbp_mention_nonce', false ); ?>
+	</div>
+	<?php
+}
+
 /** Language ******************************************************************/
 
 /**

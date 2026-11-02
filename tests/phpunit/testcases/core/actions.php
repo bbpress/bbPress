@@ -61,6 +61,7 @@ class BBP_Tests_Core_Actions extends BBP_UnitTestCase {
 			array( 'xmlrpc_call',            'bbp_xmlrpc_call',            10, 3 ),
 			array( 'transition_post_status', 'bbp_transition_post_status', 10, 3 ),
 			array( 'post_updated',           'bbp_post_updated',           10, 3 ),
+			array( 'shutdown',               'bbp_shutdown',               10, 1 ),
 		) );
 	}
 

@@ -1521,15 +1521,18 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			array(
 				'post_parent' => $forum_id,
 				'post_title'  => 'Paginated group topic 3750',
+				'post_date'   => '2020-01-01 00:00:00',
 				'topic_meta'  => array( 'forum_id' => $forum_id ),
 			)
 		);
 		$reply_ids = array();
 
-		foreach ( array( 'First group reply 3750', 'Second group reply 3750' ) as $reply_content ) {
+		// Test pagination with chronological fixtures, not undefined timestamp ties.
+		foreach ( array( 'First group reply 3750', 'Second group reply 3750' ) as $reply_index => $reply_content ) {
 			$reply_ids[] = $this->factory->reply->create(
 				array(
 					'post_content' => $reply_content,
+					'post_date'    => sprintf( '2020-01-01 00:0%d:00', $reply_index + 1 ),
 					'post_parent'  => $topic_id,
 					'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
 				)

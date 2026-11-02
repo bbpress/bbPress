@@ -127,6 +127,10 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 			return $retval;
 		};
 
+		// Language selection does not depend on a live translation API request.
+		$translations = function() { return array( 'translations' => array() ); };
+		add_filter( 'translations_api', $translations );
+
 		update_user_meta( $user_id, 'locale', 'en_US' );
 		add_filter( 'bbp_get_user_languages_dropdown', $filter, 10, 2 );
 
@@ -161,6 +165,7 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 			bbp_edit_user_language( array( 'user_id' => $user_id ) );
 			$this->assertSame( bbp_get_user_languages_dropdown( array( 'user_id' => $user_id ) ), ob_get_clean() );
 		} finally {
+			remove_filter( 'translations_api', $translations );
 			remove_filter( 'bbp_is_single_user_edit', '__return_true' );
 			remove_filter( 'bbp_get_user_languages_dropdown', $filter, 10 );
 		}

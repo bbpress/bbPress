@@ -587,6 +587,7 @@ function bbp_parse_query( $posts_query ) {
 		$is_topics      = $posts_query->get( bbp_get_user_topics_rewrite_id()        );
 		$is_replies     = $posts_query->get( bbp_get_user_replies_rewrite_id()       );
 		$is_engagements = $posts_query->get( bbp_get_user_engagements_rewrite_id()   );
+		$is_mentions    = $posts_query->get( bbp_get_user_mentions_rewrite_id()      );
 
 		// View or edit?
 		if ( ! is_null( $is_edit ) ) {
@@ -627,6 +628,15 @@ function bbp_parse_query( $posts_query ) {
 		// User topics
 		} elseif ( ! empty( $is_replies ) ) {
 			$posts_query->bbp_is_single_user_replies = true;
+
+		// User mentions
+		} elseif ( ! empty( $is_mentions ) ) {
+			if ( ! bbp_current_user_can_view_mentions( $the_user->ID ) ) {
+				$posts_query->bbp_is_404 = true;
+				return;
+			}
+
+			$posts_query->bbp_is_single_user_mentions = true;
 
 		// User engagements
 		} elseif ( ! empty( $is_engagements ) ) {

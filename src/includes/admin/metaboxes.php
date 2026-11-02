@@ -741,6 +741,41 @@ function bbp_topic_engagements_metabox( $post ) {
 }
 
 /**
+ * See who is mentioned in a saved topic or reply.
+ *
+ * Relationships follow the post content and cannot be edited independently.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param WP_Post $post Topic or reply being edited.
+ */
+function bbp_mentions_metabox( $post ) {
+	$cap = ( bbp_get_reply_post_type() === $post->post_type ) ? 'edit_reply' : 'edit_topic';
+
+	// Only editors of this content may inspect its saved relationships.
+	if ( ! in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) || ! current_user_can( $cap, $post->ID ) ) {
+		return;
+	}
+
+	$user_ids = bbp_get_users_for_object( $post->ID, '_bbp_mention' );
+	$args     = array(
+		'include' => $user_ids
+	);
+
+	?><p><?php
+
+		if ( ! empty( $user_ids ) && bbp_has_users( $args ) ) :
+			bbp_metabox_user_links();
+		else :
+			esc_html_e( 'No users are mentioned in this post.', 'bbpress' );
+		endif;
+
+	?></p><?php
+
+	do_action( 'bbp_mentions_metabox', $post );
+}
+
+/**
  * See who marked a topic as a favorite.
  *
  * @since 2.6.0 bbPress (r6197)

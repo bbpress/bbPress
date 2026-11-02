@@ -269,6 +269,34 @@ function bbp_member_forums_screen_engagements() {
 }
 
 /**
+ * Display the private forum mention history inside a BuddyPress profile.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ */
+function bbp_member_forums_screen_mentions() {
+	if ( ! bbp_current_user_can_view_mentions( bp_displayed_user_id() ) ) {
+		bp_do_404();
+		return;
+	}
+
+	add_action( 'bp_template_content', 'bbp_member_forums_mentions_content' );
+	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_mentions', 'members/single/plugins' ) );
+}
+
+/**
+ * Load the mention history template for BuddyPress members.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ */
+function bbp_member_forums_mentions_content() {
+	?>
+	<div id="bbpress-forums" class="bbpress-wrapper">
+		<?php bbp_get_template_part( 'user', 'mentions' ); ?>
+	</div>
+	<?php
+}
+
+/**
  * Hook bbPress favorites template into plugins template.
  *
  * @since 2.1.0 bbPress (r3552)

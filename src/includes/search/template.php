@@ -364,8 +364,12 @@ function bbp_get_search_pagination_base() {
 	// If pretty permalinks are enabled, make our pagination pretty
 	if ( bbp_use_pretty_urls() ) {
 
+		// User mentions
+		if ( bbp_is_single_user_mentions() ) {
+			$base = bbp_get_user_mentions_url( bbp_get_displayed_user_id() );
+
 		// Any single post (for shortcodes)
-		if ( is_singular() ) {
+		} elseif ( is_singular() ) {
 			$base = get_permalink();
 
 		// Default search location

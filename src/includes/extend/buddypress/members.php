@@ -44,6 +44,8 @@ class BBP_BuddyPress_Members {
 
 		// Allow unsubscribe/unfavorite links to work
 		add_action( 'bp_template_redirect', array( $this, 'set_member_forum_query_vars' ) );
+		add_action( 'bp_notification_settings', array( $this, 'mention_email_settings' ) );
+		add_action( 'bp_core_notification_settings_after_save', array( $this, 'save_mention_email_settings' ) );
 
 		/** Engagements *******************************************************/
 
@@ -96,8 +98,11 @@ class BBP_BuddyPress_Members {
 		add_filter( 'bbp_pre_get_user_topics_created_url',  array( $this, 'get_topics_created_url'      ) );
 		add_filter( 'bbp_pre_get_user_replies_created_url', array( $this, 'get_replies_created_url'     ) );
 		add_filter( 'bbp_pre_get_user_engagements_url',     array( $this, 'get_engagements_permalink'   ) );
+		add_filter( 'bbp_pre_get_user_mentions_url',        array( $this, 'get_mentions_permalink'      ) );
 		add_filter( 'bbp_pre_get_favorites_permalink',      array( $this, 'get_favorites_permalink'     ) );
 		add_filter( 'bbp_pre_get_subscriptions_permalink',  array( $this, 'get_subscriptions_permalink' ) );
+		add_filter( 'bbp_mention_email_settings_url',       array( $this, 'mention_email_settings_url'  ), 10, 2 );
+		add_filter( 'bbp_is_user_mention_email_enabled',    array( $this, 'is_mention_email_enabled'    ), 10, 3 );
 	}
 
 	/**
@@ -190,6 +195,72 @@ class BBP_BuddyPress_Members {
 	}
 
 	/**
+	 * Return the BuddyPress member's forum mention URL.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false
+	 */
+	public function get_mentions_permalink( $user_id = 0 ) {
+		return $this->get_profile_url( $user_id, bbp_get_user_mentions_slug() );
+	}
+
+	/**
+	 * Display the bbPress preference in BuddyPress notification settings.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 */
+	public function mention_email_settings() {
+		bbp_mention_email_settings( get_userdata( bp_displayed_user_id() ) );
+	}
+
+	/**
+	 * Save the independently authorized bbPress email preference.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 */
+	public function save_mention_email_settings() {
+		bbp_save_mention_email_preference( bp_displayed_user_id() );
+	}
+
+	/**
+	 * Respect an explicit BuddyPress opt-in until a bbPress preference is saved.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param bool         $enabled Whether mention email is enabled.
+	 * @param int          $user_id Recipient ID.
+	 * @param string|false $setting Saved bbPress preference, or false if unset.
+	 * @return bool
+	 */
+	public function is_mention_email_enabled( $enabled, $user_id, $setting ) {
+		if ( false === $setting ) {
+			$enabled = ( 'yes' === bp_get_user_meta( $user_id, 'notification_activity_new_mention', true ) );
+		}
+
+		return $enabled;
+	}
+
+	/**
+	 * Point mention email recipients to BuddyPress notification settings.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param string $url     Native settings URL.
+	 * @param int    $user_id Recipient ID.
+	 * @return string
+	 */
+	public function mention_email_settings_url( $url, $user_id ) {
+		$profile = $this->get_profile_url( $user_id );
+		if ( $profile && bp_is_active( 'settings' ) ) {
+			$url = trailingslashit( $profile ) . bp_get_settings_slug() . '/notifications/';
+		}
+
+		return $url;
+	}
+
+	/**
 	 * Set favorites and subscriptions query variables if viewing member profile
 	 * pages.
 	 *
@@ -228,6 +299,16 @@ class BBP_BuddyPress_Members {
 		// 'engagements' action
 		} elseif ( bbp_is_engagements_active() && bp_is_current_action( bbp_get_user_engagements_slug() ) ) {
 			$wp_query->bbp_is_single_user_engagements = true;
+
+		// 'mentions' action
+		} elseif ( bp_is_current_action( bbp_get_user_mentions_slug() ) && bbp_current_user_can_view_mentions( bp_displayed_user_id() ) ) {
+			$wp_query->bbp_is_single_user_mentions = true;
+
+			// BuddyPress routes page numbers as action variables.
+			$page = bp_action_variable( 1 );
+			if ( bp_is_action_variable( bbp_get_paged_slug(), 0 ) && ctype_digit( (string) $page ) ) {
+				$wp_query->set( 'paged', max( 1, (int) $page ) );
+			}
 		}
 	}
 

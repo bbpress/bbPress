@@ -73,6 +73,7 @@ class BBP_Topics_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'author_metabox'        ) );
 		add_action( 'add_meta_boxes', array( $this, 'replies_metabox'       ) );
 		add_action( 'add_meta_boxes', array( $this, 'engagements_metabox'   ) );
+		add_action( 'add_meta_boxes', array( $this, 'mentions_metabox'      ) );
 		add_action( 'add_meta_boxes', array( $this, 'favorites_metabox'     ) );
 		add_action( 'add_meta_boxes', array( $this, 'subscriptions_metabox' ) );
 		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'      ) );
@@ -451,6 +452,28 @@ class BBP_Topics_Admin {
 			'bbp_topic_engagements_metabox',
 			esc_html__( 'Engagements', 'bbpress' ),
 			'bbp_topic_engagements_metabox',
+			$this->post_type,
+			'side',
+			'low'
+		);
+	}
+
+	/**
+	 * Add the mentions meta-box for saved content.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 */
+	public function mentions_metabox() {
+
+		// Mentions are indexed when content is saved.
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) ) {
+			return;
+		}
+
+		add_meta_box(
+			'bbp_mentions_metabox',
+			esc_html__( 'Mentions', 'bbpress' ),
+			'bbp_mentions_metabox',
 			$this->post_type,
 			'side',
 			'low'

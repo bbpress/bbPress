@@ -723,6 +723,7 @@ abstract class BBP_Converter_Base {
 
 		$suppress_count_updates = false === has_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' );
 		$suppress_notifications = false === has_filter( 'bbp_is_moderation_notifications_active', '__return_false' );
+		$suppress_mentions      = false === has_filter( 'bbp_is_mention_notifications_active', '__return_false' );
 
 		if ( $suppress_count_updates ) {
 			add_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' );
@@ -733,11 +734,17 @@ abstract class BBP_Converter_Base {
 		}
 
 		bbp_suspend_moderation_notifications();
+		if ( $suppress_mentions ) {
+			add_filter( 'bbp_is_mention_notifications_active', '__return_false' );
+		}
 
 		try {
 			$post_id = wp_insert_post( $post_data, true );
 		} finally {
 			bbp_resume_moderation_notifications();
+			if ( $suppress_mentions ) {
+				remove_filter( 'bbp_is_mention_notifications_active', '__return_false' );
+			}
 
 			if ( $suppress_count_updates ) {
 				remove_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' );

@@ -87,6 +87,14 @@ do_action( 'bbp_template_before_user_details' ); ?>
 				</li>
 			<?php endif; ?>
 
+			<?php if ( bbp_current_user_can_view_mentions() ) : ?>
+				<li class="<?php if ( bbp_is_single_user_mentions() ) : ?>current<?php endif; ?>">
+					<span class="bbp-user-mentions-link">
+						<a href="<?php echo esc_url( bbp_get_user_mentions_url() ); ?>"><?php esc_html_e( 'Mentions', 'bbpress' ); ?></a>
+					</span>
+				</li>
+			<?php endif; ?>
+
 			<?php if ( bbp_is_favorites_active() ) : ?>
 				<li class="<?php if ( bbp_is_favorites() ) : ?>current<?php endif; ?>">
 					<span class="bbp-user-favorites-link">

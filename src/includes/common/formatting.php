@@ -662,7 +662,7 @@ function bbp_make_emails_clickable( $text = '' ) {
  */
 function bbp_make_mentions_clickable( $text = '' ) {
 	return preg_replace_callback(
-		'#([\s>\[\(])\@([0-9a-zA-Z\-_]+)#i',
+		bbp_get_mention_pattern(),
 		'bbp_make_mentions_clickable_callback',
 		$text
 	);

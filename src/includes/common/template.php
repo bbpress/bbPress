@@ -982,6 +982,19 @@ function bbp_is_single_user_engagements() {
 }
 
 /**
+ * Check whether the current page is a user's mention history.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @return bool
+ */
+function bbp_is_single_user_mentions() {
+	$query = bbp_get_wp_query();
+
+	return (bool) apply_filters( 'bbp_is_single_user_mentions', ! empty( $query->bbp_is_single_user_mentions ) );
+}
+
+/**
  * Check if current page is a view page.
  *
  * @since 2.0.0 bbPress (r3311)
@@ -2969,8 +2982,12 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		// Is user viewing their own profile?
 		$is_user_home = bbp_is_user_home();
 
+		// User mention history
+		if ( bbp_is_single_user_mentions() ) {
+			$new_title['text'] = esc_attr__( 'Mentions', 'bbpress' );
+
 		// User topics created
-		if ( bbp_is_single_user_topics() ) {
+		} elseif ( bbp_is_single_user_topics() ) {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Topics', 'bbpress' );
 			} else {

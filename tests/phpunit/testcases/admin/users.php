@@ -36,6 +36,7 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 	}
 
 	private function remove_hooks( $admin ) {
+		remove_action( 'show_user_profile', array( $admin, 'secondary_role_display' ) );
 		remove_action( 'edit_user_profile', array( $admin, 'secondary_role_display' ) );
 		remove_action( 'restrict_manage_users', array( $admin, 'user_role_bulk_dropdown' ), 10 );
 		remove_filter( 'manage_users_columns', array( $admin, 'user_role_column' ), 10 );
@@ -87,6 +88,7 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( $admin, $loaded );
+			$this->assertSame( 10, has_action( 'show_user_profile', array( $admin, 'secondary_role_display' ) ) );
 			$this->assertSame( 10, has_action( 'edit_user_profile', array( $admin, 'secondary_role_display' ) ) );
 			$this->assertSame( 10, has_action( 'restrict_manage_users', array( $admin, 'user_role_bulk_dropdown' ) ) );
 			$this->assertSame( 10, has_filter( 'manage_users_columns', array( $admin, 'user_role_column' ) ) );
@@ -104,7 +106,7 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 	 * @covers BBP_Users_Admin::__construct
 	 * @ticket 3706
 	 */
-	public function test_constructor_does_not_register_hooks_in_network_admin() {
+	public function test_constructor_registers_only_profile_hooks_in_network_admin() {
 		$had_screen = array_key_exists( 'current_screen', $GLOBALS );
 		$screen     = $had_screen ? $GLOBALS['current_screen'] : null;
 		$loaded     = null;
@@ -117,11 +119,13 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 
 		try {
 			$this->assertNull( $loaded );
-			$this->assertFalse( has_action( 'edit_user_profile', array( $admin, 'secondary_role_display' ) ) );
+			$this->assertSame( 10, has_action( 'show_user_profile', array( $admin, 'secondary_role_display' ) ) );
+			$this->assertSame( 10, has_action( 'edit_user_profile', array( $admin, 'secondary_role_display' ) ) );
 			$this->assertFalse( has_action( 'restrict_manage_users', array( $admin, 'user_role_bulk_dropdown' ) ) );
 			$this->assertFalse( has_action( 'load-users.php', array( $admin, 'user_role_bulk_change' ) ) );
 		} finally {
 			remove_action( 'bbp_admin_users_loaded', $observe );
+			$this->remove_hooks( $admin );
 			if ( $had_screen ) {
 				$GLOBALS['current_screen'] = $screen;
 			} else {

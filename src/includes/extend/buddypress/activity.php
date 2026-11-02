@@ -166,8 +166,47 @@ class BBP_BuddyPress_Activity {
 		} else {
 			add_filter( 'bp_activity_get_where_conditions', array( $this, 'activity_get_where_conditions' ), 10, 2 );
 		}
-		add_filter( 'bp_activity_get',                  array( $this, 'activity_get'                  ), 10, 2 );
-		add_filter( 'bp_activity_user_can_read',       array( $this, 'activity_user_can_read'       ), 10, 3 );
+		add_filter( 'bp_activity_get',                      array( $this, 'activity_get'           ), 10, 2 );
+		add_filter( 'bp_activity_user_can_read',            array( $this, 'activity_user_can_read' ), 10, 3 );
+		add_filter( 'bp_activity_at_name_do_notifications', array( $this, 'mention_notifications'  ), 20, 4 );
+	}
+
+	/**
+	 * Keep BuddyPress on-site mentions while bbPress owns forum mention email.
+	 *
+	 * BuddyPress normally emits its notification action even for users who have
+	 * disabled email. Preserve that action without its preceding email call.
+	 * Unrelated activity and notifications disabled by other filters are untouched.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param bool                 $notify    Whether to notify.
+	 * @param array                $usernames Mentioned users.
+	 * @param int                  $user_id   Recipient ID.
+	 * @param BP_Activity_Activity $activity  Activity being saved.
+	 * @return bool Whether BuddyPress should perform its usual email handling.
+	 */
+	public function mention_notifications( $notify, $usernames, $user_id, $activity ) {
+		if ( ! $notify || ! in_array( $activity->component, array( 'bbpress', 'groups' ), true ) || ! in_array( $activity->type, array( $this->topic_create, $this->reply_create ), true ) ) {
+			return $notify;
+		}
+
+		$post_id = ( 'groups' === $activity->component ) ? $activity->secondary_item_id : $activity->item_id;
+		$post    = get_post( $post_id );
+		if ( ! $post || ( (int) $post->post_author === (int) $user_id ) || ! bbp_user_can_read_mention( $post_id, $user_id ) || ! in_array( (int) $user_id, bbp_get_mentioned_user_ids( $post->post_content ), true ) ) {
+			return false;
+		}
+
+		// Mirror BuddyPress's duplicate guard before emitting its notification action.
+		foreach ( BP_Core_Notification::get_all_for_user( $user_id, 'all' ) as $notification ) {
+			if ( (int) $activity->id === (int) $notification->item_id ) {
+				return false;
+			}
+		}
+
+		do_action( 'bp_activity_sent_mention_email', $activity, '', '', '', $user_id );
+
+		return false;
 	}
 
 	/**
