@@ -1030,6 +1030,142 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_fix_new_post_date_pairs
+	 */
+	public function test_bbp_fix_new_post_date_pairs_uses_current_gmt_date() {
+		update_option( 'timezone_string', 'America/Chicago' );
+
+		foreach ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) as $post_type ) {
+			foreach ( array( bbp_get_public_status_id(), bbp_get_pending_status_id() ) as $post_status ) {
+				$data = array(
+					'post_type'         => $post_type,
+					'post_status'       => $post_status,
+					'post_date'         => '2025-11-02 01:30:00',
+					'post_date_gmt'     => '2025-11-02 06:30:00',
+					'post_modified'     => '2025-11-02 01:30:00',
+					'post_modified_gmt' => '2025-11-02 06:30:00',
+				);
+				$result = bbp_fix_new_post_date_pairs( $data, array(), array(), false );
+
+				$this->assertLessThanOrEqual( 5, abs( time() - strtotime( $result['post_date_gmt'] . ' UTC' ) ) );
+				$this->assertSame( get_date_from_gmt( $result['post_date_gmt'] ), $result['post_date'] );
+				$this->assertSame( $result['post_date'], $result['post_modified'] );
+				$this->assertSame( $result['post_date_gmt'], $result['post_modified_gmt'] );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_fix_new_post_date_pairs
+	 */
+	public function test_bbp_fix_new_post_date_pairs_preserves_explicit_dates_and_updates() {
+		$data = array(
+			'post_type'         => bbp_get_topic_post_type(),
+			'post_status'       => bbp_get_public_status_id(),
+			'post_date'         => '2025-11-02 01:30:00',
+			'post_date_gmt'     => '2025-11-02 07:30:00',
+			'post_modified'     => '2025-11-02 01:30:00',
+			'post_modified_gmt' => '2025-11-02 07:30:00',
+		);
+
+		$this->assertSame( $data, bbp_fix_new_post_date_pairs( $data, array(), array( 'post_date' => $data['post_date'] ), false ) );
+		$this->assertSame( $data, bbp_fix_new_post_date_pairs( $data, array(), array( 'post_date_gmt' => $data['post_date_gmt'] ), false ) );
+		$this->assertSame( $data, bbp_fix_new_post_date_pairs( $data, array(), array(), true ) );
+	}
+
+	/**
+	 * @covers ::bbp_fix_new_post_date_pairs
+	 */
+	public function test_bbp_fix_new_post_date_pairs_treats_zero_dates_as_defaults() {
+		$data = array(
+			'post_type'         => bbp_get_topic_post_type(),
+			'post_status'       => bbp_get_public_status_id(),
+			'post_date'         => '0000-00-00 00:00:00',
+			'post_date_gmt'     => '0000-00-00 00:00:00',
+			'post_modified'     => '0000-00-00 00:00:00',
+			'post_modified_gmt' => '0000-00-00 00:00:00',
+		);
+		$result = bbp_fix_new_post_date_pairs( $data, array(), array( 'post_date' => $data['post_date'], 'post_date_gmt' => $data['post_date_gmt'] ), false );
+
+		$this->assertNotSame( '0000-00-00 00:00:00', $result['post_date_gmt'] );
+		$this->assertSame( get_date_from_gmt( $result['post_date_gmt'] ), $result['post_date'] );
+	}
+
+	/**
+	 * @covers ::bbp_fix_new_post_date_pairs
+	 */
+	public function test_bbp_fix_new_post_date_pairs_ignores_other_post_types_and_floating_statuses() {
+		global $wp_post_statuses;
+
+		$data = array(
+			'post_type'         => 'post',
+			'post_status'       => bbp_get_public_status_id(),
+			'post_date'         => '2025-11-02 01:30:00',
+			'post_date_gmt'     => '2025-11-02 07:30:00',
+			'post_modified'     => '2025-11-02 01:30:00',
+			'post_modified_gmt' => '2025-11-02 07:30:00',
+		);
+
+		$this->assertSame( $data, bbp_fix_new_post_date_pairs( $data, array(), array(), false ) );
+
+		$data['post_type'] = bbp_get_forum_post_type();
+
+		$this->assertSame( $data, bbp_fix_new_post_date_pairs( $data, array(), array(), false ) );
+
+		$status = 'bbp_floating_test';
+		register_post_status( $status, array( 'date_floating' => true ) );
+
+		try {
+			$data['post_type']   = bbp_get_topic_post_type();
+			$data['post_status'] = $status;
+
+			$this->assertSame( $data, bbp_fix_new_post_date_pairs( $data, array(), array(), false ) );
+		} finally {
+			unset( $wp_post_statuses[ $status ] );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_fix_new_post_date_pairs
+	 */
+	public function test_bbp_fix_new_post_date_pairs_allows_later_filters_to_override_dates() {
+		$expected = array(
+			'post_date'         => '2025-11-02 01:30:00',
+			'post_date_gmt'     => '2025-11-02 07:30:00',
+			'post_modified'     => '2025-11-02 01:30:00',
+			'post_modified_gmt' => '2025-11-02 07:30:00',
+		);
+		$override = function( $data ) use ( $expected ) {
+			return array_merge( $data, $expected );
+		};
+
+		add_filter( 'wp_insert_post_data', $override, 11 );
+
+		try {
+			$post_id = wp_insert_post( array( 'post_type' => bbp_get_topic_post_type(), 'post_status' => bbp_get_public_status_id() ) );
+		} finally {
+			remove_filter( 'wp_insert_post_data', $override, 11 );
+		}
+
+		foreach ( $expected as $field => $date ) {
+			$this->assertSame( $date, get_post_field( $field, $post_id ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_fix_new_post_date_pairs
+	 */
+	public function test_bbp_fix_new_post_date_pairs_preserves_floating_draft_dates() {
+		foreach ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) as $post_type ) {
+			foreach ( array( 'draft', 'auto-draft' ) as $post_status ) {
+				$post_id = wp_insert_post( array( 'post_type' => $post_type, 'post_status' => $post_status ) );
+
+				$this->assertSame( '0000-00-00 00:00:00', get_post_field( 'post_date_gmt', $post_id ) );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_set_pending_post_date_gmt
 	 */
 	public function test_bbp_set_pending_post_date_gmt_preserves_dates_on_status_change() {

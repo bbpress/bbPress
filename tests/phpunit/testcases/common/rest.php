@@ -1176,7 +1176,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
 
-		$this->assertSame( get_gmt_from_date( get_post_field( 'post_date', $topic_id ) ), get_post_field( 'post_date_gmt', $topic_id ) );
+		$this->assertSame( get_post_field( 'post_date', $topic_id ), get_date_from_gmt( get_post_field( 'post_date_gmt', $topic_id ) ) );
 		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'content' => 'Pending revision.' ) );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -1212,13 +1212,18 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	 * Sending unchanged status and dates must not block an ordinary edit.
 	 *
 	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 * @dataProvider data_unchanged_post_dates
+	 *
+	 * @param string $post_date     Local post date.
+	 * @param string $post_date_gmt GMT post date.
 	 */
-	public function test_participant_can_roundtrip_unchanged_status_and_date() {
+	public function test_participant_can_roundtrip_unchanged_status_and_date( $post_date, $post_date_gmt ) {
 		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
 
 		$user_id  = $this->factory->user->create();
 		$forum_id = $this->factory->forum->create();
-		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_date' => $post_date, 'post_date_gmt' => $post_date_gmt, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
 		$post     = get_post( $topic_id );
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
@@ -1226,6 +1231,79 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'Updated content.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertSame( $post_date, get_post_field( 'post_date', $topic_id ) );
+		$this->assertSame( $post_date_gmt, get_post_field( 'post_date_gmt', $topic_id ) );
+	}
+
+	/**
+	 * Data provider for unchanged post dates exposed by REST.
+	 *
+	 * @return array[] Local and GMT dates.
+	 */
+	public function data_unchanged_post_dates() {
+		return array(
+			'first repeated hour'  => array( '2025-11-02 01:30:00', '2025-11-02 06:30:00' ),
+			'second repeated hour' => array( '2025-11-02 01:30:00', '2025-11-02 07:30:00' ),
+			'ordinary date'        => array( '2025-07-01 12:30:00', '2025-07-01 17:30:00' ),
+		);
+	}
+
+	/**
+	 * A derived GMT date for a legacy pending post must round-trip unchanged.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_can_roundtrip_legacy_zero_gmt_date() {
+		global $wpdb;
+
+		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_status' => bbp_get_pending_status_id(), 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$post_date = get_post_field( 'post_date', $topic_id );
+
+		$wpdb->update( $wpdb->posts, array( 'post_date_gmt' => '0000-00-00 00:00:00' ), array( 'ID' => $topic_id ) );
+		clean_post_cache( $topic_id );
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'date_gmt' => mysql_to_rfc3339( get_gmt_from_date( $post_date ) ), 'content' => 'Updated content.' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Updated content.', get_post_field( 'post_content', $topic_id ) );
+		$this->assertSame( $post_date, get_post_field( 'post_date', $topic_id ) );
+	}
+
+	/**
+	 * A participant cannot move a topic to the other repeated-hour occurrence.
+	 *
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_participant_cannot_change_repeated_hour_occurrence() {
+		update_option( 'timezone_string', 'America/Chicago' );
+		update_option( '_bbp_edit_lock', 0 );
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'   => $user_id,
+				'post_parent'   => $forum_id,
+				'post_date'     => '2025-11-02 01:30:00',
+				'post_date_gmt' => '2025-11-02 07:30:00',
+				'topic_meta'    => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+
+		$response = $this->update_item( bbp_get_topic_post_type(), $topic_id, $user_id, array( 'date_gmt' => mysql_to_rfc3339( '2025-11-02 06:30:00' ) ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'bbp_rest_cannot_change_date', $response->get_data()['code'] );
+		$this->assertSame( '2025-11-02 01:30:00', get_post_field( 'post_date', $topic_id ) );
+		$this->assertSame( '2025-11-02 07:30:00', get_post_field( 'post_date_gmt', $topic_id ) );
 	}
 
 	/**
@@ -1262,7 +1340,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
 
-		$this->assertSame( get_gmt_from_date( get_post_field( 'post_date', $reply_id ) ), get_post_field( 'post_date_gmt', $reply_id ) );
+		$this->assertSame( get_post_field( 'post_date', $reply_id ), get_date_from_gmt( get_post_field( 'post_date_gmt', $reply_id ) ) );
 		$response = $this->update_item( bbp_get_reply_post_type(), $reply_id, $user_id, array( 'content' => 'Pending reply revision.' ) );
 
 		$this->assertSame( 200, $response->get_status() );

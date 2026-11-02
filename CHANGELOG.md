@@ -78,6 +78,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved topic and reply dates during repeated daylight-saving hours,
+  including edit windows, unchanged API dates, and approvals.
 - Restart built-in tool batches safely when saved progress is malformed, while
   keeping Dry Run previews read-only and allowing normal content changes.
 - Styled pending database upgrade counts consistently in the administration menu.

@@ -167,6 +167,8 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 			array( 'rest_request_before_callbacks', 'bbp_filter_rest_user_discovery',       10, 3 ),
 			array( 'wp_insert_post_data',       'bbp_filter_post_title_data',             15, 1 ),
 			array( 'wp_insert_post_data',       'bbp_filter_admin_forum_post_data',        20, 2 ),
+			array( 'wp_insert_post_data',       'bbp_fix_new_post_date_pairs',             10, 4 ),
+			array( 'wp_insert_post_data',       'bbp_set_pending_post_date_gmt',           25, 1 ),
 			array( 'wp_insert_post_data',       'bbp_fix_post_author',                     30, 2 ),
 			array( 'the_title',                 'bbp_filter_post_title',                    1, 2 ),
 			array( 'wp_untrash_post_status',    'bbp_fix_untrash_post_status',             10, 3 ),

@@ -641,6 +641,19 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_approve_topic
+	 */
+	public function test_bbp_approve_topic_preserves_existing_gmt_date() {
+		update_option( 'timezone_string', 'America/Chicago' );
+
+		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id(), 'post_date' => '2025-11-02 01:30:00', 'post_date_gmt' => '2025-11-02 07:30:00' ) );
+
+		$this->assertSame( $topic_id, bbp_approve_topic( $topic_id ) );
+		$this->assertSame( '2025-11-02 01:30:00', get_post_field( 'post_date', $topic_id ) );
+		$this->assertSame( '2025-11-02 07:30:00', get_post_field( 'post_date_gmt', $topic_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_unapprove_topic
 	 */
 	public function test_bbp_unapprove_topic() {

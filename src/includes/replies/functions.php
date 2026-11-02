@@ -2005,8 +2005,10 @@ function bbp_approve_reply( $reply_id = 0 ) {
 	// Set publish status
 	$reply->post_status = $status;
 
-	// Set post date GMT - prevents post_date override in wp_update_post()
-	$reply->post_date_gmt = get_gmt_from_date( $reply->post_date );
+	// Set a missing post date GMT - prevents post_date override in wp_update_post()
+	if ( '0000-00-00 00:00:00' === $reply->post_date_gmt ) {
+		$reply->post_date_gmt = get_gmt_from_date( $reply->post_date );
+	}
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
