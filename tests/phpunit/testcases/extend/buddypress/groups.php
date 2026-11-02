@@ -1419,6 +1419,41 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_reply_edit_url_to_group
+	 * @ticket BBP3780
+	 */
+	public function test_group_reply_edit_url_uses_custom_edit_slug() {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id   = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		update_option( '_bbp_edit_slug', 'revise' );
+
+		$edit_url = bbp_get_reply_edit_url( $reply_id );
+
+		delete_option( '_bbp_edit_slug' );
+
+		$this->assertStringEndsWith(
+			'/forum/reply/' . get_post_field( 'post_name', $reply_id ) . '/revise/',
+			$edit_url
+		);
+	}
+
+	/**
 	 * @covers ::bbp_filter_modify_page_title
 	 */
 	public function test_group_topic_page_title_only_uses_visible_topics_in_current_group() {

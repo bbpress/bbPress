@@ -98,6 +98,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Used the configured edit slug for reply edit links in BuddyPress group forums.
 - Preserved topic and reply dates during repeated daylight-saving hours,
   including edit windows, unchanged API dates, and approvals.
 - Restart built-in tool batches safely when saved progress is malformed, while
