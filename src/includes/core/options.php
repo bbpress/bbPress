@@ -203,7 +203,7 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_run_status_upgrade' );
 
 	// Delete checkpoints without requiring the administration tools to be loaded
-	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums' ) as $tool_id ) {
+	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta' ) as $tool_id ) {
 		delete_option( '_bbp_tool_batch_' . md5( $tool_id ) );
 	}
 

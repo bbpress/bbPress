@@ -987,6 +987,64 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_topic_reference_batches_finish_before_the_next_bulk_tool() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+		$topics = $this->factory->topic->create_many( 3 );
+		$forums = $this->factory->forum->create_many( 3 );
+		foreach ( $topics as $id ) {
+			update_post_meta( $id, '_bbp_topic_id', 999 );
+		}
+		foreach ( $forums as $id ) {
+			update_post_meta( $id, '_bbp_forum_subforum_count', 99 );
+		}
+		$ids  = array( 'bbp-sync-topic-meta', 'bbp-forum-subforums' );
+		$size = static function () {
+			return 2;
+		};
+		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		bbp_register_default_repair_tools();
+		$run_id = '';
+		try {
+			foreach ( $ids as $index => $tool_id ) {
+				$_GET = array(
+					'page'          => 'bbp-repair',
+					'action'        => 'run',
+					'checked'       => array_slice( $ids, $index ),
+					'bbp-tools-run' => $run_id,
+					'_wpnonce'      => wp_create_nonce( 'bbpress-do-counts' )
+				);
+				$_REQUEST                  = $_GET;
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				bbp_admin_repair_handler();
+				$state  = bbp_admin_repair_tool_get_run_state( 'repair' );
+				$run_id = $state['id'];
+				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
+				if ( 0 === $index ) {
+					$this->assertSame( '999', get_post_meta( $topics[1], '_bbp_topic_id', true ) );
+					$this->assertSame( '99', get_post_meta( $forums[0], '_bbp_forum_subforum_count', true ) );
+				}
+				for ( $batch = 0; $batch < 12; ++$batch ) {
+					$response = $this->ajax( 'repair', $tool_id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $run_id );
+					$this->assertTrue( $response['success'] );
+					if ( $response['data']['complete'] ) {
+						break;
+					}
+				}
+				$this->assertTrue( $response['data']['complete'] );
+				$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false ) );
+			}
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		}
+		foreach ( $topics as $id ) {
+			$this->assertSame( array( (string) $id ), get_post_meta( $id, '_bbp_topic_id', false ) );
+		}
+		foreach ( $forums as $id ) {
+			$this->assertSame( '0', get_post_meta( $id, '_bbp_forum_subforum_count', true ) );
+		}
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
+	}
+
 	public function test_subforum_recounts_finish_before_the_next_bulk_tool() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
 		$db     = bbp_db();

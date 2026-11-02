@@ -154,6 +154,27 @@ function bbp_admin_mention_backfill_message( $state ) {
  * @return array Status code, work used, changed flag, and completion flag.
  */
 function bbp_admin_repair_count_metadata( $meta_type, $object_id, $key, $count, $limit, $dry_run = false ) {
+	return bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $count, $limit, $dry_run );
+}
+
+/**
+ * Reconcile one integer metadata value with bounded writes.
+ *
+ * Preserve a canonical row, or add it before cleaning up other rows. A null
+ * value removes all matching rows. Counts and object references share this
+ * cleanup, and each inspected object costs at least one work item.
+ *
+ * @since 2.7.0 bbPress (r8277)
+ *
+ * @param string   $meta_type Metadata type: 'post' or 'user'.
+ * @param int      $object_id Object ID.
+ * @param string   $key       Metadata key.
+ * @param int|null $value     Expected value, or null when no row should remain.
+ * @param int      $limit     Maximum metadata writes.
+ * @param bool     $dry_run   Whether to preview without writes.
+ * @return array Status code, work used, changed flag, and completion flag.
+ */
+function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false ) {
 	$bbp_db     = bbp_db();
 	$table      = $bbp_db->{$meta_type . 'meta'};
 	$id_column  = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id';
@@ -165,8 +186,8 @@ function bbp_admin_repair_count_metadata( $meta_type, $object_id, $key, $count, 
 		'complete' => false
 	);
 	$keep_id = 0;
-	if ( null !== $count ) {
-		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, (string) $count ) );
+	if ( null !== $value ) {
+		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, (string) $value ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			$result['code'] = 2;
 			return $result;
@@ -176,9 +197,9 @@ function bbp_admin_repair_count_metadata( $meta_type, $object_id, $key, $count, 
 	if ( ! $dry_run ) {
 		wp_cache_delete( $object_id, $meta_type . '_meta' );
 	}
-	if ( ( null !== $count ) && empty( $keep_id ) ) {
+	if ( ( null !== $value ) && empty( $keep_id ) ) {
 		if ( ! $dry_run ) {
-			$keep_id = add_metadata( $meta_type, $object_id, $key, $count, false );
+			$keep_id = add_metadata( $meta_type, $object_id, $key, $value, false );
 			if ( false === $keep_id ) {
 				$result['code'] = 4;
 				return $result;
@@ -5018,8 +5039,9 @@ function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
  *
  * @since 2.1.0 bbPress (r3884)
  * @since 2.7.0 bbPress (r8238) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8277) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_topic_meta() {
 	return bbp_admin_repair_topic_meta_process();
@@ -5029,29 +5051,181 @@ function bbp_admin_repair_topic_meta() {
  * Preview repairing the topic reference for each topic and reply.
  *
  * @since 2.7.0 bbPress (r8238)
+ * @since 2.7.0 bbPress (r8277) Previews one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_topic_meta_dry_run() {
 	return bbp_admin_repair_topic_meta_process( true );
 }
 
 /**
- * Repair or preview repairing the topic reference for each topic and reply.
+ * Repair one bounded batch of topic references.
+ *
+ * Include stored references on unrelated or missing posts so orphan cleanup
+ * shares the same cursor and write budget as valid topic and reply references.
+ *
+ * @since 2.7.0 bbPress (r8277)
+ *
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Status code, per-batch repair counts, and progress flags.
+ */
+function bbp_admin_repair_topic_meta_batch( $dry_run = false ) {
+	$bbp_db  = bbp_db();
+	$tool_id = 'bbp-sync-topic-meta';
+	$key     = '_bbp_topic_id';
+	$types   = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	$batch   = array(
+		'code'      => 0,
+		'topics'    => 0,
+		'replies'   => 0,
+		'stale'     => 0,
+		'initial'   => false,
+		'complete'  => false,
+		'restarted' => false
+	);
+	if ( ( false !== $state ) && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) || ! isset( $state['post_types'] ) || ( $types !== $state['post_types'] ) ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+	$batch['initial'] = ( false === $state );
+	if ( $batch['initial'] ) {
+		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(ID) FROM {$bbp_db->posts} WHERE post_type IN (%s, %s)", $types ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 1;
+			return $batch;
+		}
+		$upper_meta = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(post_id) FROM {$bbp_db->postmeta} WHERE meta_key = %s", $key ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 3;
+			return $batch;
+		}
+		$state = array(
+			'cursor'     => 0,
+			'upper_id'   => max( $upper_id, $upper_meta ),
+			'post_types' => $types
+		);
+	}
+	$size = bbp_admin_repair_tool_batch_size( $tool_id );
+	// Bound each side before combining source posts and stored references
+	$ids  = $bbp_db->get_col(
+		$bbp_db->prepare(
+			"(SELECT ID FROM {$bbp_db->posts} WHERE post_type IN (%s, %s) AND ID >= %d AND ID <= %d ORDER BY ID LIMIT %d)
+			UNION
+			(SELECT post_id AS ID FROM {$bbp_db->postmeta} WHERE meta_key = %s AND post_id >= %d AND post_id <= %d GROUP BY post_id ORDER BY post_id LIMIT %d)
+			ORDER BY ID LIMIT %d",
+			$types[0],
+			$types[1],
+			$state['cursor'],
+			$state['upper_id'],
+			$size + 1,
+			$key,
+			$state['cursor'],
+			$state['upper_id'],
+			$size + 1,
+			$size + 1
+		)
+	);
+	if ( ! empty( $bbp_db->last_error ) ) {
+		$batch['code'] = 7;
+		return $batch;
+	}
+	$has_more = count( $ids ) > $size;
+	$ids      = array_slice( $ids, 0, $size );
+	$expected = array();
+	if ( ! empty( $ids ) ) {
+		$slots = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+		$rows  = $bbp_db->get_results(
+			$bbp_db->prepare(
+				"SELECT posts.ID, (posts.post_type = %s) AS is_topic,
+				CASE WHEN posts.post_type = %s THEN posts.ID
+					WHEN posts.post_type = %s AND parent.post_type = %s THEN parent.ID
+					ELSE NULL END AS topic_id
+				FROM {$bbp_db->posts} AS posts
+				LEFT JOIN {$bbp_db->posts} AS parent ON posts.post_parent = parent.ID
+				WHERE posts.ID IN ({$slots})",
+				array_merge( array( $types[0], $types[0], $types[1], $types[0] ), $ids )
+			)
+		);
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		foreach ( $rows as $row ) {
+			$expected[ (int) $row->ID ] = $row;
+		}
+	}
+	if ( ! $dry_run && $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		$batch['code'] = 7;
+		return $batch;
+	}
+	$work     = 0;
+	$finished = 0;
+	foreach ( $ids as $id ) {
+		if ( $work >= $size ) {
+			break;
+		}
+		$id     = (int) $id;
+		$row    = isset( $expected[ $id ] ) ? $expected[ $id ] : null;
+		$value  = isset( $row->topic_id ) ? (int) $row->topic_id : null;
+		$kind   = ( null === $value ) ? 'stale' : ( ! empty( $row->is_topic ) ? 'topics' : 'replies' );
+		$repair = bbp_admin_repair_single_metadata( 'post', $id, $key, $value, $size - $work, $dry_run );
+		if ( ! empty( $repair['code'] ) ) {
+			$codes = array(
+				2 => 3,
+				3 => 4,
+				4 => ( 'topics' === $kind ) ? 5 : 6
+			);
+			$batch['code'] = isset( $codes[ $repair['code'] ] ) ? $codes[ $repair['code'] ] : 7;
+			return $batch;
+		}
+		$work += $repair['work'];
+		if ( $repair['changed'] ) {
+			$batch[ $kind ] += ( 'stale' === $kind ) ? $repair['work'] : 1;
+		}
+		if ( ! $repair['complete'] ) {
+			$state['cursor'] = $id;
+			break;
+		}
+
+		// Verify completed references before saving progress past them
+		if ( ! $dry_run ) {
+			$stored = $bbp_db->get_row( $bbp_db->prepare( "SELECT COUNT(*) AS row_count, MIN(meta_key) AS meta_key, MIN(meta_value) AS meta_value FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s", $id, $key ) );
+			if ( ! empty( $bbp_db->last_error ) ) {
+				$batch['code'] = 3;
+				return $batch;
+			}
+			$valid = ( null === $value )
+				? ( 0 === (int) $stored->row_count )
+				: ( ( 1 === (int) $stored->row_count ) && ( $key === $stored->meta_key ) && ( (string) $value === $stored->meta_value ) );
+			if ( ! $valid ) {
+				$batch['code'] = 7;
+				return $batch;
+			}
+		}
+		$state['cursor'] = $id + 1;
+		++$finished;
+	}
+	$complete = ! $has_more && ( count( $ids ) === $finished );
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+		$batch['code'] = 7;
+		return $batch;
+	}
+	$batch['complete'] = $complete;
+	return $batch;
+}
+
+/**
+ * Repair or preview one batch of topic references.
  *
  * @since 2.7.0 bbPress (r8238)
+ * @since 2.7.0 bbPress (r8277) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$tpt    = bbp_get_topic_post_type();
-	$rpt    = bbp_get_reply_post_type();
-
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking topic references&hellip; %s', 'bbpress' );
@@ -5059,225 +5233,66 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 		/* translators: %s: Status of the repair process */
 		$statement = esc_html__( 'Recalculating topic references&hellip; %s', 'bbpress' );
 	}
-
-	// Count topics that do not point to themselves exactly once
-	$topic_repairs = $bbp_db->get_var(
-		$bbp_db->prepare(
-			"SELECT COUNT(*) FROM (
-				SELECT `topic`.`ID`
-				FROM `{$bbp_db->posts}` AS `topic`
-				LEFT JOIN `{$bbp_db->postmeta}` AS `topicmeta`
-					ON `topicmeta`.`post_id` = `topic`.`ID`
-					AND `topicmeta`.`meta_key` = %s
-				WHERE `topic`.`post_type` = %s
-				GROUP BY `topic`.`ID`
-				HAVING COUNT( `topicmeta`.`meta_id` ) <> 1
-					OR SUM( CASE WHEN CAST( `topicmeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
-					OR NOT ( CAST( MAX( `topicmeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( `topic`.`ID` AS CHAR ) AS BINARY ) )
-			) AS `topic_repairs`",
-			'_bbp_topic_id',
-			$tpt,
-			'_bbp_topic_id'
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
+	$batch     = bbp_admin_repair_topic_meta_batch( $dry_run );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( ! empty( $batch['code'] ) ) {
+		return array(
+			$batch['code'],
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false
+		);
+	}
+	if ( ! $batch['topics'] && ! $batch['replies'] && ! $batch['stale'] && $batch['complete'] && ( $dry_run || $batch['initial'] ) ) {
 		return array(
 			1,
-			sprintf( $statement, $failed ),
-			'success' => false,
+			sprintf( $statement, esc_html__( '0 topic references to repair.', 'bbpress' ) ),
+			'complete' => true
 		);
 	}
-
-	// Count replies that do not point to their parent topics exactly once
-	$reply_repairs = $bbp_db->get_var(
-		$bbp_db->prepare(
-			"SELECT COUNT(*) FROM (
-				SELECT `reply`.`ID`, `topic`.`ID` AS `topic_id`
-				FROM `{$bbp_db->posts}` AS `reply`
-				INNER JOIN `{$bbp_db->posts}` AS `topic`
-					ON `reply`.`post_parent` = `topic`.`ID`
-				LEFT JOIN `{$bbp_db->postmeta}` AS `replymeta`
-					ON `replymeta`.`post_id` = `reply`.`ID`
-					AND `replymeta`.`meta_key` = %s
-				WHERE `topic`.`post_type` = %s
-					AND `reply`.`post_type` = %s
-				GROUP BY `reply`.`ID`, `topic`.`ID`
-				HAVING COUNT( `replymeta`.`meta_id` ) <> 1
-					OR SUM( CASE WHEN CAST( `replymeta`.`meta_key` AS BINARY ) = CAST( %s AS BINARY ) THEN 1 ELSE 0 END ) <> 1
-					OR NOT ( CAST( MAX( `replymeta`.`meta_value` ) AS BINARY ) <=> CAST( CAST( `topic`.`ID` AS CHAR ) AS BINARY ) )
-			) AS `reply_repairs`",
-			'_bbp_topic_id',
-			$tpt,
-			$rpt,
-			'_bbp_topic_id'
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			2,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	// Count relationships that do not belong to a topic or a valid reply
-	$stale_count = $bbp_db->get_var(
-		$bbp_db->prepare(
-			"SELECT COUNT( `topicmeta`.`meta_id` )
-			FROM `{$bbp_db->postmeta}` AS `topicmeta`
-			LEFT JOIN `{$bbp_db->posts}` AS `topic`
-				ON `topicmeta`.`post_id` = `topic`.`ID`
-				AND `topic`.`post_type` = %s
-			LEFT JOIN `{$bbp_db->posts}` AS `reply`
-				ON `topicmeta`.`post_id` = `reply`.`ID`
-				AND `reply`.`post_type` = %s
-			LEFT JOIN `{$bbp_db->posts}` AS `parent`
-				ON `reply`.`post_parent` = `parent`.`ID`
-				AND `parent`.`post_type` = %s
-			WHERE `topicmeta`.`meta_key` = %s
-				AND `topic`.`ID` IS NULL
-				AND `parent`.`ID` IS NULL",
-			$tpt,
-			$rpt,
-			$tpt,
-			'_bbp_topic_id'
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			3,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	$topic_repairs = (int) $topic_repairs;
-	$reply_repairs = (int) $reply_repairs;
-	$stale_count   = (int) $stale_count;
-
-	// Bail if no repairs are needed
-	if ( empty( $topic_repairs ) && empty( $reply_repairs ) && empty( $stale_count ) ) {
-		if ( ! $dry_run && ! bbp_admin_repair_clean_post_meta_cache_batched( array( $tpt, $rpt ) ) ) {
-			return array(
-				7,
-				sprintf( $statement, $failed ),
-				'success' => false,
-			);
-		}
-
-		$result = esc_html__( '0 topic references to repair.', 'bbpress' );
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	$topic_result = sprintf(
-		/* translators: %s: Number of topic self-references */
-		esc_html( _n( '%s topic self-reference would be repaired.', '%s topic self-references would be repaired.', $topic_repairs, 'bbpress' ) ),
-		bbp_number_format( $topic_repairs )
-	);
-	$reply_result = sprintf(
-		/* translators: %s: Number of reply parent topic references */
-		esc_html( _n( '%s reply parent topic reference would be repaired.', '%s reply parent topic references would be repaired.', $reply_repairs, 'bbpress' ) ),
-		bbp_number_format( $reply_repairs )
-	);
-	$stale_result = sprintf(
-		/* translators: %s: Number of orphaned topic references */
-		esc_html( _n( '%s orphaned topic reference would be removed.', '%s orphaned topic references would be removed.', $stale_count, 'bbpress' ) ),
-		bbp_number_format( $stale_count )
-	);
-
 	if ( $dry_run ) {
-		$result = $topic_result . "\n" . $reply_result . "\n" . $stale_result;
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	if ( ! bbp_admin_repair_clean_post_meta_cache_batched( array( $tpt, $rpt ), '_bbp_topic_id' ) ) {
-		return array(
-			7,
-			sprintf( $statement, $failed ),
-			'success' => false,
+		$topics = sprintf(
+			/* translators: %s: Number of topic self-references */
+			esc_html( _n( '%s topic self-reference would be repaired.', '%s topic self-references would be repaired.', $batch['topics'], 'bbpress' ) ),
+			bbp_number_format( $batch['topics'] )
+		);
+		$replies = sprintf(
+			/* translators: %s: Number of reply parent topic references */
+			esc_html( _n( '%s reply parent topic reference would be repaired.', '%s reply parent topic references would be repaired.', $batch['replies'], 'bbpress' ) ),
+			bbp_number_format( $batch['replies'] )
+		);
+		$stale = sprintf(
+			/* translators: %s: Number of orphaned topic references */
+			esc_html( _n( '%s orphaned topic reference would be removed.', '%s orphaned topic references would be removed.', $batch['stale'], 'bbpress' ) ),
+			bbp_number_format( $batch['stale'] )
+		);
+	} else {
+		$topics = sprintf(
+			/* translators: %s: Number of topic self-references */
+			esc_html( _n( '%s topic self-reference repaired.', '%s topic self-references repaired.', $batch['topics'], 'bbpress' ) ),
+			bbp_number_format( $batch['topics'] )
+		);
+		$replies = sprintf(
+			/* translators: %s: Number of reply parent topic references */
+			esc_html( _n( '%s reply parent topic reference repaired.', '%s reply parent topic references repaired.', $batch['replies'], 'bbpress' ) ),
+			bbp_number_format( $batch['replies'] )
+		);
+		$stale = sprintf(
+			/* translators: %s: Number of orphaned topic references */
+			esc_html( _n( '%s orphaned topic reference removed.', '%s orphaned topic references removed.', $batch['stale'], 'bbpress' ) ),
+			bbp_number_format( $batch['stale'] )
 		);
 	}
-
-	// First, delete everything
-	if ( false === $bbp_db->query( $bbp_db->prepare( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = %s", '_bbp_topic_id' ) ) ) {
-		return array(
-			4,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $topics . "\n" . $replies . "\n" . $stale;
+	if ( ! $dry_run ) {
+		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
+		$result = $status . "\n" . $result;
 	}
-
-	// Give every topic its own topic ID
-	$inserted_topics = $bbp_db->query(
-		$bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `topic`.`ID`, '_bbp_topic_id', `topic`.`ID`
-			FROM `{$bbp_db->posts}` AS `topic`
-			WHERE `topic`.`post_type` = %s
-			GROUP BY `topic`.`ID` )",
-			$tpt
-		)
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete']
 	);
-
-	if ( false === $inserted_topics ) {
-		return array(
-			5,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	// Give every reply its parent topic ID
-	$inserted_replies = $bbp_db->query(
-		$bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `reply`.`ID`, '_bbp_topic_id', `topic`.`ID`
-			FROM `{$bbp_db->posts}` AS `reply`
-			INNER JOIN `{$bbp_db->posts}` AS `topic`
-				ON `reply`.`post_parent` = `topic`.`ID`
-			WHERE `topic`.`post_type` = %s
-				AND `reply`.`post_type` = %s
-			GROUP BY `reply`.`ID` )",
-			$tpt,
-			$rpt
-		)
-	);
-
-	if ( false === $inserted_replies ) {
-		return array(
-			6,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	if ( ! bbp_admin_repair_clean_post_meta_cache_batched( array( $tpt, $rpt ) ) ) {
-		return array(
-			7,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	$topic_result = sprintf(
-		/* translators: %s: Number of topic self-references */
-		esc_html( _n( '%s topic self-reference repaired.', '%s topic self-references repaired.', $topic_repairs, 'bbpress' ) ),
-		bbp_number_format( $topic_repairs )
-	);
-	$reply_result = sprintf(
-		/* translators: %s: Number of reply parent topic references */
-		esc_html( _n( '%s reply parent topic reference repaired.', '%s reply parent topic references repaired.', $reply_repairs, 'bbpress' ) ),
-		bbp_number_format( $reply_repairs )
-	);
-	$stale_result = sprintf(
-		/* translators: %s: Number of orphaned topic references */
-		esc_html( _n( '%s orphaned topic reference removed.', '%s orphaned topic references removed.', $stale_count, 'bbpress' ) ),
-		bbp_number_format( $stale_count )
-	);
-	$result = esc_html__( 'Complete!', 'bbpress' ) . "\n" . $topic_result . "\n" . $reply_result . "\n" . $stale_result;
-
-	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
