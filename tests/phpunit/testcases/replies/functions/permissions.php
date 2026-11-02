@@ -201,6 +201,94 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertTrue( $did_redirect );
 	}
 
+	/**
+	 * @covers ::bbp_edit_reply_handler
+	 */
+	public function test_participant_cannot_edit_reply_after_parent_topic_requires_password() {
+		$user_id      = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$moderator_id = $this->factory->user->create();
+		$forum_id     = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		wp_set_post_terms( $topic_id, array( 'alpha' ), $taxonomy );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$nonce            = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
+
+		$this->assertTrue( $this->submit_reply_edit( $reply_id, 'Public reply edit.' ) );
+		$this->assertSame( 'Public reply edit.', get_post_field( 'post_content', $reply_id ) );
+
+		$password = wp_generate_password( 24, false );
+		wp_update_post( array( 'ID' => $topic_id, 'post_password' => $password ) );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertSame( $nonce, wp_create_nonce( 'bbp-edit-reply_' . $reply_id ) );
+		$this->assertSame( $topic_id, bbp_get_password_required_id( $reply_id ) );
+		$password_checks = 0;
+		$count_checks = function( $required ) use ( &$password_checks ) {
+			$password_checks++;
+			return $required;
+		};
+		add_filter( 'post_password_required', $count_checks, 20 );
+		try {
+			$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
+			$this->assertTrue( current_user_can( 'edit_post', $reply_id ) );
+		} finally {
+			remove_filter( 'post_password_required', $count_checks, 20 );
+		}
+		$this->assertSame( 0, $password_checks );
+		$this->assertFalse( $this->submit_reply_edit( $reply_id, 'Blocked reply edit.', array( 'bbp_topic_tags' => 'beta' ) ) );
+		$this->assertContains( 'bbp_edit_reply_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Public reply edit.', get_post_field( 'post_content', $reply_id ) );
+		$this->assertSame( array( 'alpha' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+		bbpress()->errors = new WP_Error();
+		$this->assertFalse( $this->submit_reply_edit( $reply_id, '' ) );
+		$this->assertContains( 'bbp_edit_reply_content', bbpress()->errors->get_error_codes() );
+		$this->assertContains( 'bbp_edit_reply_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Public reply edit.', get_post_field( 'post_content', $reply_id ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$hasher     = new PasswordHash( 8, true );
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+
+		try {
+			bbpress()->errors = new WP_Error();
+			$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
+			$this->assertTrue( current_user_can( 'edit_post', $reply_id ) );
+			$this->assertTrue( $this->submit_reply_edit( $reply_id, 'Authorized reply edit.' ) );
+			$this->assertSame( 'Authorized reply edit.', get_post_field( 'post_content', $reply_id ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		$this->set_current_user( $moderator_id );
+		$_POST            = array();
+		bbpress()->errors = new WP_Error();
+		$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
+		$this->assertTrue( $this->submit_reply_edit( $reply_id, 'Moderator reply edit.' ) );
+		$this->assertSame( 'Moderator reply edit.', get_post_field( 'post_content', $reply_id ) );
+	}
+
 	protected function submit_reply_move( $reply_id, $move_option, $destination_topic_id = 0, $destination_title = null ) {
 		$home_url             = wp_parse_url( home_url( '/' ) );
 		$_SERVER['HTTP_HOST'] = $home_url['host'];

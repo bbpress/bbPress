@@ -681,6 +681,11 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	do_action( 'bbp_edit_topic_pre_extras', $topic_id );
 
+	// A previously issued edit nonce does not satisfy a new password requirement.
+	if ( ! current_user_can( 'moderate', $topic_id ) && bbp_get_password_required_id( $topic_id ) ) {
+		bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
+	}
+
 	// Bail if errors
 	if ( bbp_has_errors() ) {
 		return;

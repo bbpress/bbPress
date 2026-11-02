@@ -103,6 +103,85 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_edit_topic_handler
 	 */
+	public function test_participant_cannot_edit_topic_after_ancestor_forum_requires_password() {
+		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$moderator_id    = $this->factory->user->create();
+		$parent_forum_id = $this->factory->forum->create();
+		$forum_id        = $this->factory->forum->create( array( 'post_parent' => $parent_forum_id ) );
+		$topic_id        = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$nonce            = wp_create_nonce( 'bbp-edit-topic_' . $topic_id );
+
+		$this->assertTrue( $this->submit_topic_edit( $topic_id, $forum_id, 'Public topic edit.' ) );
+		$this->assertSame( 'Public topic edit.', get_post_field( 'post_content', $topic_id ) );
+
+		$password = wp_generate_password( 24, false );
+		wp_update_post( array( 'ID' => $parent_forum_id, 'post_password' => $password ) );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertSame( $nonce, wp_create_nonce( 'bbp-edit-topic_' . $topic_id ) );
+		$this->assertSame( $parent_forum_id, bbp_get_password_required_id( $topic_id ) );
+		$password_checks = 0;
+		$count_checks = function( $required ) use ( &$password_checks ) {
+			$password_checks++;
+			return $required;
+		};
+		add_filter( 'post_password_required', $count_checks, 20 );
+		try {
+			$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+			$this->assertTrue( current_user_can( 'edit_post', $topic_id ) );
+		} finally {
+			remove_filter( 'post_password_required', $count_checks, 20 );
+		}
+		$this->assertSame( 0, $password_checks );
+		$this->assertFalse( $this->submit_topic_edit( $topic_id, $forum_id, 'Blocked topic edit.' ) );
+		$this->assertContains( 'bbp_edit_topic_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Public topic edit.', get_post_field( 'post_content', $topic_id ) );
+		bbpress()->errors = new WP_Error();
+		$this->assertFalse( $this->submit_topic_edit( $topic_id, $forum_id, '' ) );
+		$this->assertContains( 'bbp_edit_topic_content', bbpress()->errors->get_error_codes() );
+		$this->assertContains( 'bbp_edit_topic_permission', bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'Public topic edit.', get_post_field( 'post_content', $topic_id ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$hasher     = new PasswordHash( 8, true );
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+
+		try {
+			bbpress()->errors = new WP_Error();
+			$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+			$this->assertTrue( current_user_can( 'edit_post', $topic_id ) );
+			$this->assertTrue( $this->submit_topic_edit( $topic_id, $forum_id, 'Authorized topic edit.' ) );
+			$this->assertSame( 'Authorized topic edit.', get_post_field( 'post_content', $topic_id ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		$this->set_current_user( $moderator_id );
+		bbpress()->errors = new WP_Error();
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertTrue( $this->submit_topic_edit( $topic_id, $forum_id, 'Moderator topic edit.' ) );
+		$this->assertSame( 'Moderator topic edit.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
 	public function test_forum_moderator_can_edit_closed_topic_in_closed_forum_theme_side() {
 		$user_id        = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$topic_owner_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );

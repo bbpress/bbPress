@@ -2458,6 +2458,14 @@ function bbp_current_user_can_access_create_topic_form() {
 		$retval = false;
 	}
 
+	// Check the current password before opening an existing topic for editing.
+	if ( $retval && bbp_is_topic_edit() ) {
+		$topic_id = bbp_get_topic_id();
+		if ( ! current_user_can( 'moderate', $topic_id ) && bbp_get_password_required_id( $topic_id ) ) {
+			$retval = false;
+		}
+	}
+
 	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
 }
@@ -2494,6 +2502,14 @@ function bbp_current_user_can_access_create_reply_form() {
 	// A new reply needs the site's posting permission; editing does not.
 	if ( ! bbp_is_reply_edit() && ! bbp_current_user_can_post_in_forums() ) {
 		$retval = false;
+	}
+
+	// Check the current password before opening an existing reply for editing.
+	if ( $retval && bbp_is_reply_edit() ) {
+		$reply_id = bbp_get_reply_id();
+		if ( ! current_user_can( 'moderate', $reply_id ) && bbp_get_password_required_id( $reply_id ) ) {
+			$retval = false;
+		}
 	}
 
 	// Filter & return

@@ -9,6 +9,24 @@
  */
 class BBP_Tests_Replies_Template_Forms extends BBP_UnitTestCase {
 
+	private function with_reply_edit( $reply_id, $callback ) {
+		$old_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$old_reply_id = bbpress()->current_reply_id;
+		$GLOBALS['post'] = get_post( $reply_id );
+		bbpress()->current_reply_id = $reply_id;
+		setup_postdata( $GLOBALS['post'] );
+		add_filter( 'bbp_is_reply_edit', '__return_true' );
+
+		try {
+			$callback();
+		} finally {
+			remove_filter( 'bbp_is_reply_edit', '__return_true' );
+			bbpress()->current_reply_id = $old_reply_id;
+			$GLOBALS['post'] = $old_post;
+			wp_reset_postdata();
+		}
+	}
+
 	/**
 	 * @coversNothing
 	 * @group bbp_xss
@@ -77,6 +95,56 @@ class BBP_Tests_Replies_Template_Forms extends BBP_UnitTestCase {
 		$this->markTestIncomplete(
 			'This test has not been implemented yet.'
 		);
+	}
+
+	/**
+	 * @covers ::bbp_current_user_can_access_create_reply_form
+	 * @covers ::bbp_get_form_reply_content
+	 */
+	public function test_reply_edit_form_honors_new_ancestor_password() {
+		$author_id    = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$moderator_id = $this->factory->user->create();
+		$forum_id     = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$reply_id     = $this->factory->reply->create(
+			array( 'post_author' => $author_id, 'post_parent' => $topic_id, 'post_content' => 'Saved reply', 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) )
+		);
+		$old_user     = get_current_user_id();
+		$cookie       = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie   = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$password     = wp_generate_password( 24, false );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		try {
+			$this->with_reply_edit( $reply_id, function() use ( $author_id, $moderator_id, $forum_id, $password, $cookie ) {
+				$this->set_current_user( $author_id );
+				$this->assertTrue( bbp_current_user_can_access_create_reply_form() );
+				$this->assertSame( 'Saved reply', bbp_get_form_reply_content() );
+
+				wp_update_post( array( 'ID' => $forum_id, 'post_password' => $password ) );
+				unset( $_COOKIE[ $cookie ] );
+				$this->assertFalse( bbp_current_user_can_access_create_reply_form() );
+				$this->assertSame( '', bbp_get_form_reply_content() );
+
+				require_once ABSPATH . WPINC . '/class-phpass.php';
+				$hasher = new PasswordHash( 8, true );
+				$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+				$this->assertTrue( bbp_current_user_can_access_create_reply_form() );
+				$this->assertSame( 'Saved reply', bbp_get_form_reply_content() );
+
+				unset( $_COOKIE[ $cookie ] );
+				$this->set_current_user( $moderator_id );
+				$this->assertTrue( bbp_current_user_can_access_create_reply_form() );
+				$this->assertSame( 'Saved reply', bbp_get_form_reply_content() );
+			} );
+		} finally {
+			$this->set_current_user( $old_user );
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
 	}
 
 	/**

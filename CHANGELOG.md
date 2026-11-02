@@ -28,6 +28,10 @@ Development for the next bbPress release is in progress. See the active
 - Removed stale BuddyPress group-forum relationships and root settings when
   forums are permanently deleted.
 
+### Security
+
+- Required current inherited passwords before editing topics or replies.
+
 ## 2.6.21 - 2026-10-27
 
 ### Changed

@@ -2612,7 +2612,10 @@ function bbp_form_reply_content() {
 
 		// Get edit data
 		} elseif ( bbp_is_reply_edit() ) {
-			$reply_content = bbp_get_global_post_field( 'post_content', 'raw' );
+			$reply_id      = bbp_get_reply_id();
+			$reply_content = ! current_user_can( 'moderate', $reply_id ) && bbp_get_password_required_id( $reply_id )
+				? ''
+				: bbp_get_global_post_field( 'post_content', 'raw' );
 
 		// No data
 		} else {

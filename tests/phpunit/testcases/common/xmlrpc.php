@@ -159,6 +159,126 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * XML-RPC raw reads and edits must honor a password added later.
+	 *
+	 * @covers ::bbp_map_xmlrpc_meta_caps
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_author_xmlrpc_reads_and_edits_require_new_forum_password() {
+		if ( ! defined( 'XMLRPC_REQUEST' ) ) {
+			define( 'XMLRPC_REQUEST', true );
+		}
+
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_author'  => $user_id,
+				'post_parent'  => $forum_id,
+				'post_content' => 'Original topic content.',
+				'topic_meta'   => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author'  => $user_id,
+				'post_parent'  => $topic_id,
+				'post_content' => 'Original reply content.',
+				'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		foreach ( array( $topic_id, $reply_id ) as $post_id ) {
+			wp_update_post( array( 'ID' => $post_id, 'post_content' => 'Updated content.' ) );
+			$this->assertNotEmpty( wp_get_post_revisions( $post_id ) );
+		}
+
+		$password = wp_generate_password( 24, false );
+		wp_update_post( array( 'ID' => $forum_id, 'post_password' => $password ) );
+
+		foreach ( array( $topic_id, $reply_id ) as $post_id ) {
+			$this->assertInstanceOf( 'IXR_Error', $this->xmlrpc_server->wp_getPost( array( 1, $this->username, $this->password, $post_id ) ) );
+			$this->assertInstanceOf( 'IXR_Error', $this->xmlrpc_server->wp_getRevisions( array( 1, $this->username, $this->password, $post_id ) ) );
+			$this->assertInstanceOf( 'IXR_Error', $this->edit_post( $post_id, array( 'post_content' => 'Blocked overwrite.' ) ) );
+			$this->assertSame( 'Updated content.', get_post_field( 'post_content', $post_id ) );
+		}
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$hasher     = new PasswordHash( 8, true );
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'incorrect-password' );
+		$this->assertInstanceOf( 'IXR_Error', $this->xmlrpc_server->wp_getPost( array( 1, $this->username, $this->password, $topic_id ) ) );
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+
+		try {
+			foreach ( array( $topic_id, $reply_id ) as $post_id ) {
+				$this->assertIsArray( $this->xmlrpc_server->wp_getPost( array( 1, $this->username, $this->password, $post_id ) ) );
+				$this->assertIsArray( $this->xmlrpc_server->wp_getRevisions( array( 1, $this->username, $this->password, $post_id ) ) );
+				$this->assertTrue( $this->edit_post( $post_id, array( 'post_content' => 'Authorized edit.' ) ) );
+				$this->assertSame( 'Authorized edit.', get_post_field( 'post_content', $post_id ) );
+			}
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->assertIsArray( $this->xmlrpc_server->wp_getPost( array( 1, $this->username, $this->password, $topic_id ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_map_xmlrpc_meta_caps
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_other_xmlrpc_editor_requires_new_forum_password() {
+		if ( ! defined( 'XMLRPC_REQUEST' ) ) {
+			define( 'XMLRPC_REQUEST', true );
+		}
+
+		$editor_id = $this->create_participant();
+		$author_id = $this->factory->user->create();
+		$forum_id  = $this->factory->forum->create();
+		$topic_id  = $this->factory->topic->create(
+			array( 'post_author' => $author_id, 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) )
+		);
+
+		get_userdata( $editor_id )->add_cap( 'edit_others_topics' );
+		$this->assertIsArray( $this->xmlrpc_server->wp_getPost( array( 1, $this->username, $this->password, $topic_id ) ) );
+
+		wp_update_post( array( 'ID' => $forum_id, 'post_password' => wp_generate_password( 24, false ) ) );
+		$this->assertInstanceOf( 'IXR_Error', $this->xmlrpc_server->wp_getPost( array( 1, $this->username, $this->password, $topic_id ) ) );
+	}
+
+	/**
+	 * Older XML-RPC aliases check edit_post before firing xmlrpc_call.
+	 *
+	 * @covers ::bbp_map_xmlrpc_meta_caps
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_xmlrpc_alias_requires_password_before_call_action() {
+		if ( ! defined( 'XMLRPC_REQUEST' ) ) {
+			define( 'XMLRPC_REQUEST', true );
+		}
+
+		$user_id  = $this->create_participant();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array( 'post_author' => $user_id, 'post_parent' => $forum_id, 'post_content' => 'Saved content.', 'topic_meta' => array( 'forum_id' => $forum_id ) )
+		);
+		wp_update_post( array( 'ID' => $forum_id, 'post_password' => wp_generate_password( 24, false ) ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $this->xmlrpc_server->mw_getPost( array( $topic_id, $this->username, $this->password ) ) );
+		$this->assertInstanceOf( 'IXR_Error', $this->xmlrpc_server->blogger_getPost( array( 1, $topic_id, $this->username, $this->password ) ) );
+	}
+
+	/**
 	 * mt.publishPost must not change a bbPress post status directly.
 	 *
 	 * @covers ::bbp_validate_xmlrpc_post

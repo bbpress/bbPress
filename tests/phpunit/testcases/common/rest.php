@@ -265,6 +265,129 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Author edit APIs must recheck a password added after the post was created.
+	 *
+	 * @covers BBP_REST_Posts_Controller::check_update_permission
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 * @covers ::bbp_filter_rest_password_required_revisions
+	 */
+	public function test_author_edit_surfaces_require_new_ancestor_password() {
+		$author_id    = $this->factory->user->create();
+		$moderator_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$parent_id    = $this->factory->forum->create();
+		$forum_id     = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id     = $this->factory->topic->create(
+			array(
+				'post_author'  => $author_id,
+				'post_parent'  => $forum_id,
+				'post_content' => 'Original topic content.',
+				'topic_meta'   => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id     = $this->factory->reply->create(
+			array(
+				'post_author'  => $author_id,
+				'post_parent'  => $topic_id,
+				'post_content' => 'Original reply content.',
+				'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		bbp_set_user_role( $author_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $moderator_id );
+
+		$posts = array(
+			bbp_get_topic_post_type() => $topic_id,
+			bbp_get_reply_post_type() => $reply_id,
+		);
+		$revisions = array();
+		$autosaves = array();
+
+		foreach ( $posts as $post_type => $post_id ) {
+			wp_update_post( array( 'ID' => $post_id, 'post_content' => 'Updated content.' ) );
+			$revisions[ $post_type ] = key( wp_get_post_revisions( $post_id ) );
+			$autosaves[ $post_type ] = wp_create_post_autosave(
+				array( 'post_ID' => $post_id, 'post_type' => $post_type, 'post_title' => get_the_title( $post_id ), 'content' => 'Moderator autosave.' )
+			);
+			$this->assertNotEmpty( $revisions[ $post_type ] );
+			$this->assertIsInt( $autosaves[ $post_type ] );
+		}
+
+		$password = wp_generate_password( 24, false );
+		wp_update_post( array( 'ID' => $parent_id, 'post_password' => $password ) );
+
+		foreach ( $posts as $post_type => $post_id ) {
+			$this->set_current_user( $author_id );
+			$this->assertTrue( current_user_can( 'edit_post', $post_id ) );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}", $author_id, array( 'context' => 'edit' ) )->get_status() );
+			$collection = $this->dispatch_request( 'GET', "/wp/v2/{$post_type}", $author_id, array( 'context' => 'edit' ) );
+			$this->assertSame( 200, $collection->get_status() );
+			$this->assertNotContains( $post_id, wp_list_pluck( $collection->get_data(), 'id' ) );
+			$this->assertSame( 403, $this->update_item( $post_type, $post_id, $author_id, array( 'content' => 'Blocked overwrite.' ) )->get_status() );
+			$this->assertSame( 'Updated content.', get_post_field( 'post_content', $post_id ) );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions", $author_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions/{$revisions[ $post_type ]}", $author_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves", $author_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves/{$autosaves[ $post_type ]}", $author_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'POST', "/wp/v2/{$post_type}/{$post_id}/autosaves", $author_id, array( 'content' => 'Blocked autosave.' ) )->get_status() );
+		}
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$hasher     = new PasswordHash( 8, true );
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'incorrect-password' );
+		$this->assertSame( 403, $this->update_item( bbp_get_topic_post_type(), $topic_id, $author_id, array( 'content' => 'Blocked overwrite.' ) )->get_status() );
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+
+		try {
+			foreach ( $posts as $post_type => $post_id ) {
+				$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}", $author_id, array( 'context' => 'edit' ) )->get_status() );
+				$collection = $this->dispatch_request( 'GET', "/wp/v2/{$post_type}", $author_id, array( 'context' => 'edit' ) );
+				$this->assertSame( 200, $collection->get_status() );
+				$this->assertContains( $post_id, wp_list_pluck( $collection->get_data(), 'id' ) );
+				$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions", $author_id )->get_status() );
+				$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves", $author_id )->get_status() );
+				$this->assertSame( 200, $this->update_item( $post_type, $post_id, $author_id, array( 'content' => 'Authorized edit.' ) )->get_status() );
+			}
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+
+		$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions", $moderator_id )->get_status() );
+	}
+
+	/**
+	 * A granted edit-others capability does not bypass the forum password.
+	 *
+	 * @covers BBP_REST_Posts_Controller::check_update_permission
+	 */
+	public function test_other_editor_requires_new_forum_password() {
+		$editor_id = $this->factory->user->create();
+		$author_id = $this->factory->user->create();
+		$forum_id  = $this->factory->forum->create();
+		$topic_id  = $this->factory->topic->create(
+			array( 'post_author' => $author_id, 'post_parent' => $forum_id, 'post_content' => 'Original content.', 'topic_meta' => array( 'forum_id' => $forum_id ) )
+		);
+
+		bbp_set_user_role( $editor_id, bbp_get_participant_role() );
+		get_userdata( $editor_id )->add_cap( 'edit_others_topics' );
+		$this->set_current_user( $editor_id );
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertSame( 200, $this->update_item( bbp_get_topic_post_type(), $topic_id, $editor_id, array( 'content' => 'Public edit.' ) )->get_status() );
+
+		wp_update_post( array( 'ID' => $forum_id, 'post_password' => wp_generate_password( 24, false ) ) );
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertSame( 403, $this->update_item( bbp_get_topic_post_type(), $topic_id, $editor_id, array( 'content' => 'Blocked edit.' ) )->get_status() );
+		$this->assertSame( 'Public edit.', get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
 	 * Published replies inherit the read permission of their parent topic.
 	 *
 	 * @covers BBP_REST_Posts_Controller::check_read_permission
