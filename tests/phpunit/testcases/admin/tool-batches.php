@@ -39,6 +39,182 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		);
 	}
 
+	public function user_count_tools() {
+		return array(
+			'topics'  => array( 'bbp-user-topics', 'topic', '_bbp_topic_count', 'bbp_admin_repair_user_topic_count' ),
+			'replies' => array( 'bbp-user-replies', 'reply', '_bbp_reply_count', 'bbp_admin_repair_user_reply_count' ),
+		);
+	}
+
+	private function user_count_posts( $type, $user_id, $number = 1, $status = 'publish' ) {
+		return $this->factory->post->create_many( $number, array(
+			'post_type'   => ( 'topic' === $type ) ? bbp_get_topic_post_type() : bbp_get_reply_post_type(),
+			'post_author' => $user_id,
+			'post_status' => $status,
+		) );
+	}
+
+	private function user_count_batch( $tool_id, $type, $key, $dry_run = false ) {
+		return bbp_admin_repair_user_post_count_batch(
+			$tool_id,
+			( 'topic' === $type ) ? bbp_get_topic_post_type() : bbp_get_reply_post_type(),
+			( 'topic' === $type ) ? bbp_get_public_topic_statuses() : bbp_get_public_reply_statuses(),
+			$key,
+			$dry_run
+		);
+	}
+
+	private function stored_user_counts( $key ) {
+		$db = bbp_db();
+		return $db->get_results( $db->prepare( "SELECT user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY user_id, umeta_id", $key ), ARRAY_A );
+	}
+
+	private function expected_user_counts( $type ) {
+		$db       = bbp_db();
+		$statuses = ( 'topic' === $type ) ? bbp_get_public_topic_statuses() : bbp_get_public_reply_statuses();
+		$args     = array_merge( array( ( 'topic' === $type ) ? bbp_get_topic_post_type() : bbp_get_reply_post_type() ), $statuses );
+		$holders  = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+		return $db->get_results( $db->prepare( "SELECT post_author AS user_id, COUNT(*) AS meta_value FROM {$db->posts} WHERE post_type = %s AND post_status IN ({$holders}) AND post_author > 0 GROUP BY post_author ORDER BY post_author", $args ), ARRAY_A );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_batches_are_bounded_read_only_and_match_the_original_recount( $tool_id, $type, $suffix, $callback ) {
+		$db    = bbp_db();
+		$key   = $db->prefix . $suffix;
+		$users = $this->factory->user->create_many( 5 );
+		foreach ( $users as $user_id ) {
+			$this->user_count_posts( $type, $user_id, 2 );
+			$this->user_count_posts( $type, $user_id, 1, bbp_get_spam_status_id() );
+			update_user_meta( $user_id, $key, 99 );
+		}
+		delete_user_meta( $users[0], $key );
+		$valid_id = add_user_meta( $users[0], $key, 2 );
+		add_user_meta( $users[1], $key, '02' );
+		add_user_meta( $users[2], strtoupper( $key ), 2 );
+		add_user_meta( $users[3], $key . ' ', 2 );
+		add_user_meta( $users[4], 'another_site' . $suffix, 77 );
+		$db->insert( $db->usermeta, array( 'user_id' => 0, 'meta_key' => $key, 'meta_value' => 99 ) );
+		$this->user_count_posts( $type, 999999, 1 );
+		$expected  = $this->expected_user_counts( $type );
+		$mutations = 0;
+		$added     = static function ( $mid, $user_id, $meta_key ) use ( $key, &$mutations ) {
+			if ( $key === $meta_key ) {
+				++$mutations;
+			}
+		};
+		$deleted = static function ( $mids, $user_id, $meta_key ) use ( $suffix, &$mutations ) {
+			if ( false !== stripos( $meta_key, $suffix ) ) {
+				$mutations += count( (array) $mids );
+			}
+		};
+		add_action( 'added_user_meta', $added, 10, 3 );
+		add_action( 'deleted_user_meta', $deleted, 10, 3 );
+		try {
+			for ( $i = 0; $i < 30; ++$i ) {
+				$before  = $this->stored_data();
+				$preview = $this->user_count_batch( $tool_id, $type, $key, true );
+				$this->assertSame( 0, $preview['code'] );
+				$this->assertSame( $before, $this->stored_data() );
+				$mutations = 0;
+				$result = $this->user_count_batch( $tool_id, $type, $key );
+				$this->assertSame( 0, $result['code'] );
+				$this->assertSame( $preview['repaired'], $result['repaired'] );
+				$this->assertSame( $preview['complete'], $result['complete'] );
+				$this->assertLessThanOrEqual( 2, $mutations );
+				$this->assertNotFalse( get_metadata_by_mid( 'user', $valid_id ) );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			remove_action( 'added_user_meta', $added, 10 );
+			remove_action( 'deleted_user_meta', $deleted, 10 );
+		}
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( $expected, $this->stored_user_counts( $key ) );
+		$this->assertSame( '77', get_user_meta( $users[4], 'another_site' . $suffix, true ) );
+		$before = $this->stored_data();
+		$this->finish( $callback );
+		$this->assertSame( $before, $this->stored_data() );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_large_duplicate_count_sets_resume_at_the_same_user( $tool_id, $type, $suffix, $callback ) {
+		$key     = bbp_db()->prefix . $suffix;
+		$user_id = $this->factory->user->create();
+		$this->user_count_posts( $type, $user_id );
+		delete_user_meta( $user_id, $key );
+		$valid_id = add_user_meta( $user_id, $key, 1 );
+		for ( $i = 0; $i < 9; ++$i ) {
+			add_user_meta( $user_id, $key, 99 );
+		}
+		$result = call_user_func( $callback );
+		$this->assertSame( 0, $result[0] );
+		$this->assertFalse( $result['complete'] );
+		$this->assertCount( 8, get_user_meta( $user_id, $key, false ) );
+		$this->assertSame( $user_id, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
+		$this->finish( $callback );
+		$this->assertSame( array( '1' ), get_user_meta( $user_id, $key, false ) );
+		$this->assertNotFalse( get_metadata_by_mid( 'user', $valid_id ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_new_count_authors_wait_for_the_next_run( $tool_id, $type, $suffix, $callback ) {
+		$key   = bbp_db()->prefix . $suffix;
+		$users = $this->factory->user->create_many( 3 );
+		foreach ( $users as $user_id ) {
+			$this->user_count_posts( $type, $user_id );
+			delete_user_meta( $user_id, $key );
+		}
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$new_user = $this->factory->user->create();
+		$this->user_count_posts( $type, $new_user );
+		delete_user_meta( $new_user, $key );
+		$this->finish( $callback );
+		$this->assertSame( array(), get_user_meta( $new_user, $key, false ) );
+		$this->finish( $callback );
+		$this->assertSame( array( '1' ), get_user_meta( $new_user, $key, false ) );
+	}
+
+	public function malformed_user_count_checkpoints() {
+		$cases = array();
+		foreach ( $this->user_count_tools() as $name => $tool ) {
+			foreach ( $this->checkpoint_corruptions() as $case => $change ) {
+				$cases[ $name . ': ' . $case ] = array_merge( $tool, $change );
+			}
+		}
+		return $cases;
+	}
+
+	/**
+	 * @dataProvider malformed_user_count_checkpoints
+	 */
+	public function test_malformed_user_count_progress_restarts_without_preview_writes( $tool_id, $type, $suffix, $callback, $field, $value ) {
+		$users = $this->factory->user->create_many( 4 );
+		foreach ( $users as $user_id ) {
+			$this->user_count_posts( $type, $user_id );
+		}
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$this->corrupt_checkpoint( $option, $field, $value );
+		$new_user = $this->factory->user->create();
+		$this->user_count_posts( $type, $new_user );
+		$before  = $this->stored_data();
+		$preview = call_user_func( $callback . '_dry_run' );
+		$this->assertStringContainsString( 'Saved progress is invalid.', $preview[1] );
+		$this->assertSame( $before, $this->stored_data() );
+		$result = call_user_func( $callback );
+		$this->assertStringContainsString( 'Saved progress was invalid.', $result[1] );
+		$this->finish( $callback );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( bbp_db()->prefix . $suffix ) );
+	}
+
 	private function finish( $callback ) {
 		for ( $i = 0; $i < 30; ++$i ) {
 			$result = bbp_admin_repair_tool_normalize_result( call_user_func( $callback ) );
@@ -48,6 +224,336 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			}
 		}
 		$this->fail( 'The bounded tool did not finish.' );
+	}
+
+	private function missing_user_counts( $type, $key, $number = 5 ) {
+		$users = $this->factory->user->create_many( $number );
+		foreach ( $users as $user_id ) {
+			$this->user_count_posts( $type, $user_id );
+			delete_user_meta( $user_id, $key );
+		}
+		return $users;
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_write_failures_preserve_progress_and_retry_without_duplicates( $tool_id, $type, $suffix, $callback ) {
+		$key   = bbp_db()->prefix . $suffix;
+		$users = $this->missing_user_counts( $type, $key, 3 );
+		$fail  = static function ( $check, $user_id, $meta_key ) use ( $key, $users ) {
+			return ( $key === $meta_key ) && ( $users[1] === $user_id ) ? false : $check;
+		};
+		add_filter( 'add_user_metadata', $fail, 10, 3 );
+		try {
+			$result = call_user_func( $callback );
+			$this->assertSame( 4, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
+			$this->assertSame( array( '1' ), get_user_meta( $users[0], $key, false ) );
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) );
+			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'add_user_metadata', $fail, 10 );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) );
+		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_partial_cleanup_failures_keep_a_correct_row_for_retry( $tool_id, $type, $suffix, $callback ) {
+		$key     = bbp_db()->prefix . $suffix;
+		$user_id = $this->missing_user_counts( $type, $key, 1 )[0];
+		$keep_id = add_user_meta( $user_id, $key, 1 );
+		$old_ids = array();
+		for ( $i = 0; $i < 3; ++$i ) {
+			$old_ids[] = add_user_meta( $user_id, $key, 99 );
+		}
+		$fail = static function ( $delete, $meta_id ) use ( $old_ids ) {
+			return ( (int) $meta_id === $old_ids[1] ) ? false : $delete;
+		};
+		add_filter( 'delete_user_metadata_by_mid', $fail, 10, 2 );
+		try {
+			$result = call_user_func( $callback );
+			$this->assertSame( 3, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
+			$this->assertNotFalse( get_metadata_by_mid( 'user', $keep_id ) );
+			$this->assertFalse( get_metadata_by_mid( 'user', $old_ids[0] ) );
+		} finally {
+			remove_filter( 'delete_user_metadata_by_mid', $fail, 10 );
+		}
+		$this->finish( $callback );
+		$this->assertSame( array( '1' ), get_user_meta( $user_id, $key, false ) );
+		$this->assertNotFalse( get_metadata_by_mid( 'user', $keep_id ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_initial_user_count_checkpoint_failures_write_no_counts( $tool_id, $type, $suffix, $callback ) {
+		$key    = bbp_db()->prefix . $suffix;
+		$this->missing_user_counts( $type, $key, 3 );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$before = $this->stored_data();
+		$fail   = static function ( $value, $old ) {
+			return $old;
+		};
+		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
+		try {
+			$result = call_user_func( $callback );
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( $before, $this->stored_data() );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
+		}
+		$this->finish( $callback );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_progress_save_failures_replay_safely( $tool_id, $type, $suffix, $callback ) {
+		$key    = bbp_db()->prefix . $suffix;
+		$this->missing_user_counts( $type, $key );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$state = get_option( $option );
+		$fail  = static function ( $value, $old ) {
+			return $old;
+		};
+		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
+		try {
+			$result = call_user_func( $callback );
+			$this->assertSame( 6, $result[0] );
+			$this->assertFalse( $result['success'] );
+			$this->assertSame( $state, get_option( $option ) );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
+		}
+		$this->finish( $callback );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_final_checkpoint_delete_failures_remain_resumable( $tool_id, $type, $suffix, $callback ) {
+		$db     = bbp_db();
+		$key    = $db->prefix . $suffix;
+		$this->missing_user_counts( $type, $key, 3 );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$state = get_option( $option );
+		$fail  = static function ( $query ) use ( $db, $option ) {
+			return ( 0 === strpos( $query, 'DELETE FROM' ) ) && ( false !== strpos( $query, $db->options ) ) && ( false !== strpos( $query, $option ) )
+				? 'DELETE FROM bbp_missing_count_options'
+				: $query;
+		};
+		$suppress = $db->suppress_errors( true );
+		add_filter( 'query', $fail );
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) );
+			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+			$this->assertSame( $state, get_option( $option ) );
+		} finally {
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppress );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) );
+		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_counts_complete_automatically_and_remain_resumable_after_budget_exhaustion( $tool_id, $type, $suffix, $callback ) {
+		$key = bbp_db()->prefix . $suffix;
+		$this->missing_user_counts( $type, $key );
+		add_filter( 'bbp_admin_repair_tool_automatic_batch_limit', '__return_true' );
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) );
+			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
+			$this->assertCount( 2, $this->stored_user_counts( $key ) );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_automatic_batch_limit', '__return_true' );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) );
+		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+		$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false ) );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_read_failures_preserve_progress_and_preview_data( $tool_id, $type, $suffix, $callback ) {
+		$db  = bbp_db();
+		$key = $db->prefix . $suffix;
+		$this->missing_user_counts( $type, $key, 3 );
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$before = $this->stored_data();
+		$fail = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "SELECT COUNT(*) FROM {$db->posts}" ) )
+				? 'SELECT ID FROM bbp_missing_user_count_posts'
+				: $query;
+		};
+		$suppress = $db->suppress_errors( true );
+		add_filter( 'query', $fail );
+		try {
+			foreach ( array( $callback, $callback . '_dry_run' ) as $call ) {
+				$result = call_user_func( $call );
+				$this->assertSame( 1, $result[0] );
+				$this->assertFalse( $result['success'] );
+				$this->assertFalse( $result['complete'] );
+				$this->assertSame( $before, $this->stored_data() );
+			}
+		} finally {
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppress );
+		}
+		$this->finish( $callback );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_count_status_filters_use_database_collation( $tool_id, $type, $suffix, $callback ) {
+		$key     = bbp_db()->prefix . $suffix;
+		$user_id = $this->factory->user->create();
+		$this->user_count_posts( $type, $user_id );
+		$this->user_count_posts( $type, $user_id, 1, bbp_get_closed_status_id() );
+		$this->user_count_posts( $type, $user_id, 1, bbp_get_spam_status_id() );
+		delete_user_meta( $user_id, $key );
+		$filter = static function () {
+			return array( 'PuBLish', 'CLOSED' );
+		};
+		$hook = 'bbp_get_public_' . $type . '_statuses';
+		add_filter( $hook, $filter );
+		try {
+			$before = $this->stored_data();
+			$this->assertSame( 0, call_user_func( $callback . '_dry_run' )[0] );
+			$this->assertSame( $before, $this->stored_data() );
+			$this->finish( $callback );
+			$this->assertSame( array( '2' ), get_user_meta( $user_id, $key, false ) );
+		} finally {
+			remove_filter( $hook, $filter );
+		}
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_user_counts_stay_within_the_current_multisite_blog( $tool_id, $type, $suffix, $callback ) {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Requires multisite tables.' );
+		}
+		$db       = bbp_db();
+		$user_id  = $this->factory->user->create();
+		$main_key = $db->prefix . $suffix;
+		$this->user_count_posts( $type, $user_id, 3 );
+		update_user_meta( $user_id, $main_key, 77 );
+		$blog_id = $this->factory->blog->create();
+		switch_to_blog( $blog_id );
+		try {
+			$key = bbp_db()->prefix . $suffix;
+			$this->assertNotSame( $main_key, $key );
+			$this->user_count_posts( $type, $user_id );
+			update_user_meta( $user_id, $key, 99 );
+			$this->finish( $callback );
+			$this->assertSame( array( '1' ), get_user_meta( $user_id, $key, false ) );
+			$this->assertSame( array( '77' ), get_user_meta( $user_id, $main_key, false ) );
+		} finally {
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * @dataProvider user_count_tools
+	 */
+	public function test_clean_user_count_preview_batches_do_not_claim_later_users_are_correct( $tool_id, $type, $suffix, $callback ) {
+		$key   = bbp_db()->prefix . $suffix;
+		$users = $this->missing_user_counts( $type, $key, 4 );
+		foreach ( $users as $user_id ) {
+			update_user_meta( $user_id, $key, 1 );
+		}
+		update_user_meta( $users[3], $key, 99 );
+		$before  = $this->stored_data();
+		$preview = call_user_func( $callback . '_dry_run' );
+		$this->assertSame( 0, $preview[0] );
+		$this->assertFalse( $preview['complete'] );
+		$this->assertStringContainsString( 'This batch:', $preview[1] );
+		$this->assertStringContainsString( 'repaired for 0 users.', $preview[1] );
+		$this->assertStringNotContainsString( '0 user ' . $type . ' counts to repair.', $preview[1] );
+		$this->assertSame( $before, $this->stored_data() );
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$preview = call_user_func( $callback . '_dry_run' );
+		$this->assertStringContainsString( 'repaired for 1 user.', $preview[1] );
+		$this->finish( $callback );
+		$this->assertSame( $this->expected_user_counts( $type ), $this->stored_user_counts( $key ) );
+	}
+
+	public function user_count_boundary_sizes() {
+		$cases = array();
+		foreach ( $this->user_count_tools() as $name => $tool ) {
+			foreach ( array( 1, 1000 ) as $size ) {
+				$cases[ $name . ': ' . $size ] = array_merge( $tool, array( $size ) );
+			}
+		}
+		return $cases;
+	}
+
+	/**
+	 * @dataProvider user_count_boundary_sizes
+	 */
+	public function test_user_count_boundary_batch_sizes_limit_writes_and_finish_duplicate_cleanup( $tool_id, $type, $suffix, $callback, $size ) {
+		$db      = bbp_db();
+		$key     = $db->prefix . $suffix;
+		$user_id = $this->missing_user_counts( $type, $key, 1 )[0];
+		for ( $i = 0; $i <= $size; ++$i ) {
+			add_user_meta( $user_id, $key, 99 );
+		}
+		$limit = static function () use ( $size ) {
+			return $size;
+		};
+		add_filter( 'bbp_admin_repair_tool_batch_size', $limit, 20 );
+		try {
+			for ( $batch = 0; $batch < 5; ++$batch ) {
+				$sql        = $db->prepare( "SELECT umeta_id FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s ORDER BY umeta_id", $user_id, $key );
+				$before_ids = $db->get_col( $sql );
+				$before     = $this->stored_data();
+				$preview    = $this->user_count_batch( $tool_id, $type, $key, true );
+				$this->assertSame( $before, $this->stored_data() );
+				$result = $this->user_count_batch( $tool_id, $type, $key );
+				$this->assertSame( 0, $result['code'] );
+				$this->assertSame( $preview['repaired'], $result['repaired'] );
+				$this->assertSame( $preview['complete'], $result['complete'] );
+				$after_ids = $db->get_col( $sql );
+				$mutations = count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) );
+				$this->assertLessThanOrEqual( $size, $mutations );
+				if ( 0 === $batch ) {
+					$this->assertFalse( $result['complete'] );
+					$this->assertCount( 3, $after_ids );
+					$this->assertSame( $user_id, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
+				}
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+			$this->assertTrue( $result['complete'] );
+			$this->assertSame( array( '1' ), get_user_meta( $user_id, $key, false ) );
+			$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false ) );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $limit, 20 );
+		}
 	}
 
 	private function stored_data() {

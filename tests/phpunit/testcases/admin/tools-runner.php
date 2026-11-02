@@ -928,6 +928,123 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_user_count_repairs_continue_sequentially_through_bulk_and_ajax() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+		$tools = array(
+			'bbp-user-topics'  => bbp_db()->prefix . '_bbp_topic_count',
+			'bbp-user-replies' => bbp_db()->prefix . '_bbp_reply_count',
+		);
+		$ids   = array_keys( $tools );
+		$users = $this->factory->user->create_many( 5 );
+		foreach ( $users as $user_id ) {
+			$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+			$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $user_id ) );
+			foreach ( $tools as $key ) {
+				delete_user_meta( $user_id, $key );
+			}
+		}
+		update_option( '_bbp_db_pending_upgrades', $ids );
+		$size = static function () {
+			return 2;
+		};
+		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		bbp_register_default_repair_tools();
+		$run_id = '';
+		try {
+			foreach ( $ids as $index => $tool_id ) {
+				$_GET = array(
+					'page'          => 'bbp-repair',
+					'action'        => 'run',
+					'checked'       => array_slice( $ids, $index ),
+					'bbp-tools-run' => $run_id,
+					'_wpnonce'      => wp_create_nonce( 'bbpress-do-counts' ),
+				);
+				$_REQUEST                  = $_GET;
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				bbp_admin_repair_handler();
+				$state  = bbp_admin_repair_tool_get_run_state( 'repair' );
+				$run_id = $state['id'];
+				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
+				$this->assertSame( array(), get_user_meta( $users[2], $tools[ $tool_id ], false ) );
+				for ( $batch = 0; $batch < 5; ++$batch ) {
+					$response = $this->ajax( 'repair', $tool_id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $run_id );
+					$this->assertTrue( $response['success'] );
+					if ( $response['data']['complete'] ) {
+						break;
+					}
+				}
+				$this->assertTrue( $response['data']['complete'] );
+				$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+			}
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		}
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
+		foreach ( $users as $user_id ) {
+			foreach ( $tools as $key ) {
+				$this->assertSame( array( '1' ), get_user_meta( $user_id, $key, false ) );
+			}
+		}
+	}
+
+	public function test_topic_reply_recounts_continue_sequentially_through_bulk_and_ajax() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+		$tools = array(
+			'bbp-topic-replies' => '_bbp_reply_count',
+			'bbp-topic-hidden-replies' => '_bbp_reply_count_hidden'
+		);
+		$ids    = array_keys( $tools );
+		$topics = $this->factory->topic->create_many( 5 );
+		foreach ( $topics as $topic_id ) {
+			$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+			$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_spam_status_id() ) );
+			foreach ( $tools as $key ) {
+				delete_post_meta( $topic_id, $key );
+			}
+		}
+		$size = static function () {
+			return 2;
+		};
+		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		bbp_register_default_repair_tools();
+		$run_id = '';
+		try {
+			foreach ( $ids as $index => $tool_id ) {
+				$_GET = array(
+					'page'          => 'bbp-repair',
+					'action'        => 'run',
+					'checked'       => array_slice( $ids, $index ),
+					'bbp-tools-run' => $run_id,
+					'_wpnonce'      => wp_create_nonce( 'bbpress-do-counts' )
+				);
+				$_REQUEST                  = $_GET;
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				bbp_admin_repair_handler();
+				$state  = bbp_admin_repair_tool_get_run_state( 'repair' );
+				$run_id = $state['id'];
+				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
+				$this->assertSame( array(), get_post_meta( $topics[2], $tools[ $tool_id ], false ) );
+				for ( $batch = 0; $batch < 5; ++$batch ) {
+					$response = $this->ajax( 'repair', $tool_id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $run_id );
+					$this->assertTrue( $response['success'] );
+					if ( $response['data']['complete'] ) {
+						break;
+					}
+				}
+				$this->assertTrue( $response['data']['complete'] );
+				$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false ) );
+			}
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		}
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
+		foreach ( $topics as $topic_id ) {
+			foreach ( $tools as $key ) {
+				$this->assertSame( array( '1' ), get_post_meta( $topic_id, $key, false ) );
+			}
+		}
+	}
+
 	public function test_failed_first_migration_batch_cannot_be_followed_by_destructive_bulk_cleanup() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
 		$user_id = $this->factory->user->create();

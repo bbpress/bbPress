@@ -63,6 +63,11 @@ Development for the next bbPress release is in progress. See the active
   completion during small-site upgrades and read-only previews of the next batch.
   Legacy-data cleanup waits for unfinished migrations. Engagement upgrades retain
   valid rows while adding missing relationships and cleaning up stale or duplicate rows.
+- Recount public and non-public replies per topic in resumable batches. Share
+  bounded count-metadata cleanup with user recounts, preserving correct rows and
+  safe retries without whole-table metadata replacement.
+- Recount user topics and replies with a shared resumable worker. Preserve correct
+  counts, add missing counts, and clean up duplicate or stale rows in bounded batches.
 - Direct callers of these batched callbacks should use
   `bbp_admin_repair_tool_run_automatically()`, or normalize each result with
   `bbp_admin_repair_tool_normalize_result()` and continue until `complete` is true.
