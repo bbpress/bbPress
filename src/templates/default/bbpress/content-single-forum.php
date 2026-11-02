@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php do_action( 'bbp_template_before_single_forum' ); ?>
 
-	<?php if ( post_password_required() ) : ?>
+	<?php if ( post_password_required( bbp_get_forum_id() ) ) : ?>
 
 		<?php bbp_get_template_part( 'form', 'protected' ); ?>
 
