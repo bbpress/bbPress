@@ -265,6 +265,20 @@ function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 
 	$edit_caps = array( 'edit_post', 'edit_forum', 'edit_topic', 'edit_reply' );
 
+	// XML-RPC uses edit_post to authorize raw post and revision reads as well as edits.
+	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && in_array( $cap, array( 'edit_post', 'edit_topic', 'edit_reply' ), true ) && ! empty( $args[0] ) ) {
+		$post = get_post( $args[0] );
+
+		if (
+			! empty( $post )
+			&& in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true )
+			&& ! user_can( $user_id, 'moderate', $post->ID )
+			&& bbp_get_password_required_id( $post->ID )
+		) {
+			$caps[] = 'do_not_allow';
+		}
+	}
+
 	if ( ! empty( $bbp_xmlrpc_error_post_id ) && in_array( $cap, $edit_caps, true ) && ! empty( $args[0] ) && ( (int) $args[0] === $bbp_xmlrpc_error_post_id ) ) {
 		$caps[] = 'do_not_allow';
 	}

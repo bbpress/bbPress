@@ -3986,7 +3986,10 @@ function bbp_get_form_topic_title() {
 
 	// Get edit data
 	} elseif ( bbp_is_topic_edit() ) {
-		$topic_title = bbp_get_global_post_field( 'post_title', 'raw' );
+		$topic_id    = bbp_get_topic_id();
+		$topic_title = ! current_user_can( 'moderate', $topic_id ) && bbp_get_password_required_id( $topic_id )
+			? ''
+			: bbp_get_global_post_field( 'post_title', 'raw' );
 
 	// No data
 	} else {
@@ -4021,7 +4024,10 @@ function bbp_get_form_topic_content() {
 
 	// Get edit data
 	} elseif ( bbp_is_topic_edit() ) {
-		$topic_content = bbp_get_global_post_field( 'post_content', 'raw' );
+		$topic_id      = bbp_get_topic_id();
+		$topic_content = ! current_user_can( 'moderate', $topic_id ) && bbp_get_password_required_id( $topic_id )
+			? ''
+			: bbp_get_global_post_field( 'post_content', 'raw' );
 
 	// No data
 	} else {

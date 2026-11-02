@@ -57,6 +57,7 @@ add_filter( 'bbp_pre_do_shortcode_tag', 'bbp_prevent_content_shortcodes', 10, 4 
 add_filter( 'rest_user_query',               'bbp_exclude_forum_posts_from_user_query', 10, 2 );
 add_filter( 'wp_sitemaps_users_query_args',  'bbp_exclude_forum_posts_from_user_query'  );
 add_filter( 'rest_request_before_callbacks', 'bbp_filter_rest_user_discovery',          10, 3 );
+add_filter( 'rest_request_before_callbacks', 'bbp_filter_rest_password_required_revisions', 10, 3 );
 add_filter( 'rest_post_search_query',        'bbp_exclude_replies_from_non_public_topics'        );
 add_filter( 'wp_sitemaps_posts_query_args',  'bbp_exclude_replies_from_non_public_topics'        );
 

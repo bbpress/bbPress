@@ -776,6 +776,11 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	do_action( 'bbp_edit_reply_pre_extras', $reply_id );
 
+	// A previously issued edit nonce does not satisfy a new password requirement.
+	if ( ! current_user_can( 'moderate', $reply_id ) && bbp_get_password_required_id( $reply_id ) ) {
+		bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+	}
+
 	// Bail if errors
 	if ( bbp_has_errors() ) {
 		return;

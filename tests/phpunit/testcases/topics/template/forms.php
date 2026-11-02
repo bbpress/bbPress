@@ -200,6 +200,58 @@ class BBP_Tests_Topics_Template_Forms extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_current_user_can_access_create_topic_form
+	 * @covers ::bbp_get_form_topic_title
+	 * @covers ::bbp_get_form_topic_content
+	 */
+	public function test_topic_edit_form_honors_new_ancestor_password() {
+		$author_id    = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$moderator_id = $this->factory->user->create();
+		$forum_id     = $this->factory->forum->create();
+		$topic_id     = $this->factory->topic->create(
+			array( 'post_author' => $author_id, 'post_parent' => $forum_id, 'post_title' => 'Saved title', 'post_content' => 'Saved content', 'topic_meta' => array( 'forum_id' => $forum_id ) )
+		);
+		$old_user     = get_current_user_id();
+		$cookie       = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie   = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$password     = wp_generate_password( 24, false );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		try {
+			$this->with_topic_edit( $topic_id, function() use ( $author_id, $moderator_id, $forum_id, $password, $cookie ) {
+				$this->set_current_user( $author_id );
+				$this->assertTrue( bbp_current_user_can_access_create_topic_form() );
+				$this->assertSame( 'Saved content', bbp_get_form_topic_content() );
+
+				wp_update_post( array( 'ID' => $forum_id, 'post_password' => $password ) );
+				unset( $_COOKIE[ $cookie ] );
+				$this->assertFalse( bbp_current_user_can_access_create_topic_form() );
+				$this->assertSame( '', bbp_get_form_topic_title() );
+				$this->assertSame( '', bbp_get_form_topic_content() );
+
+				require_once ABSPATH . WPINC . '/class-phpass.php';
+				$hasher = new PasswordHash( 8, true );
+				$_COOKIE[ $cookie ] = $hasher->HashPassword( $password );
+				$this->assertTrue( bbp_current_user_can_access_create_topic_form() );
+				$this->assertSame( 'Saved title', bbp_get_form_topic_title() );
+				$this->assertSame( 'Saved content', bbp_get_form_topic_content() );
+
+				unset( $_COOKIE[ $cookie ] );
+				$this->set_current_user( $moderator_id );
+				$this->assertTrue( bbp_current_user_can_access_create_topic_form() );
+				$this->assertSame( 'Saved content', bbp_get_form_topic_content() );
+			} );
+		} finally {
+			$this->set_current_user( $old_user );
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_form_topic_tags
 	 * @covers ::bbp_get_form_topic_tags
 	 */
