@@ -1865,8 +1865,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 					: $query;
 			},
 			4 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`' ) )
-					? str_replace( "FROM `{$db->postmeta}`", 'FROM `bbp_missing_subforum_count_meta`', $query )
+				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) )
+					? str_replace( "FROM {$db->postmeta}", 'FROM bbp_missing_subforum_count_meta', $query )
 					: $query;
 			},
 		);
@@ -1905,8 +1905,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) {
-			return ( 0 === strpos( $query, 'DELETE `forummeta`' ) )
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "DELETE FROM `{$db->postmeta}`" ) )
 				? 'DELETE FROM `bbp_missing_subforum_count_meta`'
 				: $query;
 		};
@@ -1929,17 +1929,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_subforum_count_batch
 	 * @covers ::bbp_admin_repair_forum_subforum_count
 	 * @covers ::bbp_admin_repair_forum_subforum_count_process
 	 */
-	public function test_bbp_admin_repair_forum_subforum_count_stops_before_writes_on_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_subforum_count_stops_before_writes_on_selection_query_errors() {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_subforum_count_cache`', $query )
+			return ( 0 === strpos( $query, "SELECT ID FROM {$db->posts} WHERE post_type" ) )
+				? str_replace( "FROM {$db->posts}", 'FROM bbp_missing_subforum_count_selection', $query )
 				: $query;
 		};
 
@@ -1967,10 +1967,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT COUNT(*) FROM {$db->posts} WHERE post_parent" ) )
-				? str_replace( "FROM {$db->posts}", 'FROM bbp_missing_subforum_count_children', $query )
-				: $query;
+		$count_queries   = 0;
+		$query_filter    = static function ( $query ) use ( $db, &$count_queries ) {
+			if ( false !== strpos( $query, 'SELECT `forums`.`ID`, COUNT( `children`.`ID` )' ) ) {
+				++$count_queries;
+				if ( 2 === $count_queries ) {
+					return str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_subforum_count_children`', $query );
+				}
+			}
+			return $query;
 		};
 
 		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
@@ -1978,9 +1983,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_forum_subforum_count' ) );
+			$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+			$this->assertFalse( $result['complete'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -2012,7 +2018,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_repair_forum_subforum_count();
 			$this->assertSame( 6, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_forum_subforum_count' ) );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
