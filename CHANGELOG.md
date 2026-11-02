@@ -58,6 +58,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Highlight pending forum upgrades and show them first by default, preserving
+  upgrade priorities and explicit column sorting.
 - Process legacy favorites, topic subscriptions, forum subscriptions, topic
   engagements, and closed-topic repairs in resumable batches, preserving automatic
   completion during small-site upgrades and read-only previews of the next batch.

@@ -590,13 +590,15 @@ body.post-type-reply tbody .status-spam:nth-child(odd),
 
 body.post-type-forum tbody .status-pending,
 body.post-type-topic tbody .status-pending,
-body.post-type-reply tbody .status-pending {
+body.post-type-reply tbody .status-pending,
+.bbp-upgrade-tools tbody .status-pending {
 	background-color: #fff2e8;
 }
 
 body.post-type-forum tbody .status-pending:nth-child(odd),
 body.post-type-topic tbody .status-pending:nth-child(odd),
-body.post-type-reply tbody .status-pending:nth-child(odd) {
+body.post-type-reply tbody .status-pending:nth-child(odd),
+.bbp-upgrade-tools tbody .status-pending:nth-child(odd) {
 	background-color: #fff7f1;
 }
 

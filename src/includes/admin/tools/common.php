@@ -2175,6 +2175,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 				'type'        => $tool['type'],
 				'title'       => $tool['title'],
 				'priority'    => $tool['priority'],
+				'pending'     => in_array( $id, $pending, true ),
 				'description' => $tool['description'],
 				'callback'    => isset( $callbacks['run'] ) ? $callbacks['run'] : '',
 				'callbacks'   => $callbacks,
@@ -2183,6 +2184,14 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 				'components'  => $tool['components']
 			);
 		}
+	}
+
+	// Show pending upgrades first unless a specific order was requested.
+	if ( ( 'upgrade' === $type ) && empty( $_GET['orderby'] ) && empty( $_GET['order'] ) ) {
+		$orderby = array(
+			'pending'  => 'DESC',
+			'priority' => 'ASC'
+		);
 	}
 
 	// Sort

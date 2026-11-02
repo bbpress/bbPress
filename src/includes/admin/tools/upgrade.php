@@ -71,7 +71,7 @@ function bbp_admin_upgrade_page() {
 				</div>
 				<br class="clear">
 			</div>
-			<table class="wp-list-table widefat striped posts">
+			<table class="wp-list-table widefat striped posts bbp-upgrade-tools">
 				<thead>
 					<tr>
 						<td id="cb" class="manage-column column-cb check-column">
@@ -145,7 +145,7 @@ function bbp_admin_upgrade_page() {
 
 							?>
 
-							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive">
+							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive<?php echo ! empty( $item['pending'] ) ? ' status-pending' : ''; ?>">
 								<th scope="row" class="check-column">
 									<label class="screen-reader-text" for="<?php echo esc_attr( $select_id ); ?>">
 										<?php
@@ -159,7 +159,12 @@ function bbp_admin_upgrade_page() {
 									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( $select_id ); ?>">
 								</th>
 								<td class="bbp-tool-title column-primary column-description" data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
-									<strong><?php echo esc_html( $item['title'] ); ?></strong><?php
+									<strong>
+										<?php echo esc_html( $item['title'] ); ?>
+										<?php if ( ! empty( $item['pending'] ) ) : ?>
+											<span class="post-state">&mdash; <?php esc_html_e( 'Pending', 'bbpress' ); ?></span>
+										<?php endif; ?>
+									</strong><?php
 
 										// Optional description
 										if ( ! empty( $item['description'] ) ) :
