@@ -73,9 +73,16 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 		if ( 'reply' === $target ) {
 			$protected_ids = array( $tree['activities'][1] );
 		}
-		$direct_protected_ids = ( '0' === $password ) ? array() : $protected_ids;
-		$visible_ids          = array_values( array_diff( $ids, $protected_ids ) );
-		$viewers              = array( 0 );
+
+		// A password cookie does not bypass a separate visibility restriction.
+		$public_statuses          = bbp_get_public_forum_statuses();
+		$visibility_protected_ids = in_array( $parent_status, $public_statuses, true ) && in_array( $middle_status, $public_statuses, true )
+			? array()
+			: $tree['activities'];
+		$password_protected_ids   = ( '0' === $password ) ? array() : $protected_ids;
+		$direct_protected_ids     = wp_parse_id_list( array_merge( $password_protected_ids, $visibility_protected_ids ) );
+		$visible_ids              = array_values( array_diff( $ids, $protected_ids ) );
+		$viewers                  = array( 0 );
 		foreach ( array( '', bbp_get_participant_role(), bbp_get_moderator_role(), bbp_get_keymaster_role() ) as $role ) {
 			$viewer = $this->factory->user->create();
 			get_userdata( $viewer )->set_role( '' );
@@ -123,8 +130,9 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 			$this->assertEqualsCanonicalizing( $visible_ids, wp_list_pluck( rest_do_request( $request )->get_data(), 'id' ) );
 
 			foreach ( $ids as $activity_id ) {
-				$this->assertTrue( bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
-				$this->assertSame( 200, rest_do_request( new WP_REST_Request( 'GET', $route . '/' . $activity_id ) )->get_status() );
+				$can_read = ! in_array( $activity_id, $visibility_protected_ids, true );
+				$this->assertSame( $can_read, bp_activity_user_can_read( new BP_Activity_Activity( $activity_id ), 0 ) );
+				$this->assertSame( $can_read, 200 === rest_do_request( new WP_REST_Request( 'GET', $route . '/' . $activity_id ) )->get_status() );
 			}
 
 			unset( $_COOKIE[ $cookie ] );
