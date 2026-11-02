@@ -30,6 +30,7 @@ class BBP_Tests_Common_Shortcode_Visibility extends BBP_UnitTestCase {
 		remove_action( 'bbp_locate_template', $this->template_loader, 10 );
 		remove_filter( 'bbp_show_lead_topic', '__return_true' );
 		$this->set_current_user( 0 );
+		$this->go_to_without_reregistering_blocks( '/' );
 		bbpress()->errors = $this->old_errors;
 
 		parent::tearDown();
@@ -193,5 +194,95 @@ class BBP_Tests_Common_Shortcode_Visibility extends BBP_UnitTestCase {
 
 		$this->assertTrue( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) );
 		$this->assertStringContainsString( 'Ancestor topic sentinel', do_shortcode( $shortcodes[1] ) );
+	}
+
+	/**
+	 * @covers BBP_Shortcodes::display_forum
+	 * @covers BBP_Shortcodes::display_topic
+	 * @covers BBP_Shortcodes::display_reply
+	 * @covers BBP_Blocks::render_block
+	 */
+	public function test_single_item_shortcodes_and_blocks_use_embedded_password_context() {
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_password' => 'forum-secret',
+				'post_title'    => 'Protected forum marker',
+			)
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent'  => $forum_id,
+				'post_title'   => 'Protected topic marker',
+				'post_content' => 'Protected topic content marker',
+				'topic_meta'   => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent'  => $topic_id,
+				'post_content' => 'Protected reply marker',
+				'reply_meta'   => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+		$host_id = $this->factory->post->create(
+			array(
+				'post_type'     => 'page',
+				'post_status'   => 'publish',
+				'post_title'    => 'Public shortcode host',
+				'post_password' => '',
+			)
+		);
+		$objects = array(
+			'forum' => $forum_id,
+			'topic' => $topic_id,
+			'reply' => $reply_id,
+		);
+		$cookie     = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+
+		$this->set_current_user( 0 );
+		$this->go_to_without_reregistering_blocks( '/?page_id=' . $host_id );
+		add_filter( 'bbp_show_lead_topic', '__return_true' );
+
+		$this->assertFalse( post_password_required() );
+
+		try {
+			foreach ( $objects as $type => $object_id ) {
+				$this->assertTrue( post_password_required( $object_id ) );
+				$this->assertStringContainsString( 'id="bbp-protected"', do_shortcode( '[bbp-single-' . $type . ' id="' . $object_id . '"]' ) );
+				$this->assertStringContainsString(
+					'id="bbp-protected"',
+					bbpress()->blocks->render_block(
+						array( 'id' => $object_id ),
+						'',
+						(object) array( 'name' => 'bbpress/single-' . $type )
+					)
+				);
+			}
+
+			require_once ABSPATH . WPINC . '/class-phpass.php';
+			$hasher            = new PasswordHash( 8, true );
+			$_COOKIE[ $cookie ] = $hasher->HashPassword( 'forum-secret' );
+
+			foreach ( $objects as $type => $object_id ) {
+				$this->assertFalse( post_password_required( $object_id ) );
+				$this->assertStringNotContainsString( 'id="bbp-protected"', do_shortcode( '[bbp-single-' . $type . ' id="' . $object_id . '"]' ) );
+			}
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	private function go_to_without_reregistering_blocks( $url ) {
+		remove_action( 'bbp_register', 'bbp_register_blocks', 10 );
+		try {
+			$this->go_to( home_url( $url ) );
+		} finally {
+			add_action( 'bbp_register', 'bbp_register_blocks', 10 );
+		}
 	}
 }

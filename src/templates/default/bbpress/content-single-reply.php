@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php do_action( 'bbp_template_before_single_reply' ); ?>
 
-	<?php if ( post_password_required() ) : ?>
+	<?php if ( post_password_required( bbp_get_reply_id() ) ) : ?>
 
 		<?php bbp_get_template_part( 'form', 'protected' ); ?>
 
