@@ -32,16 +32,13 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_user_id
 	 */
 	public function test_bbp_get_user_id() {
-		$int_value = $this->keymaster_userdata->ID;
-		$formatted_value = bbp_number_format( $int_value );
-
 		// Integer.
 		$user_id = bbp_get_user_id( $this->keymaster_id );
 		$this->assertSame( $this->keymaster_id, $user_id );
 
 		// Output.
-		$this->expectOutputRegex( '/' . preg_quote($formatted_value, '/') . '/' );
-        bbp_user_id( $this->keymaster_id );
+		$this->expectOutputString( (string) $this->keymaster_id );
+		bbp_user_id( $this->keymaster_id );
 	}
 
 	/**
@@ -49,16 +46,13 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_current_user_id
 	 */
 	public function test_bbp_get_current_user_id() {
-		$int_value = $this->keymaster_userdata->ID;
-		$formatted_value = bbp_number_format( $int_value );
-
 		// Integer.
 		$user_id = bbp_get_current_user_id();
 		$this->assertSame( $this->keymaster_id, $user_id );
 
 		// Output.
-		$this->expectOutputString( $formatted_value );
-		bbp_current_user_id( $this->keymaster_id );
+		$this->expectOutputString( (string) $this->keymaster_id );
+		bbp_current_user_id();
 	}
 
 	/**
