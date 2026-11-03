@@ -74,6 +74,9 @@ Development for the next bbPress release is in progress. See the active
   saving progress. Cleanup is blocked while those keys remain active engagement
   storage. Native cleanup uses `delete_user_metadata_by_mid` and fires metadata
   actions once per row.
+- Remap forum roles in resumable user batches, sharing bounded WordPress user
+  selection and preserving WordPress-role order, safe retries, and automatic-runner
+  compatibility.
 - Rebuild topic engagements and voice counts in resumable batches, sharing
   relationship reconciliation with the engagement upgrade and preserving valid rows.
 - Repair topic and parent-forum references in resumable batches. Share bounded

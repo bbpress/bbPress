@@ -392,6 +392,70 @@ function bbp_admin_repair_tool_batch_size( $tool_id = '' ) {
 }
 
 /**
+ * Select a bounded user batch through the normal WordPress query filters.
+ *
+ * Apply ID bounds and fixed paging to this query alone, preserving role and site
+ * selection while avoiding offsets into a result set that repairs may change.
+ *
+ * @since 2.7.0 bbPress (r8288)
+ *
+ * @param array $args     User query arguments.
+ * @param int   $cursor   Last completed user ID.
+ * @param int   $upper_id Fixed upper user ID.
+ * @param int   $size     Work budget, with one additional lookahead row.
+ * @param int   $matched  Optional output of raw matching rows, including lookahead.
+ * @return array|false User IDs, or false on a read failure or invalid results.
+ */
+function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$matched = null ) {
+	$db         = bbp_db();
+	$matched    = 0;
+	$batch_args = array(
+		'fields'        => 'ID',
+		'number'        => max( 1, min( 1000, (int) $size ) ) + 1,
+		'offset'        => 0,
+		'paged'         => 1,
+		'orderby'       => 'ID',
+		'order'         => 'ASC',
+		'count_total'   => false,
+		'cache_results' => false
+	);
+	$args  = array_merge( $args, $batch_args );
+	$users = new WP_User_Query();
+	$bound = static function ( $query ) use ( $users, $db, $cursor, $upper_id, $batch_args ) {
+		if ( $query === $users ) {
+			// Keep ID fields and paging consistent for SQL and short-circuited results
+			$query->query_vars    = array_merge( $query->query_vars, $batch_args );
+			$query->query_fields  = "{$db->users}.ID";
+			$query->query_orderby = "ORDER BY {$db->users}.ID ASC";
+			$query->query_limit   = $db->prepare( 'LIMIT %d', $batch_args['number'] );
+			$query->query_where  .= $db->prepare( " AND {$db->users}.ID > %d AND {$db->users}.ID <= %d", $cursor, $upper_id );
+		}
+	};
+	add_action( 'pre_user_query', $bound );
+	try {
+		$users->prepare_query( $args );
+		$users->query();
+		$ids = $users->get_results();
+		if ( ! empty( $db->last_error ) || ! is_array( $ids ) ) {
+			return false;
+		}
+		// Short-circuited queries must preserve the ordered, bounded result window
+		$matched  = count( $ids );
+		$previous = $cursor;
+		foreach ( $ids as $id ) {
+			$id = absint( $id );
+			if ( $id <= $cursor || $id < $previous || $id > $upper_id ) {
+				return false;
+			}
+			$previous = $id;
+		}
+		return array_slice( wp_parse_id_list( $ids ), 0, $args['number'] );
+	} finally {
+		remove_action( 'pre_user_query', $bound );
+	}
+}
+
+/**
  * Build the source query shared by engagement repairs and upgrades.
  *
  * @since 2.7.0 bbPress (r8281)

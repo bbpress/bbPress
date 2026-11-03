@@ -4735,7 +4735,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum role assignment would be repaired', $dry_run[1] );
 		$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
@@ -4814,7 +4814,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum role assignment would be repaired', $dry_run[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
@@ -4826,7 +4826,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_user_roles_dry_run
 	 * @covers ::bbp_admin_repair_user_roles_process
 	 */
-	public function test_bbp_admin_repair_user_roles_restarts_shrinking_pages_during_run() {
+	public function test_bbp_admin_repair_user_roles_preserves_filtered_roleless_selection() {
 		$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
 		$db       = bbp_db();
 		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
@@ -4850,14 +4850,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( 0, bbp_admin_repair_user_roles_dry_run()[0] );
-			$this->assertSame( array( 0, 1000 ), $offsets );
+			$this->assertSame( array( 0 ), $offsets );
 			$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
 
 			$call    = 0;
 			$offsets = array();
 
 			$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
-			$this->assertSame( array( 0, 0 ), $offsets );
+			$this->assertSame( array( 0 ), $offsets );
 			$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 		} finally {
 			remove_filter( 'users_pre_query', $get_page, 10 );
@@ -4868,7 +4868,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_user_roles
 	 * @covers ::bbp_admin_repair_user_roles_process
 	 */
-	public function test_bbp_admin_repair_user_roles_advances_past_rows_that_remain() {
+	public function test_bbp_admin_repair_user_roles_does_not_repeat_rows_with_a_filtered_role() {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Single-site only.' );
 		}
@@ -4899,7 +4899,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( 0, bbp_admin_repair_user_roles()[0] );
-			$this->assertSame( array( 0, 1 ), $offsets );
+			$this->assertSame( array( 0 ), $offsets );
 			$this->assertFalse( metadata_exists( 'user', $user_id, $cap_key ) );
 		} finally {
 			remove_filter( 'users_pre_query', $get_page, 10 );
@@ -4930,12 +4930,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$dry_run = bbp_admin_repair_user_roles_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum role assignment would be repaired', $dry_run[1] );
 			$this->assertContains( $extra, get_userdata( $user_id )->roles );
 
 			$run = bbp_admin_repair_user_roles();
 			$this->assertSame( 0, $run[0] );
-			$this->assertStringContainsString( 'Complete! 1 user was assigned the default forum role', $run[1] );
+			$this->assertStringContainsString( '1 forum role assignment repaired', $run[1] );
 			$this->assertSame( array( $blocked ), array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) ) );
 		} finally {
 			remove_filter( 'bbp_get_user_role_map', $block_map );
@@ -4957,12 +4957,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum role assignment would be repaired', $dry_run[1] );
 		$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 1 user was assigned the default forum role', $run[1] );
+		$this->assertStringContainsString( '1 forum role assignment repaired', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
@@ -4984,7 +4984,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '2 users would be assigned the default forum role', $dry_run[1] );
+		$this->assertStringContainsString( '2 forum role assignments would be repaired', $dry_run[1] );
 		$this->assertSame(
 			array( bbp_get_moderator_role(), bbp_get_spectator_role() ),
 			array_values( array_intersect( get_userdata( $user_id )->roles, array_keys( bbp_get_dynamic_roles() ) ) )
@@ -4992,7 +4992,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 2 users were assigned the default forum role', $run[1] );
+		$this->assertStringContainsString( '2 forum role assignments repaired', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
@@ -5018,12 +5018,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_roles_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 user would be assigned the default forum role', $dry_run[1] );
+		$this->assertStringContainsString( '1 forum role assignment would be repaired', $dry_run[1] );
 		$this->assertSame( array(), get_user_meta( $user_id, $cap_key, true ) );
 
 		$run = bbp_admin_repair_user_roles();
 		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( 'Complete! 1 user was assigned the default forum role', $run[1] );
+		$this->assertStringContainsString( '1 forum role assignment repaired', $run[1] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 

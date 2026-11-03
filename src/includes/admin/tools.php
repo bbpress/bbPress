@@ -514,7 +514,7 @@ function bbp_register_default_repair_tools() {
 		)
 	);
 
-	// Remove unpublished forums from user subscriptions
+	// Remap users to their mapped forum roles
 	bbp_register_repair_tool(
 		array(
 			'id'          => 'bbp-user-role-map',

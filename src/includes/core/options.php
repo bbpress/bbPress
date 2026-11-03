@@ -204,7 +204,7 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_run_status_upgrade' );
 
 	// Delete checkpoints without requiring the administration tools to be loaded
-	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies', 'bbp-user-favorites', 'bbp-user-topic-subscriptions', 'bbp-user-forum-subscriptions', 'bbp-user-favorites-delete', 'bbp-user-topic-subscriptions-delete', 'bbp-user-forum-subscriptions-delete' ) as $tool_id ) {
+	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies', 'bbp-user-favorites', 'bbp-user-topic-subscriptions', 'bbp-user-forum-subscriptions', 'bbp-user-favorites-delete', 'bbp-user-topic-subscriptions-delete', 'bbp-user-forum-subscriptions-delete', 'bbp-user-role-map' ) as $tool_id ) {
 		delete_option( '_bbp_tool_batch_' . md5( $tool_id ) );
 	}
 

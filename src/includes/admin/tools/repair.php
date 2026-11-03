@@ -2955,20 +2955,225 @@ function bbp_admin_repair_user_forum_subscriptions_process( $dry_run = false ) {
  *
  * @since 2.2.0 bbPress (r4341)
  * @since 2.7.0 bbPress (r8229) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8288) Process one resumable batch per call.
+ *
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_repair_user_roles() {
 	return bbp_admin_repair_user_roles_process();
 }
 
 /**
- * Preview mapping each user of the current site to their respective forum role.
+ * Preview the next batch of forum role mappings on the current site.
  *
  * @since 2.7.0 bbPress (r8229)
  *
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_repair_user_roles_dry_run() {
 	return bbp_admin_repair_user_roles_process( true );
+}
+
+/**
+ * Plan and verify one forum role assignment through the existing role API.
+ *
+ * Keep multiple-role ordering and Blocked exclusivity consistent with Run.
+ * Dry Run carries a local plan when the same user appears in another role pass.
+ * One assignment is a work item; WordPress owns the capability writes it needs.
+ *
+ * @since 2.7.0 bbPress (r8288)
+ *
+ * @param int        $user_id User ID.
+ * @param string     $role    Target forum role.
+ * @param bool       $dry_run Whether to preview without writes.
+ * @param array|null $planned Earlier preview of this user's forum roles.
+ * @return array Status, changed assignments, and planned forum roles.
+ */
+function bbp_admin_repair_user_role( $user_id, $role, $dry_run = false, $planned = null ) {
+	$db     = bbp_db();
+	$result = array(
+		'code'    => 0,
+		'changed' => 0,
+		'roles'   => array()
+	);
+	if ( ! $dry_run ) {
+		wp_cache_delete( $user_id, 'user_meta' );
+	}
+	$user = get_userdata( $user_id );
+	if ( ! empty( $db->last_error ) ) {
+		wp_cache_delete( $user_id, 'user_meta' );
+		$result['code'] = 2;
+		return $result;
+	}
+	if ( empty( $user ) || ! bbp_is_valid_role( $role ) ) {
+		return $result;
+	}
+	$dynamic = array_keys( bbp_get_dynamic_roles() );
+	$roles   = is_array( $planned ) ? $planned : array_values( array_intersect( $user->roles, $dynamic ) );
+	$current = is_array( $planned ) ? ( empty( $roles ) ? false : reset( $roles ) ) : bbp_get_user_role( $user_id );
+	$blocked = bbp_get_blocked_role();
+	$changed = $current !== $role || ( $blocked === $role && array( $blocked ) !== $roles );
+	if ( $blocked === $role ) {
+		$roles = array( $blocked );
+	} elseif ( $current !== $role ) {
+		$index = array_search( $current, $roles, true );
+		if ( false !== $index ) {
+			unset( $roles[ $index ] );
+		}
+		if ( ! in_array( $role, $roles, true ) ) {
+			$roles[] = $role;
+		}
+	}
+	$result['roles'] = array_values( $roles );
+	if ( ! $dry_run ) {
+		// Preserve the public setter and its filter, including unchanged assignments
+		bbp_set_user_role( $user_id, $role );
+		wp_cache_delete( $user_id, 'user_meta' );
+		if ( $changed ) {
+			$key  = $db->get_blog_prefix() . 'capabilities';
+			$caps = $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s ORDER BY umeta_id LIMIT 1", $user_id, $key ) );
+			if ( ! empty( $db->last_error ) ) {
+				$result['code'] = 2;
+				return $result;
+			}
+			$caps = maybe_unserialize( $caps );
+			if ( ! is_array( $caps ) || array_values( array_intersect( array_keys( $caps ), $dynamic ) ) !== $result['roles'] ) {
+				$result['code'] = 3;
+				return $result;
+			}
+		}
+	}
+	$result['changed'] = (int) $changed;
+	return $result;
+}
+
+/**
+ * Map forum roles in bounded, resumable WordPress-role passes.
+ *
+ * Preserve WordPress-role order and roleless-user rules. Save a fixed upper user ID
+ * and a cursor for each pass, so shrinking selections and retries cannot skip
+ * later users. Empty passes also consume work to keep selection queries bounded.
+ *
+ * @since 2.7.0 bbPress (r8288)
+ *
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Status, changed assignments, and completion flags.
+ */
+function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
+	$db      = bbp_db();
+	$tool_id = 'bbp-user-role-map';
+	$batch   = array(
+		'code'      => 0,
+		'changed'   => 0,
+		'complete'  => false,
+		'restarted' => false
+	);
+	$map     = bbp_get_user_role_map();
+	if ( empty( $map ) ) {
+		$batch['code'] = 1;
+		return $batch;
+	}
+	$default = bbp_get_default_role();
+	$roles   = array();
+	foreach ( array_keys( bbp_get_blog_roles() ) as $role ) {
+		$target = isset( $map[ $role ] ) ? $map[ $role ] : $default;
+		if ( bbp_is_valid_role( $target ) ) {
+			$roles[ $role ] = $target;
+		}
+	}
+	$phase_count = count( $roles );
+	$context     = array(
+		'roles'     => $roles,
+		'default'   => bbp_is_valid_role( $default ) ? $default : false,
+		'blocked'   => bbp_get_blocked_role(),
+		'cap_key'   => $db->get_blog_prefix() . 'capabilities',
+		'blog_id'   => get_current_blog_id(),
+		'multisite' => is_multisite()
+	);
+	$state = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	if ( false !== $state && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'phase' ) ) || ! isset( $state['context'] ) || $context !== $state['context'] || $state['phase'] > $phase_count ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+	if ( false === $state ) {
+		$upper = (int) $db->get_var( "SELECT MAX(ID) FROM {$db->users}" );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$state = array(
+			'cursor'   => 0,
+			'upper_id' => $upper,
+			'phase'    => 0,
+			'context'  => $context
+		);
+		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+			$batch['code'] = 4;
+			return $batch;
+		}
+	}
+	$size    = bbp_admin_repair_tool_batch_size( $tool_id );
+	$work    = 0;
+	$keys    = array_keys( $roles );
+	$planned = array();
+	while ( $work < $size && $state['phase'] <= $phase_count ) {
+		if ( isset( $keys[ $state['phase'] ] ) ) {
+			$role   = $keys[ $state['phase'] ];
+			$target = $roles[ $role ];
+			$args   = array( 'role' => $role );
+		} else {
+			if ( ! $context['default'] ) {
+				++$state['phase'];
+				break;
+			}
+			$target = $context['default'];
+			$args   = array( 'meta_key' => $context['cap_key'] );
+			if ( $context['multisite'] ) {
+				$args['meta_value'] = 'a:0:{}';
+			} else {
+				$args['meta_compare'] = 'NOT EXISTS';
+			}
+		}
+		$remaining = $size - $work;
+		$matched   = 0;
+		$ids       = bbp_admin_repair_get_users_batch( $args, $state['cursor'], $state['upper_id'], $remaining, $matched );
+		if ( false === $ids ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$more = $matched > $remaining;
+		$ids  = array_slice( $ids, 0, $remaining );
+		if ( empty( $ids ) ) {
+			++$work;
+		}
+		foreach ( $ids as $user_id ) {
+			$previous = isset( $planned[ $user_id ] ) ? $planned[ $user_id ] : null;
+			$result   = bbp_admin_repair_user_role( $user_id, $target, $dry_run, $previous );
+			if ( $result['code'] ) {
+				$batch['code'] = $result['code'];
+				return $batch;
+			}
+			if ( $dry_run ) {
+				$planned[ $user_id ] = $result['roles'];
+			}
+			$batch['changed'] += $result['changed'];
+			$state['cursor']   = $user_id;
+			++$work;
+		}
+		// Repeated metadata matches consume work without hiding the lookahead
+		$work += max( 0, min( $matched, $remaining ) - count( $ids ) );
+		if ( ! $more ) {
+			++$state['phase'];
+			$state['cursor'] = 0;
+		}
+	}
+	$complete = $state['phase'] > $phase_count;
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+		$batch['code'] = 4;
+		return $batch;
+	}
+	$batch['complete'] = $complete;
+	return $batch;
 }
 
 /**
@@ -2977,13 +3182,9 @@ function bbp_admin_repair_user_roles_dry_run() {
  * @since 2.7.0 bbPress (r8229)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_repair_user_roles_process( $dry_run = false ) {
-	$changed      = 0;
-	$role_map     = bbp_get_user_role_map();
-	$default_role = bbp_get_default_role();
-
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking forum role mappings for each user on this site&hellip; %s', 'bbpress' );
@@ -2991,193 +3192,37 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
 		/* translators: %s: Status of the repair process */
 		$statement = esc_html__( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
 	}
-
-	// Bail if no role map exists
-	if ( empty( $role_map ) ) {
-		return array( 1, sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ) );
+	$batch     = bbp_admin_repair_user_roles_batch( $dry_run );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] ) {
+		$result = 4 === $batch['code']
+			? esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' )
+			: esc_html__( 'Failed!', 'bbpress' );
+		return array(
+			$batch['code'],
+			sprintf( $statement, $result ),
+			'success'  => false,
+			'complete' => false
+		);
 	}
-
-	// Get non-forum roles
-	$blog_roles = array_keys( bbp_get_blog_roles() );
-
-	// Determine whether assigning a role would change the user's forum roles
-	$blocked_role      = bbp_get_blocked_role();
-	$planned_roles     = array();
-	$role_needs_update = static function ( $user_id, $new_role ) use ( $blocked_role, $blog_roles, $dry_run, &$planned_roles ) {
-		$user = get_userdata( $user_id );
-		if ( empty( $user ) || ! bbp_is_valid_role( $new_role ) ) {
-			return false;
-		}
-
-		if ( $dry_run && isset( $planned_roles[ $user_id ] ) ) {
-			$forum_roles  = $planned_roles[ $user_id ];
-			$current_role = ! empty( $forum_roles ) ? reset( $forum_roles ) : false;
-		} else {
-			$current_role = bbp_get_user_role( $user_id );
-			$forum_roles  = array_values( array_intersect( $user->roles, array_keys( bbp_get_dynamic_roles() ) ) );
-		}
-
-		$blocked_clean = array( $blocked_role ) === $forum_roles;
-		$needs_update = ( $current_role !== $new_role ) || ( ( $blocked_role === $new_role ) && ! $blocked_clean );
-
-		// Simulate the role after this pass so Dry Run matches later passes in Run.
-		if ( $dry_run && ( 1 < count( array_intersect( $user->roles, $blog_roles ) ) ) ) {
-			if ( $blocked_role === $new_role ) {
-				$forum_roles = array( $blocked_role );
-			} elseif ( $current_role !== $new_role ) {
-				$role_key = array_search( $current_role, $forum_roles, true );
-				if ( false !== $role_key ) {
-					unset( $forum_roles[ $role_key ] );
-				}
-
-				if ( ! in_array( $new_role, $forum_roles, true ) ) {
-					$forum_roles[] = $new_role;
-				}
-			}
-
-			$planned_roles[ $user_id ] = array_values( $forum_roles );
-		}
-
-		return $needs_update;
-	};
-
-	// Iterate through each role...
-	foreach ( $blog_roles as $role ) {
-
-		// Reset the offset
-		$offset = 0;
-
-		// If no role map exists, give the default forum role (bbp-participant)
-		$new_role = isset( $role_map[ $role ] )
-			? $role_map[ $role ]
-			: $default_role;
-
-		// An empty filtered role must not remove existing forum roles.
-		if ( ! bbp_is_valid_role( $new_role ) ) {
-			continue;
-		}
-
-		// Get users of this site, limited to 1000
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-		while ( $users = get_users(
-			array(
-				'role'   => $role,
-				'fields' => 'ID',
-				'number' => 1000,
-				'offset' => $offset
-			)
-		) ) {
-
-			// Iterate through each user of $role and try to set it
-			foreach ( (array) $users as $user_id ) {
-				$needs_update = $role_needs_update( $user_id, $new_role );
-				if ( ! $dry_run ) {
-					bbp_set_user_role( $user_id, $new_role );
-				}
-
-				if ( $needs_update ) {
-					++$changed;
-				}
-			}
-
-			// Bump the offset for the next query iteration
-			$offset = $offset + 1000;
-		}
-	}
-
-	// Reset the offset
-	$offset  = 0;
-	$bbp_db  = bbp_db();
-	$cap_key = $bbp_db->get_blog_prefix() . 'capabilities';
-
-	// Users without roles should be granted the default role, but not on multi-
-	// site installations where not all users get a role by default.
-	if ( ! is_multisite() && bbp_is_valid_role( $default_role ) ) {
-
-		// Get users with missing capabilities on this site, limited to 1000
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-		while ( $users = get_users(
-			array(
-				'meta_key'     => $cap_key,
-				'meta_compare' => 'NOT EXISTS',
-				'fields'       => 'ID',
-				'number'       => 1000,
-				'offset'       => $offset
-			)
-		) ) {
-			$remaining = 0;
-
-			// Iterate through each user of $role and try to set it
-			foreach ( (array) $users as $user_id ) {
-				$needs_update = $role_needs_update( $user_id, $default_role );
-				if ( ! $dry_run ) {
-					bbp_set_user_role( $user_id, $default_role );
-				}
-
-				if ( $needs_update ) {
-					++$changed;
-				}
-
-				if ( ! $dry_run && ! metadata_exists( 'user', $user_id, $cap_key ) ) {
-					++$remaining;
-				}
-			}
-
-			// Run skips rows that remain, while Dry Run pages through all rows.
-			$offset = $dry_run ? $offset + 1000 : $offset + $remaining;
-		}
-
-	// On multisite, we'll look for users with an empty capabilities array.
-	// These are users who basically have malformed caps, and we can fix that.
-	} elseif ( is_multisite() && bbp_is_valid_role( $default_role ) ) {
-
-		// Get users with empty capabilities on this site, limited to 1000
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-		while ( $users = get_users(
-			array(
-				'meta_key'   => $cap_key,
-				'meta_value' => 'a:0:{}',
-				'fields'     => 'ID',
-				'number'     => 1000,
-				'offset'     => $offset
-			)
-		) ) {
-			$remaining = 0;
-
-			// Iterate through each user of $role and try to set it
-			foreach ( (array) $users as $user_id ) {
-				$needs_update = $role_needs_update( $user_id, $default_role );
-				if ( ! $dry_run ) {
-					bbp_set_user_role( $user_id, $default_role );
-				}
-
-				if ( $needs_update ) {
-					++$changed;
-				}
-
-				if ( ! $dry_run && ( array() === get_user_meta( $user_id, $cap_key, true ) ) ) {
-					++$remaining;
-				}
-			}
-
-			// Run skips rows that remain, while Dry Run pages through all rows.
-			$offset = $dry_run ? $offset + 1000 : $offset + $remaining;
-		}
-	}
-
+	$total = $batch['changed'];
 	if ( $dry_run ) {
-		if ( empty( $changed ) ) {
-			return array( 1, sprintf( $statement, esc_html__( '0 user forum roles to repair.', 'bbpress' ) ) );
-		}
-
-		/* translators: %s: Number of users who would be assigned the default forum role */
-		$result = sprintf( _n( '%s user would be assigned the default forum role.', '%s users would be assigned the default forum role.', $changed, 'bbpress' ), bbp_number_format( $changed ) );
+		/* translators: %s: Number of forum role assignments that would change */
+		$result = sprintf( _n( '%s forum role assignment would be repaired.', '%s forum role assignments would be repaired.', $total, 'bbpress' ), bbp_number_format( $total ) );
 	} else {
-		/* translators: %s: Number of users assigned the default forum role */
-		$result = sprintf( _n( 'Complete! %s user was assigned the default forum role.', 'Complete! %s users were assigned the default forum role.', $changed, 'bbpress' ), bbp_number_format( $changed ) );
+		/* translators: %s: Number of repaired forum role assignments */
+		$result = sprintf( _n( '%s forum role assignment repaired.', '%s forum role assignments repaired.', $total, 'bbpress' ), bbp_number_format( $total ) );
 	}
-
-	return array( 0, sprintf( $statement, $result ) );
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
+	if ( ! $dry_run ) {
+		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
+		$result = $status . "\n" . $result;
+	}
+	return array(
+		$dry_run && ! $total && $batch['complete'] ? 1 : 0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete']
+	);
 }
 
 /**

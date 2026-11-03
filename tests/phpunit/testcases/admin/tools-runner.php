@@ -1497,6 +1497,67 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
 	}
 
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_handler
+	 * @covers ::bbp_admin_repair_ajax_handler
+	 */
+	public function test_batched_role_remapping_completes_before_the_next_bulk_tool() {
+		$ids = $this->factory->user->create_many( 3, array( 'role' => 'subscriber' ) );
+		foreach ( $ids as $id ) {
+			bbp_set_user_role( $id, bbp_get_spectator_role() );
+		}
+		$size = static function () { return 1; };
+		$next = 0;
+		bbp_register_default_repair_tools();
+		$register = static function () use ( &$next ) {
+			bbp_register_repair_tool( array(
+				'id' => 'bbp-test-after-role-map',
+				'type' => 'repair',
+				'title' => 'After role remapping',
+				'priority' => 105,
+				'callbacks' => array( 'run' => static function () use ( &$next ) { ++$next; return array( 0, 'Complete.' ); } )
+			) );
+		};
+		add_action( 'bbp_register_repair_tools', $register, 11 );
+		$register();
+		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		$_GET = array(
+			'page'     => 'bbp-repair',
+			'action'   => 'run',
+			'checked'  => array( 'bbp-user-role-map', 'bbp-test-after-role-map' ),
+			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' )
+		);
+		$_REQUEST                  = $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		try {
+			bbp_admin_repair_handler();
+			$state = bbp_admin_repair_tool_get_run_state( 'repair' );
+			$this->assertSame( 0, $next );
+			for ( $i = 0; $i < 25; ++$i ) {
+				$response = $this->ajax( 'repair', 'bbp-user-role-map', wp_create_nonce( 'bbpress-tools-process' ), 'POST', $state['id'] );
+				$this->assertTrue( $response['success'] );
+				$this->assertSame( 0, $next );
+				if ( $response['data']['complete'] ) {
+					break;
+				}
+			}
+			$this->assertTrue( $response['data']['complete'] );
+			$this->assertSame( array( 'bbp-test-after-role-map' ), bbp_admin_repair_tool_get_run_state( 'repair' )['tools'] );
+			foreach ( $ids as $id ) {
+				$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $id ) );
+			}
+			$after = bbp_admin_repair_tool_get_run_state( 'repair' );
+			$response = $this->ajax( 'repair', 'bbp-test-after-role-map', wp_create_nonce( 'bbpress-tools-process' ), 'POST', $after['id'] );
+			$this->assertTrue( $response['success'] );
+			$this->assertSame( 1, $next );
+			$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
+			remove_action( 'bbp_register_repair_tools', $register, 11 );
+		}
+	}
+
 	public function test_failed_first_migration_batch_cannot_be_followed_by_destructive_bulk_cleanup() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
 		$user_id = $this->factory->user->create();
