@@ -6054,34 +6054,25 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
 	public function test_bbp_admin_repair_forum_meta_clears_caches_populated_during_repair() {
-		$forum_id    = $this->factory->forum->create();
-		$topic_id    = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$reply_id    = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
-		$query_filter = static function ( $query ) use ( $forum_id, $topic_id, $reply_id ) {
-			if ( false !== strpos( $query, "SELECT `topic`.`ID`, '_bbp_forum_id', `topic`.`post_parent`" ) ) {
-				get_post_meta( $topic_id, '_bbp_forum_id', true );
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id        = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$metadata_filter = static function ( $check, $object_id, $key ) use ( $forum_id, $topic_id, $reply_id ) {
+			if ( in_array( $object_id, array( $forum_id, $topic_id, $reply_id ), true ) && ( '_bbp_forum_id' === $key ) ) {
+				get_post_meta( $object_id, '_bbp_forum_id', true );
 			}
-
-			if ( false !== strpos( $query, "SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`" ) ) {
-				get_post_meta( $forum_id, '_bbp_forum_id', true );
-			}
-
-			if ( false !== strpos( $query, "SELECT `reply`.`ID`, '_bbp_forum_id', `topic`.`post_parent`" ) ) {
-				get_post_meta( $reply_id, '_bbp_forum_id', true );
-			}
-
-			return $query;
+			return $check;
 		};
 
 		update_post_meta( $forum_id, '_bbp_forum_id', 999 );
 		update_post_meta( $topic_id, '_bbp_forum_id', 999 );
 		update_post_meta( $reply_id, '_bbp_forum_id', 999 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'add_post_metadata', $metadata_filter, 10, 3 );
 
 		try {
 			$this->assertSame( 0, bbp_admin_repair_forum_meta()[0] );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'add_post_metadata', $metadata_filter, 10 );
 		}
 
 		$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
@@ -6120,44 +6111,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_forum_meta_dry_run
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
-	public function test_bbp_admin_repair_forum_meta_reports_topic_read_errors() {
+	public function test_bbp_admin_repair_forum_meta_reports_reference_read_errors() {
 		global $wpdb;
 
+		$this->factory->forum->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			return ( false !== strpos( $query, 'AS `topic_repairs`' ) )
-				? str_replace( "FROM `{$wpdb->posts}` AS `topic`", 'FROM `bbp_missing_forum_meta_topics` AS `topic`', $query )
-				: $query;
-		};
-
-		add_filter( 'query', $query_filter );
-
-		try {
-			$dry_run = bbp_admin_repair_forum_meta_dry_run();
-			$this->assertSame( 5, $dry_run[0] );
-			$this->assertFalse( $dry_run['success'] );
-
-			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 5, $result[0] );
-			$this->assertFalse( $result['success'] );
-		} finally {
-			remove_filter( 'query', $query_filter );
-			$wpdb->suppress_errors( $old_suppression );
-		}
-	}
-
-	/**
-	 * @covers ::bbp_admin_repair_forum_meta
-	 * @covers ::bbp_admin_repair_forum_meta_dry_run
-	 * @covers ::bbp_admin_repair_forum_meta_process
-	 */
-	public function test_bbp_admin_repair_forum_meta_reports_reply_read_errors() {
-		global $wpdb;
-
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			return ( false !== strpos( $query, 'AS `reply_repairs`' ) )
-				? str_replace( "FROM `{$wpdb->posts}` AS `reply`", 'FROM `bbp_missing_forum_meta_replies` AS `reply`', $query )
+			return ( false !== strpos( $query, 'SELECT posts.ID, CASE' ) )
+				? str_replace( "FROM {$wpdb->posts} AS posts", 'FROM bbp_missing_forum_meta_posts AS posts', $query )
 				: $query;
 		};
 
@@ -6182,15 +6143,47 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_forum_meta_dry_run
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
+	public function test_bbp_admin_repair_forum_meta_reports_metadata_read_errors() {
+		global $wpdb;
+
+		$this->factory->forum->create();
+		$old_suppression = $wpdb->suppress_errors( true );
+		$query_filter    = static function ( $query ) use ( $wpdb ) {
+			return ( false !== strpos( $query, "SELECT meta_id FROM {$wpdb->postmeta}" ) )
+				? str_replace( "FROM {$wpdb->postmeta}", 'FROM bbp_missing_forum_meta', $query )
+				: $query;
+		};
+
+		add_filter( 'query', $query_filter );
+
+		try {
+			$dry_run = bbp_admin_repair_forum_meta_dry_run();
+			$this->assertSame( 7, $dry_run[0] );
+			$this->assertFalse( $dry_run['success'] );
+
+			$result = bbp_admin_repair_forum_meta();
+			$this->assertSame( 7, $result[0] );
+			$this->assertFalse( $result['success'] );
+		} finally {
+			remove_filter( 'query', $query_filter );
+			$wpdb->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_meta
+	 * @covers ::bbp_admin_repair_forum_meta_dry_run
+	 * @covers ::bbp_admin_repair_forum_meta_process
+	 */
 	public function test_bbp_admin_repair_forum_meta_reports_postmeta_read_errors() {
 		global $wpdb;
 
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			$stale_select = "SELECT COUNT( `forummeta`.`meta_id` )";
+			$stale_select = "SELECT MAX(post_id)";
 
 			return ( false !== strpos( $query, $stale_select ) )
-				? str_replace( "FROM `{$wpdb->postmeta}` AS `forummeta`", 'FROM `bbp_missing_forum_meta` AS `forummeta`', $query )
+				? str_replace( "FROM {$wpdb->postmeta}", 'FROM bbp_missing_forum_meta', $query )
 				: $query;
 		};
 
@@ -6221,9 +6214,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id       = $this->factory->forum->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_forum_id'";
+			$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_id`";
 
-			return ( $sql_delete === $query )
+			return ( 0 === strpos( $query, $sql_delete ) )
 				? "DELETE FROM `bbp_missing_forum_meta` WHERE `meta_key` = '_bbp_forum_id'"
 				: $query;
 		};
@@ -6256,30 +6249,28 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_meta_reports_topic_insert_errors() {
 		global $wpdb;
 
-		$forum_id       = $this->factory->forum->create();
-		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$reply_id       = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id        = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
 		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) {
-			return ( false !== strpos( $query, "SELECT `topic`.`ID`, '_bbp_forum_id', `topic`.`post_parent`" ) )
-				? 'INSERT INTO `bbp_missing_forum_meta` (`post_id`) VALUES (1)'
-				: $query;
+		$metadata_filter = static function ( $check, $object_id, $key ) use ( $topic_id ) {
+			return ( $object_id === $topic_id ) && ( '_bbp_forum_id' === $key ) ? false : $check;
 		};
 
 		update_post_meta( $forum_id, '_bbp_forum_id', 999 );
 		update_post_meta( $topic_id, '_bbp_forum_id', 999 );
 		update_post_meta( $reply_id, '_bbp_forum_id', 999 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'add_post_metadata', $metadata_filter, 10, 3 );
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
 			$this->assertSame( 2, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_forum_id' ) );
-			$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_forum_id' ) );
-			$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_forum_id' ) );
+			$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
+			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_forum_id', true ) );
+			$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_forum_id', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'add_post_metadata', $metadata_filter, 10 );
 			$wpdb->suppress_errors( $old_suppression );
 		}
 
@@ -6296,30 +6287,28 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_meta_reports_forum_insert_errors() {
 		global $wpdb;
 
-		$forum_id       = $this->factory->forum->create();
-		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$reply_id       = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id        = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
 		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) {
-			return ( false !== strpos( $query, "SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`" ) )
-				? 'INSERT INTO `bbp_missing_forum_meta` (`post_id`) VALUES (1)'
-				: $query;
+		$metadata_filter = static function ( $check, $object_id, $key ) use ( $forum_id ) {
+			return ( $object_id === $forum_id ) && ( '_bbp_forum_id' === $key ) ? false : $check;
 		};
 
 		update_post_meta( $forum_id, '_bbp_forum_id', 999 );
 		update_post_meta( $topic_id, '_bbp_forum_id', 999 );
 		update_post_meta( $reply_id, '_bbp_forum_id', 999 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'add_post_metadata', $metadata_filter, 10, 3 );
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
 			$this->assertSame( 2, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_forum_id' ) );
-			$this->assertSame( (string) $forum_id, get_post_meta( $topic_id, '_bbp_forum_id', true ) );
-			$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_forum_id' ) );
+			$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
+			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_forum_id', true ) );
+			$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_forum_id', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'add_post_metadata', $metadata_filter, 10 );
 			$wpdb->suppress_errors( $old_suppression );
 		}
 
@@ -6335,20 +6324,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_forum_meta_reports_reply_insert_errors() {
 		global $wpdb;
 
-		$forum_id       = $this->factory->forum->create();
-		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$reply_id       = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id        = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
 		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) {
-			return ( false !== strpos( $query, "SELECT `reply`.`ID`, '_bbp_forum_id', `topic`.`post_parent`" ) )
-				? 'INSERT INTO `bbp_missing_forum_meta` (`post_id`) VALUES (1)'
-				: $query;
+		$metadata_filter = static function ( $check, $object_id, $key ) use ( $reply_id ) {
+			return ( $object_id === $reply_id ) && ( '_bbp_forum_id' === $key ) ? false : $check;
 		};
 
 		update_post_meta( $forum_id, '_bbp_forum_id', 999 );
 		update_post_meta( $topic_id, '_bbp_forum_id', 999 );
 		update_post_meta( $reply_id, '_bbp_forum_id', 999 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'add_post_metadata', $metadata_filter, 10, 3 );
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
@@ -6356,9 +6343,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 			$this->assertSame( (string) $forum_id, get_post_meta( $topic_id, '_bbp_forum_id', true ) );
-			$this->assertFalse( metadata_exists( 'post', $reply_id, '_bbp_forum_id' ) );
+			$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_forum_id', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'add_post_metadata', $metadata_filter, 10 );
 			$wpdb->suppress_errors( $old_suppression );
 		}
 
@@ -6367,29 +6354,29 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_meta_batch
 	 * @covers ::bbp_admin_repair_forum_meta
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
-	public function test_bbp_admin_repair_forum_meta_reports_cache_errors_and_can_retry() {
+	public function test_bbp_admin_repair_forum_meta_reports_verification_errors_and_can_retry() {
 		global $wpdb;
 
-		$forum_id       = $this->factory->forum->create();
-		$cache_queries   = 0;
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $wpdb, $forum_id, &$cache_queries ) {
-			if ( false === strpos( $query, "SELECT `ID` FROM `{$wpdb->posts}`" ) ) {
+		$forum_id             = $this->factory->forum->create();
+		$verification_queries = 0;
+		$old_suppression      = $wpdb->suppress_errors( true );
+		$query_filter         = static function ( $query ) use ( $wpdb, $forum_id, &$verification_queries ) {
+			if ( false === strpos( $query, "SELECT COUNT(*) AS row_count" ) ) {
 				return $query;
 			}
 
-			++$cache_queries;
+			++$verification_queries;
 
-			if ( 2 === $cache_queries ) {
+			if ( 1 === $verification_queries ) {
 				$meta_cache = (array) wp_cache_get( $forum_id, 'post_meta' );
 				$meta_cache['_bbp_forum_id'] = array( '999' );
 				wp_cache_set( $forum_id, $meta_cache, 'post_meta' );
 
-				return str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_forum_meta_posts`', $query );
+				return str_replace( "FROM {$wpdb->postmeta}", 'FROM bbp_missing_forum_meta', $query );
 			}
 
 			return $query;
@@ -6400,7 +6387,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 7, $result[0] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 			$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
@@ -6410,7 +6397,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		}
 
 		$result = bbp_admin_repair_forum_meta();
-		$this->assertSame( 1, $result[0] );
+		$this->assertSame( 0, $result[0] );
 		$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 	}
 
@@ -6473,18 +6460,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_meta_batch
 	 * @covers ::bbp_admin_repair_forum_meta
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
-	public function test_bbp_admin_repair_forum_meta_stops_before_writes_on_post_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_meta_stops_before_writes_on_selection_query_errors() {
 		global $wpdb;
 
 		$forum_id       = $this->factory->forum->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$wpdb->posts}`" ) )
-				? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_forum_meta_posts`', $query )
+			return ( false !== strpos( $query, "(SELECT ID FROM {$wpdb->posts} WHERE post_type IN" ) )
+				? str_replace( "FROM {$wpdb->posts}", 'FROM bbp_missing_forum_meta_posts', $query )
 				: $query;
 		};
 
@@ -6503,18 +6490,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_meta_batch
 	 * @covers ::bbp_admin_repair_forum_meta
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
-	public function test_bbp_admin_repair_forum_meta_stops_before_writes_on_relationship_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_meta_stops_before_writes_on_reference_query_errors() {
 		global $wpdb;
 
 		$forum_id       = $this->factory->forum->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			return ( false !== strpos( $query, 'SELECT DISTINCT `post_id`' ) )
-				? str_replace( "FROM `{$wpdb->postmeta}`", 'FROM `bbp_missing_forum_meta`', $query )
+			return ( false !== strpos( $query, 'SELECT posts.ID, CASE' ) )
+				? str_replace( "FROM {$wpdb->posts} AS posts", 'FROM bbp_missing_forum_meta AS posts', $query )
 				: $query;
 		};
 
@@ -6523,7 +6510,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 6, $result[0] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 		} finally {
@@ -6533,18 +6520,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
+	 * @covers ::bbp_admin_repair_forum_meta_batch
 	 * @covers ::bbp_admin_repair_forum_meta
 	 * @covers ::bbp_admin_repair_forum_meta_process
 	 */
-	public function test_bbp_admin_repair_forum_meta_reports_noop_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_meta_reports_noop_selection_query_errors() {
 		global $wpdb;
 
 		$forum_id       = $this->factory->forum->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$wpdb->posts}`" ) )
-				? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_forum_meta_posts`', $query )
+			return ( false !== strpos( $query, "(SELECT ID FROM {$wpdb->posts} WHERE post_type IN" ) )
+				? str_replace( "FROM {$wpdb->posts}", 'FROM bbp_missing_forum_meta_posts', $query )
 				: $query;
 		};
 
@@ -6731,7 +6718,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->factory->topic->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			$reply_select = "SELECT posts.ID, (posts.post_type";
+			$reply_select = "SELECT posts.ID, CASE";
 
 			return ( false !== strpos( $query, $reply_select ) )
 				? str_replace( "FROM {$wpdb->posts} AS posts", 'FROM bbp_missing_topic_meta_replies AS posts', $query )
@@ -6851,7 +6838,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 					: $query;
 			},
 			static function ( $query ) use ( $wpdb ) {
-				return ( false !== strpos( $query, 'SELECT posts.ID, (posts.post_type' ) )
+				return ( false !== strpos( $query, 'SELECT posts.ID, CASE' ) )
 					? str_replace( "FROM {$wpdb->posts} AS posts", 'FROM bbp_missing_topic_meta AS posts', $query )
 					: $query;
 			},

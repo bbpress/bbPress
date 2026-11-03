@@ -105,6 +105,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 	 */
 	public function test_duplicate_cleanup_stays_on_the_same_object_within_write_limits( $size ) {
 		$id = $this->topics( 1 )[0];
+		update_post_meta( $id, '_bbp_topic_id', 0 );
 		for ( $i = 0; $i < $size; ++$i ) {
 			add_post_meta( $id, '_BBP_TOPIC_ID', '0' . $id );
 		}
@@ -365,7 +366,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 			"SELECT MAX(ID) FROM {$db->posts}" => 1,
 			"SELECT MAX(post_id) FROM {$db->postmeta}" => 3,
 			"(SELECT ID FROM {$db->posts} WHERE post_type IN" => 7,
-			'SELECT posts.ID, (posts.post_type' => 2,
+			'SELECT posts.ID, CASE' => 2,
 			"SELECT meta_id FROM {$db->postmeta}" => 3
 		);
 		foreach ( $cases as $prefix => $code ) {
@@ -407,7 +408,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		$ids     = $this->topics();
 		$removed = false;
 		$filter  = static function ( $query ) use ( $db, $ids, $indexes, &$removed ) {
-			if ( ! $removed && ( 0 === strpos( $query, 'SELECT posts.ID, (posts.post_type' ) ) ) {
+			if ( ! $removed && ( 0 === strpos( $query, 'SELECT posts.ID, CASE' ) ) ) {
 				$removed = true;
 				foreach ( $indexes as $index ) {
 					$db->delete( $db->posts, array( 'ID' => $ids[ $index ] ) );
