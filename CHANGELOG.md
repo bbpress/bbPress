@@ -97,6 +97,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Required current forum access and destination edit permission for REST media changes.
 - Required current inherited passwords before editing topics or replies.
 - Kept unsafe markup out of forum, topic, and reply titles across import and direct
   WordPress write paths, including titles stored by earlier versions.

@@ -624,6 +624,53 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * A former group member cannot change media attached to its forum.
+	 *
+	 * @covers BBP_REST_Attachments_Controller::check_update_permission
+	 * @covers BBP_REST_Attachments_Controller::check_delete_permission
+	 */
+	public function test_group_forum_media_writes_require_current_membership() {
+		$creator_id = $this->factory->user->create();
+		$owner_id   = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		bbp_set_user_role( $owner_id, bbp_get_participant_role() );
+		groups_join_group( $group_id, $owner_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		bbp_privatize_forum( $forum_id );
+		$this->group_extension = new BBP_Forums_Group_Extension();
+		$this->set_current_user( $owner_id );
+
+		$attachment_id = wp_insert_attachment( array(
+			'post_status'    => 'inherit',
+			'post_parent'    => $topic_id,
+			'post_author'    => $owner_id,
+			'post_mime_type' => 'image/jpeg',
+			'guid'           => 'https://example.org/group-media.jpg',
+		) );
+		$controller    = new BBP_REST_Attachments_Controller( 'attachment' );
+		$request       = new WP_REST_Request( 'POST', '/wp/v2/media/' . $attachment_id );
+		$request->set_param( 'id', $attachment_id );
+
+		$this->assertTrue( current_user_can( 'edit_post', $attachment_id ) );
+		$this->assertTrue( current_user_can( 'delete_post', $attachment_id ) );
+		$this->assertTrue( bbp_user_can_view_attachment( $attachment_id ) );
+		$this->assertTrue( $controller->update_item_permissions_check( $request ) );
+		$this->assertTrue( $controller->delete_item_permissions_check( $request ) );
+
+		groups_leave_group( $group_id, $owner_id );
+
+		$this->assertFalse( bbp_user_can_view_attachment( $attachment_id ) );
+		$this->assertWPError( $controller->update_item_permissions_check( $request ) );
+		$this->assertWPError( $controller->delete_item_permissions_check( $request ) );
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::user_can_view_group_forum
 	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
 	 * @covers ::BBP_Forums_Group_Extension::exclude_group_forum_ids

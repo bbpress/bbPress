@@ -686,6 +686,165 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * An empty parent ID must not resolve to the global post.
+	 *
+	 * @covers ::bbp_user_can_view_attachment_parent
+	 */
+	public function test_attachment_parent_permission_rejects_empty_id() {
+		$posts         = $this->create_forum_content();
+		$original_post = $GLOBALS['post'] ?? null;
+
+		try {
+			$GLOBALS['post'] = get_post( $posts['topic_id'] );
+			$this->assertFalse( bbp_user_can_view_attachment_parent( 0 ) );
+		} finally {
+			$GLOBALS['post'] = $original_post;
+		}
+	}
+
+	/**
+	 * Media writes must respect the attachment's current bbPress parent.
+	 *
+	 * @covers BBP_REST_Attachments_Controller::check_update_permission
+	 * @covers BBP_REST_Attachments_Controller::check_delete_permission
+	 */
+	public function test_media_writes_require_current_bbpress_parent_access() {
+		$posts   = $this->create_forum_content();
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$attachment_id = $this->create_attachment( $posts['topic_id'] );
+		$controller    = new BBP_REST_Attachments_Controller( 'attachment' );
+		$request       = new WP_REST_Request( 'POST', '/wp/v2/media/' . $attachment_id );
+		$request->set_param( 'id', $attachment_id );
+
+		$this->assertTrue( current_user_can( 'edit_post', $attachment_id ) );
+		$this->assertTrue( current_user_can( 'delete_post', $attachment_id ) );
+		$this->assertTrue( $controller->update_item_permissions_check( $request ) );
+		$this->assertTrue( $controller->delete_item_permissions_check( $request ) );
+
+		wp_update_post( array( 'ID' => $posts['forum_id'], 'post_status' => bbp_get_hidden_status_id() ) );
+
+		$this->assertFalse( bbp_user_can_view_attachment( $attachment_id ) );
+
+		foreach ( array( 'update_item_permissions_check', 'delete_item_permissions_check', 'post_process_item_permissions_check', 'edit_media_item_permissions_check' ) as $method ) {
+			$permission = $controller->$method( $request );
+			$this->assertWPError( $permission );
+			$this->assertSame( 403, $permission->get_error_data()['status'] );
+		}
+
+		if ( method_exists( $controller, 'sideload_item_permissions_check' ) ) {
+			$permission = $controller->sideload_item_permissions_check( $request );
+			$this->assertWPError( $permission );
+			$this->assertSame( 403, $permission->get_error_data()['status'] );
+		}
+
+		$request->set_param( 'post', 0 );
+		$this->assertWPError( $controller->update_item_permissions_check( $request ) );
+		$this->assertSame( 'Restricted attachment', get_post( $attachment_id )->post_title );
+	}
+
+	/**
+	 * Reparenting and creating media must respect the requested bbPress parent.
+	 *
+	 * @covers BBP_REST_Attachments_Controller::create_item_permissions_check
+	 * @covers BBP_REST_Attachments_Controller::update_item_permissions_check
+	 */
+	public function test_media_writes_require_requested_bbpress_parent_access() {
+		$public     = $this->create_forum_content();
+		$restricted = $this->create_forum_content();
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		wp_update_post( array( 'ID' => $restricted['topic_id'], 'post_author' => $user_id ) );
+		wp_update_post( array( 'ID' => $restricted['forum_id'], 'post_password' => 'new-password' ) );
+		$this->set_current_user( $user_id );
+
+		$attachment_id = $this->create_attachment( $public['topic_id'] );
+		$controller    = new BBP_REST_Attachments_Controller( 'attachment' );
+		$request       = new WP_REST_Request( 'POST', '/wp/v2/media' );
+		$request->set_param( 'post', $restricted['topic_id'] );
+
+		$this->assertTrue( current_user_can( 'edit_post', $attachment_id ) );
+		$this->assertTrue( current_user_can( 'edit_post', $restricted['topic_id'] ) );
+		$this->assertFalse( bbp_user_can_view_attachment_parent( $restricted['topic_id'] ) );
+		$permission = $controller->create_item_permissions_check( $request );
+		$this->assertWPError( $permission );
+		$this->assertSame( 403, $permission->get_error_data()['status'] );
+
+		$request->set_param( 'id', $attachment_id );
+		$permission = $controller->update_item_permissions_check( $request );
+		$this->assertWPError( $permission );
+		$this->assertSame( 403, $permission->get_error_data()['status'] );
+		$this->assertSame( $public['topic_id'], get_post( $attachment_id )->post_parent );
+
+		$other_public = $this->create_forum_content();
+		$request->set_param( 'post', $other_public['topic_id'] );
+		$this->assertTrue( $controller->update_item_permissions_check( $request ) );
+		$request->set_param( 'id', null );
+		$this->assertTrue( $controller->create_item_permissions_check( $request ) );
+		$this->assertSame( 200, $this->update_item( 'media', $attachment_id, $user_id, array( 'post' => $other_public['topic_id'] ) )->get_status() );
+		$this->assertSame( $other_public['topic_id'], get_post( $attachment_id )->post_parent );
+	}
+
+	/**
+	 * Reparenting needs the same target edit capability as a new upload.
+	 *
+	 * @covers BBP_REST_Attachments_Controller::update_item_permissions_check
+	 */
+	public function test_media_reparenting_requires_requested_parent_edit_capability() {
+		$source = $this->create_forum_content();
+		$target = $this->create_forum_content();
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$attachment_id = $this->create_attachment( $source['topic_id'] );
+		$controller    = new BBP_REST_Attachments_Controller( 'attachment' );
+		$request       = new WP_REST_Request( 'POST', '/wp/v2/media/' . $attachment_id );
+		$request->set_param( 'id', $attachment_id );
+		$request->set_param( 'post', $target['topic_id'] );
+
+		$this->assertTrue( current_user_can( 'edit_post', $attachment_id ) );
+		$this->assertTrue( bbp_user_can_view_attachment_parent( $target['topic_id'] ) );
+		$this->assertFalse( current_user_can( 'edit_post', $target['topic_id'] ) );
+
+		$permission = $controller->update_item_permissions_check( $request );
+		$this->assertWPError( $permission );
+		$this->assertSame( 403, $permission->get_error_data()['status'] );
+
+		$request->set_param( 'post', $source['topic_id'] );
+		$this->assertFalse( current_user_can( 'edit_post', $source['topic_id'] ) );
+		$this->assertTrue( $controller->update_item_permissions_check( $request ) );
+	}
+
+	/**
+	 * Ordinary WordPress media keeps its existing permission checks.
+	 *
+	 * @covers BBP_REST_Attachments_Controller::check_update_permission
+	 * @covers BBP_REST_Attachments_Controller::check_delete_permission
+	 */
+	public function test_media_write_permissions_preserve_ordinary_wordpress_media() {
+		$post_id = $this->factory->post->create();
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$this->set_current_user( $user_id );
+
+		$attachment_id = $this->create_attachment( $post_id );
+		$controller    = new BBP_REST_Attachments_Controller( 'attachment' );
+		$request       = new WP_REST_Request( 'POST', '/wp/v2/media/' . $attachment_id );
+		$request->set_param( 'id', $attachment_id );
+
+		$this->assertTrue( $controller->update_item_permissions_check( $request ) );
+		$this->assertTrue( $controller->delete_item_permissions_check( $request ) );
+
+		$subscriber_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$this->set_current_user( $subscriber_id );
+
+		$this->assertWPError( $controller->update_item_permissions_check( $request ) );
+		$this->assertWPError( $controller->delete_item_permissions_check( $request ) );
+	}
+
+	/**
 	 * @covers BBP_REST_Posts_Controller::check_read_permission
 	 */
 	public function test_anonymous_user_cannot_read_public_descendants_of_hidden_forum() {

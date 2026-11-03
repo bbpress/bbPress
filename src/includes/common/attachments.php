@@ -53,7 +53,25 @@ function bbp_get_attachment_parent( $attachment = 0 ) {
 function bbp_user_can_view_attachment( $attachment = 0 ) {
 	$parent = bbp_get_attachment_parent( $attachment );
 
-	if ( empty( $parent ) || bbp_get_password_required_id( $parent->ID ) ) {
+	return ! empty( $parent ) && bbp_user_can_view_attachment_parent( $parent );
+}
+
+/**
+ * Check whether the current user can view a bbPress attachment parent.
+ *
+ * @since 2.6.22 bbPress (r8283)
+ *
+ * @param int|WP_Post $attachment_parent Parent post ID or object.
+ * @return bool Whether the parent can be viewed.
+ */
+function bbp_user_can_view_attachment_parent( $attachment_parent = 0 ) {
+	if ( empty( $attachment_parent ) ) {
+		return false;
+	}
+
+	$parent = get_post( $attachment_parent );
+
+	if ( empty( $parent ) || ! bbp_is_custom_post_type( $parent ) || bbp_get_password_required_id( $parent->ID ) ) {
 		return false;
 	}
 
@@ -247,6 +265,105 @@ class BBP_REST_Attachment_Parent_Controller extends BBP_REST_Posts_Controller {
  * @since 2.7.0 bbPress (r7481)
  */
 class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
+
+	/**
+	 * Check the requested bbPress parent before creating or moving media.
+	 *
+	 * @since 2.6.22 bbPress (r8283)
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @param int             $current_parent_id Current attachment parent ID, if any.
+	 * @return true|WP_Error Whether the requested parent is accessible.
+	 */
+	private function check_requested_parent_permission( $request, $current_parent_id = 0 ) {
+		$parent = ! empty( $request['post'] ) ? get_post( (int) $request['post'] ) : null;
+
+		if ( empty( $parent ) || ! bbp_is_custom_post_type( $parent ) ) {
+			return true;
+		}
+
+		if ( ( (int) $current_parent_id !== $parent->ID && ! current_user_can( 'edit_post', $parent->ID ) ) || ! bbp_user_can_view_attachment_parent( $parent ) ) {
+			return new WP_Error(
+				'bbp_rest_cannot_edit_attachment_parent',
+				esc_html__( 'You are not allowed to attach media to this forum content.', 'bbpress' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check the requested parent when creating media.
+	 *
+	 * @since 2.6.22 bbPress (r8283)
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error Whether the media may be created.
+	 */
+	public function create_item_permissions_check( $request ) {
+		$retval = parent::create_item_permissions_check( $request );
+
+		return ( true === $retval )
+			? $this->check_requested_parent_permission( $request )
+			: $retval;
+	}
+
+	/**
+	 * Check both the current and requested parents when updating media.
+	 *
+	 * @since 2.6.22 bbPress (r8283)
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error Whether the media may be updated.
+	 */
+	public function update_item_permissions_check( $request ) {
+		$retval = parent::update_item_permissions_check( $request );
+
+		if ( true !== $retval ) {
+			return $retval;
+		}
+
+		$attachment = get_post( (int) $request['id'] );
+
+		return $this->check_requested_parent_permission( $request, $attachment ? $attachment->post_parent : 0 );
+	}
+
+	/**
+	 * Require current bbPress parent access as well as attachment edit capability.
+	 *
+	 * @since 2.6.22 bbPress (r8283)
+	 *
+	 * @param WP_Post $post Attachment post object.
+	 * @return bool Whether the attachment can be updated.
+	 */
+	protected function check_update_permission( $post ) {
+		if ( ! parent::check_update_permission( $post ) ) {
+			return false;
+		}
+
+		$parent = bbp_get_attachment_parent( $post );
+
+		return empty( $parent ) || bbp_user_can_view_attachment_parent( $parent );
+	}
+
+	/**
+	 * Require current bbPress parent access as well as attachment delete capability.
+	 *
+	 * @since 2.6.22 bbPress (r8283)
+	 *
+	 * @param WP_Post $post Attachment post object.
+	 * @return bool Whether the attachment can be deleted.
+	 */
+	protected function check_delete_permission( $post ) {
+		if ( ! parent::check_delete_permission( $post ) ) {
+			return false;
+		}
+
+		$parent = bbp_get_attachment_parent( $post );
+
+		return empty( $parent ) || bbp_user_can_view_attachment_parent( $parent );
+	}
 
 	/**
 	 * Checks if an attachment can be read.
