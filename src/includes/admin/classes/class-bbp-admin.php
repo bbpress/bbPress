@@ -175,6 +175,9 @@ class BBP_Admin {
 	 */
 	private function includes() {
 
+		// Classes
+		require $this->admin_dir . 'classes/class-bbp-admin-forum-counts.php';
+
 		// Tools
 		require $this->admin_dir . 'tools.php';
 		require $this->admin_dir . 'tools/common.php';

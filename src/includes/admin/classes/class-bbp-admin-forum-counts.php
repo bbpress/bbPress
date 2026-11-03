@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * bbPress Admin Forum Recounts.
+ *
+ * @package bbPress
+ * @subpackage Administration
+ */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
+/**
  * Resumable, post-order forum recounts shared by topic and reply tools.
  *
  * Nodes live in non-autoloaded options so a request need not load the complete

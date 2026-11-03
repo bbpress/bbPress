@@ -1320,7 +1320,6 @@ function bbp_admin_repair_topic_hidden_reply_count_process( $dry_run = false ) {
  * @return array Status code, repaired forum count, and progress flags.
  */
 function bbp_admin_repair_forum_count_batch( $type = 'topics', $dry_run = false ) {
-	require_once __DIR__ . '/../classes/class-bbp-admin-forum-counts.php';
 	$worker = new BBP_Admin_Forum_Counts( $type, $dry_run );
 	return $worker->run();
 }
@@ -1334,7 +1333,6 @@ function bbp_admin_repair_forum_count_batch( $type = 'topics', $dry_run = false 
  * @return array Status code, countable forum IDs, and repair count.
  */
 function bbp_admin_repair_forum_count_get_status( $type = 'topics' ) {
-	require_once __DIR__ . '/../classes/class-bbp-admin-forum-counts.php';
 	$worker = new BBP_Admin_Forum_Counts( $type, true );
 	return $worker->get_status();
 }
