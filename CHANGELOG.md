@@ -13,6 +13,10 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Security
+
+- Required current forum access and destination edit permission for REST media changes.
+
 ### Fixed
 
 - Used the configured edit slug for reply edit links in BuddyPress group forums.
