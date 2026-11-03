@@ -361,65 +361,20 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		$batch['code'] = 2;
 		return $batch;
 	}
-	$complete       = count( $rows ) <= $size;
-	$rows           = array_slice( $rows, 0, $size );
-	$batch['found'] = ! empty( $rows );
-	$planned        = array();
-
-	// Use the same source rules for adding missing and identifying stale engagements
-	$source = $bbp_db->prepare(
-		"SELECT topics.ID AS post_id, posts.post_author AS user_id
-		FROM {$bbp_db->posts} AS posts
-		INNER JOIN {$bbp_db->postmeta} AS postmeta
-			ON posts.ID = postmeta.post_id AND postmeta.meta_key = '_bbp_topic_id'
-		INNER JOIN {$bbp_db->posts} AS topics
-			ON topics.ID = postmeta.meta_value AND topics.post_type = %s
-		WHERE posts.post_type IN (%s, %s) AND posts.post_status IN (%s, %s)",
-		bbp_get_topic_post_type(),
-		bbp_get_topic_post_type(),
-		bbp_get_reply_post_type(),
-		bbp_get_public_status_id(),
-		bbp_get_closed_status_id()
-	);
-
-	foreach ( $rows as $row ) {
-		// Classify keys with the same database collation used by the source query
-		$is_source = (bool) $row->is_source;
-		$where     = $is_source
-			? $bbp_db->prepare( ' AND postmeta.meta_id = %d', $row->meta_id )
-			: $bbp_db->prepare( ' AND topics.ID = %d AND posts.post_author = %d', $row->post_id, $row->meta_value );
-		$relation  = $bbp_db->get_row( $source . $where . ' LIMIT 1' );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			$batch['code'] = 3;
-			return $batch;
-		}
-
-		$exists = null;
-		if ( ! empty( $relation ) ) {
-			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_engagement' AND BINARY meta_value = %s ORDER BY meta_id LIMIT 1", $relation->post_id, $relation->user_id ) );
-			if ( ! empty( $bbp_db->last_error ) ) {
-				$batch['code'] = 3;
-				return $batch;
-			}
-		}
-
-		if ( $is_source ) {
-			if ( ! empty( $relation ) && empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] ) ) {
-				if ( ! $dry_run && ! add_post_meta( $relation->post_id, '_bbp_engagement', $relation->user_id, false ) ) {
-					$batch['code'] = 5;
-					return $batch;
-				}
-				$planned[ $relation->post_id ][ $relation->user_id ] = true;
-				++$batch['added'];
-			}
-		} elseif ( (int) $exists !== (int) $row->meta_id ) {
-			if ( ! $dry_run && ! delete_metadata_by_mid( 'post', $row->meta_id ) ) {
-				$batch['code'] = 4;
-				return $batch;
-			}
-			++$batch['removed'];
-		}
-		$state['cursor'] = (int) $row->meta_id;
+	$complete         = count( $rows ) <= $size;
+	$rows             = array_slice( $rows, 0, $size );
+	$batch['found']   = ! empty( $rows );
+	$statuses         = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
+	$source           = bbp_admin_repair_get_engagements_query( $statuses, $statuses, true );
+	$repair           = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run );
+	$batch['code']    = $repair['code'];
+	$batch['added']   = $repair['added'];
+	$batch['removed'] = $repair['removed'];
+	if ( ! empty( $batch['code'] ) ) {
+		return $batch;
+	}
+	if ( ! empty( $rows ) ) {
+		$state['cursor'] = $repair['cursor'];
 	}
 
 	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {

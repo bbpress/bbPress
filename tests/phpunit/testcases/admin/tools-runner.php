@@ -1060,17 +1060,25 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
 	}
 
-	public function test_topic_reference_batches_finish_before_the_next_bulk_tool() {
+	public function topic_repair_batch_tools() {
+		return array(
+			array( 'bbp-sync-topic-meta', '_bbp_topic_id' ),
+			array( 'bbp-topic-engagements', '_bbp_voice_count' )
+		);
+	}
+
+	/** @dataProvider topic_repair_batch_tools */
+	public function test_topic_repair_batches_finish_before_the_next_bulk_tool( $first_tool, $key ) {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
 		$topics = $this->factory->topic->create_many( 3 );
 		$forums = $this->factory->forum->create_many( 3 );
 		foreach ( $topics as $id ) {
-			update_post_meta( $id, '_bbp_topic_id', 999 );
+			update_post_meta( $id, $key, 0 );
 		}
 		foreach ( $forums as $id ) {
 			update_post_meta( $id, '_bbp_forum_subforum_count', 99 );
 		}
-		$ids  = array( 'bbp-sync-topic-meta', 'bbp-forum-subforums' );
+		$ids  = array( $first_tool, 'bbp-forum-subforums' );
 		$size = static function () {
 			return 2;
 		};
@@ -1093,7 +1101,7 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 				$run_id = $state['id'];
 				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
 				if ( 0 === $index ) {
-					$this->assertSame( '999', get_post_meta( $topics[1], '_bbp_topic_id', true ) );
+					$this->assertSame( '0', get_post_meta( $topics[1], $key, true ) );
 					$this->assertSame( '99', get_post_meta( $forums[0], '_bbp_forum_subforum_count', true ) );
 				}
 				for ( $batch = 0; $batch < 12; ++$batch ) {
@@ -1110,7 +1118,8 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
 		}
 		foreach ( $topics as $id ) {
-			$this->assertSame( array( (string) $id ), get_post_meta( $id, '_bbp_topic_id', false ) );
+			$expected = ( '_bbp_topic_id' === $key ) ? (string) $id : '1';
+			$this->assertSame( array( $expected ), get_post_meta( $id, $key, false ) );
 		}
 		foreach ( $forums as $id ) {
 			$this->assertSame( '0', get_post_meta( $id, '_bbp_forum_subforum_count', true ) );

@@ -392,6 +392,121 @@ function bbp_admin_repair_tool_batch_size( $tool_id = '' ) {
 }
 
 /**
+ * Build the source query shared by engagement repairs and upgrades.
+ *
+ * @since 2.7.0 bbPress (r8281)
+ *
+ * @param array $topic_statuses Countable topic statuses.
+ * @param array $reply_statuses Countable reply statuses.
+ * @param bool  $anonymous      Whether to retain anonymous authors.
+ * @return string Prepared relationship query.
+ */
+function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $reply_statuses = array(), $anonymous = false ) {
+	$bbp_db         = bbp_db();
+	$topic_statuses = ! empty( $topic_statuses ) ? (array) $topic_statuses : array( '' );
+	$reply_statuses = ! empty( $reply_statuses ) ? (array) $reply_statuses : array( '' );
+	$topic_slots    = implode( ', ', array_fill( 0, count( $topic_statuses ), '%s' ) );
+	$reply_slots    = implode( ', ', array_fill( 0, count( $reply_statuses ), '%s' ) );
+	$author_sql     = $anonymous ? '' : ' AND posts.post_author > 0';
+	$tpt            = bbp_get_topic_post_type();
+
+	return $bbp_db->prepare(
+		"SELECT topics.ID AS post_id, posts.post_author AS user_id
+		FROM {$bbp_db->posts} AS posts
+		INNER JOIN {$bbp_db->postmeta} AS postmeta
+			ON posts.ID = postmeta.post_id AND postmeta.meta_key = '_bbp_topic_id'
+		INNER JOIN {$bbp_db->posts} AS topics
+			ON topics.ID = postmeta.meta_value AND topics.post_type = %s
+		WHERE ((posts.post_type = %s AND posts.post_status IN ({$topic_slots}))
+			OR (posts.post_type = %s AND posts.post_status IN ({$reply_slots}))){$author_sql}",
+		array_merge( array( $tpt, $tpt ), $topic_statuses, array( bbp_get_reply_post_type() ), $reply_statuses )
+	);
+}
+
+/**
+ * Reconcile a bounded selection of source and stored engagement rows.
+ *
+ * Keep the earliest canonical relationship and share duplicate suppression with
+ * previews. Each selected row can add or remove at most one metadata row.
+ *
+ * @since 2.7.0 bbPress (r8281)
+ *
+ * @param array  $rows    Selected metadata rows, including is_source flags.
+ * @param string $source Prepared source relationship query.
+ * @param bool   $dry_run Whether to preview without writes or cache invalidation.
+ * @return array Status code, additions, removals, changed topic IDs, and cursor.
+ */
+function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false ) {
+	$bbp_db = bbp_db();
+	$result = array(
+		'code'    => 0,
+		'added'   => 0,
+		'removed' => 0,
+		'topics'  => array(),
+		'cursor'  => 0
+	);
+	$planned = array();
+	foreach ( $rows as $row ) {
+		$is_source = (bool) $row->is_source;
+		$where     = $is_source
+			? $bbp_db->prepare( ' AND postmeta.meta_id = %d', $row->meta_id )
+			: $bbp_db->prepare( ' AND topics.ID = %d AND posts.post_author = %d', $row->post_id, $row->meta_value );
+		$relation = $bbp_db->get_row( $source . $where . ' LIMIT 1' );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$result['code'] = 3;
+			return $result;
+		}
+		$exists = null;
+		if ( ! empty( $relation ) ) {
+			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_engagement' AND BINARY meta_value = %s ORDER BY meta_id LIMIT 1", $relation->post_id, $relation->user_id ) );
+			if ( ! empty( $bbp_db->last_error ) ) {
+				$result['code'] = 3;
+				return $result;
+			}
+		}
+		if ( ! $dry_run ) {
+			$cache_id = $is_source && ! empty( $relation ) ? $relation->post_id : $row->post_id;
+			wp_cache_delete( $cache_id, 'post_meta' );
+		}
+		if ( $is_source ) {
+			if ( ! empty( $relation ) && empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] ) ) {
+				if ( ! $dry_run ) {
+					$meta_id = add_post_meta( $relation->post_id, '_bbp_engagement', $relation->user_id, false );
+					if ( ! $meta_id ) {
+						$result['code'] = 5;
+						return $result;
+					}
+					$stored = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_engagement' AND BINARY meta_value = %s LIMIT 1", $relation->post_id, $relation->user_id ) );
+					if ( ! empty( $bbp_db->last_error ) || empty( $stored ) ) {
+						$result['code'] = 5;
+						return $result;
+					}
+				}
+				$planned[ $relation->post_id ][ $relation->user_id ] = true;
+				$result['topics'][ (int) $relation->post_id ]        = true;
+				++$result['added'];
+			}
+		} elseif ( (int) $exists !== (int) $row->meta_id ) {
+			if ( ! $dry_run ) {
+				if ( ! delete_metadata_by_mid( 'post', $row->meta_id ) ) {
+					$result['code'] = 4;
+					return $result;
+				}
+				$stored = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE meta_id = %d", $row->meta_id ) );
+				if ( ! empty( $bbp_db->last_error ) || ! empty( $stored ) ) {
+					$result['code'] = 4;
+					return $result;
+				}
+			}
+			$result['topics'][ (int) $row->post_id ] = true;
+			++$result['removed'];
+		}
+		$result['cursor'] = (int) $row->meta_id;
+	}
+	return $result;
+}
+
+/**
  * Return the option name for a built-in tool's next batch checkpoint.
  *
  * @since 2.7.0 bbPress (r8253)

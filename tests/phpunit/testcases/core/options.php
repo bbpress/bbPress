@@ -200,7 +200,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	 * @covers ::bbp_delete_options
 	 */
 	public function test_bbp_delete_options_removes_builtin_tool_batch_checkpoints() {
-		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta' );
+		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements' );
 		foreach ( $tools as $tool_id ) {
 			$this->set_option( '_bbp_tool_batch_' . md5( $tool_id ), array( 'cursor' => 10 ) );
 		}

@@ -65,6 +65,8 @@ Development for the next bbPress release is in progress. See the active
   completion during small-site upgrades and read-only previews of the next batch.
   Legacy-data cleanup waits for unfinished migrations. Engagement upgrades retain
   valid rows while adding missing relationships and cleaning up stale or duplicate rows.
+- Rebuild topic engagements and voice counts in resumable batches, sharing
+  relationship reconciliation with the engagement upgrade and preserving valid rows.
 - Repair topic and parent-forum references in resumable batches. Share bounded
   selection, metadata cleanup, verification, and checkpoints while preserving
   correct references during retries.
