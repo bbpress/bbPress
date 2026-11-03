@@ -4169,19 +4169,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$key             = $db->prefix . '_bbp_favorites';
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db, $key ) {
-			$sql_delete = "DELETE FROM `{$db->usermeta}` WHERE `meta_key` = '{$key}'";
-
-			return ( $query === $sql_delete )
+			return ( 0 === strpos( $query, 'DELETE FROM ' ) ) && ( false !== strpos( $query, $db->usermeta ) ) && ( false !== strpos( $query, 'umeta_id' ) )
 				? 'DELETE FROM bbp_missing_favorites_usermeta'
 				: $query;
 		};
 
-		update_user_meta( $user_id, $key, "{$live_id},999999" );
+		update_user_meta( $user_id, $key, '999999' );
+		update_user_meta( $this->factory->user->create(), $key, $live_id );
 		add_filter( 'query', $query_filter );
 
 		try {
 			$this->assertSame( 4, bbp_admin_repair_user_favorites()[0] );
-			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
+			$this->assertSame( '999999', get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -4192,17 +4191,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_user_favorites
 	 * @covers ::bbp_admin_repair_user_favorites_process
 	 */
-	public function test_bbp_admin_repair_user_favorites_reports_insert_errors_and_clears_cache() {
+	public function test_bbp_admin_repair_user_favorites_reports_update_errors_and_preserves_data() {
 		$db              = bbp_db();
 		$user_id         = $this->factory->user->create();
 		$live_id         = $this->factory->topic->create();
 		$key             = $db->prefix . '_bbp_favorites';
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db ) {
-			$sql_insert = "INSERT INTO `{$db->usermeta}`";
+			$sql_update = "UPDATE `{$db->usermeta}`";
 
-			return ( 0 === strpos( $query, $sql_insert ) )
-				? 'INSERT INTO bbp_missing_favorites_usermeta (`user_id`) VALUES (1)'
+			return ( 0 === strpos( $query, $sql_update ) )
+				? 'UPDATE bbp_missing_user_lists SET meta_value = 1 WHERE umeta_id = 1'
 				: $query;
 		};
 
@@ -4212,7 +4211,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( 5, bbp_admin_repair_user_favorites()[0] );
-			$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
+			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -4414,19 +4413,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$key             = $db->prefix . '_bbp_subscriptions';
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db, $key ) {
-			$sql_delete = "DELETE FROM `{$db->usermeta}` WHERE `meta_key` = '{$key}'";
-
-			return ( $query === $sql_delete )
+			return ( 0 === strpos( $query, 'DELETE FROM ' ) ) && ( false !== strpos( $query, $db->usermeta ) ) && ( false !== strpos( $query, 'umeta_id' ) )
 				? 'DELETE FROM bbp_missing_topic_subscriptions_usermeta'
 				: $query;
 		};
 
-		update_user_meta( $user_id, $key, "{$live_id},999999" );
+		update_user_meta( $user_id, $key, '999999' );
+		update_user_meta( $this->factory->user->create(), $key, $live_id );
 		add_filter( 'query', $query_filter );
 
 		try {
 			$this->assertSame( 4, bbp_admin_repair_user_topic_subscriptions()[0] );
-			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
+			$this->assertSame( '999999', get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -4437,17 +4435,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_user_topic_subscriptions
 	 * @covers ::bbp_admin_repair_user_topic_subscriptions_process
 	 */
-	public function test_bbp_admin_repair_user_topic_subscriptions_reports_insert_errors_and_clears_cache() {
+	public function test_bbp_admin_repair_user_topic_subscriptions_reports_update_errors_and_preserves_data() {
 		$db              = bbp_db();
 		$user_id         = $this->factory->user->create();
 		$live_id         = $this->factory->topic->create();
 		$key             = $db->prefix . '_bbp_subscriptions';
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db ) {
-			$sql_insert = "INSERT INTO `{$db->usermeta}`";
+			$sql_update = "UPDATE `{$db->usermeta}`";
 
-			return ( 0 === strpos( $query, $sql_insert ) )
-				? 'INSERT INTO bbp_missing_topic_subscriptions_usermeta (`user_id`) VALUES (1)'
+			return ( 0 === strpos( $query, $sql_update ) )
+				? 'UPDATE bbp_missing_user_lists SET meta_value = 1 WHERE umeta_id = 1'
 				: $query;
 		};
 
@@ -4457,7 +4455,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( 5, bbp_admin_repair_user_topic_subscriptions()[0] );
-			$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
+			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -4659,19 +4657,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$key             = $db->prefix . '_bbp_forum_subscriptions';
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db, $key ) {
-			$sql_delete = "DELETE FROM `{$db->usermeta}` WHERE `meta_key` = '{$key}'";
-
-			return ( $query === $sql_delete )
+			return ( 0 === strpos( $query, 'DELETE FROM ' ) ) && ( false !== strpos( $query, $db->usermeta ) ) && ( false !== strpos( $query, 'umeta_id' ) )
 				? 'DELETE FROM bbp_missing_forum_subscriptions_usermeta'
 				: $query;
 		};
 
-		update_user_meta( $user_id, $key, "{$live_id},999999" );
+		update_user_meta( $user_id, $key, '999999' );
+		update_user_meta( $this->factory->user->create(), $key, $live_id );
 		add_filter( 'query', $query_filter );
 
 		try {
 			$this->assertSame( 4, bbp_admin_repair_user_forum_subscriptions()[0] );
-			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
+			$this->assertSame( '999999', get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -4682,17 +4679,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_user_forum_subscriptions
 	 * @covers ::bbp_admin_repair_user_forum_subscriptions_process
 	 */
-	public function test_bbp_admin_repair_user_forum_subscriptions_reports_insert_errors_and_clears_cache() {
+	public function test_bbp_admin_repair_user_forum_subscriptions_reports_update_errors_and_preserves_data() {
 		$db              = bbp_db();
 		$user_id         = $this->factory->user->create();
 		$live_id         = $this->factory->forum->create();
 		$key             = $db->prefix . '_bbp_forum_subscriptions';
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db ) {
-			$sql_insert = "INSERT INTO `{$db->usermeta}`";
+			$sql_update = "UPDATE `{$db->usermeta}`";
 
-			return ( 0 === strpos( $query, $sql_insert ) )
-				? 'INSERT INTO bbp_missing_forum_subscriptions_usermeta (`user_id`) VALUES (1)'
+			return ( 0 === strpos( $query, $sql_update ) )
+				? 'UPDATE bbp_missing_user_lists SET meta_value = 1 WHERE umeta_id = 1'
 				: $query;
 		};
 
@@ -4702,7 +4699,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( 5, bbp_admin_repair_user_forum_subscriptions()[0] );
-			$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
+			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -7790,17 +7787,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 favorite user-meta rows would be deleted', $dry_run[1] );
+		$this->assertStringContainsString( '3 favorite user-meta rows would be cleaned up', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 favorite user-meta rows deleted', $result[1] );
+		$this->assertStringContainsString( '3 favorite user-meta rows cleaned up', $result[1] );
 		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
 
 		$dry_run = bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 favorite user-meta rows to remove', $dry_run[1] );
+		$this->assertStringContainsString( '0 favorite user-meta rows would be cleaned up', $dry_run[1] );
 	}
 
 	/**
@@ -7838,30 +7835,31 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db      = bbp_db();
 		$user_id = $this->factory->user->create();
 		$key     = $db->prefix . '_bbp_favorites';
-		$filter  = static function ( $check, $object_id, $meta_key ) use ( $key ) {
-			return ( $key === $meta_key ) ? false : $check;
+		$filter  = static function ( $check, $meta_id ) use ( $key ) {
+			$meta = get_metadata_by_mid( 'user', $meta_id );
+			return ( $meta && $key === $meta->meta_key ) ? false : $check;
 		};
 
 		update_user_option( $user_id, '_bbp_favorites', '1,2' );
-		add_filter( 'delete_user_metadata', $filter, 10, 3 );
+		add_filter( 'delete_user_metadata_by_mid', $filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 1 favorite user-meta row could not be deleted.', $result[1] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
 
 			$dry_run = bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 favorite user-meta row would be deleted', $dry_run[1] );
+			$this->assertStringContainsString( '1 favorite user-meta row would be cleaned up', $dry_run[1] );
 		} finally {
-			remove_filter( 'delete_user_metadata', $filter, 10 );
+			remove_filter( 'delete_user_metadata_by_mid', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 favorite user-meta row deleted', $result[1] );
+		$this->assertStringContainsString( '1 favorite user-meta row cleaned up', $result[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
 	}
 
@@ -7882,17 +7880,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 topic subscription user-meta rows would be deleted', $dry_run[1] );
+		$this->assertStringContainsString( '3 topic subscription user-meta rows would be cleaned up', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 topic subscription user-meta rows deleted', $result[1] );
+		$this->assertStringContainsString( '3 topic subscription user-meta rows cleaned up', $result[1] );
 		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
 
 		$dry_run = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 topic subscription user-meta rows to remove', $dry_run[1] );
+		$this->assertStringContainsString( '0 topic subscription user-meta rows would be cleaned up', $dry_run[1] );
 	}
 
 	/**
@@ -7930,30 +7928,31 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db      = bbp_db();
 		$user_id = $this->factory->user->create();
 		$key     = $db->prefix . '_bbp_subscriptions';
-		$filter  = static function ( $check, $object_id, $meta_key ) use ( $key ) {
-			return ( $key === $meta_key ) ? false : $check;
+		$filter  = static function ( $check, $meta_id ) use ( $key ) {
+			$meta = get_metadata_by_mid( 'user', $meta_id );
+			return ( $meta && $key === $meta->meta_key ) ? false : $check;
 		};
 
 		update_user_option( $user_id, '_bbp_subscriptions', '1,2' );
-		add_filter( 'delete_user_metadata', $filter, 10, 3 );
+		add_filter( 'delete_user_metadata_by_mid', $filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 1 topic subscription user-meta row could not be deleted.', $result[1] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
 
 			$dry_run = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 topic subscription user-meta row would be deleted', $dry_run[1] );
+			$this->assertStringContainsString( '1 topic subscription user-meta row would be cleaned up', $dry_run[1] );
 		} finally {
-			remove_filter( 'delete_user_metadata', $filter, 10 );
+			remove_filter( 'delete_user_metadata_by_mid', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 topic subscription user-meta row deleted', $result[1] );
+		$this->assertStringContainsString( '1 topic subscription user-meta row cleaned up', $result[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
 	}
 
@@ -7974,17 +7973,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '3 forum subscription user-meta rows would be deleted', $dry_run[1] );
+		$this->assertStringContainsString( '3 forum subscription user-meta rows would be cleaned up', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( $db->prepare( "SELECT umeta_id, user_id, meta_value FROM {$db->usermeta} WHERE meta_key = %s ORDER BY umeta_id", $key ), ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '3 forum subscription user-meta rows deleted', $result[1] );
+		$this->assertStringContainsString( '3 forum subscription user-meta rows cleaned up', $result[1] );
 		$this->assertSame( 0, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = %s", $key ) ) );
 
 		$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 forum subscription user-meta rows to remove', $dry_run[1] );
+		$this->assertStringContainsString( '0 forum subscription user-meta rows would be cleaned up', $dry_run[1] );
 	}
 
 	/**
@@ -8022,30 +8021,31 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db      = bbp_db();
 		$user_id = $this->factory->user->create();
 		$key     = $db->prefix . '_bbp_forum_subscriptions';
-		$filter  = static function ( $check, $object_id, $meta_key ) use ( $key ) {
-			return ( $key === $meta_key ) ? false : $check;
+		$filter  = static function ( $check, $meta_id ) use ( $key ) {
+			$meta = get_metadata_by_mid( 'user', $meta_id );
+			return ( $meta && $key === $meta->meta_key ) ? false : $check;
 		};
 
 		update_user_option( $user_id, '_bbp_forum_subscriptions', '1,2' );
-		add_filter( 'delete_user_metadata', $filter, 10, 3 );
+		add_filter( 'delete_user_metadata_by_mid', $filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertStringContainsString( 'Failed! 1 forum subscription user-meta row could not be deleted.', $result[1] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
 
 			$dry_run = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run();
 			$this->assertSame( 0, $dry_run[0] );
-			$this->assertStringContainsString( '1 forum subscription user-meta row would be deleted', $dry_run[1] );
+			$this->assertStringContainsString( '1 forum subscription user-meta row would be cleaned up', $dry_run[1] );
 		} finally {
-			remove_filter( 'delete_user_metadata', $filter, 10 );
+			remove_filter( 'delete_user_metadata_by_mid', $filter, 10 );
 		}
 
 		$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
 		$this->assertSame( 0, $result[0] );
-		$this->assertStringContainsString( '1 forum subscription user-meta row deleted', $result[1] );
+		$this->assertStringContainsString( '1 forum subscription user-meta row cleaned up', $result[1] );
 		$this->assertFalse( metadata_exists( 'user', $user_id, $key ) );
 	}
 

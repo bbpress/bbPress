@@ -67,6 +67,13 @@ Development for the next bbPress release is in progress. See the active
   valid rows while adding missing relationships and cleaning up stale or duplicate rows.
 - Recount forum topics and public or non-public replies with one resumable
   hierarchy worker, preserving filters, safe retries, and small-site upgrades.
+- Repair legacy favorites and subscription lists with one resumable worker,
+  preserving metadata rows and completed progress during safe retries.
+- Clean up migrated legacy favorites and subscription user data in resumable
+  batches, preserving unfinished migrations and verifying each removal before
+  saving progress. Cleanup is blocked while those keys remain active engagement
+  storage. Native cleanup uses `delete_user_metadata_by_mid` and fires metadata
+  actions once per row.
 - Rebuild topic engagements and voice counts in resumable batches, sharing
   relationship reconciliation with the engagement upgrade and preserving valid rows.
 - Repair topic and parent-forum references in resumable batches. Share bounded

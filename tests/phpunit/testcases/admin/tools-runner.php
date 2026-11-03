@@ -1361,6 +1361,142 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_legacy_list_repairs_continue_sequentially_through_bulk_and_ajax() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+		$forum = $this->factory->forum->create();
+		$topic = $this->factory->topic->create();
+		$user = $this->factory->user->create();
+		$tools = array(
+			'bbp-user-favorites' => array( 'favorites', $topic ),
+			'bbp-user-topic-subscriptions' => array( 'subscriptions', $topic ),
+			'bbp-user-forum-subscriptions' => array( 'forum_subscriptions', $forum )
+		);
+		foreach ( $tools as $data ) {
+			add_user_meta( $user, bbp_db()->prefix . '_bbp_' . $data[0], $data[1] . ',999999' );
+		}
+		$size = static function () { return 1; };
+		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		bbp_register_default_repair_tools();
+		$ids = array_keys( $tools );
+		$run_id = '';
+		try {
+			foreach ( $ids as $index => $id ) {
+				$_GET = array(
+					'page' => 'bbp-repair',
+					'action' => 'run',
+					'checked' => array_slice( $ids, $index ),
+					'bbp-tools-run' => $run_id,
+					'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' )
+				);
+				$_REQUEST = $_GET;
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				bbp_admin_repair_handler();
+				$state = bbp_admin_repair_tool_get_run_state( 'repair' );
+				$run_id = $state['id'];
+				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
+				$key = bbp_db()->prefix . '_bbp_' . $tools[ $id ][0];
+				$this->assertSame( $tools[ $id ][1] . ',999999', get_user_meta( $user, $key, true ) );
+				for ( $batch = 0; $batch < 20; ++$batch ) {
+					$response = $this->ajax( 'repair', $id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $run_id );
+					$this->assertTrue( $response['success'] );
+					if ( $response['data']['complete'] ) {
+						break;
+					}
+				}
+				$this->assertTrue( $response['data']['complete'] );
+				$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $id ), false ) );
+				$this->assertSame( (string) $tools[ $id ][1], get_user_meta( $user, $key, true ) );
+			}
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		}
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
+	}
+
+	/**
+	 * @ticket 3777
+	 */
+	public function test_legacy_list_repairs_clear_cached_user_strategy_relationships() {
+		update_option( '_bbp_engagements_strategy', 'user' );
+		bbp_register_default_repair_tools();
+		$strategy = new BBP_User_Engagements_User();
+		$tools    = array(
+			'bbp-user-favorites'           => array( 'favorites', 'topic', '_bbp_favorite' ),
+			'bbp-user-topic-subscriptions' => array( 'subscriptions', 'topic', '_bbp_subscription' ),
+			'bbp-user-forum-subscriptions' => array( 'forum_subscriptions', 'forum', '_bbp_subscription' )
+		);
+		foreach ( $tools as $id => $args ) {
+			list( $suffix, $post_type, $meta_key ) = $args;
+			$user  = $this->factory->user->create();
+			$valid = $this->factory->{$post_type}->create();
+			$draft = $this->factory->post->create( array( 'post_type' => $post_type, 'post_status' => 'draft' ) );
+			$key   = bbp_db()->prefix . '_bbp_' . $suffix;
+			add_user_meta( $user, $key, $valid . ',' . $draft );
+			$this->assertSame( array( $user ), $strategy->get_users_for_object( $draft, $meta_key ) );
+			$_GET = array(
+				'page'     => 'bbp-repair',
+				'action'   => 'run',
+				'checked'  => array( $id ),
+				'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' )
+			);
+			$_REQUEST                  = $_GET;
+			$_SERVER['REQUEST_METHOD'] = 'GET';
+			bbp_admin_repair_handler();
+			$this->assertSame( (string) $valid, get_user_meta( $user, $key, true ) );
+			$this->assertSame( array(), $strategy->get_users_for_object( $draft, $meta_key ) );
+		}
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_handler
+	 * @covers ::bbp_admin_repair_ajax_handler
+	 */
+	public function test_bulk_legacy_cleanup_advances_after_each_bounded_tool_finishes() {
+		$user  = $this->factory->user->create();
+		$tools = array(
+			'bbp-user-favorites-delete'           => 'favorites',
+			'bbp-user-topic-subscriptions-delete' => 'subscriptions',
+			'bbp-user-forum-subscriptions-delete' => 'forum_subscriptions'
+		);
+		foreach ( $tools as $suffix ) {
+			add_user_meta( $user, bbp_db()->prefix . '_bbp_' . $suffix, '1,2' );
+			add_user_meta( $user, bbp_db()->prefix . '_bbp_' . $suffix, '3,4' );
+		}
+		$size = static function () { return 1; };
+		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		bbp_register_default_repair_tools();
+		$ids    = array_keys( $tools );
+		$run_id = '';
+		try {
+			foreach ( $ids as $index => $id ) {
+				$_GET = array(
+					'page'          => 'bbp-upgrade',
+					'action'        => 'run',
+					'checked'       => array_slice( $ids, $index ),
+					'bbp-tools-run' => $run_id,
+					'_wpnonce'      => wp_create_nonce( 'bbpress-do-counts' )
+				);
+				$_REQUEST                  = $_GET;
+				$_SERVER['REQUEST_METHOD'] = 'GET';
+				bbp_admin_repair_handler();
+				$state  = bbp_admin_repair_tool_get_run_state( 'upgrade' );
+				$run_id = $state['id'];
+				$key    = bbp_db()->prefix . '_bbp_' . $tools[ $id ];
+				$this->assertSame( array_slice( $ids, $index ), $state['tools'] );
+				$this->assertSame( array( '3,4' ), get_user_meta( $user, $key, false ) );
+				$response = $this->ajax( 'upgrade', $id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $run_id );
+				$this->assertTrue( $response['success'] );
+				$this->assertTrue( $response['data']['complete'] );
+				$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $id ), false ) );
+				$this->assertSame( array(), get_user_meta( $user, $key, false ) );
+			}
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_batch_size', $size );
+		}
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
+	}
+
 	public function test_failed_first_migration_batch_cannot_be_followed_by_destructive_bulk_cleanup() {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
 		$user_id = $this->factory->user->create();

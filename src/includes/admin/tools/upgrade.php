@@ -1469,7 +1469,7 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
 }
 
 /**
- * Remove legacy user meta only when its migration is neither pending nor active.
+ * Remove legacy user meta only when it is no longer needed.
  *
  * Dry Run only checks eligibility. Run holds the migration's lock while checking
  * its checkpoint and pending status again and deleting its source data.
@@ -1480,9 +1480,31 @@ function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) 
  * @param string $key     Legacy user-meta key.
  * @param bool   $dry_run Whether to check eligibility without writes or locks.
  * @return bool|WP_Error True if allowed or deleted, false on deletion failure,
- *                       or an error if the migration is unfinished or active.
+ *                       or an error if migration or storage still needs the data.
  */
 function bbp_admin_upgrade_remove_user_meta( $tool_id, $key, $dry_run = false ) {
+	$callback = static function () use ( $key, $dry_run ) {
+		return $dry_run ? true : delete_metadata( 'user', false, $key, false, true );
+	};
+
+	return bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run );
+}
+
+/**
+ * Check migration eligibility and hold its lock while cleaning up legacy data.
+ *
+ * Dry Run checks eligibility without changing options, caches, or locks. Run
+ * rechecks current migration state after acquiring the migration's lock and
+ * holds it until the supplied cleanup callback finishes.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param string   $tool_id  Migration tool ID.
+ * @param callable $callback Cleanup callback, or a read-only preview for Dry Run.
+ * @param bool     $dry_run Whether to check eligibility without writes or locks.
+ * @return mixed|WP_Error Callback result, or an error if the legacy data is still needed.
+ */
+function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = false ) {
 	$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
 	$blocked = new WP_Error( 'bbp_upgrade_incomplete', esc_html__( 'Finish the upgrade before removing its legacy user data.', 'bbpress' ) );
 	$lock    = false;
@@ -1496,6 +1518,7 @@ function bbp_admin_upgrade_remove_user_meta( $tool_id, $key, $dry_run = false ) 
 		// Recheck current options after acquiring the migration lock
 		wp_cache_delete( $option, 'options' );
 		wp_cache_delete( '_bbp_db_pending_upgrades', 'options' );
+		wp_cache_delete( '_bbp_engagements_strategy', 'options' );
 		wp_cache_delete( 'alloptions', 'options' );
 		wp_cache_delete( 'notoptions', 'options' );
 	}
@@ -1505,7 +1528,12 @@ function bbp_admin_upgrade_remove_user_meta( $tool_id, $key, $dry_run = false ) 
 			return $blocked;
 		}
 
-		return $dry_run ? true : delete_metadata( 'user', false, $key, false, true );
+		// These keys are live storage when the pre-2.6 strategy is still in use
+		if ( 'user' === bbp_engagements_strategy() ) {
+			return new WP_Error( 'bbp_upgrade_user_meta_in_use', esc_html__( 'This site still stores favorites and subscriptions in user data. Cleanup is unavailable while that data is in use.', 'bbpress' ) );
+		}
+
+		return call_user_func( $callback );
 	} finally {
 		if ( false !== $lock ) {
 			bbp_admin_repair_tool_unlock( $lock );
@@ -1514,13 +1542,174 @@ function bbp_admin_upgrade_remove_user_meta( $tool_id, $key, $dry_run = false ) 
 }
 
 /**
+ * Remove one bounded batch of migrated legacy user-meta rows.
+ *
+ * Capture a fixed upper metadata ID, delete individual rows through WordPress,
+ * and verify each deletion before saving progress. Replaying a batch after a
+ * failed checkpoint only revisits surviving rows. Later rows wait for a new run.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
+ * @param bool   $dry_run Whether to preview without writes.
+ * @return array Status code, removed rows, and progress flags.
+ */
+function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run = false ) {
+	$db      = bbp_db();
+	$tool_id = 'bbp-user-' . $type . '-delete';
+	$batch   = array(
+		'code'      => 0,
+		'removed'   => 0,
+		'initial'   => false,
+		'complete'  => false,
+		'restarted' => false,
+		'message'   => ''
+	);
+	if ( ! in_array( $type, array( 'favorites', 'topic-subscriptions', 'forum-subscriptions' ), true ) ) {
+		$batch['code'] = 6;
+		return $batch;
+	}
+	$suffix = str_replace( '-', '_', $type );
+	if ( 'topic-subscriptions' === $type ) {
+		$suffix = 'subscriptions';
+	}
+	$key      = $db->prefix . '_bbp_' . $suffix;
+	$callback = static function () use ( $db, $tool_id, $key, $dry_run, $batch ) {
+		$state = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+		if ( false !== $state && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) || ! isset( $state['key'] ) || $key !== $state['key'] ) ) {
+			$state              = false;
+			$batch['restarted'] = true;
+		}
+		$batch['initial'] = false === $state;
+		if ( $batch['initial'] ) {
+			$upper = (int) $db->get_var( $db->prepare( "SELECT MAX(umeta_id) FROM {$db->usermeta} WHERE meta_key = %s", $key ) );
+			if ( ! empty( $db->last_error ) ) {
+				$batch['code'] = 2;
+				return $batch;
+			}
+			$state = array(
+				'cursor'   => 0,
+				'upper_id' => $upper,
+				'key'      => $key
+			);
+			if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+				$batch['code'] = 6;
+				return $batch;
+			}
+		}
+		$size = bbp_admin_repair_tool_batch_size( $tool_id );
+		$rows = $db->get_results( $db->prepare( "SELECT umeta_id, user_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id > %d AND umeta_id <= %d ORDER BY umeta_id LIMIT %d", $key, $state['cursor'], $state['upper_id'], $size + 1 ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$complete = count( $rows ) <= $size;
+		foreach ( array_slice( $rows, 0, $size ) as $row ) {
+			if ( ! $dry_run ) {
+				$code = bbp_admin_repair_user_meta_row( $row, $key, '' );
+				if ( $code ) {
+					$batch['code'] = ( 1 === $code ) ? 2 : 3;
+					return $batch;
+				}
+			}
+			++$batch['removed'];
+			$state['cursor'] = (int) $row->umeta_id;
+		}
+		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+			$batch['code'] = 6;
+			return $batch;
+		}
+		$batch['complete'] = $complete;
+		return $batch;
+	};
+	$result = bbp_admin_upgrade_user_meta_cleanup( 'bbp-user-' . $type . '-move', $callback, $dry_run );
+	if ( is_wp_error( $result ) ) {
+		$batch['code']    = 4;
+		$batch['message'] = $result->get_error_message();
+		return $batch;
+	}
+	return $result;
+}
+
+/**
+ * Format a bounded legacy user-meta cleanup or its read-only preview.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
+ * @param bool   $dry_run Whether to preview without writes.
+ * @return array Status code, feedback, and completion flag.
+ */
+function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_run = false ) {
+	$batch = bbp_admin_upgrade_remove_user_meta_batch( $type, $dry_run );
+	if ( ! empty( $batch['code'] ) ) {
+		if ( ! empty( $batch['message'] ) ) {
+			$result = $batch['message'];
+		} elseif ( 6 === $batch['code'] ) {
+			$result = esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' );
+		} else {
+			$result = esc_html__( 'Failed!', 'bbpress' );
+		}
+		return array(
+			$batch['code'],
+			$result,
+			'success'  => false,
+			'complete' => false
+		);
+	}
+
+	$total = $batch['removed'];
+	switch ( $type ) {
+		case 'topic-subscriptions':
+			if ( $dry_run ) {
+				/* translators: %s: Number of legacy topic subscription user-meta rows */
+				$result = _n( '%s topic subscription user-meta row would be cleaned up.', '%s topic subscription user-meta rows would be cleaned up.', $total, 'bbpress' );
+			} else {
+				/* translators: %s: Number of legacy topic subscription user-meta rows */
+				$result = _n( '%s topic subscription user-meta row cleaned up.', '%s topic subscription user-meta rows cleaned up.', $total, 'bbpress' );
+			}
+			break;
+		case 'forum-subscriptions':
+			if ( $dry_run ) {
+				/* translators: %s: Number of legacy forum subscription user-meta rows */
+				$result = _n( '%s forum subscription user-meta row would be cleaned up.', '%s forum subscription user-meta rows would be cleaned up.', $total, 'bbpress' );
+			} else {
+				/* translators: %s: Number of legacy forum subscription user-meta rows */
+				$result = _n( '%s forum subscription user-meta row cleaned up.', '%s forum subscription user-meta rows cleaned up.', $total, 'bbpress' );
+			}
+			break;
+		default:
+			if ( $dry_run ) {
+				/* translators: %s: Number of legacy favorite user-meta rows */
+				$result = _n( '%s favorite user-meta row would be cleaned up.', '%s favorite user-meta rows would be cleaned up.', $total, 'bbpress' );
+			} else {
+				/* translators: %s: Number of legacy favorite user-meta rows */
+				$result = _n( '%s favorite user-meta row cleaned up.', '%s favorite user-meta rows cleaned up.', $total, 'bbpress' );
+			}
+	}
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . sprintf( $result, bbp_number_format( $total ) );
+	if ( ! $dry_run ) {
+		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
+		$result = $status . "\n" . $result;
+	}
+	$statement = bbp_admin_repair_tool_restart_statement( '%s', $batch['restarted'], $dry_run );
+	$code      = $batch['initial'] && ! $total ? 1 : 0;
+	return array(
+		$code,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete']
+	);
+}
+
+/**
  * Remove favorites data from user meta for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6281)
  * @since 2.7.0 bbPress (r8234) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Preserve source data for unfinished migrations.
+ * @since 2.7.0 bbPress (r8286) Process one resumable cleanup batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 	return bbp_admin_upgrade_remove_favorites_from_usermeta_process();
@@ -1543,85 +1732,10 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run() {
  * @since 2.7.0 bbPress (r8234)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$result = esc_html__( '0 favorite user-meta rows to remove.', 'bbpress' );
-	$key    = $bbp_db->prefix . '_bbp_favorites';
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking favorites in usermeta&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Remove favorites from usermeta&hellip; %s', 'bbpress' );
-	}
-
-	// Check eligibility without changing stored data or acquiring a lock
-	$cleanup = bbp_admin_upgrade_remove_user_meta( 'bbp-user-favorites-move', $key, true );
-	if ( is_wp_error( $cleanup ) ) {
-		return array(
-			4,
-			sprintf( $statement, $cleanup->get_error_message() ),
-			'success' => false
-		);
-	}
-
-	// Results
-	$query   = "SELECT COUNT(*) FROM {$bbp_db->usermeta} WHERE meta_key = %s";
-	$prepare = $bbp_db->prepare( $query, $key );
-	$total   = (int) $bbp_db->get_var( $prepare );
-
-	// Bail if favorites could not be read
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			2,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	// Bail if no favorites were found
-	if ( empty( $total ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		/* translators: %s: Number of favorite user-meta rows that would be deleted */
-		$result = sprintf( _n( '%s favorite user-meta row would be deleted.', '%s favorite user-meta rows would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	// Recheck eligibility and delete while holding the migration lock
-	$cleanup = bbp_admin_upgrade_remove_user_meta( 'bbp-user-favorites-move', $key );
-	if ( is_wp_error( $cleanup ) ) {
-		return array(
-			4,
-			sprintf( $statement, $cleanup->get_error_message() ),
-			'success' => false
-		);
-	}
-	if ( false === $cleanup ) {
-		/* translators: %s: Number of favorite user-meta rows that could not be deleted */
-		$result = sprintf( _n( 'Failed! %s favorite user-meta row could not be deleted.', 'Failed! %s favorite user-meta rows could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array(
-			3,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of deleted favorite user-meta rows */
-	$result = sprintf( _n( 'Complete! %s favorite user-meta row deleted.', 'Complete! %s favorite user-meta rows deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-	return array( 0, sprintf( $statement, $result ) );
+	return bbp_admin_upgrade_remove_user_meta_process( 'favorites', $dry_run );
 }
 
 /**
@@ -1630,8 +1744,9 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = fa
  * @since 2.6.0 bbPress (r6281)
  * @since 2.7.0 bbPress (r8235) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Preserve source data for unfinished migrations.
+ * @since 2.7.0 bbPress (r8286) Process one resumable cleanup batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 	return bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process();
@@ -1654,85 +1769,10 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run() {
  * @since 2.7.0 bbPress (r8235)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$result = esc_html__( '0 topic subscription user-meta rows to remove.', 'bbpress' );
-	$key    = $bbp_db->prefix . '_bbp_subscriptions';
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking topic subscriptions in usermeta&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Remove topic subscriptions from usermeta&hellip; %s', 'bbpress' );
-	}
-
-	// Check eligibility without changing stored data or acquiring a lock
-	$cleanup = bbp_admin_upgrade_remove_user_meta( 'bbp-user-topic-subscriptions-move', $key, true );
-	if ( is_wp_error( $cleanup ) ) {
-		return array(
-			4,
-			sprintf( $statement, $cleanup->get_error_message() ),
-			'success' => false
-		);
-	}
-
-	// Results
-	$query   = "SELECT COUNT(*) FROM {$bbp_db->usermeta} WHERE meta_key = %s";
-	$prepare = $bbp_db->prepare( $query, $key );
-	$total   = (int) $bbp_db->get_var( $prepare );
-
-	// Bail if topic subscriptions could not be read
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			2,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	// Bail if no topic subscriptions were found
-	if ( empty( $total ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		/* translators: %s: Number of topic subscription user-meta rows that would be deleted */
-		$result = sprintf( _n( '%s topic subscription user-meta row would be deleted.', '%s topic subscription user-meta rows would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	// Recheck eligibility and delete while holding the migration lock
-	$cleanup = bbp_admin_upgrade_remove_user_meta( 'bbp-user-topic-subscriptions-move', $key );
-	if ( is_wp_error( $cleanup ) ) {
-		return array(
-			4,
-			sprintf( $statement, $cleanup->get_error_message() ),
-			'success' => false
-		);
-	}
-	if ( false === $cleanup ) {
-		/* translators: %s: Number of topic subscription user-meta rows that could not be deleted */
-		$result = sprintf( _n( 'Failed! %s topic subscription user-meta row could not be deleted.', 'Failed! %s topic subscription user-meta rows could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array(
-			3,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of deleted topic subscription user-meta rows */
-	$result = sprintf( _n( 'Complete! %s topic subscription user-meta row deleted.', 'Complete! %s topic subscription user-meta rows deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-	return array( 0, sprintf( $statement, $result ) );
+	return bbp_admin_upgrade_remove_user_meta_process( 'topic-subscriptions', $dry_run );
 }
 
 /**
@@ -1741,8 +1781,9 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dr
  * @since 2.6.0 bbPress (r6281)
  * @since 2.7.0 bbPress (r8236) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Preserve source data for unfinished migrations.
+ * @since 2.7.0 bbPress (r8286) Process one resumable cleanup batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 	return bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process();
@@ -1765,83 +1806,8 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run() {
  * @since 2.7.0 bbPress (r8236)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$result = esc_html__( '0 forum subscription user-meta rows to remove.', 'bbpress' );
-	$key    = $bbp_db->prefix . '_bbp_forum_subscriptions';
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking forum subscriptions in usermeta&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Remove forum subscriptions from usermeta&hellip; %s', 'bbpress' );
-	}
-
-	// Check eligibility without changing stored data or acquiring a lock
-	$cleanup = bbp_admin_upgrade_remove_user_meta( 'bbp-user-forum-subscriptions-move', $key, true );
-	if ( is_wp_error( $cleanup ) ) {
-		return array(
-			4,
-			sprintf( $statement, $cleanup->get_error_message() ),
-			'success' => false
-		);
-	}
-
-	// Query
-	$query   = "SELECT COUNT(*) FROM {$bbp_db->usermeta} WHERE meta_key = %s";
-	$prepare = $bbp_db->prepare( $query, $key );
-	$total   = (int) $bbp_db->get_var( $prepare );
-
-	// Bail if forum subscriptions could not be read
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			2,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	// Bail if no forum subscriptions were found
-	if ( empty( $total ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		/* translators: %s: Number of forum subscription user-meta rows that would be deleted */
-		$result = sprintf( _n( '%s forum subscription user-meta row would be deleted.', '%s forum subscription user-meta rows would be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	// Recheck eligibility and delete while holding the migration lock
-	$cleanup = bbp_admin_upgrade_remove_user_meta( 'bbp-user-forum-subscriptions-move', $key );
-	if ( is_wp_error( $cleanup ) ) {
-		return array(
-			4,
-			sprintf( $statement, $cleanup->get_error_message() ),
-			'success' => false
-		);
-	}
-	if ( false === $cleanup ) {
-		/* translators: %s: Number of forum subscription user-meta rows that could not be deleted */
-		$result = sprintf( _n( 'Failed! %s forum subscription user-meta row could not be deleted.', 'Failed! %s forum subscription user-meta rows could not be deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array(
-			3,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of deleted forum subscription user-meta rows */
-	$result = sprintf( _n( 'Complete! %s forum subscription user-meta row deleted.', 'Complete! %s forum subscription user-meta rows deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-	return array( 0, sprintf( $statement, $result ) );
+	return bbp_admin_upgrade_remove_user_meta_process( 'forum-subscriptions', $dry_run );
 }

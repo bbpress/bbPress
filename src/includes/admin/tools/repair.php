@@ -2490,12 +2490,358 @@ function bbp_admin_repair_user_reply_count_process( $dry_run = false ) {
 }
 
 /**
+ * Parse the canonical IDs recognized by legacy comma-separated user lists.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param string|null $value Stored list.
+ * @return array Unique positive IDs in numeric order.
+ */
+function bbp_admin_repair_user_meta_ids( $value ) {
+	$value = (string) $value;
+	$ids   = wp_parse_id_list( $value );
+	$ids   = array_intersect( $ids, explode( ',', $value ) );
+	$ids   = array_filter( $ids );
+	sort( $ids, SORT_NUMERIC );
+	return $ids;
+}
+
+/**
+ * Check the saved position and context of a legacy user-list repair.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param mixed $state   Saved progress.
+ * @param array $context Current key, post type, and public statuses.
+ * @return bool Whether the saved state can be resumed.
+ */
+function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
+	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'offset' ) ) ) {
+		return false;
+	}
+	if ( ! isset( $state['phase'], $state['context'], $state['row_hash'], $state['kept'], $state['ready'] )
+		|| ! in_array( $state['phase'], array( 'probe', 'repair' ), true )
+		|| ( $context !== $state['context'] ) || ! is_string( $state['row_hash'] )
+		|| ! is_string( $state['kept'] ) || ! is_bool( $state['ready'] ) ) {
+		return false;
+	}
+	if ( '' === $state['row_hash'] ) {
+		return ( 0 === $state['offset'] ) && ( '' === $state['kept'] ) && ! $state['ready'];
+	}
+	if ( ! $state['cursor'] || ( 1 !== preg_match( '/^[a-f0-9]{32}$/D', $state['row_hash'] ) ) ) {
+		return false;
+	}
+	$kept = bbp_admin_repair_user_meta_ids( $state['kept'] );
+	return ( implode( ',', $kept ) === $state['kept'] ) && ( count( $kept ) <= $state['offset'] )
+		&& ( 'repair' === $state['phase'] || ( '' === $state['kept'] && ! $state['ready'] ) );
+}
+
+/**
+ * Update or remove one legacy user-meta row, and verify the stored result.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param object $row   Source metadata row.
+ * @param string $key   Canonical metadata key.
+ * @param string $value Repaired list, or an empty string to remove the row.
+ * @return int Zero on success, or a read, delete, or update error code.
+ */
+function bbp_admin_repair_user_meta_row( $row, $key, $value ) {
+	$db      = bbp_db();
+	$user_id = (int) $row->user_id;
+	$meta_id = (int) $row->umeta_id;
+	wp_cache_delete( $user_id, 'user_meta' );
+	if ( '' === $value ) {
+		delete_metadata_by_mid( 'user', $meta_id );
+	} elseif ( $value !== $row->meta_value || $key !== $row->meta_key ) {
+		update_metadata_by_mid( 'user', $meta_id, $value, $key );
+	}
+	wp_cache_delete( $user_id, 'user_meta' );
+	$stored = $db->get_row( $db->prepare( "SELECT user_id, meta_key, meta_value FROM {$db->usermeta} WHERE umeta_id = %d", $meta_id ) );
+	if ( ! empty( $db->last_error ) ) {
+		return 1;
+	}
+	if ( '' === $value ) {
+		return empty( $stored ) ? 0 : 4;
+	}
+	return ! empty( $stored ) && ( $user_id === (int) $stored->user_id ) && ( $key === $stored->meta_key ) && ( $value === $stored->meta_value ) ? 0 : 5;
+}
+
+/**
+ * Repair one bounded batch of legacy favorites or subscription lists.
+ *
+ * Probe for a surviving relationship before changing any rows, preserving the
+ * historical all-empty no-op. Scan referenced IDs within the shared budget and
+ * update each completed row in place. One legacy CSV cell must still be read
+ * and parsed as a unit; saved kept IDs never exceed that single source list.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
+ * @param bool   $dry_run Whether to preview without writes.
+ * @return array Status code, repaired users, and progress flags.
+ */
+function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false ) {
+	$db      = bbp_db();
+	$tool_id = 'bbp-user-' . $type;
+	$batch   = array(
+		'code'      => 0,
+		'repaired'  => 0,
+		'initial'   => false,
+		'complete'  => false,
+		'empty'     => false,
+		'restarted' => false
+	);
+	if ( ! in_array( $type, array( 'favorites', 'topic-subscriptions', 'forum-subscriptions' ), true ) ) {
+		$batch['code'] = 6;
+		return $batch;
+	}
+	$forum   = 'forum-subscriptions' === $type;
+	$suffix  = $forum ? 'forum_subscriptions' : ( 'favorites' === $type ? 'favorites' : 'subscriptions' );
+	$context = array(
+		'key'       => $db->prefix . '_bbp_' . $suffix,
+		'post_type' => $forum ? bbp_get_forum_post_type() : bbp_get_topic_post_type(),
+		'statuses'  => array_values( array_unique( $forum ? bbp_get_public_forum_statuses() : bbp_get_public_topic_statuses() ) )
+	);
+	$key      = $context['key'];
+	$statuses = $context['statuses'] ? $context['statuses'] : array( '' );
+	$slots    = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+	$args     = array_merge( array( $context['post_type'] ), $statuses );
+	$source   = "SELECT ID FROM {$db->posts} WHERE post_type = %s AND post_status IN ({$slots})";
+	$state    = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	if ( false !== $state && ! bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+	$batch['initial'] = false === $state;
+	if ( $batch['initial'] ) {
+		$upper = (int) $db->get_var( $db->prepare( "SELECT MAX(umeta_id) FROM {$db->usermeta} WHERE meta_key = %s", $key ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 1;
+			return $batch;
+		}
+		$live = $db->get_var( $db->prepare( $source . ' LIMIT 1', $args ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$state = array(
+			'cursor'   => 0,
+			'upper_id' => $upper,
+			'offset'   => 0,
+			'row_hash' => '',
+			'kept'     => '',
+			'ready'    => false,
+			'phase'    => 'probe',
+			'context'  => $context
+		);
+		if ( empty( $live ) ) {
+			$batch['complete'] = $batch['empty'] = true;
+			if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, true ) ) {
+				$batch['code']     = 6;
+				$batch['complete'] = false;
+			}
+			return $batch;
+		}
+		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+			$batch['code'] = 6;
+			return $batch;
+		}
+	}
+	$size    = bbp_admin_repair_tool_batch_size( $tool_id );
+	$work    = 0;
+	$changed = array();
+	while ( $work < $size && $state['cursor'] <= $state['upper_id'] ) {
+		$row = $db->get_row( $db->prepare( "SELECT umeta_id, user_id, meta_key, meta_value FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $key, $state['cursor'], $state['upper_id'] ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 1;
+			break;
+		}
+		if ( empty( $row ) ) {
+			$batch['complete'] = true;
+			break;
+		}
+		$id   = (int) $row->umeta_id;
+		$hash = md5( $row->user_id . ':' . $row->meta_key . ':' . $row->meta_value );
+		$ids  = bbp_admin_repair_user_meta_ids( $row->meta_value );
+		$same = $id === $state['cursor'] && $hash === $state['row_hash'];
+		$bad  = $same && ( $state['offset'] > count( $ids ) || ( $state['ready'] && count( $ids ) !== $state['offset'] )
+			|| array_diff( bbp_admin_repair_user_meta_ids( $state['kept'] ), array_slice( $ids, 0, $state['offset'] ) ) );
+		if ( ! $same || $bad ) {
+			$state['cursor']    = $id;
+			$state['offset']    = 0;
+			$state['row_hash']  = $hash;
+			$state['kept']      = '';
+			$state['ready']     = false;
+			$batch['restarted'] = $batch['restarted'] || (bool) $bad;
+		}
+		if ( ! $state['ready'] ) {
+			$next  = array_slice( $ids, $state['offset'], $size - $work );
+			$valid = array();
+			if ( ! empty( $next ) ) {
+				$id_slots = implode( ', ', array_fill( 0, count( $next ), '%d' ) );
+				$valid    = $db->get_col( $db->prepare( $source . " AND ID IN ({$id_slots}) ORDER BY ID", array_merge( $args, $next ) ) );
+				if ( ! empty( $db->last_error ) ) {
+					$batch['code'] = 2;
+					break;
+				}
+			}
+			$work += count( $next );
+			$state['offset'] += count( $next );
+			if ( 'probe' === $state['phase'] ) {
+				if ( ! empty( $valid ) ) {
+					$state['phase']    = 'repair';
+					$state['cursor']   = $state['offset'] = 0;
+					$state['row_hash'] = '';
+					if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+						$batch['code'] = 6;
+						break;
+					}
+				} elseif ( $state['offset'] >= count( $ids ) ) {
+					$work += empty( $next ) ? 1 : 0;
+					$state['cursor']   = $id + 1;
+					$state['offset']   = 0;
+					$state['row_hash'] = '';
+				}
+				continue;
+			}
+			if ( ! empty( $valid ) ) {
+				$state['kept'] .= ( '' === $state['kept'] ? '' : ',' ) . implode( ',', $valid );
+			}
+			$state['ready'] = count( $ids ) === $state['offset'];
+			if ( ! $state['ready'] || $work >= $size ) {
+				continue;
+			}
+		}
+		++$work;
+		$value = $state['kept'];
+		if ( ! $dry_run ) {
+			$batch['code'] = bbp_admin_repair_user_meta_row( $row, $key, $value );
+			if ( $batch['code'] ) {
+				break;
+			}
+		}
+		if ( '' === $value || $row->meta_value !== $value || $row->meta_key !== $key ) {
+			$changed[ (int) $row->user_id ] = true;
+		}
+		$state['cursor']   = $id + 1;
+		$state['offset']   = 0;
+		$state['row_hash'] = $state['kept'] = '';
+		$state['ready']    = false;
+	}
+	if ( ! $batch['code'] && ! $batch['complete'] ) {
+		$remaining = $db->get_var( $db->prepare( "SELECT umeta_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $key, $state['cursor'], $state['upper_id'] ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 1;
+		} else {
+			$batch['complete'] = empty( $remaining );
+		}
+	}
+	$batch['empty']    = $batch['complete'] && 'probe' === $state['phase'];
+	$batch['repaired'] = count( $changed );
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'] ) ) {
+		$batch['code'] = 6;
+	}
+	if ( $batch['code'] ) {
+		$batch['complete'] = false;
+	}
+	return $batch;
+}
+
+/**
+ * Format one shared legacy user-list repair batch.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ *
+ * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
+ * @param bool   $dry_run Whether to preview without writes.
+ * @return array Tool result and completion flag.
+ */
+function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = false ) {
+	if ( 'favorites' === $type ) {
+		$none = esc_html__( '0 user favorites to repair.', 'bbpress' );
+		if ( $dry_run ) {
+			/* translators: %s: Status of the dry-run process */
+			$statement = esc_html__( 'Checking unpublished topics in user favorites&hellip; %s', 'bbpress' );
+		} else {
+			/* translators: %s: Status of the repair process */
+			$statement = esc_html__( 'Removing unpublished topics from user favorites&hellip; %s', 'bbpress' );
+		}
+	} elseif ( 'forum-subscriptions' === $type ) {
+		$none = esc_html__( '0 user forum subscriptions to repair.', 'bbpress' );
+		if ( $dry_run ) {
+			/* translators: %s: Status of the dry-run process */
+			$statement = esc_html__( 'Checking trashed forums in user subscriptions&hellip; %s', 'bbpress' );
+		} else {
+			/* translators: %s: Status of the repair process */
+			$statement = esc_html__( 'Removing trashed forums from user subscriptions&hellip; %s', 'bbpress' );
+		}
+	} else {
+		$none = esc_html__( '0 user topic subscriptions to repair.', 'bbpress' );
+		if ( $dry_run ) {
+			/* translators: %s: Status of the dry-run process */
+			$statement = esc_html__( 'Checking trashed topics in user subscriptions&hellip; %s', 'bbpress' );
+		} else {
+			/* translators: %s: Status of the repair process */
+			$statement = esc_html__( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
+		}
+	}
+	$batch     = bbp_admin_repair_user_meta_batch( $type, $dry_run );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] ) {
+		return array(
+			$batch['code'],
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false
+		);
+	}
+	if ( $batch['empty'] || ( $batch['complete'] && ! $batch['repaired'] && ( $dry_run || $batch['initial'] ) ) ) {
+		return array(
+			$dry_run ? 1 : 0,
+			sprintf( $statement, $dry_run ? $none : esc_html__( 'Nothing to remove!', 'bbpress' ) ),
+			'complete' => true
+		);
+	}
+	if ( 'favorites' === $type ) {
+		$result = $dry_run
+			/* translators: %d: Number of users whose favorites would be repaired */
+			? sprintf( _n( 'Favorites would be repaired for %d user.', 'Favorites would be repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			/* translators: %d: Number of users whose favorites were repaired */
+			: sprintf( _n( 'Favorites repaired for %d user.', 'Favorites repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+	} elseif ( 'forum-subscriptions' === $type ) {
+		$result = $dry_run
+			/* translators: %d: Number of users whose forum subscriptions would be repaired */
+			? sprintf( _n( 'Forum subscriptions would be repaired for %d user.', 'Forum subscriptions would be repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			/* translators: %d: Number of users whose forum subscriptions were repaired */
+			: sprintf( _n( 'Forum subscriptions repaired for %d user.', 'Forum subscriptions repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+	} else {
+		$result = $dry_run
+			/* translators: %d: Number of users whose topic subscriptions would be repaired */
+			? sprintf( _n( 'Topic subscriptions would be repaired for %d user.', 'Topic subscriptions would be repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			/* translators: %d: Number of users whose topic subscriptions were repaired */
+			: sprintf( _n( 'Topic subscriptions repaired for %d user.', 'Topic subscriptions repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+	}
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
+	if ( ! $dry_run ) {
+		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
+		$result = $status . "\n" . $result;
+	}
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete']
+	);
+}
+
+/**
  * Repair user favorites.
  *
  * @since 2.1.0 bbPress (r3884)
  * @since 2.7.0 bbPress (r8226) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_favorites() {
 	return bbp_admin_repair_user_favorites_process();
@@ -2505,8 +2851,9 @@ function bbp_admin_repair_user_favorites() {
  * Preview repairing user favorites.
  *
  * @since 2.7.0 bbPress (r8226)
+ * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_favorites_dry_run() {
 	return bbp_admin_repair_user_favorites_process( true );
@@ -2516,129 +2863,13 @@ function bbp_admin_repair_user_favorites_dry_run() {
  * Repair or preview user favorites.
  *
  * @since 2.7.0 bbPress (r8226)
+ * @since 2.7.0 bbPress (r8286) Shares legacy user-list repair batching.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_favorites_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$result = esc_html__( 'Failed!', 'bbpress' );
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking unpublished topics in user favorites&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the repair process */
-		$statement = esc_html__( 'Removing unpublished topics from user favorites&hellip; %s', 'bbpress' );
-	}
-
-	// Query for users with favorites
-	$key       = $bbp_db->prefix . '_bbp_favorites';
-	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
-
-	if ( is_wp_error( $users ) || ! empty( $bbp_db->last_error ) ) {
-		return array(
-			1,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	$sql_type   = bbp_get_topic_post_type();
-	$sql_status = "'" . implode( "','", bbp_get_public_topic_statuses() ) . "'";
-	$sql_select = "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$sql_type}' AND `post_status` IN ({$sql_status})";
-
-	$topics = $bbp_db->get_col( $sql_select );
-	if ( is_wp_error( $topics ) || ! empty( $bbp_db->last_error ) ) {
-		return array( 2, sprintf( $statement, $result ) );
-	}
-
-	$values             = array();
-	$current_favorites  = array();
-	$expected_favorites = array();
-	foreach ( $users as $user ) {
-		$user_id                         = (int) $user->user_id;
-		$current_favorites[ $user_id ][] = (string) $user->favorites;
-
-		if ( empty( $user->favorites ) || ! is_string( $user->favorites ) ) {
-			continue;
-		}
-
-		$favorites = array_intersect( $topics, explode( ',', $user->favorites ) );
-		if ( empty( $favorites ) || ! is_array( $favorites ) ) {
-			continue;
-		}
-
-		$favorites_joined                 = implode( ',', $favorites );
-		$values[]                         = "('{$user_id}', '{$key}', '{$favorites_joined}')";
-		$expected_favorites[ $user_id ][] = $favorites_joined;
-
-		// Cleanup
-		unset( $favorites, $favorites_joined );
-	}
-
-	if ( ! count( $values ) ) {
-		$result = $dry_run
-			? esc_html__( '0 user favorites to repair.', 'bbpress' )
-			: esc_html__( 'Nothing to remove!', 'bbpress' );
-
-		return array( $dry_run ? 1 : 0, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		$repair_count = 0;
-		$user_ids     = array_unique( array_merge( array_keys( $current_favorites ), array_keys( $expected_favorites ) ) );
-
-		foreach ( $user_ids as $user_id ) {
-			$current  = isset( $current_favorites[ $user_id ] ) ? $current_favorites[ $user_id ] : array();
-			$expected = isset( $expected_favorites[ $user_id ] ) ? $expected_favorites[ $user_id ] : array();
-			sort( $current, SORT_STRING );
-			sort( $expected, SORT_STRING );
-
-			if ( $current !== $expected ) {
-				++$repair_count;
-			}
-		}
-
-		if ( empty( $repair_count ) ) {
-			$result = esc_html__( '0 user favorites to repair.', 'bbpress' );
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		/* translators: %d: Number of users whose favorites would be repaired */
-		$result = sprintf( _n( 'Favorites would be repaired for %d user.', 'Favorites would be repaired for %d users.', $repair_count, 'bbpress' ), $repair_count );
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
-		return array( 4, sprintf( $statement, $result ) );
-	}
-
-	$insert_error = false;
-	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
-		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
-		if ( false === $bbp_db->query( $sql_insert ) ) {
-			$insert_error = true;
-			break;
-		}
-	}
-
-	// Clear cached favorites for users affected by the direct database update
-	$user_ids = wp_parse_id_list( array_keys( $current_favorites ) );
-	if ( ! empty( $user_ids ) ) {
-		wp_cache_delete_multiple( $user_ids, 'user_meta' );
-	}
-
-	if ( $insert_error ) {
-		return array( 5, sprintf( $statement, $result ) );
-	}
-
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	return bbp_admin_repair_user_meta_process( 'favorites', $dry_run );
 }
 
 /**
@@ -2646,8 +2877,9 @@ function bbp_admin_repair_user_favorites_process( $dry_run = false ) {
  *
  * @since 2.5.0 bbPress (r5157)
  * @since 2.7.0 bbPress (r8227) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_topic_subscriptions() {
 	return bbp_admin_repair_user_topic_subscriptions_process();
@@ -2657,8 +2889,9 @@ function bbp_admin_repair_user_topic_subscriptions() {
  * Preview cleaning the user topic subscriptions.
  *
  * @since 2.7.0 bbPress (r8227)
+ * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_topic_subscriptions_dry_run() {
 	return bbp_admin_repair_user_topic_subscriptions_process( true );
@@ -2668,128 +2901,13 @@ function bbp_admin_repair_user_topic_subscriptions_dry_run() {
  * Clean or preview the user topic subscriptions.
  *
  * @since 2.7.0 bbPress (r8227)
+ * @since 2.7.0 bbPress (r8286) Shares legacy user-list repair batching.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_topic_subscriptions_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$result = esc_html__( 'Failed!', 'bbpress' );
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking trashed topics in user subscriptions&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the repair process */
-		$statement = esc_html__( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
-	}
-
-	$key       = $bbp_db->prefix . '_bbp_subscriptions';
-	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
-
-	if ( is_wp_error( $users ) || ! empty( $bbp_db->last_error ) ) {
-		return array(
-			1,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	$sql_type    = bbp_get_topic_post_type();
-	$sql_status  = "'" . implode( "','", bbp_get_public_topic_statuses() ) . "'";
-	$sql_select  = "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$sql_type}' AND `post_status` IN ({$sql_status})";
-
-	$topics = $bbp_db->get_col( $sql_select );
-	if ( is_wp_error( $topics ) || ! empty( $bbp_db->last_error ) ) {
-		return array( 2, sprintf( $statement, $result ) );
-	}
-
-	$values                 = array();
-	$current_subscriptions  = array();
-	$expected_subscriptions = array();
-	foreach ( $users as $user ) {
-		$user_id                             = (int) $user->user_id;
-		$current_subscriptions[ $user_id ][] = (string) $user->subscriptions;
-
-		if ( empty( $user->subscriptions ) || ! is_string( $user->subscriptions ) ) {
-			continue;
-		}
-
-		$subscriptions = array_intersect( $topics, explode( ',', $user->subscriptions ) );
-		if ( empty( $subscriptions ) || ! is_array( $subscriptions ) ) {
-			continue;
-		}
-
-		$subscriptions_joined                 = implode( ',', $subscriptions );
-		$values[]                             = "('{$user_id}', '{$key}', '{$subscriptions_joined}')";
-		$expected_subscriptions[ $user_id ][] = $subscriptions_joined;
-
-		// Cleanup
-		unset( $subscriptions, $subscriptions_joined );
-	}
-
-	if ( ! count( $values ) ) {
-		$result = $dry_run
-			? esc_html__( '0 user topic subscriptions to repair.', 'bbpress' )
-			: esc_html__( 'Nothing to remove!', 'bbpress' );
-
-		return array( $dry_run ? 1 : 0, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		$repair_count = 0;
-		$user_ids     = array_unique( array_merge( array_keys( $current_subscriptions ), array_keys( $expected_subscriptions ) ) );
-
-		foreach ( $user_ids as $user_id ) {
-			$current  = isset( $current_subscriptions[ $user_id ] ) ? $current_subscriptions[ $user_id ] : array();
-			$expected = isset( $expected_subscriptions[ $user_id ] ) ? $expected_subscriptions[ $user_id ] : array();
-			sort( $current, SORT_STRING );
-			sort( $expected, SORT_STRING );
-
-			if ( $current !== $expected ) {
-				++$repair_count;
-			}
-		}
-
-		if ( empty( $repair_count ) ) {
-			$result = esc_html__( '0 user topic subscriptions to repair.', 'bbpress' );
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		/* translators: %d: Number of users whose topic subscriptions would be repaired */
-		$result = sprintf( _n( 'Topic subscriptions would be repaired for %d user.', 'Topic subscriptions would be repaired for %d users.', $repair_count, 'bbpress' ), $repair_count );
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
-		return array( 4, sprintf( $statement, $result ) );
-	}
-
-	$insert_error = false;
-	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
-		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
-		if ( false === $bbp_db->query( $sql_insert ) ) {
-			$insert_error = true;
-			break;
-		}
-	}
-
-	// Clear cached subscriptions for users affected by the direct database update
-	$user_ids = wp_parse_id_list( array_keys( $current_subscriptions ) );
-	if ( ! empty( $user_ids ) ) {
-		wp_cache_delete_multiple( $user_ids, 'user_meta' );
-	}
-
-	if ( $insert_error ) {
-		return array( 5, sprintf( $statement, $result ) );
-	}
-
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	return bbp_admin_repair_user_meta_process( 'topic-subscriptions', $dry_run );
 }
 
 /**
@@ -2797,8 +2915,9 @@ function bbp_admin_repair_user_topic_subscriptions_process( $dry_run = false ) {
  *
  * @since 2.5.0 bbPress (r5157)
  * @since 2.7.0 bbPress (r8228) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_forum_subscriptions() {
 	return bbp_admin_repair_user_forum_subscriptions_process();
@@ -2808,8 +2927,9 @@ function bbp_admin_repair_user_forum_subscriptions() {
  * Preview cleaning the user forum subscriptions.
  *
  * @since 2.7.0 bbPress (r8228)
+ * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_forum_subscriptions_dry_run() {
 	return bbp_admin_repair_user_forum_subscriptions_process( true );
@@ -2819,128 +2939,13 @@ function bbp_admin_repair_user_forum_subscriptions_dry_run() {
  * Clean or preview the user forum subscriptions.
  *
  * @since 2.7.0 bbPress (r8228)
+ * @since 2.7.0 bbPress (r8286) Shares legacy user-list repair batching.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_user_forum_subscriptions_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$result = esc_html__( 'Failed!', 'bbpress' );
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking trashed forums in user subscriptions&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the repair process */
-		$statement = esc_html__( 'Removing trashed forums from user subscriptions&hellip; %s', 'bbpress' );
-	}
-
-	$key       = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
-
-	if ( is_wp_error( $users ) || ! empty( $bbp_db->last_error ) ) {
-		return array(
-			1,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	$sql_type    = bbp_get_forum_post_type();
-	$sql_status  = "'" . implode( "','", bbp_get_public_forum_statuses() ) . "'";
-	$sql_select  = "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$sql_type}' AND `post_status` IN ({$sql_status})";
-
-	$forums = $bbp_db->get_col( $sql_select );
-	if ( is_wp_error( $forums ) || ! empty( $bbp_db->last_error ) ) {
-		return array( 2, sprintf( $statement, $result ) );
-	}
-
-	$values                 = array();
-	$current_subscriptions  = array();
-	$expected_subscriptions = array();
-	foreach ( $users as $user ) {
-		$user_id                             = (int) $user->user_id;
-		$current_subscriptions[ $user_id ][] = (string) $user->subscriptions;
-
-		if ( empty( $user->subscriptions ) || ! is_string( $user->subscriptions ) ) {
-			continue;
-		}
-
-		$subscriptions = array_intersect( $forums, explode( ',', $user->subscriptions ) );
-		if ( empty( $subscriptions ) || ! is_array( $subscriptions ) ) {
-			continue;
-		}
-
-		$subscriptions_joined                 = implode( ',', $subscriptions );
-		$values[]                             = "('{$user_id}', '{$key}', '{$subscriptions_joined}')";
-		$expected_subscriptions[ $user_id ][] = $subscriptions_joined;
-
-		// Cleanup
-		unset( $subscriptions, $subscriptions_joined );
-	}
-
-	if ( ! count( $values ) ) {
-		$result = $dry_run
-			? esc_html__( '0 user forum subscriptions to repair.', 'bbpress' )
-			: esc_html__( 'Nothing to remove!', 'bbpress' );
-
-		return array( $dry_run ? 1 : 0, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		$repair_count = 0;
-		$user_ids     = array_unique( array_merge( array_keys( $current_subscriptions ), array_keys( $expected_subscriptions ) ) );
-
-		foreach ( $user_ids as $user_id ) {
-			$current  = isset( $current_subscriptions[ $user_id ] ) ? $current_subscriptions[ $user_id ] : array();
-			$expected = isset( $expected_subscriptions[ $user_id ] ) ? $expected_subscriptions[ $user_id ] : array();
-			sort( $current, SORT_STRING );
-			sort( $expected, SORT_STRING );
-
-			if ( $current !== $expected ) {
-				++$repair_count;
-			}
-		}
-
-		if ( empty( $repair_count ) ) {
-			$result = esc_html__( '0 user forum subscriptions to repair.', 'bbpress' );
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		/* translators: %d: Number of users whose forum subscriptions would be repaired */
-		$result = sprintf( _n( 'Forum subscriptions would be repaired for %d user.', 'Forum subscriptions would be repaired for %d users.', $repair_count, 'bbpress' ), $repair_count );
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
-	if ( false === $bbp_db->query( $sql_delete ) ) {
-		return array( 4, sprintf( $statement, $result ) );
-	}
-
-	$insert_error = false;
-	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
-		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
-		if ( false === $bbp_db->query( $sql_insert ) ) {
-			$insert_error = true;
-			break;
-		}
-	}
-
-	// Clear cached subscriptions for users affected by the direct database update
-	$user_ids = wp_parse_id_list( array_keys( $current_subscriptions ) );
-	if ( ! empty( $user_ids ) ) {
-		wp_cache_delete_multiple( $user_ids, 'user_meta' );
-	}
-
-	if ( $insert_error ) {
-		return array( 5, sprintf( $statement, $result ) );
-	}
-
-	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+	return bbp_admin_repair_user_meta_process( 'forum-subscriptions', $dry_run );
 }
 
 /**

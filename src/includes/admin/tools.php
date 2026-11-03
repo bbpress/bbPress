@@ -471,6 +471,7 @@ function bbp_register_default_repair_tools() {
 				'run'     => 'bbp_admin_repair_user_favorites',
 				'dry-run' => 'bbp_admin_repair_user_favorites_dry_run',
 			),
+			'flush_cache' => 'user' === bbp_engagements_strategy(),
 			'priority'    => 85,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
@@ -488,6 +489,7 @@ function bbp_register_default_repair_tools() {
 				'run'     => 'bbp_admin_repair_user_topic_subscriptions',
 				'dry-run' => 'bbp_admin_repair_user_topic_subscriptions_dry_run',
 			),
+			'flush_cache' => 'user' === bbp_engagements_strategy(),
 			'priority'    => 90,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
@@ -505,6 +507,7 @@ function bbp_register_default_repair_tools() {
 				'run'     => 'bbp_admin_repair_user_forum_subscriptions',
 				'dry-run' => 'bbp_admin_repair_user_forum_subscriptions_dry_run',
 			),
+			'flush_cache' => 'user' === bbp_engagements_strategy(),
 			'priority'    => 95,
 			'overhead'    => 'medium',
 			'components'  => array( bbp_get_forum_post_type(), bbp_get_user_rewrite_id() )
@@ -651,6 +654,7 @@ function bbp_register_default_repair_tools() {
 			'priority'    => 125,
 			'version'     => '2.6.1',
 			'overhead'    => 'medium',
+			'flush_cache' => false,
 			'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
 		)
 	);
@@ -669,6 +673,7 @@ function bbp_register_default_repair_tools() {
 			'priority'    => 130,
 			'version'     => '2.6.1',
 			'overhead'    => 'medium',
+			'flush_cache' => false,
 			'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 		)
 	);
@@ -687,6 +692,7 @@ function bbp_register_default_repair_tools() {
 			'priority'    => 135,
 			'version'     => '2.6.1',
 			'overhead'    => 'medium',
+			'flush_cache' => false,
 			'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 		)
 	);
