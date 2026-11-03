@@ -1533,26 +1533,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filters   = array(
+		$query_filters = array(
 			3 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `ID`, `post_parent`, `post_status`' ) )
-					? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_topic_count_forums`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT ID, post_parent, post_status" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			4 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `post_parent` AS `forum_id`, `post_status`' ) )
-					? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_topic_count_topics`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT COUNT(*) FROM {$db->posts} WHERE post_parent" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			9 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, "FROM {$db->posts} AS p" ) )
-					? str_replace( "FROM {$db->posts} AS p", 'FROM bbp_missing_forum_topic_count_children AS p', $query )
-					: $query;
+				return ( false !== strpos( $query, "FROM {$db->posts} AS p" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			5 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`' ) )
-					? str_replace( "FROM `{$db->postmeta}`", 'FROM `bbp_missing_forum_topic_count_meta`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
 
@@ -1588,18 +1580,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
-	public function test_bbp_admin_repair_forum_topic_count_stops_before_writes_on_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_topic_count_stops_before_writes_on_checkpoint_errors() {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_topic_count_cache`', $query )
-				: $query;
-		};
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-forum-topics' );
+		$query_filter = static function ( $value, $old ) { return $old; };
 
 		update_post_meta( $forum_id, '_bbp_topic_count', 99 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'pre_update_option_' . $option, $query_filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_repair_forum_topic_count();
@@ -1607,7 +1596,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'pre_update_option_' . $option, $query_filter, 10 );
 			$db->suppress_errors( $old_suppression );
 		}
 
@@ -1623,7 +1612,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( 0 === strpos( $query, 'DELETE `postmeta`' ) )
+			return ( 0 === strpos( $query, "DELETE FROM `{$db->postmeta}` WHERE `meta_id`" ) )
 				? 'DELETE FROM `bbp_missing_forum_topic_count_meta`'
 				: $query;
 		};
@@ -1667,7 +1656,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_repair_forum_topic_count();
 			$this->assertSame( 8, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_topic_count' ) );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -2527,11 +2516,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_hidden_reply_count_cache`', $query )
-				: $query;
-		};
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-forum-hidden-replies' );
+		$query_filter = static function ( $value, $old ) { return $old; };
 
 		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id() ) );
 		$this->assertSame( 1, bbp_get_non_public_child_count( $forum_id, bbp_get_reply_post_type() ) );
@@ -2544,7 +2530,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$this->assertSame( 1, bbp_admin_repair_forum_hidden_reply_count_dry_run()[0] );
 		$this->assertSame( 99, bbp_get_non_public_child_count( $forum_id, bbp_get_reply_post_type() ) );
-		add_filter( 'query', $query_filter );
+		add_filter( 'pre_update_option_' . $option, $query_filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
@@ -2552,7 +2538,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 99, bbp_get_non_public_child_count( $forum_id, bbp_get_reply_post_type() ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'pre_update_option_' . $option, $query_filter, 10 );
 			$db->suppress_errors( $old_suppression );
 		}
 
@@ -2570,21 +2556,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filters   = array(
+		$query_filters = array(
 			3 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `ID`, `post_parent`, `post_status`' ) )
-					? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_hidden_reply_count_forums`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT ID, post_parent, post_status" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			4 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`' ) )
-					? str_replace( "FROM `{$db->postmeta}`", 'FROM `bbp_missing_forum_hidden_reply_count_meta`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT meta_value FROM {$db->postmeta}" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			5 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'p.post_type AS type' ) )
-					? str_replace( "FROM {$db->posts} AS p", 'FROM bbp_missing_forum_hidden_reply_count_children AS p', $query )
-					: $query;
+				return ( false !== strpos( $query, "FROM {$db->posts} AS p" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
 
@@ -2621,8 +2601,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) {
-			return ( 0 === strpos( $query, 'DELETE `postmeta`' ) )
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "DELETE FROM `{$db->postmeta}` WHERE `meta_id`" ) )
 				? 'DELETE FROM `bbp_missing_forum_hidden_reply_count_meta`'
 				: $query;
 		};
@@ -2650,19 +2630,16 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
-	public function test_bbp_admin_repair_forum_hidden_reply_count_stops_before_writes_on_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_hidden_reply_count_stops_before_writes_on_checkpoint_errors() {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_hidden_reply_count_cache`', $query )
-				: $query;
-		};
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-forum-hidden-replies' );
+		$query_filter = static function ( $value, $old ) { return $old; };
 
 		update_post_meta( $forum_id, '_bbp_reply_count_hidden', 99 );
 		update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', 99 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'pre_update_option_' . $option, $query_filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
@@ -2670,7 +2647,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count_hidden', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'pre_update_option_' . $option, $query_filter, 10 );
 			$db->suppress_errors( $old_suppression );
 		}
 
@@ -2700,7 +2677,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
 			$this->assertSame( 8, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_reply_count_hidden' ) );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count_hidden', true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );
@@ -3332,11 +3309,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$topic_id        = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_reply_count_cache`', $query )
-				: $query;
-		};
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-forum-replies' );
+		$query_filter = static function ( $value, $old ) { return $old; };
 
 		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
 		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
@@ -3348,7 +3322,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$this->assertSame( 1, bbp_admin_repair_forum_reply_count_dry_run()[0] );
 		$this->assertSame( 99, bbp_get_forum_reply_count( $forum_id, true, true ) );
-		add_filter( 'query', $query_filter );
+		add_filter( 'pre_update_option_' . $option, $query_filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_repair_forum_reply_count();
@@ -3356,7 +3330,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 99, bbp_get_forum_reply_count( $forum_id, true, true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'pre_update_option_' . $option, $query_filter, 10 );
 			$db->suppress_errors( $old_suppression );
 		}
 
@@ -3374,21 +3348,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filters   = array(
+		$query_filters = array(
 			3 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `ID`, `post_parent`, `post_status`' ) )
-					? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_reply_count_forums`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT ID, post_parent, post_status" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			4 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `topics`.`post_parent` AS `forum_id`' ) )
-					? str_replace( "FROM `{$db->posts}` AS `replies`", 'FROM `bbp_missing_forum_reply_count_replies` AS `replies`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT COUNT(*) FROM {$db->posts} AS replies" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			5 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, 'SELECT `forummeta`.`post_id`, `forummeta`.`meta_key`' ) )
-					? str_replace( "FROM `{$db->postmeta}`", 'FROM `bbp_missing_forum_reply_count_meta`', $query )
-					: $query;
+				return ( false !== strpos( $query, "SELECT meta_value FROM {$db->postmeta}" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
 
@@ -3426,8 +3394,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) {
-			return ( 0 === strpos( $query, 'DELETE `postmeta`' ) )
+		$query_filter    = static function ( $query ) use ( $db ) {
+			return ( 0 === strpos( $query, "DELETE FROM `{$db->postmeta}` WHERE `meta_id`" ) )
 				? 'DELETE FROM `bbp_missing_forum_reply_count_meta`'
 				: $query;
 		};
@@ -3455,19 +3423,16 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
-	public function test_bbp_admin_repair_forum_reply_count_stops_before_writes_on_cache_query_errors() {
+	public function test_bbp_admin_repair_forum_reply_count_stops_before_writes_on_checkpoint_errors() {
 		$db              = bbp_db();
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $db ) {
-			return ( false !== strpos( $query, "SELECT `ID` FROM `{$db->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-				? str_replace( "FROM `{$db->posts}`", 'FROM `bbp_missing_forum_reply_count_cache`', $query )
-				: $query;
-		};
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-forum-replies' );
+		$query_filter = static function ( $value, $old ) { return $old; };
 
 		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
 		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
-		add_filter( 'query', $query_filter );
+		add_filter( 'pre_update_option_' . $option, $query_filter, 10, 2 );
 
 		try {
 			$result = bbp_admin_repair_forum_reply_count();
@@ -3475,7 +3440,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
+			remove_filter( 'pre_update_option_' . $option, $query_filter, 10 );
 			$db->suppress_errors( $old_suppression );
 		}
 
@@ -3505,7 +3470,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$result = bbp_admin_repair_forum_reply_count();
 			$this->assertSame( 8, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_reply_count' ) );
+			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
 			$db->suppress_errors( $old_suppression );

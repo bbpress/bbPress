@@ -552,9 +552,21 @@ function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = arra
  * @return bool Whether the stored checkpoint matches the requested state.
  */
 function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = false ) {
-	$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+	return bbp_admin_repair_tool_save_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), $state, $complete );
+}
 
-	if ( $complete ) {
+/**
+ * Save or remove durable tool state and verify the stored result.
+ *
+ * @since 2.7.0 bbPress (r8284)
+ *
+ * @param string $option Option name.
+ * @param mixed  $value  Saved state.
+ * @param bool   $delete Whether to remove the option.
+ * @return bool Whether stored state matches the request.
+ */
+function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
+	if ( $delete ) {
 		if ( ! delete_option( $option ) ) {
 			// WordPress may cache a missing option even when its deletion fails
 			wp_cache_delete( $option, 'options' );
@@ -565,8 +577,8 @@ function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = fa
 		return $saved && empty( bbp_db()->last_error );
 	}
 
-	update_option( $option, $state, false );
-	return get_option( $option, false ) === $state;
+	update_option( $option, $value, false );
+	return get_option( $option, false ) === $value;
 }
 
 /**

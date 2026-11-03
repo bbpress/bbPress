@@ -188,6 +188,7 @@ function bbp_add_options() {
  * @since 2.0.0 bbPress (r3421)
  * @since 2.7.0 bbPress (r8252) Delete temporary forum tool run state.
  * @since 2.7.0 bbPress (r8253) Delete built-in tool batch checkpoints.
+ * @since 2.7.0 bbPress (r8284) Delete temporary forum hierarchy nodes.
  */
 function bbp_delete_options() {
 
@@ -203,9 +204,31 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_run_status_upgrade' );
 
 	// Delete checkpoints without requiring the administration tools to be loaded
-	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements' ) as $tool_id ) {
+	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies' ) as $tool_id ) {
 		delete_option( '_bbp_tool_batch_' . md5( $tool_id ) );
 	}
+
+	// Remove durable hierarchy nodes without loading administration classes
+	$bbp_db  = bbp_db();
+	$pattern = $bbp_db->esc_like( '_bbp_tool_batch_' ) . '%' . $bbp_db->esc_like( '_tree_' ) . '%';
+	do {
+		$names = $bbp_db->get_col( $bbp_db->prepare( "SELECT option_name FROM {$bbp_db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT 100", $pattern ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			break;
+		}
+		foreach ( $names as $name ) {
+			if ( ! delete_option( $name ) ) {
+				break 2;
+			}
+		}
+		if ( ! empty( $names ) ) {
+			$notoptions = wp_cache_get( 'notoptions', 'options' );
+			if ( is_array( $notoptions ) ) {
+				wp_cache_set( 'notoptions', array_diff_key( $notoptions, array_flip( $names ) ), 'options' );
+			}
+		}
+		$count = count( $names );
+	} while ( 100 === $count );
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_delete_options' );

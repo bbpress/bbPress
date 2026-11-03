@@ -200,18 +200,32 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	 * @covers ::bbp_delete_options
 	 */
 	public function test_bbp_delete_options_removes_builtin_tool_batch_checkpoints() {
-		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements' );
+		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies' );
 		foreach ( $tools as $tool_id ) {
 			$this->set_option( '_bbp_tool_batch_' . md5( $tool_id ), array( 'cursor' => 10 ) );
 		}
+		$scratch = '_bbp_tool_batch_' . md5( 'bbp-forum-topics' ) . '_tree_old_';
+		for ( $i = 0; $i < 105; ++$i ) {
+			$this->set_option( $scratch . $i, array( 'id' => $i ) );
+		}
+		$this->set_option( 'bbp_test_unrelated_tree', 'keep' );
+		get_option( 'bbp_test_unrelated_missing_option', false );
 		foreach ( array_keys( bbp_get_default_options() ) as $option ) {
 			$this->remember_option( $option );
 		}
 
 		bbp_delete_options();
+		$names  = array_keys( (array) wp_cache_get( 'notoptions', 'options' ) );
+		$cached = array_filter( $names, static function ( $name ) use ( $scratch ) { return 0 === strpos( $name, $scratch ); } );
+		$this->assertSame( array(), array_values( $cached ) );
+		$this->assertContains( 'bbp_test_unrelated_missing_option', $names );
 		foreach ( $tools as $tool_id ) {
 			$this->assertFalse( get_option( '_bbp_tool_batch_' . md5( $tool_id ), false ) );
 		}
+		for ( $i = 0; $i < 105; ++$i ) {
+			$this->assertFalse( get_option( $scratch . $i, false ) );
+		}
+		$this->assertSame( 'keep', get_option( 'bbp_test_unrelated_tree' ) );
 	}
 
 	/**
