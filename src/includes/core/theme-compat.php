@@ -485,10 +485,10 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @since 2.6.21 bbPress (r8130)
  *
  * @param string  $excerpt Post excerpt.
- * @param WP_Post $post    Post object.
+ * @param WP_Post|null $post Optional post object.
  * @return string
  */
-function bbp_get_theme_compat_excerpt( $excerpt, $post ) {
+function bbp_get_theme_compat_excerpt( $excerpt, $post = null ) {
 	if ( ( '' !== $excerpt ) || ! bbp_is_theme_compat_active() || ! ( $post instanceof WP_Post ) ) {
 		return $excerpt;
 	}
