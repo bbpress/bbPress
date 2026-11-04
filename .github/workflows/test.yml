@@ -72,6 +72,9 @@ jobs:
           - php: '8.5'
             wp: 'trunk'
             experimental: true
+          - php: '8.6'
+            wp: 'trunk'
+            experimental: true
 
     continue-on-error: ${{ matrix.experimental }}
 
