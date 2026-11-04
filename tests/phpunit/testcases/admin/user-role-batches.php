@@ -430,6 +430,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		$ids = $this->fixture();
 		foreach ( $ids as $id ) {
 			clean_user_cache( $id );
+			// WordPress versions before 6.2 leave user metadata cached here
+			wp_cache_delete( $id, 'user_meta' );
 		}
 		$before = $this->snapshot();
 		$fail = static function ( $query ) use ( $db, $point ) {
