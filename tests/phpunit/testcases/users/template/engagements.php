@@ -12,12 +12,15 @@ class BBP_Tests_Users_Template_Engagements extends BBP_UnitTestCase {
 	private $old_topic_query;
 	private $old_displayed_user;
 	private $old_current_user;
+	private $old_errors;
 
 	public function setUp(): void {
 		parent::setUp();
 		$this->old_topic_query    = bbpress()->topic_query;
 		$this->old_displayed_user = bbpress()->displayed_user;
 		$this->old_current_user   = get_current_user_id();
+		$this->old_errors         = bbpress()->errors;
+		bbpress()->errors         = new WP_Error();
 
 		bbp_register_template_stack( array( $this, 'template_directory' ), -100 );
 		add_action( 'bbp_locate_template', array( $this, 'load_template' ), 10, 6 );
@@ -29,6 +32,7 @@ class BBP_Tests_Users_Template_Engagements extends BBP_UnitTestCase {
 		bbp_deregister_template_stack( array( $this, 'template_directory' ), -100 );
 		bbpress()->topic_query    = $this->old_topic_query;
 		bbpress()->displayed_user = $this->old_displayed_user;
+		bbpress()->errors         = $this->old_errors;
 		$this->set_current_user( $this->old_current_user );
 		parent::tearDown();
 	}

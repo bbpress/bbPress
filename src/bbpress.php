@@ -367,7 +367,6 @@ final class bbPress {
 		require $this->includes_dir . 'common/ajax.php';
 		require $this->includes_dir . 'common/blocks.php';
 		require $this->includes_dir . 'common/classes.php';
-		require $this->includes_dir . 'common/engagements.php';
 		require $this->includes_dir . 'common/functions.php';
 		require $this->includes_dir . 'common/formatting.php';
 		require $this->includes_dir . 'common/locale.php';
@@ -400,7 +399,13 @@ final class bbPress {
 
 		// Users
 		require $this->includes_dir . 'users/capabilities.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-base.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-meta.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-term.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-user.php';
 		require $this->includes_dir . 'users/engagements.php';
+		require $this->includes_dir . 'users/favorites.php';
+		require $this->includes_dir . 'users/subscriptions.php';
 		require $this->includes_dir . 'users/mentions.php';
 		require $this->includes_dir . 'users/mentions-backfill.php';
 		require $this->includes_dir . 'users/functions.php';
@@ -424,7 +429,7 @@ final class bbPress {
 
 		// Command-line tools
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			require $this->includes_dir . 'users/mentions-cli.php';
+			require $this->includes_dir . 'users/classes/class-bbp-mentions-cli-command.php';
 		}
 	}
 
