@@ -200,7 +200,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	 * @covers ::bbp_delete_options
 	 */
 	public function test_bbp_delete_options_removes_builtin_tool_batch_checkpoints() {
-		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies', 'bbp-user-favorites', 'bbp-user-topic-subscriptions', 'bbp-user-forum-subscriptions', 'bbp-user-favorites-delete', 'bbp-user-topic-subscriptions-delete', 'bbp-user-forum-subscriptions-delete', 'bbp-user-role-map' );
+		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies', 'bbp-user-favorites', 'bbp-user-topic-subscriptions', 'bbp-user-forum-subscriptions', 'bbp-user-favorites-delete', 'bbp-user-topic-subscriptions-delete', 'bbp-user-forum-subscriptions-delete', 'bbp-user-role-map', 'bbp-sync-all-topics-forums' );
 		foreach ( $tools as $tool_id ) {
 			$this->set_option( '_bbp_tool_batch_' . md5( $tool_id ), array( 'cursor' => 10 ) );
 		}

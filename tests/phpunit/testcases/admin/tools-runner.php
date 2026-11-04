@@ -1507,14 +1507,30 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		foreach ( $ids as $id ) {
 			bbp_set_user_role( $id, bbp_get_spectator_role() );
 		}
+		$this->assert_native_repair_finishes_before_next_tool( 'bbp-user-role-map', 25 );
+		foreach ( $ids as $id ) {
+			$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $id ) );
+		}
+	}
+
+	public function test_batched_freshness_completes_before_the_next_bulk_tool() {
+		$forum = $this->factory->forum->create();
+		$topic = $this->factory->topic->create( array( 'post_parent' => $forum ) );
+		$reply = $this->factory->reply->create( array( 'post_parent' => $topic ) );
+		$this->assert_native_repair_finishes_before_next_tool( 'bbp-sync-all-topics-forums', 100 );
+		$this->assertSame( (string) $reply, get_post_meta( $topic, '_bbp_last_active_id', true ) );
+		$this->assertSame( (string) $reply, get_post_meta( $forum, '_bbp_last_active_id', true ) );
+	}
+
+	private function assert_native_repair_finishes_before_next_tool( $tool_id, $limit ) {
 		$size = static function () { return 1; };
 		$next = 0;
 		bbp_register_default_repair_tools();
 		$register = static function () use ( &$next ) {
 			bbp_register_repair_tool( array(
-				'id' => 'bbp-test-after-role-map',
+				'id' => 'bbp-test-after-native-batch',
 				'type' => 'repair',
-				'title' => 'After role remapping',
+				'title' => 'After native batching',
 				'priority' => 105,
 				'callbacks' => array( 'run' => static function () use ( &$next ) { ++$next; return array( 0, 'Complete.' ); } )
 			) );
@@ -1525,7 +1541,7 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$_GET = array(
 			'page'     => 'bbp-repair',
 			'action'   => 'run',
-			'checked'  => array( 'bbp-user-role-map', 'bbp-test-after-role-map' ),
+			'checked'  => array( $tool_id, 'bbp-test-after-native-batch' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' )
 		);
 		$_REQUEST                  = $_GET;
@@ -1534,8 +1550,8 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 			bbp_admin_repair_handler();
 			$state = bbp_admin_repair_tool_get_run_state( 'repair' );
 			$this->assertSame( 0, $next );
-			for ( $i = 0; $i < 25; ++$i ) {
-				$response = $this->ajax( 'repair', 'bbp-user-role-map', wp_create_nonce( 'bbpress-tools-process' ), 'POST', $state['id'] );
+			for ( $i = 0; $i < $limit; ++$i ) {
+				$response = $this->ajax( 'repair', $tool_id, wp_create_nonce( 'bbpress-tools-process' ), 'POST', $state['id'] );
 				$this->assertTrue( $response['success'] );
 				$this->assertSame( 0, $next );
 				if ( $response['data']['complete'] ) {
@@ -1543,12 +1559,10 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 				}
 			}
 			$this->assertTrue( $response['data']['complete'] );
-			$this->assertSame( array( 'bbp-test-after-role-map' ), bbp_admin_repair_tool_get_run_state( 'repair' )['tools'] );
-			foreach ( $ids as $id ) {
-				$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $id ) );
-			}
+			$this->assertSame( array( 'bbp-test-after-native-batch' ), bbp_admin_repair_tool_get_run_state( 'repair' )['tools'] );
+
 			$after = bbp_admin_repair_tool_get_run_state( 'repair' );
-			$response = $this->ajax( 'repair', 'bbp-test-after-role-map', wp_create_nonce( 'bbpress-tools-process' ), 'POST', $after['id'] );
+			$response = $this->ajax( 'repair', 'bbp-test-after-native-batch', wp_create_nonce( 'bbpress-tools-process' ), 'POST', $after['id'] );
 			$this->assertTrue( $response['success'] );
 			$this->assertSame( 1, $next );
 			$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );

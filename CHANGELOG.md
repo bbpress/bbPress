@@ -58,6 +58,12 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Recalculate topic and forum activity in resumable batches, sharing hierarchy traversal
+  with forum recounts and preserving previews, safe retries, and automatic runs on
+  small sites. Inspect orphan candidates within each batch's work budget and keep
+  only the in-flight topic in its checkpoint. Preserve subforum parent references
+  when recalculating activity. Sites with extensive non-forum metadata may need
+  additional cleanup batches; unused metadata values are not loaded.
 - Highlight pending forum upgrades and show them first by default, preserving
   upgrade priorities and explicit column sorting.
 - Process legacy favorites, topic subscriptions, forum subscriptions, topic

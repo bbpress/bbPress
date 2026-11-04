@@ -158,20 +158,20 @@ function bbp_admin_repair_count_metadata( $meta_type, $object_id, $key, $count, 
 }
 
 /**
- * Reconcile one integer metadata value with bounded writes.
+ * Reconcile one scalar metadata value with bounded writes.
  *
  * Preserve a canonical row, or add it before cleaning up other rows. A null
- * value removes all matching rows. Counts and object references share this
+ * value removes all matching rows. Counts, references, and activity share this
  * cleanup, and each inspected object costs at least one work item.
  *
  * @since 2.7.0 bbPress (r8277)
  *
- * @param string   $meta_type Metadata type: 'post' or 'user'.
- * @param int      $object_id Object ID.
- * @param string   $key       Metadata key.
- * @param int|null $value     Expected value, or null when no row should remain.
- * @param int      $limit     Maximum metadata writes.
- * @param bool     $dry_run   Whether to preview without writes.
+ * @param string          $meta_type Metadata type: 'post' or 'user'.
+ * @param int             $object_id Object ID.
+ * @param string          $key       Metadata key.
+ * @param int|string|null $value     Expected value, or null when no row should remain.
+ * @param int             $limit     Maximum metadata writes.
+ * @param bool            $dry_run   Whether to preview without writes.
  * @return array Status code, work used, changed flag, and completion flag.
  */
 function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false ) {
@@ -200,6 +200,7 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 	if ( ( null !== $value ) && empty( $keep_id ) ) {
 		if ( ! $dry_run ) {
 			$keep_id = add_metadata( $meta_type, $object_id, $key, $value, false );
+			wp_cache_delete( $object_id, $meta_type . '_meta' );
 			if ( false === $keep_id ) {
 				$result['code'] = 4;
 				return $result;
@@ -216,9 +217,13 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 		return $result;
 	}
 	foreach ( array_slice( $extra_ids, 0, $remaining ) as $meta_id ) {
-		if ( ! $dry_run && ! delete_metadata_by_mid( $meta_type, $meta_id ) ) {
-			$result['code'] = 3;
-			return $result;
+		if ( ! $dry_run ) {
+			$deleted = delete_metadata_by_mid( $meta_type, $meta_id );
+			wp_cache_delete( $object_id, $meta_type . '_meta' );
+			if ( ! $deleted ) {
+				$result['code'] = 3;
+				return $result;
+			}
 		}
 		++$result['work'];
 		$result['changed'] = true;
@@ -2547,24 +2552,7 @@ function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
  * @return int Zero on success, or a read, delete, or update error code.
  */
 function bbp_admin_repair_user_meta_row( $row, $key, $value ) {
-	$db      = bbp_db();
-	$user_id = (int) $row->user_id;
-	$meta_id = (int) $row->umeta_id;
-	wp_cache_delete( $user_id, 'user_meta' );
-	if ( '' === $value ) {
-		delete_metadata_by_mid( 'user', $meta_id );
-	} elseif ( $value !== $row->meta_value || $key !== $row->meta_key ) {
-		update_metadata_by_mid( 'user', $meta_id, $value, $key );
-	}
-	wp_cache_delete( $user_id, 'user_meta' );
-	$stored = $db->get_row( $db->prepare( "SELECT user_id, meta_key, meta_value FROM {$db->usermeta} WHERE umeta_id = %d", $meta_id ) );
-	if ( ! empty( $db->last_error ) ) {
-		return 1;
-	}
-	if ( '' === $value ) {
-		return empty( $stored ) ? 0 : 4;
-	}
-	return ! empty( $stored ) && ( $user_id === (int) $stored->user_id ) && ( $key === $stored->meta_key ) && ( $value === $stored->meta_value ) ? 0 : 5;
+	return bbp_admin_repair_metadata_row( 'user', $row, $key, '' === $value ? null : $value );
 }
 
 /**
@@ -3230,6 +3218,7 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
  *
  * @since 2.1.0 bbPress (r3884)
  * @since 2.7.0 bbPress (r8241) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8299) Processes one resumable batch per call.
  *
  * @return array An array of the status code and the message.
  */
@@ -3241,11 +3230,25 @@ function bbp_admin_repair_freshness() {
  * Preview repairing the last post in every topic and forum.
  *
  * @since 2.7.0 bbPress (r8241)
+ * @since 2.7.0 bbPress (r8299) Processes one resumable batch per call.
  *
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_freshness_dry_run() {
 	return bbp_admin_repair_freshness_process( true );
+}
+
+/**
+ * Repair or preview one bounded batch of topic and forum activity.
+ *
+ * @since 2.7.0 bbPress (r8299)
+ *
+ * @param bool $dry_run Whether to preview without updating metadata or progress.
+ * @return array Status, per-batch totals, and progress flags.
+ */
+function bbp_admin_repair_freshness_batch( $dry_run = false ) {
+	$repair = new BBP_Admin_Forum_Freshness( $dry_run );
+	return $repair->run();
 }
 
 /**
@@ -3257,278 +3260,55 @@ function bbp_admin_repair_freshness_dry_run() {
  * @return array An array of the status code and the message.
  */
 function bbp_admin_repair_freshness_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db           = bbp_db();
-	$failed           = esc_html__( 'Failed!', 'bbpress' );
-	$fpt              = bbp_get_forum_post_type();
-	$tpt              = bbp_get_topic_post_type();
-	$rpt              = bbp_get_reply_post_type();
-	$pps              = bbp_get_public_status_id();
-	$keys             = array( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );
-	$key_placeholders = implode( ', ', array_fill( 0, count( $keys ), '%s' ) );
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking latest post in every topic and forum&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the repair process */
-		$statement = esc_html__( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
-	}
-
-	$topic_count = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM `{$bbp_db->posts}` WHERE `post_type` = %s", $tpt ) );
-	if ( ! empty( $bbp_db->last_error ) ) {
+	$statement = $dry_run
+		/* translators: %s: Repair result */
+		? esc_html__( 'Checking latest post in every topic and forum&hellip; %s', 'bbpress' )
+		/* translators: %s: Repair result */
+		: esc_html__( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
+	$batch     = bbp_admin_repair_freshness_batch( $dry_run );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] ) {
+		$result = 7 === $batch['code']
+			? esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' )
+			: esc_html__( 'Failed!', 'bbpress' );
 		return array(
-			11,
-			sprintf( $statement, $failed ),
-			'success' => false
+			$batch['code'],
+			sprintf( $statement, $result ),
+			'success'  => false,
+			'complete' => false
 		);
 	}
-
-	$forum_count = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM `{$bbp_db->posts}` WHERE `post_type` = %s", $fpt ) );
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			12,
-			sprintf( $statement, $failed ),
-			'success' => false
-		);
-	}
-
-	$stale_count = $bbp_db->get_var(
-		$bbp_db->prepare(
-			"SELECT COUNT( `freshness`.`meta_id` )
-			FROM `{$bbp_db->postmeta}` AS `freshness`
-			LEFT JOIN `{$bbp_db->posts}` AS `content`
-				ON `freshness`.`post_id` = `content`.`ID`
-				AND `content`.`post_type` IN ( %s, %s )
-			WHERE `freshness`.`meta_key` IN ( {$key_placeholders} )
-				AND `content`.`ID` IS NULL",
-			array_merge( array( $fpt, $tpt ), $keys )
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			13,
-			sprintf( $statement, $failed ),
-			'success' => false
-		);
-	}
-
-	$topic_count = (int) $topic_count;
-	$forum_count = (int) $forum_count;
-	$stale_count = (int) $stale_count;
-
-	if ( empty( $topic_count ) && empty( $forum_count ) && empty( $stale_count ) ) {
-		$result = esc_html__( '0 topic or forum freshness records to recalculate.', 'bbpress' );
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	$topic_result = sprintf(
-		/* translators: %s: Number of topics */
-		esc_html( _n( '%s topic would be recalculated.', '%s topics would be recalculated.', $topic_count, 'bbpress' ) ),
-		bbp_number_format( $topic_count )
-	);
-	$forum_result = sprintf(
-		/* translators: %s: Number of forums */
-		esc_html( _n( '%s forum would be recalculated.', '%s forums would be recalculated.', $forum_count, 'bbpress' ) ),
-		bbp_number_format( $forum_count )
-	);
-	$stale_result = sprintf(
-		/* translators: %s: Number of orphaned freshness rows */
-		esc_html( _n( '%s orphaned freshness row would be removed.', '%s orphaned freshness rows would be removed.', $stale_count, 'bbpress' ) ),
-		bbp_number_format( $stale_count )
-	);
-
-	if ( $dry_run ) {
-		$result = $topic_result . "\n" . $forum_result . "\n" . $stale_result;
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	$forums = $bbp_db->get_col(
-		$bbp_db->prepare(
-			"SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` != %s",
-			$fpt,
-			'auto-draft'
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			10,
-			sprintf( $statement, $failed ),
-			'success' => false
-		);
-	}
-
-	$clean_cache = static function () use ( $fpt, $tpt ) {
-		return bbp_admin_repair_clean_post_meta_cache_batched( array( $fpt, $tpt ) );
-	};
-
-	if ( ! $clean_cache() ) {
-		return array(
-			14,
-			sprintf( $statement, $failed ),
-			'success' => false
-		);
-	}
-
-	$orphan_result = bbp_admin_repair_delete_orphaned_freshness_batched( array( $fpt, $tpt ), $keys );
-	if ( ! empty( $orphan_result ) ) {
-		return array(
-			$orphan_result,
-			sprintf( $statement, $failed ),
-			'success' => false
-		);
-	}
-
-	$delete_args  = array_merge( $keys, array( $fpt, $tpt ) );
-	$delete_query = $bbp_db->prepare(
-		"DELETE `freshness`
-		FROM `{$bbp_db->postmeta}` AS `freshness`
-		INNER JOIN `{$bbp_db->posts}` AS `content`
-			ON `freshness`.`post_id` = `content`.`ID`
-		WHERE `freshness`.`meta_key` IN ( {$key_placeholders} )
-			AND `content`.`post_type` IN ( %s, %s )",
-		$delete_args
-	);
-
-	if ( false === $bbp_db->query( $delete_query ) ) {
-		$clean_cache();
-
+	if ( $batch['initial'] && $batch['complete'] && ! $batch['topics'] && ! $batch['forums'] && ! $batch['stale'] ) {
 		return array(
 			1,
-			sprintf( $statement, $failed ),
-			'success' => false
+			sprintf( $statement, esc_html__( '0 topic or forum freshness records to recalculate.', 'bbpress' ) ),
+			'complete' => true
 		);
 	}
-
-	$queries = array(
-		2 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
-			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` = %s AND `topic`.`post_type` = %s AND `reply`.`post_type` = %s
-			GROUP BY `topic`.`ID` )",
-			$pps,
-			$tpt,
-			$rpt
-		),
-		3 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `ID`, '_bbp_last_reply_id', 0
-			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
-			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_reply_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = %s )",
-			$tpt
-		),
-		4 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `forum`.`ID`, '_bbp_last_topic_id', MAX( `topic`.`ID` )
-			FROM `{$bbp_db->posts}` AS `forum` INNER JOIN `{$bbp_db->posts}` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
-			WHERE `topic`.`post_status` = %s AND `forum`.`post_type` = %s AND `topic`.`post_type` = %s
-			GROUP BY `forum`.`ID` )",
-			$pps,
-			$fpt,
-			$tpt
-		),
-		5 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `ID`, '_bbp_last_topic_id', 0
-			FROM `{$bbp_db->posts}` AS `forum` LEFT JOIN `{$bbp_db->postmeta}` AS `topic`
-			ON `forum`.`ID` = `topic`.`post_id` AND `topic`.`meta_key` = '_bbp_last_topic_id'
-			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = %s )",
-			$fpt
-		),
-		6 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
-			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` = %s AND `topic`.`post_type` = %s AND `reply`.`post_type` = %s
-			GROUP BY `topic`.`ID` )",
-			$pps,
-			$tpt,
-			$rpt
-		),
-		7 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `ID`, '_bbp_last_active_id', `ID`
-			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
-			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = %s )",
-			$tpt
-		),
-		8 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
-			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` = %s AND `topic`.`post_type` = %s AND `reply`.`post_type` = %s
-			GROUP BY `topic`.`ID` )",
-			$pps,
-			$tpt,
-			$rpt
-		),
-		9 => $bbp_db->prepare(
-			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `ID`, '_bbp_last_active_time', `post_date`
-			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
-			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_time'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = %s )",
-			$tpt
-		),
-	);
-
-	foreach ( $queries as $code => $query ) {
-		if ( false === $bbp_db->query( $query ) ) {
-			$clean_cache();
-
-			return array(
-				$code,
-				sprintf( $statement, $failed ),
-				'success' => false
-			);
-		}
-	}
-
-	// Loop through forums
-	foreach ( $forums as $forum_id ) {
-		if ( ! bbp_is_forum_category( $forum_id ) ) {
-			bbp_update_forum( array( 'forum_id' => $forum_id ) );
-		}
-	}
-
-	// Loop through categories when forums are done
-	foreach ( $forums as $forum_id ) {
-		if ( bbp_is_forum_category( $forum_id ) ) {
-			bbp_update_forum( array( 'forum_id' => $forum_id ) );
-		}
-	}
-
-	if ( ! $clean_cache() ) {
-		return array(
-			14,
-			sprintf( $statement, $failed ),
-			'success' => false
-		);
-	}
-
-	$topic_result = sprintf(
+	if ( $dry_run ) {
 		/* translators: %s: Number of topics */
-		esc_html( _n( '%s topic recalculated.', '%s topics recalculated.', $topic_count, 'bbpress' ) ),
-		bbp_number_format( $topic_count )
-	);
-	$forum_result = sprintf(
+		$topics = sprintf( esc_html( _n( '%s topic would be recalculated.', '%s topics would be recalculated.', $batch['topics'], 'bbpress' ) ), bbp_number_format( $batch['topics'] ) );
 		/* translators: %s: Number of forums */
-		esc_html( _n( '%s forum recalculated.', '%s forums recalculated.', $forum_count, 'bbpress' ) ),
-		bbp_number_format( $forum_count )
-	);
-	$stale_result = sprintf(
+		$forums = sprintf( esc_html( _n( '%s forum would be recalculated.', '%s forums would be recalculated.', $batch['forums'], 'bbpress' ) ), bbp_number_format( $batch['forums'] ) );
 		/* translators: %s: Number of orphaned freshness rows */
-		esc_html( _n( '%s orphaned freshness row removed.', '%s orphaned freshness rows removed.', $stale_count, 'bbpress' ) ),
-		bbp_number_format( $stale_count )
+		$stale = sprintf( esc_html( _n( '%s orphaned freshness row would be removed.', '%s orphaned freshness rows would be removed.', $batch['stale'], 'bbpress' ) ), bbp_number_format( $batch['stale'] ) );
+	} else {
+		/* translators: %s: Number of topics */
+		$topics = sprintf( esc_html( _n( '%s topic recalculated.', '%s topics recalculated.', $batch['topics'], 'bbpress' ) ), bbp_number_format( $batch['topics'] ) );
+		/* translators: %s: Number of forums */
+		$forums = sprintf( esc_html( _n( '%s forum recalculated.', '%s forums recalculated.', $batch['forums'], 'bbpress' ) ), bbp_number_format( $batch['forums'] ) );
+		/* translators: %s: Number of orphaned freshness rows */
+		$stale = sprintf( esc_html( _n( '%s orphaned freshness row removed.', '%s orphaned freshness rows removed.', $batch['stale'], 'bbpress' ) ), bbp_number_format( $batch['stale'] ) );
+	}
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $topics . "\n" . $forums . "\n" . $stale;
+	if ( ! $dry_run ) {
+		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
+	}
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete']
 	);
-	$result = esc_html__( 'Complete!', 'bbpress' ) . "\n" . $topic_result . "\n" . $forum_result . "\n" . $stale_result;
-
-	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**

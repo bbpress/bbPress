@@ -488,6 +488,44 @@ function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $rep
 }
 
 /**
+ * Update or remove one metadata row and verify the uncached stored result.
+ *
+ * @since 2.7.0 bbPress (r8299)
+ *
+ * @param string      $meta_type Metadata type: 'post' or 'user'.
+ * @param object      $row       Source metadata row.
+ * @param string      $key       Canonical metadata key.
+ * @param string|null $value     Repaired value, or null to remove the row.
+ * @return int Zero on success, or a read, delete, or update error code.
+ */
+function bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value ) {
+	if ( ! in_array( $meta_type, array( 'post', 'user' ), true ) ) {
+		return 1;
+	}
+	$db         = bbp_db();
+	$table      = $db->{$meta_type . 'meta'};
+	$id_column  = 'user' === $meta_type ? 'umeta_id' : 'meta_id';
+	$object_key = $meta_type . '_id';
+	$object_id  = (int) $row->$object_key;
+	$meta_id    = (int) $row->$id_column;
+	wp_cache_delete( $object_id, $meta_type . '_meta' );
+	if ( null === $value ) {
+		delete_metadata_by_mid( $meta_type, $meta_id );
+	} elseif ( $value !== $row->meta_value || $key !== $row->meta_key ) {
+		update_metadata_by_mid( $meta_type, $meta_id, $value, $key );
+	}
+	wp_cache_delete( $object_id, $meta_type . '_meta' );
+	$stored = $db->get_row( $db->prepare( "SELECT {$object_key}, meta_key, meta_value FROM {$table} WHERE {$id_column} = %d", $meta_id ) );
+	if ( ! empty( $db->last_error ) ) {
+		return 1;
+	}
+	if ( null === $value ) {
+		return empty( $stored ) ? 0 : 4;
+	}
+	return ! empty( $stored ) && $object_id === (int) $stored->$object_key && $key === $stored->meta_key && $value === $stored->meta_value ? 0 : 5;
+}
+
+/**
  * Reconcile a bounded selection of source and stored engagement rows.
  *
  * Keep the earliest canonical relationship and share duplicate suppression with

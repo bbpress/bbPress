@@ -5027,372 +5027,229 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_delete_orphaned_freshness_batched
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_dry_run
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+
+	private function finish_freshness_repair() {
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-sync-all-topics-forums', 'bbp_admin_repair_freshness' ) );
+	}
+
+	/** @covers ::bbp_admin_repair_freshness_process */
 	public function test_bbp_admin_repair_freshness() {
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
 		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
 		$post_id  = $this->factory->post->create();
-
-		update_post_meta( $topic_id, '_bbp_last_reply_id', 999 );
-		update_post_meta( $topic_id, '_bbp_last_active_id', 999 );
-		update_post_meta( $topic_id, '_bbp_last_active_time', '2000-01-01 00:00:00' );
-		update_post_meta( $forum_id, '_bbp_last_topic_id', 999 );
-		update_post_meta( $forum_id, '_bbp_last_reply_id', 999 );
-		update_post_meta( $forum_id, '_bbp_last_active_id', 999 );
-		update_post_meta( $forum_id, '_bbp_last_active_time', '2000-01-01 00:00:00' );
-		update_post_meta( $post_id, '_bbp_last_reply_id', 999 );
-		update_post_meta( $post_id, '_bbp_last_topic_id', 999 );
-		update_post_meta( $post_id, '_bbp_last_active_id', 999 );
-		update_post_meta( $post_id, '_bbp_last_active_time', '2000-01-01 00:00:00' );
-
-		$dry_run = bbp_admin_repair_freshness_dry_run();
-		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 topic would be recalculated', $dry_run[1] );
-		$this->assertStringContainsString( '1 forum would be recalculated', $dry_run[1] );
-		$this->assertStringContainsString( '4 orphaned freshness rows would be removed', $dry_run[1] );
+		$keys = array( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );
+		foreach ( array( $forum_id, $topic_id, $post_id ) as $id ) {
+			foreach ( $keys as $key ) {
+				update_post_meta( $id, $key, '_bbp_last_active_time' === $key ? '2000-01-01 00:00:00' : 999 );
+			}
+		}
+		$preview = bbp_admin_repair_freshness_dry_run();
+		$this->assertSame( 0, $preview[0] );
+		$this->assertFalse( $preview['complete'] );
+		$this->assertStringContainsString( 'This batch:', $preview[1] );
+		$this->assertStringContainsString( '1 topic would be recalculated', $preview[1] );
+		$this->assertStringContainsString( '0 forums would be recalculated', $preview[1] );
+		$this->assertStringContainsString( '4 orphaned freshness rows would be removed', $preview[1] );
 		$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
-		$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_last_active_id', true ) );
-		$this->assertSame( '2000-01-01 00:00:00', get_post_meta( $topic_id, '_bbp_last_active_time', true ) );
 		$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_last_topic_id', true ) );
-		$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_last_reply_id', true ) );
-		$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_last_active_id', true ) );
-		$this->assertSame( '2000-01-01 00:00:00', get_post_meta( $forum_id, '_bbp_last_active_time', true ) );
-		$this->assertSame( '999', get_post_meta( $post_id, '_bbp_last_reply_id', true ) );
-		$this->assertSame( '999', get_post_meta( $post_id, '_bbp_last_topic_id', true ) );
-		$this->assertSame( '999', get_post_meta( $post_id, '_bbp_last_active_id', true ) );
-		$this->assertSame( '2000-01-01 00:00:00', get_post_meta( $post_id, '_bbp_last_active_time', true ) );
-
-		$run = bbp_admin_repair_freshness();
-		$this->assertSame( 0, $run[0] );
-		$this->assertStringContainsString( '1 topic recalculated', $run[1] );
-		$this->assertStringContainsString( '1 forum recalculated', $run[1] );
-		$this->assertStringContainsString( '4 orphaned freshness rows removed', $run[1] );
-		$this->assertSame( (string) $reply_id, get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
-		$this->assertSame( (string) $reply_id, get_post_meta( $topic_id, '_bbp_last_active_id', true ) );
-		$this->assertSame( get_post_field( 'post_date', $reply_id ), get_post_meta( $topic_id, '_bbp_last_active_time', true ) );
+		$this->finish_freshness_repair();
 		$this->assertSame( (string) $topic_id, get_post_meta( $forum_id, '_bbp_last_topic_id', true ) );
-		$this->assertSame( (string) $reply_id, get_post_meta( $forum_id, '_bbp_last_reply_id', true ) );
-		$this->assertSame( (string) $reply_id, get_post_meta( $forum_id, '_bbp_last_active_id', true ) );
-		$this->assertSame( get_post_field( 'post_date', $reply_id ), get_post_meta( $forum_id, '_bbp_last_active_time', true ) );
-		$this->assertFalse( metadata_exists( 'post', $post_id, '_bbp_last_reply_id' ) );
-		$this->assertFalse( metadata_exists( 'post', $post_id, '_bbp_last_topic_id' ) );
-		$this->assertFalse( metadata_exists( 'post', $post_id, '_bbp_last_active_id' ) );
-		$this->assertFalse( metadata_exists( 'post', $post_id, '_bbp_last_active_time' ) );
-
-		$dry_run = bbp_admin_repair_freshness_dry_run();
-		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 topic would be recalculated', $dry_run[1] );
-		$this->assertStringContainsString( '1 forum would be recalculated', $dry_run[1] );
-		$this->assertStringContainsString( '0 orphaned freshness rows would be removed', $dry_run[1] );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_last_topic_id' ) );
+		foreach ( array( $forum_id, $topic_id ) as $id ) {
+			$this->assertSame( (string) $reply_id, get_post_meta( $id, '_bbp_last_reply_id', true ) );
+			$this->assertSame( (string) $reply_id, get_post_meta( $id, '_bbp_last_active_id', true ) );
+			$this->assertSame( get_post_field( 'post_date', $reply_id ), get_post_meta( $id, '_bbp_last_active_time', true ) );
+		}
+		foreach ( $keys as $key ) {
+			$this->assertFalse( metadata_exists( 'post', $post_id, $key ) );
+		}
+		$preview = bbp_admin_repair_freshness_dry_run();
+		$this->assertSame( 0, $preview[0] );
+		$this->assertStringContainsString( '0 orphaned freshness rows would be removed', $preview[1] );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_delete_orphaned_freshness_batched
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_dry_run
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+	/** @covers ::bbp_admin_repair_freshness_batch */
 	public function test_bbp_admin_repair_freshness_paginates_orphan_deletion() {
-		$db             = bbp_db();
-		$first_post_id  = (int) $db->get_var( "SELECT MAX(ID) FROM {$db->posts}" ) + 1000;
-		$keys           = array( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );
-		$insert_values  = array();
-		$select_queries = 0;
-		$delete_queries = 0;
-		$query_filter   = static function ( $query ) use ( $db, &$select_queries, &$delete_queries ) {
-			if ( false !== strpos( $query, 'SELECT DISTINCT `freshness`.`post_id`' ) ) {
-				++$select_queries;
-			} elseif ( 0 === strpos( $query, "DELETE FROM `{$db->postmeta}`" ) && false !== strpos( $query, '`post_id` IN' ) ) {
-				++$delete_queries;
+		$db = bbp_db();
+		$values = array();
+		for ( $i = 1; $i <= 1001; ++$i ) {
+			$values[] = $db->prepare( '(%d, %s, %s)', $i + 1000, '_bbp_last_active_time', 'stale' );
+		}
+		$db->query( "INSERT INTO {$db->postmeta} (post_id, meta_key, meta_value) VALUES " . implode( ', ', $values ) );
+		$preview = bbp_admin_repair_freshness_batch( true );
+		$this->assertGreaterThan( 0, $preview['stale'] );
+		$this->assertLessThanOrEqual( 100, $preview['stale'] );
+		$this->assertFalse( $preview['complete'] );
+		$this->assertSame( '1001', $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = '_bbp_last_active_time'" ) );
+		for ( $i = 0; $i < 30; ++$i ) {
+			$before = (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = '_bbp_last_active_time'" );
+			$result = bbp_admin_repair_freshness_batch();
+			$after = (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = '_bbp_last_active_time'" );
+			$this->assertSame( 0, $result['code'] );
+			$this->assertLessThanOrEqual( 100, $before - $after );
+			if ( $result['complete'] ) {
+				break;
 			}
-
-			return $query;
-		};
-
-		for ( $offset = 0; $offset < 1001; ++$offset ) {
-			$insert_values[] = $db->prepare( '(%d, %s, %d)', $first_post_id + $offset, $keys[ $offset % count( $keys ) ], 999 );
 		}
-
-		$this->assertNotFalse( $db->query( "INSERT INTO {$db->postmeta} (post_id, meta_key, meta_value) VALUES " . implode( ', ', $insert_values ) ) );
-		$this->assertSame( 1001, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' )" ) );
-
-		$dry_run = bbp_admin_repair_freshness_dry_run();
-		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1,001 orphaned freshness rows would be removed', $dry_run[1] );
-
-		add_filter( 'query', $query_filter );
-
-		try {
-			$this->assertSame( 0, bbp_admin_repair_freshness()[0] );
-		} finally {
-			remove_filter( 'query', $query_filter );
-		}
-
-		$this->assertSame( 2, $select_queries );
-		$this->assertSame( 2, $delete_queries );
-		$this->assertSame( 0, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' )" ) );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 0, $after );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_dry_run
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+	/** @covers ::bbp_admin_repair_freshness_process */
 	public function test_bbp_admin_repair_freshness_reports_no_data() {
-		$dry_run = bbp_admin_repair_freshness_dry_run();
-		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 topic or forum freshness records to recalculate', $dry_run[1] );
-
-		$run = bbp_admin_repair_freshness();
-		$this->assertSame( 1, $run[0] );
-		$this->assertStringContainsString( '0 topic or forum freshness records to recalculate', $run[1] );
+		foreach ( array( true, false ) as $dry_run ) {
+			$result = bbp_admin_repair_freshness_process( $dry_run );
+			$this->assertSame( 1, $result[0] );
+			$this->assertTrue( $result['complete'] );
+			$this->assertStringContainsString( '0 topic or forum freshness records to recalculate', $result[1] );
+		}
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_dry_run
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+	/** @covers ::bbp_admin_repair_freshness_batch */
 	public function test_bbp_admin_repair_freshness_reports_read_errors() {
-		global $wpdb;
-
-		$forum_id       = $this->factory->forum->create();
-		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filters   = array(
-			11 => static function ( $query ) use ( $wpdb ) {
-				$needle = "SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "'";
-
-				return ( false !== strpos( $query, $needle ) )
-					? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_freshness_topics`', $query )
-					: $query;
-			},
-			12 => static function ( $query ) use ( $wpdb ) {
-				$needle = "SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "'";
-
-				return ( false !== strpos( $query, $needle ) )
-					? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_freshness_forums`', $query )
-					: $query;
-			},
-			10 => static function ( $query ) use ( $wpdb ) {
-				return ( false !== strpos( $query, "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type`" ) )
-					? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_freshness_forum_ids`', $query )
-					: $query;
-			},
-			13 => static function ( $query ) use ( $wpdb ) {
-				return ( false !== strpos( $query, 'SELECT COUNT( `freshness`.`meta_id` )' ) )
-					? str_replace( "FROM `{$wpdb->postmeta}`", 'FROM `bbp_missing_freshness_meta`', $query )
-					: $query;
-			},
-		);
-
+		$db = bbp_db();
+		$topic = $this->factory->topic->create();
+		$points = array( 'SELECT MAX(ID)' => 3, 'SELECT MAX(meta_id)' => 5, 'SELECT ID FROM' => 3, 'SELECT MAX(ID) AS last_id' => 3 );
+		$suppression = $db->suppress_errors( true );
 		try {
-			foreach ( $query_filters as $code => $query_filter ) {
-				add_filter( 'query', $query_filter );
-
-				$dry_run = bbp_admin_repair_freshness_dry_run();
-				if ( 10 === $code ) {
-					$this->assertSame( 0, $dry_run[0] );
-				} else {
-					$this->assertSame( $code, $dry_run[0] );
-					$this->assertFalse( $dry_run['success'] );
+			foreach ( $points as $prefix => $code ) {
+				$fail = static function ( $query ) use ( $prefix ) { return 0 === strpos( $query, $prefix ) ? 'SELECT * FROM bbp_missing_freshness_read' : $query; };
+				add_filter( 'query', $fail );
+				try {
+					$preview = bbp_admin_repair_freshness_dry_run();
+					$this->assertSame( $code, $preview[0] );
+					$this->assertFalse( $preview['success'] );
+					$result = bbp_admin_repair_freshness();
+					$this->assertSame( $code, $result[0] );
+					$this->assertFalse( $result['success'] );
+					$this->assertFalse( $result['complete'] );
+				} finally {
+					remove_filter( 'query', $fail );
 				}
-
-				$run = bbp_admin_repair_freshness();
-				$this->assertSame( $code, $run[0] );
-				$this->assertFalse( $run['success'] );
-				$this->assertSame( (string) $topic_id, get_post_meta( $topic_id, '_bbp_last_active_id', true ) );
-
-				remove_filter( 'query', $query_filter );
+				$this->finish_freshness_repair();
 			}
 		} finally {
-			foreach ( $query_filters as $query_filter ) {
-				remove_filter( 'query', $query_filter );
-			}
-			$wpdb->suppress_errors( $old_suppression );
+			$db->suppress_errors( $suppression );
 		}
+		$this->assertSame( (string) $topic, get_post_meta( $topic, '_bbp_last_active_id', true ) );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+	/** @covers ::bbp_admin_repair_single_metadata */
 	public function test_bbp_admin_repair_freshness_stops_before_writes_on_cache_query_errors() {
-		global $wpdb;
-
-		$forum_id       = $this->factory->forum->create();
-		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filters   = array(
-			static function ( $query ) use ( $wpdb ) {
-				return ( false !== strpos( $query, "SELECT `ID` FROM `{$wpdb->posts}`" ) && false !== strpos( $query, '`post_type` IN' ) )
-					? str_replace( "FROM `{$wpdb->posts}`", 'FROM `bbp_missing_freshness_cache_posts`', $query )
-					: $query;
-			},
-			static function ( $query ) use ( $wpdb ) {
-				return ( false !== strpos( $query, 'SELECT DISTINCT `freshness`.`post_id`' ) )
-					? str_replace( "FROM `{$wpdb->postmeta}`", 'FROM `bbp_missing_freshness_cache_meta`', $query )
-					: $query;
-			},
-		);
-
-		update_post_meta( $topic_id, '_bbp_last_reply_id', 999 );
-
+		$db = bbp_db();
+		$topic = $this->factory->topic->create();
+		$suppression = $db->suppress_errors( true );
 		try {
-			foreach ( $query_filters as $query_filter ) {
-				add_filter( 'query', $query_filter );
-
-				$result = bbp_admin_repair_freshness();
-				$this->assertSame( 14, $result[0] );
-				$this->assertFalse( $result['success'] );
-				$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_last_reply_id' ) ) );
-
-				remove_filter( 'query', $query_filter );
+			foreach ( array( 'BINARY meta_key', 'meta_id <>' ) as $needle ) {
+				update_post_meta( $topic, '_bbp_last_reply_id', 999 );
+				$fail = static function ( $query ) use ( $needle ) {
+					return false !== strpos( $query, $needle ) && false !== strpos( $query, "'_bbp_last_reply_id'" ) ? 'SELECT * FROM bbp_missing_freshness_meta' : $query;
+				};
+				add_filter( 'query', $fail );
+				try {
+					$result = bbp_admin_repair_freshness();
+					$this->assertSame( 5, $result[0] );
+					$this->assertFalse( $result['success'] );
+					$this->assertContains( '999', get_post_meta( $topic, '_bbp_last_reply_id', false ) );
+				} finally {
+					remove_filter( 'query', $fail );
+				}
+				$this->finish_freshness_repair();
 			}
 		} finally {
-			foreach ( $query_filters as $query_filter ) {
-				remove_filter( 'query', $query_filter );
-			}
-			$wpdb->suppress_errors( $old_suppression );
+			$db->suppress_errors( $suppression );
 		}
-
-		$this->assertSame( 0, bbp_admin_repair_freshness()[0] );
-		$this->assertSame( '0', get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
+		$this->assertSame( '0', get_post_meta( $topic, '_bbp_last_reply_id', true ) );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_delete_orphaned_freshness_batched
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+	/** @covers ::bbp_admin_repair_metadata_row */
 	public function test_bbp_admin_repair_freshness_reports_orphan_delete_errors_and_can_retry() {
-		global $wpdb;
-
-		$post_id         = $this->factory->post->create();
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $wpdb, $post_id ) {
-			if ( 0 === strpos( $query, "DELETE FROM `{$wpdb->postmeta}`" ) && false !== strpos( $query, '`post_id` IN' ) ) {
-				wp_cache_set( $post_id, array( '_bbp_last_reply_id' => array( '777' ) ), 'post_meta' );
-
-				return 'DELETE FROM `bbp_missing_freshness_meta`';
+		$post = $this->factory->post->create();
+		$meta = add_post_meta( $post, '_bbp_last_reply_id', 999 );
+		$fail = static function ( $check, $id ) use ( $post, $meta ) {
+			if ( $meta === $id ) {
+				wp_cache_set( $post, array( '_bbp_last_reply_id' => array( '777' ) ), 'post_meta' );
+				return false;
 			}
-
-			return $query;
+			return $check;
 		};
-
-		update_post_meta( $post_id, '_bbp_last_reply_id', 999 );
-		add_filter( 'query', $query_filter );
-
+		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness();
 			$this->assertSame( 1, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $post_id, '_bbp_last_reply_id' ) ) );
-			$this->assertSame( '999', get_post_meta( $post_id, '_bbp_last_reply_id', true ) );
+			$this->assertSame( '999', get_post_meta( $post, '_bbp_last_reply_id', true ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
-			$wpdb->suppress_errors( $old_suppression );
+			remove_filter( 'delete_post_metadata_by_mid', $fail, 10 );
 		}
-
-		$this->assertSame( 0, bbp_admin_repair_freshness()[0] );
-		$this->assertFalse( metadata_exists( 'post', $post_id, '_bbp_last_reply_id' ) );
+		$this->finish_freshness_repair();
+		$this->assertFalse( metadata_exists( 'post', $post, '_bbp_last_reply_id' ) );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_process
-	 */
+	/** @covers ::bbp_admin_repair_single_metadata */
 	public function test_bbp_admin_repair_freshness_reports_delete_errors_and_can_retry() {
-		global $wpdb;
-
-		$topic_id        = $this->factory->topic->create();
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $topic_id ) {
-			if ( 0 === strpos( $query, 'DELETE `freshness`' ) ) {
-				wp_cache_set( $topic_id, array( '_bbp_last_reply_id' => array( '777' ) ), 'post_meta' );
-
-				return 'DELETE FROM `bbp_missing_freshness_meta`';
+		$topic = $this->factory->topic->create();
+		$meta = add_post_meta( $topic, '_bbp_last_reply_id', 999 );
+		$fail = static function ( $check, $id ) use ( $topic, $meta ) {
+			if ( $meta === $id ) {
+				wp_cache_set( $topic, array( '_bbp_last_reply_id' => array( '777' ) ), 'post_meta' );
+				return false;
 			}
-
-			return $query;
+			return $check;
 		};
-
-		update_post_meta( $topic_id, '_bbp_last_reply_id', 999 );
-		add_filter( 'query', $query_filter );
-
+		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness();
 			$this->assertSame( 1, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_last_reply_id' ) ) );
-			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
+			$this->assertContains( '999', get_post_meta( $topic, '_bbp_last_reply_id', false ) );
 		} finally {
-			remove_filter( 'query', $query_filter );
-			$wpdb->suppress_errors( $old_suppression );
+			remove_filter( 'delete_post_metadata_by_mid', $fail, 10 );
 		}
-
-		$this->assertSame( 0, bbp_admin_repair_freshness()[0] );
-		$this->assertSame( '0', get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
+		$this->finish_freshness_repair();
+		$this->assertSame( '0', get_post_meta( $topic, '_bbp_last_reply_id', true ) );
 	}
 
-	/**
-	 * @covers ::bbp_admin_repair_freshness
-	 * @covers ::bbp_admin_repair_freshness_process
-	 *
-	 * @dataProvider freshness_insert_error_provider
-	 */
-	public function test_bbp_admin_repair_freshness_reports_insert_errors_and_can_retry( $code, $needle ) {
-		global $wpdb;
-
-		$forum_id       = $this->factory->forum->create();
-		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
-		$reply_id       = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
-		$old_suppression = $wpdb->suppress_errors( true );
-		$query_filter    = static function ( $query ) use ( $needle, $topic_id ) {
-			if ( false !== strpos( $query, $needle ) ) {
-				wp_cache_set( $topic_id, array( '_bbp_last_reply_id' => array( '999999' ) ), 'post_meta' );
-
-				return 'INSERT INTO `bbp_missing_freshness_meta` (`post_id`) VALUES (1)';
-			}
-
-			return $query;
+	/** @dataProvider freshness_insert_error_provider */
+	public function test_bbp_admin_repair_freshness_reports_insert_errors_and_can_retry( $kind, $key, $with_reply ) {
+		$db = bbp_db();
+		$forum = $this->factory->forum->create();
+		$topic = $this->factory->topic->create( array( 'post_parent' => $forum ) );
+		$reply = $with_reply ? $this->factory->reply->create( array( 'post_parent' => $topic ) ) : 0;
+		$id = 'forum' === $kind ? $forum : $topic;
+		delete_post_meta( $id, $key );
+		$suppression = $db->suppress_errors( true );
+		$fail = static function ( $query ) use ( $db, $id, $key ) {
+			return 0 === strpos( $query, "INSERT INTO `{$db->postmeta}`" ) && false !== strpos( $query, "'{$key}'" ) && preg_match( '/VALUES\s*\(\s*' . $id . '\s*,/', $query ) ? 'INSERT INTO bbp_missing_freshness_meta (post_id) VALUES (1)' : $query;
 		};
-
-		add_filter( 'query', $query_filter );
-
+		add_filter( 'query', $fail );
 		try {
-			$result = bbp_admin_repair_freshness();
-			$this->assertSame( $code, $result[0] );
-			$this->assertFalse( $result['success'] );
-			$stored = $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_last_reply_id' ) );
-			$this->assertSame( is_null( $stored ) ? '' : $stored, get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
+			for ( $i = 0; $i < 10; ++$i ) {
+				$result = bbp_admin_repair_freshness();
+				if ( isset( $result['success'] ) && ! $result['success'] ) {
+					break;
+				}
+			}
+			$this->assertSame( 8, $result[0] );
+			$this->assertFalse( $result['complete'] );
 		} finally {
-			remove_filter( 'query', $query_filter );
-			$wpdb->suppress_errors( $old_suppression );
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppression );
 		}
-
-		$this->assertSame( 0, bbp_admin_repair_freshness()[0] );
-		$this->assertSame( (string) $reply_id, get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
-		$this->assertSame( (string) $topic_id, get_post_meta( $forum_id, '_bbp_last_topic_id', true ) );
+		$this->finish_freshness_repair();
+		$this->assertSame( (string) $reply, get_post_meta( $topic, '_bbp_last_reply_id', true ) );
+		$this->assertSame( (string) $topic, get_post_meta( $forum, '_bbp_last_topic_id', true ) );
 	}
 
 	public static function freshness_insert_error_provider() {
 		return array(
-			'last reply ID with replies'     => array( 2, "SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )" ),
-			'last reply ID without replies'  => array( 3, "SELECT `ID`, '_bbp_last_reply_id', 0" ),
-			'last topic ID with topics'       => array( 4, "SELECT `forum`.`ID`, '_bbp_last_topic_id', MAX( `topic`.`ID` )" ),
-			'last topic ID without topics'    => array( 5, "SELECT `ID`, '_bbp_last_topic_id', 0" ),
-			'last active ID with replies'     => array( 6, "SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )" ),
-			'last active ID without replies'  => array( 7, "SELECT `ID`, '_bbp_last_active_id', `ID`" ),
-			'last active time with replies'   => array( 8, "SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )" ),
-			'last active time without replies' => array( 9, "SELECT `ID`, '_bbp_last_active_time', `post_date`" ),
+			array( 'topic', '_bbp_last_reply_id', true ), array( 'topic', '_bbp_last_reply_id', false ),
+			array( 'topic', '_bbp_last_active_id', true ), array( 'topic', '_bbp_last_active_id', false ),
+			array( 'topic', '_bbp_last_active_time', true ), array( 'topic', '_bbp_last_active_time', false ),
+			array( 'forum', '_bbp_last_topic_id', true ), array( 'forum', '_bbp_last_topic_id', false ),
+			array( 'forum', '_bbp_last_reply_id', true ), array( 'forum', '_bbp_last_active_id', true ),
+			array( 'forum', '_bbp_last_active_time', true )
 		);
 	}
 
