@@ -406,6 +406,17 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_theme_compat_excerpt
+	 * @ticket 3784
+	 */
+	public function test_theme_compat_excerpt_accepts_one_filter_argument() {
+		bbp_theme_compat_reset_post( array( 'post_content' => 'Generated bbPress content' ) );
+
+		$this->assertSame( 'Existing excerpt', apply_filters( 'get_the_excerpt', 'Existing excerpt' ) );
+		$this->assertSame( '', bbp_get_theme_compat_excerpt( '' ) );
+	}
+
+	/**
 	 * @ticket 3431
 	 */
 	public function test_theme_compat_excerpt_does_not_replace_swapped_query_post() {
