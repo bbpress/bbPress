@@ -99,7 +99,7 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 		$retval = $default;
 
 	// If not the correct type of global
-	} elseif ( ! empty( $type ) && ! is_a( $GLOBALS[ $name ], $type ) ) {
+	} elseif ( ! empty( $type ) && ( ! is_object( $GLOBALS[ $name ] ) || ! is_a( $GLOBALS[ $name ], $type ) ) ) {
 		$retval = $default;
 
 	// Global variable exists

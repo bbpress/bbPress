@@ -46,6 +46,18 @@ class BBP_Tests_Core_Abstraction extends BBP_UnitTestCase {
 			$GLOBALS[ $name ] = null;
 			$this->assertSame( 'fallback', bbp_get_global_object( $name, '', 'fallback' ) );
 
+			$GLOBALS[ $name ] = 'stdClass';
+			set_error_handler(
+				function ( $severity, $message, $file, $line ) {
+					throw new ErrorException( $message, 0, $severity, $file, $line );
+				}
+			);
+			try {
+				$this->assertSame( 'fallback', bbp_get_global_object( $name, 'stdClass', 'fallback' ) );
+			} finally {
+				restore_error_handler();
+			}
+
 			$GLOBALS[ $name ] = $object;
 			$this->assertSame( $object, bbp_get_global_object( $name ) );
 			$this->assertSame( 'fallback', bbp_get_global_object( $name, 'WP_Query', 'fallback' ) );

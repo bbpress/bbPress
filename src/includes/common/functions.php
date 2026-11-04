@@ -1660,7 +1660,7 @@ function bbp_is_moderation_notifications_suspended() {
  * @return bool Whether a moderation notification was sent.
  */
 function bbp_notify_moderation_recipients_on_post_pending( $post_id = 0, $post = false, $update = false, $post_before = null ) {
-	if ( bbp_is_moderation_notifications_suspended() || $update || ! is_null( $post_before ) || ! is_a( $post, 'WP_Post' ) || ( bbp_get_pending_status_id() !== $post->post_status ) ) {
+	if ( bbp_is_moderation_notifications_suspended() || $update || ! is_null( $post_before ) || ! ( $post instanceof WP_Post ) || ( bbp_get_pending_status_id() !== $post->post_status ) ) {
 		return false;
 	}
 
@@ -1762,7 +1762,7 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 	$post_id = absint( $post_id );
 	$post    = get_post( $post_id );
 
-	if ( ! bbp_is_moderation_notifications_active() || ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || ! is_a( $post, 'WP_Post' ) || ( bbp_get_pending_status_id() !== $post->post_status ) ) {
+	if ( ! bbp_is_moderation_notifications_active() || ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || ! ( $post instanceof WP_Post ) || ( bbp_get_pending_status_id() !== $post->post_status ) ) {
 		return false;
 	}
 
@@ -1967,7 +1967,7 @@ function bbp_defer_subscription_notification( $post_id = 0 ) {
  * @return bool True when the deferred publication action ran, false otherwise.
  */
 function bbp_notify_forum_subscribers_on_topic_publication( $new_status = '', $old_status = '', $post = false ) {
-	if ( ! is_a( $post, 'WP_Post' ) || ( bbp_get_topic_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
+	if ( ! ( $post instanceof WP_Post ) || ( bbp_get_topic_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
 		return false;
 	}
 
@@ -2028,7 +2028,7 @@ function bbp_notify_forum_subscribers_on_topic_publication( $new_status = '', $o
  * @return bool True when the deferred publication action ran, false otherwise.
  */
 function bbp_notify_topic_subscribers_on_reply_publication( $new_status = '', $old_status = '', $post = false ) {
-	if ( ! is_a( $post, 'WP_Post' ) || ( bbp_get_reply_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
+	if ( ! ( $post instanceof WP_Post ) || ( bbp_get_reply_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
 		return false;
 	}
 
