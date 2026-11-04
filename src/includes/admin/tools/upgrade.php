@@ -577,7 +577,7 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
 			}
 
 			$serialized     = is_serialized( $stored_forum_ids );
-			$marker_current = in_array( (int) $new_id, wp_parse_id_list( maybe_unserialize( $stored_forum_ids ) ), true );
+			$marker_current = ! empty( $stored_forum_ids ) && in_array( (int) $new_id, wp_parse_id_list( maybe_unserialize( $stored_forum_ids ) ), true );
 			$marker_legacy  = ! $serialized && ( (string) $stored_forum_ids === (string) $legacy_id );
 
 			if ( $marker_current || $marker_legacy ) {

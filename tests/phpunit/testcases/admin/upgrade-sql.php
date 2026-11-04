@@ -31,6 +31,24 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		parent::tearDown();
 	}
 
+	private function invoke_without_errors( $callback ) {
+		set_error_handler(
+			function ( $severity, $message, $file, $line ) {
+				if ( error_reporting() & $severity ) {
+					throw new ErrorException( $message, 0, $severity, $file, $line );
+				}
+
+				return false;
+			}
+		);
+
+		try {
+			return $callback();
+		} finally {
+			restore_error_handler();
+		}
+	}
+
 	/**
 	 * @covers ::bbp_admin_upgrade_group_forum_relationships
 	 * @covers ::bbp_admin_upgrade_group_forum_relationships_dry_run
@@ -545,12 +563,20 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$wpdb->insert( $this->groups_table, array( 'id' => 7, 'status' => 'public' ) );
 		$wpdb->insert( $this->groupmeta_table, array( 'group_id' => 7, 'meta_key' => 'forum_id', 'meta_value' => $stored_forum_ids ) );
 
-		$dry_run = bbp_admin_upgrade_group_forum_relationships_dry_run();
+		$dry_run = $this->invoke_without_errors(
+			function() {
+				return bbp_admin_upgrade_group_forum_relationships_dry_run();
+			}
+		);
 		$this->assertSame( 0, $dry_run[0] );
 		$this->assertStringContainsString( "0 groups would be updated.\n0 forums would be updated.\n0 forum statuses would be synced", $dry_run[1] );
 		$this->assertSame( $stored_forum_ids, $wpdb->get_var( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = 7" ) );
 
-		$result = bbp_admin_upgrade_group_forum_relationships();
+		$result = $this->invoke_without_errors(
+			function() {
+				return bbp_admin_upgrade_group_forum_relationships();
+			}
+		);
 		$this->assertSame( 0, $result[0] );
 		$this->assertSame( $stored_forum_ids, $wpdb->get_var( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = 7" ) );
 		$this->assertSame( array( 7 ), get_post_meta( $forum_ids[0], '_bbp_group_ids', true ) );
