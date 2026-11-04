@@ -291,7 +291,7 @@ function bbp_add_forums_roles( $wp_roles = null ) {
 	}
 
 	// Bail if unexpected param type
-	if ( ! is_a( $wp_roles, 'WP_Roles' ) ) {
+	if ( ! ( $wp_roles instanceof WP_Roles ) ) {
 		return;
 	}
 

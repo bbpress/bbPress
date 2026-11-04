@@ -1588,7 +1588,7 @@ function bbp_defer_subscription_notification( $post_id = 0 ) {
  * @return bool True when the deferred publication action ran, false otherwise.
  */
 function bbp_notify_forum_subscribers_on_topic_publication( $new_status = '', $old_status = '', $post = false ) {
-	if ( ! is_a( $post, 'WP_Post' ) || ( bbp_get_topic_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
+	if ( ! ( $post instanceof WP_Post ) || ( bbp_get_topic_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
 		return false;
 	}
 
@@ -1649,7 +1649,7 @@ function bbp_notify_forum_subscribers_on_topic_publication( $new_status = '', $o
  * @return bool True when the deferred publication action ran, false otherwise.
  */
 function bbp_notify_topic_subscribers_on_reply_publication( $new_status = '', $old_status = '', $post = false ) {
-	if ( ! is_a( $post, 'WP_Post' ) || ( bbp_get_reply_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
+	if ( ! ( $post instanceof WP_Post ) || ( bbp_get_reply_post_type() !== $post->post_type ) || ( $new_status === $old_status ) ) {
 		return false;
 	}
 

@@ -10,13 +10,25 @@ class BBP_Tests_Core_Abstraction extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_global_object
-	 * @todo   Implement test_bbp_get_global_object().
 	 */
 	public function test_bbp_get_global_object() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$name = 'bbp_test_global_object';
+
+		try {
+			$GLOBALS[ $name ] = 'stdClass';
+			set_error_handler(
+				function ( $severity, $message, $file, $line ) {
+					throw new ErrorException( $message, 0, $severity, $file, $line );
+				}
+			);
+			try {
+				$this->assertSame( 'fallback', bbp_get_global_object( $name, 'stdClass', 'fallback' ) );
+			} finally {
+				restore_error_handler();
+			}
+		} finally {
+			unset( $GLOBALS[ $name ] );
+		}
 	}
 
 	/**

@@ -2987,7 +2987,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Bail if $posts_query is not an object or of incorrect class
-	if ( ! is_object( $posts_query ) || ! is_a( $posts_query, 'WP_Query' ) ) {
+	if ( ! ( $posts_query instanceof WP_Query ) ) {
 		return;
 	}
 
@@ -3216,7 +3216,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
 
 	// Bail if $posts_query is not an object or of incorrect class
-	if ( ! is_object( $posts_query ) || ! is_a( $posts_query, 'WP_Query' ) ) {
+	if ( ! ( $posts_query instanceof WP_Query ) ) {
 		return $where;
 	}
 

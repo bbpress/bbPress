@@ -90,7 +90,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 
 		// BuddyPress 15.0 derives logged-in user data from WordPress dynamically
 		$bp              = function_exists( 'buddypress' ) ? buddypress() : false;
-		$is_dynamic_user = $bp && is_a( $bp->loggedin_user, 'BP_LoggedIn_User' );
+		$is_dynamic_user = $bp && ( $bp->loggedin_user instanceof BP_LoggedIn_User );
 		if ( function_exists( 'bp_core_get_user_displayname' ) && $bp && ! $is_dynamic_user ) {
 
 			$bp->loggedin_user->id             = $user_id;

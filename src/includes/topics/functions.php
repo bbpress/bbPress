@@ -3976,7 +3976,7 @@ function bbp_update_topic_tag_count( $terms, $taxonomy ) {
 function bbp_topic_content_autoembed() {
 	global $wp_embed;
 
-	if ( bbp_use_autoembed() && is_a( $wp_embed, 'WP_Embed' ) ) {
+	if ( bbp_use_autoembed() && ( $wp_embed instanceof WP_Embed ) ) {
 		add_filter( 'bbp_get_topic_content', array( $wp_embed, 'autoembed' ), 2 );
 	}
 }

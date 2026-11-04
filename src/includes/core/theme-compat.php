@@ -336,7 +336,7 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
 	}
 
 	// Bail if $theme isn't a proper object
-	if ( ! is_a( $theme, 'BBP_Theme_Compat' ) ) {
+	if ( ! ( $theme instanceof BBP_Theme_Compat ) ) {
 		return;
 	}
 
@@ -577,7 +577,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	$bbp_shortcodes = bbpress()->shortcodes;
 
 	// Bail if shortcodes are unset somehow
-	if ( ! is_a( $bbp_shortcodes, 'BBP_Shortcodes' ) ) {
+	if ( ! ( $bbp_shortcodes instanceof BBP_Shortcodes ) ) {
 		return $template;
 	}
 
@@ -1084,7 +1084,7 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 
 			// Restore through WP_Hook to preserve priority order
 			if ( class_exists( 'WP_Hook' ) ) {
-				if ( empty( $wp_filter[ $tag ] ) || ! is_a( $wp_filter[ $tag ], 'WP_Hook' ) ) {
+				if ( empty( $wp_filter[ $tag ] ) || ! ( $wp_filter[ $tag ] instanceof WP_Hook ) ) {
 					$wp_filter[ $tag ] = new WP_Hook();
 				}
 

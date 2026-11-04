@@ -381,7 +381,7 @@ function bbp_edit_user_handler( $action = '' ) {
 		bbpress()->errors = $edit_user;
 
 	// Successful edit to redirect
-	} elseif ( is_integer( $edit_user ) ) {
+	} elseif ( is_int( $edit_user ) ) {
 
 		// Maybe update super admin ability
 		bbp_maybe_update_user_super_admin( $edit_user, $_POST );
