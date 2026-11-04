@@ -1422,7 +1422,7 @@ case 'double': $value = (string)$value; break;
 case 'string': break;
 default: $value = ""; break;
 }
-if (strlen(@$matches[3]))
+if (isset($matches[3]) && strlen($matches[3]))
 $flags = array_flip(str_split($matches[3]));
 else $flags = Array();
 if (!isset($flags['v'])) {
@@ -1781,7 +1781,7 @@ return false;
 }
 function Internal_DoEnhancedTag($tag_rule, $params, $contents) {
 $params['_content'] = $contents;
-$params['_defaultcontent'] = strlen(@$params['_default']) ? $params['_default'] : $contents;
+$params['_defaultcontent'] = isset($params['_default']) && strlen($params['_default']) ? $params['_default'] : $contents;
 return $this->FillTemplate(@$tag_rule['template'], $params, @$tag_rule['default']);
 }
 function Internal_UpdateParamsForMissingEndTag($params) {

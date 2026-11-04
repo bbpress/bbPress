@@ -29,6 +29,16 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 	}
 
 	private function parse_without_errors( $input, $parser = null ) {
+		return $this->invoke_without_errors(
+			function() use ( $input, $parser ) {
+				$parser = $parser ?: BBCode::getInstance();
+
+				return $parser->Parse( $input );
+			}
+		);
+	}
+
+	private function invoke_without_errors( $callback ) {
 		set_error_handler(
 			function ( $severity, $message, $file, $line ) {
 				if ( error_reporting() & $severity ) {
@@ -40,9 +50,7 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		);
 
 		try {
-			$parser = $parser ?: BBCode::getInstance();
-
-			return $parser->Parse( $input );
+			return $callback();
 		} finally {
 			restore_error_handler();
 		}
@@ -101,6 +109,46 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		$this->assertSame( '<b>x</b>', $this->parse_without_errors( '[b]x', $parser ) );
 		$this->assertSame( '[code]x', $this->parse_without_errors( '[code]x', $parser ) );
 		$this->assertSame( '', $this->parse_without_errors( null, $parser ) );
+	}
+
+	/**
+	 * Optional template values do not raise PHP errors.
+	 *
+	 * @covers BBCode::FillTemplate
+	 * @covers BBCode::Internal_DoEnhancedTag
+	 * @ticket 3727
+	 */
+	public function test_optional_template_values_do_not_raise_errors() {
+		$parser   = BBCode::getInstance();
+		$tag_rule = array(
+			'template' => '{$_defaultcontent}:{$_content}',
+			'default'  => array(),
+		);
+
+		$this->assertSame(
+			'Value',
+			$this->invoke_without_errors(
+				function() use ( $parser ) {
+					return $parser->FillTemplate( '{$value}', array( 'value' => 'Value' ) );
+				}
+			)
+		);
+		$this->assertSame(
+			'Body:Body',
+			$this->invoke_without_errors(
+				function() use ( $parser, $tag_rule ) {
+					return $parser->Internal_DoEnhancedTag( $tag_rule, array(), 'Body' );
+				}
+			)
+		);
+		$this->assertSame(
+			'0:Body',
+			$this->invoke_without_errors(
+				function() use ( $parser, $tag_rule ) {
+					return $parser->Internal_DoEnhancedTag( $tag_rule, array( '_default' => '0' ), 'Body' );
+				}
+			)
+		);
 	}
 
 	/**
