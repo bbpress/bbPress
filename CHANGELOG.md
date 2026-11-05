@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Preserved REST media permissions with compatible attachment controllers.
 - Required current forum access and destination edit permission for REST media changes.
 
 ### Fixed
