@@ -214,15 +214,38 @@ function bbp_do_not_redirect_restricted_attachments( $redirect_url = '', $reques
 }
 
 /**
- * Use the bbPress controller for attachments when Core's is unchanged.
+ * Use bbPress permissions with Core and Gutenberg attachment controllers.
  *
  * @since 2.7.0 bbPress (r7481)
  */
 function bbp_register_rest_attachment_controller() {
 	$post_type = get_post_type_object( 'attachment' );
 
-	if ( ! empty( $post_type ) && ( 'WP_REST_Attachments_Controller' === $post_type->rest_controller_class ) ) {
+	if ( empty( $post_type ) ) {
+		return;
+	}
+
+	if ( 'WP_REST_Attachments_Controller' === $post_type->rest_controller_class ) {
 		$post_type->rest_controller_class = 'BBP_REST_Attachments_Controller';
+		return;
+	}
+
+	$gutenberg_controllers = array(
+		'Gutenberg_REST_Attachments_Controller'     => 'BBP_REST_Gutenberg_Attachments_Controller',
+		'Gutenberg_REST_Attachments_Controller_7_1' => 'BBP_REST_Gutenberg_Attachments_Controller_7_1',
+	);
+	$controller_class = $post_type->rest_controller_class;
+
+	if ( isset( $gutenberg_controllers[ $controller_class ] ) && class_exists( $controller_class ) ) {
+		$bridge_class = $gutenberg_controllers[ $controller_class ];
+
+		if ( ! class_exists( $bridge_class, false ) ) {
+			bbp_load_gutenberg_rest_attachment_controller( $controller_class );
+		}
+
+		if ( class_exists( $bridge_class, false ) ) {
+			$post_type->rest_controller_class = $bridge_class;
+		}
 	}
 }
 
@@ -260,11 +283,11 @@ class BBP_REST_Attachment_Parent_Controller extends BBP_REST_Posts_Controller {
 }
 
 /**
- * REST API controller for attachments to bbPress post types.
+ * bbPress permission checks shared by Core and Gutenberg media controllers.
  *
- * @since 2.7.0 bbPress (r7481)
+ * @since 2.6.22 bbPress (r8302)
  */
-class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
+trait BBP_REST_Attachment_Permissions {
 
 	/**
 	 * Check the requested bbPress parent before creating or moving media.
@@ -389,5 +412,45 @@ class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
 		}
 
 		return parent::check_read_permission( $post );
+	}
+}
+
+/**
+ * REST API controller for attachments to bbPress post types.
+ *
+ * @since 2.7.0 bbPress (r7481)
+ */
+class BBP_REST_Attachments_Controller extends WP_REST_Attachments_Controller {
+	use BBP_REST_Attachment_Permissions;
+}
+
+/**
+ * Declare the selected Gutenberg bridge after its parent controller loads.
+ *
+ * @since 2.6.22 bbPress (r8302)
+ *
+ * @param string $controller_class Gutenberg controller class name.
+ */
+function bbp_load_gutenberg_rest_attachment_controller( $controller_class ) {
+	if ( 'Gutenberg_REST_Attachments_Controller' === $controller_class && class_exists( $controller_class, false ) && ! class_exists( 'BBP_REST_Gutenberg_Attachments_Controller', false ) ) {
+		/**
+		 * Apply bbPress permissions to Gutenberg's media-processing controller.
+		 *
+		 * @since 2.6.22 bbPress (r8302)
+		 */
+		class BBP_REST_Gutenberg_Attachments_Controller extends Gutenberg_REST_Attachments_Controller {
+			use BBP_REST_Attachment_Permissions;
+		}
+	}
+
+	if ( 'Gutenberg_REST_Attachments_Controller_7_1' === $controller_class && class_exists( $controller_class, false ) && ! class_exists( 'BBP_REST_Gutenberg_Attachments_Controller_7_1', false ) ) {
+		/**
+		 * Apply bbPress permissions to Gutenberg's WordPress 7.1 media controller.
+		 *
+		 * @since 2.6.22 bbPress (r8302)
+		 */
+		class BBP_REST_Gutenberg_Attachments_Controller_7_1 extends Gutenberg_REST_Attachments_Controller_7_1 {
+			use BBP_REST_Attachment_Permissions;
+		}
 	}
 }

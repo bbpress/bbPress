@@ -1,5 +1,14 @@
 <?php
 
+// Simulate Gutenberg's media controllers when the plugin is not loaded.
+if ( ! class_exists( 'Gutenberg_REST_Attachments_Controller', false ) ) {
+	class Gutenberg_REST_Attachments_Controller extends WP_REST_Attachments_Controller {}
+}
+
+if ( ! class_exists( 'Gutenberg_REST_Attachments_Controller_7_1', false ) ) {
+	class Gutenberg_REST_Attachments_Controller_7_1 extends WP_REST_Attachments_Controller {}
+}
+
 /**
  * Tests for bbPress REST API integration.
  *
@@ -50,6 +59,137 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 			$post_type->rest_controller_class = 'Custom_REST_Attachments_Controller';
 			bbp_register_rest_attachment_controller();
 			$this->assertSame( 'Custom_REST_Attachments_Controller', $post_type->rest_controller_class );
+		} finally {
+			$post_type->rest_controller_class = $original;
+		}
+	}
+
+	/**
+	 * Gutenberg's controller must retain its media features and bbPress checks.
+	 *
+	 * @covers ::bbp_register_rest_attachment_controller
+	 */
+	public function test_register_rest_attachment_controller_wraps_gutenberg_controllers() {
+		$post_type = get_post_type_object( 'attachment' );
+		$original  = $post_type->rest_controller_class;
+
+		try {
+			foreach ( array( 'Gutenberg_REST_Attachments_Controller', 'Gutenberg_REST_Attachments_Controller_7_1' ) as $gutenberg_class ) {
+				$post_type->rest_controller_class = $gutenberg_class;
+				bbp_register_rest_attachment_controller();
+
+				$this->assertNotSame( $gutenberg_class, $post_type->rest_controller_class );
+				$this->assertTrue( is_subclass_of( $post_type->rest_controller_class, $gutenberg_class ) );
+			}
+		} finally {
+			$post_type->rest_controller_class = $original;
+		}
+	}
+
+	/**
+	 * Gutenberg media routes must inherit forum visibility for reads.
+	 *
+	 * @covers ::bbp_register_rest_attachment_controller
+	 */
+	public function test_gutenberg_media_routes_respect_forum_visibility() {
+		$post_type           = get_post_type_object( 'attachment' );
+		$original            = $post_type->rest_controller_class;
+		$original_controller = $post_type->rest_controller;
+		$original_server     = isset( $GLOBALS['wp_rest_server'] ) ? $GLOBALS['wp_rest_server'] : null;
+		$public              = $this->create_forum_content();
+		$private             = $this->create_forum_content( bbp_get_private_status_id() );
+		$hidden              = $this->create_forum_content( bbp_get_hidden_status_id() );
+		$public_id           = $this->create_attachment( $public['topic_id'] );
+		$private_id          = $this->create_attachment( $private['topic_id'] );
+		$hidden_id           = $this->create_attachment( $hidden['topic_id'] );
+		$post_id             = $this->factory->post->create();
+		$normal_id           = $this->create_attachment( $post_id );
+		$participant_id      = $this->factory->user->create();
+		$moderator_id        = $this->factory->user->create();
+		$keymaster_id        = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		try {
+			foreach ( array(
+				'Gutenberg_REST_Attachments_Controller'     => 'BBP_REST_Gutenberg_Attachments_Controller',
+				'Gutenberg_REST_Attachments_Controller_7_1' => 'BBP_REST_Gutenberg_Attachments_Controller_7_1',
+			) as $gutenberg_class => $bridge_class ) {
+				$post_type->rest_controller_class = $gutenberg_class;
+				$post_type->rest_controller       = null;
+				$GLOBALS['wp_rest_server']       = null;
+				$server                           = rest_get_server();
+				$routes                           = $server->get_routes();
+
+				$this->assertSame( $bridge_class, $post_type->rest_controller_class );
+				$this->assertInstanceOf( $bridge_class, $post_type->get_rest_controller() );
+				$this->assertInstanceOf( $bridge_class, $routes['/wp/v2/media'][0]['callback'][0] );
+				$this->assertInstanceOf( $bridge_class, $routes['/wp/v2/media/(?P<id>[\\d]+)'][0]['callback'][0] );
+
+				$this->set_current_user( $participant_id );
+				$this->assertFalse( bbp_user_can_view_attachment( $hidden_id ) );
+
+				$this->assertSame( 200, $this->get_item( 'media', $public_id )->get_status() );
+				$this->assertSame( 200, $this->get_item( 'media', $normal_id )->get_status() );
+				$this->assertSame( 200, $this->get_item( 'media', $private_id, $participant_id )->get_status() );
+				$this->assertSame( 401, $this->get_item( 'media', $hidden_id )->get_status() );
+				$this->assertSame( 403, $this->get_item( 'media', $hidden_id, $participant_id )->get_status() );
+				$this->assertSame( 200, $this->get_item( 'media', $hidden_id, $moderator_id )->get_status() );
+				$this->assertSame( 200, $this->get_item( 'media', $hidden_id, $keymaster_id )->get_status() );
+
+				$media_ids = wp_list_pluck( $this->get_items( 'media', $participant_id )->get_data(), 'id' );
+				$this->assertContains( $public_id, $media_ids );
+				$this->assertContains( $private_id, $media_ids );
+				$this->assertContains( $normal_id, $media_ids );
+				$this->assertNotContains( $hidden_id, $media_ids );
+			}
+		} finally {
+			$post_type->rest_controller_class = $original;
+			$post_type->rest_controller       = $original_controller;
+			$GLOBALS['wp_rest_server']       = $original_server;
+		}
+	}
+
+	/**
+	 * Gutenberg media writes must retain bbPress parent checks.
+	 *
+	 * @covers ::bbp_register_rest_attachment_controller
+	 */
+	public function test_gutenberg_media_writes_require_bbpress_parent_access() {
+		$post_type = get_post_type_object( 'attachment' );
+		$original  = $post_type->rest_controller_class;
+		$posts     = $this->create_forum_content();
+		$user_id   = $this->factory->user->create( array( 'role' => 'editor' ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+		$attachment_id = $this->create_attachment( $posts['topic_id'] );
+
+		try {
+			$post_type->rest_controller_class = 'Gutenberg_REST_Attachments_Controller';
+			bbp_register_rest_attachment_controller();
+			$controller = new $post_type->rest_controller_class( 'attachment' );
+			$request    = new WP_REST_Request( 'POST', '/wp/v2/media/' . $attachment_id );
+			$request->set_param( 'id', $attachment_id );
+
+			$this->assertTrue( $controller->update_item_permissions_check( $request ) );
+			$this->assertTrue( $controller->delete_item_permissions_check( $request ) );
+
+			wp_update_post( array( 'ID' => $posts['forum_id'], 'post_status' => bbp_get_hidden_status_id() ) );
+
+			foreach ( array( 'update_item_permissions_check', 'delete_item_permissions_check', 'post_process_item_permissions_check', 'edit_media_item_permissions_check' ) as $method ) {
+				$permission = $controller->$method( $request );
+				$this->assertWPError( $permission );
+				$this->assertSame( 403, $permission->get_error_data()['status'] );
+			}
+
+			if ( method_exists( $controller, 'sideload_item_permissions_check' ) ) {
+				$permission = $controller->sideload_item_permissions_check( $request );
+				$this->assertWPError( $permission );
+				$this->assertSame( 403, $permission->get_error_data()['status'] );
+			}
 		} finally {
 			$post_type->rest_controller_class = $original;
 		}
