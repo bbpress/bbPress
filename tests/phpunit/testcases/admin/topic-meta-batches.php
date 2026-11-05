@@ -201,15 +201,15 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		$keep   = add_post_meta( $id, '_bbp_topic_id', $id );
 		$first  = add_post_meta( $id, '_bbp_topic_id', 98 );
 		$second = add_post_meta( $id, '_bbp_topic_id', 99 );
-		$fail   = static function ( $check, $mid ) use ( $second ) {
-			return ( (int) $mid === $second ) ? false : $check;
+		$fail   = static function ( $check, $mid ) use ( $first ) {
+			return ( (int) $mid === $first ) ? false : $check;
 		};
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_topic_meta();
 			$this->assertSame( 4, $result[0] );
 			$this->assertFalse( $result['success'] );
-			$this->assertFalse( get_metadata_by_mid( 'post', $first ) );
+			$this->assertFalse( get_metadata_by_mid( 'post', $second ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
 		} finally {

@@ -283,7 +283,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
 			$this->assertNotFalse( get_metadata_by_mid( 'user', $keep_id ) );
-			$this->assertFalse( get_metadata_by_mid( 'user', $old_ids[0] ) );
+			$this->assertFalse( get_metadata_by_mid( 'user', $old_ids[2] ) );
 		} finally {
 			remove_filter( 'delete_user_metadata_by_mid', $fail, 10 );
 		}
@@ -532,7 +532,9 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				$before     = $this->stored_data();
 				$preview    = $this->user_count_batch( $tool_id, $type, $key, true );
 				$this->assertSame( $before, $this->stored_data() );
-				$result = $this->user_count_batch( $tool_id, $type, $key );
+				$result = $this->assertMetadataWritesBounded( 'user', $size, function () use ( $tool_id, $type, $key ) {
+					return $this->user_count_batch( $tool_id, $type, $key );
+				} );
 				$this->assertSame( 0, $result['code'] );
 				$this->assertSame( $preview['repaired'], $result['repaired'] );
 				$this->assertSame( $preview['complete'], $result['complete'] );
@@ -541,7 +543,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				$this->assertLessThanOrEqual( $size, $mutations );
 				if ( 0 === $batch ) {
 					$this->assertFalse( $result['complete'] );
-					$this->assertCount( 3, $after_ids );
+					$this->assertCount( 2, $after_ids );
 					$this->assertSame( $user_id, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
 				}
 				if ( $result['complete'] ) {

@@ -65,6 +65,29 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		return preg_replace( '|//[0-2]\.gravatar\.com|', '//secure.gravatar.com', $url );
 	}
 
+	/**
+	 * Count successful metadata additions, updates and deletions in one batch.
+	 */
+	protected function assertMetadataWritesBounded( $meta_type, $limit, $callback ) {
+		$writes = 0;
+		$count  = static function ( $ids ) use ( &$writes ) {
+			$writes += is_array( $ids ) ? count( $ids ) : 1;
+		};
+		$actions = array( "added_{$meta_type}_meta", "updated_{$meta_type}_meta", "deleted_{$meta_type}_meta" );
+		foreach ( $actions as $action ) {
+			add_action( $action, $count, PHP_INT_MAX, 1 );
+		}
+		try {
+			$result = call_user_func( $callback );
+		} finally {
+			foreach ( $actions as $action ) {
+				remove_action( $action, $count, PHP_INT_MAX );
+			}
+		}
+		$this->assertLessThanOrEqual( $limit, $writes );
+		return $result;
+	}
+
 	function clean_up_global_scope() {
 		parent::clean_up_global_scope();
 	}

@@ -491,11 +491,12 @@ function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $rep
  * Update or remove one metadata row and verify the uncached stored result.
  *
  * @since 2.7.0 bbPress (r8299)
+ * @since 2.7.0 bbPress (r8303) Verify serialized values and bounded deletions.
  *
- * @param string      $meta_type Metadata type: 'post' or 'user'.
- * @param object      $row       Source metadata row.
- * @param string      $key       Canonical metadata key.
- * @param string|null $value     Repaired value, or null to remove the row.
+ * @param string               $meta_type Metadata type: 'post' or 'user'.
+ * @param object               $row       Source metadata row.
+ * @param string               $key       Canonical metadata key.
+ * @param int|string|array|null $value     Repaired value, or null to remove the row.
  * @return int Zero on success, or a read, delete, or update error code.
  */
 function bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value ) {
@@ -508,21 +509,97 @@ function bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value ) {
 	$object_key = $meta_type . '_id';
 	$object_id  = (int) $row->$object_key;
 	$meta_id    = (int) $row->$id_column;
+	$expected   = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
 	wp_cache_delete( $object_id, $meta_type . '_meta' );
 	if ( null === $value ) {
 		delete_metadata_by_mid( $meta_type, $meta_id );
-	} elseif ( $value !== $row->meta_value || $key !== $row->meta_key ) {
+	} elseif ( $expected !== $row->meta_value || $key !== $row->meta_key ) {
 		update_metadata_by_mid( $meta_type, $meta_id, $value, $key );
 	}
 	wp_cache_delete( $object_id, $meta_type . '_meta' );
-	$stored = $db->get_row( $db->prepare( "SELECT {$object_key}, meta_key, meta_value FROM {$table} WHERE {$id_column} = %d", $meta_id ) );
+	$columns = null === $value ? $id_column : "{$object_key}, meta_key, meta_value";
+	$stored  = $db->get_row( $db->prepare( "SELECT {$columns} FROM {$table} WHERE {$id_column} = %d", $meta_id ) );
 	if ( ! empty( $db->last_error ) ) {
 		return 1;
 	}
 	if ( null === $value ) {
 		return empty( $stored ) ? 0 : 4;
 	}
-	return ! empty( $stored ) && $object_id === (int) $stored->$object_key && $key === $stored->meta_key && $value === $stored->meta_value ? 0 : 5;
+	return ! empty( $stored ) && $object_id === (int) $stored->$object_key && $key === $stored->meta_key && $expected === $stored->meta_value ? 0 : 5;
+}
+
+/**
+ * Insert and verify a replacement before allowing source-row cleanup.
+ *
+ * Combine the pre-insert ID bound with the native added-meta action to identify
+ * a new row owned by this insertion. A filter returning an existing row ID must
+ * never make that row eligible for rollback. Failed verification can use one
+ * compensating delete.
+ *
+ * @since 2.7.0 bbPress (r8303)
+ *
+ * @param string           $meta_type Metadata type: 'post' or 'user'.
+ * @param int              $object_id Object ID.
+ * @param string           $key       Canonical metadata key.
+ * @param int|string|array $value     Replacement value.
+ * @return array Status code and verified metadata ID.
+ */
+function bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value ) {
+	$result = array(
+		'code'    => 4,
+		'meta_id' => 0
+	);
+	if ( ! in_array( $meta_type, array( 'post', 'user' ), true ) ) {
+		return $result;
+	}
+	$db         = bbp_db();
+	$table      = $db->{$meta_type . 'meta'};
+	$id_column  = 'user' === $meta_type ? 'umeta_id' : 'meta_id';
+	$object_key = $meta_type . '_id';
+	$upper_id   = (int) $db->get_var( "SELECT MAX({$id_column}) FROM {$table}" );
+	if ( ! empty( $db->last_error ) ) {
+		$result['code'] = 2;
+		return $result;
+	}
+	$created = array();
+	$capture = static function ( $id, $object, $meta_key ) use ( $object_id, $key, &$created ) {
+		if ( (int) $object === (int) $object_id && $meta_key === $key ) {
+			$created[ (int) $id ] = true;
+		}
+	};
+	$action = 'added_' . $meta_type . '_meta';
+	add_action( $action, $capture, 10, 3 );
+	try {
+		$id = add_metadata( $meta_type, $object_id, $key, $value, false );
+	} finally {
+		remove_action( $action, $capture, 10 );
+		wp_cache_delete( $object_id, $meta_type . '_meta' );
+	}
+	if ( empty( $id ) ) {
+		return $result;
+	}
+	$id     = (int) $id;
+	$stored = $db->get_row( $db->prepare( "SELECT {$id_column}, {$object_key}, meta_key, meta_value FROM {$table} WHERE {$id_column} = %d", $id ) );
+	if ( ! empty( $db->last_error ) ) {
+		$result['code'] = 2;
+		return $result;
+	}
+	$identity = ! empty( $stored ) && (int) $stored->$id_column === $id
+		&& (int) $stored->$object_key === (int) $object_id && $stored->meta_key === $key;
+	$expected = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
+	if ( $identity && $stored->meta_value === $expected ) {
+		$result['code']    = 0;
+		$result['meta_id'] = $id;
+		return $result;
+	}
+	$result['code'] = 5;
+	if ( $identity && $id > $upper_id && isset( $created[ $id ] ) ) {
+		$deleted = bbp_admin_repair_metadata_row( $meta_type, $stored, $key, null );
+		if ( $deleted ) {
+			$result['code'] = 1 === $deleted ? 2 : 3;
+		}
+	}
+	return $result;
 }
 
 /**
@@ -606,6 +683,34 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false ) {
 		$result['cursor'] = (int) $row->meta_id;
 	}
 	return $result;
+}
+
+/**
+ * Read current repair option data while preserving WordPress option filters.
+ *
+ * @since 2.7.0 bbPress (r8303)
+ *
+ * @param string $option_name    Option name.
+ * @param mixed  $option_default Default value.
+ * @return array Read success and filtered option value.
+ */
+function bbp_admin_repair_get_option( $option_name, $option_default = false ) {
+	$value = apply_filters( "pre_option_{$option_name}", false, $option_name, $option_default );
+	if ( version_compare( get_bloginfo( 'version' ), '6.1', '>=' ) ) {
+		$value = apply_filters( 'pre_option', $value, $option_name, $option_default );
+	}
+	if ( false !== $value ) {
+		return array( true, $value );
+	}
+	$db     = bbp_db();
+	$option = $db->get_row( $db->prepare( "SELECT `option_value` FROM `{$db->options}` WHERE `option_name` = %s LIMIT 1", $option_name ) );
+	if ( ! empty( $db->last_error ) ) {
+		return array( false, $option_default );
+	}
+	$value = is_object( $option )
+		? apply_filters( "option_{$option_name}", maybe_unserialize( $option->option_value ), $option_name )
+		: apply_filters( "default_option_{$option_name}", $option_default, $option_name, true );
+	return array( true, $value );
 }
 
 /**

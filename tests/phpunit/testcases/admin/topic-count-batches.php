@@ -235,14 +235,16 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 				$preview = bbp_admin_repair_topic_reply_count_batch( $hidden, true );
 				$this->assertSame( $before, $this->snapshot() );
 				$before_ids = $this->count_ids( $topic_id, $key );
-				$result     = bbp_admin_repair_topic_reply_count_batch( $hidden );
+				$result = $this->assertMetadataWritesBounded( 'post', $size, static function () use ( $hidden ) {
+					return bbp_admin_repair_topic_reply_count_batch( $hidden );
+				} );
 				$after_ids  = $this->count_ids( $topic_id, $key );
 				$this->assertSame( 0, $result['code'] );
 				$this->assertSame( $preview, $result );
 				$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				if ( 0 === $batch ) {
 					$this->assertFalse( $result['complete'] );
-					$this->assertCount( 3, $after_ids );
+					$this->assertCount( 2, $after_ids );
 					$this->assertSame( $topic_id, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
 				}
 				if ( $result['complete'] ) {
@@ -290,8 +292,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		$keep_id  = add_post_meta( $topic_id, $key, 1 );
 		$first    = add_post_meta( $topic_id, $key, 99 );
 		$second   = add_post_meta( $topic_id, $key, 98 );
-		$fail     = static function ( $check, $meta_id ) use ( $second ) {
-			return ( (int) $meta_id === $second ) ? false : $check;
+		$fail     = static function ( $check, $meta_id ) use ( $first ) {
+			return ( (int) $meta_id === $first ) ? false : $check;
 		};
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
@@ -299,7 +301,7 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 			$this->assertSame( 3, $result[0] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
-			$this->assertFalse( get_metadata_by_mid( 'post', $first ) );
+			$this->assertFalse( get_metadata_by_mid( 'post', $second ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep_id ) );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
 		} finally {

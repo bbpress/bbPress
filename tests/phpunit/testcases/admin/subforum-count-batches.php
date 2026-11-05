@@ -89,7 +89,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 				$this->assertSame( $before, $this->snapshot() );
 				$this->assertSame( $previous_calls, $calls );
 				$before_ids = $this->meta_ids();
-				$result     = bbp_admin_repair_forum_subforum_count_batch();
+				$result     = $this->assertMetadataWritesBounded( 'post', 2, 'bbp_admin_repair_forum_subforum_count_batch' );
 				$after_ids  = $this->meta_ids();
 				$this->assertSame( 0, $result['code'] );
 				$this->assertSame( $preview, $result );
@@ -138,7 +138,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 				$preview = bbp_admin_repair_forum_subforum_count_batch( true );
 				$this->assertSame( $before, $this->snapshot() );
 				$before_ids = $this->meta_ids();
-				$result     = bbp_admin_repair_forum_subforum_count_batch();
+				$result     = $this->assertMetadataWritesBounded( 'post', $size, 'bbp_admin_repair_forum_subforum_count_batch' );
 				$after_ids  = $this->meta_ids();
 				$this->assertSame( 0, $result['code'] );
 				$this->assertSame( $preview, $result );
@@ -146,7 +146,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 				if ( 0 === $batch ) {
 					$this->assertFalse( $result['complete'] );
 					$this->assertSame( $id, get_option( $this->option() )['cursor'] );
-					$this->assertCount( 3, get_post_meta( $id, '_bbp_forum_subforum_count', false ) );
+					$this->assertCount( 2, get_post_meta( $id, '_bbp_forum_subforum_count', false ) );
 				}
 				if ( $result['complete'] ) {
 					break;
@@ -190,8 +190,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		$keep   = add_post_meta( $id, '_bbp_forum_subforum_count', 0 );
 		$first  = add_post_meta( $id, '_bbp_forum_subforum_count', 99 );
 		$second = add_post_meta( $id, '_bbp_forum_subforum_count', 98 );
-		$fail   = static function ( $check, $meta_id ) use ( $second ) {
-			return ( (int) $meta_id === $second ) ? false : $check;
+		$fail   = static function ( $check, $meta_id ) use ( $first ) {
+			return ( (int) $meta_id === $first ) ? false : $check;
 		};
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
@@ -200,7 +200,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
-			$this->assertFalse( get_metadata_by_mid( 'post', $first ) );
+			$this->assertFalse( get_metadata_by_mid( 'post', $second ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
 		} finally {
 			remove_filter( 'delete_post_metadata_by_mid', $fail, 10 );

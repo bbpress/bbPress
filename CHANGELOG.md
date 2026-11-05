@@ -58,6 +58,12 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Repair sticky-topic assignments in resumable batches, preserving filtered
+  super stickies, read-only previews, safe retries, and automatic small-site runs.
+  Keep original lists readable through duplicate cleanup and verify metadata
+  replacements and deletions before advancing saved progress.
+- Remove temporary tool checkpoints and scratch data during uninstall without
+  maintaining a separate list of tool IDs or loading admin code.
 - Recalculate topic and forum activity in resumable batches, sharing hierarchy traversal
   with forum recounts and preserving previews, safe retries, and automatic runs on
   small sites. Inspect orphan candidates within each batch's work budget and keep

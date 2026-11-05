@@ -387,7 +387,7 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 	public function test_selection_and_verification_read_failures_never_report_completion( $type, $suffix, $callback, $point ) {
 		$db = bbp_db();
 		list( $user ) = $this->fixture( $suffix );
-		$prefix = 'selection' === $point ? 'SELECT umeta_id, user_id FROM ' : 'SELECT user_id, meta_key, meta_value FROM ';
+		$prefix = 'selection' === $point ? 'SELECT umeta_id, user_id FROM ' : 'SELECT umeta_id FROM ';
 		$fail = static function ( $query ) use ( $db, $prefix ) {
 			return 0 === strpos( $query, $prefix . $db->usermeta ) ? 'SELECT * FROM bbp_missing_cleanup_read' : $query;
 		};

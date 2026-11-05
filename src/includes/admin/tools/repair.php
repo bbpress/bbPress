@@ -158,20 +158,24 @@ function bbp_admin_repair_count_metadata( $meta_type, $object_id, $key, $count, 
 }
 
 /**
- * Reconcile one scalar metadata value with bounded writes.
+ * Reconcile one metadata value with bounded writes.
  *
  * Preserve a canonical row, or add it before cleaning up other rows. A null
- * value removes all matching rows. Counts, references, and activity share this
- * cleanup, and each inspected object costs at least one work item.
+ * value removes all matching rows. Counts, references, activity, and lists
+ * share this cleanup, and each inspected object costs at least one work item.
+ * Keep the first source row readable until the other duplicates are removed.
+ * Failed insertions can use one extra compensating delete before returning an
+ * error. Reuse a spare row if that rollback fails, keeping retries bounded.
  *
  * @since 2.7.0 bbPress (r8277)
+ * @since 2.7.0 bbPress (r8303) Support serialized lists and verify inserted rows.
  *
- * @param string          $meta_type Metadata type: 'post' or 'user'.
- * @param int             $object_id Object ID.
- * @param string          $key       Metadata key.
- * @param int|string|null $value     Expected value, or null when no row should remain.
- * @param int             $limit     Maximum metadata writes.
- * @param bool            $dry_run   Whether to preview without writes.
+ * @param string               $meta_type Metadata type: 'post' or 'user'.
+ * @param int                  $object_id Object ID.
+ * @param string               $key       Metadata key.
+ * @param int|string|array|null $value     Expected value, or null when no row should remain.
+ * @param int                  $limit     Maximum metadata writes.
+ * @param bool                 $dry_run   Whether to preview without writes.
  * @return array Status code, work used, changed flag, and completion flag.
  */
 function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false ) {
@@ -185,9 +189,10 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 		'changed'  => false,
 		'complete' => false
 	);
-	$keep_id = 0;
+	$stored_value = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
+	$keep_id      = 0;
 	if ( null !== $value ) {
-		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, (string) $value ) );
+		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, $stored_value ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			$result['code'] = 2;
 			return $result;
@@ -198,11 +203,29 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 		wp_cache_delete( $object_id, $meta_type . '_meta' );
 	}
 	if ( ( null !== $value ) && empty( $keep_id ) ) {
+		// Keep the oldest exact-key source intact; reuse only a later exact-key row
+		$ids = $bbp_db->get_col( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s ORDER BY {$id_column} LIMIT 2", $object_id, $key ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$result['code'] = 2;
+			return $result;
+		}
+		$keep_id = count( $ids ) > 1 ? (int) $ids[1] : 0;
 		if ( ! $dry_run ) {
-			$keep_id = add_metadata( $meta_type, $object_id, $key, $value, false );
-			wp_cache_delete( $object_id, $meta_type . '_meta' );
-			if ( false === $keep_id ) {
-				$result['code'] = 4;
+			if ( $keep_id ) {
+				$row = (object) array(
+					$id_column   => $keep_id,
+					$object_key  => $object_id,
+					'meta_key'   => $key,
+					'meta_value' => null
+				);
+				$code = bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value );
+				$result['code'] = 1 === $code ? 2 : $code;
+			} else {
+				$added          = bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value );
+				$result['code'] = $added['code'];
+				$keep_id        = $added['meta_id'];
+			}
+			if ( $result['code'] ) {
 				return $result;
 			}
 		}
@@ -211,17 +234,20 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 	}
 
 	$remaining = $limit - $result['work'];
-	$extra_ids = $bbp_db->get_col( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND meta_key = %s AND {$id_column} <> %d ORDER BY {$id_column} LIMIT %d", $object_id, $key, $keep_id, $remaining + 1 ) );
+	$extra_ids = $bbp_db->get_col( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND meta_key = %s AND {$id_column} <> %d ORDER BY {$id_column} DESC LIMIT %d", $object_id, $key, $keep_id, $remaining + 1 ) );
 	if ( ! empty( $bbp_db->last_error ) ) {
 		$result['code'] = 2;
 		return $result;
 	}
 	foreach ( array_slice( $extra_ids, 0, $remaining ) as $meta_id ) {
 		if ( ! $dry_run ) {
-			$deleted = delete_metadata_by_mid( $meta_type, $meta_id );
-			wp_cache_delete( $object_id, $meta_type . '_meta' );
-			if ( ! $deleted ) {
-				$result['code'] = 3;
+			$row = (object) array(
+				$id_column  => (int) $meta_id,
+				$object_key => $object_id
+			);
+			$code = bbp_admin_repair_metadata_row( $meta_type, $row, $key, null );
+			if ( $code ) {
+				$result['code'] = 1 === $code ? 2 : 3;
 				return $result;
 			}
 		}
@@ -1696,7 +1722,8 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 			$codes = array(
 				2 => 4,
 				3 => 1,
-				4 => 6
+				4 => 6,
+				5 => 6
 			);
 			$batch['code'] = $codes[ $repair['code'] ];
 			return $batch;
@@ -3335,21 +3362,220 @@ function bbp_admin_repair_sticky_dry_run() {
 }
 
 /**
- * Repair or preview sticky topic assignments.
+ * Validate a sticky-list checkpoint before resuming it.
+ *
+ * @since 2.7.0 bbPress (r8303)
+ *
+ * @param mixed $state   Saved checkpoint.
+ * @param array $context Current post type and super-sticky configuration.
+ * @return bool
+ */
+function bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) {
+	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'current', 'offset', 'length', 'changed' ) )
+		|| ! isset( $state['context'], $state['source_hash'], $state['kept'], $state['ready'] )
+		|| $state['context'] !== $context || ! is_string( $state['source_hash'] )
+		|| ! is_array( $state['kept'] ) || array_values( $state['kept'] ) !== $state['kept'] || ! is_bool( $state['ready'] )
+		|| count( $state['kept'] ) + $state['changed'] !== $state['offset']
+		|| $state['offset'] > $state['length'] || ( $state['ready'] && $state['offset'] !== $state['length'] )
+		|| $state['current'] > $state['upper_id'] ) {
+		return false;
+	}
+	return $state['current'] ? $state['current'] > $state['cursor'] && 32 === strlen( $state['source_hash'] )
+		: 0 === $state['length'] && 0 === $state['offset'] && 0 === $state['changed'] && '' === $state['source_hash'] && empty( $state['kept'] ) && ! $state['ready'];
+}
+
+/**
+ * Repair a bounded selection of sticky assignments and metadata rows.
+ *
+ * Keep only the current forum's surviving list in the checkpoint. A changed
+ * source list restarts that forum, and verified writes can safely be replayed.
+ * Serialized lists must be read as a unit, but topic checks and duplicate-row
+ * cleanup share the request's work budget.
+ *
+ * @since 2.7.0 bbPress (r8303)
+ *
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Status code, repaired assignments, and progress flags.
+ */
+function bbp_admin_repair_sticky_batch( $dry_run = false ) {
+	$db      = bbp_db();
+	$tool_id = 'bbp-sync-all-topics-sticky';
+	$batch   = array(
+		'code'      => 0,
+		'repaired'  => 0,
+		'initial'   => false,
+		'complete'  => false,
+		'restarted' => false
+	);
+	list( $read, $super ) = bbp_admin_repair_get_option( '_bbp_super_sticky_topics', array() );
+	if ( ! $read ) {
+		$batch['code'] = 2;
+		return $batch;
+	}
+	$super   = (array) apply_filters( 'bbp_get_super_stickies', is_array( $super ) ? wp_parse_id_list( $super ) : array() );
+	$context = array(
+		'forum' => bbp_get_forum_post_type(),
+		'super' => md5( serialize( $super ) )
+	);
+	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	if ( false !== $state && ! bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+	$batch['initial'] = false === $state;
+	$reset = array(
+		'current'     => 0,
+		'length'      => 0,
+		'offset'      => 0,
+		'changed'     => 0,
+		'source_hash' => '',
+		'kept'        => array(),
+		'ready'       => false
+	);
+	if ( $batch['initial'] ) {
+		$upper = (int) $db->get_var( "SELECT MAX(ID) FROM {$db->posts}" );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 1;
+			return $batch;
+		}
+		$state = array_merge(
+			$reset,
+			array(
+				'cursor'   => 0,
+				'upper_id' => $upper,
+				'context'  => $context
+			)
+		);
+		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+			$batch['code'] = 6;
+			return $batch;
+		}
+	}
+	$size = bbp_admin_repair_tool_batch_size( $tool_id );
+	$work = 0;
+	while ( $work < $size ) {
+		$id = $state['current'];
+		if ( ! $id ) {
+			$id = (int) $db->get_var( $db->prepare( "SELECT ID FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $context['forum'], $state['cursor'], $state['upper_id'] ) );
+			if ( ! empty( $db->last_error ) ) {
+				$batch['code'] = 1;
+				break;
+			}
+			if ( ! $id ) {
+				$batch['complete'] = true;
+				break;
+			}
+		}
+		$live = $db->get_var( $db->prepare( "SELECT ID FROM {$db->posts} WHERE ID = %d AND post_type = %s", $id, $context['forum'] ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 1;
+			break;
+		}
+		wp_cache_delete( $id, 'post_meta' );
+		$stickies = $live ? get_post_meta( $id, '_bbp_sticky_topics', true ) : array();
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			break;
+		}
+		$hash     = md5( serialize( $stickies ) );
+		$expected = $state['kept'] ? array_values( $state['kept'] ) : '';
+		$length   = is_array( $stickies ) ? count( $stickies ) : ( empty( $stickies ) ? 0 : 1 );
+		$same     = $id === $state['current'] && ( ( $hash === $state['source_hash'] && $length === $state['length'] ) || ( $state['ready'] && $stickies === $expected ) );
+		if ( ! $same ) {
+			$batch['restarted'] = $batch['restarted'] || (bool) $state['current'];
+			$state = array_merge(
+				$state,
+				$reset,
+				array(
+					'current'     => $id,
+					'length'      => $length,
+					'source_hash' => $hash
+				)
+			);
+		}
+		if ( ! $live || ( ! $state['ready'] && empty( $stickies ) ) ) {
+			$state           = array_merge( $state, $reset );
+			$state['cursor'] = $id;
+			++$work;
+			continue;
+		}
+		if ( ! $state['ready'] ) {
+			if ( ! is_array( $stickies ) ) {
+				$state['changed'] = 1;
+				$state['offset']  = 1;
+				$state['ready']   = true;
+				++$work;
+			} else {
+				$items = array_values( $stickies );
+				foreach ( array_slice( $items, $state['offset'], $size - $work ) as $item ) {
+					$topic = bbp_get_topic_id( $item );
+					wp_cache_delete( $topic, 'posts' );
+					wp_cache_delete( $topic, 'post_meta' );
+					$is_super = (bool) apply_filters( 'bbp_is_topic_super_sticky', in_array( $topic, $super, true ), $topic );
+					$parent   = $is_super ? $id : bbp_get_topic_forum_id( $topic );
+					if ( ! empty( $db->last_error ) ) {
+						$batch['code'] = 2;
+						break 2;
+					}
+					if ( $parent === $id ) {
+						$state['kept'][] = $item;
+					} else {
+						++$state['changed'];
+					}
+					++$state['offset'];
+					++$work;
+				}
+				$state['ready'] = count( $items ) === $state['offset'];
+			}
+			if ( ! $state['ready'] || $work >= $size ) {
+				continue;
+			}
+		}
+		$value  = $state['kept'] ? array_values( $state['kept'] ) : '';
+		$repair = bbp_admin_repair_single_metadata( 'post', $id, '_bbp_sticky_topics', $value, $size - $work, $dry_run );
+		$work  += $repair['work'];
+		if ( $repair['code'] ) {
+			$batch['code'] = $repair['code'];
+			break;
+		}
+		if ( $repair['complete'] ) {
+			if ( ! $dry_run ) {
+				$rows = $db->get_results( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id LIMIT 2", $id, '_bbp_sticky_topics' ) );
+				if ( ! empty( $db->last_error ) || 1 !== count( $rows ) || maybe_serialize( $value ) !== $rows[0]->meta_value ) {
+					$batch['code'] = 5;
+					break;
+				}
+			}
+			$batch['repaired'] += $state['changed'];
+			$state             = array_merge( $state, $reset );
+			$state['cursor']   = $id;
+		}
+	}
+	if ( ! $batch['code'] && ! $state['current'] && ! $batch['complete'] ) {
+		$next = $db->get_var( $db->prepare( "SELECT ID FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $context['forum'], $state['cursor'], $state['upper_id'] ) );
+		$batch['code']     = empty( $db->last_error ) ? 0 : 1;
+		$batch['complete'] = ! $batch['code'] && ! $next;
+	}
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'] ) ) {
+		$batch['code'] = 6;
+	}
+	if ( $batch['code'] ) {
+		$batch['complete'] = false;
+	}
+	return $batch;
+}
+
+/**
+ * Repair or preview the next batch of sticky topic assignments.
  *
  * @since 2.7.0 bbPress (r8219)
+ * @since 2.7.0 bbPress (r8303) Process one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating metadata.
- * @return array An array of the status code and the message.
+ * @return array Status code, message, and completion flag.
  */
 function bbp_admin_repair_sticky_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db    = bbp_db();
-	$result    = esc_html__( 'Failed!', 'bbpress' );
-	$changed   = 0;
-	$topic_ids = array();
-
+	$batch = bbp_admin_repair_sticky_batch( $dry_run );
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking sticky topic assignments&hellip; %s', 'bbpress' );
@@ -3357,119 +3583,28 @@ function bbp_admin_repair_sticky_process( $dry_run = false ) {
 		/* translators: %s: Status of the repair process */
 		$statement = esc_html__( 'Recalculating sticky topic assignments&hellip; %s', 'bbpress' );
 	}
-
-	$forums = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "'" );
-
-	// Bail if no forums found
-	if ( empty( $forums ) || is_wp_error( $forums ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	// Ensure Run and Dry Run inspect current forum metadata
-	wp_cache_delete_multiple( wp_parse_id_list( $forums ), 'post_meta' );
-
-	// Loop through forums and get their sticky topics
-	foreach ( $forums as $forum ) {
-		$forum_stickies[ $forum ] = get_post_meta( $forum, '_bbp_sticky_topics', true );
-
-		if ( is_array( $forum_stickies[ $forum ] ) ) {
-			$topic_ids = array_merge( $topic_ids, $forum_stickies[ $forum ] );
-		}
-	}
-
-	// Cleanup
-	unset( $forums, $forum );
-
-	// Ensure Run and Dry Run inspect current topic data and metadata
-	$topic_ids = wp_parse_id_list( $topic_ids );
-	if ( ! empty( $topic_ids ) ) {
-		wp_cache_delete_multiple( $topic_ids, 'posts' );
-		wp_cache_delete_multiple( $topic_ids, 'post_meta' );
-	}
-
-	// Get current super-sticky topics without relying on the options cache
-	$option_name    = '_bbp_super_sticky_topics';
-	$option_default = array();
-	$super_stickies = apply_filters( "pre_option_{$option_name}", false, $option_name, $option_default );
-
-	// The generic pre-option filter was introduced in WordPress 6.1
-	if ( version_compare( get_bloginfo( 'version' ), '6.1', '>=' ) ) {
-		$super_stickies = apply_filters( 'pre_option', $super_stickies, $option_name, $option_default );
-	}
-
-	// Get the stored value when the pre-option filters do not short-circuit
-	if ( false === $super_stickies ) {
-		$option = $bbp_db->get_row(
-			$bbp_db->prepare(
-				"SELECT option_value FROM `{$bbp_db->options}` WHERE option_name = %s LIMIT 1",
-				$option_name
-			)
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] ) {
+		return array(
+			$batch['code'],
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false
 		);
-
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return array( 2, sprintf( $statement, $result ) );
-		}
-
-		$super_stickies = is_object( $option )
-			? apply_filters( "option_{$option_name}", maybe_unserialize( $option->option_value ), $option_name )
-			: apply_filters( "default_option_{$option_name}", $option_default, $option_name, true );
 	}
-
-	$super_stickies = ( empty( $super_stickies ) || ! is_array( $super_stickies ) )
-		? array()
-		: wp_parse_id_list( $super_stickies );
-	$super_stickies = (array) apply_filters( 'bbp_get_super_stickies', $super_stickies );
-
-	// Loop through each forum with sticky topics
-	foreach ( $forum_stickies as $forum_id => $stickies ) {
-
-		// Skip if no stickies
-		if ( empty( $stickies ) ) {
-			continue;
-		}
-
-		// Normalize malformed sticky metadata
-		if ( ! is_array( $stickies ) ) {
-			$forum_stickies[ $forum_id ] = array();
-			++$changed;
-		} else {
-
-			// Loop through each sticky topic
-			foreach ( $stickies as $id => $topic_id ) {
-				$topic_id        = bbp_get_topic_id( $topic_id );
-				$is_super_sticky = in_array( $topic_id, $super_stickies, true );
-				$is_super_sticky = (bool) apply_filters( 'bbp_is_topic_super_sticky', $is_super_sticky, $topic_id );
-
-				// If the topic is not a super sticky, and the forum ID does not
-				// match the topic's forum ID, unset the forum's sticky meta.
-				if ( ! $is_super_sticky && ( bbp_get_topic_forum_id( $topic_id ) ) !== $forum_id ) {
-					unset( $forum_stickies[ $forum_id ][ $id ] );
-					++$changed;
-				}
-			}
-		}
-
-		// Get sticky topic ID's, or use empty string
-		$stickers = ! empty( $forum_stickies[ $forum_id ] )
-			? array_values( $forum_stickies[ $forum_id ] )
-			: '';
-
-		// Update the forum's sticky topics meta
-		if ( ! $dry_run ) {
-			update_post_meta( $forum_id, '_bbp_sticky_topics', $stickers );
-		}
-	}
-
-	// Complete results
 	if ( $dry_run ) {
 		/* translators: %d: Number of sticky topic assignments that would be repaired */
-		$result = sprintf( _n( '%d sticky topic assignment would be repaired.', '%d sticky topic assignments would be repaired.', $changed, 'bbpress' ), $changed );
+		$result = sprintf( _n( '%d sticky topic assignment would be repaired.', '%d sticky topic assignments would be repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	} else {
 		/* translators: %d: Number of repaired sticky topic assignments */
-		$result = sprintf( _n( 'Complete! %d sticky topic assignment repaired.', 'Complete! %d sticky topic assignments repaired.', $changed, 'bbpress' ), $changed );
+		$result = sprintf( _n( '%d sticky topic assignment repaired.', '%d sticky topic assignments repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
 	}
-
-	return array( 0, sprintf( $statement, $result ) );
+	return array(
+		0,
+		sprintf( $statement, esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result ),
+		'complete' => $batch['complete']
+	);
 }
 
 /**
@@ -3711,37 +3846,7 @@ function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 	$private_forums = wp_parse_id_list( $private_forums );
 	$hidden_forums  = wp_parse_id_list( $hidden_forums  );
 
-	$read_option = static function ( $option_name, $option_default ) use ( $bbp_db ) {
-		$option_value = apply_filters( "pre_option_{$option_name}", false, $option_name, $option_default );
-
-		// The generic pre-option filter was introduced in WordPress 6.1
-		if ( version_compare( get_bloginfo( 'version' ), '6.1', '>=' ) ) {
-			$option_value = apply_filters( 'pre_option', $option_value, $option_name, $option_default );
-		}
-
-		if ( false !== $option_value ) {
-			return array( true, $option_value );
-		}
-
-		$option = $bbp_db->get_row(
-			$bbp_db->prepare(
-				"SELECT `option_value` FROM `{$bbp_db->options}` WHERE `option_name` = %s LIMIT 1",
-				$option_name
-			)
-		);
-
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return array( false, $option_default );
-		}
-
-		$option_value = is_object( $option )
-			? apply_filters( "option_{$option_name}", maybe_unserialize( $option->option_value ), $option_name )
-			: apply_filters( "default_option_{$option_name}", $option_default, $option_name, true );
-
-		return array( true, $option_value );
-	};
-
-	list( $private_read, $stored_private ) = $read_option( '_bbp_private_forums', array() );
+	list( $private_read, $stored_private ) = bbp_admin_repair_get_option( '_bbp_private_forums', array() );
 	if ( ! $private_read ) {
 		return array(
 			4,
@@ -3750,7 +3855,7 @@ function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 		);
 	}
 
-	list( $hidden_read, $stored_hidden ) = $read_option( '_bbp_hidden_forums', array() );
+	list( $hidden_read, $stored_hidden ) = bbp_admin_repair_get_option( '_bbp_hidden_forums', array() );
 	if ( ! $hidden_read ) {
 		return array(
 			5,

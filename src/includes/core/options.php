@@ -189,6 +189,7 @@ function bbp_add_options() {
  * @since 2.7.0 bbPress (r8252) Delete temporary forum tool run state.
  * @since 2.7.0 bbPress (r8253) Delete built-in tool batch checkpoints.
  * @since 2.7.0 bbPress (r8284) Delete temporary forum hierarchy nodes.
+ * @since 2.7.0 bbPress (r8303) Clean up the shared batch namespace.
  */
 function bbp_delete_options() {
 
@@ -203,14 +204,9 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_run_status_repair' );
 	delete_option( '_bbp_tools_run_status_upgrade' );
 
-	// Delete checkpoints without requiring the administration tools to be loaded
-	foreach ( array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies', 'bbp-user-favorites', 'bbp-user-topic-subscriptions', 'bbp-user-forum-subscriptions', 'bbp-user-favorites-delete', 'bbp-user-topic-subscriptions-delete', 'bbp-user-forum-subscriptions-delete', 'bbp-user-role-map', 'bbp-sync-all-topics-forums' ) as $tool_id ) {
-		delete_option( '_bbp_tool_batch_' . md5( $tool_id ) );
-	}
-
-	// Remove durable hierarchy nodes without loading administration classes
+	// Delete batch checkpoints and scratch data without loading admin tools
 	$bbp_db  = bbp_db();
-	$pattern = $bbp_db->esc_like( '_bbp_tool_batch_' ) . '%' . $bbp_db->esc_like( '_tree_' ) . '%';
+	$pattern = $bbp_db->esc_like( '_bbp_tool_batch_' ) . '%';
 	do {
 		$names = $bbp_db->get_col( $bbp_db->prepare( "SELECT option_name FROM {$bbp_db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT 100", $pattern ) );
 		if ( ! empty( $bbp_db->last_error ) ) {

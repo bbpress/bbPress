@@ -199,16 +199,21 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_delete_options
 	 */
-	public function test_bbp_delete_options_removes_builtin_tool_batch_checkpoints() {
-		$tools = array( 'bbp-user-favorites-move', 'bbp-user-topic-subscriptions-move', 'bbp-user-forum-subscriptions-move', 'bbp-user-topic-engagements-move', 'bbp-sync-closed-topics', 'bbp-user-topics', 'bbp-user-replies', 'bbp-topic-replies', 'bbp-topic-hidden-replies', 'bbp-topic-tags', 'bbp-forum-subforums', 'bbp-sync-topic-meta', 'bbp-sync-forum-meta', 'bbp-topic-engagements', 'bbp-forum-topics', 'bbp-forum-replies', 'bbp-forum-hidden-replies', 'bbp-user-favorites', 'bbp-user-topic-subscriptions', 'bbp-user-forum-subscriptions', 'bbp-user-favorites-delete', 'bbp-user-topic-subscriptions-delete', 'bbp-user-forum-subscriptions-delete', 'bbp-user-role-map', 'bbp-sync-all-topics-forums' );
-		foreach ( $tools as $tool_id ) {
-			$this->set_option( '_bbp_tool_batch_' . md5( $tool_id ), array( 'cursor' => 10 ) );
+	public function test_bbp_delete_options_removes_tool_checkpoints_and_scratch_without_a_registry() {
+		$checkpoints = array();
+		for ( $i = 0; $i < 120; ++$i ) {
+			$option        = '_bbp_tool_batch_' . md5( 'custom-tool-' . $i );
+			$checkpoints[] = $option;
+			$this->set_option( $option, array( 'cursor' => 10 ) );
 		}
 		$scratch = '_bbp_tool_batch_' . md5( 'bbp-forum-topics' ) . '_tree_old_';
 		for ( $i = 0; $i < 105; ++$i ) {
 			$this->set_option( $scratch . $i, array( 'id' => $i ) );
 		}
-		$this->set_option( 'bbp_test_unrelated_tree', 'keep' );
+		$unrelated = array( 'bbp_test_unrelated_tree', '_bbp_tool_batching_keep', 'XbbpXtoolXbatchXkeep', '_bbp_tool_lock_keep' );
+		foreach ( $unrelated as $option ) {
+			$this->set_option( $option, 'keep' );
+		}
 		get_option( 'bbp_test_unrelated_missing_option', false );
 		foreach ( array_keys( bbp_get_default_options() ) as $option ) {
 			$this->remember_option( $option );
@@ -219,13 +224,15 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$cached = array_filter( $names, static function ( $name ) use ( $scratch ) { return 0 === strpos( $name, $scratch ); } );
 		$this->assertSame( array(), array_values( $cached ) );
 		$this->assertContains( 'bbp_test_unrelated_missing_option', $names );
-		foreach ( $tools as $tool_id ) {
-			$this->assertFalse( get_option( '_bbp_tool_batch_' . md5( $tool_id ), false ) );
+		foreach ( $checkpoints as $option ) {
+			$this->assertFalse( get_option( $option, false ) );
 		}
 		for ( $i = 0; $i < 105; ++$i ) {
 			$this->assertFalse( get_option( $scratch . $i, false ) );
 		}
-		$this->assertSame( 'keep', get_option( 'bbp_test_unrelated_tree' ) );
+		foreach ( $unrelated as $option ) {
+			$this->assertSame( 'keep', get_option( $option ) );
+		}
 	}
 
 	/**

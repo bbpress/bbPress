@@ -367,7 +367,8 @@ abstract class BBP_Admin_Forum_Repair {
 			$codes = array(
 				2 => $this->meta_error(),
 				3 => 1,
-				4 => 8
+				4 => 8,
+				5 => 8
 			);
 			$this->code = $codes[ $result['code'] ];
 			return $result['work'];

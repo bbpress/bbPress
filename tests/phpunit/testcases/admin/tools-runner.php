@@ -1522,6 +1522,15 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertSame( (string) $reply, get_post_meta( $forum, '_bbp_last_active_id', true ) );
 	}
 
+	public function test_batched_sticky_assignments_complete_before_the_next_bulk_tool() {
+		$first = $this->factory->forum->create();
+		$other = $this->factory->forum->create();
+		$topic = $this->factory->topic->create( array( 'post_parent' => $first ) );
+		update_post_meta( $other, '_bbp_sticky_topics', array( $topic, $topic, $topic ) );
+		$this->assert_native_repair_finishes_before_next_tool( 'bbp-sync-all-topics-sticky', 30 );
+		$this->assertSame( '', get_post_meta( $other, '_bbp_sticky_topics', true ) );
+	}
+
 	private function assert_native_repair_finishes_before_next_tool( $tool_id, $limit ) {
 		$size = static function () { return 1; };
 		$next = 0;
