@@ -3793,18 +3793,253 @@ function bbp_admin_repair_forum_visibility_dry_run() {
 }
 
 /**
- * Repair or preview repairing the private and hidden forum options.
+ * Count changed IDs or malformed values in one visibility option.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @param mixed $stored   Existing option value.
+ * @param array $expected Expected forum IDs.
+ * @return int
+ */
+function bbp_admin_repair_forum_visibility_changes( $stored, $expected ) {
+	$is_default = '' === $stored;
+	$valid      = $is_default || ( is_array( $stored ) && array_values( $stored ) === $stored );
+	$ids        = is_array( $stored ) ? bbp_get_unique_array_values( wp_parse_id_list( $stored ) ) : array();
+	$count      = count( array_unique( array_merge( array_diff( $ids, $expected ), array_diff( $expected, $ids ) ) ) );
+	if ( $valid && ! $is_default ) {
+		foreach ( $stored as $id ) {
+			if ( ! is_int( $id ) || $id < 1 ) {
+				$valid = false;
+				break;
+			}
+		}
+		$valid = $valid && count( $stored ) === count( $ids );
+	}
+	return ! $count && ! $valid ? 1 : $count;
+}
+
+/**
+ * Validate staged visibility lists before resuming their scan or publication.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @param mixed $state   Saved checkpoint.
+ * @param array $context Current forum post type and visibility statuses.
+ * @return bool
+ */
+function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) {
+	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'phase' ) )
+		|| $state['phase'] > 4 || ! isset( $state['context'], $state['values'], $state['sources'], $state['changed'] )
+		|| $state['context'] !== $context || ! is_bool( $state['changed'] )
+		|| ! is_array( $state['values'] ) || ! is_array( $state['sources'] )
+		|| array_keys( $state['values'] ) !== array( 'private', 'hidden' )
+		|| array_keys( $state['sources'] ) !== array( 'private', 'hidden' ) ) {
+		return false;
+	}
+	foreach ( $state['values'] as $type => $ids ) {
+		if ( ! is_array( $ids ) || array_values( $ids ) !== $ids
+			|| ! is_string( $state['sources'][ $type ] ) || 32 !== strlen( $state['sources'][ $type ] ) ) {
+			return false;
+		}
+		$previous = 0;
+		foreach ( $ids as $id ) {
+			if ( ! is_int( $id ) || $id <= $previous || $id > $state['upper_id'] ) {
+				return false;
+			}
+			$previous = $id;
+		}
+	}
+	if ( $state['phase'] >= 2 ) {
+		return 0 === $state['cursor'];
+	}
+	$type   = 0 === $state['phase'] ? 'private' : 'hidden';
+	$ids    = $state['values'][ $type ];
+	$cursor = empty( $ids ) ? 0 : end( $ids );
+	return ( 1 === $state['phase'] || empty( $state['values']['hidden'] ) ) && $cursor === $state['cursor'];
+}
+
+/**
+ * Build visibility lists in bounded scans, then verify each published option.
+ *
+ * Keep live options intact until both scans finish. Serialized option lists and
+ * their staged replacements are still read as whole values. Source-option or
+ * configuration changes restart the scan; verified writes can be replayed.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @param bool $dry_run Whether to preview without writes or cache invalidation.
+ * @return array Status, per-batch counts and completion flags.
+ */
+function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
+	$db      = bbp_db();
+	$tool_id = 'bbp-sync-forum-visibility';
+	$types   = array( 'private', 'hidden' );
+	$context = array(
+		'forum'    => bbp_get_forum_post_type(),
+		'statuses' => array( bbp_get_private_status_id(), bbp_get_hidden_status_id() ),
+	);
+	$batch   = array(
+		'code'      => 0,
+		'private'   => 0,
+		'hidden'    => 0,
+		'checked'   => 0,
+		'changed'   => false,
+		'complete'  => false,
+		'restarted' => false,
+		'evaluated' => array(),
+	);
+	// Read the non-autoloaded stamp directly, bypassing the options preloader
+	list( $read, $version ) = bbp_admin_repair_get_option( '_bbp_forum_visibility_version', '' );
+	if ( ! $read || ! is_string( $version ) ) {
+		$batch['code'] = 9;
+		return $batch;
+	}
+	if ( '' === $version && ! $dry_run ) {
+		if ( ! bbp_update_forum_visibility_version() ) {
+			$batch['code'] = 9;
+			return $batch;
+		}
+		list( $read, $version ) = bbp_admin_repair_get_option( '_bbp_forum_visibility_version', '' );
+		if ( ! $read || ! is_string( $version ) || '' === $version ) {
+			$batch['code'] = 9;
+			return $batch;
+		}
+	}
+	$context['version'] = $version;
+	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	if ( false !== $state && ! bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+	$stored = array();
+	foreach ( $types as $index => $type ) {
+		$option = '_bbp_' . $type . '_forums';
+
+		list( $read, $stored[ $type ] ) = bbp_admin_repair_get_option( $option, array() );
+		if ( ! $read ) {
+			$batch['code'] = 4 + $index;
+			return $batch;
+		}
+		if ( false !== $state && md5( serialize( $stored[ $type ] ) ) !== $state['sources'][ $type ] ) {
+			// A completed scan may have published this option before a failed save
+			$same = $state['phase'] >= 2 && bbp_admin_repair_option_matches( $option, $state['values'][ $type ] );
+			if ( ! empty( $db->last_error ) ) {
+				$batch['code'] = 4 + $index;
+				return $batch;
+			}
+			if ( ! $same ) {
+				$state              = false;
+				$batch['restarted'] = true;
+			}
+		}
+	}
+	if ( false === $state ) {
+		$upper = (int) $db->get_var( "SELECT MAX(ID) FROM `{$db->posts}`" );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$state = array(
+			'cursor'   => 0,
+			'upper_id' => $upper,
+			'phase'    => 0,
+			'context'  => $context,
+			'values'   => array(
+				'private' => array(),
+				'hidden'  => array(),
+			),
+			'sources'  => array(
+				'private' => md5( serialize( $stored['private'] ) ),
+				'hidden'  => md5( serialize( $stored['hidden'] ) ),
+			),
+			'changed'  => false,
+		);
+	}
+	foreach ( $types as $index => $type ) {
+		if ( $state['phase'] > 2 + $index ) {
+			$batch['evaluated'][] = $type;
+		}
+	}
+	$size = bbp_admin_repair_tool_batch_size( $tool_id );
+	$work = 0;
+	while ( $work < $size && $state['phase'] < 4 ) {
+		$index  = $state['phase'] % 2;
+		$type   = $types[ $index ];
+		$option = '_bbp_' . $type . '_forums';
+		if ( $state['phase'] < 2 ) {
+			$remaining = $size - $work;
+			$ids       = $db->get_col( $db->prepare( "SELECT ID FROM `{$db->posts}` WHERE `post_type` = %s AND `post_status` = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT %d", $context['forum'], $context['statuses'][ $index ], $state['cursor'], $state['upper_id'], $remaining + 1 ) );
+			if ( ! empty( $db->last_error ) ) {
+				$batch['code'] = 2 + $index;
+				break;
+			}
+			$selected = array_slice( $ids, 0, $remaining );
+			foreach ( $selected as $id ) {
+				$state['values'][ $type ][] = (int) $id;
+				$state['cursor']            = (int) $id;
+			}
+			$batch['checked'] += count( $selected );
+			$work             += max( 1, count( $selected ) );
+			if ( count( $ids ) <= $remaining ) {
+				++$state['phase'];
+				$state['cursor'] = 0;
+			}
+			continue;
+		}
+		list( $read, $current_version ) = bbp_admin_repair_get_option( '_bbp_forum_visibility_version', '' );
+		if ( ! $read || $current_version !== $version ) {
+			$batch['code'] = $read ? 0 : 9;
+			break;
+		}
+		$changes = bbp_admin_repair_forum_visibility_changes( $stored[ $type ], $state['values'][ $type ] );
+		if ( ! $dry_run ) {
+			if ( $changes && ! bbp_admin_repair_update_option( $option, $state['values'][ $type ] ) ) {
+				$batch['code'] = 6 + $index;
+				break;
+			}
+			if ( ! $changes ) {
+				wp_cache_delete_multiple( array( $option, 'alloptions', 'notoptions' ), 'options' );
+			}
+		}
+		$batch[ $type ]       = $changes;
+		$batch['evaluated'][] = $type;
+		$state['changed']     = $state['changed'] || (bool) $changes;
+		++$state['phase'];
+		++$work;
+	}
+	$invalidated = false;
+	if ( ! $batch['code'] ) {
+		list( $read, $current_version ) = bbp_admin_repair_get_option( '_bbp_forum_visibility_version', '' );
+		if ( ! $read ) {
+			$batch['code'] = 9;
+		} else {
+			$invalidated = $current_version !== $version;
+		}
+	}
+	$batch['changed']   = $state['changed'];
+	$batch['restarted'] = $batch['restarted'] || $invalidated;
+	if ( $invalidated ) {
+		$batch['evaluated'] = array();
+	}
+	$batch['complete'] = ! $batch['code'] && ! $invalidated && 4 === $state['phase'];
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] || $invalidated ) ) {
+		$batch['code']     = 8;
+		$batch['complete'] = false;
+	}
+	return $batch;
+}
+
+/**
+ * Repair or preview the next batch of private and hidden forum options.
  *
  * @since 2.7.0 bbPress (r8240)
+ * @since 2.7.0 bbPress (r8304) Processes one resumable batch per call.
  *
- * @param bool $dry_run Whether to preview changes without updating options.
- * @return array An array of the status code and the message.
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
-	$bbp_db = bbp_db();
-	$failed = esc_html__( 'Failed!', 'bbpress' );
-	$fmt    = bbp_get_forum_post_type();
-
+	$batch = bbp_admin_repair_forum_visibility_batch( $dry_run );
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking forum visibility&hellip; %s', 'bbpress' );
@@ -3812,178 +4047,56 @@ function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 		/* translators: %s: Status of the repair process */
 		$statement = esc_html__( 'Recalculating forum visibility&hellip; %s', 'bbpress' );
 	}
-
-	$private_forums = $bbp_db->get_col(
-		$bbp_db->prepare(
-			"SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s ORDER BY `ID`",
-			$fmt,
-			bbp_get_private_status_id()
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] ) {
 		return array(
-			2,
-			sprintf( $statement, $failed ),
-			'success' => false,
+			$batch['code'],
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false,
 		);
 	}
-
-	$hidden_forums = $bbp_db->get_col(
-		$bbp_db->prepare(
-			"SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s ORDER BY `ID`",
-			$fmt,
-			bbp_get_hidden_status_id()
-		)
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
+	if ( $batch['complete'] && ! $batch['changed'] ) {
 		return array(
-			3,
-			sprintf( $statement, $failed ),
-			'success' => false,
+			1,
+			sprintf( $statement, esc_html__( '0 forum visibility entries to repair.', 'bbpress' ) ),
+			'complete' => true,
 		);
 	}
-
-	$private_forums = wp_parse_id_list( $private_forums );
-	$hidden_forums  = wp_parse_id_list( $hidden_forums  );
-
-	list( $private_read, $stored_private ) = bbp_admin_repair_get_option( '_bbp_private_forums', array() );
-	if ( ! $private_read ) {
-		return array(
-			4,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	list( $hidden_read, $stored_hidden ) = bbp_admin_repair_get_option( '_bbp_hidden_forums', array() );
-	if ( ! $hidden_read ) {
-		return array(
-			5,
-			sprintf( $statement, $failed ),
-			'success' => false,
-		);
-	}
-
-	$clear_option_cache = static function ( $option_name ) {
-		wp_cache_delete( 'alloptions', 'options' );
-		wp_cache_delete( 'notoptions', 'options' );
-		wp_cache_delete( $option_name, 'options' );
-	};
-
-	$write_option = static function ( $option_name, $option_value ) use ( $bbp_db, $clear_option_cache ) {
-		$clear_option_cache( $option_name );
-		update_option( $option_name, $option_value );
-
-		$option = $bbp_db->get_row(
-			$bbp_db->prepare(
-				"SELECT `option_value` FROM `{$bbp_db->options}` WHERE `option_name` = %s LIMIT 1",
-				$option_name
-			)
-		);
-
-		if ( ! empty( $bbp_db->last_error ) || ! is_object( $option ) || ( maybe_unserialize( $option->option_value ) !== $option_value ) ) {
-			return false;
-		}
-
-		$clear_option_cache( $option_name );
-		return true;
-	};
-
-	$change_count = static function ( $stored, $expected ) {
-		$is_default = ( '' === $stored );
-		$valid      = $is_default || ( is_array( $stored ) && ( array_values( $stored ) === $stored ) );
-		$stored_ids = is_array( $stored )
-			? bbp_get_unique_array_values( wp_parse_id_list( $stored ) )
-			: array();
-		$changes    = array_unique( array_merge( array_diff( $stored_ids, $expected ), array_diff( $expected, $stored_ids ) ) );
-		$count      = count( $changes );
-
-		if ( $valid && ! $is_default ) {
-			foreach ( $stored as $forum_id ) {
-				if ( ! is_int( $forum_id ) || ( $forum_id < 1 ) ) {
-					$valid = false;
-					break;
-				}
-			}
-		}
-
-		if ( $valid && ! $is_default && ( count( $stored ) !== count( $stored_ids ) ) ) {
-			$valid = false;
-		}
-
-		// Include malformed or duplicate option values, but ignore ID order
-		if ( empty( $count ) && ! $valid ) {
-			$count = 1;
-		}
-
-		return $count;
-	};
-
-	$private_changes = $change_count( $stored_private, $private_forums );
-	$hidden_changes  = $change_count( $stored_hidden,  $hidden_forums  );
-
-	if ( empty( $private_changes ) && empty( $hidden_changes ) ) {
-		if ( ! $dry_run ) {
-			$clear_option_cache( '_bbp_private_forums' );
-			$clear_option_cache( '_bbp_hidden_forums'  );
-		}
-
-		$result = esc_html__( '0 forum visibility entries to repair.', 'bbpress' );
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	$private_result = sprintf(
-		/* translators: %s: Number of private forum visibility entries */
-		esc_html( _n( '%s private forum visibility entry would be repaired.', '%s private forum visibility entries would be repaired.', $private_changes, 'bbpress' ) ),
-		bbp_number_format( $private_changes )
-	);
-	$hidden_result = sprintf(
-		/* translators: %s: Number of hidden forum visibility entries */
-		esc_html( _n( '%s hidden forum visibility entry would be repaired.', '%s hidden forum visibility entries would be repaired.', $hidden_changes, 'bbpress' ) ),
-		bbp_number_format( $hidden_changes )
-	);
-
+	/* translators: %s: Number of non-public forums checked in this batch */
+	$checked = sprintf( esc_html( _n( '%s non-public forum checked.', '%s non-public forums checked.', $batch['checked'], 'bbpress' ) ), bbp_number_format( $batch['checked'] ) );
+	$details = array( $checked );
 	if ( $dry_run ) {
-		$result = $private_result . "\n" . $hidden_result;
-
-		return array( 0, sprintf( $statement, $result ) );
-	}
-
-	if ( ! empty( $private_changes ) ) {
-		if ( ! $write_option( '_bbp_private_forums', $private_forums ) ) {
-			return array(
-				6,
-				sprintf( $statement, $failed ),
-				'success' => false,
-			);
-		}
-	}
-
-	if ( ! empty( $hidden_changes ) ) {
-		if ( ! $write_option( '_bbp_hidden_forums', $hidden_forums ) ) {
-			return array(
-				7,
-				sprintf( $statement, $failed ),
-				'success' => false,
-			);
-		}
-	}
-
-	$private_result = sprintf(
 		/* translators: %s: Number of private forum visibility entries */
-		esc_html( _n( '%s private forum visibility entry repaired.', '%s private forum visibility entries repaired.', $private_changes, 'bbpress' ) ),
-		bbp_number_format( $private_changes )
-	);
-	$hidden_result = sprintf(
+		$private = _n( '%s private forum visibility entry would be repaired.', '%s private forum visibility entries would be repaired.', $batch['private'], 'bbpress' );
 		/* translators: %s: Number of hidden forum visibility entries */
-		esc_html( _n( '%s hidden forum visibility entry repaired.', '%s hidden forum visibility entries repaired.', $hidden_changes, 'bbpress' ) ),
-		bbp_number_format( $hidden_changes )
+		$hidden = _n( '%s hidden forum visibility entry would be repaired.', '%s hidden forum visibility entries would be repaired.', $batch['hidden'], 'bbpress' );
+	} else {
+		/* translators: %s: Number of private forum visibility entries */
+		$private = _n( '%s private forum visibility entry repaired.', '%s private forum visibility entries repaired.', $batch['private'], 'bbpress' );
+		/* translators: %s: Number of hidden forum visibility entries */
+		$hidden = _n( '%s hidden forum visibility entry repaired.', '%s hidden forum visibility entries repaired.', $batch['hidden'], 'bbpress' );
+	}
+	$messages = array(
+		'private' => $private,
+		'hidden'  => $hidden,
 	);
-	$result = esc_html__( 'Complete!', 'bbpress' ) . "\n" . $private_result . "\n" . $hidden_result;
-
-	return array( 0, sprintf( $statement, $result ) );
+	foreach ( $batch['evaluated'] as $type ) {
+		$details[] = sprintf( esc_html( $messages[ $type ] ), bbp_number_format( $batch[ $type ] ) );
+	}
+	if ( count( $batch['evaluated'] ) < 2 ) {
+		$details[] = esc_html__( 'Visibility counts are not complete yet.', 'bbpress' );
+	}
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . implode( "\n", $details );
+	if ( ! $dry_run ) {
+		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
+	}
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete'],
+	);
 }
-
 /**
  * Repair the parent forum reference for each forum, topic, and reply.
  *

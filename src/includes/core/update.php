@@ -342,7 +342,7 @@ function bbp_version_updater() {
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/1891
 			 */
-			bbp_admin_repair_forum_visibility();
+			bbp_admin_repair_tool_run_automatically( 'bbp-sync-forum-visibility', 'bbp_admin_repair_forum_visibility' );
 		}
 
 		/** 2.2 Branch ********************************************************/

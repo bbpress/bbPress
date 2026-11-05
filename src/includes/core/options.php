@@ -122,8 +122,9 @@ function bbp_get_default_options() {
 
 			/** Forums ************************************************************/
 
-			'_bbp_private_forums'       => '',          // Private forums
-			'_bbp_hidden_forums'        => '',          // Hidden forums
+			'_bbp_private_forums'           => '',      // Private forums
+			'_bbp_hidden_forums'            => '',      // Hidden forums
+			'_bbp_forum_visibility_version' => '',      // Forum visibility source version
 
 			/** BuddyPress ********************************************************/
 

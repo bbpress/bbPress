@@ -58,6 +58,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Rebuild private and hidden forum lists in resumable batches, preserving live
+  visibility during scans, read-only previews, verified writes and automatic
+  completion on small sites. Restart staged scans after forum membership changes.
 - Repair sticky-topic assignments in resumable batches, preserving filtered
   super stickies, read-only previews, safe retries, and automatic small-site runs.
   Keep original lists readable through duplicate cleanup and verify metadata

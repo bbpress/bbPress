@@ -1531,6 +1531,16 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertSame( '', get_post_meta( $other, '_bbp_sticky_topics', true ) );
 	}
 
+	public function test_batched_visibility_completes_before_the_next_bulk_tool() {
+		$private = $this->factory->forum->create_many( 3, array( 'post_status' => bbp_get_private_status_id() ) );
+		$hidden  = $this->factory->forum->create_many( 2, array( 'post_status' => bbp_get_hidden_status_id() ) );
+		update_option( '_bbp_private_forums', array() );
+		update_option( '_bbp_hidden_forums', array() );
+		$this->assert_native_repair_finishes_before_next_tool( 'bbp-sync-forum-visibility', 30 );
+		$this->assertSame( $private, get_option( '_bbp_private_forums' ) );
+		$this->assertSame( $hidden, get_option( '_bbp_hidden_forums' ) );
+	}
+
 	private function assert_native_repair_finishes_before_next_tool( $tool_id, $limit ) {
 		$size = static function () { return 1; };
 		$next = 0;

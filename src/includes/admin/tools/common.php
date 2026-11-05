@@ -714,6 +714,46 @@ function bbp_admin_repair_get_option( $option_name, $option_default = false ) {
 }
 
 /**
+ * Verify an option against its unfiltered, uncached stored value.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @param string $option Option name.
+ * @param mixed  $value  Expected value, or null when no row should remain.
+ * @return bool
+ */
+function bbp_admin_repair_option_matches( $option, $value ) {
+	$db     = bbp_db();
+	$column = null === $value ? 'option_id' : 'option_value';
+	$row    = $db->get_row( $db->prepare( "SELECT `{$column}` FROM `{$db->options}` WHERE `option_name` = %s LIMIT 1", $option ) );
+	if ( ! empty( $db->last_error ) ) {
+		return false;
+	}
+	return null === $value ? ! $row : is_object( $row ) && maybe_unserialize( $row->option_value ) === $value;
+}
+
+/**
+ * Update a repair option through WordPress and verify the stored result.
+ *
+ * Preserve existing autoload settings and option hooks.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @param string $option Option name.
+ * @param mixed  $value  Expected value.
+ * @return bool
+ */
+function bbp_admin_repair_update_option( $option, $value ) {
+	wp_cache_delete_multiple( array( $option, 'alloptions', 'notoptions' ), 'options' );
+	update_option( $option, $value );
+	$saved = bbp_admin_repair_option_matches( $option, $value );
+	if ( ! $saved ) {
+		wp_cache_delete_multiple( array( $option, 'alloptions', 'notoptions' ), 'options' );
+	}
+	return $saved;
+}
+
+/**
  * Return the option name for a built-in tool's next batch checkpoint.
  *
  * @since 2.7.0 bbPress (r8253)
@@ -766,6 +806,7 @@ function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = fa
  * Save or remove durable tool state and verify the stored result.
  *
  * @since 2.7.0 bbPress (r8284)
+ * @since 2.7.0 bbPress (r8304) Verify deletion without trusting cached absence.
  *
  * @param string $option Option name.
  * @param mixed  $value  Saved state.
@@ -774,14 +815,13 @@ function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = fa
  */
 function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
 	if ( $delete ) {
-		if ( ! delete_option( $option ) ) {
-			// WordPress may cache a missing option even when its deletion fails
-			wp_cache_delete( $option, 'options' );
-			wp_cache_delete( 'alloptions', 'options' );
-			wp_cache_delete( 'notoptions', 'options' );
+		$deleted = delete_option( $option );
+		$saved   = bbp_admin_repair_option_matches( $option, null );
+		if ( ! $deleted || ! $saved ) {
+			// Recover stale cache entries after a failed or already-missing deletion
+			wp_cache_delete_multiple( array( $option, 'alloptions', 'notoptions' ), 'options' );
 		}
-		$saved = false === get_option( $option, false );
-		return $saved && empty( bbp_db()->last_error );
+		return $saved;
 	}
 
 	update_option( $option, $value, false );

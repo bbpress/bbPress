@@ -318,10 +318,14 @@ add_action( 'bbp_unspammed_reply',  'bbp_update_reply_walker' );
 add_action( 'bbp_approved_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unapproved_reply', 'bbp_update_reply_walker' );
 
-// Update counts from persisted post status changes
+// Update visibility and counts from persisted post status changes
 add_action( 'bbp_transition_post_status', 'bbp_update_forum_visibility_on_transition_post_status', 5, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_counts_on_transition_post_status', 10, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_forum_subforum_count_on_transition_post_status', 10, 3 );
+
+// Track visibility membership after post type changes and permanent deletion
+add_action( 'bbp_deleted_forum', 'bbp_update_forum_visibility_version', 10, 0 );
+add_action( 'bbp_post_updated',  'bbp_update_forum_visibility_version_on_post_updated', 10, 3 );
 
 // Update parent subforum counts after updates and permanent deletion
 add_action( 'bbp_deleted_forum',   'bbp_reparent_forum_subforums', 9, 2 );

@@ -960,6 +960,7 @@ function bbp_update_forum_visibility_options( $forum_id = 0, $visibility = '' ) 
  * Synchronize forum visibility options after a post status transition.
  *
  * @since 2.6.19 bbPress (r7671)
+ * @since 2.7.0 bbPress (r8304) Record visibility source changes before updating the lists.
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
@@ -972,7 +973,50 @@ function bbp_update_forum_visibility_on_transition_post_status( $new_status = ''
 		return;
 	}
 
+	bbp_update_forum_visibility_version();
 	bbp_update_forum_visibility_options( $post->ID, $new_status );
+}
+
+/**
+ * Record a new source version when forum visibility membership changes.
+ *
+ * Repairs compare this per-site stamp before publishing their staged lists.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @return bool Whether the new version was saved.
+ */
+function bbp_update_forum_visibility_version() {
+	$version = wp_generate_uuid4();
+	update_option( '_bbp_forum_visibility_version', $version, false );
+	$db     = bbp_db();
+	$stored = $db->get_var( "SELECT option_value FROM {$db->options} WHERE option_name = '_bbp_forum_visibility_version' LIMIT 1" );
+	$saved  = empty( $db->last_error ) && $stored === $version;
+	if ( ! $saved ) {
+		// A failed stamp must not leave the previous scan version valid
+		delete_option( '_bbp_forum_visibility_version' );
+	}
+	return $saved;
+}
+
+/**
+ * Record forums entering or leaving the forum post type.
+ *
+ * @since 2.7.0 bbPress (r8304)
+ *
+ * @param int     $post_id     Post ID.
+ * @param WP_Post $post_after  Post after the update.
+ * @param WP_Post $post_before Post before the update.
+ */
+function bbp_update_forum_visibility_version_on_post_updated( $post_id = 0, $post_after = false, $post_before = false ) {
+	if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post )
+		|| $post_after->post_type === $post_before->post_type ) {
+		return;
+	}
+	$forum = bbp_get_forum_post_type();
+	if ( $forum === $post_after->post_type || $forum === $post_before->post_type ) {
+		bbp_update_forum_visibility_version();
+	}
 }
 
 /**
