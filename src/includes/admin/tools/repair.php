@@ -4383,19 +4383,211 @@ function bbp_admin_repair_reply_menu_order_dry_run() {
 }
 
 /**
- * Recalculate or preview reply menu order.
+ * Get a reply's native position without loading an unfiltered child list.
+ *
+ * Preserve the complete child-list filter contract when a callback is present.
+ * Default ordering is ascending ID, excluding drafts and scheduled replies.
+ * Reuse counted prefixes within this batch until native source caches change.
+ *
+ * @since 2.7.0 bbPress (r8305)
+ *
+ * @param object $reply Current reply row.
+ * @param array  $ranks Ranks shared within this batch, keyed by topic ID.
+ * @return int|false Position, or false after a read failure.
+ */
+function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array() ) {
+	$db = bbp_db();
+	wp_cache_delete( $reply->ID, 'posts' );
+	wp_cache_delete( $reply->ID, 'post_meta' );
+	$topic_id = bbp_get_reply_topic_id( $reply->ID );
+	wp_cache_delete( $topic_id, 'post_meta' );
+	if ( has_filter( 'bbp_get_all_child_ids' ) ) {
+		$position = bbp_get_reply_position_raw( $reply->ID, $topic_id );
+		return empty( $db->last_error ) ? $position : false;
+	}
+	$topic_id = ! empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply->ID );
+	$count    = bbp_get_topic_reply_count( $topic_id, false );
+	if ( ! empty( $db->last_error ) ) {
+		return false;
+	}
+	if ( empty( $topic_id ) || (int) $reply->ID === $topic_id || empty( $count ) || (int) $reply->post_parent !== $topic_id ) {
+		return 0;
+	}
+	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
+	$cursor       = 0;
+	$prefix       = 0;
+	if ( isset( $ranks[ $topic_id ] ) && $ranks[ $topic_id ]['last_changed'] === $last_changed
+		&& $ranks[ $topic_id ]['cursor'] < (int) $reply->ID ) {
+		$cursor = $ranks[ $topic_id ]['cursor'];
+		$prefix = $ranks[ $topic_id ]['position'];
+	}
+	$position = $db->get_row( $db->prepare( "SELECT COUNT(*) AS reply_position, MAX(ID = %d) AS included FROM {$db->posts} WHERE post_parent = %d AND post_type = %s AND post_status NOT IN ('draft', 'future') AND ID > %d AND ID <= %d", $reply->ID, $topic_id, bbp_get_reply_post_type(), $cursor, $reply->ID ) );
+	if ( ! empty( $db->last_error ) || ! $position || wp_cache_get_last_changed( 'bbpress_posts' ) !== $last_changed ) {
+		unset( $ranks[ $topic_id ] );
+		return false;
+	}
+	$prefix += (int) $position->reply_position;
+	$ranks[ $topic_id ] = array(
+		'cursor'       => (int) $reply->ID,
+		'position'     => $prefix,
+		'last_changed' => $last_changed,
+	);
+	return $position->included ? $prefix : 0;
+}
+
+/**
+ * Validate the reply and metadata scan cursors.
+ *
+ * @since 2.7.0 bbPress (r8305)
+ *
+ * @param mixed $state Saved checkpoint.
+ * @return bool
+ */
+function bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) {
+	return bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'phase', 'meta_cursor', 'meta_upper' ) )
+		&& $state['phase'] <= 2 && $state['meta_cursor'] <= $state['meta_upper']
+		&& isset( $state['context'], $state['changed'] )
+		&& bbp_get_reply_post_type() === $state['context'] && is_bool( $state['changed'] );
+}
+
+/**
+ * Repair self references and reply positions within one work budget.
+ *
+ * Inspect every reply rather than selecting duplicates that earlier writes can
+ * remove from the result set. Both cursors have fixed bounds, and advance only
+ * after verified work. No complete reply or metadata list is stored.
+ *
+ * @since 2.7.0 bbPress (r8305)
+ *
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Per-batch status, counts and completion flags.
+ */
+function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
+	$db      = bbp_db();
+	$tool_id = 'bbp-sync-all-reply-positions';
+	$batch   = array(
+		'code'          => 0,
+		'relationships' => 0,
+		'positions'     => 0,
+		'changed'       => false,
+		'complete'      => false,
+		'restarted'     => false,
+	);
+	list( $read, $state ) = bbp_admin_repair_get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
+	}
+	if ( false !== $state && ! bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) ) {
+		$state              = false;
+		$batch['restarted'] = true;
+	}
+	if ( false === $state ) {
+		$bounds = $db->get_row( "SELECT (SELECT MAX(ID) FROM {$db->posts}) AS upper_id, (SELECT MAX(meta_id) FROM {$db->postmeta}) AS meta_upper" );
+		if ( ! empty( $db->last_error ) || ! $bounds ) {
+			$batch['code'] = 1;
+			return $batch;
+		}
+		$state = array(
+			'cursor'      => 0,
+			'upper_id'    => (int) $bounds->upper_id,
+			'meta_cursor' => 0,
+			'meta_upper'  => (int) $bounds->meta_upper,
+			'phase'       => 0,
+			'context'     => bbp_get_reply_post_type(),
+			'changed'     => false,
+		);
+	}
+	$size  = bbp_admin_repair_tool_batch_size( $tool_id );
+	$ranks = array();
+	for ( $work = 0; $work < $size && $state['phase'] < 2; ++$work ) {
+		if ( 0 === $state['phase'] ) {
+			$row = $db->get_row( $db->prepare( "SELECT meta_id, post_id, (post_id = meta_value) AS self_reference FROM {$db->postmeta} WHERE meta_key = '_bbp_reply_to' AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT 1", $state['meta_cursor'], $state['meta_upper'] ) );
+			if ( ! empty( $db->last_error ) ) {
+				$batch['code'] = 1;
+				break;
+			}
+			if ( ! $row ) {
+				$state['phase'] = 1;
+				continue;
+			}
+			if ( $row->self_reference ) {
+				wp_cache_delete( $row->post_id, 'post_meta' );
+				if ( ! $dry_run && bbp_admin_repair_metadata_row( 'post', $row, '_bbp_reply_to', null ) ) {
+					$batch['code'] = 3;
+					break;
+				}
+				++$batch['relationships'];
+				$state['changed'] = true;
+			}
+			$state['meta_cursor'] = (int) $row->meta_id;
+			continue;
+		}
+		$reply = $db->get_row( $db->prepare( "SELECT ID, post_parent, post_status, menu_order FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $state['context'], $state['cursor'], $state['upper_id'] ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			break;
+		}
+		if ( ! $reply ) {
+			$state['phase'] = 2;
+			continue;
+		}
+		$position = bbp_admin_repair_reply_menu_order_position( $reply, $ranks );
+		if ( false === $position ) {
+			$batch['code'] = 4;
+			break;
+		}
+		// A getter callback may have moved, converted or deleted the selected reply
+		$source = $db->get_row( $db->prepare( "SELECT post_parent, post_status FROM {$db->posts} WHERE ID = %d AND post_type = %s", $reply->ID, $state['context'] ) );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['code'] = 2;
+			break;
+		}
+		if ( ! $source || $source->post_parent !== $reply->post_parent
+			|| $source->post_status !== $reply->post_status ) {
+			$ranks           = array();
+			$state['cursor'] = (int) $reply->ID;
+			continue;
+		}
+		if ( $position !== (int) $reply->menu_order ) {
+			if ( ! $dry_run ) {
+				bbp_update_reply_position( $reply->ID, $position );
+				$stored = $db->get_var( $db->prepare( "SELECT menu_order FROM {$db->posts} WHERE ID = %d", $reply->ID ) );
+				if ( empty( $db->last_error ) && null === $stored ) {
+					$ranks           = array();
+					$state['cursor'] = (int) $reply->ID;
+					continue;
+				}
+				if ( ! empty( $db->last_error ) || (int) $stored !== $position ) {
+					$batch['code'] = 5;
+					break;
+				}
+			}
+			++$batch['positions'];
+			$state['changed'] = true;
+		}
+		$state['cursor'] = (int) $reply->ID;
+	}
+	$batch['changed']  = $state['changed'];
+	$batch['complete'] = ! $batch['code'] && 2 === $state['phase'];
+	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] ) ) {
+		$batch['code']     = 6;
+		$batch['complete'] = false;
+	}
+	return $batch;
+}
+
+/**
+ * Recalculate or preview the next batch of reply menu order repairs.
  *
  * @since 2.7.0 bbPress (r8220)
+ * @since 2.7.0 bbPress (r8305) Processes one resumable batch per call.
  *
- * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @param bool $dry_run Whether to preview without writes.
+ * @return array Tool result and completion flag.
  */
 function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db = bbp_db();
-	$result = esc_html__( 'Failed!', 'bbpress' );
-
+	$batch = bbp_admin_repair_reply_menu_order_batch( $dry_run );
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking reply menu order&hellip; %s', 'bbpress' );
@@ -4403,110 +4595,42 @@ function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 		/* translators: %s: Status of the repair process */
 		$statement = esc_html__( 'Recalculating reply menu order&hellip; %s', 'bbpress' );
 	}
-
-	// Get cases where `_bbp_reply_to` was accidentally set to itself
-	$reply_to_posts = $bbp_db->get_col( "SELECT `post_id` FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`" );
-	if ( ! empty( $bbp_db->last_error ) ) {
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] ) {
 		return array(
-			1,
-			sprintf( $statement, $result ),
-			'success' => false,
+			$batch['code'],
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false,
 		);
 	}
-
-	// Post type
-	$rpt = bbp_get_reply_post_type();
-
-	// Get an array of reply id's to update the menu oder for each reply
-	$replies = $bbp_db->get_results(
-		"SELECT `a`.`ID`, `a`.`post_parent` FROM `{$bbp_db->posts}` AS `a`
-		INNER JOIN (
-			SELECT `menu_order`, `post_parent`
-			FROM `{$bbp_db->posts}`
-			GROUP BY `menu_order`, `post_parent`
-			HAVING COUNT( * ) >1
-		)`b`
-		ON `a`.`menu_order` = `b`.`menu_order`
-		AND `a`.`post_parent` = `b`.`post_parent`
-		WHERE `post_type` = '{$rpt}'",
-		OBJECT_K
-	);
-
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array( 2, sprintf( $statement, $result ) );
+	if ( $batch['complete'] && ! $batch['changed'] ) {
+		return array(
+			1,
+			sprintf( $statement, esc_html__( '0 reply positions or reply-to references to repair.', 'bbpress' ) ),
+			'complete' => true,
+		);
 	}
-
-	$relationship_count = count( $reply_to_posts );
-	$reply_ids          = wp_parse_id_list( array_keys( $replies ) );
-	$topic_ids          = wp_parse_id_list( wp_list_pluck( $replies, 'post_parent' ) );
-	$post_ids           = array_merge( $reply_ids, $topic_ids );
-	$position_repairs   = array();
-
-	// Ensure current reply-to references are visible after direct database work
-	$reply_to_posts = wp_parse_id_list( $reply_to_posts );
-	if ( ! empty( $reply_to_posts ) ) {
-		wp_cache_delete_multiple( $reply_to_posts, 'post_meta' );
-	}
-	if ( ! empty( $post_ids ) ) {
-		wp_cache_delete_multiple( $post_ids, 'posts' );
-		wp_cache_delete_multiple( $post_ids, 'post_meta' );
-	}
-
-	// Identify replies whose position would actually change
-	foreach ( $replies as $reply ) {
-		$reply_id       = (int) $reply->ID;
-		$topic_id       = bbp_get_reply_topic_id( $reply_id );
-		$new_position   = bbp_get_reply_position_raw( $reply_id, $topic_id );
-		$position       = (int) get_post_field( 'menu_order', $reply_id );
-
-		if ( $new_position !== $position ) {
-			$position_repairs[ $reply_id ] = $new_position;
-		}
-	}
-
-	$position_count = count( $position_repairs );
-
-	// Bail if no repairs are needed
-	if ( empty( $relationship_count ) && empty( $position_count ) ) {
-		$result = esc_html__( '0 reply positions or reply-to references to repair.', 'bbpress' );
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	// Delete self-referential reply-to references
-	if ( ! $dry_run && ! empty( $relationship_count ) ) {
-		$relationship_count = $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`" );
-		if ( false === $relationship_count ) {
-			return array( 3, sprintf( $statement, $result ) );
-		}
-	}
-
-	// Recalculate changed menu order positions when not previewing
-	if ( ! $dry_run ) {
-		$position_count = 0;
-		foreach ( $position_repairs as $reply_id => $new_position ) {
-			if ( false !== bbp_update_reply_position( $reply_id, $new_position ) ) {
-				++$position_count;
-			}
-		}
-	}
-
-	// Cleanup
-	unset( $reply_to_posts, $replies, $reply, $reply_ids, $topic_ids, $post_ids, $reply_id, $topic_id, $new_position, $position, $position_repairs );
-
-	// Complete results
 	if ( $dry_run ) {
-		/* translators: %d: Number of self-referential reply-to references that would be removed */
-		$relationships = sprintf( _n( '%d self-referential reply-to reference would be removed.', '%d self-referential reply-to references would be removed.', $relationship_count, 'bbpress' ), $relationship_count );
-		/* translators: %d: Number of reply positions that would be recalculated */
-		$positions = sprintf( _n( '%d reply position would be recalculated.', '%d reply positions would be recalculated.', $position_count, 'bbpress' ), $position_count );
+		/* translators: %s: Number of self-referential reply-to references */
+		$relationships = _n( '%s self-referential reply-to reference would be removed.', '%s self-referential reply-to references would be removed.', $batch['relationships'], 'bbpress' );
+		/* translators: %s: Number of reply positions */
+		$positions = _n( '%s reply position would be recalculated.', '%s reply positions would be recalculated.', $batch['positions'], 'bbpress' );
 	} else {
-		/* translators: %d: Number of removed self-referential reply-to references */
-		$relationships = sprintf( _n( 'Complete! %d self-referential reply-to reference was removed.', 'Complete! %d self-referential reply-to references were removed.', $relationship_count, 'bbpress' ), $relationship_count );
-		/* translators: %d: Number of recalculated reply positions */
-		$positions = sprintf( _n( '%d reply position was recalculated.', '%d reply positions were recalculated.', $position_count, 'bbpress' ), $position_count );
+		/* translators: %s: Number of removed self-referential reply-to references */
+		$relationships = _n( '%s self-referential reply-to reference was removed.', '%s self-referential reply-to references were removed.', $batch['relationships'], 'bbpress' );
+		/* translators: %s: Number of recalculated reply positions */
+		$positions = _n( '%s reply position was recalculated.', '%s reply positions were recalculated.', $batch['positions'], 'bbpress' );
 	}
-
-	$result = $relationships . "\n" . $positions;
-
-	return array( 0, sprintf( $statement, $result ) );
+	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n"
+		. sprintf( esc_html( $relationships ), bbp_number_format( $batch['relationships'] ) ) . "\n"
+		. sprintf( esc_html( $positions ), bbp_number_format( $batch['positions'] ) );
+	if ( ! $dry_run ) {
+		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
+	}
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete'],
+	);
 }

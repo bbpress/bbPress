@@ -58,6 +58,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Recalculate reply positions and clean up self-referential reply-to metadata
+  in resumable batches, including incorrect unique positions. Preserve ordering
+  filters, verified writes, read-only previews and automatic small-site runs.
 - Rebuild private and hidden forum lists in resumable batches, preserving live
   visibility during scans, read-only previews, verified writes and automatic
   completion on small sites. Restart staged scans after forum membership changes.

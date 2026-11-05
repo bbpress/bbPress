@@ -807,6 +807,7 @@ function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = fa
  *
  * @since 2.7.0 bbPress (r8284)
  * @since 2.7.0 bbPress (r8304) Verify deletion without trusting cached absence.
+ * @since 2.7.0 bbPress (r8305) Verify saved state against uncached option data.
  *
  * @param string $option Option name.
  * @param mixed  $value  Saved state.
@@ -825,7 +826,11 @@ function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
 	}
 
 	update_option( $option, $value, false );
-	return get_option( $option, false ) === $value;
+	$saved = bbp_admin_repair_option_matches( $option, $value );
+	if ( ! $saved ) {
+		wp_cache_delete_multiple( array( $option, 'alloptions', 'notoptions' ), 'options' );
+	}
+	return $saved;
 }
 
 /**
