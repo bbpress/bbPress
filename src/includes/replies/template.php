@@ -164,9 +164,13 @@ function bbp_has_replies( $args = array() ) {
 	if ( ! empty( $default_reply_search ) ) {
 		$default['s'] = $default_reply_search;
 	}
+	$view_all_args   = wp_parse_args( $args );
+	$view_all_parent = isset( $view_all_args['post_parent'] ) ? $view_all_args['post_parent'] : $default_post_parent;
+	$view_all_parent = is_numeric( $view_all_parent ) && ( (int) $view_all_parent > 0 ) ? (int) $view_all_parent : 0;
+	$view_all        = bbp_get_view_all_for_object( 'edit_others_replies', $view_all_parent );
 
 	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all( 'edit_others_replies' ) ) {
+	if ( $view_all ) {
 
 		// Default view=all statuses
 		$post_statuses = array_keys( bbp_get_topic_statuses() );
@@ -188,6 +192,11 @@ function bbp_has_replies( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, $default, 'has_replies' );
+	if ( $view_all && ! current_user_can( 'edit_others_replies' ) && $view_all_parent !== (int) $r['post_parent'] ) {
+		unset( $r['post_status'] );
+		$r['perm'] = 'readable';
+		$view_all  = false;
+	}
 
 	// Set posts_per_page value if replies are threaded
 	$replies_per_page = (int) $r['posts_per_page'];
@@ -253,13 +262,19 @@ function bbp_has_replies( $args = array() ) {
 				? 1
 				: ceil( $bbp->reply_query->found_posts / $bbp->reply_query->posts_per_page );
 
+			// Maybe add view-all args
+			$add_args = $view_all
+				? array( 'view' => 'all' )
+				: false;
+
 			// Pagination settings with filter
 			$bbp_replies_pagination = apply_filters(
 				'bbp_replies_pagination',
 				array(
-					'base'    => bbp_get_replies_pagination_base( bbp_get_topic_id() ),
-					'total'   => $total_pages,
-					'current' => $bbp->reply_query->paged
+					'base'     => bbp_get_replies_pagination_base( bbp_get_topic_id() ),
+					'total'    => $total_pages,
+					'current'  => $bbp->reply_query->paged,
+					'add_args' => $add_args
 				)
 			);
 
@@ -510,8 +525,8 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 	}
 
 	// Add topic view query arg back to end if it is set
-	if ( bbp_get_view_all() ) {
-		$url = bbp_add_view_all( $url );
+	if ( bbp_get_view_all_for_object( 'edit_others_replies', $topic_id ) ) {
+		$url = bbp_add_view_all( $url, true );
 	}
 
 	// Filter & return
@@ -1974,12 +1989,15 @@ function bbp_get_reply_edit_link( $args = array() ) {
 
 	// Get reply
 	$reply = bbp_get_reply( $r['id'] );
+	if ( empty( $reply ) ) {
+		return;
+	}
 
 	// Bypass check if user has caps
-	if ( ! current_user_can( 'edit_others_replies' ) ) {
+	if ( ! current_user_can( 'edit_others_replies' ) && ! current_user_can( 'moderate', $reply->ID ) ) {
 
 		// User cannot edit or it is past the lock time
-		if ( empty( $reply ) || ! current_user_can( 'edit_reply', $reply->ID ) || bbp_past_edit_lock( $reply->post_date_gmt ) ) {
+		if ( ! current_user_can( 'edit_reply', $reply->ID ) || bbp_past_edit_lock( $reply->post_date_gmt ) ) {
 			return;
 		}
 	}

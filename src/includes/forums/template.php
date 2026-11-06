@@ -1294,7 +1294,7 @@ function bbp_get_forum_topics_link( $forum_id = 0 ) {
 	$topics   = sprintf( _n( '%s topic', '%s topics', bbp_get_forum_topic_count( $forum_id, true, true ), 'bbpress' ), bbp_get_forum_topic_count( $forum_id, true, false ) );
 
 	// First link never has view=all
-	$retval = bbp_get_view_all( 'edit_others_topics' )
+	$retval = bbp_get_view_all_for_object( 'edit_others_topics', $forum_id )
 		? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $topics ) . '</a>'
 		: esc_html( $topics );
 
@@ -1302,7 +1302,7 @@ function bbp_get_forum_topics_link( $forum_id = 0 ) {
 	$deleted_int = bbp_get_forum_topic_count_hidden( $forum_id, false, true );
 
 	// This forum has hidden topics
-	if ( ! empty( $deleted_int ) && current_user_can( 'edit_others_topics' ) ) {
+	if ( ! empty( $deleted_int ) && ( current_user_can( 'edit_others_topics' ) || current_user_can( 'moderate', $forum_id ) ) ) {
 
 		// Hidden text
 		$deleted_num = bbp_get_forum_topic_count_hidden( $forum_id, false, false );
@@ -1310,7 +1310,7 @@ function bbp_get_forum_topics_link( $forum_id = 0 ) {
 		$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
 		// Hidden link
-		$retval .= ! bbp_get_view_all( 'edit_others_topics' )
+		$retval .= ! bbp_get_view_all_for_object( 'edit_others_topics', $forum_id )
 			? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . '</a>'
 			: " {$extra}";
 	}
