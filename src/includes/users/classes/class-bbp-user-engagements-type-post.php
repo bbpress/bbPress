@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * bbPress User Engagements Post Type.
+ *
+ * @package bbPress
+ * @subpackage Users
+ */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Engagement type for forums and topics.
+ *
+ * @since 2.7.0 bbPress (r8306)
+ */
+class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
+
+	/**
+	 * Check whether a post supports an engagement.
+	 *
+	 * Topics in a forum may be favorited or subscribed to. Forums may only be
+	 * subscribed to.
+	 *
+	 * @since 2.7.0 bbPress (r8306)
+	 *
+	 * @param string $engagement Favorite or subscription.
+	 * @param int    $object_id  Post ID.
+	 * @return bool Whether the post supports the engagement.
+	 */
+	public function supports( $engagement = '', $object_id = 0 ) {
+		$post = get_post( $object_id );
+
+		if ( empty( $post ) ) {
+			return false;
+		}
+
+		if ( bbp_get_topic_post_type() === $post->post_type ) {
+			$forum_id = bbp_get_topic_forum_id( $post->ID );
+
+			return ! empty( $forum_id )
+				&& bbp_is_forum( $forum_id )
+				&& in_array( $engagement, array( 'favorite', 'subscription' ), true );
+		}
+
+		return ( 'subscription' === $engagement )
+			&& ( bbp_get_forum_post_type() === $post->post_type );
+	}
+
+	/**
+	 * Check whether the current user can read a post.
+	 *
+	 * Reading a topic also requires reading its forum.
+	 *
+	 * @since 2.7.0 bbPress (r8306)
+	 *
+	 * @param int $object_id Post ID.
+	 * @return bool Whether the current user can read the post.
+	 */
+	public function current_user_can_read( $object_id = 0 ) {
+		$post = get_post( $object_id );
+
+		if ( empty( $post ) ) {
+			return false;
+		}
+
+		if ( bbp_get_topic_post_type() === $post->post_type ) {
+			return current_user_can( 'read_topic', $post->ID )
+				&& current_user_can( 'read_forum', bbp_get_topic_forum_id( $post->ID ) );
+		}
+
+		return ( bbp_get_forum_post_type() === $post->post_type )
+			&& current_user_can( 'read_forum', $post->ID );
+	}
+
+	/**
+	 * Get the URL of a post.
+	 *
+	 * @since 2.7.0 bbPress (r8306)
+	 *
+	 * @param int $object_id Post ID.
+	 * @return string|false Post URL, or false if the post does not exist.
+	 */
+	public function get_url( $object_id = 0 ) {
+		return get_permalink( $object_id );
+	}
+}

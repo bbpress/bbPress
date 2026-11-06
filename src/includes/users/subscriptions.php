@@ -211,6 +211,7 @@ function bbp_update_reply_subscription( $reply_id = 0, $topic_id = 0, $forum_id 
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6544)
  * @since 2.6.20 bbPress (r8024) Use the displayed user on subscriptions views.
+ * @since 2.7.0 bbPress (r8306) Use the engagement type for the fallback redirect.
  *
  * @param string $action The requested action to compare this function to.
  */
@@ -297,7 +298,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 		} elseif ( is_single() || is_page() ) {
 			$redirect = get_permalink();
 		} else {
-			$redirect = get_permalink( $object_id );
+			$redirect = bbp_get_engagement_type( $object_type )->get_url( $object_id );
 		}
 
 		bbp_redirect( $redirect );

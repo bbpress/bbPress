@@ -980,9 +980,11 @@ function bbp_settings_integration( $default = 'basic' ) {
  * Check whether an engagements strategy is valid.
  *
  * @since 2.6.20 bbPress (r8008)
+ * @since 2.7.0 bbPress (r8306) Disallow engagement type classes.
  *
  * @param string $strategy Engagements strategy to check.
- * @return bool Whether the strategy class exists and is not the base class.
+ * @return bool Whether the strategy class exists and is not the base class or
+ *              an engagement type.
  */
 function bbp_is_valid_engagements_strategy( $strategy ) {
 	if ( ! is_string( $strategy ) ) {
@@ -994,7 +996,9 @@ function bbp_is_valid_engagements_strategy( $strategy ) {
 		strtolower( 'BBP_User_Engagements_Base' ),
 	);
 
-	return class_exists( $class_name ) && ! in_array( strtolower( $class_name ), $disallowed_classes, true );
+	return class_exists( $class_name )
+		&& ! in_array( strtolower( $class_name ), $disallowed_classes, true )
+		&& ! is_a( $class_name, 'BBP_User_Engagements_Type', true );
 }
 
 /**

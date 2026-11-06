@@ -72,6 +72,11 @@ final class bbPress {
 	public $views = array();
 
 	/**
+	 * @var array Registered engagement types.
+	 */
+	public $engagement_types = array();
+
+	/**
 	 * @var array Overloads get_option().
 	 */
 	public $options = array();
@@ -399,10 +404,12 @@ final class bbPress {
 
 		// Users
 		require $this->includes_dir . 'users/capabilities.php';
-		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-base.php';
-		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-meta.php';
-		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-term.php';
-		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-user.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-strategy-base.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-strategy-meta.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-strategy-term.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-strategy-user.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-type.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-type-post.php';
 		require $this->includes_dir . 'users/engagements.php';
 		require $this->includes_dir . 'users/favorites.php';
 		require $this->includes_dir . 'users/subscriptions.php';
@@ -464,6 +471,7 @@ final class bbPress {
 			'register_shortcodes',      // Register shortcodes (bbp-login)
 			'register_blocks',          // Register blocks (bbp-login)
 			'register_views',           // Register the views (no-replies)
+			'register_engagements',     // Register engagements (types)
 			'register_theme_packages',  // Register bundled theme packages (bbp-theme-compat/bbp-themes)
 			'load_textdomain',          // Load textdomain (bbpress)
 			'add_rewrite_tags',         // Add rewrite tags (view|user|edit|search)
@@ -786,6 +794,20 @@ final class bbPress {
 					'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' ),
 					'source'                => 'bbpress'
 				)
+			)
+		);
+	}
+
+	/**
+	 * Register the bbPress engagement types.
+	 *
+	 * @since 2.7.0 bbPress (r8306)
+	 */
+	public static function register_engagements() {
+		bbp_register_engagement_type(
+			'post',
+			array(
+				'class' => 'BBP_User_Engagements_Type_Post'
 			)
 		);
 	}

@@ -234,6 +234,16 @@ function bbp_register_views() {
 }
 
 /**
+ * Register what bbPress engagements need before they are set up, such as the
+ * default engagement types.
+ *
+ * @since 2.7.0 bbPress (r8306)
+ */
+function bbp_register_engagements() {
+	do_action( 'bbp_register_engagements' );
+}
+
+/**
  * Register the default bbPress shortcodes.
  *
  * @since 2.0.0 bbPress (r3032)

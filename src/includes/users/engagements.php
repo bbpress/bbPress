@@ -24,6 +24,97 @@ function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
 	return apply_filters( 'bbp_user_engagements_interface', bbpress()->engagements, $rel_key, $rel_type );
 }
 
+/** Engagement Types **********************************************************/
+
+/**
+ * Register an engagement type.
+ *
+ * The name must already be a sanitized key. Request handlers sanitize the
+ * object type they receive, and lookups by name are exact.
+ *
+ * @since 2.7.0 bbPress (r8306)
+ *
+ * @param string $name Engagement type name, matching the relationship type
+ *                     passed to the engagements API (for example, 'post').
+ * @param array  $args {
+ *     Optional. Engagement type arguments.
+ *
+ *     @type string $class Class name. Must be or extend BBP_User_Engagements_Type.
+ * }
+ * @return BBP_User_Engagements_Type|false The registered type, or false on failure.
+ */
+function bbp_register_engagement_type( $name = '', $args = array() ) {
+
+	// Bail if name is empty or not already sanitized
+	if ( ! is_string( $name ) || ( '' === $name ) || ( sanitize_key( $name ) !== $name ) ) {
+		return false;
+	}
+
+	// Parse arguments
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'class' => 'BBP_User_Engagements_Type'
+		),
+		'register_engagement_type'
+	);
+
+	// Bail if class is not an engagement type
+	if ( ! is_string( $r['class'] ) || ! is_a( $r['class'], 'BBP_User_Engagements_Type', true ) ) {
+		return false;
+	}
+
+	// Build and register the type
+	$type = new $r['class']( $name, $r );
+
+	bbpress()->engagement_types[ $name ] = $type;
+
+	return $type;
+}
+
+/**
+ * Deregister an engagement type.
+ *
+ * @since 2.7.0 bbPress (r8306)
+ *
+ * @param string $name Engagement type name.
+ * @return bool False if the type does not exist, true on success.
+ */
+function bbp_deregister_engagement_type( $name = '' ) {
+	$bbp = bbpress();
+
+	if ( ! is_string( $name ) || ! isset( $bbp->engagement_types[ $name ] ) ) {
+		return false;
+	}
+
+	unset( $bbp->engagement_types[ $name ] );
+
+	return true;
+}
+
+/**
+ * Get a registered engagement type.
+ *
+ * @since 2.7.0 bbPress (r8306)
+ *
+ * @param string $name Engagement type name, such as 'post'.
+ * @return BBP_User_Engagements_Type|false The engagement type, or false if it is not registered.
+ */
+function bbp_get_engagement_type( $name = '' ) {
+	$types  = bbpress()->engagement_types;
+	$retval = ( is_string( $name ) && isset( $types[ $name ] ) )
+		? $types[ $name ]
+		: false;
+
+	// Filter
+	$retval = apply_filters( 'bbp_get_engagement_type', $retval, $name );
+
+	// Return only valid engagement types
+	return ( $retval instanceof BBP_User_Engagements_Type )
+		? $retval
+		: false;
+}
+
 /** User Relationships ********************************************************/
 
 /**
@@ -501,16 +592,16 @@ function bbp_current_user_can_manage_engagements( $engagement = '', $user_id = 0
 /**
  * Check whether the current user can toggle a favorite or subscription.
  *
- * Only topics may be favorited. Topics and forums may be subscribed to, and
- * the user must be able to read both a topic and its containing forum when
- * adding an engagement. Existing engagements may be removed after visibility
- * changes.
+ * The registered engagement type decides whether the object supports the
+ * engagement, and whether the current user can read the object when adding
+ * one. Existing engagements may be removed after visibility changes.
  *
  * @since 2.6.19 bbPress (r7642)
  * @since 2.6.20 bbPress (r7849) Added the `$user_id` parameter.
+ * @since 2.7.0 bbPress (r8306) Delegate object checks to engagement types.
  *
- * @param int    $object_id   Post ID.
- * @param string $object_type Metadata object type; only post is supported.
+ * @param int    $object_id   Object ID.
+ * @param string $object_type Registered engagement type name.
  * @param string $engagement  Favorite or subscription.
  * @param string $action      Add or remove.
  * @param int    $user_id     User ID. Defaults to the current user.
@@ -521,28 +612,13 @@ function bbp_current_user_can_toggle_engagement( $object_id = 0, $object_type = 
 		? bbp_get_user_id( $user_id, false, false )
 		: bbp_get_current_user_id();
 
-	if ( empty( $user_id ) || ( 'post' !== $object_type ) || ! in_array( $action, array( 'add', 'remove' ), true ) || ! bbp_current_user_can_manage_engagements( $engagement, $user_id ) ) {
+	$type = bbp_get_engagement_type( $object_type );
+
+	if ( empty( $user_id ) || empty( $type ) || ! in_array( $action, array( 'add', 'remove' ), true ) || ! bbp_current_user_can_manage_engagements( $engagement, $user_id ) || ! $type->supports( $engagement, $object_id ) ) {
 		return false;
 	}
 
-	$post = get_post( $object_id );
-
-	if ( empty( $post ) ) {
-		return false;
-	}
-
-	if ( bbp_get_topic_post_type() === $post->post_type ) {
-		$forum_id = bbp_get_topic_forum_id( $post->ID );
-
-		return ! empty( $forum_id )
-			&& bbp_is_forum( $forum_id )
-			&& in_array( $engagement, array( 'favorite', 'subscription' ), true )
-			&& ( ( 'remove' === $action ) || ( current_user_can( 'read_topic', $post->ID ) && current_user_can( 'read_forum', $forum_id ) ) );
-	}
-
-	return ( 'subscription' === $engagement )
-		&& ( bbp_get_forum_post_type() === $post->post_type )
-		&& ( ( 'remove' === $action ) || current_user_can( 'read_forum', $post->ID ) );
+	return ( 'remove' === $action ) || (bool) $type->current_user_can_read( $object_id );
 }
 
 /** Query Helpers *************************************************************/

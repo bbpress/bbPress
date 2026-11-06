@@ -555,6 +555,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 
 	/**
 	 * @ticket BBP3739
+	 * @ticket BBP3785
 	 *
 	 * @covers ::bbp_is_valid_engagements_strategy
 	 */
@@ -566,6 +567,9 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_is_valid_engagements_strategy( 'missing' ) );
 		$this->assertFalse( bbp_is_valid_engagements_strategy( 'base' ) );
 		$this->assertFalse( bbp_is_valid_engagements_strategy( 'BASE' ) );
+		$this->assertFalse( bbp_is_valid_engagements_strategy( 'type' ) );
+		$this->assertFalse( bbp_is_valid_engagements_strategy( 'type_post' ) );
+		$this->assertFalse( bbp_is_valid_engagements_strategy( 'TYPE_POST' ) );
 		$this->assertFalse( bbp_is_valid_engagements_strategy( '' ) );
 		$this->assertFalse( bbp_is_valid_engagements_strategy( array( 'meta' ) ) );
 		$this->assertFalse( bbp_is_valid_engagements_strategy( null ) );
