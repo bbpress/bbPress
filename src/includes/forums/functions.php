@@ -161,7 +161,7 @@ function bbp_new_forum_handler( $action = '' ) {
 	}
 
 	// Define local variable(s)
-	$view_all = false;
+	$force_view_all = false;
 	$forum_parent_id = $forum_author = 0;
 	$forum_title = $forum_content = '';
 	$anonymous_data = array();
@@ -331,7 +331,7 @@ function bbp_new_forum_handler( $action = '' ) {
 			wp_trash_post( $forum_id );
 
 			// Force view=all
-			$view_all = true;
+			$force_view_all = true;
 		}
 
 		/** Spam Check ********************************************************/
@@ -341,7 +341,7 @@ function bbp_new_forum_handler( $action = '' ) {
 			add_post_meta( $forum_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
 			// Force view=all
-			$view_all = true;
+			$force_view_all = true;
 		}
 
 		/** Update counts, etc... *********************************************/
@@ -373,11 +373,11 @@ function bbp_new_forum_handler( $action = '' ) {
 		$redirect_url = bbp_get_forum_permalink( $forum_id, $redirect_to );
 
 		// Add view all?
-		if ( bbp_get_view_all() || ! empty( $view_all ) ) {
+		if ( bbp_get_view_all_for_object( 'moderate', $forum_id ) || $force_view_all ) {
 
 			// User can moderate, so redirect to forum with view all set
 			if ( current_user_can( 'moderate', $forum_id ) ) {
-				$redirect_url = bbp_add_view_all( $redirect_url );
+				$redirect_url = bbp_add_view_all( $redirect_url, true );
 
 			// User cannot moderate, so redirect to forum
 			} else {
@@ -631,14 +631,14 @@ function bbp_edit_forum_handler( $action = '' ) {
 		$redirect_to = bbp_get_redirect_to();
 
 		// View all?
-		$view_all = bbp_get_view_all();
+		$view_all = bbp_get_view_all_for_object( 'moderate', $forum_id );
 
 		// Get the forum URL
 		$forum_url = bbp_get_forum_permalink( $forum_id, $redirect_to );
 
 		// Add view all?
 		if ( ! empty( $view_all ) ) {
-			$forum_url = bbp_add_view_all( $forum_url );
+			$forum_url = bbp_add_view_all( $forum_url, true );
 		}
 
 		// Allow to be filtered

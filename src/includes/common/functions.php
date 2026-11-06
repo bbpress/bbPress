@@ -266,6 +266,30 @@ function bbp_get_view_all( $cap = 'moderate' ) {
 }
 
 /**
+ * If current user can view all topics/replies for a specific forum or topic.
+ *
+ * A global capability or moderation of the object permits the view. The object
+ * check must use `moderate`, since editing capabilities can use forum request
+ * context instead of the supplied object ID.
+ *
+ * @since 2.6.22 bbPress (r8308)
+ *
+ * @param string $cap       Global capability used to ensure user can view all.
+ * @param int    $object_id Forum or topic ID. Zero checks the global capability.
+ * @return bool Whether current user can and is viewing all for the object.
+ */
+function bbp_get_view_all_for_object( $cap, $object_id ) {
+	$object_id = absint( $object_id );
+	if ( empty( $object_id ) ) {
+		return bbp_get_view_all( $cap );
+	}
+
+	$retval = ! empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && ( current_user_can( $cap ) || current_user_can( 'moderate', $object_id ) );
+
+	return (bool) apply_filters( 'bbp_get_view_all', (bool) $retval, $cap );
+}
+
+/**
  * Assist pagination by returning correct page number
  *
  * @since 2.0.0 bbPress (r2634)

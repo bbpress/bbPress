@@ -183,9 +183,13 @@ function bbp_has_topics( $args = array() ) {
 	if ( ! empty( $default_topic_search ) ) {
 		$default['s'] = $default_topic_search;
 	}
+	$view_all_args   = wp_parse_args( $args );
+	$view_all_parent = isset( $view_all_args['post_parent'] ) ? $view_all_args['post_parent'] : $default_post_parent;
+	$view_all_parent = is_numeric( $view_all_parent ) && ( (int) $view_all_parent > 0 ) ? (int) $view_all_parent : 0;
+	$view_all        = bbp_get_view_all_for_object( 'edit_others_topics', $view_all_parent );
 
 	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all( 'edit_others_topics' ) ) {
+	if ( $view_all ) {
 
 		// Default view=all statuses
 		$post_statuses = array_keys( bbp_get_topic_statuses() );
@@ -213,6 +217,11 @@ function bbp_has_topics( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, $default, 'has_topics' );
+	if ( $view_all && ! current_user_can( 'edit_others_topics' ) && $view_all_parent !== (int) $r['post_parent'] ) {
+		unset( $r['post_status'] );
+		$r['perm'] = 'readable';
+		$view_all  = false;
+	}
 
 	// Get bbPress
 	$bbp = bbpress();
@@ -265,7 +274,7 @@ function bbp_has_topics( $args = array() ) {
 			: ceil( $bbp->topic_query->found_posts / $bbp->topic_query->posts_per_page );
 
 		// Maybe add view-all args
-		$add_args = bbp_get_view_all()
+		$add_args = $view_all
 			? array( 'view' => 'all' )
 			: false;
 
@@ -418,12 +427,26 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 		}
 
 		// Allowed statuses, or lean on the 'perm' argument (probably 'readable')
-		$sticky_query['post_status'] = bbp_get_view_all( 'edit_others_topics' )
+		$global_view_all = bbp_get_view_all( 'edit_others_topics' );
+		$sticky_query['post_status'] = $global_view_all
 			? $r['post_status']
 			: $r['perm'];
 
 		// Get unqueried stickies
 		$_posts = get_posts( $sticky_query );
+
+		// Query hidden stickies only in the forum this user can moderate
+		$forum_id = is_numeric( $r['post_parent'] ) && ( (int) $r['post_parent'] > 0 ) ? (int) $r['post_parent'] : 0;
+		if ( ! $global_view_all && ! empty( $forum_id ) && ! empty( $r['post_status'] ) && bbp_get_view_all_for_object( 'edit_others_topics', $forum_id ) ) {
+			$local_stickies = array_diff( $stickies, wp_list_pluck( $_posts, 'ID' ) );
+			if ( ! empty( $local_stickies ) ) {
+				$sticky_query['post_parent'] = $forum_id;
+				$sticky_query['post_status'] = $r['post_status'];
+				$sticky_query['include']     = $local_stickies;
+				$_posts = array_merge( $_posts, get_posts( $sticky_query ) );
+			}
+		}
+
 		if ( ! empty( $_posts ) ) {
 
 			// Merge the stickies topics with the query topics .
@@ -857,7 +880,7 @@ function bbp_get_topic_pagination( $args = array() ) {
 	$total_pages = ceil( $total / bbp_get_replies_per_page() );
 
 	// Maybe add view-all args
-	$add_args = bbp_get_view_all( 'edit_others_replies' )
+	$add_args = bbp_get_view_all_for_object( 'edit_others_replies', $r['topic_id'] )
 		? array( 'view' => 'all' )
 		: false;
 
@@ -2083,7 +2106,7 @@ function bbp_get_topic_replies_link( $topic_id = 0 ) {
 	$replies  = sprintf( _n( '%s reply', '%s replies', bbp_get_topic_reply_count( $topic_id, true ), 'bbpress' ), bbp_get_topic_reply_count( $topic_id, false ) );
 
 	// First link never has view=all
-	$retval = bbp_get_view_all( 'edit_others_replies' )
+	$retval = bbp_get_view_all_for_object( 'edit_others_replies', $topic_id )
 		? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $replies ) . '</a>'
 		: $replies;
 
@@ -2091,7 +2114,7 @@ function bbp_get_topic_replies_link( $topic_id = 0 ) {
 	$deleted_int = bbp_get_topic_reply_count_hidden( $topic_id, true  );
 
 	// This topic has hidden replies
-	if ( ! empty( $deleted_int ) && current_user_can( 'edit_others_replies' ) ) {
+	if ( ! empty( $deleted_int ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $topic_id ) ) ) {
 
 		// Hidden replies
 		$deleted_num = bbp_get_topic_reply_count_hidden( $topic_id, false );
@@ -2099,7 +2122,7 @@ function bbp_get_topic_replies_link( $topic_id = 0 ) {
 		$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
 		// Hidden link
-		$retval .= ! bbp_get_view_all( 'edit_others_replies' )
+		$retval .= ! bbp_get_view_all_for_object( 'edit_others_replies', $topic_id )
 			? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . '</a>'
 			: " {$extra}";
 	}
@@ -2489,12 +2512,15 @@ function bbp_get_topic_edit_link( $args = array() ) {
 
 	// Get the topic
 	$topic = bbp_get_topic( $r['id'] );
+	if ( empty( $topic ) ) {
+		return;
+	}
 
 	// Bypass check if user has caps
-	if ( ! current_user_can( 'edit_others_topics' ) ) {
+	if ( ! current_user_can( 'edit_others_topics' ) && ! current_user_can( 'moderate', $topic->ID ) ) {
 
 		// User cannot edit or it is past the lock time
-		if ( empty( $topic ) || ! current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) ) {
+		if ( ! current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) ) {
 			return;
 		}
 	}

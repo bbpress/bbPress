@@ -333,18 +333,22 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	public function test_group_forum_cap_map_is_removed_after_display() {
 		$user_id  = $this->factory->user->create();
 		$group_id = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id = $this->factory->forum->create();
 
 		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
 		buddypress()->is_single_item = true;
 		$this->set_group_context( $group_id, $user_id );
 		remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99 );
 
 		$this->assertSame( 10, has_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ) ) );
-		$this->assertTrue( current_user_can( 'moderate' ) );
+		$this->assertTrue( current_user_can( 'moderate', $forum_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
 
 		do_action( 'bbp_after_group_forum_display' );
 
 		$this->assertFalse( has_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ) ) );
+		$this->assertFalse( current_user_can( 'moderate', $forum_id ) );
 		$this->assertFalse( current_user_can( 'moderate' ) );
 	}
 
@@ -363,7 +367,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->attach_forum_to_group( $forum_id, $group_id );
 		buddypress()->is_single_item = true;
 		$this->set_group_context( $group_id, $user_id );
-		$this->assertTrue( current_user_can( 'moderate' ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
 		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
 		$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
 
@@ -1166,6 +1170,314 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 * @covers ::bbp_check_for_moderation
+	 * @covers ::bbp_get_topic_stick_link
+	 * @covers ::bbp_toggle_topic_handler
+	 * @covers ::bbp_new_reply_handler
+	 * @covers ::bbp_get_topic_edit_link
+	 * @covers ::bbp_get_reply_edit_link
+	 */
+	public function test_group_admin_cannot_use_objectless_moderation_outside_group() {
+		$user_id        = $this->factory->user->create();
+		$group_id       = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id       = $this->factory->forum->create();
+		$topic_id       = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$group_reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $forum_id,
+					'_bbp_topic_id' => $topic_id,
+				),
+			)
+		);
+		$other_forum_id = $this->factory->forum->create();
+		$other_topic_id = $this->factory->topic->create( array( 'post_parent' => $other_forum_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+		update_option( 'moderation_keys', 'review phrase' );
+
+		$this->assertTrue( current_user_can( 'moderate', $topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+		$this->assertFalse( current_user_can( 'edit_others_topics' ) );
+		$this->assertFalse( current_user_can( 'edit_others_replies' ) );
+		$this->assertFalse( current_user_can( 'view_trash' ) );
+		$this->assertStringNotContainsString( 'bbp-topic-super-sticky-link', bbp_get_topic_stick_link( array( 'id' => $topic_id ) ) );
+		$this->assertFalse( bbp_check_for_moderation( array(), $user_id, '', 'review phrase' ) );
+		$past_edit_lock = '__return_true';
+		add_filter( 'bbp_past_edit_lock', $past_edit_lock );
+		try {
+			$this->assertNotEmpty( bbp_get_topic_edit_link( array( 'id' => $topic_id ) ) );
+			$this->assertNotEmpty( bbp_get_reply_edit_link( array( 'id' => $group_reply_id ) ) );
+		} finally {
+			remove_filter( 'bbp_past_edit_lock', $past_edit_lock );
+		}
+
+		$_GET['topic_id'] = $topic_id;
+		$_GET['super']    = '1';
+		bbp_toggle_topic_handler( 'bbp_toggle_topic_stick' );
+		$this->assertContains( 'bbp_toggle_topic_permission', bbpress()->errors->get_error_codes() );
+		$this->assertFalse( bbp_is_topic_super_sticky( $topic_id ) );
+
+		unset( $_GET['topic_id'], $_GET['super'] );
+		bbpress()->errors->remove( 'bbp_toggle_topic_permission' );
+		update_option( 'moderation_keys', 'Group permission reply' );
+		$reply_id = $this->submit_group_reply( $other_topic_id, $other_forum_id, 'outside group' );
+		$this->assertNotEmpty( $reply_id );
+		$this->assertSame( bbp_get_pending_status_id(), get_post_status( $reply_id ) );
+		bbpress()->errors->remove( 'bbp_reply_moderated' );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 * @covers ::bbp_has_topics
+	 */
+	public function test_group_admin_cannot_view_pending_topics_in_other_forums() {
+		$user_id          = $this->factory->user->create();
+		$author_id        = $this->factory->user->create();
+		$group_id         = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id         = $this->factory->forum->create();
+		$other_forum_id   = $this->factory->forum->create();
+		$group_pending_id = $this->factory->topic->create(
+			array(
+				'post_author' => $author_id,
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+			)
+		);
+		$pending_id       = $this->factory->topic->create(
+			array(
+				'post_author' => $author_id,
+				'post_parent' => $other_forum_id,
+				'post_status' => bbp_get_pending_status_id(),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+		$_GET['view'] = 'all';
+		$this->assertFalse( bbp_get_view_all( 'edit_others_topics' ) );
+		$this->assertTrue( bbp_get_view_all_for_object( 'edit_others_topics', $forum_id ) );
+		$this->assertFalse( bbp_get_view_all_for_object( 'edit_others_topics', $other_forum_id ) );
+
+		bbp_has_topics(
+			array(
+				'post_parent'   => $forum_id,
+				'posts_per_page' => -1,
+				'show_stickies'  => false,
+			)
+		);
+		$this->assertContains( $group_pending_id, wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+
+		bbp_has_topics(
+			array(
+				'post_parent'   => $other_forum_id,
+				'posts_per_page' => -1,
+				'show_stickies'  => false,
+			)
+		);
+		$this->assertNotContains( $pending_id, wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+	}
+
+	/**
+	 * @covers ::bbp_add_sticky_topics
+	 * @covers ::bbp_has_topics
+	 */
+	public function test_group_admin_view_all_includes_local_pending_sticky_without_foreign_pending_super_sticky() {
+		$user_id        = $this->factory->user->create();
+		$author_id      = $this->factory->user->create();
+		$group_id       = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id       = $this->factory->forum->create();
+		$other_forum_id = $this->factory->forum->create();
+		$pending_id     = $this->factory->topic->create( array( 'post_author' => $author_id, 'post_parent' => $forum_id, 'post_status' => bbp_get_pending_status_id() ) );
+		$other_id       = $this->factory->topic->create( array( 'post_author' => $author_id, 'post_parent' => $other_forum_id, 'post_status' => bbp_get_pending_status_id() ) );
+		$public_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		update_post_meta( $pending_id, '_bbp_last_active_time', '2020-01-01 00:00:00' );
+		update_post_meta( $public_id, '_bbp_last_active_time', '2030-01-01 00:00:00' );
+		bbp_stick_topic( $pending_id );
+		bbp_stick_topic( $other_id, true );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+		$_GET['view'] = 'all';
+
+		bbp_has_topics( array( 'post_parent' => $forum_id, 'posts_per_page' => 1, 'show_stickies' => true ) );
+		$topic_ids = wp_list_pluck( bbpress()->topic_query->posts, 'ID' );
+		$this->assertContains( $public_id, $topic_ids );
+		$this->assertContains( $pending_id, $topic_ids );
+		$this->assertNotContains( $other_id, $topic_ids );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 * @covers ::bbp_has_replies
+	 */
+	public function test_group_admin_cannot_view_pending_replies_in_other_forums() {
+		$user_id          = $this->factory->user->create();
+		$author_id        = $this->factory->user->create();
+		$group_id         = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id         = $this->factory->forum->create();
+		$topic_id         = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$other_forum_id   = $this->factory->forum->create();
+		$other_topic_id   = $this->factory->topic->create( array( 'post_parent' => $other_forum_id ) );
+		$group_pending_id = $this->factory->reply->create(
+			array(
+				'post_author' => $author_id,
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $forum_id,
+					'_bbp_topic_id' => $topic_id,
+				),
+			)
+		);
+		$this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $forum_id,
+					'_bbp_topic_id' => $topic_id,
+				),
+			)
+		);
+		$other_pending_id = $this->factory->reply->create(
+			array(
+				'post_author' => $author_id,
+				'post_parent' => $other_topic_id,
+				'post_status' => bbp_get_pending_status_id(),
+				'reply_meta'  => array(
+					'_bbp_forum_id' => $other_forum_id,
+					'_bbp_topic_id' => $other_topic_id,
+				),
+			)
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+		$_GET['view'] = 'all';
+		$this->assertFalse( bbp_get_view_all( 'edit_others_replies' ) );
+		$this->assertTrue( bbp_get_view_all_for_object( 'edit_others_replies', $topic_id ) );
+		$this->assertFalse( bbp_get_view_all_for_object( 'edit_others_replies', $other_topic_id ) );
+		$this->assertStringContainsString( 'view=all', bbp_get_reply_url( $group_pending_id ) );
+
+		bbp_has_replies( array( 'post_parent' => $topic_id, 'post_type' => bbp_get_reply_post_type() ) );
+		$this->assertContains( $group_pending_id, wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
+		bbp_has_replies( array( 'post_parent' => $topic_id, 'post_type' => bbp_get_reply_post_type(), 'posts_per_page' => 1 ) );
+		$this->assertStringContainsString( 'view=all', bbpress()->reply_query->pagination_links );
+
+		bbp_has_replies( array( 'post_parent' => $other_topic_id, 'post_type' => bbp_get_reply_post_type() ) );
+		$this->assertNotContains( $other_pending_id, wp_list_pluck( bbpress()->reply_query->posts, 'ID' ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 */
+	public function test_group_moderator_retains_object_moderation_without_global_capability() {
+		$creator_id = $this->factory->user->create();
+		$user_id    = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		groups_join_group( $group_id, $user_id );
+		groups_promote_member( $user_id, $group_id, 'mod', $creator_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+
+		$this->assertTrue( current_user_can( 'moderate', $topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 */
+	public function test_group_admin_sees_status_controls_on_new_group_topic_form() {
+		$user_id  = $this->factory->user->create();
+		$group_id = $this->bp_factory->group->create( array( 'creator_id' => $user_id ) );
+		$forum_id = $this->factory->forum->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+
+		$old_forum_id = bbpress()->current_forum_id;
+		$old_topic_id = bbpress()->current_topic_id;
+		$old_query    = bbp_get_query_name();
+		$buffer_level = ob_get_level();
+		bbpress()->current_forum_id = $forum_id;
+		bbpress()->current_topic_id = 0;
+		bbp_set_query_name( 'bbp_single_forum' );
+
+		try {
+			$this->assertFalse( current_user_can( 'moderate', bbp_get_topic_id() ) );
+			$this->assertTrue( current_user_can( 'moderate', $forum_id ) );
+			ob_start();
+			require bbpress()->themes_dir . 'default/bbpress/form-topic.php';
+			$html = ob_get_clean();
+			$this->assertStringContainsString( 'name="bbp_topic_status"', $html );
+		} finally {
+			while ( ob_get_level() > $buffer_level ) {
+				ob_end_clean();
+			}
+			bbpress()->current_forum_id = $old_forum_id;
+			bbpress()->current_topic_id = $old_topic_id;
+			bbp_set_query_name( $old_query );
+		}
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 */
+	public function test_participant_and_anonymous_visitors_do_not_gain_group_moderation() {
+		$creator_id = $this->factory->user->create();
+		$user_id    = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		groups_join_group( $group_id, $user_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+
+		$this->assertFalse( current_user_can( 'moderate', $topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+
+		$this->set_current_user( 0 );
+		$this->assertFalse( current_user_can( 'moderate', $topic_id ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_site_moderator_retains_global_moderation_on_group_forum_page() {
+		$creator_id = $this->factory->user->create();
+		$user_id    = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $user_id );
+		update_option( 'moderation_keys', 'review phrase' );
+
+		$this->assertTrue( current_user_can( 'moderate', $topic_id ) );
+		$this->assertTrue( current_user_can( 'moderate' ) );
+		$this->assertTrue( bbp_check_for_moderation( array(), $user_id, '', 'review phrase' ) );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_meta_caps
 	 * @covers ::BBP_Forums_Group_Extension::map_group_forum_read_meta_caps
 	 * @covers ::BBP_Shortcodes::display_forum
 	 * @covers ::BBP_Shortcodes::display_topic
@@ -1920,7 +2232,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		$this->set_group_context( $group_id, $user_id );
 
 		$this->assertTrue( bbp_group_is_admin() );
-		$this->assertTrue( current_user_can( 'moderate' ) );
+		$this->assertFalse( current_user_can( 'moderate' ) );
 		$this->assertFalse( current_user_can( 'assign_moderators' ) );
 		$this->assertTrue( current_user_can( 'manage_forum_attributes', $forum_id ) );
 		$this->assertFalse( current_user_can( 'manage_forum_attributes', $root_id ) );
