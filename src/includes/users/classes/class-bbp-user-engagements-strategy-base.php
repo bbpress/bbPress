@@ -28,6 +28,24 @@ class BBP_User_Engagements_Base {
 	public $type = '';
 
 	/**
+	 * Get the key a relationship is stored under.
+	 *
+	 * Strategies call this wherever they read or write a relationship, so a
+	 * site can store a relationship under a different key without replacing
+	 * the strategy.
+	 *
+	 * @since 2.7.0 bbPress (r8318)
+	 *
+	 * @param string $meta_key  The relationship key.
+	 * @param string $meta_type The relationship type (usually 'post').
+	 *
+	 * @return string Storage key.
+	 */
+	protected function get_storage_key( $meta_key = '', $meta_type = 'post' ) {
+		return (string) apply_filters( 'bbp_get_engagement_storage_key', $meta_key, $meta_type, $this );
+	}
+
+	/**
 	 * Add a user id to an object.
 	 *
 	 * @since 2.6.0 bbPress (r6739)
@@ -129,7 +147,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key
 	 * @param string $meta_type
 	 *
-	 * @return array
+	 * @return array Query arguments. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty

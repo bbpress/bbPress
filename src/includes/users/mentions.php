@@ -412,6 +412,7 @@ function bbp_current_user_can_view_mentions( $user_id = 0 ) {
  * query so the same restrictions apply to its results and counts.
  *
  * @since 2.7.0 bbPress (r8264)
+ * @since 2.7.0 bbPress (r8318) Avoid querying when the registered type cannot limit results.
  *
  * @param int $user_id Profile owner ID.
  * @return bool Whether there are mentions to display.
@@ -426,7 +427,8 @@ function bbp_get_user_mentions( $user_id = 0 ) {
 	$reply_type   = bbp_get_reply_post_type();
 	$statuses     = bbp_get_public_topic_statuses();
 	$can_view     = bbp_current_user_can_view_mentions( $user_id ) && ! bbp_is_user_inactive( $user_id );
-	$args         = $can_view ? bbp_get_user_object_query( $user_id, 'mentions', '_bbp_mention' ) : array( 'post__in' => array( 0 ) );
+	$args         = $can_view ? bbp_get_user_object_query( $user_id, 'mentions', '_bbp_mention' ) : array();
+	$args         = ! empty( $args ) ? $args : array( 'post__in' => array( 0 ) );
 	$args         = array_merge(
 		$args,
 		array(

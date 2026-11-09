@@ -75,6 +75,31 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	}
 
 	/**
+	 * Check whether post queries support `tax_query`.
+	 *
+	 * @since 2.7.0 bbPress (r8318)
+	 *
+	 * @return bool True, because WP_Query supports `tax_query`.
+	 */
+	public function supports_tax_query() {
+		return true;
+	}
+
+	/**
+	 * Get query arguments that limit results to specific posts.
+	 *
+	 * @since 2.7.0 bbPress (r8318)
+	 *
+	 * @param array $object_ids Post IDs.
+	 * @return array Query arguments.
+	 */
+	public function get_query_args( $object_ids = array() ) {
+		return array(
+			'post__in' => $object_ids
+		);
+	}
+
+	/**
 	 * Get the URL of a post.
 	 *
 	 * @since 2.7.0 bbPress (r8306)

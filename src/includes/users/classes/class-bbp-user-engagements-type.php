@@ -87,6 +87,34 @@ class BBP_User_Engagements_Type {
 	}
 
 	/**
+	 * Check whether queries for this type support `tax_query`.
+	 *
+	 * Default does not, by returning nothing.
+	 *
+	 * @since 2.7.0 bbPress (r8318)
+	 *
+	 * @return bool Whether queries for this type support `tax_query`.
+	 */
+	public function supports_tax_query() {
+		// Intentionally empty
+	}
+
+	/**
+	 * Get query arguments that limit results to specific objects.
+	 *
+	 * Default has no query arguments and returns nothing. Queryable types must
+	 * return arguments that limit results to the supplied object IDs.
+	 *
+	 * @since 2.7.0 bbPress (r8318)
+	 *
+	 * @param array $object_ids Object IDs.
+	 * @return array Query arguments.
+	 */
+	public function get_query_args( $object_ids = array() ) {
+		// Intentionally empty
+	}
+
+	/**
 	 * Get the URL of an object.
 	 *
 	 * Default has no URL and returns nothing.

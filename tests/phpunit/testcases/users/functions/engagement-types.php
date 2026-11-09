@@ -80,6 +80,7 @@ class BBP_Tests_Users_Functions_Engagement_Types extends BBP_UnitTestCase {
 		$this->assertSame( 'BBP_User_Engagements_Type', get_class( $type ) );
 		$this->assertNull( $type->supports( 'subscription', 1 ) );
 		$this->assertNull( $type->current_user_can_read( 1 ) );
+		$this->assertNull( $type->get_query_args( array( 1 ) ) );
 		$this->assertNull( $type->get_url( 1 ) );
 	}
 

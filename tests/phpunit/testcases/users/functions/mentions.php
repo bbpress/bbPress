@@ -852,6 +852,27 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_mentions_query_guards_an_empty_relationship_query() {
+		$old_strategy = bbpress()->engagements;
+		$post_type    = bbp_get_engagement_type( 'post' );
+
+		bbpress()->engagements = new BBP_User_Engagements_Term();
+		$this->set_current_user( $this->recipient );
+		$this->topic();
+
+		bbp_deregister_engagement_type( 'post' );
+		bbp_register_engagement_type( 'post' );
+
+		try {
+			$this->assertFalse( bbp_get_user_mentions( $this->recipient ) );
+			$this->assertSame( array( 0 ), bbpress()->search_query->get( 'post__in' ) );
+		} finally {
+			bbp_deregister_engagement_type( 'post' );
+			bbp_register_engagement_type( 'post', $post_type->args );
+			bbpress()->engagements = $old_strategy;
+		}
+	}
+
 	public function test_converter_indexes_without_queuing_retroactive_email() {
 		require_once bbpress()->includes_dir . 'admin/classes/class-bbp-converter-base.php';
 		$converter = new class() extends BBP_Converter_Base {

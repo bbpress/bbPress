@@ -259,6 +259,7 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
  * Get the query part responsible for JOINing objects to user IDs.
  *
  * @since 2.6.0 bbPress (r6739)
+ * @since 2.7.0 bbPress (r8318) Prevent unrestricted queries for unsupported types.
  *
  * @param array  $args      Default query arguments.
  * @param string $context   Additional context.
@@ -269,6 +270,11 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
  */
 function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '', $rel_type = 'post' ) {
 	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->get_query( $args, "get_user_{$context}", $rel_key, $rel_type );
+
+	// Do not let filters turn an unsupported type into an unrestricted query
+	if ( empty( $retval ) && bbp_get_engagement_type( $rel_type ) ) {
+		return array();
+	}
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $rel_key, $rel_type );
@@ -348,6 +354,7 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6311)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
+ * @since 2.7.0 bbPress (r8318) Avoid querying when the registered type cannot limit results.
  *
  * @param array $args Optional. Arguments to pass into bbp_has_replies().
  *
@@ -355,7 +362,9 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
  */
 function bbp_get_user_engagements( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'engagements', '_bbp_engagement' );
-	$query = bbp_has_topics( $r );
+	$query = ! empty( $r )
+		? bbp_has_topics( $r )
+		: array();
 
 	// Filter & return
 	return apply_filters( 'bbp_get_user_engagements', $query, 0, $r, $args );

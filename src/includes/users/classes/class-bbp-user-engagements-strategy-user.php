@@ -36,16 +36,33 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	/**
 	 * Private function to map 2.6 meta keys to 2.5 user-option keys.
 	 *
+	 * Types other than posts did not exist in 2.5, so their keys include the
+	 * type to keep them apart from posts with the same IDs.
+	 *
 	 * @since 2.6.0 bbPress (r6876)
+	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
 	 * @param string $meta_key
+	 * @param string $meta_type
 	 * @param int    $object_id
 	 * @param bool   $prefix
 	 * @param string $context_key
 	 *
 	 * @return string
 	 */
-	private function get_user_option_key( $meta_key = '', $object_id = 0, $prefix = false, $context_key = '' ) {
+	private function get_user_option_key( $meta_key = '', $meta_type = 'post', $object_id = 0, $prefix = false, $context_key = '' ) {
+		$meta_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		// Not a post, so pluralize and add the type
+		if ( 'post' !== $meta_type ) {
+			$key = "{$meta_key}s_{$meta_type}";
+
+			// Maybe prefix the key (for use in raw database queries)
+			return ( true === $prefix )
+				? bbp_db()->get_blog_prefix() . $key
+				: $key;
+		}
+
 		switch ( $meta_key ) {
 
 			// Favorites
@@ -94,16 +111,24 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * which had caching surrounding the FIND_IN_SET usermeta queries.
 	 *
 	 * @since 2.6.3 bbPress (r6993)
+	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
 	 * @param string $meta_key
+	 * @param string $meta_type
 	 * @param int    $object_id
 	 *
 	 * @return string
 	 */
-	private function get_cache_key( $meta_key = '', $object_id = 0 ) {
+	private function get_cache_key( $meta_key = '', $meta_type = 'post', $object_id = 0 ) {
+		$meta_key = $this->get_storage_key( $meta_key, $meta_type );
 
 		// No negative numbers in cache keys (zero is weird, but not disallowed)
 		$object_id = absint( $object_id );
+
+		// Not a post, so name the key after the type
+		if ( 'post' !== $meta_type ) {
+			return "bbp_get_users_for_{$meta_type}{$meta_key}_{$object_id}";
+		}
 
 		// Maybe guess at post type
 		$post_type = ! empty( $object_id )
@@ -145,14 +170,16 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
 	 *
 	 * @since 2.6.3 bbPress (r6993)
+	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
 	 * @param string $meta_key
+	 * @param string $meta_type
 	 * @param int    $object_id
 	 *
 	 * @return mixed Results from cache get.
 	 */
-	private function cache_get( $meta_key = '', $object_id = 0 ) {
-		$cache_key = $this->get_cache_key( $meta_key, $object_id );
+	private function cache_get( $meta_key = '', $meta_type = 'post', $object_id = 0 ) {
+		$cache_key = $this->get_cache_key( $meta_key, $meta_type, $object_id );
 
 		return wp_cache_get( $cache_key, 'bbpress_engagements' );
 	}
@@ -164,14 +191,17 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
 	 *
 	 * @since 2.6.3 bbPress (r6993)
+	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
 	 * @param string $meta_key
+	 * @param string $meta_type
 	 * @param int    $object_id
+	 * @param array  $user_ids
 	 *
 	 * @return mixed Results from cache set.
 	 */
-	private function cache_set( $meta_key = '', $object_id = 0, $user_ids = array() ) {
-		$cache_key = $this->get_cache_key( $meta_key, $object_id );
+	private function cache_set( $meta_key = '', $meta_type = 'post', $object_id = 0, $user_ids = array() ) {
+		$cache_key = $this->get_cache_key( $meta_key, $meta_type, $object_id );
 		$user_ids  = $this->parse_comma_list( $user_ids );
 
 		return wp_cache_set( $cache_key, $user_ids, 'bbpress_engagements' );
@@ -184,14 +214,16 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
 	 *
 	 * @since 2.6.3 bbPress (r6993)
+	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
 	 * @param string $meta_key
+	 * @param string $meta_type
 	 * @param int    $object_id
 	 *
 	 * @return mixed Results from cache delete.
 	 */
-	private function cache_delete( $meta_key = '', $object_id = 0 ) {
-		$cache_key = $this->get_cache_key( $meta_key, $object_id );
+	private function cache_delete( $meta_key = '', $meta_type = 'post', $object_id = 0 ) {
+		$cache_key = $this->get_cache_key( $meta_key, $meta_type, $object_id );
 
 		return wp_cache_delete( $cache_key, 'bbpress_engagements' );
 	}
@@ -225,7 +257,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
 		$object_id  = absint( $object_id );
 		$retval     = false;
-		$option_key = $this->get_user_option_key( $meta_key, $object_id );
+		$option_key = $this->get_user_option_key( $meta_key, $meta_type, $object_id );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 		$exists     = array_search( $object_id, $object_ids, true );
 
@@ -237,7 +269,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Delete cache if successful (accounts for int & true)
 			if ( false !== $retval ) {
-				$this->cache_delete( $meta_key, $object_id );
+				$this->cache_delete( $meta_key, $meta_type, $object_id );
 			}
 		}
 
@@ -261,7 +293,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$object_id  = absint( $object_id );
 		$retval     = false;
-		$option_key = $this->get_user_option_key( $meta_key, $object_id );
+		$option_key = $this->get_user_option_key( $meta_key, $meta_type, $object_id );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 		$exists     = array_search( $object_id, $object_ids, true );
 
@@ -276,7 +308,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Delete cache if successful (accounts for int & true)
 			if ( false !== $retval ) {
-				$this->cache_delete( $meta_key, $object_id );
+				$this->cache_delete( $meta_key, $meta_type, $object_id );
 			}
 		}
 
@@ -298,7 +330,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 
 		// Get the key
-		$option_key = $this->get_user_option_key( $meta_key );
+		$option_key = $this->get_user_option_key( $meta_key, $meta_type );
 
 		// Get the option
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
@@ -309,7 +341,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		// Try to delete caches, but only if everything else succeeded
 		if ( ! empty( $retval ) && ! empty( $object_ids ) ) {
 			foreach ( $object_ids as $object_id ) {
-				$this->cache_delete( $meta_key, $object_id );
+				$this->cache_delete( $meta_key, $meta_type, $object_id );
 			}
 		}
 
@@ -367,7 +399,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
 
 		// Query for users
-		$option_key = $this->get_user_option_key( $meta_key, 0, true );
+		$option_key = $this->get_user_option_key( $meta_key, $meta_type, 0, true );
 		$bbp_db     = bbp_db();
 		$user_ids   = $bbp_db->get_col( $bbp_db->prepare( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = %s", $option_key ) );
 		$u_count    = count( $user_ids );
@@ -380,7 +412,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Loop through users and remove their user options
 			foreach ( $user_ids as $user_id ) {
-				if ( $this->remove_user_from_all_objects( $user_id, $meta_key ) ) {
+				if ( $this->remove_user_from_all_objects( $user_id, $meta_key, $meta_type ) ) {
 					++$r_count;
 				}
 			}
@@ -407,16 +439,16 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 
 		// Try to get user IDs from cache
-		$user_ids = $this->cache_get( $meta_key, $object_id );
+		$user_ids = $this->cache_get( $meta_key, $meta_type, $object_id );
 
 		// Cache is empty, so hit the database
 		if ( false === $user_ids ) {
-			$option_key = $this->get_user_option_key( $meta_key, $object_id, true );
+			$option_key = $this->get_user_option_key( $meta_key, $meta_type, $object_id, true );
 			$bbp_db     = bbp_db();
 			$user_ids   = $bbp_db->get_col( $bbp_db->prepare( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = %s AND FIND_IN_SET( %d, meta_value ) > 0", $option_key, $object_id ) );
 
 			// Always cache results (even if empty, to prevent multiple misses)
-			$this->cache_set( $meta_key, $object_id, $user_ids );
+			$this->cache_set( $meta_key, $meta_type, $object_id, $user_ids );
 		}
 
 		// Return parsed IDs
@@ -427,16 +459,17 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * Get the part of the query responsible for JOINing objects to relationships.
 	 *
 	 * @since 2.6.0 bbPress (r6844)
+	 * @since 2.7.0 bbPress (r8318) Use the engagement type's query arguments.
 	 *
 	 * @param array  $args
 	 * @param string $meta_key
 	 * @param string $meta_type
 	 *
-	 * @return array
+	 * @return array Query arguments. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		$user_id    = bbp_get_user_id( $args, true, true );
-		$option_key = $this->get_user_option_key( $meta_key, 0, false, $context_key );
+		$option_key = $this->get_user_option_key( $meta_key, $meta_type, 0, false, $context_key );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 
 		// Maybe trick WP_Query into ".ID IN (0)" to return no results
@@ -444,10 +477,22 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			$object_ids = array( 0 );
 		}
 
-		// Maybe include these post IDs
-		$args = array(
-			'post__in' => $object_ids
-		);
+		// Limit the query to these objects
+		$type = bbp_get_engagement_type( $meta_type );
+		$args = ! empty( $type )
+			? (array) $type->get_query_args( $object_ids )
+			: array();
+
+		// Bail if a registered type cannot query objects
+		if ( ! empty( $type ) && empty( $args ) ) {
+			return array();
+
+		// Default unregistered types to post IDs for backwards compatibility
+		} elseif ( empty( $args ) ) {
+			$args = array(
+				'post__in' => $object_ids
+			);
+		}
 
 		// Parse arguments
 		return bbp_parse_args( $args, array(), $context_key );

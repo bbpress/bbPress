@@ -40,7 +40,9 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
-		return add_metadata( $meta_type, $object_id, $meta_key, $user_id, $unique );
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		return add_metadata( $meta_type, $object_id, $storage_key, $user_id, $unique );
 	}
 
 	/**
@@ -56,7 +58,9 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		return delete_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		return delete_metadata( $meta_type, $object_id, $storage_key, $user_id, false );
 	}
 
 	/**
@@ -71,7 +75,9 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		return delete_metadata( $meta_type, null, $meta_key, $user_id, true );
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		return delete_metadata( $meta_type, null, $storage_key, $user_id, true );
 	}
 
 	/**
@@ -87,7 +93,9 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		return delete_metadata( $meta_type, $object_id, $meta_key, null, false );
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		return delete_metadata( $meta_type, $object_id, $storage_key, null, false );
 	}
 
 	/**
@@ -101,7 +109,9 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
-		return delete_metadata( $meta_type, null, $meta_key, null, true );
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		return delete_metadata( $meta_type, null, $storage_key, null, true );
 	}
 
 	/**
@@ -116,7 +126,9 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return array Returns ids of users.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		return wp_parse_id_list( get_metadata( $meta_type, $object_id, $meta_key, false ) );
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
+
+		return wp_parse_id_list( get_metadata( $meta_type, $object_id, $storage_key, false ) );
 	}
 
 	/**
@@ -131,13 +143,14 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @return array
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
+		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
 
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
 				'meta_query' => array(
 					array(
-						'key'     => $meta_key,
+						'key'     => $storage_key,
 						'value'   => bbp_get_user_id( $args, false, false ),
 						'compare' => 'NUMERIC'
 					)
@@ -149,7 +162,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 		$defaults = array(
 			'meta_query' => array(
 				array(
-					'key'     => $meta_key,
+					'key'     => $storage_key,
 					'value'   => bbp_get_displayed_user_id(),
 					'compare' => 'NUMERIC'
 				)
