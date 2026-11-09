@@ -73,6 +73,9 @@ add_filter( 'wp_untrash_post_status', 'bbp_fix_untrash_post_status', 10, 3 );
 // Force comments_status on bbPress post types
 add_filter( 'comments_open', 'bbp_force_comment_status' );
 
+// Reject comments on attachments to restricted bbPress content after approval filters
+add_filter( 'pre_comment_approved', 'bbp_reject_restricted_attachment_comments', PHP_INT_MAX, 2 );
+
 // Remove forums roles from list of all roles
 add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 
