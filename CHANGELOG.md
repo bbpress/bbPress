@@ -20,6 +20,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept toolbar hover backgrounds square with bbPress admin color schemes on
+  WordPress 7.2.
 - Prevented a fatal error when excerpt filters supply only the excerpt, as some
   page builders do.
 - Avoided PHP 8.6 type-check deprecation notices.

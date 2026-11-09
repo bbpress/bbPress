@@ -261,7 +261,20 @@ ul#adminmenu > li.current > a.current:after {
 #wpadminbar.nojs .ab-top-menu > li.menupop:hover > .ab-item,
 #wpadminbar .ab-top-menu > li.menupop.hover > .ab-item {
 	color: $menu-submenu-focus-text;
+}
+
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover,
+#wpadminbar .ab-top-menu > li.hover,
+#wpadminbar .ab-top-menu > li:focus-within {
 	background: $menu-submenu-background;
+}
+
+/* Keep the rounded focus link clear so the list item paints its background. */
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
+#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
+#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
+#wpadminbar .ab-top-menu > li.hover > .ab-item {
+	background: transparent;
 }
 
 #wpadminbar:not(.mobile) > #wp-toolbar li:hover span.ab-label,
