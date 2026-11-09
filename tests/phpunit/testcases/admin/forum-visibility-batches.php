@@ -53,7 +53,7 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed() {
-		return array( array( 'phase', -1 ), array( 'phase', 5 ), array( 'cursor', PHP_INT_MAX ), array( 'values', false ), array( 'sources', false ), array( 'changed', 'yes' ), array( 'context', array() ) );
+		return array( array( 'phase', -1 ), array( 'phase', 5 ), array( 'cursor', 'past-bound' ), array( 'values', false ), array( 'sources', false ), array( 'changed', 'yes' ), array( 'context', array() ) );
 	}
 
 	private function option() {
@@ -178,7 +178,7 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		$this->fixture();
 		bbp_admin_repair_forum_visibility_batch();
 		$state = get_option( $this->option() );
-		$state[ $field ] = $value;
+		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state );
 		$before = $this->snapshot();
 		$this->assertTrue( bbp_admin_repair_forum_visibility_batch( true )['restarted'] );

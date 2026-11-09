@@ -84,6 +84,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertStringContainsString( 'id="cb-select-bbp-test-select-action"', $output );
 			$this->assertStringContainsString( 'id="bbp-test-select-action-select"', $output );
 			$this->assertStringContainsString( 'Select Recalculate topic references', $output );
+			$this->assertStringNotContainsString( 'id="bbp-tool-version"', $output );
+			$this->assertStringNotContainsString( 'id="version"', $output );
+			$this->assertStringContainsString( 'name="action2"', $output );
 			$this->assert_unique_html_ids( $output );
 		} finally {
 			$_GET              = $original_get;
@@ -113,10 +116,36 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertStringContainsString( 'id="cb-select-bbp-user-topic-engagements-move"', $output );
 			$this->assertStringContainsString( 'id="bbp-user-topic-engagements-move"', $output );
 			$this->assertStringContainsString( 'Select Upgrade user topic engagements', $output );
+			$this->assertStringContainsString( 'id="bbp-tool-version"', $output );
+			$this->assertStringContainsString( 'id="version"', $output );
+			$this->assertStringContainsString( 'name="action2"', $output );
 			$this->assert_unique_html_ids( $output );
 		} finally {
 			$_GET              = $original_get;
 			bbp_admin()->tools = $original_tools;
+		}
+	}
+
+	public function tool_screens() {
+		return array( array( 'repair', 'bbp_admin_repair_page', 4 ), array( 'upgrade', 'bbp_admin_upgrade_page', 5 ) );
+	}
+
+	/** @dataProvider tool_screens */
+	public function test_empty_tools_screen_uses_its_actual_column_count( $type, $callback, $columns ) {
+		$old_get = $_GET;
+		$_GET    = array( 'page' => 'bbp-' . $type );
+		add_filter( 'bbp_repair_list', '__return_empty_array' );
+		try {
+			ob_start();
+			call_user_func( $callback );
+			$output = ob_get_clean();
+			$this->assertStringContainsString( 'colspan="' . $columns . '"', $output );
+			$this->assertStringContainsString( 'No repair tools match this criteria.', $output );
+			$this->assertStringContainsString( 'name="page" value="bbp-' . $type . '"', $output );
+			$this->assert_unique_html_ids( $output );
+		} finally {
+			remove_filter( 'bbp_repair_list', '__return_empty_array' );
+			$_GET = $old_get;
 		}
 	}
 
@@ -1576,7 +1605,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
@@ -2505,7 +2533,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
@@ -2626,7 +2653,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
@@ -3419,7 +3445,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_admin_repair_clean_post_meta_cache_batched
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
@@ -6184,7 +6209,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$verification_queries = 0;
 		$old_suppression      = $wpdb->suppress_errors( true );
 		$query_filter         = static function ( $query ) use ( $wpdb, $forum_id, &$verification_queries ) {
-			if ( false === strpos( $query, "SELECT COUNT(*) AS row_count" ) ) {
+			if ( false === strpos( $query, ' AS object_id, COUNT(*) AS row_count' ) ) {
 				return $query;
 			}
 
@@ -6604,7 +6629,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$cache_queries   = 0;
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb, $topic_id, &$cache_queries ) {
-			if ( false === strpos( $query, "SELECT COUNT(*) AS row_count" ) ) {
+			if ( false === strpos( $query, ' AS object_id, COUNT(*) AS row_count' ) ) {
 				return $query;
 			}
 

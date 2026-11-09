@@ -19,7 +19,7 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 		add_action( $hook, $callback );
 
 		try {
-			$this->assertFalse( $function( PHP_INT_MAX ) );
+			$this->assertFalse( $function( $this->nonexistent_post_id() ) );
 			$function( $reply_id );
 			$this->assertSame( array( $reply_id ), $seen );
 		} finally {

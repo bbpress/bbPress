@@ -16,233 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.6.0 bbPress (r6279)
  */
 function bbp_admin_upgrade_page() {
-
-	// Get the registered upgrade tools
-	$tools = bbp_admin_repair_list( 'upgrade' );
-
-	// Orderby
-	$orderby = ! empty( $_GET['orderby'] )
-		? sanitize_key( $_GET['orderby'] )
-		: 'priority';
-
-	// Order
-	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
-		? strtolower( $_GET['order'] )
-		: 'asc';
-
-	// New order
-	$new_order = ( 'desc' === $order )
-		? 'asc'
-		: 'desc'; ?>
-
-	<div class="wrap">
-		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
-		<hr class="wp-header-end">
-		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( 'bbp-upgrade' ); ?></h2>
-
-		<p><?php esc_html_e( 'As bbPress improves, occasionally database upgrades are required but some forums are too large to upgrade automatically. Use the tools below to manually run upgrade routines.', 'bbpress' ); ?></p>
-		<p class="description"><?php esc_html_e( 'Some of these tools create substantial database overhead. Use caution when running more than 1 upgrade at a time.', 'bbpress' ); ?></p>
-
-		<?php bbp_admin_repair_tool_status_filters(); ?>
-
-		<form class="settings" method="get" action="">
-
-			<?php bbp_admin_repair_list_search_form(); ?>
-
-			<input type="hidden" name="page" value="bbp-upgrade" />
-			<?php wp_nonce_field( 'bbpress-do-counts' ); ?>
-
-			<div class="tablenav top">
-				<div class="alignleft actions bulkactions">
-					<label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
-					<select name="action" id="bulk-action-selector-top">
-						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
-					</select>
-					<input type="submit" name="doaction" id="doaction" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
-				</div>
-				<div class="alignleft actions">
-
-					<?php bbp_admin_repair_list_components_filter(); ?>
-
-					<?php bbp_admin_repair_list_versions_filter(); ?>
-
-					<input type="submit" name="filter_action" id="components-submit" class="button" value="<?php esc_html_e( 'Filter', 'bbpress' ); ?>">
-				</div>
-				<br class="clear">
-			</div>
-			<table class="wp-list-table widefat striped posts bbp-upgrade-tools">
-				<thead>
-					<tr>
-						<td id="cb" class="manage-column column-cb check-column">
-							<label class="screen-reader-text" for="cb-select-all-1">
-								<?php esc_html_e( 'Select All', 'bbpress' ); ?>
-							</label>
-							<input id="cb-select-all-1" type="checkbox">
-						</td>
-						<th scope="col" id="description" class="manage-column column-primary column-description sortable <?php echo ( 'priority' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
-							<a href="
-								<?php
-								echo esc_url(
-									bbp_get_admin_repair_tool_page_url(
-										array(
-											'orderby' => 'priority',
-											'order'   => $new_order
-										)
-									)
-								);
-								?>">
-								<span><?php esc_html_e( 'Description', 'bbpress' ); ?></span>
-								<span class="sorting-indicator"></span>
-							</a>
-						</th>
-						<th scope="col" id="bbp-tool-version" class="manage-column column-version sortable <?php echo ( 'version' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
-							<a href="
-								<?php
-								echo esc_url(
-									bbp_get_admin_repair_tool_page_url(
-										array(
-											'orderby' => 'version',
-											'order'   => $new_order
-										)
-									)
-								);
-								?>">
-								<span><?php esc_html_e( 'Version', 'bbpress' ); ?></span>
-								<span class="sorting-indicator"></span>
-							</a>
-						</th>
-						<th scope="col" id="bbp-tool-components" class="manage-column column-components">
-							<?php esc_html_e( 'Components', 'bbpress' ); ?>
-						</th>
-						<th scope="col" id="overhead" class="manage-column column-overhead sortable <?php echo ( 'overhead' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
-							<a href="
-								<?php
-								echo esc_url(
-									bbp_get_admin_repair_tool_page_url(
-										array(
-											'orderby' => 'overhead',
-											'order'   => $new_order
-										)
-									)
-								);
-								?>">
-								<span><?php esc_html_e( 'Overhead', 'bbpress' ); ?></span>
-								<span class="sorting-indicator"></span>
-							</a>
-						</th>
-					</tr>
-				</thead>
-
-				<tbody id="the-list">
-
-					<?php if ( ! empty( $tools ) ) : ?>
-
-						<?php foreach ( $tools as $item ) :
-
-							$item_html_id = str_replace( '_', '-', $item['id'] );
-							$select_id    = 'cb-select-' . $item_html_id;
-
-							?>
-
-							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive<?php echo ! empty( $item['pending'] ) ? ' status-pending' : ''; ?>">
-								<th scope="row" class="check-column">
-									<label class="screen-reader-text" for="<?php echo esc_attr( $select_id ); ?>">
-										<?php
-										printf(
-											/* translators: %s: Upgrade tool title */
-											esc_html__( 'Select %s', 'bbpress' ),
-											esc_html( $item['title'] )
-										);
-										?>
-									</label>
-									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( $select_id ); ?>">
-								</th>
-								<td class="bbp-tool-title column-primary column-description" data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
-									<strong>
-										<?php echo esc_html( $item['title'] ); ?>
-										<?php if ( ! empty( $item['pending'] ) ) : ?>
-											<span class="post-state">&mdash; <?php esc_html_e( 'Pending', 'bbpress' ); ?></span>
-										<?php endif; ?>
-									</strong><?php
-
-										// Optional description
-										if ( ! empty( $item['description'] ) ) :
-											echo '<p class="description">' . esc_html( $item['description'] ) . '</p>';
-										endif;
-
-									?><div class="row-actions hide-if-no-js">
-										<?php bbp_admin_repair_tool_row_actions( $item ); ?>
-									</div>
-									<button type="button" class="toggle-row">
-										<span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'bbpress' ); ?></span>
-									</button>
-								</td>
-								<td class="column-version desc" data-colname="<?php esc_html_e( 'Version', 'bbpress' ); ?>">
-									<div class="bbp-tool-version">
-
-										<?php echo implode( ', ', bbp_get_admin_repair_tool_version( $item ) ); ?>
-
-									</div>
-								</td>
-								<td class="column-components desc" data-colname="<?php esc_html_e( 'Components', 'bbpress' ); ?>">
-									<div class="bbp-tool-components">
-
-										<?php echo implode( ', ', bbp_get_admin_repair_tool_components( $item ) ); ?>
-
-									</div>
-								</td>
-								<td class="column-overhead desc" data-colname="<?php esc_html_e( 'Overhead', 'bbpress' ); ?>">
-									<div class="bbp-tool-overhead">
-
-										<?php echo implode( ', ', bbp_get_admin_repair_tool_overhead( $item ) ); ?>
-
-									</div>
-								</td>
-							</tr>
-
-						<?php endforeach; ?>
-
-					<?php else : ?>
-
-						<tr>
-							<td colspan="4">
-								<?php esc_html_e( 'No repair tools match this criteria.', 'bbpress' ); ?>
-							</td>
-						</tr>
-
-					<?php endif; ?>
-
-				</tbody>
-				<tfoot>
-					<tr>
-						<td class="manage-column column-cb check-column">
-							<label class="screen-reader-text" for="cb-select-all-2">
-								<?php esc_html_e( 'Select All', 'bbpress' ); ?>
-							</label>
-							<input id="cb-select-all-2" type="checkbox">
-						</td>
-						<th scope="col" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
-						<th scope="col" class="manage-column column-version"><?php esc_html_e( 'Version', 'bbpress' ); ?></th>
-						<th scope="col" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
-						<th scope="col" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
-					</tr>
-				</tfoot>
-			</table>
-			<div class="tablenav bottom">
-				<div class="alignleft actions bulkactions">
-					<label for="bulk-action-selector-bottom" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
-					<select name="action2" id="bulk-action-selector-bottom">
-						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
-					</select>
-					<input type="submit" name="doaction2" id="doaction2" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
-				</div>
-			</div>
-		</form>
-	</div>
-
-<?php
+	bbp_admin_tools_repair_upgrade_page( 'upgrade' );
 }
 
 /**
@@ -323,7 +97,6 @@ function bbp_admin_upgrade_user_engagements_dry_run() {
 function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 	$bbp_db  = bbp_db();
 	$tool_id = 'bbp-user-topic-engagements-move';
-	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch   = array(
 		'code'      => 0,
 		'added'     => 0,
@@ -332,10 +105,10 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		'found'     => false,
 		'restarted' => false
 	);
-
-	if ( ( false !== $state ) && ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
 
 	if ( false === $state ) {
@@ -348,7 +121,7 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 			'cursor'   => 0,
 			'upper_id' => (int) $upper_id
 		);
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			bbp_add_pending_upgrade( $tool_id );
 			$batch['code'] = 6;
 			return $batch;
@@ -377,7 +150,7 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		$state['cursor'] = $repair['cursor'];
 	}
 
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
@@ -397,7 +170,6 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
 	// Define variables
-	$failed         = esc_html__( 'Failed!', 'bbpress' );
 	$no_engagements = esc_html__( '0 engagements to upgrade.', 'bbpress' );
 
 	if ( $dry_run ) {
@@ -411,12 +183,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 	$batch     = bbp_admin_upgrade_user_engagements_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, $failed ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( ! $batch['found'] && $batch['complete'] ) {
 		return array( 1, sprintf( $statement, $no_engagements ) );
@@ -433,10 +200,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 		$added = sprintf( _n( '%s missing engagement added from topic and reply authors.', '%s missing engagements added from topic and reply authors.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
 		/* translators: %s: Number of stale or duplicate engagement rows removed */
 		$removed = sprintf( _n( '%s stale or duplicate engagement row cleaned up.', '%s stale or duplicate engagement rows cleaned up.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
-		$status  = $batch['complete']
-			? esc_html__( 'Complete!', 'bbpress' )
-			: esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $added . "\n" . $removed;
+		$result  = bbp_admin_repair_tool_batch_message( $added . "\n" . $removed, $batch['complete'] );
 	}
 
 	return array(
@@ -453,6 +217,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
  *
  * @since 2.6.0 bbPress (r6496)
  * @since 2.7.0 bbPress (r8237) Added Dry Run support.
+ * @since 2.7.0 bbPress (r8315) Process one resumable batch per call.
  *
  * @return array An array of the status code and the message.
  */
@@ -464,6 +229,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
  * Preview upgrading group forum ID mappings after a bbPress 1.x conversion.
  *
  * @since 2.7.0 bbPress (r8237)
+ * @since 2.7.0 bbPress (r8315) Preview the next resumable batch without writes.
  *
  * @return array An array of the status code and the message.
  */
@@ -475,431 +241,39 @@ function bbp_admin_upgrade_group_forum_relationships_dry_run() {
  * Upgrade or preview upgrading converted group forum ID mappings.
  *
  * @since 2.7.0 bbPress (r8237)
+ * @since 2.7.0 bbPress (r8315) Stage a bounded preflight before updating relationships.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false ) {
+	$worker = new BBP_Admin_Group_Forums( $dry_run );
+	$batch  = $worker->run();
+	return bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run );
+}
 
-	// Define variables
-	$bbp_db           = bbp_db();
-	$no_data          = esc_html__( '0 converted group forums to upgrade.', 'bbpress' );
-	$g_count          = 0;
-	$f_count          = 0;
-	$s_count          = 0;
-	$failure_progress = static function ( $reason, $groups, $forums, $statuses, $dry_run ) {
-		if ( $dry_run ) {
-			return $reason;
-		}
-
-		$results = array(
-			/* translators: %s: Number of groups updated */
-			sprintf( _n( '%s group updated', '%s groups updated', $groups, 'bbpress' ), bbp_number_format( $groups ) ),
-			/* translators: %s: Number of forums updated */
-			sprintf( _n( '%s forum updated', '%s forums updated', $forums, 'bbpress' ), bbp_number_format( $forums ) ),
-			/* translators: %s: Number of forum statuses synced */
-			sprintf( _n( '%s forum status synced', '%s forum statuses synced', $statuses, 'bbpress' ), bbp_number_format( $statuses ) )
-		);
-
-		return $reason . "\n" . esc_html__( 'Progress:', 'bbpress' ) . "\n" . implode( ".\n", $results ) . '.';
-	};
-
-	if ( $dry_run ) {
+/**
+ * Describe one group-forum upgrade batch, including partial failure progress.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ *
+ * @param array $batch   Batch result.
+ * @param bool  $dry_run Whether this was a preview.
+ * @return array Status, message, success and completion.
+ */
+function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run = false ) {
+	$g_count      = $batch['groups'];
+	$f_count      = $batch['forums'];
+	$s_count      = $batch['statuses'];
+	$update_root  = $batch['root'];
+	$rename_root  = $batch['rename'];
+	$legacy_roles = $batch['roles'];
+	$statement    = $dry_run
 		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
-	} else {
+		? esc_html__( 'Checking BuddyPress group-forum relationships&hellip; %s', 'bbpress' )
 		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Upgrading BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
-	}
-
-	// Copy the BuddyPress filter here, incase BuddyPress is not active
-	$prefix            = apply_filters( 'bp_core_get_table_prefix', $bbp_db->base_prefix );
-	$groups_table      = $prefix . 'bp_groups';
-	$groups_meta_table = $prefix . 'bp_groups_groupmeta';
-
-	// Get the converted forum IDs
-	$results = $bbp_db->get_results(
-		"SELECT `forum`.`ID`, `forummeta`.`meta_value`
-			FROM `{$bbp_db->posts}` AS `forum`
-				LEFT JOIN `{$bbp_db->postmeta}` AS `forummeta`
-					ON `forum`.`ID` = `forummeta`.`post_id`
-					AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
-			WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
-			GROUP BY `forum`.`ID`
-			ORDER BY `forum`.`ID`"
-	);
-
-	// Bail if converted forum IDs could not be read
-	if ( ! empty( $bbp_db->last_error ) ) {
-		return array(
-			2,
-			sprintf( $statement, $failure_progress( esc_html__( 'Failed! Converted forums could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-			'success' => false,
-		);
-	}
-
-	// Validate converted forum ID mappings before updating any data
-	$converted_forum_ids = array();
-	$native_forum_ids    = array();
-	$forum_group_ids     = array();
-	foreach ( $results as $group_forums ) {
-		$new_id = (string) $group_forums->ID;
-
-		if ( empty( $group_forums->meta_value ) ) {
-			$native_forum_ids[ $new_id ] = true;
-			continue;
-		}
-
-		$converted_forum_ids[ $new_id ] = (string) $group_forums->meta_value;
-		$forum_group_ids[ $new_id ]     = wp_parse_id_list( get_post_meta( $group_forums->ID, '_bbp_group_ids', true ) );
-	}
-
-	// Bail if no converted forum IDs were found
-	if ( empty( $converted_forum_ids ) ) {
-		return array( 1, sprintf( $statement, $no_data ) );
-	}
-
-	// Validate forum-side relationship markers before planning changes
-	$marked_group_forums = array();
-	$skip_forum_ids      = array();
-	foreach ( $converted_forum_ids as $new_id => $legacy_id ) {
-		$new_id           = (string) $new_id;
-		$stored_group_ids = $forum_group_ids[ $new_id ];
-
-		foreach ( $stored_group_ids as $stored_group_id ) {
-			$stored_forum_ids = $bbp_db->get_var( $bbp_db->prepare( "SELECT `meta_value` FROM `{$groups_meta_table}` WHERE `group_id` = %d AND `meta_key` = %s ORDER BY `group_id` LIMIT 1", $stored_group_id, 'forum_id' ) );
-			if ( ! empty( $bbp_db->last_error ) ) {
-				return array(
-					3,
-					sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-					'success' => false,
-				);
-			}
-
-			$serialized     = is_serialized( $stored_forum_ids );
-			$marker_current = ! empty( $stored_forum_ids ) && in_array( (int) $new_id, wp_parse_id_list( maybe_unserialize( $stored_forum_ids ) ), true );
-			$marker_legacy  = ! $serialized && ( (string) $stored_forum_ids === (string) $legacy_id );
-
-			if ( $marker_current || $marker_legacy ) {
-				if ( ! isset( $marked_group_forums[ $stored_group_id ] ) ) {
-					$marked_group_forums[ $stored_group_id ] = array();
-				}
-
-				$marked_group_forums[ $stored_group_id ][] = $new_id;
-			}
-
-			if ( $serialized ) {
-				$skip_forum_ids[ $new_id ] = true;
-			}
-		}
-
-		if ( count( $stored_group_ids ) > 1 ) {
-			$skip_forum_ids[ $new_id ] = true;
-		}
-	}
-
-	// Plan each group-forum relationship before updating any data
-	$relationship_plans   = array();
-	$planned_groups       = array();
-	$planned_legacy_ids   = array();
-	foreach ( $results as $group_forums ) {
-
-		// Only update if is a converted forum
-		if ( empty( $group_forums->meta_value ) ) {
-			continue;
-		}
-
-		$new_id           = (string) $group_forums->ID;
-		$stored_group_ids = $forum_group_ids[ $new_id ];
-
-		// Leave modern and many-to-many relationships unchanged
-		if ( isset( $skip_forum_ids[ $new_id ] ) ) {
-			continue;
-		}
-
-		// Get the group connected to the legacy forum ID
-		$legacy_group_ids = array_values( array_unique( array_map( 'intval', $bbp_db->get_col( $bbp_db->prepare( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = %s AND `meta_value` = %s ORDER BY `group_id`", 'forum_id', $group_forums->meta_value ) ) ) ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return array(
-				3,
-				sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-				'success' => false,
-			);
-		}
-
-		// Fall back to an already-converted group ID on reruns
-		$current_group_ids = array_values( array_unique( array_map( 'intval', $bbp_db->get_col( $bbp_db->prepare( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = %s AND `meta_value` = %d ORDER BY `group_id`", 'forum_id', $group_forums->ID ) ) ) ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return array(
-				3,
-				sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-				'success' => false,
-			);
-		}
-
-		$available_legacy_group_ids = array();
-		$available_current_group_ids = array();
-
-		foreach ( $legacy_group_ids as $candidate_group_id ) {
-			if ( ! isset( $marked_group_forums[ $candidate_group_id ] ) || in_array( $new_id, $marked_group_forums[ $candidate_group_id ], true ) ) {
-				$available_legacy_group_ids[] = $candidate_group_id;
-			}
-		}
-
-		foreach ( $current_group_ids as $candidate_group_id ) {
-			if ( ! isset( $marked_group_forums[ $candidate_group_id ] ) || in_array( $new_id, $marked_group_forums[ $candidate_group_id ], true ) ) {
-				$available_current_group_ids[] = $candidate_group_id;
-			}
-		}
-
-		$stored_group_id = ! empty( $stored_group_ids ) ? reset( $stored_group_ids ) : 0;
-		$stored_group_id = in_array( $stored_group_id, $legacy_group_ids, true ) || in_array( $stored_group_id, $current_group_ids, true )
-			? $stored_group_id
-			: 0;
-
-		if ( ! empty( $stored_group_id ) ) {
-			$group_id           = $stored_group_id;
-			$legacy_group_match = in_array( $stored_group_id, $legacy_group_ids, true );
-		} else {
-			if ( ( count( $available_legacy_group_ids ) > 1 ) || ( count( $available_current_group_ids ) > 1 ) ) {
-				return array(
-					7,
-					sprintf( $statement, $failure_progress( esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-					'success' => false,
-				);
-			}
-
-			$legacy_group_id    = ! empty( $available_legacy_group_ids ) ? reset( $available_legacy_group_ids ) : 0;
-			$current_group_id   = ! empty( $available_current_group_ids ) ? reset( $available_current_group_ids ) : 0;
-			$group_id           = ! empty( $legacy_group_id ) ? $legacy_group_id : $current_group_id;
-			$legacy_group_match = ! empty( $legacy_group_id );
-		}
-
-		if ( empty( $group_id ) ) {
-			continue;
-		}
-
-		$needs_group_update = $legacy_group_match && ( (string) $group_forums->meta_value !== $new_id );
-
-		if ( $needs_group_update ) {
-			$legacy_id = (string) $group_forums->meta_value;
-
-			if ( isset( $planned_legacy_ids[ $legacy_id ] ) && ( $planned_legacy_ids[ $legacy_id ] !== $new_id ) ) {
-				return array(
-					7,
-					sprintf( $statement, esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) ),
-					'success' => false,
-				);
-			}
-
-			if ( ( $legacy_id !== $new_id ) && isset( $native_forum_ids[ $legacy_id ] ) ) {
-				return array(
-					7,
-					sprintf( $statement, esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) ),
-					'success' => false,
-				);
-			}
-
-			$planned_legacy_ids[ $legacy_id ] = $new_id;
-		}
-
-		if ( isset( $planned_groups[ $group_id ] ) && ( $planned_groups[ $group_id ] !== $new_id ) ) {
-			return array(
-				7,
-				sprintf( $statement, $failure_progress( esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-				'success' => false,
-			);
-		}
-
-		$planned_groups[ $group_id ] = $new_id;
-
-		// Get the group status
-		$group_status = $bbp_db->get_var( $bbp_db->prepare( "SELECT `status` FROM `{$groups_table}` WHERE `id` = %d", $group_id ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return array(
-				4,
-				sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress groups could not be read.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-				'success' => false,
-			);
-		}
-
-		// Plan forum metadata and visibility changes
-		$needs_forum_update = ( array( $group_id ) !== $stored_group_ids );
-		$target_visibility  = '';
-
-		switch ( $group_status ) {
-			case 'public' :
-				$target_visibility = bbp_get_public_status_id();
-				break;
-
-			case 'private' :
-			case 'hidden'  :
-				$target_visibility = bbp_get_hidden_status_id();
-				break;
-		}
-
-		$current_visibility  = bbp_get_forum_visibility( $group_forums->ID );
-		$hidden_forum_ids    = wp_parse_id_list( get_option( '_bbp_hidden_forums', array() ) );
-		$private_forum_ids   = wp_parse_id_list( get_option( '_bbp_private_forums', array() ) );
-		$is_hidden           = in_array( (int) $group_forums->ID, $hidden_forum_ids, true );
-		$is_private          = in_array( (int) $group_forums->ID, $private_forum_ids, true );
-		$options_need_update = ( bbp_get_public_status_id() === $target_visibility )
-			? ( $is_hidden || $is_private )
-			: ( bbp_get_hidden_status_id() === $target_visibility ) && ( ! $is_hidden || $is_private );
-		$needs_status_update = ! empty( $target_visibility ) && ( ( $target_visibility !== $current_visibility ) || $options_need_update );
-		$relationship_plans[] = array(
-			'forum_id'           => (int) $group_forums->ID,
-			'legacy_id'          => (string) $group_forums->meta_value,
-			'group_id'           => $group_id,
-			'current_visibility' => $current_visibility,
-			'target_visibility'  => $target_visibility,
-			'update_group'       => $needs_group_update,
-			'update_forum'       => $needs_forum_update,
-			'update_status'      => $needs_status_update,
-		);
-
-		if ( $dry_run ) {
-			$g_count += (int) $needs_group_update;
-			$f_count += (int) $needs_forum_update;
-			$s_count += (int) $needs_status_update;
-		}
-	}
-
-	if ( ! $dry_run ) {
-		foreach ( $relationship_plans as $relationship ) {
-			$forum_id          = $relationship['forum_id'];
-			$group_id          = $relationship['group_id'];
-			$current_visibility = $relationship['current_visibility'];
-			$target_visibility  = $relationship['target_visibility'];
-
-			if ( $relationship['update_forum'] ) {
-				$updated = update_post_meta( $forum_id, '_bbp_group_ids', array( $group_id ) );
-				if ( false === $updated ) {
-					return array(
-						8,
-						sprintf( $statement, $failure_progress( esc_html__( 'Failed! Forum group metadata could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-						'success' => false,
-					);
-				}
-
-				++$f_count;
-			}
-
-			if ( $relationship['update_group'] ) {
-				// Attempt to update group meta
-				$updated = $bbp_db->query( $bbp_db->prepare( "UPDATE `{$groups_meta_table}` SET `meta_value` = %d WHERE `group_id` = %d AND `meta_key` = %s AND `meta_value` = %s", $forum_id, $group_id, 'forum_id', $relationship['legacy_id'] ) );
-				if ( empty( $updated ) ) {
-					return array(
-						5,
-						sprintf( $statement, $failure_progress( esc_html__( 'Failed! BuddyPress group metadata could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-						'success' => false,
-					);
-				}
-
-				++$g_count;
-			}
-
-			if ( $relationship['update_status'] ) {
-				if ( bbp_get_public_status_id() === $target_visibility ) {
-					bbp_publicize_forum( $forum_id, $current_visibility );
-				} else {
-					bbp_hide_forum( $forum_id, $current_visibility );
-				}
-
-				$hidden_forum_ids  = wp_parse_id_list( get_option( '_bbp_hidden_forums', array() ) );
-				$private_forum_ids = wp_parse_id_list( get_option( '_bbp_private_forums', array() ) );
-				$is_hidden         = in_array( $forum_id, $hidden_forum_ids, true );
-				$is_private        = in_array( $forum_id, $private_forum_ids, true );
-				$options_synced    = ( bbp_get_public_status_id() === $target_visibility )
-					? ( ! $is_hidden && ! $is_private )
-					: ( bbp_get_hidden_status_id() === $target_visibility ) && $is_hidden && ! $is_private;
-
-				if ( ( bbp_get_forum_visibility( $forum_id ) !== $target_visibility ) || ! $options_synced ) {
-					return array(
-						9,
-						sprintf( $statement, $failure_progress( esc_html__( 'Failed! Forum visibility could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-						'success' => false,
-					);
-				}
-
-				++$s_count;
-			}
-		}
-	}
-
-	// Make some logical guesses at the old group root forum
-	if ( function_exists( 'bp_forums_parent_forum_id' ) ) {
-		$old_default_forum_id = bp_forums_parent_forum_id();
-	} elseif ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
-		$old_default_forum_id = (int) BP_FORUMS_PARENT_FORUM_ID;
-	} else {
-		$old_default_forum_id = 1;
-	}
-
-	// Try to get the group root forum
-	$posts = get_posts(
-		array(
-			'post_type'   => bbp_get_forum_post_type(),
-			'meta_key'    => '_bbp_old_forum_id',
-			'meta_type'   => 'NUMERIC',
-			'meta_value'  => $old_default_forum_id,
-			'numberposts' => 1
-		)
-	);
-	$root_forum_id    = ! empty( $posts ) ? (int) $posts[0]->ID : 0;
-	$rename_root      = ! empty( $root_forum_id ) && ( 'Default Forum' === $posts[0]->post_title );
-	$update_root      = ! empty( $root_forum_id ) && ( (int) get_option( '_bbp_group_forums_root_id' ) !== $root_forum_id );
-	$legacy_role_ids  = array( 'member', 'inactive', 'blocked', 'moderator', 'keymaster' );
-	$legacy_roles     = array();
-
-	foreach ( $legacy_role_ids as $role_id ) {
-		if ( ! empty( get_role( $role_id ) ) ) {
-			$legacy_roles[] = $role_id;
-		}
-	}
-
-	// Found the group root forum
-	if ( ! empty( $root_forum_id ) && ! $dry_run ) {
-
-		// Rename 'Default Forum'  since it's now visible in sitewide forums
-		if ( $rename_root ) {
-			$updated = wp_update_post(
-				array(
-					'ID'         => $posts[0]->ID,
-					'post_title' => esc_html__( 'Group Forums', 'bbpress' ),
-					'post_name'  => esc_html__( 'group-forums', 'bbpress' ),
-				),
-				true
-			);
-
-			if ( is_wp_error( $updated ) ) {
-				return array(
-					6,
-					sprintf( $statement, $failure_progress( esc_html__( 'Failed! The group forums root could not be renamed.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-					'success' => false,
-				);
-			}
-		}
-
-		// Update the group forums root metadata
-		if ( $update_root ) {
-			update_option( '_bbp_group_forums_root_id', $root_forum_id );
-			if ( (int) get_option( '_bbp_group_forums_root_id' ) !== $root_forum_id ) {
-				return array(
-					10,
-					sprintf( $statement, $failure_progress( esc_html__( 'Failed! The group forums root setting could not be updated.', 'bbpress' ), $g_count, $f_count, $s_count, $dry_run ) ),
-					'success' => false,
-				);
-			}
-		}
-	}
-
-	// Remove old bbPress 1.1 roles (BuddyPress)
-	if ( ! $dry_run ) {
-		foreach ( $legacy_roles as $role_id ) {
-			remove_role( $role_id );
-		}
-	}
+		: esc_html__( 'Upgrading BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 
 	// Complete results
 	if ( $dry_run ) {
@@ -930,11 +304,36 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
 			/* translators: %s: Number of forum statuses synced */
 			sprintf( _n( '%s forum status synced', '%s forum statuses synced', $s_count, 'bbpress' ), bbp_number_format( $s_count ) )
 		);
-		$result  = esc_html__( 'Complete!', 'bbpress' ) . "\n" . implode( ".\n", $results ) . '.';
+		$result  = ( $batch['code'] ? esc_html__( 'Progress:', 'bbpress' ) : ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) ) . "\n" . implode( ".\n", $results ) . '.';
 	}
 
-	// Return
-	return array( 0, sprintf( $statement, $result ) );
+	$errors = array(
+		2  => esc_html__( 'Failed! Converted forums could not be read.', 'bbpress' ),
+		3  => esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ),
+		4  => esc_html__( 'Failed! BuddyPress groups could not be read.', 'bbpress' ),
+		5  => esc_html__( 'Failed! BuddyPress group metadata could not be updated.', 'bbpress' ),
+		6  => esc_html__( 'Failed! The group forums root could not be renamed.', 'bbpress' ),
+		7  => $batch['mapping_error'] ? esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) : esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ),
+		8  => esc_html__( 'Failed! Forum group metadata could not be updated.', 'bbpress' ),
+		9  => esc_html__( 'Failed! Forum visibility could not be updated.', 'bbpress' ),
+		10 => esc_html__( 'Failed! The group forums root setting could not be updated.', 'bbpress' ),
+		11 => esc_html__( 'Failed! Upgrade progress could not be saved or read.', 'bbpress' ),
+		13 => esc_html__( 'Failed! Legacy forum roles could not be removed.', 'bbpress' ),
+		12 => esc_html__( 'Failed! Group-forum mappings or saved progress could not be verified. Check the mappings and run the upgrade again.', 'bbpress' ),
+	);
+	if ( $batch['code'] ) {
+		$result = $errors[ $batch['code'] ] . ( $dry_run ? '' : "\n" . $result );
+	} elseif ( $batch['no_data'] ) {
+		$result = esc_html__( '0 converted group forums to upgrade.', 'bbpress' );
+	} elseif ( in_array( $batch['phase'], array( 'prepare', 'index', 'plan', 'verify' ), true ) ) {
+		$result = esc_html__( 'Checking converted group-forum mappings. Changes are counted after all mappings have been checked.', 'bbpress' );
+	}
+	return array(
+		$batch['code'] ? $batch['code'] : ( $batch['no_data'] ? 1 : 0 ),
+		sprintf( $statement, $result ),
+		'success'  => ! $batch['code'],
+		'complete' => $batch['complete'],
+	);
 }
 
 /**
@@ -984,8 +383,6 @@ function bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state ) {
  */
 function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_run = false ) {
 	$bbp_db = bbp_db();
-	$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
-	$state  = get_option( $option, false );
 	$batch  = array(
 		'code'      => 0,
 		'added'     => 0,
@@ -994,6 +391,11 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 		'found'     => false,
 		'restarted' => false
 	);
+	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id );
+	if ( ! $read ) {
+		$batch['code'] = 5;
+		return $batch;
+	}
 
 	$valid = ( false === $state ) || bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state );
 
@@ -1029,7 +431,7 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 		);
 
 		// Preserve the source even if the first batch fails or is interrupted
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			bbp_add_pending_upgrade( $tool_id );
 			$batch['code'] = 5;
 			return $batch;
@@ -1094,7 +496,7 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 				continue;
 			}
 
-			if ( ! $dry_run && ( false === add_post_meta( $post_id, $new_key, $user_id, false ) ) ) {
+			if ( ! $dry_run && bbp_admin_repair_metadata_add( 'post', $post_id, $new_key, $user_id )['code'] ) {
 				++$batch['failed'];
 			} else {
 				++$batch['added'];
@@ -1124,12 +526,142 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 	}
 	$batch['complete'] = empty( $remaining );
 
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'], $dry_run ) ) {
 		$batch['code']     = 5;
 		$batch['complete'] = false;
 	}
 
 	return $batch;
+}
+
+/**
+ * Present the three legacy user-meta migrations through their shared worker.
+ *
+ * Keep literal plural strings together so translation extraction remains native.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
+ * @param bool   $dry_run Whether to preview without writes.
+ * @return array Tool status, impact text and completion.
+ */
+function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
+	$config = bbp_admin_get_user_relationship_config( $type );
+	if ( false === $config ) {
+		return array(
+			1,
+			esc_html__( 'Failed!', 'bbpress' ),
+			'success'  => false,
+			'complete' => false,
+		);
+	}
+	$tool_id      = $config['move_tool_id'];
+	$old_key      = $config['source_key'];
+	$new_key      = $config['destination_key'];
+	$batch        = bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_run );
+	$total        = $batch['added'];
+	$failed_total = $batch['failed'];
+
+	switch ( $type ) {
+		case 'favorites':
+			$none      = esc_html__( '0 favorite relationships to upgrade.', 'bbpress' );
+			$statement = $dry_run
+				/* translators: %s: Status of the dry-run process */
+				? esc_html__( 'Checking user favorites&hellip; %s', 'bbpress' )
+				/* translators: %s: Status of the upgrade process */
+				: esc_html__( 'Upgrading user favorites&hellip; %s', 'bbpress' );
+			break;
+		case 'topic-subscriptions':
+			$none      = esc_html__( '0 topic subscription relationships to upgrade.', 'bbpress' );
+			$statement = $dry_run
+				/* translators: %s: Status of the dry-run process */
+				? esc_html__( 'Checking user topic subscriptions&hellip; %s', 'bbpress' )
+				/* translators: %s: Status of the upgrade process */
+				: esc_html__( 'Upgrading user topic subscriptions&hellip; %s', 'bbpress' );
+			break;
+		case 'forum-subscriptions':
+			$none      = esc_html__( '0 forum subscription relationships to upgrade.', 'bbpress' );
+			$statement = $dry_run
+				/* translators: %s: Status of the dry-run process */
+				? esc_html__( 'Checking user forum subscriptions&hellip; %s', 'bbpress' )
+				/* translators: %s: Status of the upgrade process */
+				: esc_html__( 'Upgrading user forum subscriptions&hellip; %s', 'bbpress' );
+			break;
+	}
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
+	if ( $batch['code'] && 4 !== $batch['code'] ) {
+		return array(
+			$batch['code'],
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false,
+		);
+	}
+	if ( $batch['complete'] && ( ! $batch['found'] || ( $dry_run && ! $total ) ) ) {
+		return array( 1, sprintf( $statement, $none ) );
+	}
+
+	switch ( $type ) {
+		case 'favorites':
+			if ( $dry_run ) {
+				/* translators: %s: Number of relationships that would be added */
+				$result = sprintf( _n( '%s favorite relationship would be added to topic meta from user meta in this batch.', '%s favorite relationships would be added to topic meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
+			} elseif ( $failed_total ) {
+				/* translators: %s: Number of relationships added */
+				$added = sprintf( _n( '%s favorite relationship added', '%s favorite relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
+				/* translators: %s: Number of relationships that could not be added */
+				$failures = sprintf( _n( '%s favorite relationship could not be added', '%s favorite relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+			} else {
+				/* translators: %s: Number of relationships added */
+				$result = sprintf( _n( '%s favorite relationship added to topic meta.', '%s favorite relationships added to topic meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
+			}
+			break;
+		case 'topic-subscriptions':
+			if ( $dry_run ) {
+				/* translators: %s: Number of relationships that would be added */
+				$result = sprintf( _n( '%s topic subscription relationship would be added to topic meta from user meta in this batch.', '%s topic subscription relationships would be added to topic meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
+			} elseif ( $failed_total ) {
+				/* translators: %s: Number of relationships added */
+				$added = sprintf( _n( '%s topic subscription relationship added', '%s topic subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
+				/* translators: %s: Number of relationships that could not be added */
+				$failures = sprintf( _n( '%s topic subscription relationship could not be added', '%s topic subscription relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+			} else {
+				/* translators: %s: Number of relationships added */
+				$result = sprintf( _n( '%s topic subscription relationship added to topic meta.', '%s topic subscription relationships added to topic meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
+			}
+			break;
+		case 'forum-subscriptions':
+			if ( $dry_run ) {
+				/* translators: %s: Number of relationships that would be added */
+				$result = sprintf( _n( '%s forum subscription relationship would be added to forum meta from user meta in this batch.', '%s forum subscription relationships would be added to forum meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
+			} elseif ( $failed_total ) {
+				/* translators: %s: Number of relationships added */
+				$added = sprintf( _n( '%s forum subscription relationship added', '%s forum subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
+				/* translators: %s: Number of relationships that could not be added */
+				$failures = sprintf( _n( '%s forum subscription relationship could not be added', '%s forum subscription relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
+			} else {
+				/* translators: %s: Number of relationships added */
+				$result = sprintf( _n( '%s forum subscription relationship added to forum meta.', '%s forum subscription relationships added to forum meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
+			}
+			break;
+	}
+	if ( ! $dry_run && $failed_total ) {
+		return array(
+			4,
+			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.' ),
+			'success'  => false,
+			'complete' => false,
+		);
+	}
+	if ( ! $dry_run ) {
+		$result = bbp_admin_repair_tool_batch_message( $result, $batch['complete'] );
+	}
+	return array(
+		0,
+		sprintf( $statement, $result ),
+		'complete' => $batch['complete'],
+	);
 }
 
 /**
@@ -1165,83 +697,7 @@ function bbp_admin_upgrade_user_favorites_dry_run() {
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db  = bbp_db();
-	$failed  = esc_html__( 'Failed!', 'bbpress' );
-	$result  = esc_html__( '0 favorite relationships to upgrade.', 'bbpress' );
-	$old_key = $bbp_db->prefix . '_bbp_favorites';
-	$new_key = '_bbp_favorite';
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking user favorites&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Upgrading user favorites&hellip; %s', 'bbpress' );
-	}
-
-	$batch        = bbp_admin_upgrade_user_meta_batch( 'bbp-user-favorites-move', $old_key, $new_key, $dry_run );
-	$total        = $batch['added'];
-	$failed_total = $batch['failed'];
-
-	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
-
-	if ( ! empty( $batch['code'] ) && ( 4 !== $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, $failed ),
-			'success'  => false,
-			'complete' => false
-		);
-	}
-	if ( ! $batch['found'] && $batch['complete'] ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		if ( empty( $total ) && $batch['complete'] ) {
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		/* translators: %s: Number of favorite relationships that would be added to topic meta */
-		$result = sprintf( _n( '%s favorite relationship would be added to topic meta from user meta in this batch.', '%s favorite relationships would be added to topic meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array(
-			0,
-			sprintf( $statement, $result ),
-			'complete' => $batch['complete']
-		);
-	}
-
-	if ( ! empty( $failed_total ) ) {
-		/* translators: %s: Number of favorite relationships added to topic meta */
-		$added    = sprintf( _n( '%s favorite relationship added', '%s favorite relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
-		/* translators: %s: Number of favorite relationships that could not be added */
-		$failures = sprintf( _n( '%s favorite relationship could not be added', '%s favorite relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
-		$result = esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.';
-
-		return array(
-			4,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of favorite relationships added to topic meta */
-	$result = sprintf( _n( '%s favorite relationship added to topic meta.', '%s favorite relationships added to topic meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-	$status = $batch['complete']
-		? esc_html__( 'Complete!', 'bbpress' )
-		: esc_html__( 'Batch complete!', 'bbpress' );
-	$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_upgrade_user_meta_process( 'favorites', $dry_run );
 }
 
 /**
@@ -1277,83 +733,7 @@ function bbp_admin_upgrade_user_topic_subscriptions_dry_run() {
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db  = bbp_db();
-	$failed  = esc_html__( 'Failed!', 'bbpress' );
-	$old_key = $bbp_db->prefix . '_bbp_subscriptions';
-	$new_key = '_bbp_subscription';
-	$result  = esc_html__( '0 topic subscription relationships to upgrade.', 'bbpress' );
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking user topic subscriptions&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Upgrading user topic subscriptions&hellip; %s', 'bbpress' );
-	}
-
-	$batch        = bbp_admin_upgrade_user_meta_batch( 'bbp-user-topic-subscriptions-move', $old_key, $new_key, $dry_run );
-	$total        = $batch['added'];
-	$failed_total = $batch['failed'];
-
-	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
-
-	if ( ! empty( $batch['code'] ) && ( 4 !== $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, $failed ),
-			'success'  => false,
-			'complete' => false
-		);
-	}
-	if ( ! $batch['found'] && $batch['complete'] ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		if ( empty( $total ) && $batch['complete'] ) {
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		/* translators: %s: Number of topic subscription relationships that would be added to topic meta */
-		$result = sprintf( _n( '%s topic subscription relationship would be added to topic meta from user meta in this batch.', '%s topic subscription relationships would be added to topic meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array(
-			0,
-			sprintf( $statement, $result ),
-			'complete' => $batch['complete']
-		);
-	}
-
-	if ( ! empty( $failed_total ) ) {
-		/* translators: %s: Number of topic subscription relationships added to topic meta */
-		$added    = sprintf( _n( '%s topic subscription relationship added', '%s topic subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
-		/* translators: %s: Number of topic subscription relationships that could not be added */
-		$failures = sprintf( _n( '%s topic subscription relationship could not be added', '%s topic subscription relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
-		$result = esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.';
-
-		return array(
-			4,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of topic subscription relationships added to topic meta */
-	$result = sprintf( _n( '%s topic subscription relationship added to topic meta.', '%s topic subscription relationships added to topic meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-	$status = $batch['complete']
-		? esc_html__( 'Complete!', 'bbpress' )
-		: esc_html__( 'Batch complete!', 'bbpress' );
-	$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_upgrade_user_meta_process( 'topic-subscriptions', $dry_run );
 }
 
 /**
@@ -1389,105 +769,7 @@ function bbp_admin_upgrade_user_forum_subscriptions_dry_run() {
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) {
-
-	// Define variables
-	$bbp_db  = bbp_db();
-	$failed  = esc_html__( 'Failed!', 'bbpress' );
-	$result  = esc_html__( '0 forum subscription relationships to upgrade.', 'bbpress' );
-	$old_key = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$new_key = '_bbp_subscription';
-
-	if ( $dry_run ) {
-		/* translators: %s: Status of the dry-run process */
-		$statement = esc_html__( 'Checking user forum subscriptions&hellip; %s', 'bbpress' );
-	} else {
-		/* translators: %s: Status of the upgrade process */
-		$statement = esc_html__( 'Upgrading user forum subscriptions&hellip; %s', 'bbpress' );
-	}
-
-	$batch        = bbp_admin_upgrade_user_meta_batch( 'bbp-user-forum-subscriptions-move', $old_key, $new_key, $dry_run );
-	$total        = $batch['added'];
-	$failed_total = $batch['failed'];
-
-	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
-
-	if ( ! empty( $batch['code'] ) && ( 4 !== $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, $failed ),
-			'success'  => false,
-			'complete' => false
-		);
-	}
-	if ( ! $batch['found'] && $batch['complete'] ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	if ( $dry_run ) {
-		if ( empty( $total ) && $batch['complete'] ) {
-			return array( 1, sprintf( $statement, $result ) );
-		}
-
-		/* translators: %s: Number of forum subscription relationships that would be added to forum meta */
-		$result = sprintf( _n( '%s forum subscription relationship would be added to forum meta from user meta in this batch.', '%s forum subscription relationships would be added to forum meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-		return array(
-			0,
-			sprintf( $statement, $result ),
-			'complete' => $batch['complete']
-		);
-	}
-
-	if ( ! empty( $failed_total ) ) {
-		/* translators: %s: Number of forum subscription relationships added to forum meta */
-		$added    = sprintf( _n( '%s forum subscription relationship added', '%s forum subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
-		/* translators: %s: Number of forum subscription relationships that could not be added */
-		$failures = sprintf( _n( '%s forum subscription relationship could not be added', '%s forum subscription relationships could not be added', $failed_total, 'bbpress' ), bbp_number_format( $failed_total ) );
-		$result = esc_html__( 'Failed!', 'bbpress' ) . "\n" . $added . ".\n" . $failures . '.';
-
-		return array(
-			4,
-			sprintf( $statement, $result ),
-			'success' => false,
-		);
-	}
-
-	// Complete results
-	/* translators: %s: Number of forum subscription relationships added to forum meta */
-	$result = sprintf( _n( '%s forum subscription relationship added to forum meta.', '%s forum subscription relationships added to forum meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
-
-	$status = $batch['complete']
-		? esc_html__( 'Complete!', 'bbpress' )
-		: esc_html__( 'Batch complete!', 'bbpress' );
-	$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
-}
-
-/**
- * Remove legacy user meta only when it is no longer needed.
- *
- * Dry Run only checks eligibility. Run holds the migration's lock while checking
- * its checkpoint and pending status again and deleting its source data.
- *
- * @since 2.7.0 bbPress (r8253)
- *
- * @param string $tool_id Migration tool ID.
- * @param string $key     Legacy user-meta key.
- * @param bool   $dry_run Whether to check eligibility without writes or locks.
- * @return bool|WP_Error True if allowed or deleted, false on deletion failure,
- *                       or an error if migration or storage still needs the data.
- */
-function bbp_admin_upgrade_remove_user_meta( $tool_id, $key, $dry_run = false ) {
-	$callback = static function () use ( $key, $dry_run ) {
-		return $dry_run ? true : delete_metadata( 'user', false, $key, false, true );
-	};
-
-	return bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run );
+	return bbp_admin_upgrade_user_meta_process( 'forum-subscriptions', $dry_run );
 }
 
 /**
@@ -1505,7 +787,6 @@ function bbp_admin_upgrade_remove_user_meta( $tool_id, $key, $dry_run = false ) 
  * @return mixed|WP_Error Callback result, or an error if the legacy data is still needed.
  */
 function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = false ) {
-	$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
 	$blocked = new WP_Error( 'bbp_upgrade_incomplete', esc_html__( 'Finish the upgrade before removing its legacy user data.', 'bbpress' ) );
 	$lock    = false;
 
@@ -1516,7 +797,6 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
 		}
 
 		// Recheck current options after acquiring the migration lock
-		wp_cache_delete( $option, 'options' );
 		wp_cache_delete( '_bbp_db_pending_upgrades', 'options' );
 		wp_cache_delete( '_bbp_engagements_strategy', 'options' );
 		wp_cache_delete( 'alloptions', 'options' );
@@ -1524,7 +804,8 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
 	}
 
 	try {
-		if ( ( false !== get_option( $option, false ) ) || in_array( $tool_id, bbp_get_pending_upgrades(), true ) ) {
+		list( $read, $checkpoint ) = bbp_admin_repair_tool_get_checkpoint( $tool_id );
+		if ( ! $read || false !== $checkpoint || in_array( $tool_id, bbp_get_pending_upgrades(), true ) ) {
 			return $blocked;
 		}
 
@@ -1555,9 +836,9 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
  * @return array Status code, removed rows, and progress flags.
  */
 function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run = false ) {
-	$db      = bbp_db();
-	$tool_id = 'bbp-user-' . $type . '-delete';
-	$batch   = array(
+	$db     = bbp_db();
+	$config = bbp_admin_get_user_relationship_config( $type );
+	$batch  = array(
 		'code'      => 0,
 		'removed'   => 0,
 		'initial'   => false,
@@ -1565,20 +846,17 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 		'restarted' => false,
 		'message'   => ''
 	);
-	if ( ! in_array( $type, array( 'favorites', 'topic-subscriptions', 'forum-subscriptions' ), true ) ) {
+	if ( false === $config ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
-	$suffix = str_replace( '-', '_', $type );
-	if ( 'topic-subscriptions' === $type ) {
-		$suffix = 'subscriptions';
-	}
-	$key      = $db->prefix . '_bbp_' . $suffix;
+	$tool_id  = $config['delete_tool_id'];
+	$key      = $config['source_key'];
 	$callback = static function () use ( $db, $tool_id, $key, $dry_run, $batch ) {
-		$state = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
-		if ( false !== $state && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) || ! isset( $state['key'] ) || $key !== $state['key'] ) ) {
-			$state              = false;
-			$batch['restarted'] = true;
+		list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'key' => $key ) );
+		if ( ! $read ) {
+			$batch['code'] = 6;
+			return $batch;
 		}
 		$batch['initial'] = false === $state;
 		if ( $batch['initial'] ) {
@@ -1592,7 +870,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 				'upper_id' => $upper,
 				'key'      => $key
 			);
-			if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+			if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 				$batch['code'] = 6;
 				return $batch;
 			}
@@ -1606,7 +884,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 		$complete = count( $rows ) <= $size;
 		foreach ( array_slice( $rows, 0, $size ) as $row ) {
 			if ( ! $dry_run ) {
-				$code = bbp_admin_repair_user_meta_row( $row, $key, '' );
+				$code = bbp_admin_repair_metadata_row( 'user', $row, $key, null );
 				if ( $code ) {
 					$batch['code'] = ( 1 === $code ) ? 2 : 3;
 					return $batch;
@@ -1615,14 +893,14 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 			++$batch['removed'];
 			$state['cursor'] = (int) $row->umeta_id;
 		}
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
 		$batch['complete'] = $complete;
 		return $batch;
 	};
-	$result = bbp_admin_upgrade_user_meta_cleanup( 'bbp-user-' . $type . '-move', $callback, $dry_run );
+	$result = bbp_admin_upgrade_user_meta_cleanup( $config['move_tool_id'], $callback, $dry_run );
 	if ( is_wp_error( $result ) ) {
 		$batch['code']    = 4;
 		$batch['message'] = $result->get_error_message();
@@ -1687,11 +965,7 @@ function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_r
 				$result = _n( '%s favorite user-meta row cleaned up.', '%s favorite user-meta rows cleaned up.', $total, 'bbpress' );
 			}
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . sprintf( $result, bbp_number_format( $total ) );
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
+	$result    = bbp_admin_repair_tool_batch_message( sprintf( $result, bbp_number_format( $total ) ), $batch['complete'], $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( '%s', $batch['restarted'], $dry_run );
 	$code      = $batch['initial'] && ! $total ? 1 : 0;
 	return array(

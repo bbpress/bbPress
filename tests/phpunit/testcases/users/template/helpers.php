@@ -31,7 +31,7 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 
 			$this->assertSame( array( $user_ids[1], $user_ids[0] ), $seen );
 			$this->assertFalse( bbpress()->user_query->in_the_loop );
-			$this->assertFalse( bbp_has_users( array( 'include' => array( PHP_INT_MAX ) ) ) );
+			$this->assertFalse( bbp_has_users( array( 'include' => array( $this->nonexistent_user_id() ) ) ) );
 		} finally {
 			bbpress()->user_query = $old_query;
 		}

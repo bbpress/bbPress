@@ -186,21 +186,21 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_is_forum( $topic_id ) );
 		$this->assertFalse( bbp_is_forum( $post_id ) );
 		$this->assertFalse( bbp_is_forum( 0 ) );
-		$this->assertFalse( bbp_is_forum( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_is_forum( $this->nonexistent_post_id() ) );
 
 		$this->assertTrue( bbp_is_topic( $topic_id ) );
 		$this->assertTrue( bbp_is_topic( (string) $topic_id ) );
 		$this->assertFalse( bbp_is_topic( $reply_id ) );
 		$this->assertFalse( bbp_is_topic( $post_id ) );
 		$this->assertFalse( bbp_is_topic( 0 ) );
-		$this->assertFalse( bbp_is_topic( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_is_topic( $this->nonexistent_post_id() ) );
 
 		$this->assertTrue( bbp_is_reply( $reply_id ) );
 		$this->assertTrue( bbp_is_reply( (string) $reply_id ) );
 		$this->assertFalse( bbp_is_reply( $forum_id ) );
 		$this->assertFalse( bbp_is_reply( $post_id ) );
 		$this->assertFalse( bbp_is_reply( 0 ) );
-		$this->assertFalse( bbp_is_reply( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_is_reply( $this->nonexistent_post_id() ) );
 	}
 
 	/**

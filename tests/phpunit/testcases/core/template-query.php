@@ -97,9 +97,9 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 	public function test_parse_query_clears_singular_state_on_user_routes() {
 		$user_id = $this->factory->user->create();
 		$cases   = array(
-			'page ID'   => array( 'page_id', PHP_INT_MAX ),
+			'page ID'   => array( 'page_id', $this->nonexistent_post_id() ),
 			'page name' => array( 'pagename', 'missing-page' ),
-			'post ID'   => array( 'p', PHP_INT_MAX ),
+			'post ID'   => array( 'p', $this->nonexistent_post_id() ),
 			'post name' => array( 'name', 'missing-post' ),
 		);
 
@@ -126,7 +126,7 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 	 */
 	public function test_parse_query_sets_404_for_unknown_user() {
 		$query = $this->set_main_query();
-		$query->set( bbp_get_user_rewrite_id(), PHP_INT_MAX );
+		$query->set( bbp_get_user_rewrite_id(), $this->nonexistent_user_id() );
 
 		bbp_parse_query( $query );
 		$this->assertTrue( $query->bbp_is_404 );

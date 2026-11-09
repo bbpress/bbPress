@@ -109,7 +109,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	public function test_bbp_filter_revision_post_author_ignores_a_missing_parent() {
 		$data = array(
 			'post_type'   => 'revision',
-			'post_parent' => PHP_INT_MAX,
+			'post_parent' => $this->nonexistent_post_id(),
 			'post_author' => 123,
 		);
 
@@ -139,7 +139,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_save_initial_post_revision_rejects_invalid_ids() {
 		$this->assertNull( bbp_save_initial_post_revision( -1 ) );
-		$this->assertNull( bbp_save_initial_post_revision( PHP_INT_MAX ) );
+		$this->assertNull( bbp_save_initial_post_revision( $this->nonexistent_post_id() ) );
 	}
 
 	/**

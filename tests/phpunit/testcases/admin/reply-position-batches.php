@@ -33,7 +33,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed() {
-		return array( array( 'phase', 3 ), array( 'cursor', -1 ), array( 'meta_cursor', PHP_INT_MAX ), array( 'context', 'post' ), array( 'changed', 1 ) );
+		return array( array( 'phase', 3 ), array( 'cursor', -1 ), array( 'meta_cursor', 'past-bound' ), array( 'context', 'post' ), array( 'changed', 1 ) );
 	}
 
 	public function source_changes() {
@@ -396,7 +396,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 	public function test_malformed_checkpoints_restart_without_dry_run_writes( $key, $value ) {
 		list( $topic, $ids ) = $this->fixture();
 		$state = $this->seed();
-		$state[ $key ] = $value;
+		$state[ $key ] = 'past-bound' === $value ? $state['meta_upper'] + 1 : $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
 		$this->assertTrue( bbp_admin_repair_reply_menu_order_batch( true )['restarted'] );

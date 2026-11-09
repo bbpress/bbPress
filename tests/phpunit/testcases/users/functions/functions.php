@@ -301,7 +301,7 @@
 		};
 
 		$this->assertSame( array(), bbp_get_user_nicenames_from_ids() );
-		$this->assertSame( array(), bbp_get_user_nicenames_from_ids( array( PHP_INT_MAX ) ) );
+		$this->assertSame( array(), bbp_get_user_nicenames_from_ids( array( $this->nonexistent_user_id() ) ) );
 		add_filter( 'bbp_get_user_nicenames_from_ids', $record, 10, 2 );
 
 		try {

@@ -29,12 +29,12 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	);
 
 	public function __construct( $dry_run = false ) {
-		$this->db      = bbp_db();
-		$this->type    = 'freshness';
-		$this->tool    = 'bbp-sync-all-topics-forums';
-		$this->dry_run = $dry_run;
-		$this->keys    = array( '_bbp_last_topic_id', '_bbp_last_reply_id', '_bbp_last_active_id', '_bbp_last_active_time' );
-		$this->context = array(
+		$this->db        = bbp_db();
+		$this->type      = 'freshness';
+		$this->tool_id   = 'bbp-sync-all-topics-forums';
+		$this->dry_run   = $dry_run;
+		$this->meta_keys = array( '_bbp_last_topic_id', '_bbp_last_reply_id', '_bbp_last_active_id', '_bbp_last_active_time' );
+		$this->context   = array(
 			'forum'    => bbp_get_forum_post_type(),
 			'topic'    => bbp_get_topic_post_type(),
 			'reply'    => bbp_get_reply_post_type(),
@@ -84,8 +84,8 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$state['orphan_upper']  = $upper;
 		$state['topic_node']    = false;
 		if ( ! $state['upper_id'] ) {
-			$slots  = implode( ', ', array_fill( 0, count( $this->keys ), '%s' ) );
-			$exists = $this->db->get_var( $this->db->prepare( "SELECT meta_id FROM {$this->db->postmeta} WHERE meta_key IN ({$slots}) LIMIT 1", $this->keys ) );
+			$slots  = implode( ', ', array_fill( 0, count( $this->meta_keys ), '%s' ) );
+			$exists = $this->db->get_var( $this->db->prepare( "SELECT meta_id FROM {$this->db->postmeta} WHERE meta_key IN ({$slots}) LIMIT 1", $this->meta_keys ) );
 			if ( ! empty( $this->db->last_error ) ) {
 				$this->code = 5;
 				return false;
@@ -132,6 +132,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	protected function prepare_node( $node, $post ) {
+		$node            = parent::prepare_node( $node, $post );
 		$node['kind']    = $this->context['topic'] === $post->post_type ? 'topics' : 'forums';
 		$node['direct']  = $node['values'];
 		$node['returns'] = array(
@@ -139,20 +140,18 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			'reply'  => 0,
 			'active' => 0
 		);
-		$node['source']  = $this->source_identity( $post );
 		return $node;
 	}
 
 	protected function valid_extra_node( $node ) {
-		if ( ! isset( $node['kind'], $node['direct'], $node['returns'], $node['source'] ) || ! in_array( $node['kind'], array( 'topics', 'forums' ), true )
+		if ( ! parent::valid_extra_node( $node ) || ! isset( $node['kind'], $node['direct'], $node['returns'], $node['source'] ) || ! in_array( $node['kind'], array( 'topics', 'forums' ), true )
 			|| ( 'topics' === $this->state['phase'] ? 'topics' : 'forums' ) !== $node['kind']
-			|| ! is_array( $node['direct'] ) || array_keys( $node['direct'] ) !== $this->keys
+			|| ! is_array( $node['direct'] ) || array_keys( $node['direct'] ) !== $this->meta_keys
 			|| ! is_array( $node['returns'] ) || array_keys( $node['returns'] ) !== array( 'topic', 'reply', 'active' ) ) {
 			return false;
 		}
-		if ( ! is_array( $node['source'] ) || array_keys( $node['source'] ) !== array( 'parent', 'status', 'date', 'type' )
-			|| ! is_int( $node['source']['parent'] ) || $node['source']['parent'] < 0
-			|| ! is_string( $node['source']['status'] ) || ! is_string( $node['source']['date'] )
+		if ( ! is_array( $node['source'] ) || array_keys( $node['source'] ) !== array( 'parent', 'status', 'type', 'date' )
+			|| ! is_string( $node['source']['date'] )
 			|| $node['source']['type'] !== $this->context[ 'topics' === $node['kind'] ? 'topic' : 'forum' ] ) {
 			return false;
 		}
@@ -170,7 +169,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	protected function values( $id, $post ) {
-		$values = array_fill_keys( $this->keys, null );
+		$values = array_fill_keys( $this->meta_keys, null );
 		if ( $this->context['topic'] === $post->post_type ) {
 			$reply = $this->db->get_row( $this->db->prepare( "SELECT MAX(ID) AS last_id, MAX(post_date) AS last_time FROM {$this->db->posts} WHERE post_parent = %d AND post_type = %s AND post_status = %s", $id, $this->context['reply'], $this->context['public'] ) );
 			if ( ! empty( $this->db->last_error ) || ! $reply ) {
@@ -243,9 +242,6 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	protected function merge_child( &$parent_node, $child, $edge ) {
-		if ( ! $this->before_write( $child ) ) {
-			return;
-		}
 		$topic = $child['returns']['topic'];
 		$time  = $this->topic_time( $topic );
 		$prior = $parent_node['values']['_bbp_last_topic_id'];
@@ -287,31 +283,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		++$this->totals[ $node['kind'] ];
 	}
 
-	private function source_identity( $post ) {
-		return array(
-			'parent' => (int) $post->post_parent,
-			'status' => $post->post_status,
-			'date'   => $post->post_date,
-			'type'   => $post->post_type
-		);
-	}
-
-	protected function before_write( $node ) {
-		$post = $this->source_post( $node['id'] );
-		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 3;
-			return false;
-		}
-		if ( ! $post || $this->source_identity( $post ) !== $node['source'] ) {
-			$this->corrupt = true;
-			return false;
-		}
-		return true;
+	protected function source_identity( $post ) {
+		$source         = parent::source_identity( $post );
+		$source['date'] = $post->post_date;
+		return $source;
 	}
 
 	private function orphans( $limit ) {
-		$slots = implode( ', ', array_fill( 0, count( $this->keys ), '%s' ) );
-		$args  = array_merge( $this->keys, array( $this->state['orphan_cursor'], $this->state['orphan_upper'], $limit + 1, $this->context['forum'], $this->context['topic'] ) );
+		$slots = implode( ', ', array_fill( 0, count( $this->meta_keys ), '%s' ) );
+		$args  = array_merge( $this->meta_keys, array( $this->state['orphan_cursor'], $this->state['orphan_upper'], $limit + 1, $this->context['forum'], $this->context['topic'] ) );
 		// Materialize a primary-key window before filtering. Valid and unrelated rows consume work too.
 		$query = $this->db->prepare(
 			"SELECT candidates.meta_id, candidates.post_id, candidates.meta_key,

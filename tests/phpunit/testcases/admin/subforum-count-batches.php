@@ -369,7 +369,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed_checkpoints() {
-		return array( array( 'cursor', -1 ), array( 'cursor', '0' ), array( 'cursor', PHP_INT_MAX ), array( 'upper_id', null ), array( 'post_type', array() ) );
+		return array( array( 'cursor', -1 ), array( 'cursor', '0' ), array( 'cursor', 'past-bound' ), array( 'upper_id', null ), array( 'post_type', array() ) );
 	}
 
 	/**
@@ -379,7 +379,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		$ids = $this->forums();
 		$this->assertFalse( bbp_admin_repair_forum_subforum_count()['complete'] );
 		$state           = get_option( $this->option() );
-		$state[ $field ] = $value;
+		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
 		$this->assertStringContainsString( 'Saved progress is invalid.', bbp_admin_repair_forum_subforum_count_dry_run()[1] );

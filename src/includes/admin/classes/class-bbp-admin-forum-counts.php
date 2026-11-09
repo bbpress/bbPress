@@ -23,15 +23,15 @@ defined( 'ABSPATH' ) || exit;
 class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 
 	public function __construct( $type, $dry_run = false ) {
-		$this->db      = bbp_db();
-		$this->type    = $type;
-		$this->dry_run = $dry_run;
-		$this->tool    = 'bbp-forum-' . $type;
-		$this->keys    = ( 'topics' === $type )
+		$this->db        = bbp_db();
+		$this->type      = $type;
+		$this->dry_run   = $dry_run;
+		$this->tool_id   = 'bbp-forum-' . $type;
+		$this->meta_keys = ( 'topics' === $type )
 			? array( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' )
 			: array( '_bbp_reply_count', '_bbp_total_reply_count' );
 		if ( 'hidden-replies' === $type ) {
-			$this->keys = array( '_bbp_reply_count_hidden', '_bbp_total_reply_count_hidden' );
+			$this->meta_keys = array( '_bbp_reply_count_hidden', '_bbp_total_reply_count_hidden' );
 		}
 		$this->context = array(
 			'forum'    => bbp_get_forum_post_type(),
@@ -105,7 +105,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 					$this->code = 4;
 				}
 			}
-			return array_combine( $this->keys, array( $public, $public, $hidden, $hidden ) );
+			return array_combine( $this->meta_keys, array( $public, $public, $hidden, $hidden ) );
 		}
 		$type = $this->db->get_var( $this->db->prepare( "SELECT meta_value FROM {$this->db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_forum_type' ORDER BY meta_id LIMIT 1", $id ) );
 		if ( ! empty( $this->db->last_error ) ) {
@@ -133,7 +133,43 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 				}
 			}
 		}
-		return array_combine( $this->keys, array( (int) $count, (int) $count ) );
+		return array_combine( $this->meta_keys, array( (int) $count, (int) $count ) );
+	}
+
+	protected function prepare_node( $node, $post ) {
+		$node           = parent::prepare_node( $node, $post );
+		$node['direct'] = $node['values'];
+		return $node;
+	}
+
+	protected function valid_extra_node( $node ) {
+		if ( ! parent::valid_extra_node( $node ) || ! isset( $node['direct'] ) || ! is_array( $node['direct'] )
+			|| array_keys( $node['direct'] ) !== $this->meta_keys || $node['source']['type'] !== $this->context['forum'] ) {
+			return false;
+		}
+		foreach ( $node['direct'] as $key => $value ) {
+			if ( ! $this->valid_value( $key, $value, $node['counted'] ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	protected function before_write( $node ) {
+		if ( ! parent::before_write( $node ) ) {
+			return false;
+		}
+		if ( ! $this->legacy && $node['counted'] ) {
+			$direct = $this->values( $node['id'], null );
+			if ( $this->code ) {
+				return false;
+			}
+			if ( $direct !== $node['direct'] ) {
+				$this->corrupt = true;
+				return false;
+			}
+		}
+		return true;
 	}
 
 	protected function meta_error() {
@@ -142,11 +178,11 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 
 	protected function merge_child( &$parent_node, $child, $edge ) {
 		if ( 'topics' === $this->type ) {
-			$parent_node['values'][ $this->keys[1] ] += (int) apply_filters( 'bbp_update_forum_topic_count', $child['values'][ $this->keys[1] ], $edge );
-			$parent_node['values'][ $this->keys[3] ] += (int) apply_filters( 'bbp_get_forum_topic_count_hidden_int', $child['values'][ $this->keys[3] ], $edge );
+			$parent_node['values'][ $this->meta_keys[1] ] += (int) apply_filters( 'bbp_update_forum_topic_count', $child['values'][ $this->meta_keys[1] ], $edge );
+			$parent_node['values'][ $this->meta_keys[3] ] += (int) apply_filters( 'bbp_get_forum_topic_count_hidden_int', $child['values'][ $this->meta_keys[3] ], $edge );
 		} else {
 			$hook = ( 'hidden-replies' === $this->type ) ? 'bbp_update_forum_reply_count_hidden' : 'bbp_update_forum_reply_count';
-			$parent_node['values'][ $this->keys[1] ] += (int) apply_filters( $hook, $child['values'][ $this->keys[1] ], $child['id'] );
+			$parent_node['values'][ $this->meta_keys[1] ] += (int) apply_filters( $hook, $child['values'][ $this->meta_keys[1] ], $child['id'] );
 		}
 	}
 

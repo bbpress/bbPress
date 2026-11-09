@@ -137,130 +137,6 @@ function bbp_admin_mention_backfill_message( $state ) {
 /** Helpers *******************************************************************/
 
 /**
- * Reconcile one stored count with bounded metadata writes.
- *
- * Keep an existing canonical row, or add it before cleaning up other rows.
- * A null count removes all matching rows. Each inspected object costs at least
- * one work item, even when its stored count is already correct.
- *
- * @since 2.7.0 bbPress (r8265)
- *
- * @param string   $meta_type Metadata type: 'post' or 'user'.
- * @param int      $object_id Object ID.
- * @param string   $key       Count metadata key.
- * @param int|null $count     Expected count, or null when no row should remain.
- * @param int      $limit     Maximum metadata writes.
- * @param bool     $dry_run   Whether to preview without writes.
- * @return array Status code, work used, changed flag, and completion flag.
- */
-function bbp_admin_repair_count_metadata( $meta_type, $object_id, $key, $count, $limit, $dry_run = false ) {
-	return bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $count, $limit, $dry_run );
-}
-
-/**
- * Reconcile one metadata value with bounded writes.
- *
- * Preserve a canonical row, or add it before cleaning up other rows. A null
- * value removes all matching rows. Counts, references, activity, and lists
- * share this cleanup, and each inspected object costs at least one work item.
- * Keep the first source row readable until the other duplicates are removed.
- * Failed insertions can use one extra compensating delete before returning an
- * error. Reuse a spare row if that rollback fails, keeping retries bounded.
- *
- * @since 2.7.0 bbPress (r8277)
- * @since 2.7.0 bbPress (r8303) Support serialized lists and verify inserted rows.
- *
- * @param string               $meta_type Metadata type: 'post' or 'user'.
- * @param int                  $object_id Object ID.
- * @param string               $key       Metadata key.
- * @param int|string|array|null $value     Expected value, or null when no row should remain.
- * @param int                  $limit     Maximum metadata writes.
- * @param bool                 $dry_run   Whether to preview without writes.
- * @return array Status code, work used, changed flag, and completion flag.
- */
-function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false ) {
-	$bbp_db     = bbp_db();
-	$table      = $bbp_db->{$meta_type . 'meta'};
-	$id_column  = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id';
-	$object_key = $meta_type . '_id';
-	$result     = array(
-		'code'     => 0,
-		'work'     => 0,
-		'changed'  => false,
-		'complete' => false
-	);
-	$stored_value = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
-	$keep_id      = 0;
-	if ( null !== $value ) {
-		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, $stored_value ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			$result['code'] = 2;
-			return $result;
-		}
-	}
-
-	if ( ! $dry_run ) {
-		wp_cache_delete( $object_id, $meta_type . '_meta' );
-	}
-	if ( ( null !== $value ) && empty( $keep_id ) ) {
-		// Keep the oldest exact-key source intact; reuse only a later exact-key row
-		$ids = $bbp_db->get_col( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s ORDER BY {$id_column} LIMIT 2", $object_id, $key ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			$result['code'] = 2;
-			return $result;
-		}
-		$keep_id = count( $ids ) > 1 ? (int) $ids[1] : 0;
-		if ( ! $dry_run ) {
-			if ( $keep_id ) {
-				$row = (object) array(
-					$id_column   => $keep_id,
-					$object_key  => $object_id,
-					'meta_key'   => $key,
-					'meta_value' => null
-				);
-				$code = bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value );
-				$result['code'] = 1 === $code ? 2 : $code;
-			} else {
-				$added          = bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value );
-				$result['code'] = $added['code'];
-				$keep_id        = $added['meta_id'];
-			}
-			if ( $result['code'] ) {
-				return $result;
-			}
-		}
-		++$result['work'];
-		$result['changed'] = true;
-	}
-
-	$remaining = $limit - $result['work'];
-	$extra_ids = $bbp_db->get_col( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND meta_key = %s AND {$id_column} <> %d ORDER BY {$id_column} DESC LIMIT %d", $object_id, $key, $keep_id, $remaining + 1 ) );
-	if ( ! empty( $bbp_db->last_error ) ) {
-		$result['code'] = 2;
-		return $result;
-	}
-	foreach ( array_slice( $extra_ids, 0, $remaining ) as $meta_id ) {
-		if ( ! $dry_run ) {
-			$row = (object) array(
-				$id_column  => (int) $meta_id,
-				$object_key => $object_id
-			);
-			$code = bbp_admin_repair_metadata_row( $meta_type, $row, $key, null );
-			if ( $code ) {
-				$result['code'] = 1 === $code ? 2 : 3;
-				return $result;
-			}
-		}
-		++$result['work'];
-		$result['changed'] = true;
-	}
-	$result['work']     = max( 1, $result['work'] );
-	$result['complete'] = count( $extra_ids ) <= $remaining;
-
-	return $result;
-}
-
-/**
  * Repair one bounded batch of topic or parent-forum references.
  *
  * Include orphaned metadata in the same cursor and write budget. Preserve
@@ -282,7 +158,6 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 	if ( $is_forum ) {
 		$types[] = bbp_get_forum_post_type();
 	}
-	$state = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch = array(
 		'code'      => 0,
 		'topics'    => 0,
@@ -292,6 +167,12 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 		'complete'  => false,
 		'restarted' => false
 	);
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'post_types' => $types ) );
+	if ( ! $read ) {
+		$batch['code'] = 7;
+		return $batch;
+	}
+
 	if ( ! in_array( $reference, array( 'topic', 'forum' ), true ) ) {
 		$batch['code'] = 7;
 		return $batch;
@@ -300,10 +181,6 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 		$batch['forums'] = 0;
 	}
 	$type_slots = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
-	if ( ( false !== $state ) && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) || ! isset( $state['post_types'] ) || ( $types !== $state['post_types'] ) ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
-	}
 	$batch['initial'] = ( false === $state );
 	if ( $batch['initial'] ) {
 		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(ID) FROM {$bbp_db->posts} WHERE post_type IN ({$type_slots})", $types ) );
@@ -371,12 +248,13 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 			$expected[ (int) $row->ID ] = $row;
 		}
 	}
-	if ( ! $dry_run && $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+	if ( $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 		$batch['code'] = 7;
 		return $batch;
 	}
 	$work     = 0;
 	$finished = 0;
+	$verified = array();
 	foreach ( $ids as $id ) {
 		if ( $work >= $size ) {
 			break;
@@ -404,26 +282,19 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 			break;
 		}
 
-		// Verify completed references before saving progress past them
-		if ( ! $dry_run ) {
-			$stored = $bbp_db->get_row( $bbp_db->prepare( "SELECT COUNT(*) AS row_count, MIN(meta_key) AS meta_key, MIN(meta_value) AS meta_value FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s", $id, $key ) );
-			if ( ! empty( $bbp_db->last_error ) ) {
-				$batch['code'] = 3;
-				return $batch;
-			}
-			$valid = ( null === $value )
-				? ( 0 === (int) $stored->row_count )
-				: ( ( 1 === (int) $stored->row_count ) && ( $key === $stored->meta_key ) && ( (string) $value === $stored->meta_value ) );
-			if ( ! $valid ) {
-				$batch['code'] = 7;
-				return $batch;
-			}
-		}
+		$verified[ $id ] = $value;
 		$state['cursor'] = $id + 1;
 		++$finished;
 	}
+	if ( ! $dry_run ) {
+		$mismatches = bbp_admin_repair_metadata_mismatches( 'post', $key, $verified );
+		if ( false === $mismatches || ! empty( $mismatches ) ) {
+			$batch['code'] = false === $mismatches ? 3 : 7;
+			return $batch;
+		}
+	}
 	$complete = ! $has_more && ( count( $ids ) === $finished );
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 		$batch['code'] = 7;
 		return $batch;
 	}
@@ -452,162 +323,6 @@ function bbp_admin_repair_clean_post_meta_cache( $post_type = '' ) {
 }
 
 /**
- * Clear cached metadata for repaired bbPress posts in bounded batches.
- *
- * @since 2.7.0 bbPress (r8239)
- *
- * @param array  $post_types Post type names to clear.
- * @param string $meta_key   Optional metadata key whose existing posts should also be cleared.
- * @return bool True on success, false on a database error.
- */
-function bbp_admin_repair_clean_post_meta_cache_batched( $post_types = array(), $meta_key = '' ) {
-	$bbp_db     = bbp_db();
-	$post_types = array_values( array_unique( array_filter( (array) $post_types ) ) );
-
-	if ( empty( $post_types ) ) {
-		return true;
-	}
-
-	$placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
-	$last_post_id = 0;
-
-	do {
-		$query_args = array_merge( $post_types, array( $last_post_id ) );
-		$post_ids   = $bbp_db->get_col(
-			$bbp_db->prepare(
-				"SELECT `ID` FROM `{$bbp_db->posts}`
-				WHERE `post_type` IN ( {$placeholders} )
-					AND `ID` > %d
-				ORDER BY `ID`
-				LIMIT 1000",
-				$query_args
-			)
-		);
-
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return false;
-		}
-
-		$post_ids   = wp_parse_id_list( $post_ids );
-		$post_count = count( $post_ids );
-		if ( ! empty( $post_ids ) ) {
-			wp_cache_delete_multiple( $post_ids, 'post_meta' );
-			$last_post_id = (int) end( $post_ids );
-		}
-	} while ( 1000 === $post_count );
-
-	if ( empty( $meta_key ) ) {
-		return true;
-	}
-
-	$last_post_id = 0;
-
-	do {
-		$post_ids   = $bbp_db->get_col(
-			$bbp_db->prepare(
-				"SELECT DISTINCT `post_id` FROM `{$bbp_db->postmeta}`
-				WHERE `meta_key` = %s
-					AND `post_id` > %d
-				ORDER BY `post_id`
-				LIMIT 1000",
-				$meta_key,
-				$last_post_id
-			)
-		);
-
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return false;
-		}
-
-		$post_ids   = wp_parse_id_list( $post_ids );
-		$post_count = count( $post_ids );
-		if ( ! empty( $post_ids ) ) {
-			wp_cache_delete_multiple( $post_ids, 'post_meta' );
-			$last_post_id = (int) end( $post_ids );
-		}
-	} while ( 1000 === $post_count );
-
-	return true;
-}
-
-/**
- * Delete orphaned freshness metadata in bounded batches.
- *
- * Cache entries are cleared before and after each delete so another request
- * cannot leave deleted metadata in a persistent object cache.
- *
- * @since 2.7.0 bbPress (r8241)
- *
- * @param array $post_types Post types whose freshness metadata is valid.
- * @param array $meta_keys  Freshness metadata keys to delete.
- * @return int Zero on success, 1 on a delete error, or 14 on a read error.
- */
-function bbp_admin_repair_delete_orphaned_freshness_batched( $post_types = array(), $meta_keys = array() ) {
-	$bbp_db     = bbp_db();
-	$post_types = array_values( array_unique( array_filter( (array) $post_types ) ) );
-	$meta_keys  = array_values( array_unique( array_filter( (array) $meta_keys ) ) );
-
-	if ( empty( $post_types ) || empty( $meta_keys ) ) {
-		return 0;
-	}
-
-	$post_type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
-	$meta_key_placeholders  = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
-	$last_post_id           = -1;
-
-	do {
-		$query_args = array_merge( $post_types, $meta_keys, array( $last_post_id ) );
-		$post_ids   = $bbp_db->get_col(
-			$bbp_db->prepare(
-				"SELECT DISTINCT `freshness`.`post_id`
-				FROM `{$bbp_db->postmeta}` AS `freshness`
-				LEFT JOIN `{$bbp_db->posts}` AS `content`
-					ON `freshness`.`post_id` = `content`.`ID`
-					AND `content`.`post_type` IN ( {$post_type_placeholders} )
-				WHERE `freshness`.`meta_key` IN ( {$meta_key_placeholders} )
-					AND `content`.`ID` IS NULL
-					AND `freshness`.`post_id` > %d
-				ORDER BY `freshness`.`post_id`
-				LIMIT 1000",
-				$query_args
-			)
-		);
-
-		if ( ! empty( $bbp_db->last_error ) ) {
-			return 14;
-		}
-
-		$post_ids   = array_values( array_unique( array_map( 'intval', $post_ids ) ) );
-		$post_count = count( $post_ids );
-
-		if ( ! empty( $post_ids ) ) {
-			wp_cache_delete_multiple( $post_ids, 'post_meta' );
-
-			$post_id_placeholders = implode( ', ', array_fill( 0, $post_count, '%d' ) );
-			$delete_args          = array_merge( $post_ids, $meta_keys );
-			$deleted              = $bbp_db->query(
-				$bbp_db->prepare(
-					"DELETE FROM `{$bbp_db->postmeta}`
-					WHERE `post_id` IN ( {$post_id_placeholders} )
-						AND `meta_key` IN ( {$meta_key_placeholders} )",
-					$delete_args
-				)
-			);
-
-			wp_cache_delete_multiple( $post_ids, 'post_meta' );
-
-			if ( false === $deleted ) {
-				return 1;
-			}
-
-			$last_post_id = (int) end( $post_ids );
-		}
-	} while ( 1000 === $post_count );
-
-	return 0;
-}
-
-/**
  * Admin repair page.
  *
  * @since 2.6.0 bbPress (r6277) Converted from bbPress 1.2
@@ -616,211 +331,7 @@ function bbp_admin_repair_delete_orphaned_freshness_batched( $post_types = array
  * @todo Use a real list table
  */
 function bbp_admin_repair_page() {
-
-	// Get the registered repair tools
-	$tools = bbp_admin_repair_list();
-
-	// Orderby
-	$orderby = ! empty( $_GET['orderby'] )
-		? sanitize_key( $_GET['orderby'] )
-		: 'priority';
-
-	// Order
-	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
-		? strtolower( $_GET['order'] )
-		: 'asc';
-
-	// New order
-	$new_order = ( 'desc' === $order )
-		? 'asc'
-		: 'desc'; ?>
-
-	<div class="wrap">
-		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
-		<hr class="wp-header-end">
-		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( 'bbp-repair' ); ?></h2>
-
-		<p><?php esc_html_e( 'bbPress keeps track of relationships between forums, topics, replies, topic-tags, favorites, subscriptions, and users. Occasionally these relationships become out of sync, most often after an import or migration. Use the tools below to manually recalculate these relationships.', 'bbpress' ); ?></p>
-		<p class="description"><?php esc_html_e( 'Some of these tools create substantial database overhead. Use caution when running more than 1 repair at a time.', 'bbpress' ); ?></p>
-
-		<?php bbp_admin_repair_tool_status_filters(); ?>
-
-		<form class="settings" method="get" action="">
-
-			<?php bbp_admin_repair_list_search_form(); ?>
-
-			<input type="hidden" name="page" value="bbp-repair" />
-			<?php wp_nonce_field( 'bbpress-do-counts' ); ?>
-
-			<div class="tablenav top">
-				<div class="alignleft actions bulkactions">
-					<label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
-					<select name="action" id="bulk-action-selector-top">
-						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
-					</select>
-					<input type="submit" name="doaction" id="doaction" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
-				</div>
-				<div class="alignleft actions">
-
-					<?php bbp_admin_repair_list_components_filter(); ?>
-
-					<input type="submit" name="filter_action" id="components-submit" class="button" value="<?php esc_html_e( 'Filter', 'bbpress' ); ?>">
-				</div>
-				<br class="clear">
-			</div>
-			<table class="wp-list-table widefat striped posts">
-				<thead>
-					<tr>
-						<td id="cb" class="manage-column column-cb check-column">
-							<label class="screen-reader-text" for="cb-select-all-1">
-								<?php esc_html_e( 'Select All', 'bbpress' ); ?>
-							</label>
-							<input id="cb-select-all-1" type="checkbox">
-						</td>
-						<th scope="col" id="description" class="manage-column column-primary column-description sortable <?php echo ( 'priority' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
-							<a href="<?php
-
-								echo esc_url(
-									bbp_get_admin_repair_tool_page_url(
-										array(
-											'orderby' => 'priority',
-											'order'   => $new_order
-										)
-									)
-								);
-
-								?>">
-								<span>
-									<?php esc_html_e( 'Description', 'bbpress' ); ?>
-								</span>
-								<span class="sorting-indicator"></span>
-							</a>
-						</th>
-						<th scope="col" id="bbp-tool-components" class="manage-column column-components">
-							<span><?php esc_html_e( 'Components', 'bbpress' ); ?></span>
-						</th>
-						<th scope="col" id="overhead" class="manage-column column-overhead sortable <?php echo ( 'overhead' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
-							<a href="<?php
-
-								echo esc_url(
-									bbp_get_admin_repair_tool_page_url(
-										array(
-											'orderby' => 'overhead',
-											'order'   => $new_order
-										)
-									)
-								);
-
-								?>">
-								<span>
-									<?php esc_html_e( 'Overhead', 'bbpress' ); ?>
-								</span>
-								<span class="sorting-indicator"></span>
-							</a>
-						</th>
-					</tr>
-				</thead>
-
-				<tbody id="the-list">
-
-					<?php if ( ! empty( $tools ) ) : ?>
-
-						<?php foreach ( $tools as $item ) :
-
-							$item_html_id = str_replace( '_', '-', $item['id'] );
-							$select_id    = 'cb-select-' . $item_html_id;
-
-							?>
-
-							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive">
-								<th scope="row" class="check-column">
-									<label class="screen-reader-text" for="<?php echo esc_attr( $select_id ); ?>">
-										<?php
-										printf(
-											/* translators: %s: Repair tool title */
-											esc_html__( 'Select %s', 'bbpress' ),
-											esc_html( $item['title'] )
-										);
-										?>
-									</label>
-									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( $select_id ); ?>">
-								</th>
-								<td class="bbp-tool-title column-primary column-description"
-									data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
-									<strong><?php echo esc_html( $item['title'] ); ?></strong>
-
-									<?php if ( ! empty( $item['description'] ) ) : ?>
-										<p class="description"><?php echo esc_html( $item['description'] ); ?></p>
-									<?php endif; ?>
-
-									<div class="row-actions hide-if-no-js">
-										<?php bbp_admin_repair_tool_row_actions( $item ); ?>
-									</div>
-
-									<button type="button" class="toggle-row">
-										<span class="screen-reader-text">
-											<?php esc_html_e( 'Show more details', 'bbpress' ); ?>
-										</span>
-									</button>
-								</td>
-								<td class="column-components desc" data-colname="<?php esc_html_e( 'Components', 'bbpress' ); ?>">
-									<div class="bbp-tool-overhead">
-
-										<?php echo implode( ', ', bbp_get_admin_repair_tool_components( $item ) ); ?>
-
-									</div>
-								</td>
-								<td class="column-overhead desc" data-colname="<?php esc_html_e( 'Overhead', 'bbpress' ); ?>">
-									<div class="bbp-tool-overhead">
-
-										<?php echo implode( ', ', bbp_get_admin_repair_tool_overhead( $item ) ); ?>
-
-									</div>
-								</td>
-							</tr>
-
-						<?php endforeach; ?>
-
-					<?php else : ?>
-
-						<tr>
-							<td colspan="4">
-								<?php esc_html_e( 'No repair tools match this criteria.', 'bbpress' ); ?>
-							</td>
-						</tr>
-
-					<?php endif; ?>
-
-				</tbody>
-				<tfoot>
-					<tr>
-						<td class="manage-column column-cb check-column">
-							<label class="screen-reader-text" for="cb-select-all-2">
-								<?php esc_html_e( 'Select All', 'bbpress' ); ?>
-							</label>
-							<input id="cb-select-all-2" type="checkbox">
-						</td>
-						<th scope="col" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
-						<th scope="col" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
-						<th scope="col" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
-					</tr>
-				</tfoot>
-			</table>
-			<div class="tablenav bottom">
-				<div class="alignleft actions bulkactions">
-					<label for="bulk-action-selector-bottom" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'bbpress' ); ?></label>
-					<select name="action2" id="bulk-action-selector-bottom">
-						<option value="" selected="selected"><?php esc_html_e( 'Bulk Actions', 'bbpress' ); ?></option>
-						<?php bbp_admin_repair_tool_bulk_actions( $tools ); ?>
-					</select>
-					<input type="submit" name="doaction2" id="doaction2" class="button action" value="<?php esc_attr_e( 'Apply', 'bbpress' ); ?>">
-				</div>
-			</div>
-		</form>
-	</div>
-
-<?php
+	bbp_admin_tools_repair_upgrade_page( 'repair' );
 }
 
 /**
@@ -861,17 +372,16 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
 	$bbp_db  = bbp_db();
 	$tool_id = $hidden ? 'bbp-topic-hidden-replies' : 'bbp-topic-replies';
 	$key     = $hidden ? '_bbp_reply_count_hidden' : '_bbp_reply_count';
-	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch   = array(
 		'code'      => 0,
 		'repaired'  => 0,
 		'complete'  => false,
 		'restarted' => false
 	);
-
-	if ( ( false !== $state ) && ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
 
 	$tpt = bbp_get_topic_post_type();
@@ -886,7 +396,7 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
 			'cursor'   => 0,
 			'upper_id' => $upper_id
 		);
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -938,7 +448,7 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
 			}
 		}
 
-		$repair = bbp_admin_repair_count_metadata( 'post', $topic_id, $key, $count, $size - $work, $dry_run );
+		$repair = bbp_admin_repair_single_metadata( 'post', $topic_id, $key, $count, $size - $work, $dry_run );
 		if ( ! empty( $repair['code'] ) ) {
 			$batch['code'] = $repair['code'];
 			return $batch;
@@ -956,7 +466,7 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
 	}
 
 	$complete = count( $topics ) === $finished;
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
@@ -999,12 +509,7 @@ function bbp_admin_repair_topic_reply_count_process( $dry_run = false, $hidden =
 	$batch     = bbp_admin_repair_topic_reply_count_batch( $hidden, $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( $dry_run && empty( $batch['repaired'] ) && $batch['complete'] ) {
 		return array(
@@ -1029,16 +534,7 @@ function bbp_admin_repair_topic_reply_count_process( $dry_run = false, $hidden =
 		/* translators: %d: Number of topics whose reply counts were repaired */
 		$result = sprintf( _n( 'Reply counts repaired in %d topic.', 'Reply counts repaired in %d topics.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**
@@ -1101,7 +597,6 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 	$tool_id = 'bbp-topic-engagements';
 	$tpt     = bbp_get_topic_post_type();
 	$context = array( $tpt, bbp_get_reply_post_type(), array_values( (array) bbp_get_public_topic_statuses() ), array_values( (array) bbp_get_public_reply_statuses() ) );
-	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch   = array(
 		'code'        => 0,
 		'engagements' => 0,
@@ -1109,10 +604,12 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 		'complete'    => false,
 		'restarted'   => false
 	);
-	if ( ( false !== $state ) && ! bbp_admin_repair_topic_voice_count_is_valid_checkpoint( $state, $context ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_topic_voice_count_is_valid_checkpoint', $context );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
+
 	if ( false === $state ) {
 		$upper_id = (int) $bbp_db->get_var( "SELECT MAX(meta_id) FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement')" );
 		if ( ! empty( $bbp_db->last_error ) ) {
@@ -1131,7 +628,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			'topic_upper' => $topic_upper,
 			'context'     => $context
 		);
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -1200,6 +697,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			$counts = wp_list_pluck( $rows, 'voice_count', 'post_id' );
 		}
 		$finished = 0;
+		$verified = array();
 		foreach ( $ids as $id ) {
 			if ( $work >= $size ) {
 				break;
@@ -1207,7 +705,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			$id    = (int) $id;
 			$count = isset( $counts[ $id ] ) ? (int) $counts[ $id ] : 0;
 			$value  = $count ? $count : null;
-			$repair = bbp_admin_repair_count_metadata( 'post', $id, '_bbp_voice_count', $value, $size - $work, $dry_run );
+			$repair = bbp_admin_repair_single_metadata( 'post', $id, '_bbp_voice_count', $value, $size - $work, $dry_run );
 			if ( ! empty( $repair['code'] ) ) {
 				$batch['code'] = $repair['code'] + 1;
 				return $batch;
@@ -1220,26 +718,20 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 				$state['cursor'] = $id;
 				break;
 			}
-			if ( ! $dry_run ) {
-				$stored = $bbp_db->get_row( $bbp_db->prepare( "SELECT COUNT(*) AS row_count, MIN(meta_key) AS meta_key, MIN(meta_value) AS meta_value FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_voice_count'", $id ) );
-				if ( ! empty( $bbp_db->last_error ) ) {
-					$batch['code'] = 3;
-					return $batch;
-				}
-				$valid = ( null === $value )
-					? ( 0 === (int) $stored->row_count )
-					: ( ( 1 === (int) $stored->row_count ) && ( '_bbp_voice_count' === $stored->meta_key ) && ( (string) $value === $stored->meta_value ) );
-				if ( ! $valid ) {
-					$batch['code'] = 3;
-					return $batch;
-				}
-			}
+			$verified[ $id ] = $value;
 			$state['cursor'] = $id + 1;
 			++$finished;
 		}
+		if ( ! $dry_run ) {
+			$mismatches = bbp_admin_repair_metadata_mismatches( 'post', '_bbp_voice_count', $verified );
+			if ( false === $mismatches || ! empty( $mismatches ) ) {
+				$batch['code'] = 3;
+				return $batch;
+			}
+		}
 		$batch['complete'] = ! $has_more && ( count( $ids ) === $finished );
 	}
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'], $dry_run ) ) {
 		$batch['code']     = 6;
 		$batch['complete'] = false;
 	}
@@ -1266,12 +758,7 @@ function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
 	$batch     = bbp_admin_repair_topic_voice_count_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( $dry_run && ! $batch['engagements'] && ! $batch['voices'] && $batch['complete'] ) {
 		return array(
@@ -1291,16 +778,7 @@ function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
 		/* translators: %d: Number of topics whose voice counts were repaired */
 		$voices = sprintf( _n( 'Voice counts repaired in %d topic.', 'Voice counts repaired in %d topics.', $batch['voices'], 'bbpress' ), $batch['voices'] );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $engagements . "\n" . $voices;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $engagements . "\n" . $voices, $dry_run );
 }
 
 /**
@@ -1406,15 +884,10 @@ function bbp_admin_repair_forum_count_process( $type = 'topics', $dry_run = fals
 			$statement = esc_html__( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
 		}
 	}
-	$batch = bbp_admin_repair_forum_count_batch( $type, $dry_run );
+	$batch     = bbp_admin_repair_forum_count_batch( $type, $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( $batch['code'] ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success' => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( ! $batch['repaired'] && $batch['complete'] && ( $dry_run || $batch['initial'] ) ) {
 		return array(
@@ -1442,16 +915,7 @@ function bbp_admin_repair_forum_count_process( $type = 'topics', $dry_run = fals
 			/* translators: %d: Number of forums whose reply counts were repaired */
 			: sprintf( _n( 'Reply counts repaired in %d forum.', 'Reply counts repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**
@@ -1600,51 +1064,14 @@ function bbp_admin_repair_forum_subforum_count_get_status( $forum_ids = null ) {
 	if ( ! empty( $result['code'] ) ) {
 		return $result;
 	}
-	$bbp_db   = bbp_db();
-	$key      = '_bbp_forum_subforum_count';
-	$eligible = array_keys( get_post_stati() );
-	$slots    = implode( ', ', array_fill( 0, count( $eligible ), '%s' ) );
-	$scope    = '';
-	$args     = array_merge( array( bbp_get_forum_post_type() ), $eligible, array( $key ) );
-	if ( null !== $forum_ids ) {
-		$forum_ids = wp_parse_id_list( $forum_ids );
-		$scope     = 'AND 1 = 0';
-		if ( ! empty( $forum_ids ) ) {
-			$scope = 'AND `forums`.`ID` IN (' . implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) ) . ')';
-			$args  = array_merge( $args, $forum_ids );
-		}
-	}
-	// Aggregate duplicate rows instead of loading every stored value into PHP
-	$rows = $bbp_db->get_results(
-		$bbp_db->prepare(
-			"SELECT `forummeta`.`post_id`, COUNT(*) AS `row_count`,
-				MIN(`forummeta`.`meta_key`) AS `meta_key`, MIN(`forummeta`.`meta_value`) AS `meta_value`
-			FROM `{$bbp_db->postmeta}` AS `forummeta`
-			INNER JOIN `{$bbp_db->posts}` AS `forums` ON `forums`.`ID` = `forummeta`.`post_id`
-			WHERE `forums`.`post_type` = %s AND `forums`.`post_status` IN ({$slots})
-				AND `forummeta`.`meta_key` = %s {$scope}
-			GROUP BY `forummeta`.`post_id` ORDER BY `forummeta`.`post_id`",
-			$args
-		),
-		ARRAY_A
-	);
-	if ( ! empty( $bbp_db->last_error ) ) {
+	$mismatches = bbp_admin_repair_metadata_mismatches( 'post', '_bbp_forum_subforum_count', $result['counts'] );
+	if ( false === $mismatches ) {
 		return array( 'code' => 4 );
-	}
-	$stored = array();
-	foreach ( $rows as $row ) {
-		$stored[ (int) $row['post_id'] ] = $row;
-	}
-	$repairs = 0;
-	foreach ( $result['counts'] as $id => $count ) {
-		if ( ! isset( $stored[ $id ] ) || ( 1 !== (int) $stored[ $id ]['row_count'] ) || ( $key !== $stored[ $id ]['meta_key'] ) || ( (string) $count !== $stored[ $id ]['meta_value'] ) ) {
-			++$repairs;
-		}
 	}
 	return array(
 		'code'         => 0,
 		'forum_ids'    => array_keys( $result['counts'] ),
-		'repair_count' => $repairs
+		'repair_count' => count( $mismatches )
 	);
 }
 
@@ -1660,7 +1087,6 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 	$bbp_db  = bbp_db();
 	$tool_id = 'bbp-forum-subforums';
 	$fpt     = bbp_get_forum_post_type();
-	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch   = array(
 		'code'      => 0,
 		'repaired'  => 0,
@@ -1668,10 +1094,12 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 		'complete'  => false,
 		'restarted' => false
 	);
-	if ( ( false !== $state ) && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) || ! isset( $state['post_type'] ) || ( $fpt !== $state['post_type'] ) ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'post_type' => $fpt ) );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
+
 	$batch['initial'] = ( false === $state );
 	if ( $batch['initial'] ) {
 		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(ID) FROM {$bbp_db->posts} WHERE post_type = %s", $fpt ) );
@@ -1706,7 +1134,7 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 		$batch['code'] = $counts['code'];
 		return $batch;
 	}
-	if ( ! $dry_run && $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+	if ( $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
@@ -1717,7 +1145,7 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 		if ( $work >= $size ) {
 			break;
 		}
-		$repair = bbp_admin_repair_count_metadata( 'post', $id, '_bbp_forum_subforum_count', $count, $size - $work, $dry_run );
+		$repair = bbp_admin_repair_single_metadata( 'post', $id, '_bbp_forum_subforum_count', $count, $size - $work, $dry_run );
 		if ( ! empty( $repair['code'] ) ) {
 			$codes = array(
 				2 => 4,
@@ -1752,7 +1180,7 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 		}
 	}
 	$complete = ! $has_more && ( count( $counts['counts'] ) === $finished );
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
@@ -1780,12 +1208,7 @@ function bbp_admin_repair_forum_subforum_count_process( $dry_run = false ) {
 	$batch     = bbp_admin_repair_forum_subforum_count_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( empty( $batch['repaired'] ) && $batch['complete'] && ( $dry_run || $batch['initial'] ) ) {
 		return array(
@@ -1801,16 +1224,7 @@ function bbp_admin_repair_forum_subforum_count_process( $dry_run = false ) {
 		/* translators: %d: Number of forums whose subforum counts were repaired */
 		$result = sprintf( _n( 'Subforum counts repaired in %d forum.', 'Subforum counts repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**
@@ -1936,7 +1350,6 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 	$bbp_db   = bbp_db();
 	$tool_id  = 'bbp-topic-tags';
 	$standard = ( 'bbp_update_topic_tag_count' === $callback );
-	$state    = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch    = array(
 		'code'      => 0,
 		'repaired'  => 0,
@@ -1945,14 +1358,15 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 		'complete'  => false,
 		'restarted' => false
 	);
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'taxonomy' => $taxonomy->name ) );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
+	}
 
 	if ( $dry_run && ! $standard ) {
 		$batch['code'] = 2;
 		return $batch;
-	}
-	if ( ( false !== $state ) && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) || ! isset( $state['taxonomy'] ) || ( $taxonomy->name !== $state['taxonomy'] ) ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
 	}
 	$batch['initial'] = ( false === $state );
 	if ( $batch['initial'] ) {
@@ -2018,7 +1432,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 	$batch['processed'] = count( $ids );
 
 	if ( ! $dry_run ) {
-		if ( $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -2045,7 +1459,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 		if ( ! empty( $rows ) ) {
 			$state['cursor'] = (int) end( $rows )['term_taxonomy_id'];
 		}
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -2101,12 +1515,7 @@ function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
 	$batch     = bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, $result ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( $standard && empty( $batch['repaired'] ) && $batch['complete'] && ( $dry_run || $batch['initial'] ) ) {
 		return array(
@@ -2125,16 +1534,7 @@ function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
 		/* translators: %d: Number of topic-tags passed to the configured count callback */
 		$result = sprintf( _n( 'Topic counts recounted in %d topic-tag.', 'Topic counts recounted in %d topic-tags.', $batch['processed'], 'bbpress' ), $batch['processed'] );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**
@@ -2262,17 +1662,16 @@ function bbp_admin_repair_forum_hidden_reply_count_process( $dry_run = false ) {
  */
 function bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses, $key, $dry_run = false ) {
 	$bbp_db = bbp_db();
-	$state  = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
 	$batch  = array(
 		'code'      => 0,
 		'repaired'  => 0,
 		'complete'  => false,
 		'restarted' => false
 	);
-
-	if ( ( false !== $state ) && ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
 
 	// An empty status list historically matches only an empty stored status
@@ -2296,7 +1695,7 @@ function bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses
 			'cursor'   => 0,
 			'upper_id' => max( (int) $author_id, (int) $stored_id )
 		);
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -2332,7 +1731,7 @@ function bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses
 			return $batch;
 		}
 
-		$repair = bbp_admin_repair_count_metadata( 'user', $user_id, $key, $count > 0 ? $count : null, $size - $work, $dry_run );
+		$repair = bbp_admin_repair_single_metadata( 'user', $user_id, $key, $count > 0 ? $count : null, $size - $work, $dry_run );
 		if ( ! empty( $repair['code'] ) ) {
 			$batch['code'] = $repair['code'];
 			return $batch;
@@ -2350,7 +1749,7 @@ function bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses
 	}
 
 	$complete = count( $user_ids ) === $finished;
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
@@ -2407,12 +1806,7 @@ function bbp_admin_repair_user_post_count_process( $type, $dry_run = false ) {
 	$batch     = bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses, $key, $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 
 	if ( $dry_run ) {
@@ -2430,23 +1824,14 @@ function bbp_admin_repair_user_post_count_process( $type, $dry_run = false ) {
 			/* translators: %d: Number of users whose reply counts would be repaired */
 			$result = sprintf( _n( 'Reply counts would be repaired for %d user.', 'Reply counts would be repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 		}
-		$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
+	} elseif ( 'topic' === $type ) {
+		/* translators: %d: Number of users whose topic counts were repaired */
+		$result = sprintf( _n( 'Topic counts repaired for %d user.', 'Topic counts repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	} else {
-		if ( 'topic' === $type ) {
-			/* translators: %d: Number of users whose topic counts were repaired */
-			$result = sprintf( _n( 'Topic counts repaired for %d user.', 'Topic counts repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
-		} else {
-			/* translators: %d: Number of users whose reply counts were repaired */
-			$result = sprintf( _n( 'Reply counts repaired for %d user.', 'Reply counts repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
-		}
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
+		/* translators: %d: Number of users whose reply counts were repaired */
+		$result = sprintf( _n( 'Reply counts repaired for %d user.', 'Reply counts repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**
@@ -2569,20 +1954,6 @@ function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
 }
 
 /**
- * Update or remove one legacy user-meta row, and verify the stored result.
- *
- * @since 2.7.0 bbPress (r8286)
- *
- * @param object $row   Source metadata row.
- * @param string $key   Canonical metadata key.
- * @param string $value Repaired list, or an empty string to remove the row.
- * @return int Zero on success, or a read, delete, or update error code.
- */
-function bbp_admin_repair_user_meta_row( $row, $key, $value ) {
-	return bbp_admin_repair_metadata_row( 'user', $row, $key, '' === $value ? null : $value );
-}
-
-/**
  * Repair one bounded batch of legacy favorites or subscription lists.
  *
  * Probe for a surviving relationship before changing any rows, preserving the
@@ -2597,9 +1968,9 @@ function bbp_admin_repair_user_meta_row( $row, $key, $value ) {
  * @return array Status code, repaired users, and progress flags.
  */
 function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false ) {
-	$db      = bbp_db();
-	$tool_id = 'bbp-user-' . $type;
-	$batch   = array(
+	$db     = bbp_db();
+	$config = bbp_admin_get_user_relationship_config( $type );
+	$batch  = array(
 		'code'      => 0,
 		'repaired'  => 0,
 		'initial'   => false,
@@ -2607,14 +1978,14 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 		'empty'     => false,
 		'restarted' => false
 	);
-	if ( ! in_array( $type, array( 'favorites', 'topic-subscriptions', 'forum-subscriptions' ), true ) ) {
+	if ( false === $config ) {
 		$batch['code'] = 6;
 		return $batch;
 	}
-	$forum   = 'forum-subscriptions' === $type;
-	$suffix  = $forum ? 'forum_subscriptions' : ( 'favorites' === $type ? 'favorites' : 'subscriptions' );
+	$tool_id = $config['repair_tool_id'];
+	$forum   = 'forum' === $config['object_type'];
 	$context = array(
-		'key'       => $db->prefix . '_bbp_' . $suffix,
+		'key'       => $config['source_key'],
 		'post_type' => $forum ? bbp_get_forum_post_type() : bbp_get_topic_post_type(),
 		'statuses'  => array_values( array_unique( $forum ? bbp_get_public_forum_statuses() : bbp_get_public_topic_statuses() ) )
 	);
@@ -2623,10 +1994,10 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 	$slots    = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
 	$args     = array_merge( array( $context['post_type'] ), $statuses );
 	$source   = "SELECT ID FROM {$db->posts} WHERE post_type = %s AND post_status IN ({$slots})";
-	$state    = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
-	if ( false !== $state && ! bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_user_meta_is_valid_checkpoint', $context );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
 	$batch['initial'] = false === $state;
 	if ( $batch['initial'] ) {
@@ -2652,13 +2023,13 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 		);
 		if ( empty( $live ) ) {
 			$batch['complete'] = $batch['empty'] = true;
-			if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, true ) ) {
+			if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, true, $dry_run ) ) {
 				$batch['code']     = 6;
 				$batch['complete'] = false;
 			}
 			return $batch;
 		}
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -2708,7 +2079,7 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 					$state['phase']    = 'repair';
 					$state['cursor']   = $state['offset'] = 0;
 					$state['row_hash'] = '';
-					if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+					if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 						$batch['code'] = 6;
 						break;
 					}
@@ -2731,7 +2102,7 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 		++$work;
 		$value = $state['kept'];
 		if ( ! $dry_run ) {
-			$batch['code'] = bbp_admin_repair_user_meta_row( $row, $key, $value );
+			$batch['code'] = bbp_admin_repair_metadata_row( 'user', $row, $key, '' === $value ? null : $value );
 			if ( $batch['code'] ) {
 				break;
 			}
@@ -2754,7 +2125,7 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 	}
 	$batch['empty']    = $batch['complete'] && 'probe' === $state['phase'];
 	$batch['repaired'] = count( $changed );
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'] ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'], $dry_run ) ) {
 		$batch['code'] = 6;
 	}
 	if ( $batch['code'] ) {
@@ -2804,12 +2175,7 @@ function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = fal
 	$batch     = bbp_admin_repair_user_meta_batch( $type, $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( $batch['code'] ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( $batch['empty'] || ( $batch['complete'] && ! $batch['repaired'] && ( $dry_run || $batch['initial'] ) ) ) {
 		return array(
@@ -2837,16 +2203,7 @@ function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = fal
 			/* translators: %d: Number of users whose topic subscriptions were repaired */
 			: sprintf( _n( 'Topic subscriptions repaired for %d user.', 'Topic subscriptions repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**
@@ -3105,7 +2462,11 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 		'blog_id'   => get_current_blog_id(),
 		'multisite' => is_multisite()
 	);
-	$state = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id );
+	if ( ! $read ) {
+		$batch['code'] = 4;
+		return $batch;
+	}
 	if ( false !== $state && ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'phase' ) ) || ! isset( $state['context'] ) || $context !== $state['context'] || $state['phase'] > $phase_count ) ) {
 		$state              = false;
 		$batch['restarted'] = true;
@@ -3122,7 +2483,7 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 			'phase'    => 0,
 			'context'  => $context
 		);
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 4;
 			return $batch;
 		}
@@ -3183,7 +2544,7 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 		}
 	}
 	$complete = $state['phase'] > $phase_count;
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 		$batch['code'] = 4;
 		return $batch;
 	}
@@ -3228,11 +2589,7 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
 		/* translators: %s: Number of repaired forum role assignments */
 		$result = sprintf( _n( '%s forum role assignment repaired.', '%s forum role assignments repaired.', $total, 'bbpress' ), bbp_number_format( $total ) );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
+	$result = bbp_admin_repair_tool_batch_message( $result, $batch['complete'], $dry_run );
 	return array(
 		$dry_run && ! $total && $batch['complete'] ? 1 : 0,
 		sprintf( $statement, $result ),
@@ -3327,15 +2684,7 @@ function bbp_admin_repair_freshness_process( $dry_run = false ) {
 		/* translators: %s: Number of orphaned freshness rows */
 		$stale = sprintf( esc_html( _n( '%s orphaned freshness row removed.', '%s orphaned freshness rows removed.', $batch['stale'], 'bbpress' ) ), bbp_number_format( $batch['stale'] ) );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $topics . "\n" . $forums . "\n" . $stale;
-	if ( ! $dry_run ) {
-		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $topics . "\n" . $forums . "\n" . $stale, $dry_run );
 }
 
 /**
@@ -3417,10 +2766,10 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 		'forum' => bbp_get_forum_post_type(),
 		'super' => md5( serialize( $super ) )
 	);
-	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
-	if ( false !== $state && ! bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_sticky_is_valid_checkpoint', $context );
+	if ( ! $read ) {
+		$batch['code'] = 6;
+		return $batch;
 	}
 	$batch['initial'] = false === $state;
 	$reset = array(
@@ -3446,7 +2795,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 				'context'  => $context
 			)
 		);
-		if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
 			$batch['code'] = 6;
 			return $batch;
 		}
@@ -3540,8 +2889,8 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 		}
 		if ( $repair['complete'] ) {
 			if ( ! $dry_run ) {
-				$rows = $db->get_results( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id LIMIT 2", $id, '_bbp_sticky_topics' ) );
-				if ( ! empty( $db->last_error ) || 1 !== count( $rows ) || maybe_serialize( $value ) !== $rows[0]->meta_value ) {
+				$mismatches = bbp_admin_repair_metadata_mismatches( 'post', '_bbp_sticky_topics', array( $id => $value ) );
+				if ( false === $mismatches || ! empty( $mismatches ) ) {
 					$batch['code'] = 5;
 					break;
 				}
@@ -3556,7 +2905,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 		$batch['code']     = empty( $db->last_error ) ? 0 : 1;
 		$batch['complete'] = ! $batch['code'] && ! $next;
 	}
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'] ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'], $dry_run ) ) {
 		$batch['code'] = 6;
 	}
 	if ( $batch['code'] ) {
@@ -3585,12 +2934,7 @@ function bbp_admin_repair_sticky_process( $dry_run = false ) {
 	}
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( $batch['code'] ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( $dry_run ) {
 		/* translators: %d: Number of sticky topic assignments that would be repaired */
@@ -3598,11 +2942,10 @@ function bbp_admin_repair_sticky_process( $dry_run = false ) {
 	} else {
 		/* translators: %d: Number of repaired sticky topic assignments */
 		$result = sprintf( _n( '%d sticky topic assignment repaired.', '%d sticky topic assignments repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
-		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
 	}
 	return array(
 		0,
-		sprintf( $statement, esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result ),
+		sprintf( $statement, bbp_admin_repair_tool_batch_message( $result, $batch['complete'], $dry_run ) ),
 		'complete' => $batch['complete']
 	);
 }
@@ -3651,8 +2994,7 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 	// Define variables
 	$bbp_db  = bbp_db();
 	$tool_id = 'bbp-sync-closed-topics';
-	$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
-	$state   = get_option( $option, false );
+	list( $read, $state, $restarted ) = bbp_admin_repair_tool_load_checkpoint( $tool_id );
 	$result  = esc_html__( '0 closed topics to repair.', 'bbpress' );
 	$failed  = esc_html__( 'Failed!', 'bbpress' );
 	$changed = 0;
@@ -3665,11 +3007,16 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		$statement = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
 	}
 
-	$restarted = ( false !== $state ) && ! bbp_admin_repair_tool_is_valid_checkpoint( $state );
-	$statement = bbp_admin_repair_tool_restart_statement( $statement, $restarted, $dry_run );
-	if ( $restarted ) {
-		$state = false;
+	if ( ! $read ) {
+		return array(
+			5,
+			sprintf( $statement, $failed ),
+			'success'  => false,
+			'complete' => false,
+		);
 	}
+
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, $restarted, $dry_run );
 
 	if ( false === $state ) {
 		$upper_id = $bbp_db->get_var( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND post_status = %s ORDER BY ID DESC LIMIT 1", bbp_get_topic_post_type(), bbp_get_closed_status_id() ) );
@@ -3677,7 +3024,8 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 			return array(
 				2,
 				sprintf( $statement, $failed ),
-				'success' => false
+				'success'  => false,
+				'complete' => false
 			);
 		}
 		$state = array(
@@ -3693,7 +3041,8 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		return array(
 			2,
 			sprintf( $statement, $failed ),
-			'success' => false
+			'success'  => false,
+			'complete' => false
 		);
 	}
 	$complete      = count( $closed_topics ) <= $size;
@@ -3711,18 +3060,20 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 			return array(
 				3,
 				sprintf( $statement, $failed ),
-				'success' => false
+				'success'  => false,
+				'complete' => false
 			);
 		}
 
 		// If we don't have a postmeta _bbp_status value
 		if ( empty( $topic_status ) ) {
 			if ( ! $dry_run ) {
-				if ( false === update_post_meta( $closed_topic, '_bbp_status', 'publish' ) ) {
+				if ( ! bbp_admin_repair_metadata_update( 'post', $closed_topic, '_bbp_status', 'publish' ) ) {
 					return array(
 						4,
 						sprintf( $statement, $failed ),
-						'success' => false
+						'success'  => false,
+						'complete' => false
 					);
 				}
 			}
@@ -3736,11 +3087,12 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		if ( ! $complete ) {
 			$state['cursor'] = (int) end( $closed_topics );
 		}
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete ) ) {
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
 			return array(
 				5,
 				sprintf( $statement, $failed ),
-				'success' => false
+				'success'  => false,
+				'complete' => false
 			);
 		}
 	}
@@ -3756,10 +3108,7 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 	} else {
 		/* translators: %d: Number of repaired topics */
 		$result = sprintf( _n( '%d closed topic repaired.', '%d closed topics repaired.', $changed, 'bbpress' ), $changed );
-		$status = $complete
-			? esc_html__( 'Complete!', 'bbpress' )
-			: esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $result;
+		$result = bbp_admin_repair_tool_batch_message( $result, $complete );
 	}
 
 	return array(
@@ -3906,10 +3255,10 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 		}
 	}
 	$context['version'] = $version;
-	$state   = get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
-	if ( false !== $state && ! bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_forum_visibility_is_valid_checkpoint', $context );
+	if ( ! $read ) {
+		$batch['code'] = 9;
+		return $batch;
 	}
 	$stored = array();
 	foreach ( $types as $index => $type ) {
@@ -4022,7 +3371,7 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 		$batch['evaluated'] = array();
 	}
 	$batch['complete'] = ! $batch['code'] && ! $invalidated && 4 === $state['phase'];
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] || $invalidated ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] || $invalidated, $dry_run ) ) {
 		$batch['code']     = 8;
 		$batch['complete'] = false;
 	}
@@ -4087,10 +3436,7 @@ function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 	if ( count( $batch['evaluated'] ) < 2 ) {
 		$details[] = esc_html__( 'Visibility counts are not complete yet.', 'bbpress' );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . implode( "\n", $details );
-	if ( ! $dry_run ) {
-		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
-	}
+	$result = bbp_admin_repair_tool_batch_message( implode( "\n", $details ), $batch['complete'], $dry_run );
 	return array(
 		0,
 		sprintf( $statement, $result ),
@@ -4169,12 +3515,7 @@ function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
 	$batch     = bbp_admin_repair_forum_meta_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	$repaired = $batch['forums'] + $batch['topics'] + $batch['replies'] + $batch['stale'];
 	if ( ! $repaired && $batch['complete'] && ( $dry_run || $batch['initial'] ) ) {
@@ -4227,16 +3568,7 @@ function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
 			bbp_number_format( $batch['stale'] )
 		);
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $forum_result . "\n" . $topic_result . "\n" . $reply_result . "\n" . $stale_result;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $forum_result . "\n" . $topic_result . "\n" . $reply_result . "\n" . $stale_result, $dry_run );
 }
 
 /**
@@ -4300,12 +3632,7 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 	$batch     = bbp_admin_repair_topic_meta_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( ! empty( $batch['code'] ) ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( ! $batch['topics'] && ! $batch['replies'] && ! $batch['stale'] && $batch['complete'] && ( $dry_run || $batch['initial'] ) ) {
 		return array(
@@ -4347,16 +3674,7 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 			bbp_number_format( $batch['stale'] )
 		);
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $topics . "\n" . $replies . "\n" . $stale;
-	if ( ! $dry_run ) {
-		$status = $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$result = $status . "\n" . $result;
-	}
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $topics . "\n" . $replies . "\n" . $stale, $dry_run );
 }
 
 /**
@@ -4473,14 +3791,10 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 		'complete'      => false,
 		'restarted'     => false,
 	);
-	list( $read, $state ) = bbp_admin_repair_get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), false );
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_reply_menu_order_is_valid_checkpoint' );
 	if ( ! $read ) {
 		$batch['code'] = 6;
 		return $batch;
-	}
-	if ( false !== $state && ! bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) ) {
-		$state              = false;
-		$batch['restarted'] = true;
 	}
 	if ( false === $state ) {
 		$bounds = $db->get_row( "SELECT (SELECT MAX(ID) FROM {$db->posts}) AS upper_id, (SELECT MAX(meta_id) FROM {$db->postmeta}) AS meta_upper" );
@@ -4570,7 +3884,7 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 	}
 	$batch['changed']  = $state['changed'];
 	$batch['complete'] = ! $batch['code'] && 2 === $state['phase'];
-	if ( ! $dry_run && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'] ) ) {
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'], $dry_run ) ) {
 		$batch['code']     = 6;
 		$batch['complete'] = false;
 	}
@@ -4622,12 +3936,9 @@ function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 		/* translators: %s: Number of recalculated reply positions */
 		$positions = _n( '%s reply position was recalculated.', '%s reply positions were recalculated.', $batch['positions'], 'bbpress' );
 	}
-	$result = esc_html__( 'This batch:', 'bbpress' ) . "\n"
-		. sprintf( esc_html( $relationships ), bbp_number_format( $batch['relationships'] ) ) . "\n"
+	$details = sprintf( esc_html( $relationships ), bbp_number_format( $batch['relationships'] ) ) . "\n"
 		. sprintf( esc_html( $positions ), bbp_number_format( $batch['positions'] ) );
-	if ( ! $dry_run ) {
-		$result = ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) . "\n" . $result;
-	}
+	$result  = bbp_admin_repair_tool_batch_message( $details, $batch['complete'], $dry_run );
 	return array(
 		0,
 		sprintf( $statement, $result ),

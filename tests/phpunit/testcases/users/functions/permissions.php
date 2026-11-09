@@ -173,7 +173,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 
 	public function test_super_moderator_cannot_edit_nonexistent_user_with_global_access() {
 		$moderator_id = $this->factory->user->create();
-		$target_id    = PHP_INT_MAX;
+		$target_id    = $this->nonexistent_user_id();
 
 		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
 		update_option( '_bbp_allow_super_mods', 1 );
@@ -742,7 +742,7 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 				'nickname' => 'changed-nickname',
 				'email'    => 'changed@example.org',
 			),
-			PHP_INT_MAX
+			$this->nonexistent_user_id()
 		);
 
 		$this->assertArrayNotHasKey( 'nickname', $data );
@@ -786,12 +786,12 @@ class BBP_Tests_Users_Functions_Permissions extends BBP_UnitTestCase {
 		$_POST['email']      = 'changed-handler@example.org';
 		$_REQUEST            = $_POST;
 		bbpress()->errors    = new WP_Error();
-		add_action( 'edit_user_profile_update', $inspect, PHP_INT_MAX );
+		add_action( 'edit_user_profile_update', $inspect, 100 );
 
 		try {
 			bbp_edit_user_handler( 'bbp-update-user' );
 		} finally {
-			remove_action( 'edit_user_profile_update', $inspect, PHP_INT_MAX );
+			remove_action( 'edit_user_profile_update', $inspect, 100 );
 			bbpress()->errors = $old_errors;
 		}
 

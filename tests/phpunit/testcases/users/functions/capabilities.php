@@ -54,7 +54,7 @@ class BBP_Tests_Users_Functions_Capabilities extends BBP_UnitTestCase {
 
 		bbp_set_user_role( $user_id, 'not-a-forum-role' );
 		$this->assertSame( $roles, get_userdata( $user_id )->roles );
-		$this->assertFalse( bbp_set_user_role( PHP_INT_MAX, bbp_get_moderator_role() ) );
+		$this->assertFalse( bbp_set_user_role( $this->nonexistent_user_id(), bbp_get_moderator_role() ) );
 	}
 
 	/**
@@ -269,7 +269,7 @@ class BBP_Tests_Users_Functions_Capabilities extends BBP_UnitTestCase {
 
 		$this->assertTrue( bbp_destroy_user_sessions( $user_id ) );
 		$this->assertSame( array(), $sessions->get_all() );
-		$this->assertFalse( bbp_destroy_user_sessions( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_destroy_user_sessions( $this->nonexistent_user_id() ) );
 	}
 
 	/**
@@ -731,8 +731,8 @@ class BBP_Tests_Users_Functions_Capabilities extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_is_user_deleted( $user_id ) );
 		$this->assertTrue( bbp_is_user_active( $user_id ) );
 		$this->assertFalse( bbp_is_user_inactive( $user_id ) );
-		$this->assertFalse( bbp_is_user_active( PHP_INT_MAX ) );
-		$this->assertTrue( bbp_is_user_deleted( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_is_user_active( $this->nonexistent_user_id() ) );
+		$this->assertTrue( bbp_is_user_deleted( $this->nonexistent_user_id() ) );
 
 		add_filter( 'bbp_core_is_user_spammer', '__return_true' );
 		try {
@@ -768,7 +768,7 @@ class BBP_Tests_Users_Functions_Capabilities extends BBP_UnitTestCase {
 		$keymaster_id = $this->factory->user->create();
 		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
 		$this->assertTrue( bbp_user_has_profile( $user_id ) );
-		$this->assertFalse( bbp_user_has_profile( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_user_has_profile( $this->nonexistent_user_id() ) );
 
 		$this->set_current_user( $user_id );
 		add_filter( 'bbp_core_is_user_spammer', '__return_true' );

@@ -12,7 +12,7 @@ class BBP_Tests_Common_Post_Lock extends BBP_UnitTestCase {
 	 */
 	public function test_check_post_lock_returns_false_for_missing_post_and_lock() {
 		$this->assertFalse( bbp_check_post_lock( 0 ) );
-		$this->assertFalse( bbp_check_post_lock( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_check_post_lock( $this->nonexistent_post_id() ) );
 
 		$topic_id = $this->factory->topic->create();
 		$this->assertFalse( bbp_check_post_lock( $topic_id ) );
@@ -26,7 +26,7 @@ class BBP_Tests_Common_Post_Lock extends BBP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		$this->assertFalse( bbp_set_post_lock( 0 ) );
-		$this->assertFalse( bbp_set_post_lock( PHP_INT_MAX ) );
+		$this->assertFalse( bbp_set_post_lock( $this->nonexistent_post_id() ) );
 
 		$topic_id = $this->factory->topic->create();
 		wp_set_current_user( 0 );

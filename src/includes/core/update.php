@@ -313,6 +313,7 @@ function bbp_create_initial_content( $args = array() ) {
  * @since 2.2.0 bbPress (r4105)
  */
 function bbp_version_updater() {
+	$safe_to_bump = true;
 
 	// Get the raw database version
 	$raw_db_version = (int) bbp_get_db_version_raw();
@@ -342,7 +343,7 @@ function bbp_version_updater() {
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/1891
 			 */
-			bbp_admin_repair_tool_run_automatically( 'bbp-sync-forum-visibility', 'bbp_admin_repair_forum_visibility' );
+			$safe_to_bump = bbp_run_required_upgrade( 'bbp-sync-forum-visibility', 'bbp_admin_repair_forum_visibility' ) && $safe_to_bump;
 		}
 
 		/** 2.2 Branch ********************************************************/
@@ -390,23 +391,23 @@ function bbp_version_updater() {
 			 * Upgrade user favorites and subscriptions
 			 */
 			if ( $raw_db_version < 261 ) {
-				bbp_admin_repair_tool_run_automatically( 'bbp-user-favorites-move', 'bbp_admin_upgrade_user_favorites' );
-				bbp_admin_repair_tool_run_automatically( 'bbp-user-topic-subscriptions-move', 'bbp_admin_upgrade_user_topic_subscriptions' );
-				bbp_admin_repair_tool_run_automatically( 'bbp-user-forum-subscriptions-move', 'bbp_admin_upgrade_user_forum_subscriptions' );
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-favorites-move', 'bbp_admin_upgrade_user_favorites' ) && $safe_to_bump;
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-topic-subscriptions-move', 'bbp_admin_upgrade_user_topic_subscriptions' ) && $safe_to_bump;
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-forum-subscriptions-move', 'bbp_admin_upgrade_user_forum_subscriptions' ) && $safe_to_bump;
 			}
 
 			/**
 			 * Upgrade user engagements
 			 */
 			if ( $raw_db_version < 262 ) {
-				bbp_admin_repair_tool_run_automatically( 'bbp-user-topic-engagements-move', 'bbp_admin_upgrade_user_engagements' );
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-topic-engagements-move', 'bbp_admin_upgrade_user_engagements' ) && $safe_to_bump;
 			}
 
 			/**
 			 * Repair forum hidden reply count
 			 */
 			if ( $raw_db_version < 263 ) {
-				bbp_admin_repair_tool_run_automatically( 'bbp-forum-hidden-replies', 'bbp_admin_repair_forum_hidden_reply_count' );
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-forum-hidden-replies', 'bbp_admin_repair_forum_hidden_reply_count' ) && $safe_to_bump;
 			}
 
 		// Large installs require manual intervention
@@ -416,9 +417,9 @@ function bbp_version_updater() {
 			 * Upgrade user favorites and subscriptions
 			 */
 			if ( $raw_db_version < 261 ) {
-				bbp_add_pending_upgrade( 'bbp-user-favorites-move' );
-				bbp_add_pending_upgrade( 'bbp-user-topic-subscriptions-move' );
-				bbp_add_pending_upgrade( 'bbp-user-forum-subscriptions-move' );
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-favorites-move' ) && $safe_to_bump;
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-topic-subscriptions-move' ) && $safe_to_bump;
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-forum-subscriptions-move' ) && $safe_to_bump;
 
 				// Set strategy to pre-2.6 on large network
 				update_option( '_bbp_engagements_strategy', 'user' );
@@ -428,7 +429,7 @@ function bbp_version_updater() {
 			 * Upgrade user engagements
 			 */
 			if ( $raw_db_version < 262 ) {
-				bbp_add_pending_upgrade( 'bbp-user-topic-engagements-move' );
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-topic-engagements-move' ) && $safe_to_bump;
 
 				// Set strategy to pre-2.6 on large network
 				update_option( '_bbp_engagements_strategy', 'user' );
@@ -438,7 +439,7 @@ function bbp_version_updater() {
 			 * Upgrade user engagements
 			 */
 			if ( $raw_db_version < 263 ) {
-				bbp_add_pending_upgrade( 'bbp-forum-hidden-replies' );
+				$safe_to_bump = bbp_run_required_upgrade( 'bbp-forum-hidden-replies' ) && $safe_to_bump;
 			}
 		}
 
@@ -449,15 +450,20 @@ function bbp_version_updater() {
 			$mentions = bbp_get_mention_backfill_status();
 			if ( empty( $mentions['complete'] ) ) {
 				if ( bbp_is_large_install() ) {
-					bbp_add_pending_upgrade( 'bbp-user-mentions' );
+					$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-mentions' ) && $safe_to_bump;
 				} else {
-					bbp_admin_repair_tool_run_automatically( 'bbp-user-mentions', 'bbp_admin_upgrade_user_mentions_automatically' );
+					$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-mentions', 'bbp_admin_upgrade_user_mentions_automatically' ) && $safe_to_bump;
 				}
 			}
 		}
 	}
 
 	/** All done! *************************************************************/
+
+	// Do not acknowledge lost pending work by advancing the database version.
+	if ( ! $safe_to_bump ) {
+		return false;
+	}
 
 	// Bump the version
 	bbp_version_bump();
@@ -611,6 +617,78 @@ function bbp_get_pending_upgrades( $type = '' ) {
 }
 
 /**
+ * Serialize pending-list mutations and verify the complete stored result.
+ *
+ * Public add/remove helpers retain their changed/not-changed return values.
+ * Internal callers can distinguish an already-correct list from a failed write.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param string $upgrade_id Upgrade ID.
+ * @param string $action     Add, remove, or clear.
+ * @return array Whether storage is correct and whether it changed.
+ */
+function bbp_update_pending_upgrade( $upgrade_id, $action = 'add' ) {
+	$result = array(
+		'saved'   => false,
+		'changed' => false,
+	);
+	$lock   = bbp_acquire_option_lock( '_bbp_pending_upgrades_lock' );
+	if ( false === $lock ) {
+		return $result;
+	}
+	try {
+		list( $read, $pending ) = bbp_get_raw_option( '_bbp_db_pending_upgrades', array() );
+		if ( ! $read || ! in_array( $action, array( 'add', 'remove', 'clear' ), true ) ) {
+			return $result;
+		}
+		$pending = (array) $pending;
+		$current = $pending;
+		$index   = array_search( $upgrade_id, $pending, true );
+		if ( 'add' === $action && false === $index ) {
+			$pending[] = $upgrade_id;
+		} elseif ( 'remove' === $action && false !== $index ) {
+			unset( $pending[ $index ] );
+		}
+		if ( get_option( '_bbp_db_pending_upgrades', array() ) !== $current ) {
+			wp_cache_delete_multiple( array( '_bbp_db_pending_upgrades', 'alloptions', 'notoptions' ), 'options' );
+		}
+		$changed = 'clear' === $action ? delete_option( '_bbp_db_pending_upgrades' ) : update_option( '_bbp_db_pending_upgrades', $pending );
+		list( $read, $stored, $exists ) = bbp_get_raw_option( '_bbp_db_pending_upgrades', array() );
+		$result['saved']   = $read && ( 'clear' === $action ? ! $exists : $pending === $stored );
+		$result['changed'] = $result['saved'] && $changed;
+		if ( ! $result['saved'] ) {
+			wp_cache_delete_multiple( array( '_bbp_db_pending_upgrades', 'alloptions', 'notoptions' ), 'options' );
+		}
+		return $result;
+	} finally {
+		bbp_release_option_lock( $lock );
+	}
+}
+
+/**
+ * Require either completed automatic work or a durably pending upgrade.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param string   $tool_id  Upgrade ID.
+ * @param callable $callback Optional automatic callback, empty for manual work.
+ * @return bool Whether a database-version bump can safely acknowledge this tool.
+ */
+function bbp_run_required_upgrade( $tool_id, $callback = '' ) {
+	if ( ! empty( $callback ) && bbp_admin_repair_tool_run_automatically( $tool_id, $callback ) ) {
+		return true;
+	}
+	if ( empty( $callback ) ) {
+		bbp_add_pending_upgrade( $tool_id );
+	}
+	list( $read, $pending ) = bbp_get_raw_option( '_bbp_db_pending_upgrades', array() );
+	return $read && is_array( $pending ) && in_array( $tool_id, $pending, true );
+}
+
+/**
  * Add an upgrade ID to pending upgrades array.
  *
  * @since 2.6.0 bbPress (r6896)
@@ -619,17 +697,8 @@ function bbp_get_pending_upgrades( $type = '' ) {
  * @return bool True if the pending upgrades option changed, false otherwise.
  */
 function bbp_add_pending_upgrade( $upgrade_id = '' ) {
-
-	// Get the pending upgrades option
-	$pending = bbp_get_pending_upgrades();
-
-	// Maybe add upgrade ID to end of pending array
-	if ( false === array_search( $upgrade_id, $pending, true ) ) {
-		array_push( $pending, $upgrade_id );
-	}
-
-	// Update and return
-	return update_option( '_bbp_db_pending_upgrades', $pending );
+	$result = bbp_update_pending_upgrade( $upgrade_id, 'add' );
+	return $result['changed'];
 }
 
 /**
@@ -641,20 +710,8 @@ function bbp_add_pending_upgrade( $upgrade_id = '' ) {
  * @return bool True if the pending upgrades option changed, false otherwise.
  */
 function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
-
-	// Get the pending upgrades option
-	$pending = bbp_get_pending_upgrades();
-
-	// Look for this upgrade ID
-	$index = array_search( $upgrade_id, $pending, true );
-
-	// Maybe remove upgrade ID from pending array
-	if ( false !== $index ) {
-		unset( $pending[ $index ] );
-	}
-
-	// Update and return
-	return update_option( '_bbp_db_pending_upgrades', $pending );
+	$result = bbp_update_pending_upgrade( $upgrade_id, 'remove' );
+	return $result['changed'];
 }
 
 /**
@@ -665,7 +722,8 @@ function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
  * @return bool True if the pending upgrades option changed, false otherwise.
  */
 function bbp_clear_pending_upgrades() {
-	return delete_option( '_bbp_db_pending_upgrades' );
+	$result = bbp_update_pending_upgrade( '', 'clear' );
+	return $result['changed'];
 }
 
 /**

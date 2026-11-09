@@ -204,6 +204,7 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_run_upgrade' );
 	delete_option( '_bbp_tools_run_status_repair' );
 	delete_option( '_bbp_tools_run_status_upgrade' );
+	delete_option( '_bbp_pending_upgrades_lock' );
 
 	// Delete batch checkpoints and scratch data without loading admin tools
 	$bbp_db  = bbp_db();
@@ -1324,4 +1325,113 @@ function bbp_get_config_location( $default = '' ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_config_location', get_option( 'bb-config-location', $default ) );
+}
+
+/**
+ * Read stored option data without filters or caches, retaining read failures.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param string $option  Option name.
+ * @param mixed  $default Default when the row is absent.
+ * @return array Read success, decoded value and row existence.
+ */
+function bbp_get_raw_option( $option, $default = false ) {
+	$db  = bbp_db();
+	$row = $db->get_row( $db->prepare( "SELECT `option_value` FROM `{$db->options}` WHERE `option_name` = %s LIMIT 1", $option ) );
+	if ( ! empty( $db->last_error ) ) {
+		return array( false, $default, false );
+	}
+	return array( true, $row ? maybe_unserialize( $row->option_value ) : $default, is_object( $row ) );
+}
+
+/**
+ * Claim a short-lived, owner-checked option lock shared by core and admin tools.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param string $name Lock option name.
+ * @return array|false Lock ownership, or false when unavailable.
+ */
+function bbp_acquire_option_lock( $name ) {
+	global $wpdb;
+
+	if ( empty( $name ) ) {
+		return false;
+	}
+
+	$now   = time();
+	$value = $now . '|' . wp_generate_uuid4();
+
+	for ( $attempt = 0; $attempt < 2; $attempt++ ) {
+		/*
+		 * Match WordPress Core locks. Transients cannot atomically claim a key
+		 * and may use a non-database object-cache backend between requests.
+		 */
+		$created = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT IGNORE INTO `{$wpdb->options}` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, 'no') /* LOCK */",
+				$name,
+				$value
+			)
+		);
+
+		if ( 1 === $created ) {
+			wp_cache_delete( $name, 'options' );
+			wp_cache_delete( 'notoptions', 'options' );
+
+			return array(
+				'name'  => $name,
+				'value' => $value
+			);
+		}
+
+		$stored = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT `option_value` FROM `{$wpdb->options}` WHERE `option_name` = %s LIMIT 1",
+				$name
+			)
+		);
+
+		// Only the first attempt may replace the exact stale value it observed
+		if ( ( 0 !== $attempt ) || is_null( $stored ) || ( (int) $stored >= ( $now - ( 5 * MINUTE_IN_SECONDS ) ) ) ) {
+			break;
+		}
+
+		bbp_release_option_lock(
+			array(
+				'name'  => $name,
+				'value' => $stored
+			)
+		);
+	}
+
+	return false;
+}
+
+
+/**
+ * Release only the exact option-lock owner, including expired owners.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param array $lock Lock ownership.
+ */
+function bbp_release_option_lock( $lock = array() ) {
+	global $wpdb;
+
+	if ( ! empty( $lock['name'] ) && ! empty( $lock['value'] ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM `{$wpdb->options}` WHERE `option_name` = %s AND `option_value` = %s",
+				$lock['name'],
+				$lock['value']
+			)
+		);
+		wp_cache_delete( $lock['name'], 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+	}
 }

@@ -144,7 +144,7 @@ class BBP_Tests_Common_Moderation_Notifications extends BBP_UnitTestCase {
 		bbp_add_moderator( $forum_id, $forum_mod_id );
 		bbp_add_moderator( $other_forum_id, $other_forum_mod_id );
 
-		add_filter( 'bbp_is_moderation_notifications_active', '__return_true', PHP_INT_MAX );
+		add_filter( 'bbp_is_moderation_notifications_active', '__return_true', 100 );
 		try {
 			$topic_id = bbp_insert_topic(
 				array(
@@ -156,7 +156,7 @@ class BBP_Tests_Common_Moderation_Notifications extends BBP_UnitTestCase {
 				)
 			);
 		} finally {
-			remove_filter( 'bbp_is_moderation_notifications_active', '__return_true', PHP_INT_MAX );
+			remove_filter( 'bbp_is_moderation_notifications_active', '__return_true', 100 );
 		}
 
 		$this->assertSame( $forum_id, bbp_get_topic_forum_id( $topic_id ) );

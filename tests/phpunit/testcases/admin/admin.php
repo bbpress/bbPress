@@ -1071,7 +1071,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			if ( is_multisite() ) {
 				$_GET = array(
 					'action'   => 'bbpress-update',
-					'n'        => PHP_INT_MAX,
+					'n'        => (int) get_sites( array( 'count' => true ) ),
 					'_wpnonce' => wp_create_nonce( 'bbpress-update' ),
 				);
 				$_REQUEST = $_GET;

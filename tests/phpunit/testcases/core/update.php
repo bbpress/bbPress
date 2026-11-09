@@ -957,4 +957,98 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 			'already upgraded'      => array( 270, false, false, false ),
 		);
 	}
+	public function test_pending_mutations_serialize_interleaved_add_and_remove_requests() {
+		delete_option( '_bbp_db_pending_upgrades' );
+		$interleaved = null;
+		$interleave  = static function ( $value ) use ( &$interleaved ) {
+			$interleaved = bbp_add_pending_upgrade( 'other-request' );
+			return $value;
+		};
+		add_filter( 'pre_update_option__bbp_db_pending_upgrades', $interleave );
+		try {
+			$this->assertTrue( bbp_add_pending_upgrade( 'first-request' ) );
+			$this->assertFalse( $interleaved );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_db_pending_upgrades', $interleave );
+		}
+		$this->assertTrue( bbp_add_pending_upgrade( 'other-request' ) );
+		add_filter( 'pre_update_option__bbp_db_pending_upgrades', $interleave );
+		try {
+			$this->assertTrue( bbp_remove_pending_upgrade( 'first-request' ) );
+			$this->assertFalse( $interleaved );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_db_pending_upgrades', $interleave );
+		}
+		list( $read, $stored ) = bbp_get_raw_option( '_bbp_db_pending_upgrades' );
+		$this->assertTrue( $read );
+		$this->assertSame( array( 'other-request' ), array_values( $stored ) );
+	}
+
+	public function test_pending_mutation_uses_stored_data_when_an_option_filter_hides_existing_ids() {
+		update_option( '_bbp_db_pending_upgrades', array( 'existing' ) );
+		$mask = static function () { return array( 'virtual' ); };
+		add_filter( 'pre_option__bbp_db_pending_upgrades', $mask );
+		try {
+			$this->assertTrue( bbp_add_pending_upgrade( 'new' ) );
+		} finally {
+			remove_filter( 'pre_option__bbp_db_pending_upgrades', $mask );
+		}
+		list( $read, $stored ) = bbp_get_raw_option( '_bbp_db_pending_upgrades' );
+		$this->assertTrue( $read );
+		$this->assertSame( array( 'existing', 'new' ), $stored );
+	}
+
+	public function test_failed_pending_write_cannot_acknowledge_an_unfinished_database_upgrade() {
+		update_option( '_bbp_db_version', 260 );
+		delete_option( '_bbp_db_pending_upgrades' );
+		$reject = static function ( $value, $old ) { return $old; };
+		add_filter( 'pre_update_option__bbp_db_pending_upgrades', $reject, 10, 2 );
+		add_filter( 'bbp_admin_repair_tool_automatic_batch_limit', '__return_zero' );
+		add_filter( 'bbp_is_large_install', '__return_false' );
+		try {
+			$this->assertFalse( bbp_version_updater() );
+			list( $read, $version ) = bbp_get_raw_option( '_bbp_db_version' );
+			$this->assertTrue( $read );
+			$this->assertSame( 260, (int) $version );
+			remove_filter( 'pre_update_option__bbp_db_pending_upgrades', $reject, 10 );
+			bbp_version_updater();
+			$this->assertSame( (int) bbp_get_db_version(), (int) bbp_get_db_version_raw() );
+			$this->assertContains( 'bbp-user-favorites-move', bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_db_pending_upgrades', $reject, 10 );
+			remove_filter( 'bbp_admin_repair_tool_automatic_batch_limit', '__return_zero' );
+			remove_filter( 'bbp_is_large_install', '__return_false' );
+		}
+	}
+
+	public function test_automatic_completion_requires_a_verified_pending_removal() {
+		if ( ! function_exists( 'bbp_admin' ) ) {
+			require_once BBP_PLUGIN_DIR . 'includes/admin/actions.php';
+		}
+		bbp_admin();
+		bbp_add_pending_upgrade( 'bbp-test-finish' );
+		$complete = static function () { return array( 0, 'Complete.', 'complete' => true ); };
+		$reject   = static function ( $value, $old ) { return $old; };
+		add_filter( 'pre_update_option__bbp_db_pending_upgrades', $reject, 10, 2 );
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( 'bbp-test-finish', $complete ) );
+			$this->assertContains( 'bbp-test-finish', bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_db_pending_upgrades', $reject, 10 );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-test-finish', $complete ) );
+		$this->assertNotContains( 'bbp-test-finish', bbp_get_pending_upgrades() );
+	}
+
+	public function test_public_pending_helpers_can_normalize_and_clear_legacy_scalar_storage() {
+		update_option( '_bbp_db_pending_upgrades', 'legacy-id' );
+		$this->assertTrue( bbp_add_pending_upgrade( 'new-id' ) );
+		$this->assertSame( array( 'legacy-id', 'new-id' ), bbp_get_pending_upgrades() );
+		update_option( '_bbp_db_pending_upgrades', 'malformed' );
+		$this->assertTrue( bbp_clear_pending_upgrades() );
+		list( $read, $stored, $exists ) = bbp_get_raw_option( '_bbp_db_pending_upgrades', array() );
+		$this->assertTrue( $read );
+		$this->assertFalse( $exists );
+	}
+
 }

@@ -334,9 +334,6 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 			$this->assertStringContainsString( 'data is in use', $result[1] );
 			$this->assertSame( $before, $this->snapshot() );
 		}
-		$migration = 'bbp-user-' . $type . '-move';
-		$this->assertWPError( bbp_admin_upgrade_remove_user_meta( $migration, $this->key( $suffix ) ) );
-		$this->assertSame( $before, $this->snapshot() );
 		$this->assertFalse( bbp_admin_repair_tool_run_automatically( $this->tool_id( $type ), $callback ) );
 		$this->assertCount( $resumed ? 2 : 3, get_user_meta( $user, $this->key( $suffix ), false ) );
 		$this->assertContains( $this->tool_id( $type ), bbp_get_pending_upgrades() );
@@ -404,18 +401,6 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		}
 		$this->finish( $type );
 		$this->assertSame( array(), get_user_meta( $user, $this->key( $suffix ), false ) );
-	}
-
-	public function test_compatibility_helper_still_returns_boolean_and_uses_the_same_guard() {
-		list( $user ) = $this->fixture( 'favorites' );
-		$key = $this->key( 'favorites' );
-		$this->assertTrue( bbp_admin_upgrade_remove_user_meta( 'bbp-user-favorites-move', $key, true ) );
-		$this->assertCount( 3, get_user_meta( $user, $key, false ) );
-		bbp_add_pending_upgrade( 'bbp-user-favorites-move' );
-		$this->assertWPError( bbp_admin_upgrade_remove_user_meta( 'bbp-user-favorites-move', $key ) );
-		bbp_remove_pending_upgrade( 'bbp-user-favorites-move' );
-		$this->assertTrue( bbp_admin_upgrade_remove_user_meta( 'bbp-user-favorites-move', $key ) );
-		$this->assertSame( array(), get_user_meta( $user, $key, false ) );
 	}
 
 	public function test_multisite_cleanup_only_removes_the_current_sites_legacy_data() {

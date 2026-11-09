@@ -176,6 +176,7 @@ class BBP_Admin {
 	private function includes() {
 
 		// Classes
+		require $this->admin_dir . 'classes/class-bbp-admin-group-forums.php';
 		require $this->admin_dir . 'classes/class-bbp-admin-forum-repair.php';
 		require $this->admin_dir . 'classes/class-bbp-admin-forum-counts.php';
 		require $this->admin_dir . 'classes/class-bbp-admin-forum-freshness.php';
@@ -183,6 +184,8 @@ class BBP_Admin {
 		// Tools
 		require $this->admin_dir . 'tools.php';
 		require $this->admin_dir . 'tools/common.php';
+		require $this->admin_dir . 'tools/runner.php';
+		require $this->admin_dir . 'tools/screens.php';
 		require $this->admin_dir . 'tools/converter.php';
 		require $this->admin_dir . 'tools/repair.php';
 		require $this->admin_dir . 'tools/upgrade.php';

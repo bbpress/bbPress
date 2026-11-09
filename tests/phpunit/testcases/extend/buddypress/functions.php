@@ -110,7 +110,7 @@ class BBP_Tests_Extend_BuddyPress_Functions extends BBP_UnitTestCase {
 		};
 
 		add_filter( $filter_name, $filter );
-		add_filter( 'bp_located_template', $located, PHP_INT_MAX, 2 );
+		add_filter( 'bp_located_template', $located, 100, 2 );
 
 		try {
 			$callback();
@@ -119,7 +119,7 @@ class BBP_Tests_Extend_BuddyPress_Functions extends BBP_UnitTestCase {
 		} finally {
 			remove_action( 'bp_template_content', $content_callback );
 			remove_filter( $filter_name, $filter );
-			remove_filter( 'bp_located_template', $located, PHP_INT_MAX );
+			remove_filter( 'bp_located_template', $located, 100 );
 			$GLOBALS['post']        = $old_post;
 			$GLOBALS['wp_query']    = $old_query;
 			$GLOBALS['wp_the_query'] = $queries_were_same ? $old_query : $old_the_query;

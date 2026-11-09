@@ -18,14 +18,15 @@ defined( 'ABSPATH' ) || exit;
  * still receives its complete list, as required by that existing API.
  *
  * @since 2.7.0 bbPress (r8299)
+ * @since 2.7.0 bbPress (r8315) Revalidate shared source identity before writes and child merges.
  * @access private
  */
 abstract class BBP_Admin_Forum_Repair {
 
 	protected $db;
 	protected $type;
-	protected $tool;
-	protected $keys;
+	protected $tool_id;
+	protected $meta_keys;
 	protected $context;
 	protected $state;
 	protected $dry_run;
@@ -48,7 +49,20 @@ abstract class BBP_Admin_Forum_Repair {
 		if ( ! $this->valid_type() ) {
 			$this->code = 6;
 		} else {
-			$saved = $this->legacy ? false : get_option( bbp_admin_repair_tool_batch_option_name( $this->tool ), false );
+			$read  = true;
+			$saved = false;
+			if ( ! $this->legacy ) {
+				list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id );
+			}
+			if ( ! $read ) {
+				return array(
+					'code'      => 7,
+					'repaired'  => 0,
+					'initial'   => false,
+					'complete'  => false,
+					'restarted' => false,
+				);
+			}
 			if ( ( false !== $saved ) && ! $this->valid_state( $saved ) ) {
 				$saved           = false;
 				$this->restarted = true;
@@ -59,10 +73,11 @@ abstract class BBP_Admin_Forum_Repair {
 			if ( ! $this->code && ! $this->dry_run && $initial && ! $this->save() ) {
 				$this->code = 7;
 			}
-			$size = $this->legacy ? PHP_INT_MAX : bbp_admin_repair_tool_batch_size( $this->tool );
+			$size = $this->legacy ? null : bbp_admin_repair_tool_batch_size( $this->tool_id );
 			$work = 0;
-			while ( ! $this->code && ! $complete && ! $this->stop && ( $work < $size ) ) {
-				$used  = $this->step( $size - $work, $complete );
+			// Whole-site status checks finish the traversal without a request budget.
+			while ( ! $this->code && ! $complete && ! $this->stop && ( $this->legacy || $work < $size ) ) {
+				$used  = $this->step( $this->legacy ? null : $size - $work, $complete );
 				$work += max( 1, $used );
 				if ( $this->corrupt || ( 6 === $this->code ) ) {
 					$code            = $this->corrupt ? 0 : 6;
@@ -129,11 +144,11 @@ abstract class BBP_Admin_Forum_Repair {
 	}
 
 	protected function save( $complete = false ) {
-		return bbp_admin_repair_tool_save_checkpoint( $this->tool, $this->state, $complete );
+		return bbp_admin_repair_tool_save_checkpoint( $this->tool_id, $this->state, $complete, $this->dry_run );
 	}
 
 	protected function prefix() {
-		return bbp_admin_repair_tool_batch_option_name( $this->tool ) . '_tree_';
+		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_tree_';
 	}
 
 	protected function option( $id ) {
@@ -151,14 +166,14 @@ abstract class BBP_Admin_Forum_Repair {
 				$valid = $valid && isset( $node[ $field ] ) && is_int( $node[ $field ] ) && ( $node[ $field ] >= 0 );
 			}
 			$valid = $valid && ( $node['id'] === $id ) && in_array( $node['phase'], array( 'children', 'write', 'done' ), true )
-				&& is_bool( $node['counted'] ) && is_array( $node['values'] ) && ( array_keys( $node['values'] ) === $this->keys )
-				&& ( false === $node['children'] || is_array( $node['children'] ) ) && ( $node['key'] <= count( $this->keys ) );
+				&& is_bool( $node['counted'] ) && is_array( $node['values'] ) && ( array_keys( $node['values'] ) === $this->meta_keys )
+				&& ( false === $node['children'] || is_array( $node['children'] ) ) && ( $node['key'] <= count( $this->meta_keys ) );
 			if ( $valid ) {
 				foreach ( $node['values'] as $key => $value ) {
 					$valid = $valid && $this->valid_value( $key, $value, $node['counted'] );
 				}
-				$valid = $valid && ( 'write' !== $node['phase'] || count( $this->keys ) > $node['key'] );
-				$valid = $valid && ( 'done' !== $node['phase'] || count( $this->keys ) === $node['key'] );
+				$valid = $valid && ( 'write' !== $node['phase'] || count( $this->meta_keys ) > $node['key'] );
+				$valid = $valid && ( 'done' !== $node['phase'] || count( $this->meta_keys ) === $node['key'] );
 				$valid = $valid && ( $node['parent'] !== $id ) && ( $node['await'] !== $id );
 				$valid = $valid && ( $node['parent'] ? ( $node['depth'] > 0 ) : ( 0 === $node['depth'] ) );
 			}
@@ -182,7 +197,14 @@ abstract class BBP_Admin_Forum_Repair {
 
 	/** Allow independent work to use the same node validation and field writer. */
 	protected function read_node( $id ) {
-		return $this->persisted ? get_option( $this->option( $id ), false ) : false;
+		if ( ! $this->persisted ) {
+			return false;
+		}
+		list( $read, $node ) = bbp_admin_repair_get_option( $this->option( $id ) );
+		if ( ! $read ) {
+			$this->code = 7;
+		}
+		return $node;
 	}
 
 	protected function save_node( $node ) {
@@ -194,9 +216,9 @@ abstract class BBP_Admin_Forum_Repair {
 	}
 
 	protected function enter( $id, $parent_id, $counted ) {
-		$id = $this->normalize_id( $id, $counted );
+		$id   = $this->normalize_id( $id, $counted );
 		$node = $this->node( $id );
-		if ( $this->corrupt ) {
+		if ( $this->corrupt || $this->code ) {
 			return false;
 		}
 		// Only completed counted nodes are still reachable when pruning begins.
@@ -222,11 +244,14 @@ abstract class BBP_Admin_Forum_Repair {
 		if ( $id > $this->state['upper_id'] ) {
 			return array( 'deferred' => true );
 		}
-		$values = $counted ? $this->values( $id, $forum ) : array_fill_keys( $this->keys, null );
+		$values = $counted ? $this->values( $id, $forum ) : array_fill_keys( $this->meta_keys, null );
 		if ( $this->code ) {
 			return false;
 		}
 		$parent_node = $parent_id ? $this->node( $parent_id ) : false;
+		if ( $this->code ) {
+			return false;
+		}
 		$node        = array(
 			'id'       => $id,
 			'parent'   => $parent_id,
@@ -279,6 +304,9 @@ abstract class BBP_Admin_Forum_Repair {
 		// so replaying either checkpoint cannot add a completed child twice.
 		if ( $node['await'] ) {
 			$child = $this->node( $node['await'] );
+			if ( $this->code ) {
+				return;
+			}
 			if ( false === $child ) {
 				$this->corrupt = true;
 				return;
@@ -291,7 +319,7 @@ abstract class BBP_Admin_Forum_Repair {
 				$this->state['current'] = $child['id'];
 				return;
 			}
-			$this->merge_child( $node, $child, $node['edge'] );
+			$this->merge_checked_child( $node, $child, $node['edge'] );
 			if ( $this->code || $this->corrupt ) {
 				return;
 			}
@@ -329,7 +357,7 @@ abstract class BBP_Admin_Forum_Repair {
 			return;
 		}
 		if ( 'done' === $child['phase'] ) {
-			$this->merge_child( $node, $child, $edge );
+			$this->merge_checked_child( $node, $child, $edge );
 			if ( $this->code || $this->corrupt ) {
 				return;
 			}
@@ -343,24 +371,22 @@ abstract class BBP_Admin_Forum_Repair {
 	}
 
 	protected function verify( $id, $key, $value ) {
-		$row = $this->db->get_row( $this->db->prepare( "SELECT COUNT(*) AS row_count, MIN(meta_key) AS meta_key, MIN(meta_value) AS meta_value FROM {$this->db->postmeta} WHERE post_id = %d AND meta_key = %s", $id, $key ) );
-		if ( ! empty( $this->db->last_error ) ) {
+		$mismatches = bbp_admin_repair_metadata_mismatches( 'post', $key, array( $id => $value ) );
+		if ( false === $mismatches ) {
 			$this->code = $this->meta_error();
 			return false;
 		}
-		$valid = ( null === $value ) ? ( 0 === (int) $row->row_count )
-			: ( 1 === (int) $row->row_count && $key === $row->meta_key && (string) $value === $row->meta_value );
-		if ( ! $valid ) {
+		if ( $mismatches ) {
 			$this->code = 8;
 		}
-		return $valid;
+		return empty( $mismatches );
 	}
 
 	protected function write( $node, $limit ) {
 		if ( ! $this->before_write( $node ) ) {
 			return 1;
 		}
-		$key    = $this->keys[ $node['key'] ];
+		$key    = $this->meta_keys[ $node['key'] ];
 		$value  = $node['values'][ $key ];
 		$result = bbp_admin_repair_single_metadata( 'post', $node['id'], $key, $value, $limit, $this->dry_run );
 		if ( $result['code'] ) {
@@ -387,7 +413,7 @@ abstract class BBP_Admin_Forum_Repair {
 				return $result['work'];
 			}
 			++$node['key'];
-			if ( count( $this->keys ) === $node['key'] ) {
+			if ( count( $this->meta_keys ) === $node['key'] ) {
 				foreach ( $node['values'] as $field => $expected ) {
 					if ( ! $this->dry_run && ! $this->verify( $node['id'], $field, $expected ) ) {
 						$node['key'] = 0;
@@ -408,36 +434,11 @@ abstract class BBP_Admin_Forum_Repair {
 			$complete = true;
 			return 1;
 		}
-		$names = $this->db->get_col( $this->db->prepare( "SELECT option_name FROM {$this->db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT %d", $this->db->esc_like( $this->prefix() ) . '%', $limit + count( $this->cleaned ) + 1 ) );
-		if ( ! empty( $this->db->last_error ) ) {
+		list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run, $this->created, $this->cleaned );
+		if ( ! $success ) {
 			$this->code = 7;
-			return 1;
 		}
-		$names = array_diff( array_unique( array_merge( $names, array_keys( $this->created ) ) ), array_keys( $this->cleaned ) );
-		sort( $names, SORT_STRING );
-		$complete = count( $names ) <= $limit;
-		$deleted  = array();
-		foreach ( array_slice( $names, 0, $limit ) as $name ) {
-			if ( ! $this->dry_run && ! bbp_admin_repair_tool_save_option( $name, false, true ) ) {
-				$this->code = 7;
-				$complete   = false;
-				break;
-			}
-			unset( $this->created[ $name ] );
-			if ( $this->dry_run ) {
-				$this->cleaned[ $name ] = true;
-			} else {
-				$deleted[ $name ] = true;
-			}
-		}
-		if ( ! empty( $deleted ) ) {
-			// Generation names are never reused. Keep them out of the shared miss cache.
-			$notoptions = wp_cache_get( 'notoptions', 'options' );
-			if ( is_array( $notoptions ) ) {
-				wp_cache_set( 'notoptions', array_diff_key( $notoptions, $deleted ), 'options' );
-			}
-		}
-		return max( 1, min( $limit, count( $names ) ) );
+		return $work;
 	}
 
 	protected function step( $limit, &$complete ) {
@@ -461,7 +462,7 @@ abstract class BBP_Admin_Forum_Repair {
 			$counted = 'count' === $this->state['phase'];
 			if ( $counted && null !== $this->root_statuses() ) {
 				$statuses = $this->root_statuses();
-				$slots = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+				$slots    = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
 				$sql .= $slots ? " AND post_status IN ({$slots})" : ' AND 1 = 0';
 				$args  = array_merge( $args, $statuses );
 			}
@@ -495,6 +496,9 @@ abstract class BBP_Admin_Forum_Repair {
 			return 1;
 		}
 		$node = $this->node( $this->state['current'] );
+		if ( $this->code ) {
+			return 1;
+		}
 		if ( false === $node ) {
 			$this->corrupt = true;
 			return 1;
@@ -508,6 +512,9 @@ abstract class BBP_Admin_Forum_Repair {
 			case 'done':
 				if ( $node['parent'] ) {
 					$parent_node = $this->node( $node['parent'] );
+					if ( $this->code ) {
+						break;
+					}
 					if ( false === $parent_node || $node['depth'] !== $parent_node['depth'] + 1 ) {
 						$this->corrupt = true;
 						break;
@@ -538,9 +545,11 @@ abstract class BBP_Admin_Forum_Repair {
 		return $counted ? is_int( $value ) : null === $value;
 	}
 
-	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Subclasses validate their additional node fields through this template method.
 	protected function valid_extra_node( $node ) {
-		return true;
+		return isset( $node['source'] ) && is_array( $node['source'] )
+			&& isset( $node['source']['parent'], $node['source']['status'], $node['source']['type'] )
+			&& is_int( $node['source']['parent'] ) && $node['source']['parent'] >= 0
+			&& is_string( $node['source']['status'] ) && is_string( $node['source']['type'] );
 	}
 
 	protected function upper_id() {
@@ -557,15 +566,15 @@ abstract class BBP_Admin_Forum_Repair {
 	}
 
 	protected function source_post( $id ) {
-		return $this->db->get_row( $this->db->prepare( "SELECT ID, post_parent, post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->context['forum'] ) );
+		return $this->db->get_row( $this->db->prepare( "SELECT ID, post_parent, post_status, post_type FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->context['forum'] ) );
 	}
 
 	protected function node_phase( $post, $counted ) {
 		return $counted ? 'children' : 'write';
 	}
 
-	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Subclasses may initialize additional node fields from the source post.
 	protected function prepare_node( $node, $post ) {
+		$node['source'] = $this->source_identity( $post );
 		return $node;
 	}
 
@@ -574,9 +583,34 @@ abstract class BBP_Admin_Forum_Repair {
 		return $node;
 	}
 
-	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Subclasses may revalidate the source before writing its node.
+	protected function source_identity( $post ) {
+		return array(
+			'parent' => (int) $post->post_parent,
+			'status' => $post->post_status,
+			'type'   => $post->post_type,
+		);
+	}
+
 	protected function before_write( $node ) {
+		if ( $this->legacy ) {
+			return true;
+		}
+		$post = $this->source_post( $node['id'] );
+		if ( ! empty( $this->db->last_error ) ) {
+			$this->code = 3;
+			return false;
+		}
+		if ( ! $post || $this->source_identity( $post ) !== $node['source'] ) {
+			$this->corrupt = true;
+			return false;
+		}
 		return true;
+	}
+
+	protected function merge_checked_child( &$parent_node, $child, $edge ) {
+		if ( $this->before_write( $child ) ) {
+			$this->merge_child( $parent_node, $child, $edge );
+		}
 	}
 
 	protected function completed_node( $node ) {}

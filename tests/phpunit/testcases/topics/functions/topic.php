@@ -21,7 +21,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		add_action( $hook, $callback );
 
 		try {
-			$this->assertFalse( $function( PHP_INT_MAX ) );
+			$this->assertFalse( $function( $this->nonexistent_post_id() ) );
 			$function( $topic_id );
 			$this->assertSame( array( $topic_id ), $seen );
 		} finally {
@@ -281,7 +281,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 				'zero'        => array( 0, '<strong>Error</strong>: Forum ID is missing.' ),
 				'nonnumeric'  => array( 'not-a-number', '<strong>Error</strong>: Forum ID must be a number.' ),
 				'negative'    => array( -1, '<strong>Error</strong>: Forum ID cannot be a negative number.' ),
-				'nonexistent' => array( PHP_INT_MAX, '<strong>Error</strong>: Forum does not exist.' ),
+				'nonexistent' => array( $this->nonexistent_post_id(), '<strong>Error</strong>: Forum does not exist.' ),
 			);
 
 			$this->set_current_user( $keymaster_id );

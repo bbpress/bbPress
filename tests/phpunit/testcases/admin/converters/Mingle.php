@@ -120,7 +120,7 @@ class BBP_Tests_Admin_Converters_Mingle extends BBP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 
 		update_user_meta( $user_id, '_bbp_password', wp_hash_password( 'mingle-password' ) );
-		update_option( '_bbp_converter_passwords_cursor', PHP_INT_MAX, false );
+		update_option( '_bbp_converter_passwords_cursor', $this->nonexistent_user_id(), false );
 
 		$this->assertFalse( $this->converter->clean_passwords() );
 		$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );

@@ -309,7 +309,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed_checkpoints() {
-		return array( array( 'cursor', -1 ), array( 'cursor', '0' ), array( 'cursor', PHP_INT_MAX ), array( 'upper_id', null ), array( 'post_types', array( 'other' ) ) );
+		return array( array( 'cursor', -1 ), array( 'cursor', '0' ), array( 'cursor', 'past-bound' ), array( 'upper_id', null ), array( 'post_types', array( 'other' ) ) );
 	}
 
 	/**
@@ -319,7 +319,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		$ids = $this->topics();
 		$this->assertFalse( bbp_admin_repair_topic_meta()['complete'] );
 		$state           = get_option( $this->option() );
-		$state[ $field ] = $value;
+		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
 		$this->assertStringContainsString( 'Saved progress is invalid.', bbp_admin_repair_topic_meta_dry_run()[1] );

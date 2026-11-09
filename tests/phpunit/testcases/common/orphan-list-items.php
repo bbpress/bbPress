@@ -365,9 +365,10 @@ class BBP_Tests_Common_Orphan_List_Items extends BBP_UnitTestCase {
 
 	public function test_lookalike_tags_do_not_load_stored_content() {
 		global $wpdb;
+		$post_id = $this->nonexistent_post_id();
 		foreach ( array( '<link href="style.css">', '<listing>Example</listing>', 'No list items.', '&lt;li&gt;Example&lt;/li&gt;' ) as $content ) {
 			$queries = $wpdb->num_queries;
-			$this->assertSame( $content, bbp_wrap_orphan_list_items( $content, PHP_INT_MAX ) );
+			$this->assertSame( $content, bbp_wrap_orphan_list_items( $content, $post_id ) );
 			$this->assertSame( $queries, $wpdb->num_queries );
 		}
 	}

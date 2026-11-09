@@ -93,6 +93,50 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 	}
 
 	/** @dataProvider tools */
+	public function test_whole_site_status_completes_read_only_with_duplicate_metadata( $type, $key, $total, $callback ) {
+		$forums = $this->forums( $type, $key, $total, 3 );
+		foreach ( $forums as $forum ) {
+			for ( $i = 0; $i < 5; ++$i ) {
+				add_post_meta( $forum, $key, 99 );
+			}
+		}
+		$before = $this->snapshot();
+		$result = bbp_admin_repair_forum_count_get_status( $type );
+		$this->assertSame( 0, $result['code'] );
+		$this->assertSame( $forums, $result['forum_ids'] );
+		$this->assertSame( count( $forums ), $result['repair_count'] );
+		$this->assertSame( $before, $this->snapshot() );
+		$this->assertSame( $result, bbp_admin_repair_forum_count_get_status( $type ) );
+		$this->assertSame( $before, $this->snapshot() );
+	}
+
+	/** @dataProvider tools */
+	public function test_failed_whole_site_status_count_is_read_only_and_can_be_retried( $type, $key, $total, $callback ) {
+		$db     = bbp_db();
+		$forums = $this->forums( $type, $key, $total, 3 );
+		$before = $this->snapshot();
+		$fail   = static function ( $query ) use ( $db ) {
+			return 0 === strpos( $query, "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id" )
+				? 'SELECT * FROM bbp_bounds_missing_metadata_table'
+				: $query;
+		};
+		$suppressed = $db->suppress_errors( true );
+		add_filter( 'query', $fail );
+		try {
+			$result = bbp_admin_repair_forum_count_get_status( $type );
+		} finally {
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppressed );
+		}
+		$this->assertSame( 'hidden-replies' === $type ? 4 : 5, $result['code'] );
+		$this->assertSame( $before, $this->snapshot() );
+		$result = bbp_admin_repair_forum_count_get_status( $type );
+		$this->assertSame( 0, $result['code'] );
+		$this->assertSame( $forums, $result['forum_ids'] );
+		$this->assertSame( $before, $this->snapshot() );
+	}
+
+	/** @dataProvider tools */
 	public function test_one_item_batches_preview_exact_writes_through_deep_hierarchies( $type, $key, $total, $callback ) {
 		$db     = bbp_db();
 		$forums = $this->forums( $type, $key, $total, 10 );
@@ -483,4 +527,84 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 			remove_filter( 'bbp_forum_query_subforum_ids', $filter, 10 );
 		}
 	}
+	public function changed_child_sources() {
+		$cases = array();
+		foreach ( $this->tools() as $tool ) {
+			foreach ( array( 'move', 'delete', 'status', 'direct' ) as $change ) {
+				$cases[] = array_merge( $tool, array( $change ) );
+			}
+		}
+		return $cases;
+	}
+
+	/** @dataProvider changed_child_sources */
+	public function test_completed_child_is_rechecked_before_merging_or_writing( $type, $key, $total, $callback, $change ) {
+		$forums      = $this->forums( $type, $key, $total, 2 );
+		$destination = $this->forums( $type, $key, $total, 1 )[0];
+		$child       = $forums[1];
+		for ( $i = 0; $i < 150; ++$i ) {
+			$result = bbp_admin_repair_forum_count_batch( $type );
+			$this->assertSame( 0, $result['code'] );
+			$state = get_option( $this->option( $type ) );
+			if ( is_array( $state ) ) {
+				$node = get_option( $this->option( $type ) . '_tree_' . $state['token'] . '_' . $child );
+				if ( is_array( $node ) && 'done' === $node['phase'] ) {
+					break;
+				}
+			}
+		}
+		$this->assertSame( 'done', $node['phase'] );
+		if ( 'move' === $change ) {
+			wp_update_post( array( 'ID' => $child, 'post_parent' => $destination ) );
+		} elseif ( 'delete' === $change ) {
+			wp_delete_post( $child, true );
+		} elseif ( 'status' === $change ) {
+			wp_update_post( array( 'ID' => $child, 'post_status' => 'draft' ) );
+		} else {
+			$topic = $this->factory->topic->create( array( 'post_parent' => $child ) );
+			$this->factory->reply->create( array( 'post_parent' => $topic, 'post_status' => 'hidden-replies' === $type ? bbp_get_spam_status_id() : bbp_get_public_status_id() ) );
+		}
+		$restarted = false;
+		for ( $i = 0; $i < 500; ++$i ) {
+			$result = bbp_admin_repair_forum_count_batch( $type );
+			$this->assertSame( 0, $result['code'] );
+			$restarted = $restarted || $result['restarted'];
+			if ( $result['complete'] ) {
+				break;
+			}
+		}
+		$this->assertTrue( $restarted );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 'direct' === $change ? 3 : 1, (int) get_post_meta( $forums[0], $total, true ) );
+		$this->assertSame( 'move' === $change ? 2 : 1, (int) get_post_meta( $destination, $total, true ) );
+	}
+
+	public function test_scratch_read_failure_preserves_the_generation_for_retry() {
+		$this->forums( 'topics', '_bbp_topic_count', '_bbp_total_topic_count', 2 );
+		for ( $i = 0; $i < 50; ++$i ) {
+			$this->assertSame( 0, bbp_admin_repair_forum_count_batch( 'topics' )['code'] );
+			$state = get_option( $this->option( 'topics' ) );
+			if ( $state['current'] ) {
+				break;
+			}
+		}
+		$this->assertGreaterThan( 0, $state['current'] );
+		$name   = $this->option( 'topics' ) . '_tree_' . $state['token'] . '_' . $state['current'];
+		$reject = static function ( $sql ) use ( $name ) {
+			return false !== strpos( $sql, 'SELECT `option_value`' ) && false !== strpos( $sql, $name ) ? 'SELECT option_value FROM bbp_missing_scratch_options' : $sql;
+		};
+		$suppressed = bbp_db()->suppress_errors( true );
+		add_filter( 'query', $reject );
+		try {
+			$result = bbp_admin_repair_forum_count_batch( 'topics' );
+			$this->assertSame( 7, $result['code'] );
+			$this->assertFalse( $result['restarted'] );
+		} finally {
+			remove_filter( 'query', $reject );
+			bbp_db()->suppress_errors( $suppressed );
+		}
+		$this->assertSame( $state['token'], get_option( $this->option( 'topics' ) )['token'] );
+		$this->finish( 'topics' );
+	}
+
 }

@@ -430,7 +430,7 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 	public function malformed_checkpoints() {
 		$cases = array();
 		foreach ( $this->tools() as $name => $tool ) {
-			foreach ( array( 'missing cursor' => array( 'cursor', null ), 'string cursor' => array( 'cursor', '1' ), 'negative cursor' => array( 'cursor', -1 ), 'inverted bounds' => array( 'cursor', PHP_INT_MAX ), 'missing upper bound' => array( 'upper_id', null ), 'array upper bound' => array( 'upper_id', array() ) ) as $case => $change ) {
+			foreach ( array( 'missing cursor' => array( 'cursor', null ), 'string cursor' => array( 'cursor', '1' ), 'negative cursor' => array( 'cursor', -1 ), 'inverted bounds' => array( 'cursor', 'past-bound' ), 'missing upper bound' => array( 'upper_id', null ), 'array upper bound' => array( 'upper_id', array() ) ) as $case => $change ) {
 				$cases[ $name . ': ' . $case ] = array_merge( $tool, $change );
 			}
 		}
@@ -445,7 +445,7 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		$this->assertFalse( call_user_func( $callback )['complete'] );
 		$option          = bbp_admin_repair_tool_batch_option_name( $tool_id );
 		$state           = get_option( $option );
-		$state[ $field ] = $value;
+		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $option, $state, false );
 		$before  = $this->snapshot();
 		$preview = call_user_func( $callback . '_dry_run' );

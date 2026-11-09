@@ -165,6 +165,52 @@ function bbp_register_repair_tools() {
 }
 
 /**
+ * Describe one built-in legacy user-relationship family.
+ *
+ * Repair, migration, and cleanup share these identities and stored keys.
+ * Resolve filtered post types and statuses in the worker that needs them, so
+ * descriptor lookup does not invoke unrelated filters or cache site context.
+ *
+ * @since 2.7.0 bbPress (r8315)
+ * @access private
+ *
+ * @param string $type Favorites, topic-subscriptions, or forum-subscriptions.
+ * @return array|false Fixed tool IDs and storage keys, or false for an unknown type.
+ */
+function bbp_admin_get_user_relationship_config( $type ) {
+	$configs = array(
+		'favorites' => array(
+			'source_suffix'   => 'favorites',
+			'destination_key' => '_bbp_favorite',
+			'object_type'     => 'topic',
+		),
+		'topic-subscriptions' => array(
+			'source_suffix'   => 'subscriptions',
+			'destination_key' => '_bbp_subscription',
+			'object_type'     => 'topic',
+		),
+		'forum-subscriptions' => array(
+			'source_suffix'   => 'forum_subscriptions',
+			'destination_key' => '_bbp_subscription',
+			'object_type'     => 'forum',
+		),
+	);
+	if ( ! is_string( $type ) || ! isset( $configs[ $type ] ) ) {
+		return false;
+	}
+	$config  = $configs[ $type ];
+	$tool_id = 'bbp-user-' . $type;
+	return array(
+		'repair_tool_id'  => $tool_id,
+		'move_tool_id'    => $tool_id . '-move',
+		'delete_tool_id'  => $tool_id . '-delete',
+		'source_key'      => bbp_db()->prefix . '_bbp_' . $config['source_suffix'],
+		'destination_key' => $config['destination_key'],
+		'object_type'     => $config['object_type'],
+	);
+}
+
+/**
  * Register the default repair tools.
  *
  * @since 2.6.0 bbPress (r5885)
@@ -460,10 +506,14 @@ function bbp_register_default_repair_tools() {
 		)
 	);
 
+	$favorites           = bbp_admin_get_user_relationship_config( 'favorites' );
+	$topic_subscriptions = bbp_admin_get_user_relationship_config( 'topic-subscriptions' );
+	$forum_subscriptions = bbp_admin_get_user_relationship_config( 'forum-subscriptions' );
+
 	// Remove unpublished topics from user favorites
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-favorites',
+			'id'          => $favorites['repair_tool_id'],
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Remove unpublished topics from user favorites', 'bbpress' ),
 			'description' => esc_html__( 'Run this to remove trashed or deleted topics from all user favorites.', 'bbpress' ),
@@ -481,7 +531,7 @@ function bbp_register_default_repair_tools() {
 	// Remove unpublished topics from user subscriptions
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-topic-subscriptions',
+			'id'          => $topic_subscriptions['repair_tool_id'],
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Remove unpublished topics from user subscriptions', 'bbpress' ),
 			'description' => esc_html__( 'Run this to remove trashed or deleted topics from all user subscriptions.', 'bbpress' ),
@@ -499,7 +549,7 @@ function bbp_register_default_repair_tools() {
 	// Remove unpublished forums from user subscriptions
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-forum-subscriptions',
+			'id'          => $forum_subscriptions['repair_tool_id'],
 			'type'        => 'repair',
 			'title'       => esc_html__( 'Remove unpublished forums from user subscriptions', 'bbpress' ),
 			'description' => esc_html__( 'Run this to remove trashed or deleted forums from all user subscriptions.', 'bbpress' ),
@@ -589,7 +639,7 @@ function bbp_register_default_repair_tools() {
 	// Migrate favorites from user-meta to post-meta
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-favorites-move',
+			'id'          => $favorites['move_tool_id'],
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user topic favorites', 'bbpress' ),
 			'description' => esc_html__( 'Copies favorites from user meta to topic meta.', 'bbpress' ),
@@ -607,7 +657,7 @@ function bbp_register_default_repair_tools() {
 	// Migrate topic subscriptions from user-meta to post-meta
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-topic-subscriptions-move',
+			'id'          => $topic_subscriptions['move_tool_id'],
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user topic subscriptions', 'bbpress' ),
 			'description' => esc_html__( 'Copies topic subscriptions from user meta to topic meta.', 'bbpress' ),
@@ -625,7 +675,7 @@ function bbp_register_default_repair_tools() {
 	// Migrate forum subscriptions from user-meta to post-meta
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-forum-subscriptions-move',
+			'id'          => $forum_subscriptions['move_tool_id'],
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Upgrade user forum subscriptions', 'bbpress' ),
 			'description' => esc_html__( 'Copies forum subscriptions from user meta to forum meta.', 'bbpress' ),
@@ -643,7 +693,7 @@ function bbp_register_default_repair_tools() {
 	// Remove favorites from user-meta
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-favorites-delete',
+			'id'          => $favorites['delete_tool_id'],
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Remove favorites from user-meta', 'bbpress' ),
 			'description' => esc_html__( 'Run this to delete old data (after confirming successful favorites upgrade)', 'bbpress' ),
@@ -662,7 +712,7 @@ function bbp_register_default_repair_tools() {
 	// Remove topic subscriptions from user-meta
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-topic-subscriptions-delete',
+			'id'          => $topic_subscriptions['delete_tool_id'],
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Remove topic subscriptions from user-meta', 'bbpress' ),
 			'description' => esc_html__( 'Run this to delete old data (after confirming successful topic subscriptions upgrade)', 'bbpress' ),
@@ -681,7 +731,7 @@ function bbp_register_default_repair_tools() {
 	// Remove forum subscriptions from user-meta
 	bbp_register_repair_tool(
 		array(
-			'id'          => 'bbp-user-forum-subscriptions-delete',
+			'id'          => $forum_subscriptions['delete_tool_id'],
 			'type'        => 'upgrade',
 			'title'       => esc_html__( 'Remove forum subscriptions from user-meta', 'bbpress' ),
 			'description' => esc_html__( 'Run this to delete old data (after confirming successful forum subscriptions upgrade)', 'bbpress' ),

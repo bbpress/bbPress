@@ -283,4 +283,83 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 			remove_action( 'added_post_meta', $corrupt, 10 );
 		}
 	}
+
+	public function test_engagement_retries_roll_back_only_the_failed_insertion() {
+		$db    = bbp_db();
+		$user  = $this->factory->user->create();
+		$topic = $this->factory->topic->create( array( 'post_author' => $user ) );
+		delete_post_meta( $topic, '_bbp_engagement' );
+		$source  = $this->rows( 'post', $topic, '_bbp_topic_id' );
+		$added   = 0;
+		$deleted = 0;
+		$corrupt = static function ( $id, $object, $key ) use ( $db, $topic, &$added ) {
+			if ( (int) $object === $topic && '_bbp_engagement' === $key ) {
+				++$added;
+				$db->update( $db->postmeta, array( 'meta_value' => 'corrupt' ), array( 'meta_id' => $id ) );
+			}
+		};
+		$count_delete = static function ( $ids, $object, $key ) use ( $topic, &$deleted ) {
+			if ( (int) $object === $topic && '_bbp_engagement' === $key ) {
+				$deleted += count( (array) $ids );
+			}
+		};
+		add_action( 'added_post_meta', $corrupt, 10, 3 );
+		add_action( 'deleted_post_meta', $count_delete, 10, 3 );
+		try {
+			$checkpoint = null;
+			for ( $i = 0; $i < 3; ++$i ) {
+				$result = bbp_admin_upgrade_user_engagements_batch();
+				$this->assertSame( 5, $result['code'] );
+				$this->assertFalse( $result['complete'] );
+				$this->assertSame( array(), $this->rows( 'post', $topic, '_bbp_engagement' ) );
+				$this->assertSame( $source, $this->rows( 'post', $topic, '_bbp_topic_id' ) );
+				$current = bbp_admin_repair_tool_get_checkpoint( 'bbp-user-topic-engagements-move' );
+				if ( null !== $checkpoint ) {
+					$this->assertSame( $checkpoint, $current );
+				}
+				$checkpoint = $current;
+			}
+			$this->assertSame( 3, $added );
+			$this->assertSame( 3, $deleted );
+		} finally {
+			remove_action( 'added_post_meta', $corrupt, 10 );
+			remove_action( 'deleted_post_meta', $count_delete, 10 );
+		}
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-user-topic-engagements-move', 'bbp_admin_upgrade_user_engagements' ) );
+		$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-user-topic-engagements-move', 'bbp_admin_upgrade_user_engagements' ) );
+		$this->assertSame( array( (string) $user ), get_post_meta( $topic, '_bbp_engagement', false ) );
+	}
+
+	public function metadata_types() {
+		return array( array( 'post' ), array( 'user' ) );
+	}
+
+	/** @dataProvider metadata_types */
+	public function test_field_verification_distinguishes_absence_zero_lists_aliases_and_duplicates( $type ) {
+		$key = '_bbp_test_verified_field';
+		$ids = 'post' === $type ? $this->factory->topic->create_many( 5 ) : $this->factory->user->create_many( 5 );
+		add_metadata( $type, $ids[0], $key, 0 );
+		add_metadata( $type, $ids[1], $key, array( 12, 34 ) );
+		add_metadata( $type, $ids[2], strtoupper( $key ), 7 );
+		add_metadata( $type, $ids[3], $key, 9 );
+		add_metadata( $type, $ids[3], $key, 9 );
+		$expected = array( $ids[0] => 0, $ids[1] => array( 12, 34 ), $ids[2] => 7, $ids[3] => 9, $ids[4] => null );
+		$queries = 0;
+		$count   = static function ( $query ) use ( &$queries ) {
+			if ( false !== strpos( $query, ' AS object_id, COUNT(*) AS row_count' ) ) {
+				++$queries;
+			}
+			return $query;
+		};
+		add_filter( 'query', $count );
+		try {
+			$this->assertSame( array( $ids[2], $ids[3] ), bbp_admin_repair_metadata_mismatches( $type, $key, $expected ) );
+		} finally {
+			remove_filter( 'query', $count );
+		}
+		$this->assertSame( 1, $queries );
+		$this->assertSame( array( $ids[0] ), bbp_admin_repair_metadata_mismatches( $type, $key, array( $ids[0] => null ) ) );
+		$this->assertSame( array( $ids[4] ), bbp_admin_repair_metadata_mismatches( $type, $key, array( $ids[4] => 0 ) ) );
+	}
+
 }

@@ -58,7 +58,7 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 				$received = func_get_args();
 			},
 			10,
-			empty( $args ) ? 0 : PHP_INT_MAX
+			empty( $args ) ? 0 : count( $args ) + 1
 		);
 
 		try {
@@ -430,18 +430,18 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 			return false;
 		};
 
-		add_filter( 'bbp_allowed_themes', $themes_filter, PHP_INT_MAX );
-		add_filter( 'bbp_map_meta_caps', $caps_filter, PHP_INT_MAX );
-		add_filter( 'bbp_redirect_canonical', $redirect_filter, PHP_INT_MAX );
+		add_filter( 'bbp_allowed_themes', $themes_filter, 100 );
+		add_filter( 'bbp_map_meta_caps', $caps_filter, 100 );
+		add_filter( 'bbp_redirect_canonical', $redirect_filter, 100 );
 
 		try {
 			$this->assertSame( array(), bbp_allowed_themes( array( 'theme' ) ) );
 			$this->assertSame( array(), bbp_map_meta_caps( array( 'read' ), 'bbp_tests_unmapped_cap', 7 ) );
 			$this->assertSame( '', bbp_redirect_canonical( 'https://example.org/topic', 'https://example.org/old' ) );
 		} finally {
-			remove_filter( 'bbp_allowed_themes', $themes_filter, PHP_INT_MAX );
-			remove_filter( 'bbp_map_meta_caps', $caps_filter, PHP_INT_MAX );
-			remove_filter( 'bbp_redirect_canonical', $redirect_filter, PHP_INT_MAX );
+			remove_filter( 'bbp_allowed_themes', $themes_filter, 100 );
+			remove_filter( 'bbp_map_meta_caps', $caps_filter, 100 );
+			remove_filter( 'bbp_redirect_canonical', $redirect_filter, 100 );
 		}
 	}
 
@@ -497,11 +497,11 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 			'headers' => array( bbp_get_email_header() ),
 		);
 
-		add_filter( 'bbp_mail', $filter, PHP_INT_MAX );
+		add_filter( 'bbp_mail', $filter, 100 );
 		try {
 			$this->assertSame( array(), bbp_mail( $args ) );
 		} finally {
-			remove_filter( 'bbp_mail', $filter, PHP_INT_MAX );
+			remove_filter( 'bbp_mail', $filter, 100 );
 		}
 	}
 

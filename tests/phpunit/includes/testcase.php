@@ -65,6 +65,18 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		return preg_replace( '|//[0-2]\.gravatar\.com|', '//secure.gravatar.com', $url );
 	}
 
+	/** Return a post ID beyond the current fixture's stored IDs. */
+	protected function nonexistent_post_id() {
+		global $wpdb;
+		return (int) $wpdb->get_var( "SELECT MAX(ID) FROM {$wpdb->posts}" ) + 1;
+	}
+
+	/** Return a user ID beyond the current fixture's stored IDs. */
+	protected function nonexistent_user_id() {
+		global $wpdb;
+		return (int) $wpdb->get_var( "SELECT MAX(ID) FROM {$wpdb->users}" ) + 1;
+	}
+
 	/**
 	 * Count successful metadata additions, updates and deletions in one batch.
 	 */
@@ -75,13 +87,13 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		};
 		$actions = array( "added_{$meta_type}_meta", "updated_{$meta_type}_meta", "deleted_{$meta_type}_meta" );
 		foreach ( $actions as $action ) {
-			add_action( $action, $count, PHP_INT_MAX, 1 );
+			add_action( $action, $count, 10, 1 );
 		}
 		try {
 			$result = call_user_func( $callback );
 		} finally {
 			foreach ( $actions as $action ) {
-				remove_action( $action, $count, PHP_INT_MAX );
+				remove_action( $action, $count, 10 );
 			}
 		}
 		$this->assertLessThanOrEqual( $limit, $writes );
@@ -140,7 +152,8 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 			throw new RuntimeException( 'bbPress test redirect.' );
 		};
 
-		add_filter( 'wp_redirect', $filter, PHP_INT_MAX );
+		// Observe the location after the normal redirect filters.
+		add_filter( 'wp_redirect', $filter, 100 );
 
 		try {
 			$callback();
@@ -150,7 +163,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 				throw $exception;
 			}
 		} finally {
-			remove_filter( 'wp_redirect', $filter, PHP_INT_MAX );
+			remove_filter( 'wp_redirect', $filter, 100 );
 		}
 
 		return $location;

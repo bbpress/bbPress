@@ -229,7 +229,7 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 			'nonnumeric'  => array( 'not-a-number', '<strong>Error</strong>: Forum ID must be a number.' ),
 			'numeric-zero' => array( '00', '<strong>Error</strong>: Forum ID is missing.' ),
 			'negative'    => array( -1, '<strong>Error</strong>: Forum ID cannot be a negative number.' ),
-			'nonexistent' => array( PHP_INT_MAX, '<strong>Error</strong>: Forum does not exist.' ),
+			'nonexistent' => array( $this->nonexistent_post_id(), '<strong>Error</strong>: Forum does not exist.' ),
 		);
 
 		foreach ( $cases as $case => $configuration ) {

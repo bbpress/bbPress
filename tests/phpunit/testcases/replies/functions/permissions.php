@@ -728,7 +728,7 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 			'zero'        => array( 0, '<strong>Error</strong>: Forum ID is missing.' ),
 			'nonnumeric'  => array( 'not-a-number', '<strong>Error</strong>: Forum ID must be a number.' ),
 			'negative'    => array( -1, '<strong>Error</strong>: Forum ID cannot be a negative number.' ),
-			'nonexistent' => array( PHP_INT_MAX, '<strong>Error</strong>: Forum does not exist.' ),
+			'nonexistent' => array( $this->nonexistent_post_id(), '<strong>Error</strong>: Forum does not exist.' ),
 		);
 
 		update_option( '_bbp_allow_content_throttle', false );

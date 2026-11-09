@@ -61,6 +61,15 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Keep unfinished automatic upgrades durably pending, and retry storage failures
+  without advancing the database version. Recheck completed forum recount nodes
+  after source changes so moved forums do not contribute stale totals.
+
+- Upgrade converted BuddyPress group-forum relationships in resumable batches,
+  preserving ambiguity checks before relationship writes, modern mappings,
+  safe retries and read-only previews. Share verified state and metadata handling
+  across repair and upgrade tools, including automatic small-site runs.
+
 - Recalculate reply positions and clean up self-referential reply-to metadata
   in resumable batches, including incorrect unique positions. Preserve ordering
   filters, verified writes, read-only previews and automatic small-site runs.

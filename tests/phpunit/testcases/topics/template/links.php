@@ -303,7 +303,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_topic_edit_url
 	 */
 	public function test_bbp_get_topic_edit_url() {
-		$this->assertNull( bbp_get_topic_edit_url( PHP_INT_MAX ) );
+		$this->assertNull( bbp_get_topic_edit_url( $this->nonexistent_post_id() ) );
 		$this->with_keymaster_topic( function( $topic_id ) {
 			$url = bbp_get_topic_edit_url( $topic_id );
 			if ( false === strpos( bbp_get_topic_permalink( $topic_id ), '?' ) ) {

@@ -843,7 +843,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			'string bound'       => array( 'upper_id', '9999999' ),
 			'negative cursor'    => array( 'cursor', -1 ),
 			'negative bound'     => array( 'upper_id', -1 ),
-			'cursor past bound'  => array( 'cursor', PHP_INT_MAX ),
+			'cursor past bound'  => array( 'cursor', 'past-bound' ),
 		);
 		if ( $user_meta ) {
 			$cases += array(
@@ -851,7 +851,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				'missing fingerprint'  => array( 'row_hash', null ),
 				'string offset'        => array( 'offset', '2' ),
 				'negative offset'      => array( 'offset', -1 ),
-				'impossible offset'    => array( 'offset', PHP_INT_MAX ),
+				'impossible offset'    => array( 'offset', 'past-bound' ),
 				'offset at list end'   => array( 'offset', 5 ),
 				'invalid fingerprint'  => array( 'row_hash', 'invalid' ),
 				'empty fingerprint'    => array( 'row_hash', '' ),
@@ -876,10 +876,12 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		return $this->checkpoint_corruptions();
 	}
 
-	private function corrupt_checkpoint( $option, $field, $value ) {
+	private function corrupt_checkpoint( $option, $field, $value, $list_length = 0 ) {
 		$state = get_option( $option );
 		if ( 'state' === $field ) {
 			$state = $value;
+		} elseif ( 'past-bound' === $value ) {
+			$state[ $field ] = ( 'offset' === $field ? $list_length : $state['upper_id'] ) + 1;
 		} elseif ( null === $value ) {
 			unset( $state[ $field ] );
 		} else {
@@ -897,7 +899,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
 		add_user_meta( $user_id, bbp_db()->prefix . $old_key, implode( ',', $posts ) );
 		call_user_func( $callback );
-		$this->corrupt_checkpoint( $option, $field, $value );
+		$this->corrupt_checkpoint( $option, $field, $value, count( $posts ) );
 		$before  = $this->stored_data();
 		$preview = call_user_func( $callback . '_dry_run' );
 		$this->assertSame( 0, $preview[0] );

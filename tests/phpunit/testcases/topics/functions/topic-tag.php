@@ -276,11 +276,11 @@ class BBP_Tests_Topics_Functions_Topic_Tag extends BBP_UnitTestCase {
 			$unexpected_redirect = function ( $location ) {
 				$this->fail( 'Allowed tag edits should not redirect to ' . $location );
 			};
-			add_filter( 'wp_redirect', $unexpected_redirect, PHP_INT_MAX );
+			add_filter( 'wp_redirect', $unexpected_redirect, 100 );
 			try {
 				$this->assertNull( bbp_check_topic_tag_edit() );
 			} finally {
-				remove_filter( 'wp_redirect', $unexpected_redirect, PHP_INT_MAX );
+				remove_filter( 'wp_redirect', $unexpected_redirect, 100 );
 			}
 		} finally {
 			remove_filter( 'bbp_is_topic_tag_edit', '__return_true' );

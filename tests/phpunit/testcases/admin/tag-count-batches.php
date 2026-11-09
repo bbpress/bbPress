@@ -284,7 +284,7 @@ class BBP_Tests_Admin_Tag_Count_Batches extends BBP_UnitTestCase {
 		return array(
 			array( 'cursor', -1 ),
 			array( 'cursor', '1' ),
-			array( 'cursor', PHP_INT_MAX ),
+			array( 'cursor', 'past-bound' ),
 			array( 'upper_id', null ),
 			array( 'taxonomy', 'other-taxonomy' )
 		);
@@ -298,7 +298,7 @@ class BBP_Tests_Admin_Tag_Count_Batches extends BBP_UnitTestCase {
 		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-topic-tags' );
 		$this->assertFalse( bbp_admin_repair_topic_tag_count()['complete'] );
 		$state           = get_option( $option );
-		$state[ $field ] = $value;
+		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $option, $state, false );
 		$before  = $this->snapshot();
 		$preview = bbp_admin_repair_topic_tag_count_dry_run();

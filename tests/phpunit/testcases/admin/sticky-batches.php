@@ -37,7 +37,7 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed_states() {
-		return array( array( 'cursor', 'bad' ), array( 'kept', false ), array( 'ready', 'true' ), array( 'source_hash', false ), array( 'offset', -1 ), array( 'current', PHP_INT_MAX ), array( 'length', -1 ), array( 'changed', 8 ) );
+		return array( array( 'cursor', 'bad' ), array( 'kept', false ), array( 'ready', 'true' ), array( 'source_hash', false ), array( 'offset', -1 ), array( 'current', 'past-bound' ), array( 'length', -1 ), array( 'changed', 8 ) );
 	}
 
 	private function option() {
@@ -128,7 +128,7 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		$this->fixture();
 		bbp_admin_repair_sticky_batch();
 		$state           = get_option( $this->option() );
-		$state[ $field ] = $value;
+		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state );
 		$before  = $this->snapshot();
 		$preview = bbp_admin_repair_sticky_batch( true );

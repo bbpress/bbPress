@@ -317,7 +317,7 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 			$cache->pre_post_update( $post_id );
 			$this->assertSame( 10, has_action( 'clean_post_cache', array( $cache, 'skip_related_posts' ) ) );
 
-			$cache->skip_related_posts( PHP_INT_MAX );
+			$cache->skip_related_posts( $this->nonexistent_post_id() );
 			$this->assertFalse( $GLOBALS['_wp_suspend_cache_invalidation'] );
 			$this->assertFalse( has_action( 'wp_insert_post', array( $cache, 'restore_cache_invalidation' ) ) );
 
