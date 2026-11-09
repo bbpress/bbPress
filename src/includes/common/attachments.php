@@ -214,6 +214,37 @@ function bbp_do_not_redirect_restricted_attachments( $redirect_url = '', $reques
 }
 
 /**
+ * Reject comments on attachments whose bbPress parent is not visible.
+ *
+ * Leave comments_open() unchanged while preventing comment submission from
+ * revealing the attachment URL in Core's redirect.
+ *
+ * @since 2.6.22 bbPress (r8314)
+ *
+ * @param int|string|WP_Error $approved    Comment approval status.
+ * @param array               $commentdata Comment data.
+ * @return int|string|WP_Error Comment approval status or error.
+ */
+function bbp_reject_restricted_attachment_comments( $approved, $commentdata ) {
+	if ( is_wp_error( $approved ) ) {
+		return $approved;
+	}
+
+	$post_id = isset( $commentdata['comment_post_ID'] ) ? $commentdata['comment_post_ID'] : 0;
+	$parent  = bbp_get_attachment_parent( $post_id );
+
+	if ( $parent && ! bbp_user_can_view_attachment_parent( $parent ) ) {
+		return new WP_Error(
+			'bbp_attachment_comment_forbidden',
+			__( 'Sorry, you are not allowed to comment on this item.', 'bbpress' ),
+			403
+		);
+	}
+
+	return $approved;
+}
+
+/**
  * Use bbPress permissions with Core and Gutenberg attachment controllers.
  *
  * @since 2.7.0 bbPress (r7481)
