@@ -32,7 +32,7 @@
 		"@lodder/grunt-postcss": "~3.1.1",
 		"@wordpress/browserslist-config": "~7.0.0",
 		"@wordpress/env": "^12.0.0",
-		"@wordpress/stylelint-config": "~27.0.0",
+		"@wordpress/stylelint-config": "~27.1.0",
 		"autoprefixer": "~10.6.2",
 		"browserslist": "~4.29.5",
 		"check-dependencies": "~2.0.0",
