@@ -2974,6 +2974,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  * @since 2.3.0 bbPress (r4808)
  * @since 2.6.19 bbPress (r7692) Exclude restricted forum IDs from post__in queries.
  * @since 2.6.21 bbPress (r8133) Exclude password-restricted content from searches.
+ * @since 2.6.22 bbPress (r8317) Apply password restrictions to sitemaps.
  *
  * @param WP_Query $posts_query
  *
@@ -3034,6 +3035,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	if ( $is_admin_list || ( $posts_query->get( 'suppress_filters' ) && wp_doing_ajax() && current_user_can( 'moderate' ) ) ) {
 		$password_search = false;
 	}
+	$password_search = $password_search || (bool) $posts_query->get( '_bbp_password_protected_search' );
 
 	// Separate non-bbPress post types from supported bbPress post types.
 	$non_bbp_post_types = array_diff( $post_types, $bbp_post_types );
@@ -3053,7 +3055,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			return;
 		}
 
-		// Password inheritance requires a posts_where clause during searches.
+		// Password inheritance requires a posts_where clause during searches and sitemaps.
 		if ( $password_search ) {
 			// Explicit IDs take precedence over post__in in WordPress.
 			$posts_query->set( 'p', 0 );
@@ -3069,9 +3071,9 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	$password_forum_ids = array();
 
 	/**
-	 * Search matches must not reveal whether password-protected content contains
-	 * a term. Add password-protected forum trees to the normal visibility rules
-	 * and exclude protected topics through the password-search clause.
+	 * Search matches and sitemap URLs must not reveal password-protected content.
+	 * Add protected forum trees to the normal visibility rules and exclude
+	 * protected topics through the password-search clause.
 	 */
 	if ( $password_search ) {
 		$password_forum_ids  = bbp_get_password_protected_forum_ids();
