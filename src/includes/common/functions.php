@@ -87,6 +87,29 @@ function bbp_exclude_replies_from_non_public_topics( $query_args = array() ) {
 }
 
 /**
+ * Exclude password-protected bbPress posts from WordPress sitemaps.
+ *
+ * Sitemaps are public listings even when a moderator or keymaster requests
+ * them. Use the same password and forum-ancestry checks as bbPress search.
+ *
+ * @since 2.6.22 bbPress (r8317)
+ *
+ * @param array  $query_args Query arguments.
+ * @param string $post_type  Sitemap post type.
+ * @return array Query arguments.
+ */
+function bbp_exclude_password_protected_sitemap_posts( $query_args = array(), $post_type = '' ) {
+	if ( ! in_array( $post_type, array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+		return $query_args;
+	}
+
+	$query_args['_bbp_password_protected_search']    = true;
+	$query_args['_bbp_password_protected_forum_ids'] = bbp_get_password_protected_forum_ids();
+
+	return $query_args;
+}
+
+/**
  * Exclude replies in non-public topics from public bbPress queries.
  *
  * Existing bbPress loops use a query flag to opt in. Generic public WordPress
@@ -144,13 +167,14 @@ function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
 }
 
 /**
- * Exclude password-protected bbPress matches from search queries.
+ * Exclude password-protected bbPress matches from search and sitemap queries.
  *
- * Password-protected content stays out of public search results even after its
- * password has been entered. Direct requests continue to use WordPress's post
- * password cookie normally.
+ * Password-protected content stays out of public search and sitemap listings
+ * even after its password has been entered. Direct requests continue to use
+ * WordPress's post password cookie normally.
  *
  * @since 2.6.21 bbPress (r8133)
+ * @since 2.6.22 bbPress (r8317) Apply the same checks to WordPress sitemaps.
  *
  * @param string   $where       SQL WHERE clause.
  * @param WP_Query $posts_query Posts query.

@@ -166,6 +166,7 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 			array( 'rest_user_query',           'bbp_exclude_forum_posts_from_user_query', 10, 2 ),
 			array( 'rest_post_search_query',    'bbp_exclude_replies_from_non_public_topics', 10, 1 ),
 			array( 'wp_sitemaps_posts_query_args', 'bbp_exclude_replies_from_non_public_topics', 10, 1 ),
+			array( 'wp_sitemaps_posts_query_args', 'bbp_exclude_password_protected_sitemap_posts', 10, 2 ),
 			array( 'rest_request_before_callbacks', 'bbp_filter_rest_user_discovery',       10, 3 ),
 			array( 'wp_insert_post_data',       'bbp_filter_post_title_data',             15, 1 ),
 			array( 'wp_insert_post_data',       'bbp_filter_admin_forum_post_data',        20, 2 ),
