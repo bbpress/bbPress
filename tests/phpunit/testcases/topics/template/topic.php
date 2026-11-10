@@ -544,13 +544,24 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	public function test_bbp_get_single_topic_description() {
 		$topic_id = $this->factory->topic->create();
 		$args     = array( 'topic_id' => $topic_id, 'before' => '<p>', 'after' => '</p>' );
-		$description = bbp_get_single_topic_description( $args );
+		$fixed_time = static function() {
+			return 'right now';
+		};
 
-		$this->assertStringStartsWith( '<p>', $description );
-		$this->assertStringEndsWith( '</p>', $description );
-		$this->assertStringContainsString( 'This topic', $description );
-		$this->expectOutputString( $description );
-		bbp_single_topic_description( $args );
+		add_filter( 'bbp_get_topic_last_active', $fixed_time );
+
+		try {
+			$description = bbp_get_single_topic_description( $args );
+
+			$this->assertStringStartsWith( '<p>', $description );
+			$this->assertStringEndsWith( '</p>', $description );
+			$this->assertStringContainsString( 'This topic', $description );
+			$this->assertStringContainsString( '>right now</a>', $description );
+			$this->expectOutputString( $description );
+			bbp_single_topic_description( $args );
+		} finally {
+			remove_filter( 'bbp_get_topic_last_active', $fixed_time );
+		}
 	}
 
 	/**
