@@ -424,15 +424,25 @@ function bbp_encode_callback( $matches = array() ) {
 }
 
 /**
- * Callback to decode the tags in topic or reply content.
+ * Callback to decode the tags in forum, topic, or reply content.
  *
  * @since 2.3.0 bbPress (r4642)
+ * @since 2.6.22 bbPress (r8322) Preserve code containing backticks.
  *
  * @param array $matches
  * @todo Experiment with _wp_specialchars()
  * @return string
  */
 function bbp_decode_callback( $matches = array() ) {
+
+	// Keep unambiguous HTML when code already contains the shorthand delimiter.
+	if ( false !== strpos( $matches[2], '`' ) ) {
+		$content = str_replace( '<br />', '<coded_br />', $matches[2] );
+		$content = str_replace( '<p>',    '<coded_p>',    $content );
+		$content = str_replace( '</p>',   '</coded_p>',   $content );
+
+		return $matches[1] . $content . $matches[3];
+	}
 
 	// Setup variables
 	$trans_table = array_flip( get_html_translation_table( HTML_ENTITIES ) );
