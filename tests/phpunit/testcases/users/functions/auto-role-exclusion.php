@@ -147,7 +147,9 @@ class BBP_Tests_Users_Functions_Auto_Role_Exclusion extends BBP_UnitTestCase {
 
 		try {
 			$this->revisit_as( $user_id );
-			$this->assertFalse( bbp_get_user_role( $user_id ) );
+			// Inspect stored caps; request-only caps may appear on the cached user.
+			$saved_caps = get_user_meta( $user_id, $GLOBALS['wpdb']->prefix . 'capabilities', true );
+			$this->assertArrayNotHasKey( bbp_get_spectator_role(), $saved_caps );
 			$this->assertTrue( current_user_can( 'spectate' ) );
 			$this->assertFalse( current_user_can( 'participate' ) );
 
