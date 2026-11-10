@@ -22,6 +22,14 @@ defined( 'ABSPATH' ) || exit;
  */
 class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 
+	/**
+	 * Set up one forum recount worker.
+	 *
+	 * @since 2.7.0 bbPress (r8284)
+	 *
+	 * @param string $type    Count type. Accepts 'topics', 'replies', or 'hidden-replies'.
+	 * @param bool   $dry_run Whether to inspect the recount without changing data.
+	 */
 	public function __construct( $type, $dry_run = false ) {
 		$this->db        = bbp_db();
 		$this->type      = $type;
@@ -45,7 +53,13 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		);
 	}
 
-	/** Preserve the historical whole-site, read-only status API. */
+	/**
+	 * Preserve the historical whole-site, read-only status API.
+	 *
+	 * @since 2.7.0 bbPress (r8284)
+	 *
+	 * @return array Status code, forum IDs, and number of repairs when successful.
+	 */
 	public function get_status() {
 		$this->legacy = true;
 		$result       = $this->run();
@@ -58,7 +72,17 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			: array( 'code' => $result['code'] );
 	}
 
-	/** Read child counts through the existing filters without shared-cache writes. */
+	/**
+	 * Read child counts through the existing filters without shared-cache writes.
+	 *
+	 * @since 2.7.0 bbPress (r8284)
+	 *
+	 * @param int    $id       Forum ID.
+	 * @param string $type     Child post type.
+	 * @param array  $statuses Post statuses to count.
+	 * @param bool   $hidden   Whether the count is for non-public children.
+	 * @return int Filtered child count.
+	 */
 	protected function child_count( $id, $type, $statuses, $hidden ) {
 		$sql = "SELECT p.post_type AS type, p.post_status AS status, COUNT(*) AS count
 			FROM {$this->db->posts} AS p WHERE p.post_parent = %d AND p.post_type IN (%s, %s)
@@ -94,6 +118,15 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		return (int) apply_filters( $hidden ? 'bbp_get_non_public_child_count' : 'bbp_get_public_child_count', $count, $id, $type );
 	}
 
+	/**
+	 * Calculate the direct metadata values for one forum.
+	 *
+	 * @since 2.7.0 bbPress (r8284)
+	 *
+	 * @param int         $id   Forum ID.
+	 * @param object|null $post Forum source row. Unused by recounts.
+	 * @return array Metadata values keyed by metadata name.
+	 */
 	protected function values( $id, $post ) {
 		if ( 'topics' === $this->type ) {
 			$public = $this->child_count( $id, $this->context['topic'], $this->context['topics'], false );
@@ -136,12 +169,29 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		return array_combine( $this->meta_keys, array( (int) $count, (int) $count ) );
 	}
 
+	/**
+	 * Add direct-count values to a traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array  $node Traversal node.
+	 * @param object $post Forum source row.
+	 * @return array Prepared traversal node.
+	 */
 	protected function prepare_node( $node, $post ) {
 		$node           = parent::prepare_node( $node, $post );
 		$node['direct'] = $node['values'];
 		return $node;
 	}
 
+	/**
+	 * Validate recount-specific fields in a traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the recount fields are valid.
+	 */
 	protected function valid_extra_node( $node ) {
 		if ( ! parent::valid_extra_node( $node ) || ! isset( $node['direct'] ) || ! is_array( $node['direct'] )
 			|| array_keys( $node['direct'] ) !== $this->meta_keys || $node['source']['type'] !== $this->context['forum'] ) {
@@ -155,6 +205,14 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		return true;
 	}
 
+	/**
+	 * Revalidate direct counts immediately before writing a node.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the node remains safe to write.
+	 */
 	protected function before_write( $node ) {
 		if ( ! parent::before_write( $node ) ) {
 			return false;
@@ -172,10 +230,26 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		return true;
 	}
 
+	/**
+	 * Return the error code for a metadata read failure.
+	 *
+	 * @since 2.7.0 bbPress (r8284)
+	 *
+	 * @return int Repair error code.
+	 */
 	protected function meta_error() {
 		return ( 'hidden-replies' === $this->type ) ? 4 : 5;
 	}
 
+	/**
+	 * Merge one completed child forum into its parent totals.
+	 *
+	 * @since 2.7.0 bbPress (r8284)
+	 *
+	 * @param array $parent_node Parent traversal node, passed by reference.
+	 * @param array $child       Completed child traversal node.
+	 * @param int   $edge        Child forum ID used by the parent edge.
+	 */
 	protected function merge_child( &$parent_node, $child, $edge ) {
 		if ( 'topics' === $this->type ) {
 			$parent_node['values'][ $this->meta_keys[1] ] += (int) apply_filters( 'bbp_update_forum_topic_count', $child['values'][ $this->meta_keys[1] ], $edge );
@@ -186,6 +260,13 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		}
 	}
 
+	/**
+	 * Check whether the configured count type is supported.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return bool Whether the count type is valid.
+	 */
 	protected function valid_type() {
 		return in_array( $this->type, array( 'topics', 'replies', 'hidden-replies' ), true );
 	}

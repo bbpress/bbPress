@@ -23,30 +23,211 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class BBP_Admin_Forum_Repair {
 
+	/**
+	 * WordPress database connection.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var wpdb
+	 */
 	protected $db;
+
+	/**
+	 * Repair operation type.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var string
+	 */
 	protected $type;
+
+	/**
+	 * Registered repair tool ID.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var string
+	 */
 	protected $tool_id;
+
+	/**
+	 * Ordered metadata keys written for each node.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var array
+	 */
 	protected $meta_keys;
+
+	/**
+	 * Source types, statuses, and filter state captured for this run.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	protected $context;
+
+	/**
+	 * Current traversal checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array|false
+	 */
 	protected $state;
+
+	/**
+	 * Whether this run only previews changes.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var bool
+	 */
 	protected $dry_run;
+
+	/**
+	 * Whether this is one request in a browser Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var bool
+	 */
 	protected $async = false;
+
+	/**
+	 * Whether to preserve the historical synchronous status API.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var bool
+	 */
 	protected $legacy = false;
+
+	/**
+	 * Whether the current checkpoint was loaded from storage.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var bool
+	 */
 	protected $persisted = false;
+
+	/**
+	 * Traversal nodes loaded during the current request, keyed by post ID.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	protected $nodes = array();
+
+	/**
+	 * Option names created by a synchronous Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	protected $created = array();
+
+	/**
+	 * Option names already inspected during cleanup.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	protected $cleaned = array();
+
+	/**
+	 * Changed node IDs recorded during the current request.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	protected $changed = array();
+
+	/**
+	 * Forum IDs discovered by the historical status API.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	protected $forums = array();
+
+	/**
+	 * In-progress metadata cleanup state for a browser Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var array|null
+	 */
 	protected $metadata = null;
+
+	/**
+	 * Current repair error code.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var int
+	 */
 	protected $code = 0;
+
+	/**
+	 * Whether malformed saved progress was restarted.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var bool
+	 */
 	protected $restarted = false;
+
+	/**
+	 * Whether the saved traversal tree is malformed or stale.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var bool
+	 */
 	protected $corrupt = false;
+
+	/**
+	 * Whether the current request should stop at a safe boundary.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var bool
+	 */
 	protected $stop = false;
+
+	/**
+	 * Whether preview batch estimation reached a semantic phase boundary.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var bool
+	 */
 	protected $boundary = false;
+
+	/**
+	 * Aggregate number of repaired nodes in a browser Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var int
+	 */
 	protected $preview_repaired = 0;
 
-	/** Run one bounded request, preserving a replayable path through the tree. */
+	/**
+	 * Run one bounded request, preserving a replayable path through the tree.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array Repair result and continuation state.
+	 */
 	public function run() {
 		$complete = false;
 		$initial  = true;
@@ -161,6 +342,14 @@ abstract class BBP_Admin_Forum_Repair {
 		);
 	}
 
+	/**
+	 * Validate a saved traversal checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $state Saved checkpoint.
+	 * @return bool Whether the checkpoint can be resumed.
+	 */
 	protected function valid_state( $state ) {
 		if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'root', 'current' ) ) ) {
 			return false;
@@ -185,6 +374,13 @@ abstract class BBP_Admin_Forum_Repair {
 			: ( 0 === $state['root'] );
 	}
 
+	/**
+	 * Create a new traversal checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array|false New checkpoint, or false after a database failure.
+	 */
 	protected function new_state() {
 		$upper = $this->upper_id();
 		if ( ! empty( $this->db->last_error ) ) {
@@ -202,18 +398,49 @@ abstract class BBP_Admin_Forum_Repair {
 		);
 	}
 
+	/**
+	 * Save or delete the current traversal checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param bool $complete Whether the traversal completed successfully.
+	 * @return bool Whether the checkpoint operation succeeded.
+	 */
 	protected function save( $complete = false ) {
 		return bbp_admin_repair_tool_save_checkpoint( $this->tool_id, $this->state, $complete, $this->dry_run );
 	}
 
+	/**
+	 * Return the option-name prefix for traversal nodes.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return string Traversal node prefix.
+	 */
 	protected function prefix() {
 		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_tree_';
 	}
 
+	/**
+	 * Return the option name for one traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int $id Post ID.
+	 * @return string Traversal node option name.
+	 */
 	protected function option( $id ) {
 		return $this->prefix() . $this->state['token'] . '_' . $id;
 	}
 
+	/**
+	 * Load and validate one traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int $id Post ID.
+	 * @return array|false Traversal node, or false when none exists or it is invalid.
+	 */
 	protected function node( $id ) {
 		if ( ! array_key_exists( $id, $this->nodes ) ) {
 			$this->nodes[ $id ] = $this->read_node( $id );
@@ -244,6 +471,14 @@ abstract class BBP_Admin_Forum_Repair {
 		return $node;
 	}
 
+	/**
+	 * Persist one traversal node and cache it for this request.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the node was saved.
+	 */
 	protected function put( $node ) {
 		$id = $node['id'];
 		if ( ! $this->save_node( $node ) ) {
@@ -254,7 +489,16 @@ abstract class BBP_Admin_Forum_Repair {
 		return true;
 	}
 
-	/** Allow independent work to use the same node validation and field writer. */
+	/**
+	 * Read one traversal node from storage.
+	 *
+	 * Allows independent work to use the same node validation and field writer.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int $id Post ID.
+	 * @return array|false Stored node, or false when no node exists.
+	 */
 	protected function read_node( $id ) {
 		if ( ! $this->persisted ) {
 			return false;
@@ -266,6 +510,14 @@ abstract class BBP_Admin_Forum_Repair {
 		return $node;
 	}
 
+	/**
+	 * Save one traversal node to storage.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the node was saved or safely retained in memory.
+	 */
 	protected function save_node( $node ) {
 		$id = $node['id'];
 		if ( $this->dry_run && ! $this->async ) {
@@ -274,6 +526,16 @@ abstract class BBP_Admin_Forum_Repair {
 		return ( $this->dry_run && ! $this->async ) || bbp_admin_repair_tool_save_option( $this->option( $id ), $node );
 	}
 
+	/**
+	 * Enter an existing node or create a new traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int  $id        Post ID.
+	 * @param int  $parent_id Parent post ID in this traversal.
+	 * @param bool $counted   Whether to calculate values or prune stale metadata.
+	 * @return array|false Traversal node, deferred marker, or false on failure.
+	 */
 	protected function enter( $id, $parent_id, $counted ) {
 		$id   = $this->normalize_id( $id, $counted );
 		$node = $this->node( $id );
@@ -336,6 +598,15 @@ abstract class BBP_Admin_Forum_Repair {
 		return $this->put( $node ) ? $node : false;
 	}
 
+	/**
+	 * Query child forum IDs for one traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int      $id     Parent forum ID.
+	 * @param int|null $cursor Last child ID, or null to return the complete list.
+	 * @return array Child forum IDs.
+	 */
 	protected function children( $id, $cursor = null ) {
 		if ( empty( $this->context['forums'] ) ) {
 			return array();
@@ -359,6 +630,13 @@ abstract class BBP_Admin_Forum_Repair {
 		return $ids;
 	}
 
+	/**
+	 * Advance one node through its child traversal.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Traversal node.
+	 */
 	protected function visit( $node ) {
 		// Persist each edge before descending. Clear it only with its merged total,
 		// so replaying either checkpoint cannot add a completed child twice.
@@ -430,6 +708,16 @@ abstract class BBP_Admin_Forum_Repair {
 		}
 	}
 
+	/**
+	 * Verify one stored metadata value after writing it.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int    $id    Post ID.
+	 * @param string $key   Metadata key.
+	 * @param mixed  $value Expected metadata value.
+	 * @return bool Whether the stored value matches.
+	 */
 	protected function verify( $id, $key, $value ) {
 		$mismatches = bbp_admin_repair_metadata_mismatches( 'post', $key, array( $id => $value ) );
 		if ( false === $mismatches ) {
@@ -442,6 +730,15 @@ abstract class BBP_Admin_Forum_Repair {
 		return empty( $mismatches );
 	}
 
+	/**
+	 * Reconcile one metadata field for a traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node  Traversal node.
+	 * @param int   $limit Maximum metadata rows to inspect.
+	 * @return int Work units consumed.
+	 */
 	protected function write( $node, $limit ) {
 		if ( ! $this->before_write( $node ) ) {
 			return 1;
@@ -495,6 +792,15 @@ abstract class BBP_Admin_Forum_Repair {
 		return $result['work'];
 	}
 
+	/**
+	 * Remove temporary traversal-node options in bounded work.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int  $limit    Maximum options to inspect.
+	 * @param bool $complete Whether cleanup is complete, passed by reference.
+	 * @return int Work units consumed.
+	 */
 	protected function cleanup( $limit, &$complete ) {
 		if ( $this->legacy ) {
 			$complete = true;
@@ -508,6 +814,15 @@ abstract class BBP_Admin_Forum_Repair {
 		return $work;
 	}
 
+	/**
+	 * Process one bounded traversal step.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int  $limit    Maximum work available to this step.
+	 * @param bool $complete Whether the complete traversal is finished, passed by reference.
+	 * @return int Work units consumed.
+	 */
 	protected function step( $limit, &$complete ) {
 		if ( in_array( $this->state['phase'], array( 'prepare', 'cleanup' ), true ) ) {
 			$finished = false;
@@ -602,22 +917,61 @@ abstract class BBP_Admin_Forum_Repair {
 		return 1;
 	}
 
+	/**
+	 * Check whether the configured repair type is supported.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return bool Whether the repair type is valid.
+	 */
 	protected function valid_type() {
 		return true;
 	}
 
+	/**
+	 * Return every valid traversal phase.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array Traversal phase names.
+	 */
 	protected function phases() {
 		return array( 'prepare', 'count', 'prune', 'cleanup' );
 	}
 
+	/**
+	 * Return phases that may have an active traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array Active traversal phase names.
+	 */
 	protected function active_phases() {
 		return array( 'count', 'prune' );
 	}
 
+	/**
+	 * Validate one calculated node value.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param string $key     Metadata key.
+	 * @param mixed  $value   Calculated value.
+	 * @param bool   $counted Whether the node is being counted or pruned.
+	 * @return bool Whether the value is valid.
+	 */
 	protected function valid_value( $key, $value, $counted ) {
 		return $counted ? is_int( $value ) : null === $value;
 	}
 
+	/**
+	 * Validate fields added to a node by the concrete repair.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the additional fields are valid.
+	 */
 	protected function valid_extra_node( $node ) {
 		return isset( $node['source'] ) && is_array( $node['source'] )
 			&& isset( $node['source']['parent'], $node['source']['status'], $node['source']['type'] )
@@ -625,37 +979,104 @@ abstract class BBP_Admin_Forum_Repair {
 			&& is_string( $node['source']['status'] ) && is_string( $node['source']['type'] );
 	}
 
+	/**
+	 * Return the highest forum ID included in this traversal.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return int Highest forum ID.
+	 */
 	protected function upper_id() {
 		return (int) $this->db->get_var( $this->db->prepare( "SELECT MAX(ID) FROM {$this->db->posts} WHERE post_type = %s", $this->context['forum'] ) );
 	}
 
+	/**
+	 * Return statuses that identify counted root forums.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array|null Forum statuses, or null to include every status.
+	 */
 	protected function root_statuses() {
 		return $this->context['forums'];
 	}
 
+	/**
+	 * Normalize a source ID before entering its traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int  $id      Source post ID.
+	 * @param bool $counted Whether the node is being counted or pruned.
+	 * @return int Normalized post ID.
+	 */
 	protected function normalize_id( $id, $counted ) {
 		$id = (int) $id;
 		return $counted && 'topics' !== $this->type ? (int) apply_filters( 'bbp_get_forum_id', $id, $id ) : $id;
 	}
 
+	/**
+	 * Read the source post fields used to build a node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int $id Post ID.
+	 * @return object|null Source row, or null when the post does not exist.
+	 */
 	protected function source_post( $id ) {
 		return $this->db->get_row( $this->db->prepare( "SELECT ID, post_parent, post_status, post_type FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->context['forum'] ) );
 	}
 
+	/**
+	 * Choose the first processing phase for a new node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param object $post    Source post row.
+	 * @param bool   $counted Whether the node is being counted or pruned.
+	 * @return string Node phase.
+	 */
 	protected function node_phase( $post, $counted ) {
 		return $counted ? 'children' : 'write';
 	}
 
+	/**
+	 * Add shared source identity to a new traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array  $node Traversal node.
+	 * @param object $post Source post row.
+	 * @return array Prepared traversal node.
+	 */
 	protected function prepare_node( $node, $post ) {
 		$node['source'] = $this->source_identity( $post );
 		return $node;
 	}
 
-	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Subclasses may update the node after a particular metadata key completes.
+	// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Subclasses may update the node after a particular metadata key completes.
+	/**
+	 * Adjust a node after one metadata key is complete.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array  $node Traversal node.
+	 * @param string $key  Completed metadata key.
+	 * @return array Updated traversal node.
+	 */
 	protected function after_key( $node, $key ) {
 		return $node;
 	}
+	// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
+	/**
+	 * Normalize source fields used to detect changes during a run.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param object $post Source post row.
+	 * @return array Normalized source identity.
+	 */
 	protected function source_identity( $post ) {
 		return array(
 			'parent' => (int) $post->post_parent,
@@ -664,6 +1085,15 @@ abstract class BBP_Admin_Forum_Repair {
 		);
 	}
 
+	/**
+	 * Revalidate a node's source identity immediately before writing.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 * @since 2.7.0 bbPress (r8315) Revalidate source identity before writes.
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the node remains safe to write.
+	 */
 	protected function before_write( $node ) {
 		if ( $this->legacy || $this->dry_run ) {
 			return true;
@@ -680,29 +1110,94 @@ abstract class BBP_Admin_Forum_Repair {
 		return true;
 	}
 
+	/**
+	 * Revalidate and merge one completed child into its parent.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $parent_node Parent traversal node, passed by reference.
+	 * @param array $child       Completed child traversal node.
+	 * @param int   $edge        Child post ID used by the parent edge.
+	 */
 	protected function merge_checked_child( &$parent_node, $child, $edge ) {
 		if ( $this->before_write( $child ) ) {
 			$this->merge_child( $parent_node, $child, $edge );
 		}
 	}
 
+	/**
+	 * Act when all metadata fields for a node are complete.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Completed traversal node.
+	 */
 	protected function completed_node( $node ) {}
 
-	/** Load subclass preview aggregates after a browser Dry Run resumes. */
+	/**
+	 * Load subclass preview aggregates after a browser Dry Run resumes.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 */
 	protected function load_preview_state() {}
 
-	/** Add subclass preview aggregates to the browser Dry Run checkpoint. */
+	/**
+	 * Add subclass preview aggregates to the browser Dry Run checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 */
 	protected function save_preview_state() {}
 
-	/** Record a completed node immediately before its cursor advances. */
+	/**
+	 * Record a completed node immediately before its cursor advances.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @param array $node Completed traversal node.
+	 */
 	protected function leaving_node( $node ) {}
 
-	/** Return work that a normal Run would count toward its request budget. */
+	/**
+	 * Return work that a normal Run would count toward its request budget.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @param string $phase Traversal phase before the work was performed.
+	 * @param int    $work  Work units consumed by the preview.
+	 * @return int Estimated normal Run work.
+	 */
 	protected function preview_estimated_work( $phase, $work ) {
 		return $work;
 	}
 
+	/**
+	 * Calculate direct values for one source post.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int    $id   Source post ID.
+	 * @param object $post Source post row.
+	 * @return array Values keyed by metadata name.
+	 */
 	abstract protected function values( $id, $post );
+
+	/**
+	 * Return the repair error code for a metadata read failure.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return int Repair error code.
+	 */
 	abstract protected function meta_error();
+
+	/**
+	 * Merge one completed child into its parent node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $parent_node Parent traversal node, passed by reference.
+	 * @param array $child       Completed child traversal node.
+	 * @param int   $edge        Child post ID used by the parent edge.
+	 */
 	abstract protected function merge_child( &$parent_node, $child, $edge );
 }

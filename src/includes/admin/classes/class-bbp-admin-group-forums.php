@@ -22,19 +22,130 @@ defined( 'ABSPATH' ) || exit;
  */
 class BBP_Admin_Group_Forums {
 
+	/**
+	 * WordPress database connection.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var wpdb
+	 */
 	private $db;
+
+	/**
+	 * BuddyPress groups table name.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var string
+	 */
 	private $groups_table;
+
+	/**
+	 * BuddyPress group metadata table name.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var string
+	 */
 	private $groupmeta_table;
+
+	/**
+	 * Registered forum post type.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var string
+	 */
 	private $forum_post_type;
+
+	/**
+	 * Registered upgrade tool ID.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var string
+	 */
 	private $tool_id = 'bbp-group-forums';
+
+	/**
+	 * Current migration checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var array|false
+	 */
 	private $state;
+
+	/**
+	 * Whether this run only previews changes.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var bool
+	 */
 	private $dry_run;
+
+	/**
+	 * Whether this is one request in a browser Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var bool
+	 */
 	private $async;
+
+	/**
+	 * In-memory migration plans created by a synchronous Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var array
+	 */
 	private $preview = array();
+
+	/**
+	 * Option names already inspected during cleanup.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var array
+	 */
 	private $cleaned = array();
+
+	/**
+	 * Current migration error code.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var int
+	 */
 	private $code = 0;
+
+	/**
+	 * Whether a legacy value maps ambiguously to multiple objects.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var bool
+	 */
 	private $mapping_error = false;
+
+	/**
+	 * Estimated normal Run batches accumulated by a browser Dry Run.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var int
+	 */
 	private $batches = 0;
+
+	/**
+	 * Aggregate migration changes keyed by operation type.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @var array
+	 */
 	private $counts = array(
 		'groups'   => 0,
 		'forums'   => 0,
@@ -44,6 +155,13 @@ class BBP_Admin_Group_Forums {
 		'roles'    => array(),
 	);
 
+	/**
+	 * Set up the group-forum migration worker.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param bool $dry_run Whether to inspect the migration without changing data.
+	 */
 	public function __construct( $dry_run = false ) {
 		$this->db              = bbp_db();
 		$this->forum_post_type = bbp_get_forum_post_type();
@@ -54,6 +172,14 @@ class BBP_Admin_Group_Forums {
 		$this->groupmeta_table = $prefix . 'bp_groups_groupmeta';
 	}
 
+	/**
+	 * Run one bounded group-forum migration request.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 * @since 2.7.0 bbPress (r8331) Support complete browser Dry Runs across requests.
+	 *
+	 * @return array Migration result, continuation state, and aggregate totals.
+	 */
 	public function run() {
 		list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
 		$complete  = false;
@@ -115,6 +241,14 @@ class BBP_Admin_Group_Forums {
 		);
 	}
 
+	/**
+	 * Validate a saved group-forum migration checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $state Saved checkpoint.
+	 * @return bool Whether the checkpoint can be resumed.
+	 */
 	private function valid_state( $state ) {
 		$valid = bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'legacy_forum_count', 'group_marker_offset' ) )
 			&& isset( $state['phase'], $state['token'], $state['context'] )
@@ -140,6 +274,13 @@ class BBP_Admin_Group_Forums {
 			&& is_bool( $data['mapping_error'] );
 	}
 
+	/**
+	 * Create a new group-forum migration checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @return array|false New checkpoint, or false after a database failure.
+	 */
 	private function new_state() {
 		$upper = (int) $this->db->get_var( $this->db->prepare( "SELECT MAX(ID) FROM {$this->db->posts} WHERE post_type = %s", $this->forum_post_type ) );
 		if ( ! empty( $this->db->last_error ) ) {
@@ -157,18 +298,49 @@ class BBP_Admin_Group_Forums {
 		);
 	}
 
+	/**
+	 * Save or delete the current migration checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param bool $complete Whether the migration completed successfully.
+	 * @return bool Whether the checkpoint operation succeeded.
+	 */
 	private function save( $complete = false ) {
 		return bbp_admin_repair_tool_save_checkpoint( $this->tool_id, $this->state, $complete, $this->dry_run );
 	}
 
+	/**
+	 * Return the option-name prefix for temporary migration plans.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @return string Migration plan prefix.
+	 */
 	private function prefix() {
 		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_groups_';
 	}
 
+	/**
+	 * Return the option name for one migration plan record.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param string $key Plan record key.
+	 * @return string Migration plan option name.
+	 */
 	private function option( $key ) {
 		return $this->prefix() . $this->state['token'] . '_' . $key;
 	}
 
+	/**
+	 * Read one temporary migration plan record.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param string $key Plan record key.
+	 * @return mixed Stored plan value, or false when no value exists.
+	 */
 	private function read_plan( $key ) {
 		$name = $this->option( $key );
 		if ( array_key_exists( $name, $this->preview ) ) {
@@ -181,6 +353,14 @@ class BBP_Admin_Group_Forums {
 		return $value;
 	}
 
+	/**
+	 * Write one temporary migration plan record.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param string $key   Plan record key.
+	 * @param mixed  $value Plan value.
+	 */
 	private function write_plan( $key, $value ) {
 		$name = $this->option( $key );
 		if ( $this->dry_run && ! $this->async ) {
@@ -190,12 +370,26 @@ class BBP_Admin_Group_Forums {
 		}
 	}
 
+	/**
+	 * Advance the checkpoint to another migration phase.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param string $phase Next migration phase.
+	 */
 	private function next_phase( $phase ) {
 		$this->state['phase']  = $phase;
 		$this->state['cursor'] = $this->state['group_marker_offset'] = 0;
 	}
 
-	/** Validate ID-list members before using WordPress's normal list parser. */
+	/**
+	 * Validate ID-list members before using WordPress's normal list parser.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param mixed $value Possible ID list.
+	 * @return array|false Normalized IDs, or false when a member is invalid.
+	 */
 	private function ids( $value ) {
 		if ( is_string( $value ) ) {
 			$value = wp_parse_list( $value );
@@ -213,7 +407,18 @@ class BBP_Admin_Group_Forums {
 		return array_values( array_filter( wp_parse_id_list( $value ) ) );
 	}
 
-	/** A logical relationship field must have one unambiguous stored value. */
+	/**
+	 * Read one logical relationship field with an unambiguous stored value.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param string $table  Metadata table name.
+	 * @param string $column Object ID column name.
+	 * @param int    $id     Object ID.
+	 * @param string $key    Metadata key.
+	 * @param int    $error  Error code for a failed database read.
+	 * @return array|false Stored field description, or false on failure.
+	 */
 	private function read_field( $table, $column, $id, $key, $error ) {
 		$field = $this->db->get_row( $this->db->prepare( "SELECT COUNT(*) AS rows_found, MIN(meta_value) AS value, MIN(meta_key) AS field_key FROM `{$table}` WHERE `{$column}` = %d AND meta_key = %s", $id, $key ), ARRAY_A );
 		if ( ! empty( $this->db->last_error ) || ! is_array( $field ) || ! isset( $field['rows_found'] ) || ! array_key_exists( 'value', $field ) || ! array_key_exists( 'field_key', $field ) ) {
@@ -232,6 +437,14 @@ class BBP_Admin_Group_Forums {
 		return $field;
 	}
 
+	/**
+	 * Read the legacy and current group markers for one forum.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param int $id Forum ID.
+	 * @return array|false Forum migration source, or false on failure.
+	 */
 	private function read_forum_source( $id ) {
 		$post = $this->db->get_row( $this->db->prepare( "SELECT ID, post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->forum_post_type ) );
 		if ( ! empty( $this->db->last_error ) ) {
@@ -269,6 +482,14 @@ class BBP_Admin_Group_Forums {
 		);
 	}
 
+	/**
+	 * Read one group's forum marker and visibility source.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param int $id Group ID.
+	 * @return array|false Group migration source, or false on failure.
+	 */
 	private function read_group_forum_source( $id ) {
 		$field = $this->read_field( $this->groupmeta_table, 'group_id', $id, 'forum_id', 3 );
 		$group = $this->db->get_row( $this->db->prepare( "SELECT status FROM `{$this->groups_table}` WHERE id = %d", $id ) );
@@ -284,6 +505,15 @@ class BBP_Admin_Group_Forums {
 		);
 	}
 
+	/**
+	 * Process one bounded migration step.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param int  $limit    Maximum work available to this step.
+	 * @param bool $complete Whether the complete migration is finished, passed by reference.
+	 * @return int Work units consumed.
+	 */
 	private function step( $limit, &$complete ) {
 		$phase = $this->state['phase'];
 		if ( in_array( $phase, array( 'prepare', 'cleanup' ), true ) ) {
@@ -360,11 +590,28 @@ class BBP_Admin_Group_Forums {
 		return 1;
 	}
 
+	/**
+	 * Check whether a forum's source fields still match its migration plan.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $node Forum migration plan.
+	 * @return bool Whether the live source still matches.
+	 */
 	private function source_matches( $node ) {
 		$live = $this->read_forum_source( $node['id'] );
 		return $live && $live['legacy_field'] === $node['legacy_field'] && $live['groups_field'] === $node['groups_field'];
 	}
 
+	/**
+	 * Validate one forum migration plan.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param mixed $node Possible forum migration plan.
+	 * @param int   $id   Expected forum ID.
+	 * @return bool Whether the plan is valid.
+	 */
 	private function valid_node( $node, $id ) {
 		if ( ! is_array( $node ) || ! isset( $node['id'], $node['legacy'], $node['groups'], $node['legacy_field'], $node['groups_field'], $node['skip'], $node['owner'] )
 			|| $id !== $node['id'] || ! is_string( $node['legacy'] ) || ! is_bool( $node['skip'] ) || ! is_bool( $node['owner'] )
@@ -401,6 +648,13 @@ class BBP_Admin_Group_Forums {
 		return true;
 	}
 
+	/**
+	 * Index one forum and its explicit group markers.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param int $id Forum ID.
+	 */
 	private function index( $id ) {
 		$node = $this->state['group_marker_offset'] ? $this->read_plan( 'forum_' . $id ) : $this->read_forum_source( $id );
 		if ( ! $this->valid_node( $node, $id ) || $this->state['group_marker_offset'] > count( $node['groups'] ) ) {
@@ -447,6 +701,14 @@ class BBP_Admin_Group_Forums {
 		}
 	}
 
+	/**
+	 * Claim one legacy value or group for a forum migration plan.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param string $key Claim key.
+	 * @param int    $id  Forum ID.
+	 */
 	private function claim( $key, $id ) {
 		$claimed = $this->read_plan( $key );
 		if ( false !== $claimed && ( ! is_array( $claimed ) || ! isset( $claimed['forum'] ) || $claimed['forum'] !== $id ) ) {
@@ -457,7 +719,15 @@ class BBP_Admin_Group_Forums {
 		}
 	}
 
-	/** Inspect one candidate per work unit; never load a complete group list. */
+	/**
+	 * Inspect one candidate per work unit without loading a complete group list.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $node   Forum migration plan.
+	 * @param bool  $verify Whether to verify a previously selected mapping.
+	 * @return bool Whether candidate planning is complete for this forum.
+	 */
 	private function plan( $node, $verify = false ) {
 		if ( $verify && ! isset( $node['expected'] ) ) {
 			$node['expected'] = array(
@@ -518,6 +788,16 @@ class BBP_Admin_Group_Forums {
 		return false;
 	}
 
+	/**
+	 * Finalize and persist one forum-to-group migration plan.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $node   Forum migration plan.
+	 * @param int   $group  Selected group ID, or zero when no group matches.
+	 * @param bool  $update Whether the group's legacy marker needs updating.
+	 * @return bool True after the plan has been finalized.
+	 */
 	private function finish_plan( $node, $group, $update ) {
 		$node['group_source'] = false;
 		$node['group']        = $group;
@@ -558,10 +838,28 @@ class BBP_Admin_Group_Forums {
 		return true;
 	}
 
+	/**
+	 * Map a BuddyPress group status to the target forum visibility.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $source Group migration source.
+	 * @return string Target forum status, or an empty string when unchanged.
+	 */
 	private function group_visibility_target( $source ) {
 		return 'public' === $source['status'] ? bbp_get_public_status_id() : ( in_array( $source['status'], array( 'private', 'hidden' ), true ) ? bbp_get_hidden_status_id() : '' );
 	}
 
+	/**
+	 * Check one forum's post status and shared visibility lists.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param int         $id         Forum ID.
+	 * @param string      $target     Expected forum status.
+	 * @param string|null $visibility Current forum status, passed by reference.
+	 * @return bool Whether all visibility state matches the target.
+	 */
 	private function visibility_matches( $id, $target, &$visibility = null ) {
 		$visibility = $this->db->get_var( $this->db->prepare( "SELECT post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->forum_post_type ) );
 		if ( ! empty( $this->db->last_error ) || null === $visibility ) {
@@ -581,6 +879,13 @@ class BBP_Admin_Group_Forums {
 			&& ( in_array( $id, $hidden_ids, true ) === ( bbp_get_hidden_status_id() === $target ) );
 	}
 
+	/**
+	 * Apply one verified forum-to-group migration plan.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param array $node Forum migration plan.
+	 */
 	private function apply( $node ) {
 		$id       = $node['id'];
 		$group    = $node['group'];
@@ -638,6 +943,13 @@ class BBP_Admin_Group_Forums {
 		}
 	}
 
+	/**
+	 * Read the legacy root forum used by converted group forums.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @return array|false Root forum source, or false on failure.
+	 */
 	private function read_root_source() {
 		$old   = function_exists( 'bp_forums_parent_forum_id' ) ? bp_forums_parent_forum_id() : ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ? (int) BP_FORUMS_PARENT_FORUM_ID : 1 );
 		$posts = $this->db->get_results( $this->db->prepare( "SELECT DISTINCT p.ID, p.post_type, p.post_parent, p.post_status, p.post_title, p.post_name FROM {$this->db->posts} p INNER JOIN {$this->db->postmeta} m ON p.ID = m.post_id WHERE p.post_type = %s AND m.meta_key = '_bbp_old_forum_id' AND CAST(m.meta_value AS SIGNED) = %d ORDER BY p.ID LIMIT 2", $this->forum_post_type, $old ), ARRAY_A );
@@ -659,7 +971,13 @@ class BBP_Admin_Group_Forums {
 		return $root;
 	}
 
-	/** Fixed-size finalization runs only after every relationship plan succeeds. */
+	/**
+	 * Finalize the root forum and remove obsolete standalone roles.
+	 *
+	 * Fixed-size finalization runs only after every relationship plan succeeds.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 */
 	private function root() {
 		$planned = $this->read_plan( 'root' );
 		$current = $this->read_root_source();

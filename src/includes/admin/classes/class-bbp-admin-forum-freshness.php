@@ -23,14 +23,35 @@ defined( 'ABSPATH' ) || exit;
  */
 class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 
+	/**
+	 * Calculated topic activity times keyed by topic ID.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @var array
+	 */
 	private $topic_times = array();
 
+	/**
+	 * Aggregate repair counts keyed by source kind.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @var array
+	 */
 	private $totals = array(
 		'topics' => 0,
 		'forums' => 0,
 		'stale'  => 0
 	);
 
+	/**
+	 * Set up the topic and forum freshness worker.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param bool $dry_run Whether to inspect the repair without changing data.
+	 */
 	public function __construct( $dry_run = false ) {
 		$this->db        = bbp_db();
 		$this->type      = 'freshness';
@@ -48,18 +69,47 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		);
 	}
 
+	/**
+	 * Run one bounded freshness request and include aggregate totals.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array Repair result, continuation state, and aggregate totals.
+	 */
 	public function run() {
 		return array_merge( parent::run(), $this->totals );
 	}
 
+	/**
+	 * Return every valid freshness phase.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array Freshness phase names.
+	 */
 	protected function phases() {
 		return array_merge( parent::phases(), array( 'topics', 'orphans', 'preview-cleanup' ) );
 	}
 
+	/**
+	 * Return freshness phases that may have an active traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array Active freshness phase names.
+	 */
 	protected function active_phases() {
 		return array_merge( parent::active_phases(), array( 'topics' ) );
 	}
 
+	/**
+	 * Validate a saved freshness checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $state Saved checkpoint.
+	 * @return bool Whether the checkpoint can be resumed.
+	 */
 	protected function valid_state( $state ) {
 		$valid = parent::valid_state( $state )
 			&& isset( $state['orphan_cursor'], $state['orphan_upper'] )
@@ -77,10 +127,24 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			&& min( $totals ) >= 0;
 	}
 
+	/**
+	 * Return the highest topic or forum ID included in this repair.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return int Highest source post ID.
+	 */
 	protected function upper_id() {
 		return (int) $this->db->get_var( $this->db->prepare( "SELECT MAX(ID) FROM {$this->db->posts} WHERE post_type IN (%s, %s)", $this->context['forum'], $this->context['topic'] ) );
 	}
 
+	/**
+	 * Create a new freshness checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return array|false New checkpoint, or false after a database failure.
+	 */
 	protected function new_state() {
 		$state = parent::new_state();
 		if ( false === $state ) {
@@ -108,7 +172,18 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $state;
 	}
 
-	/** Topic progress and its cursor share one atomic checkpoint, without scratch options. */
+	/**
+	 * Read one freshness traversal node.
+	 *
+	 * Topic progress and its cursor share one atomic checkpoint during a normal
+	 * Run. Browser Dry Runs use namespaced scratch options across requests.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 * @since 2.7.0 bbPress (r8331) Store browser Dry Run topic nodes between requests.
+	 *
+	 * @param int $id Source post ID.
+	 * @return array|false Traversal node, or false when no node exists.
+	 */
 	protected function read_node( $id ) {
 		if ( 'topics' !== $this->state['phase'] ) {
 			return parent::read_node( $id );
@@ -126,6 +201,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $node;
 	}
 
+	/**
+	 * Save one freshness traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 * @since 2.7.0 bbPress (r8331) Store browser Dry Run topic nodes between requests.
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the node was saved.
+	 */
 	protected function save_node( $node ) {
 		if ( 'topics' === $this->state['phase'] ) {
 			if ( ! $this->async ) {
@@ -137,35 +221,102 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return parent::save_node( $node );
 	}
 
+	/**
+	 * Return the option-name prefix for browser Dry Run topic nodes.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @return string Topic-node option prefix.
+	 */
 	private function topic_prefix() {
 		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_topics_' . $this->state['token'] . '_';
 	}
 
+	/**
+	 * Return the option name for one browser Dry Run topic node.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @param int $id Topic ID.
+	 * @return string Topic-node option name.
+	 */
 	private function topic_option( $id ) {
 		return $this->topic_prefix() . $id;
 	}
 
+	/**
+	 * Include forums with every status as traversal roots.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return null No root status restriction.
+	 */
 	protected function root_statuses() {
 		return null;
 	}
 
+	/**
+	 * Normalize a source ID for the current freshness phase.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int  $id      Source post ID.
+	 * @param bool $counted Whether the node is being counted or pruned.
+	 * @return int Normalized source post ID.
+	 */
 	protected function normalize_id( $id, $counted ) {
 		return 'topics' === $this->state['phase'] ? (int) $id : parent::normalize_id( $id, $counted );
 	}
 
+	/**
+	 * Read source fields for a topic or forum freshness node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int $id Source post ID.
+	 * @return object|null Source row, or null when the post does not exist.
+	 */
 	protected function source_post( $id ) {
 		$type = 'topics' === $this->state['phase'] ? $this->context['topic'] : $this->context['forum'];
 		return $this->db->get_row( $this->db->prepare( "SELECT ID, post_parent, post_status, post_type, post_date FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $type ) );
 	}
 
+	/**
+	 * Choose the first processing phase for a freshness node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param object $post    Source post row.
+	 * @param bool   $counted Whether the node is being counted or pruned.
+	 * @return string Node phase.
+	 */
 	protected function node_phase( $post, $counted ) {
 		return $counted && $this->context['forum'] === $post->post_type && 'auto-draft' !== $post->post_status ? 'children' : 'write';
 	}
 
+	/**
+	 * Validate one calculated freshness value.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param string $key     Metadata key.
+	 * @param mixed  $value   Calculated value.
+	 * @param bool   $counted Whether the node is being counted or pruned.
+	 * @return bool Whether the value is valid.
+	 */
 	protected function valid_value( $key, $value, $counted ) {
 		return null === $value || ( $counted && ( '_bbp_last_active_time' === $key ? is_string( $value ) : is_int( $value ) ) );
 	}
 
+	/**
+	 * Add freshness-specific fields to a traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array  $node Traversal node.
+	 * @param object $post Source post row.
+	 * @return array Prepared traversal node.
+	 */
 	protected function prepare_node( $node, $post ) {
 		$node            = parent::prepare_node( $node, $post );
 		$node['kind']    = $this->context['topic'] === $post->post_type ? 'topics' : 'forums';
@@ -178,6 +329,14 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $node;
 	}
 
+	/**
+	 * Validate freshness-specific fields in a traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Traversal node.
+	 * @return bool Whether the freshness fields are valid.
+	 */
 	protected function valid_extra_node( $node ) {
 		if ( ! parent::valid_extra_node( $node ) || ! isset( $node['kind'], $node['direct'], $node['returns'], $node['source'] ) || ! in_array( $node['kind'], array( 'topics', 'forums' ), true )
 			|| ( 'topics' === $this->state['phase'] ? 'topics' : 'forums' ) !== $node['kind']
@@ -203,6 +362,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return true;
 	}
 
+	/**
+	 * Calculate direct activity values for one topic or forum.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int    $id   Source post ID.
+	 * @param object $post Source post row.
+	 * @return array Activity values keyed by metadata name.
+	 */
 	protected function values( $id, $post ) {
 		$values = array_fill_keys( $this->meta_keys, null );
 		if ( $this->context['topic'] === $post->post_type ) {
@@ -261,10 +429,26 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $values;
 	}
 
+	/**
+	 * Return the repair error code for a metadata read failure.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @return int Repair error code.
+	 */
 	protected function meta_error() {
 		return 5;
 	}
 
+	/**
+	 * Compare topics by calculated activity time and topic ID.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @param int|object $left  Left topic ID or object.
+	 * @param int|object $right Right topic ID or object.
+	 * @return int Less than, equal to, or greater than zero for sorting.
+	 */
 	public function compare_topic_times( $left, $right ) {
 		$left  = is_object( $left ) ? (int) $left->ID : (int) $left;
 		$right = is_object( $right ) ? (int) $right->ID : (int) $right;
@@ -272,6 +456,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $comparison ? $comparison : $right <=> $left;
 	}
 
+	/**
+	 * Return the repaired or stored activity time for one topic.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 * @since 2.7.0 bbPress (r8331) Read browser Dry Run values from topic-node options.
+	 *
+	 * @param int $id Topic ID.
+	 * @return string Topic activity time.
+	 */
 	private function topic_time( $id ) {
 		if ( $this->dry_run && isset( $this->topic_times[ $id ] ) ) {
 			return $this->topic_times[ $id ];
@@ -298,6 +491,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return empty( $time ) ? $this->post_date( $id, 'db' ) : (string) $time;
 	}
 
+	/**
+	 * Return one post's date while handling database read failures.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int    $id      Post ID.
+	 * @param string $context Date context accepted by get_post_field().
+	 * @return string Post date, or an empty string when unavailable.
+	 */
 	private function post_date( $id, $context = 'display' ) {
 		$date = $id ? get_post_field( 'post_date', $id, $context ) : '';
 		if ( ! empty( $this->db->last_error ) ) {
@@ -307,6 +509,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return (string) $date;
 	}
 
+	/**
+	 * Merge a completed child forum's activity into its parent.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $parent_node Parent traversal node, passed by reference.
+	 * @param array $child       Completed child traversal node.
+	 * @param int   $edge        Child forum ID used by the parent edge.
+	 */
 	protected function merge_child( &$parent_node, $child, $edge ) {
 		$topic = $child['returns']['topic'];
 		$time  = $this->topic_time( $topic );
@@ -320,6 +531,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$parent_node['values']['_bbp_last_active_id'] = max( $parent_node['direct']['_bbp_last_active_id'], $child['returns']['active'] );
 	}
 
+	/**
+	 * Apply existing freshness filters after one metadata key is complete.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array  $node Traversal node.
+	 * @param string $key  Completed metadata key.
+	 * @return array Updated traversal node.
+	 */
 	protected function after_key( $node, $key ) {
 		if ( 'forums' !== $node['kind'] || null === $node['direct']['_bbp_last_reply_id'] ) {
 			return $node;
@@ -345,6 +565,13 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $node;
 	}
 
+	/**
+	 * Record one completed topic or forum node.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param array $node Completed traversal node.
+	 */
 	protected function completed_node( $node ) {
 		if ( $this->dry_run && ! $this->async && 'topics' === $node['kind'] ) {
 			$this->topic_times[ $node['id'] ] = $node['values']['_bbp_last_active_time'];
@@ -354,26 +581,59 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		}
 	}
 
+	/**
+	 * Add one completed browser Dry Run node to the aggregate totals.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @param array $node Completed traversal node.
+	 */
 	protected function leaving_node( $node ) {
 		++$this->totals[ $node['kind'] ];
 	}
 
+	/**
+	 * Restore aggregate totals when a browser Dry Run resumes.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 */
 	protected function load_preview_state() {
 		if ( isset( $this->state['_preview_totals'] ) ) {
 			$this->totals = $this->state['_preview_totals'];
 		}
 	}
 
+	/**
+	 * Add aggregate totals to the browser Dry Run checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 */
 	protected function save_preview_state() {
 		$this->state['_preview_totals'] = $this->totals;
 	}
 
+	/**
+	 * Include the source post date in freshness identity checks.
+	 *
+	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @param object $post Source post row.
+	 * @return array Normalized source identity.
+	 */
 	protected function source_identity( $post ) {
 		$source         = parent::source_identity( $post );
 		$source['date'] = $post->post_date;
 		return $source;
 	}
 
+	/**
+	 * Inspect and remove orphaned freshness metadata in bounded work.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int $limit Maximum metadata rows to inspect.
+	 * @return int Work units consumed.
+	 */
 	private function orphans( $limit ) {
 		$slots = implode( ', ', array_fill( 0, count( $this->meta_keys ), '%s' ) );
 		$args  = array_merge( $this->meta_keys, array( $this->state['orphan_cursor'], $this->state['orphan_upper'], $limit + 1, $this->context['forum'], $this->context['topic'] ) );
@@ -414,6 +674,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return max( 1, $work );
 	}
 
+	/**
+	 * Process one bounded freshness step.
+	 *
+	 * @since 2.7.0 bbPress (r8299)
+	 *
+	 * @param int  $limit    Maximum work available to this step.
+	 * @param bool $complete Whether the complete repair is finished, passed by reference.
+	 * @return int Work units consumed.
+	 */
 	protected function step( $limit, &$complete ) {
 		if ( 'preview-cleanup' === $this->state['phase'] ) {
 			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->topic_prefix(), $limit, false, $this->created, $this->cleaned );
@@ -461,6 +730,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return $work;
 	}
 
+	/**
+	 * Exclude scratch-option cleanup from the estimated normal Run work.
+	 *
+	 * @since 2.7.0 bbPress (r8331)
+	 *
+	 * @param string $phase Freshness phase before the work was performed.
+	 * @param int    $work  Work units consumed by the preview.
+	 * @return int Estimated normal Run work.
+	 */
 	protected function preview_estimated_work( $phase, $work ) {
 		return 'preview-cleanup' === $phase ? 0 : $work;
 	}
