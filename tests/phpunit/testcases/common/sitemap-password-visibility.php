@@ -86,6 +86,26 @@ class BBP_Tests_Common_Sitemap_Password_Visibility extends BBP_UnitTestCase {
 				$this->assertNotContains( get_permalink( $hidden_topic ), $topic_urls );
 			}
 		}
+
+		// A visitor's forum cookie must not publish its URLs in the sitemap.
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$cookie_name = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie  = isset( $_COOKIE[ $cookie_name ] ) ? $_COOKIE[ $cookie_name ] : null;
+		$hasher      = new PasswordHash( 8, true );
+		$_COOKIE[ $cookie_name ] = $hasher->HashPassword( get_post_field( 'post_password', $protected_forum ) );
+
+		try {
+			$this->set_current_user( 0 );
+			$this->assertNotContains( get_permalink( $protected_forum ), $this->get_sitemap_urls( bbp_get_forum_post_type() ) );
+			$this->assertNotContains( get_permalink( $protected_topic ), $this->get_sitemap_urls( bbp_get_topic_post_type() ) );
+			$this->assertNotContains( get_permalink( $protected_reply ), $this->get_sitemap_urls( bbp_get_reply_post_type() ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie_name ] );
+			} else {
+				$_COOKIE[ $cookie_name ] = $old_cookie;
+			}
+		}
 	}
 
 	/**

@@ -134,6 +134,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 */
 	protected function prepare_items_query( $prepared_args = array(), $request = null ) {
 		$query_args = parent::prepare_items_query( $prepared_args, $request );
+		$query_args['_bbp_rest_collection'] = true;
 
 		if ( ( bbp_get_reply_post_type() === $this->post_type ) && ! current_user_can( 'edit_others_replies' ) ) {
 			$query_args['_bbp_public_topic_replies'] = true;

@@ -3047,9 +3047,12 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 	// Singular requests can still contain a search term that WordPress uses in SQL.
 	$password_search = $posts_query->is_search() || ( '' !== (string) $posts_query->get( 's' ) );
+	$is_moderator_ajax_query = wp_doing_ajax()
+		&& $posts_query->get( 'suppress_filters' )
+		&& current_user_can( 'moderate' );
 
 	// Preserve admin lists and suggestions without skipping forum restrictions.
-	if ( $is_admin_list || ( $posts_query->get( 'suppress_filters' ) && wp_doing_ajax() && current_user_can( 'moderate' ) ) ) {
+	if ( $is_admin_list || $is_moderator_ajax_query ) {
 		$password_search = false;
 	}
 	$password_search = $password_search || (bool) $posts_query->get( '_bbp_password_protected_search' );
@@ -3060,6 +3063,42 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		$bbp_post_types,
 		array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 	);
+	$password_listing = ! empty( $content_post_types ) && ! $posts_query->is_singular();
+	if ( ( is_admin() && ! wp_doing_ajax() ) || $is_moderator_ajax_query ) {
+		$password_listing = false;
+	}
+
+	// bbPress REST collections check each item's inherited password.
+	if ( $posts_query->get( '_bbp_rest_collection' ) ) {
+		$password_listing = false;
+	}
+
+	$password_forum_ids = array();
+	if ( $password_search || $password_listing ) {
+		$password_forum_ids = bbp_get_password_protected_forum_ids();
+	}
+
+	// An unlocked forum or topic still needs its own child loop.
+	$parent_id = absint( $posts_query->get( 'post_parent' ) );
+	if ( $password_listing && $parent_id && ! empty( $password_forum_ids ) ) {
+		$parent_type     = get_post_type( $parent_id );
+		$parent_forum_id = 0;
+		if ( bbp_get_forum_post_type() === $parent_type ) {
+			$parent_forum_id = $parent_id;
+		} elseif ( bbp_get_topic_post_type() === $parent_type ) {
+			$parent_forum_id = (int) get_post_field( 'post_parent', $parent_id );
+		}
+
+		if ( in_array( $parent_forum_id, $password_forum_ids, true ) && ! bbp_get_password_required_id( $parent_id ) ) {
+			$password_listing   = false;
+			$password_forum_ids = array();
+		}
+	}
+
+	// get_posts() suppresses SQL filters by default, including the ancestry check.
+	if ( $password_listing && ! empty( $password_forum_ids ) && $posts_query->get( 'suppress_filters' ) && ! $password_search ) {
+		$posts_query->set( 'suppress_filters', false );
+	}
 
 	/**
 	 * Clause filters do not run when a query suppresses filters. Remove bbPress
@@ -3084,8 +3123,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Get forums to exclude.
-	$forum_ids          = bbp_exclude_forum_ids( 'array' );
-	$password_forum_ids = array();
+	$forum_ids = bbp_exclude_forum_ids( 'array' );
 
 	/**
 	 * Search matches and sitemap URLs must not reveal password-protected content.
@@ -3093,9 +3131,11 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	 * protected topics through the password-search clause.
 	 */
 	if ( $password_search ) {
-		$password_forum_ids  = bbp_get_password_protected_forum_ids();
 		$forum_ids           = wp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) );
 		$posts_query->set( '_bbp_password_protected_search', true );
+		$posts_query->set( '_bbp_password_protected_forum_ids', $password_forum_ids );
+	} elseif ( $password_listing && ! empty( $password_forum_ids ) ) {
+		$posts_query->set( '_bbp_password_protected_listing', true );
 		$posts_query->set( '_bbp_password_protected_forum_ids', $password_forum_ids );
 	}
 
@@ -3168,7 +3208,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Bail if there are no forums to exclude.
-	if ( empty( $forum_ids ) ) {
+	if ( empty( $forum_ids ) && empty( $password_forum_ids ) ) {
 		return;
 	}
 
@@ -3177,9 +3217,9 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	 * Searches also use it to reject every excluded forum metadata value, rather
 	 * than allowing a duplicate public value to satisfy a NOT IN meta query.
 	 */
-	if ( ! empty( $non_bbp_post_types ) || $password_search ) {
+	if ( ! empty( $non_bbp_post_types ) || $password_search || ! empty( $password_forum_ids ) ) {
 		$posts_query->set( '_bbp_forum_visibility_post_types', $content_post_types );
-		$posts_query->set( '_bbp_forum_visibility_forum_ids',  $forum_ids          );
+		$posts_query->set( '_bbp_forum_visibility_forum_ids', wp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) ) );
 
 		// Mixed queries cannot use a meta join without losing unrelated posts.
 		if ( ! empty( $non_bbp_post_types ) ) {

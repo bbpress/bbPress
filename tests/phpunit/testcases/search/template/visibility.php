@@ -576,7 +576,7 @@ class BBP_Tests_Search_Template_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
 	 */
-	public function test_empty_search_excludes_password_content_but_archive_does_not() {
+	public function test_empty_search_and_archive_exclude_password_forum_content() {
 		$protected = $this->create_search_tree( 'forum-secret' );
 		$public    = $this->create_search_tree();
 		$args = array(
@@ -593,7 +593,7 @@ class BBP_Tests_Search_Template_Visibility extends BBP_UnitTestCase {
 		unset( $args['s'] );
 		$query = new WP_Query( $args );
 		$this->assertContains( $public['topic'], $query->posts );
-		$this->assertContains( $protected['topic'], $query->posts );
+		$this->assertNotContains( $protected['topic'], $query->posts );
 		$this->assertTrue( post_password_required( $protected['topic'] ) );
 	}
 
