@@ -1156,15 +1156,14 @@ function bbp_force_comment_status( $open = false, $post_id = 0 ) {
 }
 
 /**
- * Remove "prev" and "next" relational links from <head> on bbPress pages.
+ * Remove WordPress adjacent-post links from bbPress pages.
  *
- * WordPress automatically generates these relational links to the current
- * page, but bbPress does not use these links, nor would they work the same.
- *
- * In this function, we remove these links when on a bbPress page. This also
- * prevents additional, unnecessary queries from running.
+ * WordPress automatically generates relational links in <head>, and themes or
+ * blocks may render adjacent-post navigation. bbPress does not support this
+ * navigation model.
  *
  * @since 2.6.5 bbPress (r7073)
+ * @since 2.6.22 bbPress (r8320) Disable adjacent-post navigation.
  */
 function bbp_remove_adjacent_posts() {
 
@@ -1175,4 +1174,23 @@ function bbp_remove_adjacent_posts() {
 
 	// Remove the WordPress core action for adjacent posts
 	remove_action( 'wp_head', 'adjacent_posts_rel_link_wp_head', 10 );
+
+	// Disable adjacent-post navigation
+	add_filter( 'get_next_post_where',     'bbp_filter_adjacent_post_where', 10, 0 );
+	add_filter( 'get_previous_post_where', 'bbp_filter_adjacent_post_where', 10, 0 );
+	add_filter( 'next_post_link',         '__return_empty_string', 10 );
+	add_filter( 'previous_post_link',     '__return_empty_string', 10 );
+	add_filter( 'next_post_rel_link',     '__return_empty_string', 10 );
+	add_filter( 'previous_post_rel_link', '__return_empty_string', 10 );
+}
+
+/**
+ * Prevent WordPress adjacent-post queries from resolving posts.
+ *
+ * @since 2.6.22 bbPress (r8320)
+ *
+ * @return string An impossible adjacent-post query WHERE clause.
+ */
+function bbp_filter_adjacent_post_where() {
+	return 'WHERE 1 = 0';
 }

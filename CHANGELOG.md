@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Prevented WordPress post navigation on bbPress pages.
 - Improved protected-content handling in public WordPress discovery.
 - Matched attachment comment submissions to forum visibility rules.
 - Preserved REST media permissions with compatible attachment controllers.

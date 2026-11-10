@@ -322,6 +322,84 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_remove_adjacent_posts
+	 */
+	public function test_remove_adjacent_posts_disables_wordpress_post_navigation() {
+		$forum_id   = $this->factory->forum->create();
+		$previous   = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_date' => '2020-01-01 12:00:00', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$current_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_date' => '2021-01-01 12:00:00', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$next       = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_date' => '2022-01-01 12:00:00', 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$override   = function() {
+			return 'overridden link';
+		};
+
+		$this->go_to_without_reregistering_blocks( get_permalink( $current_id ) );
+		try {
+			$this->assertTrue( is_bbpress() );
+			bbp_template_redirect();
+			$this->assertSame( '', get_previous_post() );
+			$this->assertSame( '', get_next_post() );
+
+			bbp_template_include_theme_compat( '/original-template.php' );
+			$this->assertSame( bbp_get_empty_datetime(), $GLOBALS['post']->post_date );
+			$this->assertSame( '', get_previous_post() );
+			$this->assertSame( '', get_next_post() );
+			$this->assertSame( '', get_previous_post_link() );
+			$this->assertSame( '', get_next_post_link() );
+			$this->assertNull( get_adjacent_post_rel_link( '%title', false, '', true ) );
+			$this->assertNull( get_adjacent_post_rel_link( '%title', false, '', false ) );
+			$this->assertStringNotContainsString( get_permalink( $previous ), do_blocks( '<!-- wp:post-navigation-link {"type":"previous","showTitle":true} /-->' ) );
+			$this->assertStringNotContainsString( get_permalink( $next ), do_blocks( '<!-- wp:post-navigation-link {"type":"next","showTitle":true} /-->' ) );
+
+			add_filter( 'previous_post_link', $override, 20 );
+			$this->assertSame( 'overridden link', get_previous_post_link() );
+			remove_filter( 'previous_post_link', $override, 20 );
+		} finally {
+			remove_filter( 'get_next_post_where', 'bbp_filter_adjacent_post_where', 10 );
+			remove_filter( 'get_previous_post_where', 'bbp_filter_adjacent_post_where', 10 );
+			remove_filter( 'next_post_link', '__return_empty_string', 10 );
+			remove_filter( 'previous_post_link', '__return_empty_string', 10 );
+			remove_filter( 'next_post_rel_link', '__return_empty_string', 10 );
+			remove_filter( 'previous_post_rel_link', '__return_empty_string', 10 );
+			bbp_set_theme_compat_active( false );
+			$this->go_to_without_reregistering_blocks( '/' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_remove_adjacent_posts
+	 */
+	public function test_remove_adjacent_posts_preserves_other_post_navigation() {
+		$previous = self::factory()->post->create( array( 'post_date' => '2020-01-01 12:00:00' ) );
+		$current  = self::factory()->post->create( array( 'post_date' => '2021-01-01 12:00:00' ) );
+
+		$this->go_to_without_reregistering_blocks( get_permalink( $current ) );
+		try {
+			$this->assertFalse( is_bbpress() );
+			bbp_remove_adjacent_posts();
+			$this->assertStringContainsString( get_permalink( $previous ), get_previous_post_link() );
+			$this->assertStringContainsString( get_permalink( $previous ), get_adjacent_post_rel_link() );
+			$this->assertStringContainsString( get_permalink( $previous ), do_blocks( '<!-- wp:post-navigation-link {"type":"previous","showTitle":true} /-->' ) );
+		} finally {
+			$this->go_to_without_reregistering_blocks( '/' );
+		}
+	}
+
+	/**
+	 * Go to a URL without registering bbPress blocks again.
+	 *
+	 * @param string $url URL to visit.
+	 */
+	private function go_to_without_reregistering_blocks( $url ) {
+		remove_action( 'bbp_register', 'bbp_register_blocks', 10 );
+		try {
+			$this->go_to( $url );
+		} finally {
+			add_action( 'bbp_register', 'bbp_register_blocks', 10 );
+		}
+	}
+
+	/**
 	 * Theme compatibility template selection cases.
 	 *
 	 * @return array[] Test cases.
