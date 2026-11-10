@@ -77,6 +77,10 @@ add_filter( 'comments_open', 'bbp_force_comment_status' );
 // Reject comments on attachments to restricted bbPress content after approval filters
 add_filter( 'pre_comment_approved', 'bbp_reject_restricted_attachment_comments', PHP_INT_MAX, 2 );
 
+// Apply attachment parent visibility to comment-feed queries
+add_filter( 'posts_clauses', 'bbp_filter_attachment_comment_feed_clauses', 10, 2 );
+add_filter( 'the_posts',     'bbp_filter_attachment_comment_feed_posts',   10, 2 );
+
 // Remove forums roles from list of all roles
 add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 
