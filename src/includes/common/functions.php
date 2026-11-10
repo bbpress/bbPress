@@ -1857,10 +1857,10 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 
 	$blog_name  = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 	$forum_name = ! empty( $forum_id )
-		? wp_specialchars_decode( wp_strip_all_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES )
+		? bbp_make_plain_text( bbp_get_forum_title( $forum_id ) )
 		: __( 'None', 'bbpress' );
-	$title      = wp_specialchars_decode( wp_strip_all_tags( $title ), ENT_QUOTES );
-	$content    = wp_specialchars_decode( wp_strip_all_tags( $post->post_content ), ENT_QUOTES );
+	$title      = bbp_make_plain_text( $title );
+	$content    = bbp_make_plain_text( $post->post_content );
 	$content    = wp_trim_words( $content, 100, '...' );
 	$url        = bbp_add_view_all( $url, true );
 
@@ -1870,7 +1870,7 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 		$author_name = bbp_get_reply_author_display_name( $post_id );
 	}
 
-	$author_name = wp_specialchars_decode( wp_strip_all_tags( $author_name ), ENT_QUOTES );
+	$author_name = bbp_make_plain_text( $author_name );
 
 	$message = sprintf(
 		/* translators: 1: Author name, 2: Forum title, 3: Topic title, 4: Topic or reply content, 5: Moderation URL */
@@ -2328,8 +2328,8 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	bbp_remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
-	$forum_title       = wp_specialchars_decode( wp_strip_all_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES );
-	$topic_title       = wp_specialchars_decode( wp_strip_all_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES );
+	$forum_title       = bbp_make_plain_text( bbp_get_forum_title( $forum_id ) );
+	$topic_title       = bbp_make_plain_text( bbp_get_topic_title( $topic_id ) );
 	$reply_url         = bbp_get_reply_url( $reply_id );
 
 	// Do not include protected content in subscription emails
@@ -2354,8 +2354,8 @@ Login and visit the topic to unsubscribe from these emails.',
 
 	// Include the reply details in normal subscription emails
 	} else {
-		$reply_author_name = wp_specialchars_decode( wp_strip_all_tags( $reply_author_name ), ENT_QUOTES );
-		$reply_content     = wp_specialchars_decode( wp_strip_all_tags( bbp_get_reply_content( $reply_id ) ), ENT_QUOTES );
+		$reply_author_name = bbp_make_plain_text( $reply_author_name );
+		$reply_content     = bbp_make_plain_text( bbp_get_reply_content( $reply_id ) );
 		$message           = sprintf(
 
 			/* translators: 1: Reply author name, 2: Reply content, 3: Reply URL */
@@ -2533,8 +2533,8 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	bbp_remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
-	$forum_title       = wp_specialchars_decode( wp_strip_all_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES );
-	$topic_title       = wp_specialchars_decode( wp_strip_all_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES );
+	$forum_title       = bbp_make_plain_text( bbp_get_forum_title( $forum_id ) );
+	$topic_title       = bbp_make_plain_text( bbp_get_topic_title( $topic_id ) );
 	$topic_url         = bbp_get_topic_permalink( $topic_id );
 
 	// Do not include protected content in subscription emails
@@ -2559,8 +2559,8 @@ Login and visit the topic to unsubscribe from these emails.',
 
 	// Include the topic details in normal subscription emails
 	} else {
-		$topic_author_name = wp_specialchars_decode( wp_strip_all_tags( $topic_author_name ), ENT_QUOTES );
-		$topic_content     = wp_specialchars_decode( wp_strip_all_tags( bbp_get_topic_content( $topic_id ) ), ENT_QUOTES );
+		$topic_author_name = bbp_make_plain_text( $topic_author_name );
+		$topic_content     = bbp_make_plain_text( bbp_get_topic_content( $topic_id ) );
 		$message           = sprintf(
 
 			/* translators: 1: Topic author name, 2: Topic content, 3: Topic URL */

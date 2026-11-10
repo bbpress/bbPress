@@ -10,6 +10,20 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/** Plain Text ****************************************************************/
+
+/**
+ * Make a string value plain text.
+ *
+ * @since 2.7.0 bbPress (r8334)
+ *
+ * @param string $value Value to format.
+ * @return string Plain-text value.
+ */
+function bbp_make_plain_text( $value ) {
+	return wp_specialchars_decode( wp_strip_all_tags( $value ), ENT_QUOTES );
+}
+
 /** WordPress Content *********************************************************/
 
 /**
