@@ -255,7 +255,7 @@ function bbp_admin_upgrade_group_forum_relationships_dry_run() {
  * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false ) {
-	$worker = new BBP_Admin_Group_Forums( $dry_run );
+	$worker = new BBP_Admin_Group_Forum_Upgrade( $dry_run );
 	$batch  = $worker->run();
 	return bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run );
 }
@@ -270,11 +270,11 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
  * @return array Status, message, success and completion.
  */
 function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run = false ) {
-	$g_count      = $batch['groups'];
-	$f_count      = $batch['forums'];
-	$s_count      = $batch['statuses'];
-	$update_root  = $batch['root'];
-	$rename_root  = $batch['rename'];
+	$groups       = $batch['groups'];
+	$forums       = $batch['forums'];
+	$statuses     = $batch['statuses'];
+	$root_updates = $batch['root'];
+	$renames      = $batch['rename'];
 	$legacy_roles = $batch['roles'];
 	$statement    = $dry_run
 		/* translators: %s: Status of the dry-run process */
@@ -290,15 +290,15 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
 			: esc_html__( 'none', 'bbpress' );
 		$results   = array(
 			/* translators: %s: Number of groups that would be updated */
-			sprintf( _n( '%s group would be updated', '%s groups would be updated', $g_count, 'bbpress' ), bbp_number_format( $g_count ) ),
+			sprintf( _n( '%s group would be updated', '%s groups would be updated', $groups, 'bbpress' ), bbp_number_format( $groups ) ),
 			/* translators: %s: Number of forums that would be updated */
-			sprintf( _n( '%s forum would be updated', '%s forums would be updated', $f_count, 'bbpress' ), bbp_number_format( $f_count ) ),
+			sprintf( _n( '%s forum would be updated', '%s forums would be updated', $forums, 'bbpress' ), bbp_number_format( $forums ) ),
 			/* translators: %s: Number of forum statuses that would be synced */
-			sprintf( _n( '%s forum status would be synced', '%s forum statuses would be synced', $s_count, 'bbpress' ), bbp_number_format( $s_count ) ),
+			sprintf( _n( '%s forum status would be synced', '%s forum statuses would be synced', $statuses, 'bbpress' ), bbp_number_format( $statuses ) ),
 			/* translators: %s: Number of group root settings that would be updated */
-			sprintf( _n( '%s group root setting would be updated', '%s group root settings would be updated', (int) $update_root, 'bbpress' ), bbp_number_format( (int) $update_root ) ),
+			sprintf( _n( '%s group root setting would be updated', '%s group root settings would be updated', (int) $root_updates, 'bbpress' ), bbp_number_format( (int) $root_updates ) ),
 			/* translators: %s: Number of forums that would be renamed */
-			sprintf( _n( '%s forum would be renamed', '%s forums would be renamed', (int) $rename_root, 'bbpress' ), bbp_number_format( (int) $rename_root ) ),
+			sprintf( _n( '%s forum would be renamed', '%s forums would be renamed', (int) $renames, 'bbpress' ), bbp_number_format( (int) $renames ) ),
 			/* translators: %1$s: Number of legacy roles that would be removed; %2$s: Legacy role IDs */
 			sprintf( _n( '%1$s legacy role would be removed (%2$s)', '%1$s legacy roles would be removed (%2$s)', count( $legacy_roles ), 'bbpress' ), bbp_number_format( count( $legacy_roles ) ), $role_list )
 		);
@@ -306,11 +306,11 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
 	} else {
 		$results = array(
 			/* translators: %s: Number of groups updated */
-			sprintf( _n( '%s group updated', '%s groups updated', $g_count, 'bbpress' ), bbp_number_format( $g_count ) ),
+			sprintf( _n( '%s group updated', '%s groups updated', $groups, 'bbpress' ), bbp_number_format( $groups ) ),
 			/* translators: %s: Number of forums updated */
-			sprintf( _n( '%s forum updated', '%s forums updated', $f_count, 'bbpress' ), bbp_number_format( $f_count ) ),
+			sprintf( _n( '%s forum updated', '%s forums updated', $forums, 'bbpress' ), bbp_number_format( $forums ) ),
 			/* translators: %s: Number of forum statuses synced */
-			sprintf( _n( '%s forum status synced', '%s forum statuses synced', $s_count, 'bbpress' ), bbp_number_format( $s_count ) )
+			sprintf( _n( '%s forum status synced', '%s forum statuses synced', $statuses, 'bbpress' ), bbp_number_format( $statuses ) )
 		);
 		$result  = ( $batch['code'] ? esc_html__( 'Progress:', 'bbpress' ) : ( $batch['complete'] ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' ) ) ) . "\n" . implode( ".\n", $results ) . '.';
 	}

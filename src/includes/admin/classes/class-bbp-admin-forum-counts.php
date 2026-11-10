@@ -61,12 +61,12 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 * @return array Status code, forum IDs, and number of repairs when successful.
 	 */
 	public function get_status() {
-		$this->legacy = true;
+		$this->status_only = true;
 		$result       = $this->run();
 		return empty( $result['code'] )
 			? array(
 				'code'         => 0,
-				'forum_ids'    => array_values( $this->forums ),
+				'forum_ids'    => array_values( $this->status_forum_ids ),
 				'repair_count' => $result['repaired']
 			)
 			: array( 'code' => $result['code'] );
@@ -140,14 +140,14 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			}
 			return array_combine( $this->meta_keys, array( $public, $public, $hidden, $hidden ) );
 		}
-		$type = $this->db->get_var( $this->db->prepare( "SELECT meta_value FROM {$this->db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_forum_type' ORDER BY meta_id LIMIT 1", $id ) );
+		$forum_type = $this->db->get_var( $this->db->prepare( "SELECT meta_value FROM {$this->db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_forum_type' ORDER BY meta_id LIMIT 1", $id ) );
 		if ( ! empty( $this->db->last_error ) ) {
 			$this->code = $this->meta_error();
 			return array();
 		}
-		$type     = maybe_unserialize( $type );
-		$type     = apply_filters( 'bbp_get_forum_type', empty( $type ) ? 'forum' : $type, $id );
-		$category = (bool) apply_filters( 'bbp_is_forum_category', ! empty( $type ) && ( 'category' === $type ), $id );
+		$forum_type = maybe_unserialize( $forum_type );
+		$forum_type = apply_filters( 'bbp_get_forum_type', empty( $forum_type ) ? 'forum' : $forum_type, $id );
+		$category   = (bool) apply_filters( 'bbp_is_forum_category', ! empty( $forum_type ) && ( 'category' === $forum_type ), $id );
 		$count    = 0;
 		if ( ! $category ) {
 			if ( 'hidden-replies' === $this->type ) {
@@ -217,7 +217,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		if ( ! parent::before_write( $node ) ) {
 			return false;
 		}
-		if ( ! $this->legacy && $node['counted'] ) {
+		if ( ! $this->status_only && $node['counted'] ) {
 			$direct = $this->values( $node['id'], null );
 			if ( $this->code ) {
 				return false;
@@ -251,12 +251,14 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 * @param int   $edge        Child forum ID used by the parent edge.
 	 */
 	protected function merge_child( &$parent_node, $child, $edge ) {
+		$total_key = $this->meta_keys[1];
 		if ( 'topics' === $this->type ) {
-			$parent_node['values'][ $this->meta_keys[1] ] += (int) apply_filters( 'bbp_update_forum_topic_count', $child['values'][ $this->meta_keys[1] ], $edge );
-			$parent_node['values'][ $this->meta_keys[3] ] += (int) apply_filters( 'bbp_get_forum_topic_count_hidden_int', $child['values'][ $this->meta_keys[3] ], $edge );
+			$total_hidden_key = $this->meta_keys[3];
+			$parent_node['values'][ $total_key ]        += (int) apply_filters( 'bbp_update_forum_topic_count', $child['values'][ $total_key ], $edge );
+			$parent_node['values'][ $total_hidden_key ] += (int) apply_filters( 'bbp_get_forum_topic_count_hidden_int', $child['values'][ $total_hidden_key ], $edge );
 		} else {
 			$hook = ( 'hidden-replies' === $this->type ) ? 'bbp_update_forum_reply_count_hidden' : 'bbp_update_forum_reply_count';
-			$parent_node['values'][ $this->meta_keys[1] ] += (int) apply_filters( $hook, $child['values'][ $this->meta_keys[1] ], $child['id'] );
+			$parent_node['values'][ $total_key ] += (int) apply_filters( $hook, $child['values'][ $total_key ], $child['id'] );
 		}
 	}
 

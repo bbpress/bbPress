@@ -904,7 +904,7 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 	}
 
 	private function run_batch( $dry_run = false ) {
-		$worker = new BBP_Admin_Group_Forums( $dry_run );
+		$worker = new BBP_Admin_Group_Forum_Upgrade( $dry_run );
 		return $worker->run();
 	}
 

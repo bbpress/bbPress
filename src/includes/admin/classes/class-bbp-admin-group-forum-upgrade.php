@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.7.0 bbPress (r8315)
  * @access private
  */
-class BBP_Admin_Group_Forums {
+class BBP_Admin_Group_Forum_Upgrade {
 
 	/**
 	 * WordPress database connection.
@@ -101,7 +101,7 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @var array
 	 */
-	private $preview = array();
+	private $preview_plans = array();
 
 	/**
 	 * Option names already inspected during cleanup.
@@ -110,7 +110,7 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @var array
 	 */
-	private $cleaned = array();
+	private $inspected_options = array();
 
 	/**
 	 * Current migration error code.
@@ -196,12 +196,12 @@ class BBP_Admin_Group_Forums {
 			$this->state = $saved;
 		}
 		if ( $this->async && $this->state ) {
-			$preview = array_merge( $this->counts, array( 'batches' => 0 ) );
-			$data    = bbp_admin_repair_tool_restore_preview( $this->state, $preview, array_keys( $preview ) );
+			$preview_totals = array_merge( $this->counts, array( 'batches' => 0 ) );
+			$data           = bbp_admin_repair_tool_restore_preview( $this->state, $preview_totals, array_keys( $preview_totals ) );
 			foreach ( array_keys( $this->counts ) as $field ) {
-				$this->counts[ $field ] = $preview[ $field ];
+				$this->counts[ $field ] = $preview_totals[ $field ];
 			}
-			$this->batches       = $preview['batches'];
+			$this->batches       = $preview_totals['batches'];
 			$this->mapping_error = ! empty( $data['mapping_error'] );
 		}
 		$size = bbp_admin_repair_tool_batch_size( $this->tool_id );
@@ -219,8 +219,8 @@ class BBP_Admin_Group_Forums {
 				// disambiguate partial upgrades when legacy and current IDs overlap.
 				$this->state = $this->new_state();
 			} elseif ( $this->async ) {
-				$preview = array_merge( $this->counts, array( 'batches' => $this->batches ) );
-				bbp_admin_repair_tool_store_preview( $this->state, $preview, array_keys( $preview ), array( 'mapping_error' => (bool) $this->mapping_error ) );
+				$preview_totals = array_merge( $this->counts, array( 'batches' => $this->batches ) );
+				bbp_admin_repair_tool_store_preview( $this->state, $preview_totals, array_keys( $preview_totals ), array( 'mapping_error' => (bool) $this->mapping_error ) );
 			}
 			if ( $this->state && ! $this->save( ! $this->code && $complete ) ) {
 				$this->code = 11;
@@ -343,8 +343,8 @@ class BBP_Admin_Group_Forums {
 	 */
 	private function read_plan( $key ) {
 		$name = $this->option( $key );
-		if ( array_key_exists( $name, $this->preview ) ) {
-			return $this->preview[ $name ];
+		if ( array_key_exists( $name, $this->preview_plans ) ) {
+			return $this->preview_plans[ $name ];
 		}
 		list( $read, $value ) = bbp_admin_repair_get_option( $name );
 		if ( ! $read ) {
@@ -364,7 +364,7 @@ class BBP_Admin_Group_Forums {
 	private function write_plan( $key, $value ) {
 		$name = $this->option( $key );
 		if ( $this->dry_run && ! $this->async ) {
-			$this->preview[ $name ] = $value;
+			$this->preview_plans[ $name ] = $value;
 		} elseif ( ! bbp_admin_repair_tool_save_option( $name, $value ) ) {
 			$this->code = 11;
 		}
@@ -390,7 +390,7 @@ class BBP_Admin_Group_Forums {
 	 * @param mixed $value Possible ID list.
 	 * @return array|false Normalized IDs, or false when a member is invalid.
 	 */
-	private function ids( $value ) {
+	private function parse_id_list( $value ) {
 		if ( is_string( $value ) ) {
 			$value = wp_parse_list( $value );
 		} elseif ( is_int( $value ) ) {
@@ -416,13 +416,13 @@ class BBP_Admin_Group_Forums {
 	 * @param string $column Object ID column name.
 	 * @param int    $id     Object ID.
 	 * @param string $key    Metadata key.
-	 * @param int    $error  Error code for a failed database read.
+	 * @param int    $read_code Error code for a failed database read.
 	 * @return array|false Stored field description, or false on failure.
 	 */
-	private function read_field( $table, $column, $id, $key, $error ) {
+	private function read_field( $table, $column, $id, $key, $read_code ) {
 		$field = $this->db->get_row( $this->db->prepare( "SELECT COUNT(*) AS rows_found, MIN(meta_value) AS value, MIN(meta_key) AS field_key FROM `{$table}` WHERE `{$column}` = %d AND meta_key = %s", $id, $key ), ARRAY_A );
 		if ( ! empty( $this->db->last_error ) || ! is_array( $field ) || ! isset( $field['rows_found'] ) || ! array_key_exists( 'value', $field ) || ! array_key_exists( 'field_key', $field ) ) {
-			$this->code = $error;
+			$this->code = $read_code;
 			return false;
 		}
 		$field['rows_found'] = (int) $field['rows_found'];
@@ -466,7 +466,7 @@ class BBP_Admin_Group_Forums {
 		if ( false === $legacy || false === $groups ) {
 			return false;
 		}
-		$ids = $groups['rows_found'] ? $this->ids( maybe_unserialize( $groups['value'] ) ) : array();
+		$ids = $groups['rows_found'] ? $this->parse_id_list( maybe_unserialize( $groups['value'] ) ) : array();
 		if ( false === $ids ) {
 			$this->code = 12;
 			return false;
@@ -517,7 +517,7 @@ class BBP_Admin_Group_Forums {
 	private function step( $limit, &$complete ) {
 		$phase = $this->state['phase'];
 		if ( in_array( $phase, array( 'prepare', 'cleanup' ), true ) ) {
-			list( $success, $work, $finished ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run && ! $this->async, $this->preview, $this->cleaned );
+			list( $success, $work, $finished ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run && ! $this->async, $this->preview_plans, $this->inspected_options );
 			if ( ! $success ) {
 				$this->code = 11;
 			} elseif ( $finished ) {
@@ -530,7 +530,7 @@ class BBP_Admin_Group_Forums {
 			return $work;
 		}
 		if ( 'root' === $phase ) {
-			$this->root();
+			$this->finalize_root();
 			if ( ! $this->code ) {
 				$this->next_phase( 'cleanup' );
 			}
@@ -560,27 +560,27 @@ class BBP_Admin_Group_Forums {
 			return 1;
 		}
 		if ( 'index' === $phase ) {
-			$this->index( $id );
+			$this->index_forum( $id );
 		} else {
-			$node = $this->read_plan( 'forum_' . $id );
+			$plan = $this->read_plan( 'forum_' . $id );
 			if ( $this->code ) {
 				return 1;
 			}
-			if ( ! $this->valid_node( $node, $id ) ) {
+			if ( ! $this->valid_plan( $plan, $id ) ) {
 				$this->code = 12;
-			} elseif ( in_array( $phase, array( 'plan', 'verify' ), true ) && ! $this->source_matches( $node ) ) {
+			} elseif ( in_array( $phase, array( 'plan', 'verify' ), true ) && ! $this->source_matches( $plan ) ) {
 				$this->code = $this->code ? $this->code : 12;
-			} elseif ( 'verify' === $phase && ! empty( $node['legacy'] ) && ! $node['skip'] && ( ! isset( $node['group'], $node['update_group'] ) || ! is_int( $node['group'] ) || ! is_bool( $node['update_group'] ) ) ) {
+			} elseif ( 'verify' === $phase && ! empty( $plan['legacy'] ) && ! $plan['skip'] && ( ! isset( $plan['group'], $plan['update_group'] ) || ! is_int( $plan['group'] ) || ! is_bool( $plan['update_group'] ) ) ) {
 				$this->code = 12;
-			} elseif ( ! empty( $node['legacy'] ) && ! $node['skip'] ) {
+			} elseif ( ! empty( $plan['legacy'] ) && ! $plan['skip'] ) {
 				if ( in_array( $phase, array( 'plan', 'verify' ), true ) ) {
-					if ( ! $this->plan( $node, 'verify' === $phase ) ) {
+					if ( ! $this->plan_forum( $plan, 'verify' === $phase ) ) {
 						return 1;
 					}
-				} elseif ( ! isset( $node['group'], $node['update_group'] ) || ! is_int( $node['group'] ) || ! is_bool( $node['update_group'] ) ) {
+				} elseif ( ! isset( $plan['group'], $plan['update_group'] ) || ! is_int( $plan['group'] ) || ! is_bool( $plan['update_group'] ) ) {
 					$this->code = 12;
-				} elseif ( $node['group'] ) {
-					$this->apply( $node );
+				} elseif ( $plan['group'] ) {
+					$this->apply_plan( $plan );
 				}
 			}
 			if ( ! $this->code ) {
@@ -595,12 +595,12 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node Forum migration plan.
+	 * @param array $plan Forum migration plan.
 	 * @return bool Whether the live source still matches.
 	 */
-	private function source_matches( $node ) {
-		$live = $this->read_forum_source( $node['id'] );
-		return $live && $live['legacy_field'] === $node['legacy_field'] && $live['groups_field'] === $node['groups_field'];
+	private function source_matches( $plan ) {
+		$live = $this->read_forum_source( $plan['id'] );
+		return $live && $live['legacy_field'] === $plan['legacy_field'] && $live['groups_field'] === $plan['groups_field'];
 	}
 
 	/**
@@ -608,42 +608,42 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param mixed $node Possible forum migration plan.
+	 * @param mixed $plan Possible forum migration plan.
 	 * @param int   $id   Expected forum ID.
 	 * @return bool Whether the plan is valid.
 	 */
-	private function valid_node( $node, $id ) {
-		if ( ! is_array( $node ) || ! isset( $node['id'], $node['legacy'], $node['groups'], $node['legacy_field'], $node['groups_field'], $node['skip'], $node['owner'] )
-			|| $id !== $node['id'] || ! is_string( $node['legacy'] ) || ! is_bool( $node['skip'] ) || ! is_bool( $node['owner'] )
-			|| ! is_array( $node['groups'] ) || $this->ids( $node['groups'] ) !== $node['groups'] ) {
+	private function valid_plan( $plan, $id ) {
+		if ( ! is_array( $plan ) || ! isset( $plan['id'], $plan['legacy'], $plan['groups'], $plan['legacy_field'], $plan['groups_field'], $plan['skip'], $plan['owner'] )
+			|| $id !== $plan['id'] || ! is_string( $plan['legacy'] ) || ! is_bool( $plan['skip'] ) || ! is_bool( $plan['owner'] )
+			|| ! is_array( $plan['groups'] ) || $this->parse_id_list( $plan['groups'] ) !== $plan['groups'] ) {
 			return false;
 		}
 		foreach ( array( 'legacy_field', 'groups_field' ) as $key ) {
-			$field = $node[ $key ];
+			$field = $plan[ $key ];
 			if ( ! is_array( $field ) || ! isset( $field['rows_found'] ) || ! is_int( $field['rows_found'] )
 				|| $field['rows_found'] < 0 || $field['rows_found'] > 1 || ! array_key_exists( 'value', $field )
 				|| ( null !== $field['value'] && ! is_string( $field['value'] ) ) ) {
 				return false;
 			}
 		}
-		if ( isset( $node['group'] ) && $node['group'] ) {
-			if ( ! isset( $node['group_source'] ) || ! is_array( $node['group_source'] )
-				|| ! isset( $node['group_source']['id'], $node['group_source']['exists'], $node['group_source']['forum'] )
-				|| $node['group_source']['id'] !== $node['group'] || true !== $node['group_source']['exists']
-				|| ! is_array( $node['group_source']['forum'] ) || ! array_key_exists( 'value', $node['group_source']['forum'] ) ) {
+		if ( isset( $plan['group'] ) && $plan['group'] ) {
+			if ( ! isset( $plan['group_source'] ) || ! is_array( $plan['group_source'] )
+				|| ! isset( $plan['group_source']['id'], $plan['group_source']['exists'], $plan['group_source']['forum'] )
+				|| $plan['group_source']['id'] !== $plan['group'] || true !== $plan['group_source']['exists']
+				|| ! is_array( $plan['group_source']['forum'] ) || ! array_key_exists( 'value', $plan['group_source']['forum'] ) ) {
 				return false;
 			}
 		}
 
-		if ( isset( $node['scan'] ) ) {
+		if ( isset( $plan['scan'] ) ) {
 			foreach ( array( 'legacy', 'current' ) as $mode ) {
 				$key = $mode . '_matches';
-				if ( ! isset( $node[ $key ] ) || ! is_array( $node[ $key ] ) || count( $node[ $key ] ) > 1 || $this->ids( $node[ $key ] ) !== $node[ $key ] ) {
+				if ( ! isset( $plan[ $key ] ) || ! is_array( $plan[ $key ] ) || count( $plan[ $key ] ) > 1 || $this->parse_id_list( $plan[ $key ] ) !== $plan[ $key ] ) {
 					return false;
 				}
 			}
-			return in_array( $node['scan'], array( 'legacy', 'current' ), true )
-				&& isset( $node['candidate_cursor'] ) && is_int( $node['candidate_cursor'] ) && $node['candidate_cursor'] >= 0;
+			return in_array( $plan['scan'], array( 'legacy', 'current' ), true )
+				&& isset( $plan['candidate_cursor'] ) && is_int( $plan['candidate_cursor'] ) && $plan['candidate_cursor'] >= 0;
 		}
 		return true;
 	}
@@ -655,49 +655,49 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @param int $id Forum ID.
 	 */
-	private function index( $id ) {
-		$node = $this->state['group_marker_offset'] ? $this->read_plan( 'forum_' . $id ) : $this->read_forum_source( $id );
-		if ( ! $this->valid_node( $node, $id ) || $this->state['group_marker_offset'] > count( $node['groups'] ) ) {
+	private function index_forum( $id ) {
+		$plan = $this->state['group_marker_offset'] ? $this->read_plan( 'forum_' . $id ) : $this->read_forum_source( $id );
+		if ( ! $this->valid_plan( $plan, $id ) || $this->state['group_marker_offset'] > count( $plan['groups'] ) ) {
 			$this->code = $this->code ? $this->code : 12;
 			return;
 		}
 		if ( $this->state['group_marker_offset'] ) {
 			$live = $this->read_forum_source( $id );
-			if ( ! $live || $live['legacy_field'] !== $node['legacy_field'] || $live['groups_field'] !== $node['groups_field'] ) {
+			if ( ! $live || $live['legacy_field'] !== $plan['legacy_field'] || $live['groups_field'] !== $plan['groups_field'] ) {
 				$this->code = $this->code ? $this->code : 12;
 				return;
 			}
 		}
 		$offset = $this->state['group_marker_offset'];
-		if ( ! empty( $node['legacy'] ) && isset( $node['groups'][ $offset ] ) ) {
-			$group      = $node['groups'][ $offset ];
+		if ( ! empty( $plan['legacy'] ) && isset( $plan['groups'][ $offset ] ) ) {
+			$group      = $plan['groups'][ $offset ];
 			$source     = $this->read_group_forum_source( $group );
 			$value      = $source ? $source['forum']['value'] : null;
 			$serialized = is_serialized( $value );
-			$ids        = $this->ids( maybe_unserialize( $value ) );
+			$ids        = $this->parse_id_list( maybe_unserialize( $value ) );
 			$owner      = ( ! empty( $value ) && false !== $ids && in_array( $id, $ids, true ) )
-				|| ( ! $serialized && (string) $value === $node['legacy'] );
+				|| ( ! $serialized && (string) $value === $plan['legacy'] );
 			if ( $this->code ) {
 				return;
 			}
 			if ( $owner ) {
 				$this->write_plan( 'owner_' . $group, array( 'claimed' => true ) );
-				$node['owner'] = true;
+				$plan['owner'] = true;
 			}
-			if ( count( $node['groups'] ) === 1 ) {
-				$node['marker'] = $source;
+			if ( count( $plan['groups'] ) === 1 ) {
+				$plan['marker'] = $source;
 			}
-			$node['skip'] = $node['skip'] || $serialized;
+			$plan['skip'] = $plan['skip'] || $serialized;
 			++$this->state['group_marker_offset'];
 		}
-		$this->write_plan( 'forum_' . $id, $node );
-		if ( empty( $node['legacy'] ) ) {
+		$this->write_plan( 'forum_' . $id, $plan );
+		if ( empty( $plan['legacy'] ) ) {
 			$this->write_plan( 'native_' . $id, array( 'claimed' => true ) );
 		}
-		if ( empty( $node['legacy'] ) || $this->state['group_marker_offset'] >= count( $node['groups'] ) ) {
+		if ( empty( $plan['legacy'] ) || $this->state['group_marker_offset'] >= count( $plan['groups'] ) ) {
 			$this->state['cursor']              = $id;
 			$this->state['group_marker_offset'] = 0;
-			$this->state['legacy_forum_count'] += (int) ! empty( $node['legacy'] );
+			$this->state['legacy_forum_count'] += (int) ! empty( $plan['legacy'] );
 		}
 	}
 
@@ -724,66 +724,67 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node   Forum migration plan.
+	 * @param array $plan   Forum migration plan.
 	 * @param bool  $verify Whether to verify a previously selected mapping.
 	 * @return bool Whether candidate planning is complete for this forum.
 	 */
-	private function plan( $node, $verify = false ) {
-		if ( $verify && ! isset( $node['expected'] ) ) {
-			$node['expected'] = array(
-				'group'        => $node['group'],
-				'update_group' => $node['update_group'],
-				'group_source' => isset( $node['group_source'] ) ? $node['group_source'] : false,
+	private function plan_forum( $plan, $verify = false ) {
+		if ( $verify && ! isset( $plan['expected'] ) ) {
+			$plan['expected'] = array(
+				'group'        => $plan['group'],
+				'update_group' => $plan['update_group'],
+				'group_source' => isset( $plan['group_source'] ) ? $plan['group_source'] : false,
 			);
 		}
-		$stored = $node['groups'] ? reset( $node['groups'] ) : 0;
-		if ( $stored && ( ! array_key_exists( 'marker', $node ) || $this->read_group_forum_source( $stored ) !== $node['marker'] ) ) {
+		$stored = $plan['groups'] ? reset( $plan['groups'] ) : 0;
+		if ( $stored && ( ! array_key_exists( 'marker', $plan ) || $this->read_group_forum_source( $stored ) !== $plan['marker'] ) ) {
 			$this->code = $this->code ? $this->code : 12;
 			return true;
 		}
-		if ( ! isset( $node['scan'] ) ) {
+		if ( ! isset( $plan['scan'] ) ) {
 			// The forum's explicit marker takes precedence over other candidates.
-			$matches = $stored ? $this->db->get_row( $this->db->prepare( "SELECT MAX(meta_value = %s) AS legacy_match, MAX(meta_value = %d) AS current_match FROM `{$this->groupmeta_table}` WHERE group_id = %d AND meta_key = 'forum_id'", $node['legacy'], $node['id'], $stored ) ) : false;
+			$matches = $stored ? $this->db->get_row( $this->db->prepare( "SELECT MAX(meta_value = %s) AS legacy_match, MAX(meta_value = %d) AS current_match FROM `{$this->groupmeta_table}` WHERE group_id = %d AND meta_key = 'forum_id'", $plan['legacy'], $plan['id'], $stored ) ) : false;
 			if ( ! empty( $this->db->last_error ) ) {
 				$this->code = 3;
 				return true;
 			}
 			if ( $matches && ( $matches->legacy_match || $matches->current_match ) ) {
-				return $this->finish_plan( $node, $stored, ! empty( $matches->legacy_match ) );
+				return $this->finish_plan( $plan, $stored, ! empty( $matches->legacy_match ) );
 			}
-			$node['scan']             = 'legacy';
-			$node['candidate_cursor'] = 0;
-			$node['legacy_matches']   = $node['current_matches'] = array();
+			$plan['scan']             = 'legacy';
+			$plan['candidate_cursor'] = 0;
+			$plan['legacy_matches']   = array();
+			$plan['current_matches']  = array();
 		}
-		$legacy = 'legacy' === $node['scan'];
+		$legacy = 'legacy' === $plan['scan'];
 		$slot   = $legacy ? '%s' : '%d';
-		$value  = $legacy ? $node['legacy'] : $node['id'];
-		$group  = (int) $this->db->get_var( $this->db->prepare( "SELECT group_id FROM `{$this->groupmeta_table}` WHERE meta_key = 'forum_id' AND meta_value = {$slot} AND group_id > %d ORDER BY group_id LIMIT 1", $value, $node['candidate_cursor'] ) );
+		$value  = $legacy ? $plan['legacy'] : $plan['id'];
+		$group  = (int) $this->db->get_var( $this->db->prepare( "SELECT group_id FROM `{$this->groupmeta_table}` WHERE meta_key = 'forum_id' AND meta_value = {$slot} AND group_id > %d ORDER BY group_id LIMIT 1", $value, $plan['candidate_cursor'] ) );
 		if ( ! empty( $this->db->last_error ) ) {
 			$this->code = 3;
 			return true;
 		}
 		if ( $group ) {
-			$node['candidate_cursor'] = $group;
+			$plan['candidate_cursor'] = $group;
 			$claimed                  = $this->read_plan( 'owner_' . $group );
 			if ( false !== $claimed && array( 'claimed' => true ) !== $claimed ) {
 				$this->code = 12;
-			} elseif ( ! $claimed || ( $node['owner'] && $stored === $group ) ) {
-				$key = $node['scan'] . '_matches';
-				$node[ $key ][] = $group;
-				if ( count( $node[ $key ] ) > 1 ) {
+			} elseif ( ! $claimed || ( $plan['owner'] && $stored === $group ) ) {
+				$key = $plan['scan'] . '_matches';
+				$plan[ $key ][] = $group;
+				if ( count( $plan[ $key ] ) > 1 ) {
 					$this->code = 7;
 				}
 			}
 		} elseif ( $legacy ) {
-			$node['scan']             = 'current';
-			$node['candidate_cursor'] = 0;
+			$plan['scan']             = 'current';
+			$plan['candidate_cursor'] = 0;
 		} else {
-			$group = $node['legacy_matches'] ? reset( $node['legacy_matches'] ) : ( $node['current_matches'] ? reset( $node['current_matches'] ) : 0 );
-			return $this->finish_plan( $node, $group, ! empty( $node['legacy_matches'] ) );
+			$group = $plan['legacy_matches'] ? reset( $plan['legacy_matches'] ) : ( $plan['current_matches'] ? reset( $plan['current_matches'] ) : 0 );
+			return $this->finish_plan( $plan, $group, ! empty( $plan['legacy_matches'] ) );
 		}
 		if ( ! $this->code ) {
-			$this->write_plan( 'forum_' . $node['id'], $node );
+			$this->write_plan( 'forum_' . $plan['id'], $plan );
 		}
 		return false;
 	}
@@ -793,47 +794,47 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node   Forum migration plan.
+	 * @param array $plan   Forum migration plan.
 	 * @param int   $group  Selected group ID, or zero when no group matches.
 	 * @param bool  $update Whether the group's legacy marker needs updating.
 	 * @return bool True after the plan has been finalized.
 	 */
-	private function finish_plan( $node, $group, $update ) {
-		$node['group_source'] = false;
-		$node['group']        = $group;
-		$node['update_group'] = $update && $node['legacy'] !== (string) $node['id'];
-		unset( $node['scan'], $node['candidate_cursor'], $node['legacy_matches'], $node['current_matches'] );
+	private function finish_plan( $plan, $group, $update ) {
+		$plan['group_source'] = false;
+		$plan['group']        = $group;
+		$plan['update_group'] = $update && $plan['legacy'] !== (string) $plan['id'];
+		unset( $plan['scan'], $plan['candidate_cursor'], $plan['legacy_matches'], $plan['current_matches'] );
 		if ( $group ) {
-			if ( $node['update_group'] ) {
-				$this->claim( 'legacy_' . md5( $node['legacy'] ), $node['id'] );
-				if ( (string) (int) $node['legacy'] === $node['legacy'] && $this->read_plan( 'native_' . $node['legacy'] ) ) {
+			if ( $plan['update_group'] ) {
+				$this->claim( 'legacy_' . md5( $plan['legacy'] ), $plan['id'] );
+				if ( (string) (int) $plan['legacy'] === $plan['legacy'] && $this->read_plan( 'native_' . $plan['legacy'] ) ) {
 					$this->code          = 7;
 					$this->mapping_error = true;
 				}
 			}
 			if ( ! $this->code ) {
-				$this->claim( 'group_' . $group, $node['id'] );
+				$this->claim( 'group_' . $group, $plan['id'] );
 			}
 			$source = $this->read_group_forum_source( $group );
 			// Candidate queries retain MySQL's comparison semantics for current IDs.
 			if ( ! $this->code && ( ! $source || ! $source['exists'] || is_serialized( $source['forum']['value'] ) ) ) {
 				$this->code = 12;
 			}
-			$node['group_source'] = $source;
+			$plan['group_source'] = $source;
 		}
-		if ( isset( $node['expected'] ) && ! $this->code ) {
+		if ( isset( $plan['expected'] ) && ! $this->code ) {
 			$actual = array(
-				'group'        => $node['group'],
-				'update_group' => $node['update_group'],
-				'group_source' => isset( $node['group_source'] ) ? $node['group_source'] : false,
+				'group'        => $plan['group'],
+				'update_group' => $plan['update_group'],
+				'group_source' => isset( $plan['group_source'] ) ? $plan['group_source'] : false,
 			);
-			if ( $actual !== $node['expected'] ) {
+			if ( $actual !== $plan['expected'] ) {
 				$this->code = 12;
 			}
-			unset( $node['expected'] );
+			unset( $plan['expected'] );
 		}
 		if ( ! $this->code ) {
-			$this->write_plan( 'forum_' . $node['id'], $node );
+			$this->write_plan( 'forum_' . $plan['id'], $plan );
 		}
 		return true;
 	}
@@ -868,8 +869,8 @@ class BBP_Admin_Group_Forums {
 		}
 		list( $hidden_read, $hidden )   = bbp_admin_repair_get_option( '_bbp_hidden_forums', array(), false );
 		list( $private_read, $private ) = bbp_admin_repair_get_option( '_bbp_private_forums', array(), false );
-		$hidden_ids  = $this->ids( $hidden );
-		$private_ids = $this->ids( $private );
+		$hidden_ids  = $this->parse_id_list( $hidden );
+		$private_ids = $this->parse_id_list( $private );
 		if ( ! $hidden_read || ! $private_read || false === $hidden_ids || false === $private_ids ) {
 			$this->code = 9;
 			return false;
@@ -884,23 +885,23 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node Forum migration plan.
+	 * @param array $plan Forum migration plan.
 	 */
-	private function apply( $node ) {
-		$id       = $node['id'];
-		$group    = $node['group'];
+	private function apply_plan( $plan ) {
+		$id       = $plan['id'];
+		$group    = $plan['group'];
 		$forum    = $this->read_forum_source( $id );
 		$source   = $this->read_group_forum_source( $group );
 		$value    = $source ? $source['forum']['value'] : null;
-		$expected = $node['group_source']['forum']['value'];
+		$expected = $plan['group_source']['forum']['value'];
 		$target   = $source ? $this->group_visibility_target( $source ) : '';
 		$desired  = array( $group );
 		if ( $this->code ) {
 			return;
 		}
 		// Accept our own partial writes, but never overwrite a changed mapping.
-		if ( ! $source || ! $source['exists'] || ! $forum || $forum['legacy_field'] !== $node['legacy_field']
-			|| ( $forum['groups'] !== $node['groups'] && $forum['groups'] !== $desired )
+		if ( ! $source || ! $source['exists'] || ! $forum || $forum['legacy_field'] !== $plan['legacy_field']
+			|| ( $forum['groups'] !== $plan['groups'] && $forum['groups'] !== $desired )
 			|| ( $value !== $expected && (string) $value !== (string) $id ) ) {
 			$this->code = 12;
 			return;
@@ -914,7 +915,7 @@ class BBP_Admin_Group_Forums {
 			}
 			++$this->counts['forums'];
 		}
-		if ( $node['update_group'] && (string) $value !== (string) $id ) {
+		if ( $plan['update_group'] && (string) $value !== (string) $id ) {
 			if ( ! $this->dry_run ) {
 				$this->db->query( $this->db->prepare( "UPDATE `{$this->groupmeta_table}` SET `meta_value` = %d WHERE `group_id` = %d AND `meta_key` = %s AND BINARY `meta_value` = BINARY %s", $id, $group, 'forum_id', $expected ) );
 				$failed = ! empty( $this->db->last_error );
@@ -951,8 +952,8 @@ class BBP_Admin_Group_Forums {
 	 * @return array|false Root forum source, or false on failure.
 	 */
 	private function read_root_source() {
-		$old   = function_exists( 'bp_forums_parent_forum_id' ) ? bp_forums_parent_forum_id() : ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ? (int) BP_FORUMS_PARENT_FORUM_ID : 1 );
-		$posts = $this->db->get_results( $this->db->prepare( "SELECT DISTINCT p.ID, p.post_type, p.post_parent, p.post_status, p.post_title, p.post_name FROM {$this->db->posts} p INNER JOIN {$this->db->postmeta} m ON p.ID = m.post_id WHERE p.post_type = %s AND m.meta_key = '_bbp_old_forum_id' AND CAST(m.meta_value AS SIGNED) = %d ORDER BY p.ID LIMIT 2", $this->forum_post_type, $old ), ARRAY_A );
+		$legacy_root_id = function_exists( 'bp_forums_parent_forum_id' ) ? bp_forums_parent_forum_id() : ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ? (int) BP_FORUMS_PARENT_FORUM_ID : 1 );
+		$posts          = $this->db->get_results( $this->db->prepare( "SELECT DISTINCT p.ID, p.post_type, p.post_parent, p.post_status, p.post_title, p.post_name FROM {$this->db->posts} p INNER JOIN {$this->db->postmeta} m ON p.ID = m.post_id WHERE p.post_type = %s AND m.meta_key = '_bbp_old_forum_id' AND CAST(m.meta_value AS SIGNED) = %d ORDER BY p.ID LIMIT 2", $this->forum_post_type, $legacy_root_id ), ARRAY_A );
 		if ( ! empty( $this->db->last_error ) ) {
 			$this->code = 2;
 			return false;
@@ -978,7 +979,7 @@ class BBP_Admin_Group_Forums {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 */
-	private function root() {
+	private function finalize_root() {
 		$planned = $this->read_plan( 'root' );
 		$current = $this->read_root_source();
 		if ( $this->code ) {

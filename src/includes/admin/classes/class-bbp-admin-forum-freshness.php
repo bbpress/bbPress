@@ -522,8 +522,8 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$topic = $child['returns']['topic'];
 		$time  = $this->topic_time( $topic );
 		$prior = $parent_node['values']['_bbp_last_topic_id'];
-		$cmp   = strcmp( $time, $this->topic_time( $prior ) );
-		if ( $cmp > 0 || ( 0 === $cmp && $topic > $prior ) ) {
+		$comparison = strcmp( $time, $this->topic_time( $prior ) );
+		if ( $comparison > 0 || ( 0 === $comparison && $topic > $prior ) ) {
 			$parent_node['values']['_bbp_last_topic_id'] = $topic;
 		}
 		// Preserve the updaters' final-child ordering, including custom child lists
@@ -634,7 +634,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @param int $limit Maximum metadata rows to inspect.
 	 * @return int Work units consumed.
 	 */
-	private function orphans( $limit ) {
+	private function prune_orphans( $limit ) {
 		$slots = implode( ', ', array_fill( 0, count( $this->meta_keys ), '%s' ) );
 		$args  = array_merge( $this->meta_keys, array( $this->state['orphan_cursor'], $this->state['orphan_upper'], $limit + 1, $this->context['forum'], $this->context['topic'] ) );
 		// Materialize a primary-key window before filtering. Valid and unrelated rows consume work too.
@@ -685,14 +685,14 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 */
 	protected function step( $limit, &$complete ) {
 		if ( 'preview-cleanup' === $this->state['phase'] ) {
-			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->topic_prefix(), $limit, false, $this->created, $this->cleaned );
+			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->topic_prefix(), $limit, false, $this->created_options, $this->inspected_options );
 			if ( ! $success ) {
 				$this->code = 7;
 			}
 			return $work;
 		}
 		if ( 'orphans' === $this->state['phase'] ) {
-			return $this->orphans( $limit );
+			return $this->prune_orphans( $limit );
 		}
 		if ( 'topics' === $this->state['phase'] && ! $this->state['current'] ) {
 			$id = (int) $this->db->get_var( $this->db->prepare( "SELECT ID FROM {$this->db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $this->context['topic'], $this->state['cursor'], $this->state['upper_id'] ) );
@@ -705,10 +705,10 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 				$this->state['cursor'] = 0;
 				// Only a subsequent Run or preview may depend on the repaired topic rows
 				$this->stop     = ! $this->dry_run;
-				$this->boundary = $this->dry_run;
+				$this->phase_boundary = $this->dry_run;
 				return 1;
 			}
-			$node = $this->enter( $id, 0, true );
+			$node = $this->enter_node( $id, 0, true );
 			if ( false !== $node ) {
 				$this->state['root'] = $this->state['current'] = $id;
 			}
