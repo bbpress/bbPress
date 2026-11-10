@@ -107,7 +107,7 @@ defined( 'ABSPATH' ) || exit;
 
 							<div>
 
-								<?php if ( bbp_is_subscriptions_active() ) : ?>
+								<?php if ( bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) ) : ?>
 
 									<input name="bbp_topic_subscribers" id="bbp_topic_subscribers" type="checkbox" value="1" checked="checked" />
 									<label for="bbp_topic_subscribers"><?php esc_html_e( 'Copy subscribers to the new topic', 'bbpress' ); ?></label><br />

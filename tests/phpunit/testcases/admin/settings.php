@@ -208,6 +208,36 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3785
+	 * @covers ::bbp_admin_setting_callback_subscriptions
+	 */
+	public function test_subscriptions_callback_lists_registered_subtypes() {
+		$this->set_option( '_bbp_enable_subscriptions', 1 );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_subscriptions' );
+		$labels = bbp_get_subscription_subtype_labels();
+
+		$this->assertStringContainsString( 'Allow users to subscribe to:', $output );
+		$this->assertSame( count( $labels ) + 1, substr_count( $output, 'name="_bbp_enable_subscriptions[]"' ) );
+		$this->assertSame( count( $labels ), substr_count( $output, " checked='checked'" ) );
+		$this->assertStringContainsString( 'value="post:' . bbp_get_forum_post_type() . '"', $output );
+		$this->assertStringContainsString( 'value="post:' . bbp_get_topic_post_type() . '"', $output );
+		$this->assertStringContainsString( 'value="term:' . bbp_get_topic_tag_tax_id() . '"', $output );
+
+		$this->set_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_subscriptions' );
+		$this->assertSame( 1, substr_count( $output, " checked='checked'" ) );
+
+		$this->set_option( '_bbp_enable_subscriptions', array( 'post:bbp_unavailable' ) );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_subscriptions' );
+		$this->assertSame( count( $labels ) + 2, substr_count( $output, 'name="_bbp_enable_subscriptions[]"' ) );
+		$this->assertStringContainsString( 'type="hidden" value="post:bbp_unavailable"', $output );
+
+		bbpress()->options['_bbp_enable_subscriptions'] = array( 'post:' . bbp_get_topic_post_type() );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_subscriptions' );
+		$this->assertSame( count( $labels ) + 1, substr_count( $output, "disabled='disabled'" ) );
+	}
+
+	/**
 	 * @covers ::bbp_admin_get_settings_fields_for_section
 	 */
 	public function test_settings_fields_for_section_handles_empty_known_and_unknown_sections() {
@@ -455,7 +485,6 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_setting_callback_anonymous
 	 * @covers ::bbp_admin_setting_callback_favorites
-	 * @covers ::bbp_admin_setting_callback_subscriptions
 	 * @covers ::bbp_admin_setting_callback_engagements
 	 * @covers ::bbp_admin_setting_callback_topic_tags
 	 * @covers ::bbp_admin_setting_callback_forum_mods
@@ -492,7 +521,6 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		return array(
 			'anonymous'     => array( 'bbp_admin_setting_callback_anonymous', '_bbp_allow_anonymous', 'Allow guest users' ),
 			'favorites'     => array( 'bbp_admin_setting_callback_favorites', '_bbp_enable_favorites', 'mark topics as favorites' ),
-			'subscriptions' => array( 'bbp_admin_setting_callback_subscriptions', '_bbp_enable_subscriptions', 'subscribe to forums and topics' ),
 			'engagements'   => array( 'bbp_admin_setting_callback_engagements', '_bbp_enable_engagements', 'tracking of topics' ),
 			'topic tags'    => array( 'bbp_admin_setting_callback_topic_tags', '_bbp_allow_topic_tags', 'Allow topics to have tags' ),
 			'forum mods'    => array( 'bbp_admin_setting_callback_forum_mods', '_bbp_allow_forum_mods', 'dedicated moderators' ),

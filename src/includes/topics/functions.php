@@ -1270,7 +1270,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	$subscribers = bbp_get_subscribers( $source_topic->ID );
 
 	// Maybe migrate subscriptions
-	if ( ! empty( $subscribers ) && ! empty( $_POST['bbp_topic_subscribers'] ) && ( '1' === $_POST['bbp_topic_subscribers'] ) ) {
+	if ( ! empty( $subscribers ) && ! empty( $_POST['bbp_topic_subscribers'] ) && ( '1' === $_POST['bbp_topic_subscribers'] ) && bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) ) {
 		foreach ( $subscribers as $subscriber ) {
 			bbp_add_user_subscription( $subscriber, $destination_topic->ID );
 		}
@@ -1659,7 +1659,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** Subscriptions *********************************************************/
 
 	// Copy the subscribers
-	if ( ! empty( $_POST['bbp_topic_subscribers'] ) && '1' === $_POST['bbp_topic_subscribers'] && bbp_is_subscriptions_active() ) {
+	if ( ! empty( $_POST['bbp_topic_subscribers'] ) && '1' === $_POST['bbp_topic_subscribers'] && bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) ) {
 
 		// Get the subscribers
 		$subscribers = bbp_get_subscribers( $source_topic->ID );

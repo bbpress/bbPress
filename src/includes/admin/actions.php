@@ -59,10 +59,11 @@ add_action( 'bbp_admin_init', 'bbp_register_admin_scripts'      );
 add_action( 'bbp_admin_init', 'bbp_register_admin_settings'     );
 
 // Hook on to current_screen
-add_action( 'bbp_current_screen', 'bbp_admin_forums'  );
-add_action( 'bbp_current_screen', 'bbp_admin_topics'  );
-add_action( 'bbp_current_screen', 'bbp_admin_replies' );
-add_action( 'bbp_current_screen', 'bbp_setup_updater', 999 );
+add_action( 'bbp_current_screen', 'bbp_admin_forums'             );
+add_action( 'bbp_current_screen', 'bbp_admin_topics'             );
+add_action( 'bbp_current_screen', 'bbp_admin_replies'            );
+add_action( 'bbp_current_screen', 'bbp_admin_term_subscriptions' );
+add_action( 'bbp_current_screen', 'bbp_setup_updater',       999 );
 
 // Initialize the admin area
 add_action( 'bbp_init', 'bbp_setup_admin' );

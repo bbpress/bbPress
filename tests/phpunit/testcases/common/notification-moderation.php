@@ -415,4 +415,32 @@ class BBP_Tests_Common_Notification_Moderation extends BBP_UnitTestCase {
 		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_subscription_notification_pending' ) );
 		$this->assertCount( 0, $this->mail );
 	}
+
+	/**
+	 * @ticket BBP3785
+	 * @covers ::bbp_defer_subscription_notification
+	 */
+	public function test_deferred_notifications_require_their_subscription_subtype() {
+		$content        = $this->create_topic_subscription();
+		$disabled_topic = $this->create_topic( $content, bbp_get_pending_status_id() );
+		$disabled_reply = $this->create_reply( $content, bbp_get_pending_status_id() );
+
+		update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+		$this->fire_new_topic( $disabled_topic, $content );
+		$this->assertFalse( metadata_exists( 'post', $disabled_topic, '_bbp_subscription_notification_pending' ) );
+
+		update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_forum_post_type() ) );
+		$this->fire_new_reply( $disabled_reply, $content );
+		$this->assertFalse( metadata_exists( 'post', $disabled_reply, '_bbp_subscription_notification_pending' ) );
+
+		$enabled_topic = $this->create_topic( $content, bbp_get_pending_status_id() );
+		$this->fire_new_topic( $enabled_topic, $content );
+		$this->assertTrue( metadata_exists( 'post', $enabled_topic, '_bbp_subscription_notification_pending' ) );
+
+		$enabled_reply = $this->create_reply( $content, bbp_get_pending_status_id() );
+		update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+		$this->fire_new_reply( $enabled_reply, $content );
+		$this->assertTrue( metadata_exists( 'post', $enabled_reply, '_bbp_subscription_notification_pending' ) );
+		$this->assertCount( 0, $this->mail );
+	}
 }

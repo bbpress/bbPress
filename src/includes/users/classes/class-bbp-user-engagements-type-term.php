@@ -24,6 +24,7 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	 * `bbp_subscriptions` registration argument.
 	 *
 	 * @since 2.7.0 bbPress (r8323)
+	 * @since 2.7.0 bbPress (r8330) Check the taxonomy subtype setting.
 	 *
 	 * @param string $engagement Favorite or subscription.
 	 * @param int    $object_id  Term ID.
@@ -40,7 +41,8 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 
 		return ( 'subscription' === $engagement )
 			&& ( $taxonomy instanceof WP_Taxonomy )
-			&& ! empty( $taxonomy->bbp_subscriptions );
+			&& ! empty( $taxonomy->bbp_subscriptions )
+			&& bbp_is_subscription_subtype_active( 'term', $term->taxonomy );
 	}
 
 	/**

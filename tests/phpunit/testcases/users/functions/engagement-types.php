@@ -95,6 +95,57 @@ class BBP_Tests_Users_Functions_Engagement_Types extends BBP_UnitTestCase {
 	/**
 	 * @ticket BBP3785
 	 *
+	 * @covers BBP_User_Engagements_Type_Post::supports
+	 * @covers BBP_User_Engagements_Type_Post::current_user_can_read
+	 */
+	public function test_post_type_supports_opted_in_and_enabled_post_types() {
+		$type      = bbp_get_engagement_type( 'post' );
+		$post_type = 'bbp_sub_post';
+
+		register_post_type(
+			$post_type,
+			array(
+				'public'            => true,
+				'bbp_subscriptions' => true,
+			)
+		);
+
+		try {
+			$post_id = $this->factory->post->create( array( 'post_type' => $post_type ) );
+
+			$this->assertTrue( get_post_type_object( bbp_get_forum_post_type() )->bbp_subscriptions );
+			$this->assertTrue( get_post_type_object( bbp_get_topic_post_type() )->bbp_subscriptions );
+			$this->assertFalse( isset( get_post_type_object( bbp_get_reply_post_type() )->bbp_subscriptions ) );
+			$this->assertTrue( $type->supports( 'subscription', $post_id ) );
+			$this->assertFalse( $type->supports( 'favorite', $post_id ) );
+
+			$this->set_current_user( $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) ) );
+			$this->assertTrue( $type->current_user_can_read( $post_id ) );
+
+			update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+			$this->assertFalse( $type->supports( 'subscription', $post_id ) );
+		} finally {
+			unregister_post_type( $post_type );
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::supports
+	 */
+	public function test_term_type_requires_an_enabled_taxonomy_subtype() {
+		$type   = bbp_get_engagement_type( 'term' );
+		$tag_id = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+
+		$this->assertFalse( $type->supports( 'subscription', $tag_id ) );
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
 	 * @covers BBP_User_Engagements_Type_Term::supports
 	 */
 	public function test_topic_tags_cannot_be_subscribed_to_while_disabled() {

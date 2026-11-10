@@ -174,7 +174,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 					<?php endif; ?>
 
-					<?php if ( bbp_is_subscriptions_active() && ! bbp_is_anonymous() && ( ! bbp_is_topic_edit() || ( bbp_is_topic_edit() && ! bbp_is_topic_anonymous() ) ) ) : ?>
+					<?php if ( bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) && ! bbp_is_anonymous() && ( ! bbp_is_topic_edit() || ( bbp_is_topic_edit() && ! bbp_is_topic_anonymous() ) ) ) : ?>
 
 						<?php do_action( 'bbp_theme_before_topic_form_subscriptions' ); ?>
 

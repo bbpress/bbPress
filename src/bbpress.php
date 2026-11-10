@@ -594,7 +594,10 @@ final class bbPress {
 					'hierarchical'          => true,
 					'query_var'             => true,
 					'menu_icon'             => $menu_icon_prefix ? $menu_icon_prefix . 'forum' : '',
+
+					// bbPress
 					'source'                => 'bbpress',
+					'bbp_subscriptions'     => true
 				)
 			)
 		);
@@ -625,7 +628,10 @@ final class bbPress {
 					'hierarchical'          => false,
 					'query_var'             => true,
 					'menu_icon'             => $menu_icon_prefix ? $menu_icon_prefix . 'topic' : '',
+
+					// bbPress
 					'source'                => 'bbpress',
+					'bbp_subscriptions'     => true
 				)
 			)
 		);
@@ -656,6 +662,8 @@ final class bbPress {
 					'hierarchical'          => false,
 					'query_var'             => true,
 					'menu_icon'             => $menu_icon_prefix ? $menu_icon_prefix . 'reply' : '',
+
+					// bbPress
 					'source'                => 'bbpress',
 				)
 			)

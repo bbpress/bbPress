@@ -45,6 +45,22 @@ class BBP_Tests_Common_Notification_Filters extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers ::bbp_notify_topic_subscribers
+	 * @covers ::bbp_notify_forum_subscribers
+	 */
+	public function test_notifications_require_their_subscription_subtype() {
+		$content = $this->create_subscribed_content();
+
+		update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_forum_post_type() ) );
+		$this->assertFalse( bbp_notify_topic_subscribers( $content['reply_id'], $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+
+		update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+		$this->assertFalse( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+	}
+
+	/**
 	 * Reply mail restores every filter after success and cancellation.
 	 */
 	public function test_reply_notification_restores_filters() {

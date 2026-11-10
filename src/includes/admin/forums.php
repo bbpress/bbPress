@@ -283,8 +283,8 @@ class BBP_Forums_Admin {
 			return;
 		}
 
-		// Bail if no subscriptions
-		if ( ! bbp_is_subscriptions_active() ) {
+		// Bail if no forum subscriptions
+		if ( ! bbp_is_subscription_subtype_active( 'post', $this->post_type ) ) {
 			return;
 		}
 

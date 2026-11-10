@@ -161,8 +161,8 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'po
  */
 function bbp_update_user_topic_subscription( $author_id = 0, $topic_id = 0 ) {
 
-	// Bail if subscriptions are disabled or the form has no valid target
-	if ( ! bbp_is_subscriptions_active() || empty( $author_id ) || empty( $topic_id ) ) {
+	// Bail if topic subscriptions are disabled or the form has no valid target
+	if ( ! bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) || empty( $author_id ) || empty( $topic_id ) ) {
 		return;
 	}
 

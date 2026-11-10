@@ -390,6 +390,85 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers ::bbp_get_subscription_subtype_labels
+	 * @covers ::bbp_get_subscription_subtypes
+	 * @covers ::bbp_is_subscription_subtype_active
+	 * @covers ::bbp_is_subscriptions_active
+	 */
+	public function test_subscription_subtypes_use_registered_types_and_preserve_scalar_options() {
+		$post_type = 'bbp_sub_post';
+		$taxonomy  = 'bbp_sub_tax';
+		$filter    = function ( $subtypes ) use ( $post_type ) {
+			return array_diff( $subtypes, array( 'post:' . $post_type ) );
+		};
+
+		register_post_type(
+			$post_type,
+			array(
+				'label'             => 'Subscribed Posts',
+				'public'            => true,
+				'bbp_subscriptions' => true,
+			)
+		);
+		register_taxonomy(
+			$taxonomy,
+			$post_type,
+			array(
+				'label'             => 'Subscribed Terms',
+				'public'            => true,
+				'bbp_subscriptions' => true,
+			)
+		);
+
+		try {
+			$labels = bbp_get_subscription_subtype_labels();
+
+			$this->assertSame( 'Forums', $labels[ 'post:' . bbp_get_forum_post_type() ] );
+			$this->assertSame( 'Topics', $labels[ 'post:' . bbp_get_topic_post_type() ] );
+			$this->assertSame( 'Topic Tags', $labels[ 'term:' . bbp_get_topic_tag_tax_id() ] );
+			$this->assertSame( 'Subscribed Posts', $labels[ 'post:' . $post_type ] );
+			$this->assertSame( 'Subscribed Terms', $labels[ 'term:' . $taxonomy ] );
+			$this->assertArrayNotHasKey( 'post:' . bbp_get_reply_post_type(), $labels );
+
+			$this->set_option( '_bbp_enable_subscriptions', 1 );
+			$this->assertSame( array_keys( $labels ), bbp_get_subscription_subtypes() );
+			$this->assertTrue( bbp_is_subscription_subtype_active( 'post', $post_type ) );
+			add_filter( 'bbp_is_subscriptions_active', '__return_false' );
+			$this->assertFalse( bbp_is_subscription_subtype_active( 'post', $post_type ) );
+			remove_filter( 'bbp_is_subscriptions_active', '__return_false' );
+
+			add_filter( 'bbp_get_subscription_subtypes', $filter );
+			$this->assertFalse( bbp_is_subscription_subtype_active( 'post', $post_type ) );
+			remove_filter( 'bbp_get_subscription_subtypes', $filter );
+
+			update_option( '_bbp_enable_subscriptions', 0 );
+			$this->assertSame( array(), bbp_get_subscription_subtypes() );
+			$this->assertFalse( bbp_is_subscriptions_active() );
+			add_filter( 'bbp_is_subscriptions_active', '__return_true' );
+			$this->assertTrue( bbp_is_subscription_subtype_active( 'post', $post_type ) );
+			remove_filter( 'bbp_is_subscriptions_active', '__return_true' );
+
+			update_option( '_bbp_enable_subscriptions', array( 'post:' . $post_type, 'term:' . $taxonomy, 'post:' . $post_type, 'unknown' ) );
+			$this->assertSame( array( 'post:' . $post_type, 'term:' . $taxonomy ), bbp_get_subscription_subtypes() );
+			$this->assertTrue( bbp_is_subscriptions_active() );
+			$this->assertTrue( bbp_is_subscription_subtype_active( 'term', $taxonomy ) );
+			$this->assertFalse( bbp_is_subscription_subtype_active( 'post', bbp_get_forum_post_type() ) );
+
+			update_option( '_bbp_enable_subscriptions', array( '', 'post:bbp_unavailable' ) );
+			$this->assertSame( array(), bbp_get_subscription_subtypes() );
+			$this->assertFalse( bbp_is_subscriptions_active() );
+		} finally {
+			remove_filter( 'bbp_get_subscription_subtypes', $filter );
+			remove_filter( 'bbp_is_subscriptions_active', '__return_false' );
+			remove_filter( 'bbp_is_subscriptions_active', '__return_true' );
+			unregister_taxonomy( $taxonomy );
+			unregister_post_type( $post_type );
+		}
+	}
+
+	/**
 	 * @ticket BBP3349
 	 * @covers ::bbp_get_moderation_notification_recipient_types
 	 * @covers ::bbp_get_moderation_notification_recipient_type_labels

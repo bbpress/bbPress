@@ -514,17 +514,118 @@ function bbp_is_favorites_active( $default = 1 ) {
 }
 
 /**
- * Checks if subscription feature is enabled.
+ * Checks if any subscription feature is enabled.
  *
  * @since 2.0.0 bbPress (r2668)
+ * @since 2.7.0 bbPress (r8330) Support per-subtype settings.
  *
- * @param bool $default Optional.Default value true.
- * @return bool Is subscription enabled or not.
+ * @param mixed $default Optional. Default subscription value.
+ * @return bool Whether any subscriptions are enabled.
  */
 function bbp_is_subscriptions_active( $default = 1 ) {
+	$value  = get_option( '_bbp_enable_subscriptions', $default );
+	$active = is_array( $value )
+		? ! empty( bbp_get_subscription_subtypes( $default ) )
+		: (bool) $value;
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions', $default ) );
+	return (bool) apply_filters( 'bbp_is_subscriptions_active', $active );
+}
+
+/**
+ * Get labels for registered object subtypes that support subscriptions.
+ *
+ * Post types and taxonomies opt in with the `bbp_subscriptions` registration
+ * argument.
+ *
+ * @since 2.7.0 bbPress (r8330)
+ *
+ * @return array Subscription subtype labels keyed by object type and subtype.
+ */
+function bbp_get_subscription_subtype_labels() {
+	$labels = array();
+
+	// Registered post types
+	foreach ( get_post_types( array(), 'objects' ) as $post_type ) {
+		if ( ! empty( $post_type->bbp_subscriptions ) ) {
+			$labels[ 'post:' . $post_type->name ] = $post_type->labels->name;
+		}
+	}
+
+	// Registered taxonomies
+	foreach ( get_taxonomies( array(), 'objects' ) as $taxonomy ) {
+		if ( ! empty( $taxonomy->bbp_subscriptions ) ) {
+			$labels[ 'term:' . $taxonomy->name ] = $taxonomy->labels->name;
+		}
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_subscription_subtype_labels', $labels );
+}
+
+/**
+ * Get enabled subscription object subtypes.
+ *
+ * The old scalar option enables or disables every registered subtype. An array
+ * enables only the selected subtypes.
+ *
+ * @since 2.7.0 bbPress (r8330)
+ *
+ * @param mixed $default Optional. Default subscription value.
+ * @return array Subscription subtype IDs.
+ */
+function bbp_get_subscription_subtypes( $default = 1 ) {
+	$subtypes  = get_option( '_bbp_enable_subscriptions', $default );
+	$available = bbp_get_subscription_subtype_labels();
+
+	if ( is_array( $subtypes ) ) {
+		$subtypes = array_filter( $subtypes, 'is_string' );
+		$subtypes = array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $subtypes ) ) ) );
+		$subtypes = array_values( array_intersect( $subtypes, array_keys( $available ) ) );
+	} else {
+		$subtypes = ! empty( $subtypes )
+			? array_keys( $available )
+			: array();
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_subscription_subtypes', $subtypes );
+}
+
+/**
+ * Check whether subscriptions are enabled for an object subtype.
+ *
+ * The post type or taxonomy must be registered before this check runs.
+ *
+ * @since 2.7.0 bbPress (r8330)
+ *
+ * @param string $object_type    Engagement object type.
+ * @param string $object_subtype Registered post type or taxonomy name.
+ * @param mixed  $default        Optional. Default subscription value.
+ * @return bool Whether subscriptions are enabled for the object subtype.
+ */
+function bbp_is_subscription_subtype_active( $object_type = '', $object_subtype = '', $default = 1 ) {
+	$object_type    = sanitize_key( $object_type );
+	$object_subtype = sanitize_key( $object_subtype );
+	$subtype_id     = $object_type . ':' . $object_subtype;
+	$value          = get_option( '_bbp_enable_subscriptions', $default );
+	$enabled        = bbp_is_subscriptions_active( $default );
+
+	// A filter can enable every registered subtype for a disabled scalar option.
+	if ( $enabled && ! is_array( $value ) && empty( $value ) ) {
+		$subtypes = array_keys( bbp_get_subscription_subtype_labels() );
+		$subtypes = (array) apply_filters( 'bbp_get_subscription_subtypes', $subtypes );
+	} else {
+		$subtypes = bbp_get_subscription_subtypes( $default );
+	}
+
+	$active = ! empty( $object_type )
+		&& ! empty( $object_subtype )
+		&& $enabled
+		&& in_array( $subtype_id, $subtypes, true );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_subscription_subtype_active', $active, $object_type, $object_subtype );
 }
 
 /**

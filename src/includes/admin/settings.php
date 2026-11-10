@@ -264,7 +264,7 @@ function bbp_admin_get_settings_fields() {
 				'_bbp_enable_subscriptions' => array(
 					'title'             => esc_html__( 'Subscriptions', 'bbpress' ),
 					'callback'          => 'bbp_admin_setting_callback_subscriptions',
-					'sanitize_callback' => 'intval',
+					'sanitize_callback' => 'bbp_admin_sanitize_subscription_subtypes',
 					'args'              => array()
 				),
 
@@ -782,6 +782,35 @@ function bbp_admin_sanitize_moderation_notification_recipient_types( $types ) {
 }
 
 /**
+ * Keep subscription subtypes within the available or stored choices.
+ *
+ * @since 2.7.0 bbPress (r8330)
+ *
+ * @param mixed $subtypes Submitted subscription subtype IDs.
+ * @return int|array Legacy scalar value, or valid subscription subtype IDs.
+ */
+function bbp_admin_sanitize_subscription_subtypes( $subtypes ) {
+	if ( ! is_array( $subtypes ) ) {
+		return intval( $subtypes );
+	}
+
+	$available = array_keys( bbp_get_subscription_subtype_labels() );
+	$stored    = get_option( '_bbp_enable_subscriptions', array() );
+
+	// Preserve stored subtypes that are temporarily unavailable.
+	if ( is_array( $stored ) ) {
+		$stored    = array_filter( $stored, 'is_string' );
+		$stored    = array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $stored ) ) ) );
+		$available = array_values( array_unique( array_merge( $available, $stored ) ) );
+	}
+
+	$subtypes  = array_filter( $subtypes, 'is_string' );
+	$subtypes  = array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $subtypes ) ) ) );
+
+	return array_values( array_intersect( $subtypes, $available ) );
+}
+
+/**
  * Keep the site-wide forums status within its supported values.
  *
  * @since 2.6.20 bbPress (r7851)
@@ -1180,12 +1209,31 @@ function bbp_admin_setting_callback_favorites() {
  * Allow subscriptions setting field.
  *
  * @since 2.0.0 bbPress (r2737)
+ * @since 2.7.0 bbPress (r8330) List registered subscription subtypes.
  */
 function bbp_admin_setting_callback_subscriptions() {
+	$selected    = bbp_get_subscription_subtypes();
+	$labels      = bbp_get_subscription_subtype_labels();
+	$stored      = get_option( '_bbp_enable_subscriptions', array() );
+	$unavailable = is_array( $stored )
+		? array_diff( bbp_admin_sanitize_subscription_subtypes( $stored ), array_keys( $labels ) )
+		: array();
 ?>
 
-	<input name="_bbp_enable_subscriptions" id="_bbp_enable_subscriptions" type="checkbox" value="1" <?php checked( bbp_is_subscriptions_active( true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_enable_subscriptions' ); ?> />
-	<label for="_bbp_enable_subscriptions"><?php esc_html_e( 'Allow users to subscribe to forums and topics', 'bbpress' ); ?></label>
+	<fieldset>
+		<legend class="screen-reader-text"><?php esc_html_e( 'Subscriptions', 'bbpress' ); ?></legend>
+		<input name="_bbp_enable_subscriptions[]" type="hidden" value=""<?php bbp_maybe_admin_setting_disabled( '_bbp_enable_subscriptions' ); ?> />
+		<?php foreach ( $unavailable as $subtype ) : ?>
+			<input name="_bbp_enable_subscriptions[]" type="hidden" value="<?php echo esc_attr( $subtype ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_enable_subscriptions' ); ?> />
+		<?php endforeach; ?>
+		<?php esc_html_e( 'Allow users to subscribe to:', 'bbpress' ); ?><br />
+		<?php foreach ( $labels as $subtype => $label ) : ?>
+			<label for="_bbp_enable_subscriptions_<?php echo esc_attr( str_replace( ':', '_', $subtype ) ); ?>">
+				<input name="_bbp_enable_subscriptions[]" id="_bbp_enable_subscriptions_<?php echo esc_attr( str_replace( ':', '_', $subtype ) ); ?>" type="checkbox" value="<?php echo esc_attr( $subtype ); ?>" <?php checked( in_array( $subtype, $selected, true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_enable_subscriptions' ); ?> />
+				<?php echo esc_html( $label ); ?>
+			</label><br />
+		<?php endforeach; ?>
+	</fieldset>
 
 <?php
 }

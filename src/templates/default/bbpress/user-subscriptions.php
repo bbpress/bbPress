@@ -20,39 +20,49 @@ do_action( 'bbp_template_before_user_subscriptions' ); ?>
 
 			<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
 
-			<h2 class="entry-title"><?php esc_html_e( 'Subscribed Forums', 'bbpress' ); ?></h2>
-			<div class="bbp-user-section">
+			<?php if ( bbp_is_subscription_subtype_active( 'post', bbp_get_forum_post_type() ) ) : ?>
 
-				<?php if ( bbp_get_user_forum_subscriptions() ) : ?>
+				<h2 class="entry-title"><?php esc_html_e( 'Subscribed Forums', 'bbpress' ); ?></h2>
+				<div class="bbp-user-section">
 
-					<?php bbp_get_template_part( 'loop', 'forums' ); ?>
+					<?php if ( bbp_get_user_forum_subscriptions() ) : ?>
 
-				<?php else : ?>
+						<?php bbp_get_template_part( 'loop', 'forums' ); ?>
 
-					<?php bbp_get_template_part( 'feedback', 'no-forums' ); ?>
+					<?php else : ?>
 
-				<?php endif; ?>
+						<?php bbp_get_template_part( 'feedback', 'no-forums' ); ?>
 
-			</div>
+					<?php endif; ?>
 
-			<h2 class="entry-title"><?php esc_html_e( 'Subscribed Topics', 'bbpress' ); ?></h2>
-			<div class="bbp-user-section">
+				</div>
 
-				<?php if ( bbp_get_user_topic_subscriptions() ) : ?>
+			<?php endif; ?>
 
-					<?php bbp_get_template_part( 'pagination', 'topics' ); ?>
+			<?php if ( bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) ) : ?>
 
-					<?php bbp_get_template_part( 'loop',       'topics' ); ?>
+				<h2 class="entry-title"><?php esc_html_e( 'Subscribed Topics', 'bbpress' ); ?></h2>
+				<div class="bbp-user-section">
 
-					<?php bbp_get_template_part( 'pagination', 'topics' ); ?>
+					<?php if ( bbp_get_user_topic_subscriptions() ) : ?>
 
-				<?php else : ?>
+						<?php bbp_get_template_part( 'pagination', 'topics' ); ?>
 
-					<?php bbp_get_template_part( 'feedback', 'no-topics' ); ?>
+						<?php bbp_get_template_part( 'loop',       'topics' ); ?>
 
-				<?php endif; ?>
+						<?php bbp_get_template_part( 'pagination', 'topics' ); ?>
 
-			</div>
+					<?php else : ?>
+
+						<?php bbp_get_template_part( 'feedback', 'no-topics' ); ?>
+
+					<?php endif; ?>
+
+				</div>
+
+			<?php endif; ?>
+
+			<?php do_action( 'bbp_template_user_subscriptions' ); ?>
 		</div><!-- #bbp-user-subscriptions -->
 
 	<?php endif; ?>

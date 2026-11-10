@@ -1993,17 +1993,19 @@ function bbp_defer_subscription_notification( $post_id = 0 ) {
 	$defer   = in_array( $status, bbp_get_deferred_subscription_statuses(), true );
 
 	if ( bbp_is_topic( $post_id ) ) {
-		$hook     = 'bbp_new_topic';
-		$notifier = 'bbp_notify_forum_subscribers';
+		$hook           = 'bbp_new_topic';
+		$notifier       = 'bbp_notify_forum_subscribers';
+		$object_subtype = bbp_get_forum_post_type();
 	} elseif ( bbp_is_reply( $post_id ) ) {
-		$hook     = 'bbp_new_reply';
-		$notifier = 'bbp_notify_topic_subscribers';
+		$hook           = 'bbp_new_reply';
+		$notifier       = 'bbp_notify_topic_subscribers';
+		$object_subtype = bbp_get_topic_post_type();
 	} else {
 		return false;
 	}
 
 	// Preserve the established way to disable subscription notifications.
-	if ( ! bbp_is_subscriptions_active() || ( false === has_action( $hook, $notifier ) ) || empty( $defer ) ) {
+	if ( ! bbp_is_subscription_subtype_active( 'post', $object_subtype ) || ( false === has_action( $hook, $notifier ) ) || empty( $defer ) ) {
 		return false;
 	}
 
@@ -2255,8 +2257,8 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
  */
 function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 
-	// Bail if subscriptions are turned off
-	if ( ! bbp_is_subscriptions_active() ) {
+	// Bail if topic subscriptions are turned off
+	if ( ! bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) ) {
 		return false;
 	}
 
@@ -2461,8 +2463,8 @@ Login and visit the topic to unsubscribe from these emails.',
  */
 function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author = 0 ) {
 
-	// Bail if subscriptions are turned off
-	if ( ! bbp_is_subscriptions_active() ) {
+	// Bail if forum subscriptions are turned off
+	if ( ! bbp_is_subscription_subtype_active( 'post', bbp_get_forum_post_type() ) ) {
 		return false;
 	}
 

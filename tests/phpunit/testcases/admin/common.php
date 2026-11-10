@@ -17,6 +17,22 @@ class BBP_Tests_Admin_Common extends BBP_UnitTestCase {
 		bbp_admin();
 	}
 
+	private function capture_callback( $callback, ...$args ) {
+		$level = ob_get_level();
+		ob_start();
+
+		try {
+			call_user_func_array( $callback, $args );
+			return ob_get_clean();
+		} catch ( Throwable $throwable ) {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+
+			throw $throwable;
+		}
+	}
+
 	/**
 	 * @covers ::bbp_admin_separator
 	 */
@@ -111,6 +127,126 @@ class BBP_Tests_Admin_Common extends BBP_UnitTestCase {
 			);
 		} finally {
 			bbp_admin()->show_separator = $old_separator;
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers ::bbp_admin_term_subscriptions
+	 */
+	public function test_subscription_taxonomy_fields_are_registered_for_enabled_subtypes() {
+		$had_screen = array_key_exists( 'current_screen', $GLOBALS );
+		$old_screen = $had_screen ? $GLOBALS['current_screen'] : null;
+		$taxonomy   = 'bbp_test_subscription_fields';
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'bbp_subscriptions' => true
+			)
+		);
+
+		try {
+			$GLOBALS['current_screen'] = WP_Screen::get( "edit-{$taxonomy}" );
+			update_option( '_bbp_enable_subscriptions', array( 'term:' . $taxonomy ) );
+			bbp_admin_term_subscriptions( get_current_screen() );
+
+			$this->assertSame( 10, has_action( "{$taxonomy}_edit_form_fields", 'bbp_term_subscriptions_field' ) );
+
+			remove_action( "{$taxonomy}_edit_form_fields", 'bbp_term_subscriptions_field', 10 );
+			update_option( '_bbp_enable_subscriptions', array( 'post:' . bbp_get_topic_post_type() ) );
+			bbp_admin_term_subscriptions( get_current_screen() );
+
+			$this->assertFalse( has_action( "{$taxonomy}_edit_form_fields", 'bbp_term_subscriptions_field' ) );
+		} finally {
+			remove_action( "{$taxonomy}_edit_form_fields", 'bbp_term_subscriptions_field', 10 );
+			unregister_taxonomy( $taxonomy );
+
+			if ( $had_screen ) {
+				$GLOBALS['current_screen'] = $old_screen;
+			} else {
+				unset( $GLOBALS['current_screen'] );
+			}
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers ::bbp_admin_term_subscriptions
+	 */
+	public function test_subscription_taxonomy_fields_require_a_site_taxonomy_screen() {
+		$had_screen = array_key_exists( 'current_screen', $GLOBALS );
+		$old_screen = $had_screen ? $GLOBALS['current_screen'] : null;
+		$taxonomy   = 'bbp_test_sub_field_context';
+		$hook       = "{$taxonomy}_edit_form_fields";
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'bbp_subscriptions' => true
+			)
+		);
+		update_option( '_bbp_enable_subscriptions', array( 'term:' . $taxonomy ) );
+
+		try {
+			$GLOBALS['current_screen'] = WP_Screen::get( 'edit-topic' );
+			bbp_admin_term_subscriptions( get_current_screen() );
+			$this->assertFalse( has_action( $hook, 'bbp_term_subscriptions_field' ) );
+
+			$network_screen = WP_Screen::get( "edit-{$taxonomy}" );
+			$in_admin       = new ReflectionProperty( 'WP_Screen', 'in_admin' );
+			$in_admin->setAccessible( true );
+			$in_admin->setValue( $network_screen, 'network' );
+			$GLOBALS['current_screen'] = $network_screen;
+			bbp_admin_term_subscriptions( $network_screen );
+			$this->assertFalse( has_action( $hook, 'bbp_term_subscriptions_field' ) );
+		} finally {
+			remove_action( $hook, 'bbp_term_subscriptions_field', 10 );
+			unregister_taxonomy( $taxonomy );
+
+			if ( $had_screen ) {
+				$GLOBALS['current_screen'] = $old_screen;
+			} else {
+				unset( $GLOBALS['current_screen'] );
+			}
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers ::bbp_term_subscriptions_field
+	 * @covers ::bbp_metabox_user_links
+	 */
+	public function test_term_subscriptions_field_outputs_users_and_empty_message() {
+		$had_user_query = isset( bbpress()->user_query );
+		$old_user_query = $had_user_query ? bbpress()->user_query : null;
+		$user_id        = $this->factory->user->create();
+		$tag_id         = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+		$empty_tag_id   = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		bbp_add_user_subscription( $user_id, $tag_id, 'term' );
+
+		try {
+			$output = $this->capture_callback( 'bbp_term_subscriptions_field', get_term( $tag_id ), bbp_get_topic_tag_tax_id() );
+			$this->assertStringContainsString( 'id="bbp_term_subscriptions"', $output );
+			$this->assertStringContainsString( '<th scope="row">Subscribers</th>', $output );
+			$this->assertStringContainsString( '<a href=', $output );
+			$this->assertStringContainsString( 'avatar', $output );
+			$this->assertStringContainsString( esc_url( bbp_get_user_profile_url( $user_id ) ), $output );
+
+			$empty_output = $this->capture_callback( 'bbp_term_subscriptions_field', get_term( $empty_tag_id ), bbp_get_topic_tag_tax_id() );
+			$this->assertStringContainsString( 'No users have subscribed to this term.', $empty_output );
+		} finally {
+			if ( $had_user_query ) {
+				bbpress()->user_query = $old_user_query;
+			} else {
+				unset( bbpress()->user_query );
+			}
 		}
 	}
 

@@ -183,6 +183,82 @@ class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3785
+	 * @covers ::bbp_admin_sanitize_subscription_subtypes
+	 */
+	public function test_subscription_subtypes_accept_available_choices_only() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		$fields = bbp_admin_get_settings_fields();
+		$this->assertSame( 'bbp_admin_sanitize_subscription_subtypes', $fields['bbp_settings_features']['_bbp_enable_subscriptions']['sanitize_callback'] );
+		$this->assertSame( 0, bbp_admin_sanitize_subscription_subtypes( 'post:' . bbp_get_forum_post_type() ) );
+		$this->assertSame( 0, bbp_admin_sanitize_subscription_subtypes( 0 ) );
+		$this->assertSame( 1, bbp_admin_sanitize_subscription_subtypes( 1 ) );
+		$this->assertSame(
+			array( 'post:' . bbp_get_forum_post_type(), 'term:' . bbp_get_topic_tag_tax_id() ),
+			bbp_admin_sanitize_subscription_subtypes(
+				array( 'post:' . bbp_get_forum_post_type(), 'unknown', 'term:' . bbp_get_topic_tag_tax_id(), 'post:' . bbp_get_forum_post_type() )
+			)
+		);
+	}
+
+	/**
+	 * @ticket BBP3785
+	 * @covers ::bbp_admin_sanitize_subscription_subtypes
+	 */
+	public function test_subscription_subtypes_preserve_scalar_values_through_the_registered_filter() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		$filter = 'sanitize_option__bbp_enable_subscriptions';
+		$added  = ! has_filter( $filter, 'bbp_admin_sanitize_subscription_subtypes' );
+
+		if ( $added ) {
+			register_setting( 'bbpress', '_bbp_enable_subscriptions', 'bbp_admin_sanitize_subscription_subtypes' );
+		}
+
+		try {
+			$this->assertSame( 0, sanitize_option( '_bbp_enable_subscriptions', 0 ) );
+			$this->assertSame( 1, sanitize_option( '_bbp_enable_subscriptions', 1 ) );
+		} finally {
+			if ( $added ) {
+				unregister_setting( 'bbpress', '_bbp_enable_subscriptions' );
+			}
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 * @covers ::bbp_admin_sanitize_subscription_subtypes
+	 */
+	public function test_subscription_subtypes_accept_previously_stored_unavailable_choices() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		$option      = '_bbp_enable_subscriptions';
+		$missing     = new stdClass();
+		$old_value   = get_option( $option, $missing );
+		$unavailable = 'post:bbp_unavailable';
+
+		update_option( $option, array( $unavailable ) );
+
+		try {
+			$this->assertSame(
+				array( 'post:' . bbp_get_forum_post_type(), $unavailable ),
+				bbp_admin_sanitize_subscription_subtypes( array( 'post:' . bbp_get_forum_post_type(), $unavailable, 'unknown' ) )
+			);
+			$this->assertSame(
+				array( 'post:' . bbp_get_forum_post_type() ),
+				bbp_admin_sanitize_subscription_subtypes( array( 'post:' . bbp_get_forum_post_type() ) )
+			);
+		} finally {
+			if ( $missing === $old_value ) {
+				delete_option( $option );
+			} else {
+				update_option( $option, $old_value );
+			}
+		}
+	}
+
+	/**
 	 * @ticket BBP3352
 	 * @covers ::bbp_admin_sanitize_moderation_links
 	 */

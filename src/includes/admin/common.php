@@ -116,6 +116,67 @@ function bbp_admin_menu_order( $menu_order ) {
 	return $bbp_menu_order;
 }
 
+/** Term Subscriptions *******************************************************/
+
+/**
+ * Setup term subscriptions in bbPress Admin.
+ *
+ * @since 2.7.0 bbPress (r8330)
+ *
+ * @param WP_Screen $current_screen Current screen object.
+ */
+function bbp_admin_term_subscriptions( $current_screen ) {
+
+	// Bail if not in site admin
+	if ( ! is_blog_admin() ) {
+		return;
+	}
+
+	// Bail if the current taxonomy does not support subscriptions
+	if ( empty( $current_screen->taxonomy ) || ! bbp_is_subscription_subtype_active( 'term', $current_screen->taxonomy ) ) {
+		return;
+	}
+
+	// Add the term field
+	add_action( "{$current_screen->taxonomy}_edit_form_fields", 'bbp_term_subscriptions_field', 10, 2 );
+}
+
+/**
+ * Display subscribers on a taxonomy term edit screen.
+ *
+ * @since 2.7.0 bbPress (r8330)
+ *
+ * @param WP_Term $term     Term being edited.
+ * @param string  $taxonomy Taxonomy name.
+ */
+function bbp_term_subscriptions_field( $term, $taxonomy ) {
+	if ( ! ( $term instanceof WP_Term ) || ( $term->taxonomy !== $taxonomy ) || ! bbp_is_subscription_subtype_active( 'term', $taxonomy ) ) {
+		return;
+	}
+
+	$user_ids = bbp_get_subscribers( $term->term_id, 'term' );
+	$args     = array(
+		'include' => $user_ids
+	);
+
+	?>
+
+	<tr class="form-field" id="bbp_term_subscriptions">
+		<th scope="row"><?php esc_html_e( 'Subscribers', 'bbpress' ); ?></th>
+		<td>
+			<?php if ( ! empty( $user_ids ) && bbp_has_users( $args ) ) : ?>
+				<?php bbp_metabox_user_links(); ?>
+			<?php else : ?>
+				<?php esc_html_e( 'No users have subscribed to this term.', 'bbpress' ); ?>
+			<?php endif; ?>
+		</td>
+	</tr>
+
+	<?php
+
+	do_action( 'bbp_term_subscriptions_field', $term, $taxonomy );
+}
+
 /**
  * Sanitize permalink slugs when saving the settings page.
  *

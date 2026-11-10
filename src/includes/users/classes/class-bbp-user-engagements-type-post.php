@@ -20,32 +20,42 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	/**
 	 * Check whether a post supports an engagement.
 	 *
-	 * Topics in a forum may be favorited or subscribed to. Forums may only be
-	 * subscribed to.
+	 * Topics in a forum may be favorited. Registered post types may be
+	 * subscribed to when they opt in with the `bbp_subscriptions` registration
+	 * argument and their subtype is enabled.
 	 *
 	 * @since 2.7.0 bbPress (r8306)
+	 * @since 2.7.0 bbPress (r8330) Support opted-in post types and subtype settings.
 	 *
 	 * @param string $engagement Favorite or subscription.
 	 * @param int    $object_id  Post ID.
 	 * @return bool Whether the post supports the engagement.
 	 */
 	public function supports( $engagement = '', $object_id = 0 ) {
-		$post = get_post( $object_id );
+		$post      = get_post( $object_id );
+		$post_type = ! empty( $post )
+			? get_post_type_object( $post->post_type )
+			: false;
 
-		if ( empty( $post ) ) {
+		if ( empty( $post ) || ! ( $post_type instanceof WP_Post_Type ) ) {
 			return false;
 		}
 
 		if ( bbp_get_topic_post_type() === $post->post_type ) {
 			$forum_id = bbp_get_topic_forum_id( $post->ID );
 
-			return ! empty( $forum_id )
-				&& bbp_is_forum( $forum_id )
-				&& in_array( $engagement, array( 'favorite', 'subscription' ), true );
+			if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
+				return false;
+			}
+
+			if ( 'favorite' === $engagement ) {
+				return true;
+			}
 		}
 
 		return ( 'subscription' === $engagement )
-			&& ( bbp_get_forum_post_type() === $post->post_type );
+			&& ! empty( $post_type->bbp_subscriptions )
+			&& bbp_is_subscription_subtype_active( 'post', $post->post_type );
 	}
 
 	/**
@@ -70,8 +80,17 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 				&& current_user_can( 'read_forum', bbp_get_topic_forum_id( $post->ID ) );
 		}
 
-		return ( bbp_get_forum_post_type() === $post->post_type )
-			&& current_user_can( 'read_forum', $post->ID );
+		if ( bbp_get_forum_post_type() === $post->post_type ) {
+			return current_user_can( 'read_forum', $post->ID );
+		}
+
+		if ( bbp_get_reply_post_type() === $post->post_type ) {
+			return current_user_can( 'read_reply', $post->ID )
+				&& current_user_can( 'read_forum', bbp_get_reply_forum_id( $post->ID ) );
+		}
+
+		return is_post_publicly_viewable( $post )
+			|| current_user_can( 'read_post', $post->ID );
 	}
 
 	/**
