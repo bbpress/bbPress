@@ -132,6 +132,35 @@ class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP2989
+	 *
+	 * @covers ::bbp_topic_tag_subscription_link
+	 * @covers ::bbp_get_topic_tag_subscription_link
+	 */
+	public function test_bbp_get_topic_tag_subscription_link() {
+		$user_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term    = wp_insert_term( 'Alpha', bbp_get_topic_tag_tax_id(), array( 'slug' => 'alpha' ) );
+		$args    = array(
+			'object_id'   => $term['term_id'],
+			'redirect_to' => bbp_get_topic_tag_link( 'alpha' )
+		);
+
+		$this->set_current_user( $user_id );
+
+		$link = bbp_get_topic_tag_subscription_link( $args );
+		$this->assertStringContainsString( 'Subscribe to this topic tag', $link );
+		$this->assertStringContainsString( 'id="subscribe-term-' . $term['term_id'] . '"', $link );
+		$this->assertStringContainsString( 'data-bbp-object-type="term"', $link );
+
+		bbp_add_user_subscription( $user_id, $term['term_id'], 'term' );
+		$link = bbp_get_topic_tag_subscription_link( $args );
+		$this->assertStringContainsString( 'Unsubscribe from this topic tag', $link );
+
+		$this->expectOutputString( $link );
+		bbp_topic_tag_subscription_link( $args );
+	}
+
+	/**
 	 * @covers ::bbp_topic_tag_edit_link
 	 * @covers ::bbp_get_topic_tag_edit_link
 	 */

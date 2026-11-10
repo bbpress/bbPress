@@ -1962,6 +1962,7 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
  * Return post statuses that defer subscription notifications.
  *
  * @since 2.6.20 bbPress (r7899)
+ * @since 2.7.0 bbPress (r8335) Include active topic taxonomy subscriptions.
  *
  * @return array Post statuses that defer subscription notifications.
  */
@@ -1993,19 +1994,19 @@ function bbp_defer_subscription_notification( $post_id = 0 ) {
 	$defer   = in_array( $status, bbp_get_deferred_subscription_statuses(), true );
 
 	if ( bbp_is_topic( $post_id ) ) {
-		$hook           = 'bbp_new_topic';
-		$notifier       = 'bbp_notify_forum_subscribers';
-		$object_subtype = bbp_get_forum_post_type();
+		$hook                 = 'bbp_new_topic';
+		$notifier             = 'bbp_notify_forum_subscribers';
+		$subscriptions_active = bbp_is_subscription_subtype_active( 'post', bbp_get_forum_post_type() ) || ! empty( bbp_get_topic_subscription_taxonomies() );
 	} elseif ( bbp_is_reply( $post_id ) ) {
-		$hook           = 'bbp_new_reply';
-		$notifier       = 'bbp_notify_topic_subscribers';
-		$object_subtype = bbp_get_topic_post_type();
+		$hook                 = 'bbp_new_reply';
+		$notifier             = 'bbp_notify_topic_subscribers';
+		$subscriptions_active = bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() );
 	} else {
 		return false;
 	}
 
 	// Preserve the established way to disable subscription notifications.
-	if ( ! bbp_is_subscription_subtype_active( 'post', $object_subtype ) || ( false === has_action( $hook, $notifier ) ) || empty( $defer ) ) {
+	if ( empty( $subscriptions_active ) || ( false === has_action( $hook, $notifier ) ) || empty( $defer ) ) {
 		return false;
 	}
 
@@ -2452,6 +2453,7 @@ Login and visit the topic to unsubscribe from these emails.',
  * custom email script.
  *
  * @since 2.5.0 bbPress (r5156)
+ * @since 2.7.0 bbPress (r8335) Include active taxonomy subscribers.
  *
  * @param int $topic_id ID of the newly made reply.
  * @param int $forum_id ID of the forum for the topic.
@@ -2463,8 +2465,11 @@ Login and visit the topic to unsubscribe from these emails.',
  */
 function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author = 0 ) {
 
-	// Bail if forum subscriptions are turned off
-	if ( ! bbp_is_subscription_subtype_active( 'post', bbp_get_forum_post_type() ) ) {
+	$forum_subscriptions = bbp_is_subscription_subtype_active( 'post', bbp_get_forum_post_type() );
+	$term_subscriptions  = bbp_get_topic_subscription_taxonomies();
+
+	// Bail if forum and taxonomy subscriptions are turned off
+	if ( empty( $forum_subscriptions ) && empty( $term_subscriptions ) ) {
 		return false;
 	}
 
@@ -2498,20 +2503,38 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	/** Users *****************************************************************/
 
-	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_subscribers( $forum_id );
+	// Get forum and taxonomy subscribers
+	$forum_user_ids = ! empty( $forum_subscriptions )
+		? bbp_get_subscribers( $forum_id )
+		: array();
+	$term_user_ids  = ! empty( $term_subscriptions )
+		? bbp_get_subscribers_for_topic_terms( $topic_id )
+		: array();
 
-	// Remove the topic author from the list.
-	$topic_author_key = array_search( (int) $topic_author, $user_ids, true );
-	if ( false !== $topic_author_key ) {
-		unset( $user_ids[ $topic_author_key ] );
-	}
+	// Prefer forum subscriptions for shared users, and remove the topic author
+	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $forum_user_ids, array( (int) $topic_author ) ) );
+	$forum_user_ids = wp_parse_id_list( array_diff( $forum_user_ids, array( (int) $topic_author ) ) );
+	$user_ids       = wp_parse_id_list( array_merge( $forum_user_ids, $term_user_ids ) );
 
-	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids, $topic_id, $forum_id );
+	/**
+	 * Filters the user IDs that receive a new-topic subscription email.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 * @since 2.7.0 bbPress (r8335) Add forum and term subscriber IDs.
+	 *
+	 * @param array $user_ids       Subscriber user IDs.
+	 * @param int   $topic_id       Topic ID.
+	 * @param int   $forum_id       Forum ID.
+	 * @param array $forum_user_ids Forum subscriber user IDs.
+	 * @param array $term_user_ids  Term-only subscriber user IDs.
+	 */
+	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids, $topic_id, $forum_id, $forum_user_ids, $term_user_ids );
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id );
+
+	// Use a message that covers both subscription types when needed
+	$has_term_subscribers = ! empty( array_intersect( $user_ids, $term_user_ids ) );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
@@ -2538,7 +2561,26 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$topic_url         = bbp_get_topic_permalink( $topic_id );
 
 	// Do not include protected content in subscription emails
-	if ( ! empty( $password_protected ) ) {
+	if ( ! empty( $password_protected ) && ! empty( $has_term_subscribers ) ) {
+		$message = sprintf(
+
+			/* translators: %s: Topic URL */
+			esc_html__(
+				'A new topic was posted in a password-protected discussion.
+
+Topic Link: %s
+
+-----------
+
+You are receiving this email because you subscribed to related forum activity.
+
+Login and visit your subscriptions to unsubscribe from these emails.',
+				'bbpress'
+			),
+			$topic_url
+		);
+
+	} elseif ( ! empty( $password_protected ) ) {
 		$message = sprintf(
 
 			/* translators: %s: Topic URL */
@@ -2558,6 +2600,32 @@ Login and visit the topic to unsubscribe from these emails.',
 		);
 
 	// Include the topic details in normal subscription emails
+	} elseif ( ! empty( $has_term_subscribers ) ) {
+		$topic_author_name = bbp_make_plain_text( $topic_author_name );
+		$topic_content     = bbp_make_plain_text( bbp_get_topic_content( $topic_id ) );
+		$message           = sprintf(
+
+			/* translators: 1: Topic author name, 2: Topic content, 3: Topic URL */
+			esc_html__(
+				'%1$s wrote:
+
+%2$s
+
+Topic Link: %3$s
+
+-----------
+
+You are receiving this email because you subscribed to related forum activity.
+
+Login and visit your subscriptions to unsubscribe from these emails.',
+				'bbpress'
+			),
+			$topic_author_name,
+			$topic_content,
+			$topic_url
+		);
+
+	// Include the topic details in normal forum subscription emails
 	} else {
 		$topic_author_name = bbp_make_plain_text( $topic_author_name );
 		$topic_content     = bbp_make_plain_text( bbp_get_topic_content( $topic_id ) );

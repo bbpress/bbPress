@@ -132,6 +132,32 @@ class BBP_Tests_Common_Notification_Moderation extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP2989
+	 *
+	 * @covers ::bbp_defer_subscription_notification
+	 * @covers ::bbp_notify_forum_subscribers_on_topic_publication
+	 * @covers ::bbp_notify_forum_subscribers
+	 */
+	public function test_pending_topic_notifies_term_subscriber_when_approved() {
+		$content  = $this->create_forum_subscription();
+		$topic_id = $this->create_topic( $content, bbp_get_pending_status_id() );
+		$term_id  = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		wp_set_object_terms( $topic_id, $term_id, bbp_get_topic_tag_tax_id() );
+		bbp_add_user_subscription( $content['subscriber_id'], $term_id, 'term' );
+		update_option( '_bbp_enable_subscriptions', array( 'term:' . bbp_get_topic_tag_tax_id() ) );
+
+		$this->fire_new_topic( $topic_id, $content );
+
+		$this->assertCount( 0, $this->mail );
+		$this->assertTrue( metadata_exists( 'post', $topic_id, '_bbp_subscription_notification_pending' ) );
+		$this->assertSame( $topic_id, bbp_approve_topic( $topic_id ) );
+		$this->assertCount( 1, $this->mail );
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_subscription_notification_pending' ) );
+		$this->assert_mail_recipient( $content );
+	}
+
+	/**
 	 * @covers ::bbp_defer_subscription_notification
 	 * @covers ::bbp_notify_forum_subscribers_on_topic_publication
 	 */

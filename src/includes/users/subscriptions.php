@@ -67,6 +67,80 @@ function bbp_get_user_forum_subscriptions( $args = array() ) {
 }
 
 /**
+ * Get a user's subscribed terms in a taxonomy.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param array $args Optional. Arguments to pass into bbp_has_terms(). The
+ *                    taxonomy argument defaults to topic tags.
+ * @return bool Whether the user has subscribed terms in the taxonomy.
+ */
+function bbp_get_user_term_subscriptions( $args = array() ) {
+	$taxonomy = is_array( $args ) && ! empty( $args['taxonomy'] )
+		? sanitize_key( $args['taxonomy'] )
+		: bbp_get_topic_tag_tax_id();
+
+	// Query only when there is a valid taxonomy
+	$r = taxonomy_exists( $taxonomy )
+		? bbp_get_user_object_query( $args, 'term_subscriptions', '_bbp_subscription', 'term', $taxonomy )
+		: array();
+
+	$query = bbp_has_terms( $r );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_get_user_term_subscriptions', $query, 0, $r, $args );
+}
+
+/**
+ * Get topic taxonomies that have active subscriptions.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return array Taxonomy names.
+ */
+function bbp_get_topic_subscription_taxonomies() {
+	$taxonomies = array();
+
+	foreach ( get_object_taxonomies( bbp_get_topic_post_type(), 'objects' ) as $taxonomy ) {
+		if ( bbp_is_subscription_subtype_active( 'term', $taxonomy->name ) ) {
+			$taxonomies[] = $taxonomy->name;
+		}
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_topic_subscription_taxonomies', $taxonomies );
+}
+
+/**
+ * Get user IDs subscribed to terms assigned to a topic.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int $topic_id Optional. Topic ID.
+ * @return array User IDs.
+ */
+function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
+	$topic_id   = bbp_get_topic_id( $topic_id );
+	$taxonomies = bbp_get_topic_subscription_taxonomies();
+	$term_ids   = ! empty( $topic_id ) && ! empty( $taxonomies )
+		? wp_get_object_terms( $topic_id, $taxonomies, array( 'fields' => 'ids' ) )
+		: array();
+	$term_ids   = ! is_wp_error( $term_ids )
+		? wp_parse_id_list( $term_ids )
+		: array();
+	$user_ids   = array();
+
+	foreach ( $term_ids as $term_id ) {
+		$user_ids = array_merge( $user_ids, bbp_get_subscribers( $term_id, 'term' ) );
+	}
+
+	$user_ids = wp_parse_id_list( $user_ids );
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_subscribers_for_topic_terms', $user_ids, $topic_id, $term_ids, $taxonomies );
+}
+
+/**
  * Check if an object (forum or topic) is in user's subscription list or not.
  *
  * @since 2.0.0 bbPress (r2668)

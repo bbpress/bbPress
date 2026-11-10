@@ -260,24 +260,35 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
  *
  * @since 2.6.0 bbPress (r6739)
  * @since 2.7.0 bbPress (r8318) Prevent unrestricted queries for unsupported types.
+ * @since 2.7.0 bbPress (r8335) Pass optional object subtype context to queries.
  *
- * @param array  $args      Default query arguments.
- * @param string $context   Additional context.
- * @param string $rel_key   The relationship key.
- * @param string $rel_type  The relationship type (usually 'post').
+ * @param array  $args        Default query arguments.
+ * @param string $context     Additional context.
+ * @param string $rel_key     The relationship key.
+ * @param string $rel_type    The relationship type (usually 'post').
+ * @param string $rel_subtype Optional. Registered object subtype.
  *
  * @return array
  */
-function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '', $rel_type = 'post' ) {
-	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->get_query( $args, "get_user_{$context}", $rel_key, $rel_type );
+function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '', $rel_type = 'post', $rel_subtype = '' ) {
+	$type        = bbp_get_engagement_type( $rel_type );
+	$rel_subtype = is_string( $rel_subtype )
+		? sanitize_key( $rel_subtype )
+		: '';
+	$retval      = bbp_user_engagements_interface( $rel_key, $rel_type )->get_query( $args, "get_user_{$context}", $rel_key, $rel_type );
 
 	// Do not let filters turn an unsupported type into an unrestricted query
-	if ( empty( $retval ) && bbp_get_engagement_type( $rel_type ) ) {
+	if ( empty( $retval ) && ! empty( $type ) ) {
 		return array();
 	}
 
+	// Add query arguments for the registered object subtype
+	if ( ! empty( $retval ) && ! empty( $type ) && ! empty( $rel_subtype ) ) {
+		$retval = array_merge( $retval, (array) $type->get_subtype_query_args( $rel_subtype ) );
+	}
+
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $rel_key, $rel_type );
+	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $rel_key, $rel_type, $rel_subtype );
 }
 
 /** Engagements ***************************************************************/

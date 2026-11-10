@@ -10,6 +10,127 @@
 class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 	/**
+	 * Engagement storage strategies.
+	 *
+	 * @return array
+	 */
+	public function data_strategies() {
+		return array(
+			'meta' => array( 'BBP_User_Engagements_Meta' ),
+			'term' => array( 'BBP_User_Engagements_Term' ),
+			'user' => array( 'BBP_User_Engagements_User' )
+		);
+	}
+
+	/**
+	 * @ticket BBP2989
+	 *
+	 * @dataProvider data_strategies
+	 *
+	 * @covers ::bbp_get_user_term_subscriptions
+	 */
+	public function test_bbp_get_user_term_subscriptions( $class_name ) {
+		$strategy       = bbpress()->engagements;
+		$displayed_user = bbpress()->displayed_user;
+		$term_query     = bbpress()->term_query;
+		$taxonomy       = 'bbp_test_user_subs';
+
+		bbpress()->engagements = new $class_name();
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => true,
+				'bbp_subscriptions' => true
+			)
+		);
+
+		try {
+			$user_id  = $this->factory->user->create();
+			$term_ids = $this->factory->term->create_many(
+				3,
+				array( 'taxonomy' => bbp_get_topic_tag_tax_id() )
+			);
+			$custom_id = $this->factory->term->create( array( 'taxonomy' => $taxonomy ) );
+
+			bbpress()->displayed_user = get_userdata( $user_id );
+
+			bbp_add_user_subscription( $user_id, $term_ids[0], 'term' );
+			bbp_add_user_subscription( $user_id, $term_ids[2], 'term' );
+			bbp_add_user_subscription( $user_id, $custom_id, 'term' );
+
+			$this->assertTrue( bbp_get_user_term_subscriptions( $user_id ) );
+			$this->assertEqualSets( array( $term_ids[0], $term_ids[2] ), wp_list_pluck( bbpress()->term_query->terms, 'term_id' ) );
+			$this->assertTrue( bbp_get_user_term_subscriptions( array( 'taxonomy' => $taxonomy ) ) );
+			$this->assertSame( array( $custom_id ), wp_list_pluck( bbpress()->term_query->terms, 'term_id' ) );
+
+			bbp_remove_user_subscription( $user_id, $term_ids[0], 'term' );
+
+			$this->assertTrue( bbp_get_user_term_subscriptions( $user_id ) );
+			$this->assertSame( array( $term_ids[2] ), wp_list_pluck( bbpress()->term_query->terms, 'term_id' ) );
+
+			$this->assertFalse( bbp_get_user_term_subscriptions( $this->factory->user->create() ) );
+			$this->assertSame( array(), bbpress()->term_query->terms );
+		} finally {
+			bbpress()->engagements    = $strategy;
+			bbpress()->displayed_user = $displayed_user;
+			bbpress()->term_query     = $term_query;
+			unregister_taxonomy( $taxonomy );
+		}
+	}
+
+	/**
+	 * @ticket BBP2989
+	 *
+	 * @covers ::bbp_get_topic_subscription_taxonomies
+	 * @covers ::bbp_get_subscribers_for_topic_terms
+	 */
+	public function test_bbp_get_subscribers_for_topic_terms_in_active_taxonomies() {
+		$taxonomy = 'bbp_test_topic_subscriptions';
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => true,
+				'bbp_subscriptions' => true
+			)
+		);
+
+		try {
+			$topic_id     = $this->factory->topic->create();
+			$tag_id       = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+			$custom_id    = $this->factory->term->create( array( 'taxonomy' => $taxonomy ) );
+			$shared_user  = $this->factory->user->create();
+			$custom_user  = $this->factory->user->create();
+
+			wp_set_object_terms( $topic_id, $tag_id, bbp_get_topic_tag_tax_id() );
+			wp_set_object_terms( $topic_id, $custom_id, $taxonomy );
+			bbp_add_user_subscription( $shared_user, $tag_id, 'term' );
+			bbp_add_user_subscription( $shared_user, $custom_id, 'term' );
+			bbp_add_user_subscription( $custom_user, $custom_id, 'term' );
+
+			update_option(
+				'_bbp_enable_subscriptions',
+				array(
+					'term:' . bbp_get_topic_tag_tax_id(),
+					'term:' . $taxonomy
+				)
+			);
+
+			$this->assertEqualSets( array( bbp_get_topic_tag_tax_id(), $taxonomy ), bbp_get_topic_subscription_taxonomies() );
+			$this->assertEqualSets( array( $shared_user, $custom_user ), bbp_get_subscribers_for_topic_terms( $topic_id ) );
+
+			update_option( '_bbp_enable_subscriptions', array( 'term:' . bbp_get_topic_tag_tax_id() ) );
+
+			$this->assertSame( array( bbp_get_topic_tag_tax_id() ), bbp_get_topic_subscription_taxonomies() );
+			$this->assertSame( array( $shared_user ), bbp_get_subscribers_for_topic_terms( $topic_id ) );
+		} finally {
+			unregister_taxonomy( $taxonomy );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_forum_subscribers
 	 */
 	public function test_bbp_get_forum_subscribers() {

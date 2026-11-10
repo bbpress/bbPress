@@ -16,7 +16,8 @@ Development for the next bbPress release is in progress. See the active
 ### Added
 
 - Added per-content-type controls for registered post types and taxonomies that
-  support subscriptions.
+  support subscriptions, including topic-tag links, profile management, and
+  new-topic notifications for subscribed taxonomy terms.
 - Added mention email notifications for new posts and mentions introduced by
   edits, once per person per post, with a new global per-user email preference
   that defaults to off for backward compatibility, and a private profile history

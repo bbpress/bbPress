@@ -54,6 +54,7 @@ add_action( 'bbp_post_notify_subscribers',       'bbp_record_mention_subscriptio
 add_action( 'bbp_post_notify_forum_subscribers', 'bbp_record_mention_subscription_recipients', 10, 3 );
 add_action( 'profile_update',                    'bbp_save_mention_email_preference'                 );
 add_action( 'bbp_user_edit_notifications',       'bbp_mention_email_settings'                        );
+add_action( 'bbp_template_user_subscriptions',   'bbp_user_term_subscriptions'                       );
 
 add_action( 'user_register',            'bbp_user_register',          10    );
 add_action( 'login_form_login',         'bbp_login_form_login',       10    );

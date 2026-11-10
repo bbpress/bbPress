@@ -3895,6 +3895,59 @@ function bbp_get_topic_tag_link( $tag = '' ) {
 }
 
 /**
+ * Output the topic-tag subscription link.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param array $args See {@link bbp_get_topic_tag_subscription_link()}.
+ */
+function bbp_topic_tag_subscription_link( $args = array() ) {
+	echo bbp_get_topic_tag_subscription_link( $args );
+}
+
+/**
+ * Get the topic-tag subscription link.
+ *
+ * A custom wrapper for bbp_get_user_subscribe_link().
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param array $args Optional. Subscription-link arguments.
+ * @return string|false Subscription link, or false when unavailable.
+ */
+function bbp_get_topic_tag_subscription_link( $args = array() ) {
+	if ( bbp_is_subscriptions() ) {
+		$user_id     = bbp_get_user_id( 0, true, true );
+		$redirect_to = bbp_get_subscriptions_permalink( $user_id );
+	} else {
+		$user_id     = bbp_get_current_user_id();
+		$redirect_to = '';
+	}
+
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'user_id'     => $user_id,
+			'object_id'   => bbp_get_topic_tag_id(),
+			'object_type' => 'term',
+			'before'      => '',
+			'after'       => '',
+			'subscribe'   => esc_html__( 'Subscribe to this topic tag',     'bbpress' ),
+			'unsubscribe' => esc_html__( 'Unsubscribe from this topic tag', 'bbpress' ),
+			'redirect_to' => $redirect_to
+		),
+		'get_topic_tag_subscribe_link'
+	);
+
+	$retval = bbp_is_subscription_subtype_active( 'term', bbp_get_topic_tag_tax_id() )
+		? bbp_get_user_subscribe_link( $r )
+		: false;
+
+	// Filter & return
+	return apply_filters( 'bbp_get_topic_tag_subscribe_link', $retval, $r, $args );
+}
+
+/**
  * Output the link of the current tag.
  *
  * @since 2.0.0 bbPress (r3348)

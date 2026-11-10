@@ -23,6 +23,16 @@ get_header(); ?>
 			);
 			?>
 		</h1>
+
+		<?php
+		bbp_topic_tag_subscription_link(
+			array(
+				'before' => '<span class="bbp-topic-tag-subscription">',
+				'after'  => '</span>'
+			)
+		);
+		?>
+
 		<div class="entry-content">
 
 			<?php bbp_get_template_part( 'content', 'archive-topic' ); ?>

@@ -275,7 +275,7 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 
 		add_filter( 'bbp_get_user_object_query', array( $this, 'filter_query_args' ) );
 
-		$query_args = bbp_get_user_object_query( 1, 'tag_subscriptions', '_bbp_subscription', 'term' );
+		$query_args = bbp_get_user_object_query( 1, 'tag_subscriptions', '_bbp_subscription', 'term', $taxonomy );
 		$terms      = ! empty( $query_args )
 			? get_terms(
 				array_merge(
@@ -345,28 +345,79 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 			add_filter( 'bbp_get_engagement_storage_key', array( $this, 'filter_storage_key' ), 10, 2 );
 		}
 
-		$tax_id   = bbp_get_topic_tag_tax_id();
-		$term_ids = $this->factory->term->create_many( 3, array( 'taxonomy' => $tax_id ) );
-		$user_id  = $this->factory->user->create();
-		$other_id = $this->factory->user->create();
+		$taxonomy       = 'bbp_test_query_subs';
+		$displayed_user = bbpress()->displayed_user;
 
-		bbp_add_user_to_object( $term_ids[0], $user_id, '_bbp_subscription', 'term' );
-		bbp_add_user_to_object( $term_ids[2], $user_id, '_bbp_subscription', 'term' );
-
-		$query = array(
-			'taxonomy'   => $tax_id,
-			'hide_empty' => false,
-			'fields'     => 'ids'
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => true,
+				'bbp_subscriptions' => true
+			)
 		);
 
-		$subscribed = get_terms( array_merge( $query, bbp_get_user_object_query( $user_id, 'tag_subscriptions', '_bbp_subscription', 'term' ) ) );
-		$none_query = bbp_get_user_object_query( $other_id, 'tag_subscriptions', '_bbp_subscription', 'term' );
-		$none       = ! empty( $none_query )
-			? get_terms( array_merge( $query, $none_query ) )
-			: array();
+		try {
+			$tax_id     = bbp_get_topic_tag_tax_id();
+			$term_ids   = $this->factory->term->create_many( 3, array( 'taxonomy' => $tax_id ) );
+			$custom_ids = $this->factory->term->create_many( 2, array( 'taxonomy' => $taxonomy ) );
+			$user_id    = $this->factory->user->create();
+			$other_id   = $this->factory->user->create();
 
-		$this->assertEqualSets( array( $term_ids[0], $term_ids[2] ), $subscribed );
-		$this->assertSame( array(), $none );
+			bbpress()->displayed_user = get_userdata( $user_id );
+
+			bbp_add_user_to_object( $term_ids[0], $user_id, '_bbp_subscription', 'term' );
+			bbp_add_user_to_object( $term_ids[2], $user_id, '_bbp_subscription', 'term' );
+			bbp_add_user_to_object( $custom_ids[1], $user_id, '_bbp_subscription', 'term' );
+
+			$query = bbp_get_user_object_query(
+				array( 'taxonomy' => $taxonomy ),
+				'tag_subscriptions',
+				'_bbp_subscription',
+				'term',
+				$tax_id
+			);
+			$subscribed = get_terms(
+				array_merge(
+					$query,
+					array(
+						'hide_empty' => false,
+						'fields'     => 'ids'
+					)
+				)
+			);
+			$custom_query = bbp_get_user_object_query( $user_id, 'term_subscriptions', '_bbp_subscription', 'term', $taxonomy );
+			$custom       = get_terms(
+				array_merge(
+					$custom_query,
+					array(
+						'hide_empty' => false,
+						'fields'     => 'ids'
+					)
+				)
+			);
+			$none_query = bbp_get_user_object_query( $other_id, 'tag_subscriptions', '_bbp_subscription', 'term', $tax_id );
+			$none       = ! empty( $none_query )
+				? get_terms(
+					array_merge(
+						$none_query,
+						array(
+							'hide_empty' => false,
+							'fields'     => 'ids'
+						)
+					)
+				)
+				: array();
+
+			$this->assertSame( $tax_id, $query['taxonomy'] );
+			$this->assertSame( $taxonomy, $custom_query['taxonomy'] );
+			$this->assertEqualSets( array( $term_ids[0], $term_ids[2] ), $subscribed );
+			$this->assertSame( array( $custom_ids[1] ), $custom );
+			$this->assertSame( array(), $none );
+		} finally {
+			bbpress()->displayed_user = $displayed_user;
+			unregister_taxonomy( $taxonomy );
+		}
 	}
 
 	/**

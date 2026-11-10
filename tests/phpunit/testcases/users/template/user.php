@@ -496,6 +496,109 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
  	}
 
 	/**
+	 * @ticket BBP2989
+	 *
+	 * @covers BBP_Term_Query
+	 * @covers BBP_Taxonomy_Query
+	 * @covers ::bbp_has_terms
+	 * @covers ::bbp_terms
+	 * @covers ::bbp_the_term
+	 * @covers ::bbp_user_term_subscriptions
+	 * @covers ::bbp_has_term_subscription_taxonomies
+	 * @covers ::bbp_term_subscription_taxonomies
+	 * @covers ::bbp_the_term_subscription_taxonomy
+	 * @covers ::bbp_get_term_subscription_taxonomy
+	 * @covers ::bbp_term_subscription_taxonomy_id
+	 * @covers ::bbp_get_term_subscription_taxonomy_id
+	 * @covers ::bbp_get_term_subscription_taxonomy_label
+	 * @covers ::bbp_get_user_term_subscriptions
+	 * @covers ::bbp_get_term_subscription
+	 * @covers ::bbp_term_subscription_name
+	 * @covers ::bbp_get_term_subscription_name
+	 * @covers ::bbp_term_subscription_permalink
+	 * @covers ::bbp_get_term_subscription_permalink
+	 * @covers ::bbp_term_subscription_toggle_link
+	 * @covers ::bbp_get_term_subscription_toggle_link
+	 */
+	public function test_bbp_user_term_subscriptions() {
+		$taxonomy      = 'bbp_test_profile_subs';
+		$user_id       = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term_id       = $this->factory->term->create(
+			array(
+				'taxonomy' => bbp_get_topic_tag_tax_id(),
+				'name'     => 'Alpha Tag'
+			)
+		);
+		$displayed_user = bbpress()->displayed_user;
+		$term_query     = bbpress()->term_query;
+		$taxonomy_query = bbpress()->taxonomy_query;
+		$buffer_level   = ob_get_level();
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => true,
+				'labels'            => array( 'name' => 'Genres' ),
+				'bbp_subscriptions' => true
+			)
+		);
+
+		$this->set_current_user( $user_id );
+		bbpress()->displayed_user = get_userdata( $user_id );
+		bbp_add_user_subscription( $user_id, $term_id, 'term' );
+		update_option(
+			'_bbp_enable_subscriptions',
+			array(
+				'term:' . bbp_get_topic_tag_tax_id(),
+				'term:' . $taxonomy
+			)
+		);
+		add_action( 'bbp_locate_template', array( $this, 'load_located_template' ), 10, 6 );
+		add_filter( 'bbp_is_subscriptions', '__return_true' );
+
+		try {
+			ob_start();
+			bbp_user_term_subscriptions();
+			$output = ob_get_clean();
+
+			$this->assertStringContainsString( 'Subscribed Topic Tags', $output );
+			$this->assertStringContainsString( 'Subscribed Genres', $output );
+			$this->assertStringContainsString( 'Alpha Tag', $output );
+			$this->assertStringContainsString( 'No subscriptions found.', $output );
+			$this->assertStringContainsString( 'bbp-term-subscriptions-' . bbp_get_topic_tag_tax_id(), $output );
+			$this->assertStringContainsString( '&times;', $output );
+			$this->assertStringContainsString( 'data-bbp-object-type="term"', $output );
+		} finally {
+			remove_action( 'bbp_locate_template', array( $this, 'load_located_template' ), 10 );
+			remove_filter( 'bbp_is_subscriptions', '__return_true' );
+			bbpress()->displayed_user = $displayed_user;
+			bbpress()->term_query     = $term_query;
+			bbpress()->taxonomy_query = $taxonomy_query;
+			unregister_taxonomy( $taxonomy );
+			while ( ob_get_level() > $buffer_level ) {
+				ob_end_clean();
+			}
+		}
+	}
+
+	/**
+	 * Load located templates when the PHPUnit bootstrap disables themes.
+	 *
+	 * @param string $located      Located template path.
+	 * @param string $template_name Last template name checked.
+	 * @param array  $templates     Template names.
+	 * @param array  $locations     Template locations.
+	 * @param bool   $load          Whether to load the template.
+	 * @param bool   $require_once  Whether to require the template once.
+	 */
+	public function load_located_template( $located, $template_name, $templates, $locations, $load, $require_once ) {
+		if ( $load && $located && ( ! defined( 'WP_USE_THEMES' ) || ! WP_USE_THEMES ) ) {
+			load_template( $located, $require_once );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_user_subscribe_link
 	 * @covers ::bbp_get_user_subscribe_link
 	 */

@@ -119,6 +119,24 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	}
 
 	/**
+	 * Get query arguments that limit results to a post type.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $object_subtype Post type name.
+	 * @return array Query arguments.
+	 */
+	public function get_subtype_query_args( $object_subtype = '' ) {
+		$object_subtype = is_string( $object_subtype )
+			? sanitize_key( $object_subtype )
+			: '';
+
+		return ! empty( $object_subtype )
+			? array( 'post_type' => $object_subtype )
+			: array();
+	}
+
+	/**
 	 * Get the URL of a post.
 	 *
 	 * @since 2.7.0 bbPress (r8306)

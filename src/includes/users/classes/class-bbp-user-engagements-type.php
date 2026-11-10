@@ -115,6 +115,20 @@ class BBP_User_Engagements_Type {
 	}
 
 	/**
+	 * Get query arguments that limit results to an object subtype.
+	 *
+	 * Default has no query arguments and returns nothing.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $object_subtype Registered object subtype.
+	 * @return array Query arguments.
+	 */
+	public function get_subtype_query_args( $object_subtype = '' ) {
+		// Intentionally empty
+	}
+
+	/**
 	 * Get the URL of an object.
 	 *
 	 * Default has no URL and returns nothing.

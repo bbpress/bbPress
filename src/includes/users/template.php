@@ -10,7 +10,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-/** User Loop *****************************************************************/
+/** Query Classes *************************************************************/
 
 /**
  * Extension of WP_User_Query to allow easy looping.
@@ -162,6 +162,267 @@ class BBP_User_Query extends WP_User_Query {
 }
 
 /**
+ * Extension of WP_Term_Query to allow easy looping.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ */
+class BBP_Term_Query extends WP_Term_Query {
+
+	/**
+	 * The amount of terms for the current query.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var int
+	 */
+	public $term_count = 0;
+
+	/**
+	 * Index of the current item in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var int
+	 */
+	public $current_term = -1;
+
+	/**
+	 * Whether the loop has started.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var bool
+	 */
+	public $in_the_loop = false;
+
+	/**
+	 * The current term.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var WP_Term|null
+	 */
+	public $term = null;
+
+	/**
+	 * Setup the term query.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string|array $query Optional. Term query variables.
+	 */
+	public function __construct( $query = null ) {
+		$this->terms = array();
+
+		if ( ! empty( $query ) ) {
+			parent::__construct( $query );
+			$this->terms      = ! is_wp_error( $this->terms ) ? (array) $this->terms : array();
+			$this->term_count = count( $this->terms );
+		}
+	}
+
+	/**
+	 * Set up the next term and iterate the current term index.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return WP_Term Next term.
+	 */
+	public function next_term() {
+		++$this->current_term;
+		$this->term = $this->terms[ $this->current_term ];
+
+		return $this->term;
+	}
+
+	/**
+	 * Set up the current term in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 */
+	public function the_term() {
+		$this->in_the_loop = true;
+
+		if ( -1 === $this->current_term ) {
+			do_action_ref_array( 'loop_start', array( &$this ) );
+		}
+
+		$this->next_term();
+	}
+
+	/**
+	 * Determine whether there are more terms in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return bool Whether more terms are available.
+	 */
+	public function have_terms() {
+		if ( ( $this->current_term + 1 ) < $this->term_count ) {
+			return true;
+		} elseif ( ( ( $this->current_term + 1 ) === $this->term_count ) && ( $this->term_count > 0 ) ) {
+			do_action_ref_array( 'loop_end', array( &$this ) );
+			$this->rewind_terms();
+		}
+
+		$this->in_the_loop = false;
+
+		return false;
+	}
+
+	/**
+	 * Rewind the terms and reset the term index.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 */
+	public function rewind_terms() {
+		$this->current_term = -1;
+
+		if ( $this->term_count > 0 ) {
+			$this->term = $this->terms[0];
+		}
+	}
+}
+
+/**
+ * Query-like loop over registered taxonomies.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ */
+class BBP_Taxonomy_Query {
+
+	/**
+	 * Taxonomies in the current query.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var array
+	 */
+	public $taxonomies = array();
+
+	/**
+	 * The amount of taxonomies for the current query.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var int
+	 */
+	public $taxonomy_count = 0;
+
+	/**
+	 * Index of the current item in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var int
+	 */
+	public $current_taxonomy = -1;
+
+	/**
+	 * Whether the loop has started.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var bool
+	 */
+	public $in_the_loop = false;
+
+	/**
+	 * The current taxonomy.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @var WP_Taxonomy|null
+	 */
+	public $taxonomy = null;
+
+	/**
+	 * Setup the taxonomy query.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param array $taxonomies Optional. Taxonomy names.
+	 */
+	public function __construct( $taxonomies = array() ) {
+		foreach ( $taxonomies as $taxonomy ) {
+			$taxonomy = get_taxonomy( $taxonomy );
+
+			if ( $taxonomy instanceof WP_Taxonomy ) {
+				$this->taxonomies[] = $taxonomy;
+			}
+		}
+
+		$this->taxonomy_count = count( $this->taxonomies );
+	}
+
+	/**
+	 * Set up the next taxonomy and iterate the current taxonomy index.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return WP_Taxonomy Next taxonomy.
+	 */
+	public function next_taxonomy() {
+		++$this->current_taxonomy;
+		$this->taxonomy = $this->taxonomies[ $this->current_taxonomy ];
+
+		return $this->taxonomy;
+	}
+
+	/**
+	 * Set up the current taxonomy in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return WP_Taxonomy Current taxonomy.
+	 */
+	public function the_taxonomy() {
+		$this->in_the_loop = true;
+
+		if ( -1 === $this->current_taxonomy ) {
+			do_action_ref_array( 'loop_start', array( &$this ) );
+		}
+
+		return $this->next_taxonomy();
+	}
+
+	/**
+	 * Determine whether there are more taxonomies in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return bool Whether more taxonomies are available.
+	 */
+	public function have_taxonomies() {
+		if ( ( $this->current_taxonomy + 1 ) < $this->taxonomy_count ) {
+			return true;
+		} elseif ( ( ( $this->current_taxonomy + 1 ) === $this->taxonomy_count ) && ( $this->taxonomy_count > 0 ) ) {
+			do_action_ref_array( 'loop_end', array( &$this ) );
+			$this->rewind_taxonomies();
+		}
+
+		$this->in_the_loop = false;
+
+		return false;
+	}
+
+	/**
+	 * Rewind the taxonomies and reset the taxonomy index.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 */
+	public function rewind_taxonomies() {
+		$this->current_taxonomy = -1;
+
+		if ( $this->taxonomy_count > 0 ) {
+			$this->taxonomy = $this->taxonomies[0];
+		}
+	}
+}
+
+/** User Loop *****************************************************************/
+
+/**
  * The main user loop.
  *
  * @since 2.6.0 bbPress (r6332)
@@ -212,6 +473,57 @@ function bbp_users() {
  */
 function bbp_the_user() {
 	return bbpress()->user_query->the_user();
+}
+
+/** Term Loop *****************************************************************/
+
+/**
+ * Start a taxonomy-term loop.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param array $args Arguments supported by {@link WP_Term_Query}.
+ * @return bool Whether the query has terms.
+ */
+function bbp_has_terms( $args = array() ) {
+	$r = ! empty( $args )
+		? bbp_parse_args(
+			$args,
+			array(
+				'hide_empty' => false,
+				'fields'     => 'all'
+			),
+			'has_terms'
+		)
+		: array();
+
+	$bbp             = bbpress();
+	$bbp->term_query = new BBP_Term_Query( $r );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_has_terms', $bbp->term_query->have_terms(), $bbp->term_query );
+}
+
+/**
+ * Whether there are more terms available in the loop.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return bool Whether more terms are available.
+ */
+function bbp_terms() {
+	return bbpress()->term_query->have_terms();
+}
+
+/**
+ * Set up the current term in the loop.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return WP_Term Current term.
+ */
+function bbp_the_term() {
+	return bbpress()->term_query->the_term();
 }
 
 /** Users *********************************************************************/
@@ -1310,6 +1622,235 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 }
 
 /**
+ * Output a user's subscribed taxonomy terms.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ */
+function bbp_user_term_subscriptions() {
+	bbp_get_template_part( 'user', 'term-subscriptions' );
+}
+
+/**
+ * Start the term subscription taxonomy loop.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return bool Whether there are taxonomies in the loop.
+ */
+function bbp_has_term_subscription_taxonomies() {
+	$bbp                 = bbpress();
+	$bbp->taxonomy_query = new BBP_Taxonomy_Query( bbp_get_topic_subscription_taxonomies() );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_has_term_subscription_taxonomies', $bbp->taxonomy_query->have_taxonomies(), $bbp->taxonomy_query );
+}
+
+/**
+ * Whether there are more term subscription taxonomies in the loop.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return bool Whether more taxonomies are available.
+ */
+function bbp_term_subscription_taxonomies() {
+	return bbpress()->taxonomy_query->have_taxonomies();
+}
+
+/**
+ * Set up the current term subscription taxonomy.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return WP_Taxonomy|false Current taxonomy object, or false when unavailable.
+ */
+function bbp_the_term_subscription_taxonomy() {
+	return bbpress()->taxonomy_query->the_taxonomy();
+}
+
+/**
+ * Get the current term subscription taxonomy.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return WP_Taxonomy|false Current taxonomy object, or false when unavailable.
+ */
+function bbp_get_term_subscription_taxonomy() {
+	$query    = bbpress()->taxonomy_query;
+	$taxonomy = $query->taxonomy;
+	$retval   = ! empty( $query->in_the_loop ) && ( $taxonomy instanceof WP_Taxonomy )
+		? $taxonomy
+		: false;
+
+	// Filter & return
+	return apply_filters( 'bbp_get_term_subscription_taxonomy', $retval, $taxonomy );
+}
+
+/**
+ * Output the current term subscription taxonomy ID.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ */
+function bbp_term_subscription_taxonomy_id() {
+	echo esc_attr( bbp_get_term_subscription_taxonomy_id() );
+}
+
+/**
+ * Get the current term subscription taxonomy ID.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return string Taxonomy ID.
+ */
+function bbp_get_term_subscription_taxonomy_id() {
+	$taxonomy = bbp_get_term_subscription_taxonomy();
+	$retval   = ( $taxonomy instanceof WP_Taxonomy )
+		? $taxonomy->name
+		: '';
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_get_term_subscription_taxonomy_id', $retval, $taxonomy );
+}
+
+/**
+ * Get the current term subscription taxonomy label.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @return string Taxonomy plural label.
+ */
+function bbp_get_term_subscription_taxonomy_label() {
+	$taxonomy = bbp_get_term_subscription_taxonomy();
+	$retval   = ( $taxonomy instanceof WP_Taxonomy )
+		? $taxonomy->labels->name
+		: '';
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_get_term_subscription_taxonomy_label', $retval, $taxonomy );
+}
+
+/**
+ * Get the current term subscription from the term loop.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int|WP_Term $term Optional. Term ID or object.
+ * @return WP_Term|false Term object, or false when unavailable.
+ */
+function bbp_get_term_subscription( $term = 0 ) {
+	if ( $term instanceof WP_Term ) {
+		$retval = $term;
+	} elseif ( ! empty( $term ) ) {
+		$retval = get_term( $term );
+	} elseif ( ! empty( bbpress()->term_query->in_the_loop ) && ( bbpress()->term_query->term instanceof WP_Term ) ) {
+		$retval = bbpress()->term_query->term;
+	} else {
+		$retval = false;
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_term_subscription', $retval, $term );
+}
+
+/**
+ * Output the current term subscription name.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int|WP_Term $term Optional. Term ID or object.
+ */
+function bbp_term_subscription_name( $term = 0 ) {
+	echo esc_html( bbp_get_term_subscription_name( $term ) );
+}
+
+/**
+ * Get the current term subscription name.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int|WP_Term $term Optional. Term ID or object.
+ * @return string Term name.
+ */
+function bbp_get_term_subscription_name( $term = 0 ) {
+	$term = bbp_get_term_subscription( $term );
+	$name = ( $term instanceof WP_Term )
+		? $term->name
+		: '';
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_get_term_subscription_name', $name, $term );
+}
+
+/**
+ * Output the current term subscription permalink.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int|WP_Term $term Optional. Term ID or object.
+ */
+function bbp_term_subscription_permalink( $term = 0 ) {
+	echo esc_url( bbp_get_term_subscription_permalink( $term ) );
+}
+
+/**
+ * Get the current term subscription permalink.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int|WP_Term $term Optional. Term ID or object.
+ * @return string Term permalink.
+ */
+function bbp_get_term_subscription_permalink( $term = 0 ) {
+	$term = bbp_get_term_subscription( $term );
+	$type = bbp_get_engagement_type( 'term' );
+	$url  = ( $term instanceof WP_Term ) && ! empty( $type )
+		? $type->get_url( $term->term_id )
+		: '';
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_get_term_subscription_permalink', $url, $term );
+}
+
+/**
+ * Output the current term subscription toggle link.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param array $args Optional. Subscription-link arguments.
+ */
+function bbp_term_subscription_toggle_link( $args = array() ) {
+	echo bbp_get_term_subscription_toggle_link( $args );
+}
+
+/**
+ * Get the current term subscription toggle link.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param array $args Optional. Subscription-link arguments.
+ * @return string|false Subscription link, or false when unavailable.
+ */
+function bbp_get_term_subscription_toggle_link( $args = array() ) {
+	$term    = bbp_get_term_subscription();
+	$user_id = bbp_get_user_id( 0, true, true );
+
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'user_id'     => $user_id,
+			'object_id'   => ( $term instanceof WP_Term ) ? $term->term_id : 0,
+			'object_type' => 'term',
+			'before'      => ' (',
+			'after'       => ')',
+			'redirect_to' => bbp_get_subscriptions_permalink( $user_id )
+		),
+		'get_term_subscription_toggle_link'
+	);
+
+	// Filter & return
+	return apply_filters( 'bbp_get_term_subscription_toggle_link', bbp_get_user_subscribe_link( $r, $user_id, false ), $r, $args );
+}
+
+/**
  * Output the link to subscribe/unsubscribe from a topic.
  *
  * @since 2.0.0 bbPress (r2668)
@@ -1329,6 +1870,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  * @since 2.7.0 bbPress (r8323) Scope the nonce to the object type for non-posts.
+ * @since 2.7.0 bbPress (r8335) Scope element IDs to the object type for non-posts.
  *
  * @param array $args This function supports these arguments:
  *  - subscribe: Subscribe text
@@ -1419,9 +1961,12 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 	$nonce_action = ( 'post' === $object_type )
 		? 'toggle-subscription_' . $object_id
 		: 'toggle-subscription_' . $object_type . '_' . $object_id;
-	$url  = esc_url( wp_nonce_url( add_query_arg( $q_args ), $nonce_action ) );
-	$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
-	$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, $object_type, wp_create_nonce( $nonce_action ), $text, $r['after'] );
+	$element_id   = ( 'post' === $object_type )
+		? 'subscribe-' . $object_id
+		: 'subscribe-' . $object_type . '-' . $object_id;
+	$url          = esc_url( wp_nonce_url( add_query_arg( $q_args ), $nonce_action ) );
+	$sub          = $is_subscribed ? ' class="is-subscribed"' : '';
+	$html         = sprintf( '%s<span id="%s"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $element_id, $sub, $url, $object_id, $object_type, wp_create_nonce( $nonce_action ), $text, $r['after'] );
 
 	// Initial output is wrapped in a span, ajax output is hooked to this
 	if ( ! empty( $wrap ) && ( bbp_get_current_user_id() === $user_id ) ) {

@@ -41,6 +41,11 @@ class BBP_Tests_Users_Functions_Engagement_Types extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_get_engagement_type( 'Post' ) );
 		$this->assertFalse( bbp_get_engagement_type( array( 'post' ) ) );
 		$this->assertFalse( bbp_get_engagement_type() );
+		$this->assertSame( array( 'post__in' => array( 1, 2 ) ), $type->get_query_args( array( 1, 2 ) ) );
+		$this->assertSame(
+			array( 'post_type' => bbp_get_topic_post_type() ),
+			$type->get_subtype_query_args( bbp_get_topic_post_type() )
+		);
 	}
 
 	/**
@@ -55,6 +60,10 @@ class BBP_Tests_Users_Functions_Engagement_Types extends BBP_UnitTestCase {
 		$this->assertSame( 'term', $type->name );
 		$this->assertFalse( $type->supports_tax_query() );
 		$this->assertSame( array( 'include' => array( 1, 2 ) ), $type->get_query_args( array( 1, 2 ) ) );
+		$this->assertSame(
+			array( 'taxonomy' => bbp_get_topic_tag_tax_id() ),
+			$type->get_subtype_query_args( bbp_get_topic_tag_tax_id() )
+		);
 	}
 
 	/**

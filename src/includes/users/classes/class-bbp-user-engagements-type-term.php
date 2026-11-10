@@ -90,6 +90,26 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	}
 
 	/**
+	 * Get query arguments that limit results to a taxonomy.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $object_subtype Taxonomy name.
+	 * @return array Query arguments.
+	 */
+	public function get_subtype_query_args( $object_subtype = '' ) {
+		$object_subtype = is_string( $object_subtype )
+			? sanitize_key( $object_subtype )
+			: '';
+
+		return ! empty( $object_subtype )
+			? array(
+				'taxonomy' => $object_subtype
+			)
+			: array();
+	}
+
+	/**
 	 * Get the URL of a term.
 	 *
 	 * Topic tags use their own link, so its filter still applies.
