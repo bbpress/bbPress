@@ -233,6 +233,160 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 
 /**
  * @group common
+ * @group formatting
+ */
+class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
+
+	/**
+	 * Edit-content filters that remove KSES for users with unfiltered HTML.
+	 *
+	 * @return array
+	 */
+	public function data_edit_content_filters() {
+		return array(
+			'forum' => array( 'bbp_edit_forum_pre_content' ),
+			'topic' => array( 'bbp_edit_topic_pre_content' ),
+			'reply' => array( 'bbp_edit_reply_pre_content' )
+		);
+	}
+
+	/**
+	 * Code containing literal backticks that should survive an edit round trip.
+	 *
+	 * @return array
+	 */
+	public function data_code_with_literal_backticks() {
+		$svg = '&lt;svg onload="marker"&gt;&lt;/svg&gt;';
+
+		return array(
+			'inline' => array(
+				'<code>a`b' . $svg . '</code>',
+				'<code>a`b' . $svg . '</code>'
+			),
+			'leading backtick' => array(
+				'<code>`a' . $svg . '</code>',
+				'<code>`a' . $svg . '</code>'
+			),
+			'trailing backtick' => array(
+				'<code>a' . $svg . '`</code>',
+				'<code>a' . $svg . '`</code>'
+			),
+			'block' => array(
+				"<pre><code>\na`b{$svg}\n</code></pre>",
+				"<pre><code>\na`b{$svg}\n</code></pre>"
+			),
+			'multiple blocks' => array(
+				'<code>safe&lt;em&gt;</code> <code>a`b' . $svg . '</code>',
+				'`safe<em>` <code>a`b' . $svg . '</code>'
+			),
+			'paragraph and line break markup' => array(
+				'<code>a`b<br /><p>c</p>' . $svg . '</code>',
+				'<code>a`b<br /><p>c</p>' . $svg . '</code>'
+			)
+		);
+	}
+
+	/**
+	 * Apply an edit-content filter as an unfiltered HTML user.
+	 *
+	 * @param string $filter Edit-content filter.
+	 * @param string $form   Form content.
+	 * @return string
+	 */
+	private function filter_unfiltered_edit_content( $filter, $form ) {
+		remove_filter( $filter, 'bbp_encode_bad', 10 );
+		remove_filter( $filter, 'bbp_filter_kses', 30 );
+
+		try {
+			return apply_filters( $filter, $form );
+		} finally {
+			add_filter( $filter, 'bbp_encode_bad', 10 );
+			add_filter( $filter, 'bbp_filter_kses', 30 );
+		}
+	}
+
+	/**
+	 * @dataProvider data_code_with_literal_backticks
+	 *
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @covers ::bbp_decode_callback
+	 */
+	public function test_privileged_edits_preserve_code_containing_backticks( $stored, $expected_form ) {
+		$form    = bbp_code_trick_reverse( $stored );
+		$filters = $this->data_edit_content_filters();
+
+		$this->assertSame( $expected_form, $form );
+
+		foreach ( $filters as $filter ) {
+			$filter = $filter[0];
+
+			$this->assertSame( 10, has_filter( $filter, 'bbp_encode_bad' ) );
+			$this->assertSame( 20, has_filter( $filter, 'bbp_code_trick' ) );
+			$this->assertSame( 30, has_filter( $filter, 'bbp_filter_kses' ) );
+
+			$resaved = $this->filter_unfiltered_edit_content( $filter, $form );
+
+			$this->assertSame( $stored, $resaved );
+			$this->assertStringNotContainsString( '<svg', $resaved );
+			$this->assertStringContainsString( '&lt;svg', $resaved );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @covers ::bbp_decode_callback
+	 */
+	public function test_multiple_backticks_remain_inert_after_privileged_edit() {
+		$stored = '<code>a`b&lt;svg onload="marker"&gt;&lt;/svg&gt;`c</code>';
+		$form   = bbp_code_trick_reverse( $stored );
+
+		$this->assertSame( $stored, $form );
+
+		foreach ( $this->data_edit_content_filters() as $filter ) {
+			$resaved = $this->filter_unfiltered_edit_content( $filter[0], $form );
+
+			$this->assertStringNotContainsString( '<svg', $resaved );
+			$this->assertStringContainsString( '&lt;svg', $resaved );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @covers ::bbp_decode_callback
+	 */
+	public function test_entity_encoded_backtick_remains_inert_after_privileged_edit() {
+		$stored = '<code>a&#96;b&lt;svg onload="marker"&gt;&lt;/svg&gt;</code>';
+		$form   = bbp_code_trick_reverse( $stored );
+
+		$this->assertSame( 2, substr_count( $form, '`' ) );
+
+		foreach ( $this->data_edit_content_filters() as $filter ) {
+			$resaved = $this->filter_unfiltered_edit_content( $filter[0], $form );
+
+			$this->assertStringNotContainsString( '<svg', $resaved );
+			$this->assertStringContainsString( '&lt;svg', $resaved );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @covers ::bbp_decode_callback
+	 */
+	public function test_code_without_backticks_still_uses_shorthand() {
+		$stored = '<code>safe&lt;em&gt;</code>';
+		$form   = bbp_code_trick_reverse( $stored );
+
+		$this->assertSame( '`safe<em>`', $form );
+		$this->assertSame( $stored, bbp_code_trick( $form ) );
+	}
+}
+
+/**
+ * @group common
  * @group functions
  * @group bbp_rel_nofollow
  */
