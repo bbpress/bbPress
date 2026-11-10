@@ -57,6 +57,7 @@ Development for the next bbPress release is in progress. See the active
 - Added registered engagement types, so favorites and subscriptions ask the
   type of object being engaged with whether it supports an engagement and
   whether it can be read, instead of assuming every object is a forum or topic.
+  Taxonomies can opt into term subscriptions, with topic tags enabled by default.
 - Added contributor, security, support, governance, and repository guidance.
 
 ### Changed

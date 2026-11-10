@@ -39,9 +39,180 @@ class BBP_Tests_Users_Functions_Engagement_Types extends BBP_UnitTestCase {
 		$this->assertInstanceOf( 'BBP_User_Engagements_Type_Post', $type );
 		$this->assertSame( 'post', $type->name );
 		$this->assertFalse( bbp_get_engagement_type( 'Post' ) );
-		$this->assertFalse( bbp_get_engagement_type( 'term' ) );
 		$this->assertFalse( bbp_get_engagement_type( array( 'post' ) ) );
 		$this->assertFalse( bbp_get_engagement_type() );
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers ::bbp_get_engagement_type
+	 */
+	public function test_term_type_is_registered_by_default() {
+		$type = bbp_get_engagement_type( 'term' );
+
+		$this->assertInstanceOf( 'BBP_User_Engagements_Type_Term', $type );
+		$this->assertSame( 'term', $type->name );
+		$this->assertFalse( $type->supports_tax_query() );
+		$this->assertSame( array( 'include' => array( 1, 2 ) ), $type->get_query_args( array( 1, 2 ) ) );
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::supports
+	 */
+	public function test_term_type_supports_opted_in_taxonomies() {
+		$type     = bbp_get_engagement_type( 'term' );
+		$taxonomy = 'bbp_test_subscriptions';
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => true,
+				'bbp_subscriptions' => true
+			)
+		);
+
+		try {
+			$tag_id  = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+			$term_id = $this->factory->term->create( array( 'taxonomy' => $taxonomy ) );
+			$cat_id  = $this->factory->term->create( array( 'taxonomy' => 'category' ) );
+
+			$this->assertTrue( get_taxonomy( bbp_get_topic_tag_tax_id() )->bbp_subscriptions );
+			$this->assertTrue( $type->supports( 'subscription', $tag_id ) );
+			$this->assertTrue( $type->supports( 'subscription', $term_id ) );
+			$this->assertFalse( $type->supports( 'favorite', $term_id ) );
+			$this->assertFalse( $type->supports( 'subscription', $cat_id ) );
+			$this->assertFalse( $type->supports( 'subscription', $term_id + 1000 ) );
+			$this->assertFalse( $type->supports( 'subscription', 0 ) );
+		} finally {
+			unregister_taxonomy( $taxonomy );
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::supports
+	 */
+	public function test_topic_tags_cannot_be_subscribed_to_while_disabled() {
+		$type   = bbp_get_engagement_type( 'term' );
+		$tag_id = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		// Topic tags opt in when the taxonomy is registered
+		add_filter( 'bbp_allow_topic_tags', '__return_false' );
+		bbPress::register_taxonomies();
+
+		try {
+			$this->assertFalse( get_taxonomy( bbp_get_topic_tag_tax_id() )->bbp_subscriptions );
+			$this->assertFalse( $type->supports( 'subscription', $tag_id ) );
+		} finally {
+			remove_filter( 'bbp_allow_topic_tags', '__return_false' );
+			bbPress::register_taxonomies();
+		}
+
+		$this->assertTrue( $type->supports( 'subscription', $tag_id ) );
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::current_user_can_read
+	 */
+	public function test_term_type_read_access() {
+		$type   = bbp_get_engagement_type( 'term' );
+		$tag_id = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		$this->set_current_user( $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) ) );
+		$this->assertTrue( $type->current_user_can_read( $tag_id ) );
+		$this->assertFalse( $type->current_user_can_read( $tag_id + 1000 ) );
+
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_blocked_role() );
+		$this->set_current_user( $user_id );
+		$this->assertFalse( $type->current_user_can_read( $tag_id ) );
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::current_user_can_read
+	 */
+	public function test_term_type_cannot_read_terms_in_taxonomies_that_are_not_viewable() {
+		$type     = bbp_get_engagement_type( 'term' );
+		$taxonomy = 'bbp_test_private_subscriptions';
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => false,
+				'bbp_subscriptions' => true
+			)
+		);
+
+		try {
+			$term_id = $this->factory->term->create( array( 'taxonomy' => $taxonomy ) );
+
+			$this->set_current_user( $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) ) );
+			$this->assertTrue( $type->supports( 'subscription', $term_id ) );
+			$this->assertFalse( $type->current_user_can_read( $term_id ) );
+		} finally {
+			unregister_taxonomy( $taxonomy );
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::get_url
+	 */
+	public function test_term_type_url_is_the_term_archive() {
+		$type     = bbp_get_engagement_type( 'term' );
+		$taxonomy = 'bbp_test_subscriptions';
+
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'public'            => true,
+				'bbp_subscriptions' => true
+			)
+		);
+
+		try {
+			$term_id = $this->factory->term->create( array( 'taxonomy' => $taxonomy ) );
+
+			$this->assertSame( get_term_link( $term_id, $taxonomy ), $type->get_url( $term_id ) );
+			$this->assertFalse( $type->get_url( $term_id + 1000 ) );
+		} finally {
+			unregister_taxonomy( $taxonomy );
+		}
+	}
+
+	/**
+	 * @ticket BBP3785
+	 *
+	 * @covers BBP_User_Engagements_Type_Term::get_url
+	 */
+	public function test_topic_tag_url_uses_the_topic_tag_link_filter() {
+		$type   = bbp_get_engagement_type( 'term' );
+		$tag_id = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+		$filter = function() {
+			return 'https://example.org/tags/filtered/';
+		};
+
+		$this->assertSame( bbp_get_topic_tag_link( get_term( $tag_id )->slug ), $type->get_url( $tag_id ) );
+
+		add_filter( 'bbp_get_topic_tag_link', $filter );
+
+		try {
+			$this->assertSame( 'https://example.org/tags/filtered/', $type->get_url( $tag_id ) );
+		} finally {
+			remove_filter( 'bbp_get_topic_tag_link', $filter );
+		}
 	}
 
 	/**

@@ -296,9 +296,11 @@ class BBP_Default extends BBP_Theme_Compat {
 	}
 
 	/**
-	 * AJAX handler to Subscribe/Unsubscribe a user from a topic
+	 * AJAX handler to Subscribe/Unsubscribe a user from an object.
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @since 2.7.0 bbPress (r8323) Validate objects through their engagement type,
+	 *                              and require a type-scoped nonce for non-posts.
 	 */
 	public function ajax_subscription() {
 
@@ -320,28 +322,25 @@ class BBP_Default extends BBP_Theme_Compat {
 			$type = is_string( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : '';
 		}
 
-		// Get the object
-		$object = get_post( $id );
-
-		// Validate the object before checking its subscription state
-		if ( empty( $object ) || ! bbp_current_user_can_toggle_engagement( $object->ID, $type, 'subscription', 'remove', $user_id ) ) {
+		// Validate the object through its engagement type before checking its subscription state
+		if ( empty( $id ) || ! bbp_current_user_can_toggle_engagement( $id, $type, 'subscription', 'remove', $user_id ) ) {
 			bbp_ajax_response( false, esc_html__( 'Subscription failed.', 'bbpress' ), 303 );
 		}
-		$is_subscribed = bbp_is_user_subscribed( $user_id, $object->ID, $type );
+		$is_subscribed = bbp_is_user_subscribed( $user_id, $id, $type );
 		$toggle_action = $is_subscribed ? 'remove' : 'add';
-		if ( ! bbp_current_user_can_toggle_engagement( $object->ID, $type, 'subscription', $toggle_action, $user_id ) ) {
+		if ( ! bbp_current_user_can_toggle_engagement( $id, $type, 'subscription', $toggle_action, $user_id ) ) {
 			bbp_ajax_response( false, esc_html__( 'Subscription failed.', 'bbpress' ), 303 );
 		}
 
 		// Bail if user did not take this action
-		if ( ! isset( $_POST['nonce'] ) || ( ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_post_' . $object->ID ) && ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $object->ID ) ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ( ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $type . '_' . $id ) && ( ( 'post' !== $type ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $id ) ) ) ) {
 			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 
 		// Take action
 		$status = $is_subscribed
-			? bbp_remove_user_subscription( $user_id, $object->ID )
-			: bbp_add_user_subscription( $user_id, $object->ID );
+			? bbp_remove_user_subscription( $user_id, $id, $type )
+			: bbp_add_user_subscription( $user_id, $id, $type );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
@@ -350,13 +349,13 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Put subscription attributes in convenient array
 		$attrs = array(
-			'object_id'   => $object->ID,
+			'object_id'   => $id,
 			'object_type' => $type,
 			'user_id'     => $user_id
 		);
 
 		// Add separator to topic if favorites is active
-		if ( ( 'post' === $type ) && ( bbp_get_topic_post_type() === get_post_type( $object ) ) && bbp_is_favorites_active() ) {
+		if ( ( 'post' === $type ) && ( bbp_get_topic_post_type() === get_post_type( $id ) ) && bbp_is_favorites_active() ) {
 			$attrs['before'] = '&nbsp;|&nbsp;';
 		}
 

@@ -410,6 +410,7 @@ final class bbPress {
 		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-strategy-user.php';
 		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-type.php';
 		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-type-post.php';
+		require $this->includes_dir . 'users/classes/class-bbp-user-engagements-type-term.php';
 		require $this->includes_dir . 'users/engagements.php';
 		require $this->includes_dir . 'users/favorites.php';
 		require $this->includes_dir . 'users/subscriptions.php';
@@ -792,7 +793,10 @@ final class bbPress {
 					'show_in_nav_menus'     => false,
 					'public'                => true,
 					'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' ),
-					'source'                => 'bbpress'
+
+					// bbPress
+					'source'                => 'bbpress',
+					'bbp_subscriptions'     => bbp_allow_topic_tags()
 				)
 			)
 		);
@@ -802,12 +806,20 @@ final class bbPress {
 	 * Register the bbPress engagement types.
 	 *
 	 * @since 2.7.0 bbPress (r8306)
+	 * @since 2.7.0 bbPress (r8323) Register terms.
 	 */
 	public static function register_engagements() {
 		bbp_register_engagement_type(
 			'post',
 			array(
 				'class' => 'BBP_User_Engagements_Type_Post'
+			)
+		);
+
+		bbp_register_engagement_type(
+			'term',
+			array(
+				'class' => 'BBP_User_Engagements_Type_Term'
 			)
 		);
 	}

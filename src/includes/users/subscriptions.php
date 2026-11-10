@@ -212,6 +212,7 @@ function bbp_update_reply_subscription( $reply_id = 0, $topic_id = 0, $forum_id 
  * @since 2.6.0 bbPress (r6544)
  * @since 2.6.20 bbPress (r8024) Use the displayed user on subscriptions views.
  * @since 2.7.0 bbPress (r8306) Use the engagement type for the fallback redirect.
+ * @since 2.7.0 bbPress (r8323) Require a type-scoped nonce for non-posts.
  *
  * @param string $action The requested action to compare this function to.
  */
@@ -257,7 +258,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 		bbp_add_error( 'bbp_subscription_object_id', __( '<strong>Error</strong>: Not found. What are you subscribing/unsubscribing to?', 'bbpress' ) );
 
 	// Check nonce
-	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_post_' . $object_id ) && ! bbp_verify_nonce_request( 'toggle-subscription_' . $object_id ) ) {
+	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_' . $object_type . '_' . $object_id ) && ( ( 'post' !== $object_type ) || ! bbp_verify_nonce_request( 'toggle-subscription_' . $object_id ) ) ) {
 		bbp_add_error( 'bbp_subscription_object_id', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user

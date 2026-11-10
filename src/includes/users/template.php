@@ -1328,6 +1328,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
  *
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
+ * @since 2.7.0 bbPress (r8323) Scope the nonce to the object type for non-posts.
  *
  * @param array $args This function supports these arguments:
  *  - subscribe: Subscribe text
@@ -1414,8 +1415,10 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 		$q_args['redirect_to'] = urlencode( $r['redirect_to'] );
 	}
 
-	// URL using the original nonce action for third-party theme package handlers.
-	$nonce_action = 'toggle-subscription_' . $object_id;
+	// Posts keep the original nonce action for third-party theme package handlers.
+	$nonce_action = ( 'post' === $object_type )
+		? 'toggle-subscription_' . $object_id
+		: 'toggle-subscription_' . $object_type . '_' . $object_id;
 	$url  = esc_url( wp_nonce_url( add_query_arg( $q_args ), $nonce_action ) );
 	$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
 	$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, $object_type, wp_create_nonce( $nonce_action ), $text, $r['after'] );

@@ -19,13 +19,6 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 		parent::setUp();
 
 		$this->strategy = bbpress()->engagements;
-
-		bbp_register_engagement_type(
-			'term',
-			array(
-				'class' => 'BBP_Tests_Engagement_Type_Term'
-			)
-		);
 	}
 
 	public function tearDown(): void {
@@ -34,7 +27,13 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 		remove_filter( 'bbp_get_engagement_storage_key', array( $this, 'filter_storage_key' ), 10 );
 		remove_filter( 'bbp_get_user_object_query', array( $this, 'filter_query_args' ), 10 );
 
-		bbp_deregister_engagement_type( 'term' );
+		// Restore the default term engagement type.
+		bbp_register_engagement_type(
+			'term',
+			array(
+				'class' => 'BBP_User_Engagements_Type_Term'
+			)
+		);
 
 		parent::tearDown();
 	}
@@ -369,6 +368,43 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 
 	/**
 	 * @ticket BBP3785
+	 * @ticket BBP2989
+	 *
+	 * @dataProvider data_strategies
+	 *
+	 * @covers ::bbp_add_user_subscription
+	 * @covers ::bbp_remove_user_subscription
+	 * @covers ::bbp_is_user_subscribed
+	 */
+	public function test_topic_tag_subscriptions( $class_name ) {
+		bbpress()->engagements = new $class_name();
+
+		$user_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term_id = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		$this->set_current_user( $user_id );
+
+		// Topic tags can be subscribed to.
+		$this->assertTrue( bbp_current_user_can_toggle_engagement( $term_id, 'term', 'subscription', 'add' ) );
+		$this->assertTrue( bbp_add_user_subscription( $user_id, $term_id, 'term' ) );
+		$this->assertTrue( bbp_is_user_subscribed( $user_id, $term_id, 'term' ) );
+		$this->assertSame( array( $user_id ), bbp_get_users_for_object( $term_id, '_bbp_subscription', 'term' ) );
+
+		// A post with the same ID is not subscribed.
+		$this->assertFalse( bbp_is_user_subscribed( $user_id, $term_id, 'post' ) );
+
+		// Topic tags cannot be favorited.
+		$this->assertFalse( bbp_current_user_can_toggle_engagement( $term_id, 'term', 'favorite', 'add' ) );
+
+		// Subscriptions can be removed.
+		$this->assertTrue( bbp_current_user_can_toggle_engagement( $term_id, 'term', 'subscription', 'remove' ) );
+		$this->assertTrue( bbp_remove_user_subscription( $user_id, $term_id, 'term' ) );
+		$this->assertFalse( bbp_is_user_subscribed( $user_id, $term_id, 'term' ) );
+		$this->assertSame( array(), bbp_get_users_for_object( $term_id, '_bbp_subscription', 'term' ) );
+	}
+
+	/**
+	 * @ticket BBP3785
 	 *
 	 * @covers BBP_User_Engagements_Type_Post::supports_tax_query
 	 * @covers BBP_User_Engagements_Type_Post::get_query_args
@@ -378,17 +414,5 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 
 		$this->assertTrue( $type->supports_tax_query() );
 		$this->assertSame( array( 'post__in' => array( 1, 2 ) ), $type->get_query_args( array( 1, 2 ) ) );
-	}
-}
-
-/**
- * Engagement type for terms, until one is registered by default.
- */
-class BBP_Tests_Engagement_Type_Term extends BBP_User_Engagements_Type {
-
-	public function get_query_args( $object_ids = array() ) {
-		return array(
-			'include' => $object_ids
-		);
 	}
 }
