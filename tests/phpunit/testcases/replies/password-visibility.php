@@ -50,7 +50,7 @@ class BBP_Tests_Replies_Password_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_filter_post_password_required
 	 */
-	public function test_core_reply_listings_require_parent_forum_password_for_all_roles() {
+	public function test_core_reply_listings_exclude_parent_forum_password_for_all_roles() {
 		$forum_id = $this->factory->forum->create(
 			array( 'post_password' => 'forum-secret' )
 		);
@@ -73,7 +73,7 @@ class BBP_Tests_Replies_Password_Visibility extends BBP_UnitTestCase {
 				$this->set_current_user( $user_id );
 
 				$this->go_to_without_reregistering_blocks( '/?post_type=reply' );
-				$this->assertContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+				$this->assertNotContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
 				$this->assertTrue( post_password_required( $reply_id ) );
 				$this->assertStringNotContainsString( 'Protected core reply marker', get_the_content( null, false, $reply_id ) );
 
@@ -88,6 +88,8 @@ class BBP_Tests_Replies_Password_Visibility extends BBP_UnitTestCase {
 			$this->set_current_user( 0 );
 			$this->assertFalse( post_password_required( $reply_id ) );
 			$this->assertStringContainsString( 'Protected core reply marker', get_the_content( null, false, $reply_id ) );
+			$this->go_to_without_reregistering_blocks( '/?post_type=reply' );
+			$this->assertNotContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
 
 			$this->go_to_without_reregistering_blocks( '/?s=Protected&post_type=reply' );
 			$this->assertNotContains( $reply_id, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );

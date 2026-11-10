@@ -687,8 +687,13 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 
 	if ( ! empty( $forum ) ) {
 		while ( 0 !== (int) $forum->post_parent ) {
-			$ancestors[] = $forum->post_parent;
-			$forum       = bbp_get_forum( $forum->post_parent );
+			$parent = bbp_get_forum( $forum->post_parent );
+			if ( empty( $parent ) ) {
+				break;
+			}
+
+			$ancestors[] = $parent->ID;
+			$forum       = $parent;
 		}
 	}
 

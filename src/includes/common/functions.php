@@ -167,11 +167,11 @@ function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
 }
 
 /**
- * Exclude password-protected bbPress matches from search and sitemap queries.
+ * Exclude password-protected bbPress content from aggregate queries.
  *
- * Password-protected content stays out of public search and sitemap listings
- * even after its password has been entered. Direct requests continue to use
- * WordPress's post password cookie normally.
+ * Searches and sitemaps exclude post passwords and protected forum ancestry.
+ * Other public listings exclude protected forum ancestry while leaving forum
+ * records available for their password forms.
  *
  * @since 2.6.21 bbPress (r8133)
  * @since 2.6.22 bbPress (r8317) Apply the same checks to WordPress sitemaps.
@@ -181,34 +181,48 @@ function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
  * @return string SQL WHERE clause.
  */
 function bbp_password_protected_search_where( $where = '', $posts_query = null ) {
-	if ( ! $posts_query instanceof WP_Query || ! $posts_query->get( '_bbp_password_protected_search' ) ) {
+	if ( ! $posts_query instanceof WP_Query ) {
+		return $where;
+	}
+
+	$search    = (bool) $posts_query->get( '_bbp_password_protected_search' );
+	$listing   = (bool) $posts_query->get( '_bbp_password_protected_listing' );
+	$forum_ids = wp_parse_id_list( $posts_query->get( '_bbp_password_protected_forum_ids' ) );
+	if ( ! $search && ! $listing ) {
 		return $where;
 	}
 
 	$bbp_db = bbp_db();
-	$where .= $bbp_db->prepare(
-		" AND ( {$bbp_db->posts}.post_type NOT IN ( %s, %s, %s ) OR CHAR_LENGTH( {$bbp_db->posts}.post_password ) = 0 )",
-		bbp_get_forum_post_type(),
-		bbp_get_topic_post_type(),
-		bbp_get_reply_post_type()
-	);
+	if ( $search ) {
+		$where .= $bbp_db->prepare(
+			" AND ( {$bbp_db->posts}.post_type NOT IN ( %s, %s, %s ) OR CHAR_LENGTH( {$bbp_db->posts}.post_password ) = 0 )",
+			bbp_get_forum_post_type(),
+			bbp_get_topic_post_type(),
+			bbp_get_reply_post_type()
+		);
+	}
 
 	// Metadata is a fallback, not a replacement for canonical forum ancestry.
-	$forum_ids       = wp_parse_id_list( $posts_query->get( '_bbp_password_protected_forum_ids' ) );
 	$topic_forum_sql = '';
 	if ( ! empty( $forum_ids ) ) {
 		$placeholders = implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) );
-		$where       .= $bbp_db->prepare(
-			" AND ( {$bbp_db->posts}.post_type <> %s OR {$bbp_db->posts}.ID NOT IN ({$placeholders}) )
-			AND ( {$bbp_db->posts}.post_type <> %s OR {$bbp_db->posts}.post_parent NOT IN ({$placeholders}) )",
-			array_merge( array( bbp_get_forum_post_type() ), $forum_ids, array( bbp_get_topic_post_type() ), $forum_ids )
+		if ( $search ) {
+			$where .= $bbp_db->prepare(
+				" AND ( {$bbp_db->posts}.post_type <> %s OR {$bbp_db->posts}.ID NOT IN ({$placeholders}) )",
+				array_merge( array( bbp_get_forum_post_type() ), $forum_ids )
+			);
+		}
+		$where .= $bbp_db->prepare(
+			" AND ( {$bbp_db->posts}.post_type <> %s OR {$bbp_db->posts}.post_parent NOT IN ({$placeholders}) )",
+			array_merge( array( bbp_get_topic_post_type() ), $forum_ids )
 		);
 		$topic_forum_sql = $bbp_db->prepare( " AND bbp_password_topic.post_parent NOT IN ({$placeholders})", $forum_ids );
 	}
 
 	// Follow reply ancestry without changing existing parent-topic status rules.
+	$topic_password_sql = $search ? ' AND CHAR_LENGTH( bbp_password_topic.post_password ) = 0' : '';
 	$where .= $bbp_db->prepare(
-		" AND ( {$bbp_db->posts}.post_type <> %s OR EXISTS ( SELECT 1 FROM {$bbp_db->posts} AS bbp_password_topic WHERE bbp_password_topic.ID = {$bbp_db->posts}.post_parent AND bbp_password_topic.post_type = %s AND CHAR_LENGTH( bbp_password_topic.post_password ) = 0{$topic_forum_sql} ) )",
+		" AND ( {$bbp_db->posts}.post_type <> %s OR EXISTS ( SELECT 1 FROM {$bbp_db->posts} AS bbp_password_topic WHERE bbp_password_topic.ID = {$bbp_db->posts}.post_parent AND bbp_password_topic.post_type = %s{$topic_password_sql}{$topic_forum_sql} ) )",
 		bbp_get_reply_post_type(),
 		bbp_get_topic_post_type()
 	);
