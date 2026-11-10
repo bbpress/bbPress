@@ -63,6 +63,61 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Continue a browser-managed tool action through its AJAX handler.
+	 */
+	private function ajax( $type, $tool, $action = 'run' ) {
+		$state       = bbp_admin_repair_tool_get_run_state( $type, $action );
+		$old_post    = $_POST;
+		$old_request = $_REQUEST;
+		$old_method  = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$body        = '';
+		$level       = ob_get_level();
+		$handler     = static function() {
+			return static function( $message ) {
+				throw new WPDieException( (string) $message );
+			};
+		};
+
+		$this->assertIsArray( $state );
+		$_POST = array(
+			'action'     => 'bbp_tools_process',
+			'nonce'      => wp_create_nonce( 'bbpress-tools-process' ),
+			'type'       => $type,
+			'toolAction' => $action,
+			'tool'       => $tool,
+			'run'        => $state['id'],
+		);
+		$_REQUEST                  = $_POST;
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		add_filter( 'wp_die_ajax_handler', $handler );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		ob_start();
+
+		try {
+			bbp_admin_repair_ajax_handler();
+			$this->fail( 'Expected the AJAX response to terminate.' );
+		} catch ( WPDieException $error ) {
+			$body = ob_get_clean();
+		} finally {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+			remove_filter( 'wp_die_ajax_handler', $handler );
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			$_POST    = $old_post;
+			$_REQUEST = $old_request;
+
+			if ( null === $old_method ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $old_method;
+			}
+		}
+
+		return json_decode( $body, true );
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_tool_run_url
 	 * @covers ::bbp_get_admin_repair_tool_page
 	 * @covers ::bbp_get_admin_repair_tool_page_id
@@ -325,6 +380,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'dry-run',
 			'checked'  => array( 'custom-dry-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -335,15 +391,18 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		bbp_admin_repair_handler();
 
 		$this->assertFalse( $run_called );
+		$this->assertSame( array(), $context );
+		$this->assertStringContainsString( 'bbp-tools-runner', end( bbp_admin()->notices ) );
+		$response = $this->ajax( 'repair', 'custom-dry-run', 'dry-run' );
+		$this->assertTrue( $response['success'] );
 		$this->assertSame( 'dry-run', $context['action'] );
 		$this->assertSame( 'custom-dry-run', $context['tool']['id'] );
 		$this->assertSame( array( 'custom-dry-run' ), bbp_get_pending_upgrades() );
-		$notice = end( bbp_admin()->notices );
-		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $notice );
-		$this->assertStringNotContainsString( 'normal Run', $notice );
-		$this->assertStringContainsString( '1 row would be updated.', $notice );
-		$this->assertStringContainsString( '2 rows would be created.', $notice );
-		$this->assertSame( 3, substr_count( $notice, '<br>' ) );
+		$message = $response['data']['message'];
+		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $message );
+		$this->assertStringNotContainsString( 'normal Run', $message );
+		$this->assertStringContainsString( '1 row would be updated.', $message );
+		$this->assertStringContainsString( '2 rows would be created.', $message );
 	}
 
 	/**
@@ -367,6 +426,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		);
 
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'dry-run',
 			'checked'  => array( 'custom-dry-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -376,9 +436,10 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		bbp_admin_repair_handler();
 
-		$notice = end( bbp_admin()->notices );
-		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $notice );
-		$this->assertStringContainsString( 'No rows need repair.', $notice );
+		$response = $this->ajax( 'repair', 'custom-dry-run', 'dry-run' );
+		$this->assertTrue( $response['success'] );
+		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $response['data']['message'] );
+		$this->assertStringContainsString( 'No rows need repair.', $response['data']['message'] );
 	}
 
 	/**
@@ -402,6 +463,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		);
 
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'dry-run',
 			'checked'  => array( 'custom-dry-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -411,11 +473,11 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		bbp_admin_repair_handler();
 
-		$notice = end( bbp_admin()->notices );
-		$this->assertStringContainsString( 'notice error', $notice );
-		$this->assertStringContainsString( 'Dry run failed! No changes were made.', $notice );
-		$this->assertStringNotContainsString( 'normal Run', $notice );
-		$this->assertStringContainsString( 'Rows could not be read.', $notice );
+		$response = $this->ajax( 'repair', 'custom-dry-run', 'dry-run' );
+		$this->assertFalse( $response['success'] );
+		$this->assertStringContainsString( 'Dry run failed! No changes were made.', $response['data']['message'] );
+		$this->assertStringNotContainsString( 'normal Run', $response['data']['message'] );
+		$this->assertStringContainsString( 'Rows could not be read.', $response['data']['message'] );
 	}
 
 	/**
@@ -439,6 +501,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		update_option( '_bbp_db_pending_upgrades', array( 'custom-run' ) );
 		$_GET = array(
+			'page'     => 'bbp-upgrade',
 			'action'   => 'run',
 			'checked'  => array( 'custom-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -448,9 +511,12 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		bbp_admin_repair_handler();
 
+		$response = $this->ajax( 'upgrade', 'custom-run' );
+		$this->assertFalse( $response['success'] );
 		$this->assertSame( array( 'custom-run' ), bbp_get_pending_upgrades() );
-		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
-		$this->assertStringContainsString( '<strong>Custom run</strong><br>Run failed.', end( bbp_admin()->notices ) );
+		$this->assertSame( 'error', bbp_admin_repair_tool_get_run_state( 'upgrade' )['status'] );
+		$this->assertSame( 'Custom run', $response['data']['title'] );
+		$this->assertSame( 'Run failed.', $response['data']['message'] );
 	}
 
 	/**
@@ -466,6 +532,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		bbp_admin()->tools = array();
 		bbp_register_default_repair_tools();
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'dry-run',
 			'checked'  => array( 'bbp-sync-closed-topics' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -475,9 +542,11 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		bbp_admin_repair_handler();
 
+		$response = $this->ajax( 'repair', 'bbp-sync-closed-topics', 'dry-run' );
+		$this->assertTrue( $response['success'] );
 		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_status', true ) );
-		$this->assertStringNotContainsString( 'normal Run', end( bbp_admin()->notices ) );
-		$this->assertStringContainsString( '1 closed topic would be repaired', end( bbp_admin()->notices ) );
+		$this->assertStringNotContainsString( 'normal Run', $response['data']['message'] );
+		$this->assertStringContainsString( '1 closed topic would be repaired', $response['data']['message'] );
 	}
 
 	/**
@@ -509,6 +578,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
 		$_GET = array(
+			'page'      => 'bbp-repair',
 			'action'    => 'run',
 			'action2'   => 'dry-run',
 			'doaction2' => 'Apply',
@@ -521,6 +591,9 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		bbp_admin_repair_handler();
 
 		$this->assertFalse( $run_called );
+		$this->assertSame( array(), $context );
+		$response = $this->ajax( 'repair', 'custom-dry-run', 'dry-run' );
+		$this->assertTrue( $response['success'] );
 		$this->assertSame( 'dry-run', $context['action'] );
 		$this->assertSame( array( 'custom-dry-run' ), bbp_get_pending_upgrades() );
 	}
@@ -566,6 +639,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'run',
 			'checked'  => array( 'custom-dry-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -575,11 +649,14 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		try {
 			bbp_admin_repair_handler();
+			$this->assertFalse( $override_run );
+			$response = $this->ajax( 'repair', 'custom-dry-run' );
 		} finally {
 			remove_filter( 'bbp_get_admin_repair_tools', $override );
 		}
 
 		$this->assertTrue( $override_run );
+		$this->assertTrue( $response['success'] );
 		$this->assertSame( 0, $received_args );
 		$this->assertFalse( $original_run );
 		$this->assertFalse( $dry_run );
@@ -624,6 +701,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		update_option( '_bbp_db_pending_upgrades', array( 'custom-dry-run' ) );
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'run',
 			'checked'  => array( 'custom-dry-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -636,11 +714,14 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 			$callbacks = bbp_get_admin_repair_tool_callbacks( $tools['custom-dry-run'] );
 			$this->assertSame( $dry_run, $callbacks['dry-run'] );
 			bbp_admin_repair_handler();
+			$this->assertFalse( $override_run );
+			$response = $this->ajax( 'repair', 'custom-dry-run' );
 		} finally {
 			remove_filter( 'bbp_get_admin_repair_tools', $override );
 		}
 
 		$this->assertTrue( $override_run );
+		$this->assertTrue( $response['success'] );
 		$this->assertFalse( $original_run );
 		$this->assertSame( array(), bbp_get_pending_upgrades() );
 	}
@@ -692,6 +773,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		);
 		update_option( '_bbp_db_pending_upgrades', array( 'custom-run' ) );
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'dry-run',
 			'checked'  => array( 'custom-run' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -703,7 +785,8 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		$this->assertFalse( $run_called );
 		$this->assertSame( array( 'custom-run' ), bbp_get_pending_upgrades() );
-		$this->assertStringContainsString( 'does not support the Dry Run action', end( bbp_admin()->notices ) );
+		$this->assertStringContainsString( 'None of the selected forum tools support this action.', end( bbp_admin()->notices ) );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair', 'dry-run' ) );
 	}
 
 	/**
@@ -724,6 +807,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 			)
 		);
 		$_GET = array(
+			'page'     => 'bbp-repair',
 			'action'   => 'dry-run',
 			'checked'  => array( 'invalid-result' ),
 			'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
@@ -733,7 +817,9 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 
 		bbp_admin_repair_handler();
 
-		$this->assertStringContainsString( 'did not return a valid result for the Dry Run action', end( bbp_admin()->notices ) );
+		$response = $this->ajax( 'repair', 'invalid-result', 'dry-run' );
+		$this->assertFalse( $response['success'] );
+		$this->assertStringContainsString( 'did not return a valid result', $response['data']['message'] );
 	}
 
 	/**

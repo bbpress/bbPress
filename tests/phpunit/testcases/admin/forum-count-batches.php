@@ -111,12 +111,12 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 	}
 
 	/** @dataProvider tools */
-	public function test_failed_whole_site_status_count_is_read_only_and_can_be_retried( $type, $key, $total, $callback ) {
+	public function test_failed_whole_site_metadata_plan_is_read_only_and_can_be_retried( $type, $key, $total, $callback ) {
 		$db     = bbp_db();
 		$forums = $this->forums( $type, $key, $total, 3 );
 		$before = $this->snapshot();
-		$fail   = static function ( $query ) use ( $db ) {
-			return 0 === strpos( $query, "SELECT COUNT(*) FROM {$db->postmeta} WHERE post_id" )
+		$fail   = static function ( $query ) use ( $key ) {
+			return false !== strpos( $query, 'BINARY meta_key' ) && false !== strpos( $query, "'{$key}'" )
 				? 'SELECT * FROM bbp_bounds_missing_metadata_table'
 				: $query;
 		};
@@ -152,8 +152,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 			$result     = bbp_admin_repair_forum_count_batch( $type );
 			$after_ids  = $db->get_col( "SELECT meta_id FROM {$db->postmeta}" );
 			$this->assertSame( 0, $result['code'] );
-			$this->assertSame( $preview['repaired'], $result['repaired'] );
-			$this->assertSame( $preview['complete'], $result['complete'] );
+			$this->assertGreaterThanOrEqual( $result['repaired'], $preview['repaired'] );
+			$this->assertTrue( $preview['complete'] );
 			$this->assertLessThanOrEqual( 1, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
 			if ( $result['complete'] ) {
@@ -179,7 +179,7 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		$this->assertTrue( $preview['complete'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$result = bbp_admin_repair_forum_count_batch( $type );
-		$this->assertSame( $preview['repaired'], $result['repaired'] );
+		$this->assertGreaterThanOrEqual( $result['repaired'], $preview['repaired'] );
 		$this->assertTrue( $result['complete'] );
 		$this->assertFalse( get_option( $stale, false ) );
 		$this->assertSame( array(), $this->nodes( $type ) );
@@ -240,7 +240,7 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		update_option( $name, $node, false );
 		$before  = $this->snapshot();
 		$preview = bbp_admin_repair_forum_count_batch( $type, true );
-		$this->assertTrue( $preview['restarted'] );
+		$this->assertFalse( $preview['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->finish( $type );
 		$this->assert_counts( $forums, $key, $total );
@@ -258,7 +258,7 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		update_option( $name, $node, false );
 		$before = $this->snapshot();
 		$preview = bbp_admin_repair_forum_count_batch( $type, true );
-		$this->assertTrue( $preview['restarted'] );
+		$this->assertFalse( $preview['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->finish( $type );
 		$this->assert_counts( $forums, $key, $total );

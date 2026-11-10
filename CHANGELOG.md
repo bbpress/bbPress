@@ -25,7 +25,7 @@ Development for the next bbPress release is in progress. See the active
   and `wp bbp mentions backfill`, without emailing historical mentions. Small
   sites backfill automatically during the bbPress 2.7 upgrade; larger sites and
   scans that reach the shared runner's limits remain pending. Both admin tools
-  offer a Dry Run preview of the next batch without changing saved progress.
+  offer a Dry Run preview of the complete operation without changing saved progress.
   Admin runs advance automatically while the page is open and can be paused
   and resumed without restarting the scan.
 - Added shared support for resumable batches in repair and upgrade tools, including
@@ -95,7 +95,7 @@ Development for the next bbPress release is in progress. See the active
   upgrade priorities and explicit column sorting.
 - Process legacy favorites, topic subscriptions, forum subscriptions, topic
   engagements, and closed-topic repairs in resumable batches, preserving automatic
-  completion during small-site upgrades and read-only previews of the next batch.
+  completion during small-site upgrades and read-only previews of complete operations.
   Legacy-data cleanup waits for unfinished migrations. Engagement upgrades retain
   valid rows while adding missing relationships and cleaning up stale or duplicate rows.
 - Recount forum topics and public or non-public replies with one resumable
@@ -118,7 +118,7 @@ Development for the next bbPress release is in progress. See the active
 - Recount direct subforums in resumable batches using shared, bounded metadata
   cleanup while preserving registered forum statuses and countable child statuses.
 - Recount topic-tags in resumable batches with bounded term lists, shared
-  checkpoints, safe retries, and read-only previews of the next batch.
+  checkpoints, safe retries, and read-only previews of complete operations.
 - Recount public and non-public replies per topic in resumable batches. Share
   bounded count-metadata cleanup with user recounts, preserving correct rows and
   safe retries without whole-table metadata replacement.
@@ -156,6 +156,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Make repair and upgrade Dry Runs preview complete operations and estimate batch
+  counts without changing data or saved Run progress.
 - Kept toolbar hover backgrounds square with bbPress admin color schemes on
   WordPress 7.2.
 - Prevented a fatal error when excerpt filters supply only the excerpt, as some

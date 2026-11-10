@@ -120,8 +120,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				$mutations = 0;
 				$result = $this->user_count_batch( $tool_id, $type, $key );
 				$this->assertSame( 0, $result['code'] );
-				$this->assertSame( $preview['repaired'], $result['repaired'] );
-				$this->assertSame( $preview['complete'], $result['complete'] );
+				$this->assertGreaterThanOrEqual( $result['repaired'], $preview['repaired'] );
+				$this->assertTrue( $preview['complete'] );
 				$this->assertLessThanOrEqual( 2, $mutations );
 				$this->assertNotFalse( get_metadata_by_mid( 'user', $valid_id ) );
 				if ( $result['complete'] ) {
@@ -207,7 +207,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$this->user_count_posts( $type, $new_user );
 		$before  = $this->stored_data();
 		$preview = call_user_func( $callback . '_dry_run' );
-		$this->assertStringContainsString( 'Saved progress is invalid.', $preview[1] );
+		$this->assertStringNotContainsString( 'Saved progress is invalid.', $preview[1] );
 		$this->assertSame( $before, $this->stored_data() );
 		$result = call_user_func( $callback );
 		$this->assertStringContainsString( 'Saved progress was invalid.', $result[1] );
@@ -489,9 +489,9 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$before  = $this->stored_data();
 		$preview = call_user_func( $callback . '_dry_run' );
 		$this->assertSame( 0, $preview[0] );
-		$this->assertFalse( $preview['complete'] );
-		$this->assertStringContainsString( 'This batch:', $preview[1] );
-		$this->assertStringContainsString( 'repaired for 0 users.', $preview[1] );
+		$this->assertTrue( $preview['complete'] );
+		$this->assertStringNotContainsString( 'This batch:', $preview[1] );
+		$this->assertStringContainsString( 'repaired for 1 user.', $preview[1] );
 		$this->assertStringNotContainsString( '0 user ' . $type . ' counts to repair.', $preview[1] );
 		$this->assertSame( $before, $this->stored_data() );
 		$this->assertFalse( call_user_func( $callback )['complete'] );
@@ -536,8 +536,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 					return $this->user_count_batch( $tool_id, $type, $key );
 				} );
 				$this->assertSame( 0, $result['code'] );
-				$this->assertSame( $preview['repaired'], $result['repaired'] );
-				$this->assertSame( $preview['complete'], $result['complete'] );
+				$this->assertGreaterThanOrEqual( $result['repaired'], $preview['repaired'] );
+				$this->assertTrue( $preview['complete'] );
 				$after_ids = $db->get_col( $sql );
 				$mutations = count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) );
 				$this->assertLessThanOrEqual( $size, $mutations );
@@ -582,8 +582,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		bbp_add_pending_upgrade( $tool_id );
 		$before  = $this->stored_data();
 		$preview = call_user_func( $callback . '_dry_run' );
-		$this->assertFalse( $preview['complete'] );
-		$this->assertStringContainsString( 'in this batch', $preview[1] );
+		$this->assertTrue( $preview['complete'] );
+		$this->assertStringNotContainsString( 'in this batch', $preview[1] );
 		$this->assertSame( $before, $this->stored_data() );
 
 		$result = call_user_func( $callback );
@@ -903,7 +903,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$before  = $this->stored_data();
 		$preview = call_user_func( $callback . '_dry_run' );
 		$this->assertSame( 0, $preview[0] );
-		$this->assertStringContainsString( 'Saved progress is invalid. Previewing from the beginning.', $preview[1] );
+		$this->assertStringNotContainsString( 'Saved progress is invalid. Previewing from the beginning.', $preview[1] );
 		$this->assertSame( $before, $this->stored_data() );
 		$result = call_user_func( $callback );
 		$this->assertSame( 0, $result[0] );
@@ -928,7 +928,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$before  = $this->stored_data();
 		$preview = bbp_admin_repair_closed_topics_dry_run();
 		$this->assertSame( 0, $preview[0] );
-		$this->assertStringContainsString( 'Saved progress is invalid. Previewing from the beginning.', $preview[1] );
+		$this->assertStringNotContainsString( 'Saved progress is invalid. Previewing from the beginning.', $preview[1] );
 		$this->assertSame( $before, $this->stored_data() );
 		$result = bbp_admin_repair_closed_topics();
 		$this->assertSame( 0, $result[0] );
@@ -984,7 +984,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-sync-closed-topics' );
 		update_post_meta( $posts[0], '_bbp_status', 'private' );
 		$before = $this->stored_data();
-		$this->assertFalse( bbp_admin_repair_closed_topics_dry_run()['complete'] );
+		$this->assertTrue( bbp_admin_repair_closed_topics_dry_run()['complete'] );
 		$this->assertSame( $before, $this->stored_data() );
 		$this->assertFalse( bbp_admin_repair_closed_topics()['complete'] );
 		$this->assertSame( 'private', get_post_meta( $posts[0], '_bbp_status', true ) );
@@ -993,7 +993,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 
 		$late   = $this->closed_topics( 1 );
 		$before = $this->stored_data();
-		$this->assertStringContainsString( '2 closed topics would be repaired', bbp_admin_repair_closed_topics_dry_run()[1] );
+		$this->assertStringContainsString( '4 closed topics would be repaired', bbp_admin_repair_closed_topics_dry_run()[1] );
 		$this->assertSame( $before, $this->stored_data() );
 		$this->finish( 'bbp_admin_repair_closed_topics' );
 		$this->assertFalse( get_option( $option, false ) );
@@ -1075,7 +1075,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			$before  = $this->stored_data();
 			$preview = bbp_admin_upgrade_user_favorites_dry_run();
 			$this->assertSame( 0, $preview[0] );
-			$this->assertStringContainsString( $translations['Saved progress is invalid. Previewing from the beginning.'], $preview[1] );
+			$this->assertStringNotContainsString( $translations['Saved progress is invalid. Previewing from the beginning.'], $preview[1] );
 			$this->assertSame( $before, $this->stored_data() );
 			$result = bbp_admin_upgrade_user_favorites();
 			$this->assertSame( 0, $result[0] );
@@ -1211,9 +1211,9 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			$this->assertSame( $before, $this->stored_data() );
 			$batch = bbp_admin_upgrade_user_engagements_batch();
 			$this->assertSame( 0, $batch['code'] );
-			$this->assertSame( $predicted['added'], $batch['added'] );
-			$this->assertSame( $predicted['removed'], $batch['removed'] );
-			$this->assertSame( $predicted['complete'], $batch['complete'] );
+			$this->assertGreaterThanOrEqual( $batch['added'], $predicted['added'] );
+			$this->assertGreaterThanOrEqual( $batch['removed'], $predicted['removed'] );
+			$this->assertTrue( $predicted['complete'] );
 			$this->assertLessThanOrEqual( 2, $batch['added'] + $batch['removed'] );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $valid_id ) );
 			if ( $batch['complete'] ) {
@@ -1294,7 +1294,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$before  = $this->stored_data();
 		$preview = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $preview[0] );
-		$this->assertStringContainsString( 'Saved progress is invalid.', $preview[1] );
+		$this->assertStringNotContainsString( 'Saved progress is invalid.', $preview[1] );
 		$this->assertSame( $before, $this->stored_data() );
 		$result = bbp_admin_upgrade_user_engagements();
 		$this->assertSame( 0, $result[0] );

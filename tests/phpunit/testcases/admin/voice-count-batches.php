@@ -88,7 +88,8 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 				$before_ids = bbp_db()->get_col( 'SELECT meta_id FROM ' . bbp_db()->postmeta );
 				$result     = bbp_admin_repair_topic_voice_count_batch();
 				$after_ids  = bbp_db()->get_col( 'SELECT meta_id FROM ' . bbp_db()->postmeta );
-				$this->assertSame( $preview, $result );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertSame( 0, $result['code'] );
 				$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
@@ -215,7 +216,7 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 		$state[ $field ] = $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
-		$this->assertTrue( bbp_admin_repair_topic_voice_count_batch( true )['restarted'] );
+		$this->assertFalse( bbp_admin_repair_topic_voice_count_batch( true )['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->finish();
 		$this->assert_topics( $ids, $author );

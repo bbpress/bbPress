@@ -133,7 +133,8 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 				$this->assertSame( $before, $this->snapshot() );
 				$this->assertSame( 0, $deleted );
 				$batch = bbp_admin_upgrade_remove_user_meta_batch( $type );
-				$this->assertSame( $preview, $batch );
+				$this->assertTrue( $preview['complete'] );
+				$this->assertSame( 0, $preview['code'] );
 				$this->assertSame( 0, $batch['code'] );
 				$this->assertLessThanOrEqual( $size, $deleted );
 				$this->assertSame( $batch['removed'], $deleted );
@@ -288,9 +289,12 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		update_option( $option, array( 'cursor' => 9999, 'upper_id' => 1, 'key' => $this->key( $suffix ) ), false );
 		$before = $this->snapshot();
 		$preview = bbp_admin_upgrade_remove_user_meta_batch( $type, true );
-		$this->assertTrue( $preview['restarted'] );
+		$this->assertFalse( $preview['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
-		$this->assertSame( $preview, bbp_admin_upgrade_remove_user_meta_batch( $type ) );
+		$run = bbp_admin_upgrade_remove_user_meta_batch( $type );
+		$this->assertTrue( $run['restarted'] );
+		$this->assertFalse( $run['complete'] );
+		$this->assertSame( 1, $run['removed'] );
 		$this->finish( $type );
 	}
 
@@ -311,12 +315,14 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 	}
 
 	/** @dataProvider tools */
-	public function test_dry_run_labels_partial_counts_as_one_batch( $type, $suffix, $callback ) {
+	public function test_dry_run_reports_all_cleanup_rows( $type, $suffix, $callback ) {
 		$this->fixture( $suffix );
 		$result = call_user_func( $callback . '_dry_run' );
 		$this->assertSame( 0, $result[0] );
-		$this->assertFalse( $result['complete'] );
-		$this->assertStringContainsString( "This batch:\n1 ", $result[1] );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 3, $result['batches'] );
+		$this->assertStringNotContainsString( 'This batch:', $result[1] );
+		$this->assertStringContainsString( '3 ', $result[1] );
 	}
 
 	/** @dataProvider active_storage */

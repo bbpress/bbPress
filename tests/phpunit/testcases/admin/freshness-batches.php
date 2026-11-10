@@ -87,6 +87,19 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->fail( 'Freshness repair did not finish.' );
 	}
 
+	private function advance_to_topic( $topic_id, $key = null ) {
+		for ( $i = 0; $i < 1000; ++$i ) {
+			$result = bbp_admin_repair_freshness_batch();
+			$this->assertSame( 0, $result['code'] );
+			$state = get_option( $this->option() );
+			if ( is_array( $state ) && 'topics' === $state['phase'] && $state['current'] === $topic_id
+				&& ( null === $key || $key === $state['topic_node']['key'] ) ) {
+				return $state;
+			}
+		}
+		$this->fail( 'Freshness repair did not reach the requested topic state.' );
+	}
+
 	private function assert_freshness( $ids ) {
 		list( $parent, $forum, $topic, $reply ) = $ids;
 		$this->assertSame( array(), get_post_meta( $topic, '_bbp_last_topic_id', false ) );
@@ -118,9 +131,9 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 			$result = bbp_admin_repair_freshness_batch();
 			$after_ids = $db->get_col( "SELECT meta_id FROM {$db->postmeta}" );
 			$this->assertSame( 0, $result['code'] );
-			foreach ( array( 'topics', 'forums', 'stale', 'complete', 'restarted' ) as $field ) {
-				$this->assertSame( $preview[ $field ], $result[ $field ], $field );
-			}
+			$this->assertSame( 1, $preview['topics'] );
+			$this->assertSame( 2, $preview['forums'] );
+			$this->assertTrue( $preview['complete'] );
 			$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
 			if ( $result['complete'] ) {
@@ -134,13 +147,13 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->assertSame( $before, $this->snapshot() );
 	}
 
-	public function test_topic_phase_ends_before_forum_work_can_depend_on_preview_writes() {
+	public function test_full_preview_calculates_topics_and_forums_without_intermediate_writes() {
 		$ids = $this->fixture();
 		$this->size = 1000;
 		$preview = bbp_admin_repair_freshness_batch( true );
 		$this->assertSame( 1, $preview['topics'] );
-		$this->assertSame( 0, $preview['forums'] );
-		$this->assertFalse( $preview['complete'] );
+		$this->assertSame( 2, $preview['forums'] );
+		$this->assertTrue( $preview['complete'] );
 		$run = bbp_admin_repair_freshness_batch();
 		$this->assertSame( $preview['topics'], $run['topics'] );
 		$this->assertSame( 'count', get_option( $this->option() )['phase'] );
@@ -150,6 +163,35 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->assertTrue( $preview['complete'] );
 		$this->finish();
 		$this->assert_freshness( $ids );
+	}
+
+	public function test_browser_preview_uses_bounded_requests_and_aggregate_totals() {
+		$this->fixture();
+		$this->size = 2;
+		$before     = $this->snapshot();
+		$requests   = 0;
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-preview' );
+		try {
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				++$requests;
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertGreaterThan( 1, $requests );
+		$this->assertSame( 1, $result['topics'] );
+		$this->assertSame( 2, $result['forums'] );
+		// Browser-only preview cleanup is not part of the normal Run estimate.
+		$this->assertGreaterThanOrEqual( $result['batches'], $requests );
+		$this->assertSame( $before, $this->snapshot() );
 	}
 
 	public function test_orphan_cleanup_is_bounded_and_preserves_other_metadata() {
@@ -184,7 +226,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$run   = bbp_admin_repair_freshness_batch();
 		$state = get_option( $this->option() );
 		$this->assertSame( 0, $run['code'] );
-		$this->assertSame( $preview['stale'], $run['stale'] );
+		$this->assertSame( 1, $preview['stale'] );
 		$this->assertSame( 0, $run['stale'] );
 		$this->assertSame( 'orphans', $state['phase'] );
 		$this->assertGreaterThan( 0, $state['orphan_cursor'] );
@@ -295,13 +337,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 	public function test_inflight_topic_checkpoint_failure_replays_without_scratch_or_metadata_churn() {
 		$ids = $this->fixture();
 		add_post_meta( $ids[2], '_bbp_last_reply_id', $ids[3] );
-		for ( $i = 0; $i < 20; ++$i ) {
-			bbp_admin_repair_freshness_batch();
-			$state = get_option( $this->option() );
-			if ( $state['current'] === $ids[2] && 1 === $state['topic_node']['key'] ) {
-				break;
-			}
-		}
+		$state = $this->advance_to_topic( $ids[2], 1 );
 		$this->assertSame( 1, $state['topic_node']['key'] );
 		$this->assertSame( $ids[2], $state['topic_node']['id'] );
 		$fail = static function ( $value, $old ) { return $old; };
@@ -428,13 +464,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 
 	public function test_deleted_inflight_topics_restart_without_recreating_their_metadata() {
 		$ids = $this->fixture();
-		for ( $i = 0; $i < 10; ++$i ) {
-			bbp_admin_repair_freshness_batch();
-			$state = get_option( $this->option() );
-			if ( $state['current'] === $ids[2] ) {
-				break;
-			}
-		}
+		$state = $this->advance_to_topic( $ids[2] );
 		$this->assertSame( $ids[2], $state['current'] );
 		wp_delete_post( $ids[2], true );
 		$result = bbp_admin_repair_freshness_batch();
@@ -569,7 +599,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		}
 		$before = $this->snapshot();
 		$preview = bbp_admin_repair_freshness_batch( true );
-		$this->assertTrue( $preview['restarted'] );
+		$this->assertFalse( $preview['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertTrue( bbp_admin_repair_freshness_batch()['restarted'] );
 		$this->finish();

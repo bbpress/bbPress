@@ -32,6 +32,103 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 		return array( array( 1, false ), array( 1000, false ), array( 1, true ), array( 1000, true ) );
 	}
 
+	public function preview_fields() {
+		return array(
+			array( null, array(), 1, false ),
+			array( 0, array(), 1, true ),
+			array( 1, array( array( '_bbp_preview', 1 ) ), 1, false ),
+			array( 1, array( array( '_bbp_preview', 1 ), array( '_bbp_preview', 1 ) ), 1, true ),
+			array( 1, array( array( '_bbp_preview', 9 ) ), 2, true ),
+			array( 1, array( array( '_bbp_preview', 9 ), array( '_bbp_preview', 9 ) ), 2, true ),
+			array( 1, array( array( '_BBP_PREVIEW', 9 ), array( '_BBP_PREVIEW', 9 ) ), 3, true ),
+			array( null, array( array( '_bbp_preview', 9 ), array( '_BBP_PREVIEW', 9 ) ), 2, true ),
+			array( array( 3, 4 ), array( array( '_bbp_preview', array( 3, 4 ) ) ), 1, false ),
+		);
+	}
+
+	/** @dataProvider preview_fields */
+	public function test_full_metadata_preview_estimates_the_same_work_as_run( $value, $rows, $work, $changed ) {
+		$db   = bbp_db();
+		$post = $this->factory->post->create();
+		foreach ( $rows as $row ) {
+			add_post_meta( $post, $row[0], $row[1] );
+		}
+		$before = $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A );
+		$status = bbp_admin_repair_metadata_status( 'post', '_bbp_preview', array( $post => $value ) );
+		$this->assertSame( array( 'changed' => $changed, 'work' => $work ), $status[ $post ] );
+		$this->assertSame( $before, $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A ) );
+		$run = bbp_admin_repair_single_metadata( 'post', $post, '_bbp_preview', $value, count( $rows ) + 1 );
+		$this->assertSame( 0, $run['code'] );
+		$this->assertTrue( $run['complete'] );
+		$this->assertSame( $work, $run['work'] );
+		$this->assertSame( $changed, $run['changed'] );
+	}
+
+	public function test_dry_run_replays_the_bounded_metadata_plan_without_assessment_queries() {
+		$db   = bbp_db();
+		$post = $this->factory->post->create();
+		$key  = '_bbp_preview';
+		add_post_meta( $post, strtoupper( $key ), 9 );
+		add_post_meta( $post, $key, 8 );
+		add_post_meta( $post, $key, 7 );
+		$before      = $this->rows( 'post', $post, $key );
+		$assessments = 0;
+		$capture     = static function ( $query ) use ( &$assessments ) {
+			if ( false !== strpos( $query, 'SUM(BINARY meta_key' ) ) {
+				++$assessments;
+			}
+			return $query;
+		};
+		$preview = null;
+		$planned = 0;
+		$changed = 0;
+		add_filter( 'query', $capture );
+		try {
+			for ( $i = 0; $i < 10; ++$i ) {
+				$result   = bbp_admin_repair_single_metadata( 'post', $post, $key, 1, 1, true, $preview );
+				$planned += $result['operations'];
+				$changed += (int) $result['changed'];
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			remove_filter( 'query', $capture );
+		}
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 0, $assessments );
+		$this->assertSame( 1, $changed );
+		$this->assertSame( $before, $this->rows( 'post', $post, $key ) );
+
+		$performed = 0;
+		for ( $i = 0; $i < 10; ++$i ) {
+			$result     = bbp_admin_repair_single_metadata( 'post', $post, $key, 1, 1 );
+			$performed += $result['operations'];
+			if ( $result['complete'] ) {
+				break;
+			}
+		}
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( $performed, $planned );
+		$this->assertSame( array( '1' ), get_post_meta( $post, $key, false ) );
+	}
+
+	public function test_custom_engagement_source_queries_remain_read_only() {
+		$db    = bbp_db();
+		$user  = $this->factory->user->create();
+		$topic = $this->factory->topic->create( array( 'post_author' => $user ) );
+		delete_post_meta( $topic, '_bbp_engagement' );
+		$row = $db->get_row( $db->prepare( "SELECT meta_id, post_id, meta_value, 1 AS is_source FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_topic_id'", $topic ) );
+		$source = bbp_admin_repair_get_engagements_query( bbp_get_public_topic_statuses(), bbp_get_public_reply_statuses() );
+		$source = 'SELECT DISTINCT ' . substr( $source, 7 );
+		$before = $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A );
+		$preview = bbp_admin_repair_engagement_rows( array( $row ), $source, true );
+		$this->assertSame( 0, $preview['code'] );
+		$this->assertSame( 1, $preview['added'] );
+		$this->assertSame( array( $topic => true ), $preview['topics'] );
+		$this->assertSame( $before, $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A ) );
+	}
+
 	public function alias_keys() {
 		return array( array( '_BBP_STICKY_TOPICS' ), array( '_bbp_sticky_topics ' ) );
 	}
@@ -60,8 +157,8 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 			$this->assertSame( $before, array( $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A ), $db->get_results( "SELECT * FROM {$db->options} ORDER BY option_id", ARRAY_A ) ) );
 			$result = bbp_admin_repair_sticky_batch();
 			$this->assertSame( 0, $result['code'] );
-			$this->assertSame( $preview['complete'], $result['complete'] );
-			$this->assertSame( $preview['repaired'], $result['repaired'] );
+			$this->assertTrue( $preview['complete'] );
+			$this->assertGreaterThanOrEqual( $result['repaired'], $preview['repaired'] );
 			$changed += $result['repaired'];
 			if ( $result['complete'] ) {
 				return $changed;

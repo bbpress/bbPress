@@ -18,7 +18,9 @@ defined( 'ABSPATH' ) || exit;
  * @return string
  */
 function bbp_get_admin_repair_tool_page() {
-	return sanitize_key( $_GET['page'] );
+	return isset( $_GET['page'] )
+		? sanitize_key( wp_unslash( $_GET['page'] ) )
+		: '';
 }
 
 /**
@@ -367,7 +369,8 @@ function bbp_admin_repair_tool_normalize_result( $result = array() ) {
 	return array(
 		'success'  => $success,
 		'complete' => $complete,
-		'message'  => $result[1]
+		'message'  => $result[1],
+		'batches'  => isset( $result['batches'] ) ? absint( $result['batches'] ) : 0
 	);
 }
 
@@ -392,7 +395,7 @@ function bbp_admin_repair_tool_batch_size( $tool_id = '' ) {
 }
 
 /**
- * Format the shared per-batch status and details for Run and Dry Run notices.
+ * Format batch progress for Run and complete details for Dry Run notices.
  *
  * @since 2.7.0 bbPress (r8315)
  *
@@ -402,12 +405,11 @@ function bbp_admin_repair_tool_batch_size( $tool_id = '' ) {
  * @return string Plain-text notice with one statement per line.
  */
 function bbp_admin_repair_tool_batch_message( $details, $complete, $dry_run = false ) {
-	$message = esc_html__( 'This batch:', 'bbpress' ) . "\n" . $details;
-	if ( ! $dry_run ) {
-		$status  = $complete ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
-		$message = $status . "\n" . $message;
+	if ( $dry_run ) {
+		return $details;
 	}
-	return $message;
+	$status = $complete ? esc_html__( 'Complete!', 'bbpress' ) : esc_html__( 'Batch complete!', 'bbpress' );
+	return $status . "\n" . esc_html__( 'This batch:', 'bbpress' ) . "\n" . $details;
 }
 
 /**
@@ -437,7 +439,8 @@ function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $
 	return array(
 		0,
 		sprintf( $statement, bbp_admin_repair_tool_batch_message( $detail, $batch['complete'], $dry_run ) ),
-		'complete' => $batch['complete']
+		'complete' => $batch['complete'],
+		'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0
 	);
 }
 
@@ -595,6 +598,26 @@ function bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value ) {
  * @return array|false Mismatched object IDs, or false on a read error.
  */
 function bbp_admin_repair_metadata_mismatches( $meta_type, $key, $expected ) {
+	$status = bbp_admin_repair_metadata_status( $meta_type, $key, $expected );
+	return false === $status ? false : array_keys( wp_list_filter( $status, array( 'changed' => true ) ) );
+}
+
+/**
+ * Inspect a window of complete metadata fields without loading duplicate rows.
+ *
+ * Work includes retaining or creating the canonical value and cleaning up its
+ * other rows. Repair workers use this only to verify completed writes; Dry Run
+ * executes the same bounded mutation planner as Run.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param string $meta_type Metadata type: 'post' or 'user'.
+ * @param string $key       Canonical metadata key.
+ * @param array  $expected  Object IDs mapped to values, or null for absence.
+ * @return array|false Change and work totals by object ID, or a read error.
+ */
+function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 	if ( ! in_array( $meta_type, array( 'post', 'user' ), true ) ) {
 		return false;
 	}
@@ -605,28 +628,45 @@ function bbp_admin_repair_metadata_mismatches( $meta_type, $key, $expected ) {
 	$table  = $db->{$meta_type . 'meta'};
 	$column = $meta_type . '_id';
 	$slots  = implode( ', ', array_fill( 0, count( $expected ), '%d' ) );
+	$cases  = array();
+	$args   = array( $key, $key );
+	foreach ( $expected as $id => $value ) {
+		$cases[] = null === $value ? 'WHEN %d THEN NULL' : 'WHEN %d THEN %s';
+		$args[]  = $id;
+		if ( null !== $value ) {
+			$args[] = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
+		}
+	}
+	$values = 'CASE ' . $column . ' ' . implode( ' ', $cases ) . ' END';
 	$rows   = $db->get_results(
 		$db->prepare(
-			"SELECT {$column} AS object_id, COUNT(*) AS row_count, MIN(meta_key) AS meta_key, MIN(meta_value) AS meta_value
+			"SELECT {$column} AS object_id, COUNT(*) AS row_count,
+				SUM(BINARY meta_key = BINARY %s) AS exact_keys,
+				SUM(BINARY meta_key = BINARY %s AND BINARY meta_value = BINARY ({$values})) AS correct_values
 			FROM {$table} WHERE meta_key = %s AND {$column} IN ({$slots}) GROUP BY {$column}",
-			array_merge( array( $key ), array_keys( $expected ) )
+			array_merge( $args, array( $key ), array_keys( $expected ) )
 		),
 		OBJECT_K
 	);
 	if ( ! empty( $db->last_error ) ) {
 		return false;
 	}
-	$mismatches = array();
+	$status = array();
 	foreach ( $expected as $id => $value ) {
-		$row    = isset( $rows[ $id ] ) ? $rows[ $id ] : null;
-		$stored = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
-		$valid  = null === $value ? null === $row
-			: ( null !== $row && 1 === (int) $row->row_count && $key === $row->meta_key && $stored === $row->meta_value );
-		if ( ! $valid ) {
-			$mismatches[] = (int) $id;
+		$row     = isset( $rows[ $id ] ) ? $rows[ $id ] : null;
+		$count   = $row ? (int) $row->row_count : 0;
+		$correct = $row && $row->correct_values > 0;
+		$work    = $count;
+		if ( null !== $value ) {
+			// Reuse a later exact-key row only when the original source survives.
+			$work += $correct ? -1 : ( $row && $row->exact_keys > 1 ? 0 : 1 );
 		}
+		$status[ $id ] = array(
+			'changed' => null === $value ? $count > 0 : ( ! $correct || 1 !== $count ),
+			'work'    => max( 1, $work ),
+		);
 	}
-	return $mismatches;
+	return $status;
 }
 
 /**
@@ -742,41 +782,58 @@ function bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value ) {
  *
  * @since 2.7.0 bbPress (r8277)
  * @since 2.7.0 bbPress (r8303) Support serialized lists and verify inserted rows.
- * @since 2.7.0 bbPress (r8315) Count whole-site preview work without loading duplicate row IDs.
+ * @since 2.7.0 bbPress (r8331) Share bounded mutation planning with full Dry Runs.
  *
  * @param string               $meta_type Metadata type: 'post' or 'user'.
  * @param int                  $object_id Object ID.
  * @param string               $key       Metadata key.
  * @param int|string|array|null $value     Expected value, or null when no row should remain.
- * @param int|null             $limit     Maximum metadata writes, or null for a complete read-only status check.
+ * @param int                  $limit     Maximum metadata writes to plan or perform.
  * @param bool                 $dry_run   Whether to preview without writes.
+ * @param array|null           $preview   Request-local Dry Run progress for this field.
  * @return array Status code, work used, changed flag, and completion flag.
  */
-function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false ) {
+function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false, &$preview = null ) {
 	$bbp_db     = bbp_db();
 	$table      = $bbp_db->{$meta_type . 'meta'};
 	$id_column  = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id';
 	$object_key = $meta_type . '_id';
+	$limit      = max( 1, (int) $limit );
 	$result     = array(
-		'code'     => 0,
-		'work'     => 0,
-		'changed'  => false,
-		'complete' => false
+		'code'       => 0,
+		'work'       => 0,
+		'operations' => 0,
+		'changed'    => false,
+		'complete'   => false
 	);
 	$stored_value = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
-	$keep_id      = 0;
-	if ( null !== $value ) {
+	$signature    = md5( maybe_serialize( array( $meta_type, $object_id, $key, $value ) ) );
+	$resuming     = $dry_run && is_array( $preview ) && isset( $preview['signature'] ) && $signature === $preview['signature'];
+	$keep_id      = $resuming ? (int) $preview['keep_id'] : 0;
+	$replace      = $resuming ? ! empty( $preview['replace'] ) : false;
+	if ( ! $resuming && null !== $value ) {
 		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, $stored_value ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			$result['code'] = 2;
 			return $result;
 		}
+		$replace = empty( $keep_id );
+	}
+	if ( $dry_run && ! $resuming ) {
+		$preview = array(
+			'signature'     => $signature,
+			'keep_id'       => $keep_id,
+			'replace'       => $replace,
+			'replaced'      => false,
+			'delete_cursor' => 0,
+			'changed'       => false
+		);
 	}
 
 	if ( ! $dry_run ) {
 		wp_cache_delete( $object_id, $meta_type . '_meta' );
 	}
-	if ( ( null !== $value ) && empty( $keep_id ) ) {
+	if ( ( null !== $value ) && $replace && ( ! $dry_run || empty( $preview['replaced'] ) ) ) {
 		// Keep the oldest exact-key source intact; reuse only a later exact-key row
 		$ids = $bbp_db->get_col( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s ORDER BY {$id_column} LIMIT 2", $object_id, $key ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
@@ -784,6 +841,10 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 			return $result;
 		}
 		$keep_id = count( $ids ) > 1 ? (int) $ids[1] : 0;
+		if ( $dry_run ) {
+			$preview['keep_id']  = $keep_id;
+			$preview['replaced'] = true;
+		}
 		if ( ! $dry_run ) {
 			if ( $keep_id ) {
 				$row = (object) array(
@@ -804,23 +865,15 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 			}
 		}
 		++$result['work'];
+		++$result['operations'];
 		$result['changed'] = true;
 	}
 
 	$where = $bbp_db->prepare( "WHERE {$object_key} = %d AND meta_key = %s AND {$id_column} <> %d", $object_id, $key, $keep_id );
-	if ( $dry_run && is_null( $limit ) ) {
-		$extra = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
-		if ( ! empty( $bbp_db->last_error ) ) {
-			$result['code'] = 2;
-			return $result;
-		}
-		$result['work']     = max( 1, $result['work'] + $extra );
-		$result['changed']  = $result['changed'] || $extra > 0;
-		$result['complete'] = true;
-		return $result;
+	if ( $dry_run && ! empty( $preview['delete_cursor'] ) ) {
+		$where .= $bbp_db->prepare( " AND {$id_column} < %d", $preview['delete_cursor'] );
 	}
-
-	$remaining = $limit - $result['work'];
+	$remaining = max( 0, $limit - $result['work'] );
 	$extra_ids = $bbp_db->get_col( "SELECT {$id_column} FROM {$table} {$where}" . $bbp_db->prepare( " ORDER BY {$id_column} DESC LIMIT %d", $remaining + 1 ) );
 	if ( ! empty( $bbp_db->last_error ) ) {
 		$result['code'] = 2;
@@ -839,10 +892,20 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 			}
 		}
 		++$result['work'];
+		++$result['operations'];
 		$result['changed'] = true;
+		if ( $dry_run ) {
+			$preview['delete_cursor'] = (int) $meta_id;
+		}
 	}
 	$result['work']     = max( 1, $result['work'] );
 	$result['complete'] = count( $extra_ids ) <= $remaining;
+	if ( $dry_run ) {
+		$preview['changed'] = $preview['changed'] || $result['changed'];
+		$result['changed']  = $result['complete'] && $preview['changed'];
+	} else {
+		$result['changed'] = $result['complete'] && $result['changed'];
+	}
 
 	return $result;
 }
@@ -859,9 +922,10 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  * @param array  $rows    Selected metadata rows, including is_source flags.
  * @param string $source Prepared source relationship query.
  * @param bool   $dry_run Whether to preview without writes or cache invalidation.
+ * @param array  $planned Relationships already counted by this preview.
  * @return array Status code, additions, removals, changed topic IDs, and cursor.
  */
-function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false ) {
+function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$planned = array() ) {
 	$bbp_db = bbp_db();
 	$result = array(
 		'code'    => 0,
@@ -870,7 +934,6 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false ) {
 		'topics'  => array(),
 		'cursor'  => 0
 	);
-	$planned = array();
 	foreach ( $rows as $row ) {
 		$is_source = (bool) $row->is_source;
 		$where     = $is_source
@@ -1000,7 +1063,150 @@ function bbp_admin_repair_update_option( $option, $value ) {
  * @return string
  */
 function bbp_admin_repair_tool_batch_option_name( $tool_id = '' ) {
-	return '_bbp_tool_batch_' . md5( sanitize_key( $tool_id ) );
+	$option  = '_bbp_tool_batch_' . md5( sanitize_key( $tool_id ) );
+	$context = bbp_admin_repair_tool_execution_context();
+
+	if ( 'dry-run' === $context['action'] && ! empty( $context['run_id'] ) ) {
+		$option .= '_preview_' . md5( $context['run_id'] );
+	}
+
+	return $option;
+}
+
+/**
+ * Get or set the current repair-tool execution context.
+ *
+ * Direct callback calls retain the historical synchronous behavior. The
+ * browser runner sets a run owner so Dry Run checkpoints use an isolated
+ * namespace across its bounded requests.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param string|null $action  Tool action, or null to read the context.
+ * @param string      $run_id  Browser-run owner.
+ * @param bool        $started Whether the current tool has processed a batch.
+ * @return array Current action, run owner, and tool state.
+ */
+function bbp_admin_repair_tool_execution_context( $action = null, $run_id = '', $started = false ) {
+	static $context = array(
+		'action'  => 'run',
+		'run_id'  => '',
+		'started' => false,
+	);
+
+	if ( null !== $action ) {
+		$action  = sanitize_key( $action );
+		$context = array(
+			'action'  => in_array( $action, array( 'run', 'dry-run' ), true ) ? $action : 'run',
+			'run_id'  => sanitize_text_field( $run_id ),
+			'started' => (bool) $started,
+		);
+	}
+
+	return $context;
+}
+
+/**
+ * Return whether this callback belongs to a newly started browser Run.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @return bool
+ */
+function bbp_admin_repair_tool_is_new_browser_run() {
+	$context = bbp_admin_repair_tool_execution_context();
+
+	return 'run' === $context['action'] && ! empty( $context['run_id'] ) && empty( $context['started'] );
+}
+
+/**
+ * Return whether this request is one bounded browser Dry Run batch.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @return bool
+ */
+function bbp_admin_repair_tool_is_async_dry_run() {
+	$context = bbp_admin_repair_tool_execution_context();
+
+	return 'dry-run' === $context['action'] && ! empty( $context['run_id'] );
+}
+
+/**
+ * Return whether a Dry Run should continue through every virtual batch now.
+ *
+ * Direct callback calls retain the synchronous full-preview contract. Browser
+ * Dry Runs return after one bounded request and resume from isolated state.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param bool $dry_run Whether this is a Dry Run.
+ * @return bool
+ */
+function bbp_admin_repair_tool_continue_preview( $dry_run = false ) {
+	return $dry_run && ! bbp_admin_repair_tool_is_async_dry_run();
+}
+
+/**
+ * Restore aggregate counters and worker-local simulation data for a browser Dry Run.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param array $state  Saved worker checkpoint.
+ * @param array $batch  Current worker result.
+ * @param array $fields Aggregate result fields to restore.
+ * @return array Worker-local simulation data.
+ */
+function bbp_admin_repair_tool_restore_preview( $state, &$batch, $fields = array() ) {
+	if ( ! bbp_admin_repair_tool_is_async_dry_run() || empty( $state['_preview_state'] )
+		|| ! is_array( $state['_preview_state'] )
+		|| ! isset( $state['_preview_state']['totals'], $state['_preview_state']['data'] )
+		|| ! is_array( $state['_preview_state']['totals'] ) || ! is_array( $state['_preview_state']['data'] ) ) {
+		return array();
+	}
+
+	$preview = $state['_preview_state'];
+	foreach ( $fields as $field ) {
+		if ( array_key_exists( $field, $preview['totals'] ) && array_key_exists( $field, $batch ) ) {
+			$batch[ $field ] = $preview['totals'][ $field ];
+		}
+	}
+
+	return $preview['data'];
+}
+
+/**
+ * Add aggregate counters and worker-local simulation data to a browser Dry Run checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param array $state  Worker checkpoint to update.
+ * @param array $batch  Current worker result.
+ * @param array $fields Aggregate result fields to save.
+ * @param array $data   Worker-local simulation data.
+ */
+function bbp_admin_repair_tool_store_preview( &$state, $batch, $fields = array(), $data = array() ) {
+	if ( ! bbp_admin_repair_tool_is_async_dry_run() ) {
+		return;
+	}
+
+	$totals = array();
+	foreach ( $fields as $field ) {
+		if ( array_key_exists( $field, $batch ) ) {
+			$totals[ $field ] = $batch[ $field ];
+		}
+	}
+
+	$state['_preview_state'] = array(
+		'totals' => $totals,
+		'data'   => $data,
+	);
 }
 
 /**
@@ -1009,9 +1215,13 @@ function bbp_admin_repair_tool_batch_option_name( $tool_id = '' ) {
  * @since 2.7.0 bbPress (r8315)
  *
  * @param string $tool_id Repair or upgrade tool ID.
+ * @param bool   $dry_run  Whether to start a fresh, read-only preview.
  * @return array Read success and checkpoint, or false when no checkpoint exists.
  */
-function bbp_admin_repair_tool_get_checkpoint( $tool_id ) {
+function bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run = false ) {
+	if ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) {
+		return array( true, false );
+	}
 	return bbp_admin_repair_get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) );
 }
 
@@ -1020,21 +1230,25 @@ function bbp_admin_repair_tool_get_checkpoint( $tool_id ) {
  *
  * Each tool keeps its own namespace. Workers supply their existing validator
  * and context, then choose their own upper bounds and work. This helper neither
- * acquires a lock nor writes state, so Run and Dry Run share the same preparation.
+ * acquires a lock nor writes state. A full preview starts independently of saved Run progress.
  *
  * @since 2.7.0 bbPress (r8315)
  *
  * @param string   $tool_id   Repair or upgrade tool ID.
  * @param callable $validator Checkpoint validator, accepting state and context.
  * @param mixed    $context   Validator context or extra integer field names.
+ * @param bool     $dry_run   Whether to start a fresh, read-only preview.
  * @return array Read success, usable checkpoint or false, and restart flag.
  */
-function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array() ) {
+function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false ) {
 	if ( ! is_callable( $validator ) ) {
 		return array( false, false, false );
 	}
-	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id );
-	$restarted = $read && false !== $state && ! call_user_func( $validator, $state, $context );
+	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run );
+	$preview_valid = ! isset( $state['_preview_state'] ) || ( is_array( $state['_preview_state'] )
+		&& isset( $state['_preview_state']['totals'], $state['_preview_state']['data'] )
+		&& is_array( $state['_preview_state']['totals'] ) && is_array( $state['_preview_state']['data'] ) );
+	$restarted = $read && false !== $state && ( ! $preview_valid || ! call_user_func( $validator, $state, $context ) );
 	return array( $read, $restarted ? false : $state, $restarted );
 }
 
@@ -1096,7 +1310,11 @@ function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = arra
  * @return bool Whether the stored checkpoint matches the requested state.
  */
 function bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete = false, $dry_run = false ) {
-	return $dry_run || bbp_admin_repair_tool_save_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), $state, $complete );
+	if ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) {
+		return true;
+	}
+
+	return bbp_admin_repair_tool_save_option( bbp_admin_repair_tool_batch_option_name( $tool_id ), $state, $complete );
 }
 
 /**
@@ -1214,17 +1432,21 @@ function bbp_admin_repair_tool_result_detail( $message = '' ) {
 }
 
 /**
- * Prefix a dry-run result with its completion status.
+ * Prefix a dry-run result with its shared status.
  *
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string $message Dry-run impact message.
  * @param bool   $success Whether the dry run succeeded.
+ * @param int    $batches Estimated batches for a full Run.
+ * @param bool   $complete Whether the dry run is complete.
  * @return string
  */
-function bbp_admin_repair_tool_dry_run_message( $message = '', $success = true ) {
+function bbp_admin_repair_tool_dry_run_message( $message = '', $success = true, $batches = 0, $complete = true ) {
 	if ( ! $success ) {
 		$status = esc_html__( 'Dry run failed! No changes were made.', 'bbpress' );
+	} elseif ( ! $complete ) {
+		$status = esc_html__( 'Dry run in progress. No changes have been made.', 'bbpress' );
 	} else {
 		$status = esc_html__( 'Dry run complete! No changes were made.', 'bbpress' );
 	}
@@ -1232,6 +1454,11 @@ function bbp_admin_repair_tool_dry_run_message( $message = '', $success = true )
 	$lines = array( $status );
 	if ( ! empty( $message ) ) {
 		$lines[] = $message;
+	}
+
+	if ( $success && $complete && $batches > 0 ) {
+		/* translators: %s: Estimated number of batches for a full Run */
+		$lines[] = sprintf( esc_html__( 'Estimated batches for a full Run: %s.', 'bbpress' ), number_format_i18n( $batches ) );
 	}
 
 	return implode( "\n", $lines );

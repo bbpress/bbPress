@@ -1573,7 +1573,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 				return ( false !== strpos( $query, "FROM {$db->posts} AS p" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 			5 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
+				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) || 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
 
@@ -1882,7 +1882,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 					: $query;
 			},
 			4 => static function ( $query ) use ( $db ) {
-				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) )
+				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) || 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) )
 					? str_replace( "FROM {$db->postmeta}", 'FROM bbp_missing_subforum_count_meta', $query )
 					: $query;
 			},
@@ -4033,7 +4033,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Favorites would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '1 stored favorite list would be repaired', $dry_run[1] );
 		$this->assertSame( "{$live_id},{$old_id}", get_user_meta( $user_id, $key, true ) );
 		$this->assertSame(
 			"{$live_id},{$old_id}",
@@ -4061,7 +4061,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 user favorites to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 stored favorite lists to repair', $dry_run[1] );
 		$this->assertSame(
 			(string) $old_id,
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4094,7 +4094,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Favorites would be repaired for 2 users', $dry_run[1] );
+		$this->assertStringContainsString( '2 stored favorite lists would be repaired', $dry_run[1] );
 		$this->assertSame( 2, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = '{$key}'" ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_favorites()[0] );
@@ -4125,7 +4125,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Favorites would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '2 stored favorite lists would be repaired', $dry_run[1] );
 		$this->assertSame(
 			2,
 			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4149,7 +4149,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, "{$live_id},{$live_id}" );
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Favorites would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '1 stored favorite list would be repaired', $dry_run[1] );
 		$this->assertSame(
 			"{$live_id},{$live_id}",
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4256,7 +4256,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, $live_id );
 		$dry_run = bbp_admin_repair_user_favorites_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 user favorites to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 stored favorite lists to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
@@ -4277,7 +4277,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Topic subscriptions would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '1 stored topic subscription list would be repaired', $dry_run[1] );
 		$this->assertSame( "{$live_id},{$old_id}", get_user_meta( $user_id, $key, true ) );
 		$this->assertSame(
 			"{$live_id},{$old_id}",
@@ -4305,7 +4305,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 user topic subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 stored topic subscription lists to repair', $dry_run[1] );
 		$this->assertSame(
 			(string) $old_id,
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4338,7 +4338,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Topic subscriptions would be repaired for 2 users', $dry_run[1] );
+		$this->assertStringContainsString( '2 stored topic subscription lists would be repaired', $dry_run[1] );
 		$this->assertSame( 2, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = '{$key}'" ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_topic_subscriptions()[0] );
@@ -4369,7 +4369,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Topic subscriptions would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '2 stored topic subscription lists would be repaired', $dry_run[1] );
 		$this->assertSame(
 			2,
 			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4393,7 +4393,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, "{$live_id},{$live_id}" );
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Topic subscriptions would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '1 stored topic subscription list would be repaired', $dry_run[1] );
 		$this->assertSame(
 			"{$live_id},{$live_id}",
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4500,7 +4500,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, $live_id );
 		$dry_run = bbp_admin_repair_user_topic_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 user topic subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 stored topic subscription lists to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
@@ -4521,7 +4521,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Forum subscriptions would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '1 stored forum subscription list would be repaired', $dry_run[1] );
 		$this->assertSame( "{$live_id},{$old_id}", get_user_meta( $user_id, $key, true ) );
 		$this->assertSame(
 			"{$live_id},{$old_id}",
@@ -4549,7 +4549,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 user forum subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 stored forum subscription lists to repair', $dry_run[1] );
 		$this->assertSame(
 			(string) $old_id,
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4582,7 +4582,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Forum subscriptions would be repaired for 2 users', $dry_run[1] );
+		$this->assertStringContainsString( '2 stored forum subscription lists would be repaired', $dry_run[1] );
 		$this->assertSame( 2, (int) $db->get_var( "SELECT COUNT(*) FROM {$db->usermeta} WHERE meta_key = '{$key}'" ) );
 
 		$this->assertSame( 0, bbp_admin_repair_user_forum_subscriptions()[0] );
@@ -4613,7 +4613,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Forum subscriptions would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '2 stored forum subscription lists would be repaired', $dry_run[1] );
 		$this->assertSame(
 			2,
 			(int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4637,7 +4637,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, "{$live_id},{$live_id}" );
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( 'Forum subscriptions would be repaired for 1 user', $dry_run[1] );
+		$this->assertStringContainsString( '1 stored forum subscription list would be repaired', $dry_run[1] );
 		$this->assertSame(
 			"{$live_id},{$live_id}",
 			$db->get_var( $db->prepare( "SELECT meta_value FROM {$db->usermeta} WHERE user_id = %d AND meta_key = %s", $user_id, $key ) )
@@ -4744,7 +4744,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_user_meta( $user_id, $key, $live_id );
 		$dry_run = bbp_admin_repair_user_forum_subscriptions_dry_run();
 		$this->assertSame( 1, $dry_run[0] );
-		$this->assertStringContainsString( '0 user forum subscriptions to repair', $dry_run[1] );
+		$this->assertStringContainsString( '0 stored forum subscription lists to repair', $dry_run[1] );
 		$this->assertSame( (string) $live_id, get_user_meta( $user_id, $key, true ) );
 	}
 
@@ -5071,10 +5071,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		}
 		$preview = bbp_admin_repair_freshness_dry_run();
 		$this->assertSame( 0, $preview[0] );
-		$this->assertFalse( $preview['complete'] );
-		$this->assertStringContainsString( 'This batch:', $preview[1] );
+		$this->assertTrue( $preview['complete'] );
+		$this->assertStringNotContainsString( 'This batch:', $preview[1] );
 		$this->assertStringContainsString( '1 topic would be recalculated', $preview[1] );
-		$this->assertStringContainsString( '0 forums would be recalculated', $preview[1] );
+		$this->assertStringContainsString( '1 forum would be recalculated', $preview[1] );
 		$this->assertStringContainsString( '4 orphaned freshness rows would be removed', $preview[1] );
 		$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
 		$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_last_topic_id', true ) );
@@ -5104,8 +5104,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$db->query( "INSERT INTO {$db->postmeta} (post_id, meta_key, meta_value) VALUES " . implode( ', ', $values ) );
 		$preview = bbp_admin_repair_freshness_batch( true );
 		$this->assertGreaterThan( 0, $preview['stale'] );
-		$this->assertLessThanOrEqual( 100, $preview['stale'] );
-		$this->assertFalse( $preview['complete'] );
+		$this->assertSame( 1001, $preview['stale'] );
+		$this->assertTrue( $preview['complete'] );
 		$this->assertSame( '1001', $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = '_bbp_last_active_time'" ) );
 		for ( $i = 0; $i < 30; ++$i ) {
 			$before = (int) $db->get_var( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = '_bbp_last_active_time'" );
@@ -5993,7 +5993,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->factory->forum->create();
 		$old_suppression = $wpdb->suppress_errors( true );
 		$query_filter    = static function ( $query ) use ( $wpdb ) {
-			return ( false !== strpos( $query, "SELECT meta_id FROM {$wpdb->postmeta}" ) )
+			return ( false !== strpos( $query, "SELECT meta_id FROM {$wpdb->postmeta}" ) || 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) )
 				? str_replace( "FROM {$wpdb->postmeta}", 'FROM bbp_missing_forum_meta', $query )
 				: $query;
 		};
@@ -6507,7 +6507,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'bbp_admin_repair_tool_batch_size', $size );
 		$dry_run = bbp_admin_repair_topic_meta_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1,000 orphaned topic references would be removed', $dry_run[1] );
+		$this->assertStringContainsString( '1,001 orphaned topic references would be removed', $dry_run[1] );
 		$this->assertSame( 1001, (int) $db->get_var( $db->prepare( "SELECT COUNT(*) FROM {$db->postmeta} WHERE meta_key = %s", '_bbp_topic_id' ) ) );
 
 		add_filter( 'query', $query_filter );
@@ -7479,8 +7479,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '2 stale or duplicate engagement rows would be cleaned up in this batch.', $dry_run[1] );
-		$this->assertStringContainsString( '3 missing engagements would be added from topic and reply authors in this batch.', $dry_run[1] );
+		$this->assertStringContainsString( '2 stale or duplicate engagement rows would be cleaned up.', $dry_run[1] );
+		$this->assertStringContainsString( '3 missing engagements would be added from topic and reply authors.', $dry_run[1] );
 		$this->assertSame( $stored, $db->get_results( "SELECT post_id, meta_value FROM {$db->postmeta} WHERE meta_key = '_bbp_engagement' ORDER BY meta_id", ARRAY_A ) );
 
 		$result = bbp_admin_upgrade_user_engagements();
@@ -7494,8 +7494,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '0 stale or duplicate engagement rows would be cleaned up in this batch.', $dry_run[1] );
-		$this->assertStringContainsString( '0 missing engagements would be added from topic and reply authors in this batch.', $dry_run[1] );
+		$this->assertStringContainsString( '0 stale or duplicate engagement rows would be cleaned up.', $dry_run[1] );
+		$this->assertStringContainsString( '0 missing engagements would be added from topic and reply authors.', $dry_run[1] );
 	}
 
 	/**
@@ -7523,8 +7523,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		$dry_run = bbp_admin_upgrade_user_engagements_dry_run();
 		$this->assertSame( 0, $dry_run[0] );
-		$this->assertStringContainsString( '1 stale or duplicate engagement row would be cleaned up in this batch.', $dry_run[1] );
-		$this->assertStringContainsString( '0 missing engagements would be added from topic and reply authors in this batch.', $dry_run[1] );
+		$this->assertStringContainsString( '1 stale or duplicate engagement row would be cleaned up.', $dry_run[1] );
+		$this->assertStringContainsString( '0 missing engagements would be added from topic and reply authors.', $dry_run[1] );
 		$this->assertSame( '999999', $db->get_var( $db->prepare( "SELECT meta_value FROM {$db->postmeta} WHERE post_id = %d AND meta_key = '_bbp_engagement'", $topic_id ) ) );
 
 		$result = bbp_admin_upgrade_user_engagements();

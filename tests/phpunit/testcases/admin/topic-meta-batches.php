@@ -81,7 +81,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 			$result     = bbp_admin_repair_topic_meta_batch();
 			$after_ids  = $this->meta_ids();
 			$this->assertSame( 0, $result['code'] );
-			$this->assertSame( $preview, $result );
+			$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 			$this->assertLessThanOrEqual( 2, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
 			if ( $result['complete'] ) {
@@ -94,6 +95,35 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		$before = $this->snapshot();
 		$this->finish();
 		$this->assertSame( $before, $this->snapshot() );
+	}
+
+	public function test_browser_dry_run_uses_bounded_requests_and_aggregate_totals() {
+		$ids            = $this->topics();
+		$before         = $this->snapshot();
+		$run_id         = wp_generate_uuid4();
+		$requests       = 0;
+		$result         = array();
+		$preview_option = '';
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', $run_id );
+		try {
+			$preview_option = bbp_admin_repair_tool_batch_option_name( 'bbp-sync-topic-meta' );
+			for ( $requests = 1; $requests < 30; ++$requests ) {
+				$result = bbp_admin_repair_topic_meta_batch( true );
+				$this->assertSame( array_slice( $before, 0, 2 ), array_slice( $this->snapshot(), 0, 2 ) );
+				$this->assertSame( $requests, $result['batches'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertGreaterThan( 1, $requests );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( count( $ids ), $result['topics'] );
+		$this->assertFalse( get_option( $preview_option, false ) );
 	}
 
 	public function boundary_sizes() {
@@ -121,7 +151,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 				$before_ids = $this->meta_ids();
 				$result     = bbp_admin_repair_topic_meta_batch();
 				$after_ids  = $this->meta_ids();
-				$this->assertSame( $preview, $result );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertSame( 0, $result['code'] );
 				$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				if ( 0 === $batch ) {
@@ -322,7 +353,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
-		$this->assertStringContainsString( 'Saved progress is invalid.', bbp_admin_repair_topic_meta_dry_run()[1] );
+		$this->assertStringNotContainsString( 'Saved progress is invalid.', bbp_admin_repair_topic_meta_dry_run()[1] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertStringContainsString( 'Saved progress was invalid.', bbp_admin_repair_topic_meta()[1] );
 		$this->finish();
@@ -374,7 +405,7 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 				update_option( $this->option(), array( 'cursor' => 0, 'upper_id' => max( $ids ), 'post_types' => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ), false );
 			}
 			$fail = static function ( $query ) use ( $prefix ) {
-				return ( 0 === strpos( $query, $prefix ) ) ? 'SELECT ID FROM bbp_missing_reference_source' : $query;
+				return ( 0 === strpos( $query, $prefix ) || ( 0 === strpos( $prefix, 'SELECT meta_id' ) && 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) ) ) ? 'SELECT ID FROM bbp_missing_reference_source' : $query;
 			};
 			$before   = $this->snapshot();
 			$suppress = $db->suppress_errors( true );

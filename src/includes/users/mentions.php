@@ -103,6 +103,58 @@ function bbp_get_mentioned_user_ids( $content = '' ) {
 }
 
 /**
+ * Plan a topic or reply's mention relationship changes.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ *
+ * @param int $post_id Topic or reply ID.
+ * @return array Post, current and expected user IDs, additions, and removals.
+ */
+function bbp_get_post_mention_changes( $post_id = 0 ) {
+	$post = get_post( $post_id );
+	if ( ! $post || ! in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+		return array(
+			'post'     => false,
+			'current'  => array(),
+			'expected' => array(),
+			'added'    => array(),
+			'removed'  => array()
+		);
+	}
+
+	$current  = bbp_get_users_for_object( $post_id, '_bbp_mention' );
+	$expected = bbp_get_mentioned_user_ids( $post->post_content );
+
+	return array(
+		'post'     => $post,
+		'current'  => $current,
+		'expected' => $expected,
+		'added'    => array_values( array_diff( $expected, $current ) ),
+		'removed'  => array_values( array_diff( $current, $expected ) )
+	);
+}
+
+/**
+ * Apply a planned set of mention relationship changes.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ *
+ * @param int   $post_id Topic or reply ID.
+ * @param array $changes Planned changes from bbp_get_post_mention_changes().
+ * @return array Expected mentioned user IDs.
+ */
+function bbp_apply_post_mention_changes( $post_id, $changes ) {
+	foreach ( $changes['removed'] as $user_id ) {
+		bbp_remove_user_from_object( $post_id, $user_id, '_bbp_mention' );
+	}
+	foreach ( $changes['added'] as $user_id ) {
+		bbp_add_user_to_object( $post_id, $user_id, '_bbp_mention' );
+	}
+
+	return $changes['expected'];
+}
+
+/**
  * Synchronize a topic or reply's mention relationships, without sending email.
  *
  * Can also be used by importers or a batched historical repair.
@@ -113,22 +165,12 @@ function bbp_get_mentioned_user_ids( $content = '' ) {
  * @return array Current mentioned user IDs.
  */
 function bbp_update_post_mentions( $post_id = 0 ) {
-	$post = get_post( $post_id );
-	if ( ! $post || ! in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+	$changes = bbp_get_post_mention_changes( $post_id );
+	if ( ! $changes['post'] ) {
 		return array();
 	}
 
-	$old_ids = bbp_get_users_for_object( $post_id, '_bbp_mention' );
-	$new_ids = bbp_get_mentioned_user_ids( $post->post_content );
-
-	foreach ( array_diff( $old_ids, $new_ids ) as $user_id ) {
-		bbp_remove_user_from_object( $post_id, $user_id, '_bbp_mention' );
-	}
-	foreach ( array_diff( $new_ids, $old_ids ) as $user_id ) {
-		bbp_add_user_to_object( $post_id, $user_id, '_bbp_mention' );
-	}
-
-	return $new_ids;
+	return bbp_apply_post_mention_changes( $post_id, $changes );
 }
 
 /**

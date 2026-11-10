@@ -92,7 +92,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 				$result     = $this->assertMetadataWritesBounded( 'post', 2, 'bbp_admin_repair_forum_subforum_count_batch' );
 				$after_ids  = $this->meta_ids();
 				$this->assertSame( 0, $result['code'] );
-				$this->assertSame( $preview, $result );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertLessThanOrEqual( 2, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
 				if ( $result['complete'] ) {
@@ -141,7 +142,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 				$result     = $this->assertMetadataWritesBounded( 'post', $size, 'bbp_admin_repair_forum_subforum_count_batch' );
 				$after_ids  = $this->meta_ids();
 				$this->assertSame( 0, $result['code'] );
-				$this->assertSame( $preview, $result );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				if ( 0 === $batch ) {
 					$this->assertFalse( $result['complete'] );
@@ -382,7 +384,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
-		$this->assertStringContainsString( 'Saved progress is invalid.', bbp_admin_repair_forum_subforum_count_dry_run()[1] );
+		$this->assertStringNotContainsString( 'Saved progress is invalid.', bbp_admin_repair_forum_subforum_count_dry_run()[1] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertStringContainsString( 'Saved progress was invalid.', bbp_admin_repair_forum_subforum_count()[1] );
 		$this->finish();
@@ -434,7 +436,7 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 				update_option( $this->option(), array( 'cursor' => 0, 'upper_id' => max( $ids ), 'post_type' => bbp_get_forum_post_type() ), false );
 			}
 			$fail = static function ( $query ) use ( $prefix ) {
-				return ( 0 === strpos( $query, $prefix ) ) ? 'SELECT ID FROM bbp_missing_subforum_source' : $query;
+				return ( 0 === strpos( $query, $prefix ) || ( 0 === strpos( $prefix, 'SELECT meta_id' ) && 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) ) ) ? 'SELECT ID FROM bbp_missing_subforum_source' : $query;
 			};
 			$before   = $this->snapshot();
 			$suppress = $db->suppress_errors( true );

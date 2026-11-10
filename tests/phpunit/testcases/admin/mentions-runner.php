@@ -119,8 +119,8 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 		bbp_admin_repair_handler();
 	}
 
-	private function request( $type, $tool, $run_id ) {
-		$_POST = $_REQUEST = array( 'type' => $type, 'tool' => $tool, 'run' => $run_id, 'nonce' => wp_create_nonce( 'bbpress-tools-process' ) );
+	private function request( $type, $tool, $run_id, $action = 'run' ) {
+		$_POST = $_REQUEST = array( 'type' => $type, 'toolAction' => $action, 'tool' => $tool, 'run' => $run_id, 'nonce' => wp_create_nonce( 'bbpress-tools-process' ) );
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 		$handler = static function() {
 			return static function( $message ) {
@@ -156,12 +156,11 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 		$this->assertTrue( wp_script_is( 'bbp-admin-tools-js', 'enqueued' ) );
 		$this->assertFalse( wp_script_is( 'bbp-admin-mentions-js', 'registered' ) );
 		$this->assertSame( 'cached', wp_cache_get( 'keep', 'mention-runner' ) );
-		$first = bbp_get_mention_backfill_status();
-		$this->assertLessThanOrEqual( 3, $first['processed'] );
-		$this->assertFalse( $first['complete'] );
+		$this->assertSame( array(), bbp_get_mention_backfill_status() );
 		$this->assertContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
 		$run = bbp_admin_repair_tool_get_run_state( $type );
 		$this->assertSame( array( $tool, $tail ), $run['tools'] );
+		$first = array( 'processed' => 0, 'complete' => false );
 		for ( $i = 0; $i < 10 && ! $first['complete']; ++$i ) {
 			$response = $this->request( $type, $tool, $run['id'] );
 			$this->assertTrue( $response['success'] );
@@ -174,6 +173,11 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 		$run = bbp_admin_repair_tool_get_run_state( $type );
 		$this->assertSame( array( $tail ), $run['tools'] );
 		$this->begin( $type, array( $tail ), 'run', $run['id'] );
+		$this->assertSame( 0, $this->tail_calls );
+		$resumed = bbp_admin_repair_tool_get_run_state( $type );
+		$this->assertNotSame( $run['id'], $resumed['id'] );
+		$response = $this->request( $type, $tail, $resumed['id'] );
+		$this->assertTrue( $response['success'] );
 		$this->assertSame( 1, $this->tail_calls );
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( $type ) );
 		$this->assertNotContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
@@ -184,17 +188,30 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 
 	/** @dataProvider tool_types */
 	public function test_dry_run_remains_read_only_and_uses_shared_notice_format( $type, $tool ) {
-		$this->historical_posts();
+		$posts = $this->historical_posts();
 		bbp_add_pending_upgrade( 'bbp-user-mentions' );
 		$this->begin( $type, array( $tool ), 'dry-run' );
-		$this->assertFalse( wp_script_is( 'bbp-admin-tools-js', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'bbp-admin-tools-js', 'enqueued' ) );
 		$this->assertFalse( get_option( '_bbp_mention_backfill' ) );
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( $type ) );
+		$run = bbp_admin_repair_tool_get_run_state( $type, 'dry-run' );
+		$this->assertSame( array( $tool ), $run['tools'] );
+		for ( $i = 0; $i < 100; ++$i ) {
+			$response = $this->request( $type, $tool, $run['id'], 'dry-run' );
+			$this->assertTrue( $response['success'] );
+			if ( $response['data']['complete'] ) {
+				break;
+			}
+		}
+		$this->assertTrue( $response['data']['complete'] );
+		$this->assertGreaterThan( 0, $i );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( $type, 'dry-run' ) );
 		$this->assertContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
-		$notice = end( bbp_admin()->notices );
-		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $notice );
-		$this->assertStringContainsString( 'More posts remain.', $notice );
-		$this->assertStringContainsString( '<br>', $notice );
+		$this->assertStringContainsString( 'Dry run complete! No changes were made.', $response['data']['message'] );
+		$this->assertStringContainsString( 'Estimated batches for a full Run:', $response['data']['message'] );
+		foreach ( $posts as $post_id ) {
+			$this->assertSame( array(), bbp_get_users_for_object( $post_id, '_bbp_mention' ) );
+		}
 		$this->assertSame( array(), $this->mail );
 	}
 
@@ -220,6 +237,8 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 		$this->historical_posts();
 		$this->begin( 'repair', array( 'bbp-mentions' ) );
 		$run = bbp_admin_repair_tool_get_run_state( 'repair' );
+		$response = $this->request( 'repair', 'bbp-mentions', $run['id'] );
+		$this->assertTrue( $response['success'] );
 		$progress = bbp_get_mention_backfill_status();
 		bbp_admin_repair_tool_update_run_status( 'repair', $run['id'], 'paused' );
 		$response = $this->request( 'repair', 'bbp-mentions', $run['id'] );
@@ -234,12 +253,19 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 			$this->assertTrue( $response['success'] );
 		} else {
 			$this->begin( 'repair', array( 'bbp-mentions' ), 'run', $run['id'] );
+			$resumed = bbp_admin_repair_tool_get_run_state( 'repair' );
+			$this->assertNotSame( $run['id'], $resumed['id'] );
+			$response = $this->request( 'repair', 'bbp-mentions', $resumed['id'] );
+			$this->assertTrue( $response['success'] );
 		}
 		$this->assertSame( $completed, bbp_get_mention_backfill_status() );
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'repair' ) );
 
 		// A later explicit Run starts a fresh pass with a new upper post ID.
 		$this->begin( 'repair', array( 'bbp-mentions' ) );
+		$run = bbp_admin_repair_tool_get_run_state( 'repair' );
+		$response = $this->request( 'repair', 'bbp-mentions', $run['id'] );
+		$this->assertTrue( $response['success'] );
 		$restarted = bbp_get_mention_backfill_status();
 		$this->assertSame( $new[0], $restarted['upper'] );
 		$this->assertFalse( $restarted['complete'] );

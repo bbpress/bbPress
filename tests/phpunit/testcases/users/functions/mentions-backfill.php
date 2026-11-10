@@ -58,6 +58,47 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 		$this->fail( 'Mention backfill did not finish.' );
 	}
 
+	private function request( $type, $tool, $run_id ) {
+		$original_post    = $_POST;
+		$original_request = $_REQUEST;
+		$original_method  = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$handler          = static function() {
+			return static function( $message ) {
+				throw new WPDieException( (string) $message );
+			};
+		};
+
+		$_POST = $_REQUEST = array(
+			'type'       => $type,
+			'toolAction' => 'run',
+			'tool'       => $tool,
+			'run'        => $run_id,
+			'nonce'      => wp_create_nonce( 'bbpress-tools-process' )
+		);
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		add_filter( 'wp_die_ajax_handler', $handler );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		ob_start();
+
+		try {
+			bbp_admin_repair_ajax_handler();
+		} catch ( WPDieException $error ) {
+			return json_decode( ob_get_contents(), true );
+		} finally {
+			ob_end_clean();
+			remove_filter( 'wp_die_ajax_handler', $handler );
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			$_POST    = $original_post;
+			$_REQUEST = $original_request;
+
+			if ( is_null( $original_method ) ) {
+				unset( $_SERVER['REQUEST_METHOD'] );
+			} else {
+				$_SERVER['REQUEST_METHOD'] = $original_method;
+			}
+		}
+	}
+
 	public function test_batches_resume_across_id_gaps_and_skip_other_post_types() {
 		$one = $this->historical_post();
 		$gap = $this->factory->post->create();
@@ -451,13 +492,23 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 			wp_cache_set( 'preserve', 'cached value', 'mention-backfill-test' );
 			bbp_admin_repair_handler();
 			$this->assertSame( 'cached value', wp_cache_get( 'preserve', 'mention-backfill-test' ) );
+			$this->assertSame( array(), bbp_get_mention_backfill_status() );
+			$run = bbp_admin_repair_tool_get_run_state( 'repair' );
+			$this->assertIsArray( $run );
+			$response = $this->request( 'repair', 'bbp-mentions', $run['id'] );
+			$this->assertTrue( $response['success'] );
 			$state = bbp_get_mention_backfill_status();
 			$this->assertTrue( $state['complete'] );
 
 			// Existing repair tools still flush before and after their callback.
-			bbp_register_repair_tool( array( 'id' => 'test-flush', 'title' => 'Test flush', 'priority' => 999, 'callback' => static function() { return array( 0, 'Done' ); } ) );
+			bbp_register_repair_tool( array( 'id' => 'test-flush', 'type' => 'repair', 'title' => 'Test flush', 'priority' => 999, 'callback' => static function() { return array( 0, 'Done' ); } ) );
 			$_GET['checked'] = array( 'test-flush' );
+			$_REQUEST = $_GET;
 			bbp_admin_repair_handler();
+			$run = bbp_admin_repair_tool_get_run_state( 'repair' );
+			$this->assertIsArray( $run );
+			$response = $this->request( 'repair', 'test-flush', $run['id'] );
+			$this->assertTrue( $response['success'] );
 			$this->assertFalse( wp_cache_get( 'preserve', 'mention-backfill-test' ) );
 		} finally {
 			$_GET = $original_get;
@@ -523,6 +574,11 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 		try {
 			bbp_admin_repair_handler();
+			$run = bbp_admin_repair_tool_get_run_state( 'upgrade' );
+			$this->assertIsArray( $run );
+			$response = $this->request( 'upgrade', 'bbp-user-mentions', $run['id'] );
+			$this->assertTrue( $response['success'] );
+			$this->assertFalse( $response['data']['complete'] );
 			$state = bbp_get_mention_backfill_status();
 			$this->assertFalse( $state['complete'] );
 			$this->assertContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
@@ -537,6 +593,10 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 			$result = bbp_admin_repair_user_mentions();
 			$this->assertTrue( $result['complete'] );
 			$this->assertNotContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
+			$response = $this->request( 'upgrade', 'bbp-user-mentions', $run['id'] );
+			$this->assertTrue( $response['success'] );
+			$this->assertTrue( $response['data']['complete'] );
+			$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
 			$this->assertContains( 'unrelated-upgrade', bbp_get_pending_upgrades() );
 			$this->assertSame( array( $this->recipient ), bbp_get_users_for_object( $topic, '_bbp_mention' ) );
 			$this->assertEmpty( bbpress()->mention_notification_queue );
@@ -810,7 +870,8 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 				$result = call_user_func( $callback );
 				$this->assertSame( 0, $result[0] );
 				$this->assertStringContainsString( 'Mentions to add: 1.', $result[1] );
-				$this->assertStringContainsString( 'This preview reaches the end', $result[1] );
+				$this->assertTrue( $result['complete'] );
+				$this->assertGreaterThan( 0, $result['batches'] );
 				$this->set_current_user( 0 );
 				$result = call_user_func( $callback );
 				$this->assertWPError( $result[1] );

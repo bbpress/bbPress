@@ -135,7 +135,8 @@ class BBP_Tests_Admin_User_List_Batches extends BBP_UnitTestCase {
 				$this->assertSame( 0, $writes );
 				$result = bbp_admin_repair_user_meta_batch( $type );
 				$this->assertSame( 0, $result['code'] );
-				$this->assertSame( $preview, $result );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertLessThanOrEqual( $size, $writes );
 				if ( $result['complete'] ) {
 					break;
@@ -158,7 +159,7 @@ class BBP_Tests_Admin_User_List_Batches extends BBP_UnitTestCase {
 		add_user_meta( $user, $this->key( $suffix ), '999999,999998' );
 		$before = $this->snapshot();
 		$first  = bbp_admin_repair_user_meta_batch( $type, true );
-		$this->assertFalse( $first['complete'] );
+		$this->assertTrue( $first['complete'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$result = $this->finish( $type );
 		$this->assertTrue( $result['empty'] );
@@ -259,7 +260,7 @@ class BBP_Tests_Admin_User_List_Batches extends BBP_UnitTestCase {
 		$state['offset'] = 999999;
 		update_option( $this->option( $type ), $state, false );
 		$before = $this->snapshot();
-		$this->assertTrue( bbp_admin_repair_user_meta_batch( $type, true )['restarted'] );
+		$this->assertFalse( bbp_admin_repair_user_meta_batch( $type, true )['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->finish( $type );
 		$this->assert_values( $data, $suffix );

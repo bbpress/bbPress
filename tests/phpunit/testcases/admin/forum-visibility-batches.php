@@ -134,7 +134,8 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 				$this->assertSame( $before, $this->snapshot() );
 				$writes = 0;
 				$run = bbp_admin_repair_forum_visibility_batch();
-				$this->assertSame( $preview, $run );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertSame( 0, $run['code'] );
 				$this->assertLessThanOrEqual( $size, $writes );
 				$this->assertLessThanOrEqual( $size, $run['checked'] );
@@ -181,7 +182,7 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		$state[ $field ] = 'past-bound' === $value ? $state['upper_id'] + 1 : $value;
 		update_option( $this->option(), $state );
 		$before = $this->snapshot();
-		$this->assertTrue( bbp_admin_repair_forum_visibility_batch( true )['restarted'] );
+		$this->assertFalse( bbp_admin_repair_forum_visibility_batch( true )['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertTrue( bbp_admin_repair_forum_visibility_batch()['restarted'] );
 		$this->finish();
@@ -432,13 +433,13 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 	}
 
 	/** @dataProvider partial_preview_sizes */
-	public function test_partial_dry_run_does_not_report_changes_that_have_not_been_counted( $size ) {
+	public function test_full_dry_run_counts_both_visibility_lists_at_every_batch_size( $size ) {
 		$this->fixture();
 		$this->size = $size;
 		$before = $this->snapshot();
 		$result = bbp_admin_repair_forum_visibility_dry_run();
-		$this->assertFalse( $result['complete'] );
-		$this->assertStringContainsString( 'Visibility counts are not complete yet.', $result[1] );
+		$this->assertTrue( $result['complete'] );
+		$this->assertStringNotContainsString( 'Visibility counts are not complete yet.', $result[1] );
 		$this->assertStringNotContainsString( '0 hidden forum visibility entries', $result[1] );
 		$this->assertStringNotContainsString( '0 private forum visibility entries', $result[1] );
 		if ( 6 === $size ) {

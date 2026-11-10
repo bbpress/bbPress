@@ -13,14 +13,17 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Repair topic activity before walking the forum hierarchy in bounded batches.
  *
- * A phase boundary keeps forum previews from depending on topic metadata that
- * the same preview has not written. Small automatic runs continue through the
- * existing shared runner. Each field and hierarchy edge consumes work.
+ * Run finishes topic activity before forums depend on the repaired metadata.
+ * Full previews retain calculated topic activity in memory without writing it.
+ * Small automatic runs continue through the existing shared runner. Each field
+ * and hierarchy edge consumes work.
  *
  * @since 2.7.0 bbPress (r8299)
  * @access private
  */
 class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
+
+	private $topic_times = array();
 
 	private $totals = array(
 		'topics' => 0,
@@ -50,7 +53,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	protected function phases() {
-		return array_merge( parent::phases(), array( 'topics', 'orphans' ) );
+		return array_merge( parent::phases(), array( 'topics', 'orphans', 'preview-cleanup' ) );
 	}
 
 	protected function active_phases() {
@@ -58,12 +61,20 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	protected function valid_state( $state ) {
-		return parent::valid_state( $state )
+		$valid = parent::valid_state( $state )
 			&& isset( $state['orphan_cursor'], $state['orphan_upper'] )
 			&& is_int( $state['orphan_cursor'] ) && is_int( $state['orphan_upper'] )
 			&& $state['orphan_cursor'] >= 0 && $state['orphan_upper'] >= $state['orphan_cursor']
 			&& array_key_exists( 'topic_node', $state )
-			&& ( 'topics' === $state['phase'] && $state['current'] ? is_array( $state['topic_node'] ) : false === $state['topic_node'] );
+			&& ( 'topics' === $state['phase'] && $state['current'] && ! $this->async ? is_array( $state['topic_node'] ) : false === $state['topic_node'] );
+		if ( ! $valid || ! isset( $state['_preview_totals'] ) ) {
+			return $valid;
+		}
+
+		$totals = $state['_preview_totals'];
+		return is_array( $totals ) && array_keys( $totals ) === array_keys( $this->totals )
+			&& count( array_filter( $totals, 'is_int' ) ) === count( $totals )
+			&& min( $totals ) >= 0;
 	}
 
 	protected function upper_id() {
@@ -99,15 +110,39 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 
 	/** Topic progress and its cursor share one atomic checkpoint, without scratch options. */
 	protected function read_node( $id ) {
-		return 'topics' === $this->state['phase'] ? $this->state['topic_node'] : parent::read_node( $id );
+		if ( 'topics' !== $this->state['phase'] ) {
+			return parent::read_node( $id );
+		}
+		if ( ! $this->async ) {
+			return $this->state['topic_node'];
+		}
+		if ( ! $this->persisted ) {
+			return false;
+		}
+		list( $read, $node ) = bbp_admin_repair_get_option( $this->topic_option( $id ) );
+		if ( ! $read ) {
+			$this->code = 7;
+		}
+		return $node;
 	}
 
 	protected function save_node( $node ) {
 		if ( 'topics' === $this->state['phase'] ) {
-			$this->state['topic_node'] = $node;
-			return true;
+			if ( ! $this->async ) {
+				$this->state['topic_node'] = $node;
+				return true;
+			}
+			return bbp_admin_repair_tool_save_option( $this->topic_option( $node['id'] ), $node );
 		}
 		return parent::save_node( $node );
+	}
+
+	private function topic_prefix() {
+		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_topics_' . $this->state['token'] . '_';
+	}
+
+	private function topic_option( $id ) {
+		return $this->topic_prefix() . $id;
 	}
 
 	protected function root_statuses() {
@@ -188,20 +223,28 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			}
 			return $values;
 		}
-		$topics = get_posts(
-			array(
-				'post_parent'            => $id,
-				'post_type'              => $this->context['topic'],
-				'meta_key'               => '_bbp_last_active_time',
-				'meta_type'              => 'DATETIME',
-				'orderby'                => 'meta_value',
-				'numberposts'            => 1,
-				'fields'                 => 'ids',
-				'cache_results'          => false,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false
-			)
+		$args = array(
+			'post_parent'            => $id,
+			'post_type'              => $this->context['topic'],
+			'meta_key'               => '_bbp_last_active_time',
+			'meta_type'              => 'DATETIME',
+			'orderby'                => 'meta_value',
+			'numberposts'            => 1,
+			'fields'                 => 'ids',
+			'cache_results'          => false,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false
 		);
+		if ( $this->dry_run ) {
+			// Compare against the topic activity calculated by this same preview.
+			unset( $args['meta_key'], $args['meta_type'] );
+			$args['numberposts'] = -1;
+			$args['orderby']     = 'ID';
+		}
+		$topics = get_posts( $args );
+		if ( $this->dry_run ) {
+			usort( $topics, array( $this, 'compare_topic_times' ) );
+		}
 		if ( ! empty( $this->db->last_error ) ) {
 			$this->code = 3;
 			return $values;
@@ -222,7 +265,30 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		return 5;
 	}
 
+	public function compare_topic_times( $left, $right ) {
+		$left  = is_object( $left ) ? (int) $left->ID : (int) $left;
+		$right = is_object( $right ) ? (int) $right->ID : (int) $right;
+		$comparison = strcmp( $this->topic_time( $right ), $this->topic_time( $left ) );
+		return $comparison ? $comparison : $right <=> $left;
+	}
+
 	private function topic_time( $id ) {
+		if ( $this->dry_run && isset( $this->topic_times[ $id ] ) ) {
+			return $this->topic_times[ $id ];
+		}
+		if ( $this->async && $id ) {
+			list( $read, $node ) = bbp_admin_repair_get_option( $this->topic_option( $id ) );
+			if ( ! $read ) {
+				$this->code = 7;
+				return '';
+			}
+			if ( ! is_array( $node ) || ! isset( $node['kind'], $node['values']['_bbp_last_active_time'] ) || 'topics' !== $node['kind'] ) {
+				$this->corrupt = true;
+				return '';
+			}
+			$this->topic_times[ $id ] = (string) $node['values']['_bbp_last_active_time'];
+			return $this->topic_times[ $id ];
+		}
 		$time = $id ? get_post_meta( $id, '_bbp_last_active_time', true ) : '';
 		if ( ! empty( $this->db->last_error ) ) {
 			wp_cache_delete( $id, 'post_meta' );
@@ -280,7 +346,26 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	protected function completed_node( $node ) {
+		if ( $this->dry_run && ! $this->async && 'topics' === $node['kind'] ) {
+			$this->topic_times[ $node['id'] ] = $node['values']['_bbp_last_active_time'];
+		}
+		if ( ! $this->async ) {
+			++$this->totals[ $node['kind'] ];
+		}
+	}
+
+	protected function leaving_node( $node ) {
 		++$this->totals[ $node['kind'] ];
+	}
+
+	protected function load_preview_state() {
+		if ( isset( $this->state['_preview_totals'] ) ) {
+			$this->totals = $this->state['_preview_totals'];
+		}
+	}
+
+	protected function save_preview_state() {
+		$this->state['_preview_totals'] = $this->totals;
 	}
 
 	protected function source_identity( $post ) {
@@ -323,15 +408,20 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			++$work;
 		}
 		if ( count( $rows ) <= $limit ) {
-			$this->state['phase']  = 'count';
+			$this->state['phase']  = 'topics';
 			$this->state['cursor'] = 0;
-			// Only a subsequent Run or preview may depend on the repaired topic rows
-			$this->stop = true;
 		}
 		return max( 1, $work );
 	}
 
 	protected function step( $limit, &$complete ) {
+		if ( 'preview-cleanup' === $this->state['phase'] ) {
+			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->topic_prefix(), $limit, false, $this->created, $this->cleaned );
+			if ( ! $success ) {
+				$this->code = 7;
+			}
+			return $work;
+		}
 		if ( 'orphans' === $this->state['phase'] ) {
 			return $this->orphans( $limit );
 		}
@@ -342,8 +432,11 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 				return 1;
 			}
 			if ( ! $id ) {
-				$this->state['phase']  = 'orphans';
+				$this->state['phase']  = 'count';
 				$this->state['cursor'] = 0;
+				// Only a subsequent Run or preview may depend on the repaired topic rows
+				$this->stop     = ! $this->dry_run;
+				$this->boundary = $this->dry_run;
 				return 1;
 			}
 			$node = $this->enter( $id, 0, true );
@@ -355,12 +448,20 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$phase = $this->state['phase'];
 		$id    = $this->state['current'];
 		$work  = parent::step( $limit, $complete );
+		if ( $this->async && 'cleanup' === $phase && $complete ) {
+			$complete             = false;
+			$this->state['phase'] = 'preview-cleanup';
+		}
 		if ( 'topics' === $phase && ! $this->state['current'] ) {
 			$this->state['topic_node'] = false;
 			unset( $this->nodes[ $id ] );
 		} elseif ( 'prepare' === $phase && 'count' === $this->state['phase'] ) {
-			$this->state['phase'] = 'topics';
+			$this->state['phase'] = 'orphans';
 		}
 		return $work;
+	}
+
+	protected function preview_estimated_work( $phase, $work ) {
+		return 'preview-cleanup' === $phase ? 0 : $work;
 	}
 }

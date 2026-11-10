@@ -588,7 +588,7 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'repair',
 			'flush_cache' => false,
 			'title'       => esc_html__( 'Rebuild user mentions', 'bbpress' ),
-			'description' => esc_html__( 'Index historical mentions without sending email. Run continues saved batches automatically; keep this page open until complete. Dry Run previews the next batch without saving changes.', 'bbpress' ),
+			'description' => esc_html__( 'Index historical mentions without sending email. Run and Dry Run continue in batches; keep this page open until complete.', 'bbpress' ),
 			'callbacks'   => array(
 				'run'     => 'bbp_admin_repair_user_mentions',
 				'dry-run' => 'bbp_admin_repair_user_mentions_dry_run'
@@ -606,7 +606,7 @@ function bbp_register_default_repair_tools() {
 			'type'        => 'upgrade',
 			'flush_cache' => false,
 			'title'       => esc_html__( 'Upgrade user mentions', 'bbpress' ),
-			'description' => esc_html__( 'Index historical mentions without sending email. Run continues saved batches automatically; keep this page open until complete. Dry Run previews the next batch without saving changes.', 'bbpress' ),
+			'description' => esc_html__( 'Index historical mentions without sending email. Run and Dry Run continue in batches; keep this page open until complete.', 'bbpress' ),
 			'callbacks'   => array(
 				'run'     => 'bbp_admin_upgrade_user_mentions',
 				'dry-run' => 'bbp_admin_upgrade_user_mentions_dry_run'

@@ -47,20 +47,23 @@ function bbp_admin_repair_tool_unlock( $lock = array() ) {
 }
 
 /**
- * Acquire a run-state lock, allowing short queue or status updates to finish.
+ * Acquire the lock for one action-specific run-state record.
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string $type Repair tool type.
+ * @param string $type   Repair tool type.
+ * @param string $action Tool action.
  * @return array|false Lock owner data, or false when still locked.
  */
-function bbp_admin_repair_tool_lock_run_state( $type = '' ) {
-	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) ) {
+function bbp_admin_repair_tool_lock_run_state( $type = '', $action = 'run' ) {
+	$action = sanitize_key( $action );
+	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) || ! in_array( $action, array( 'run', 'dry-run' ), true ) ) {
 		return false;
 	}
+	$suffix = 'run' === $action ? '' : '-' . $action;
 
 	for ( $attempt = 0; $attempt < 6; $attempt++ ) {
-		$lock = bbp_admin_repair_tool_lock( 'bbp-' . $type . '-tool-run-state' );
+		$lock = bbp_admin_repair_tool_lock( 'bbp-' . $type . $suffix . '-tool-run-state' );
 		if ( false !== $lock ) {
 			return $lock;
 		}
@@ -78,14 +81,16 @@ function bbp_admin_repair_tool_lock_run_state( $type = '' ) {
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string $type Repair tool type.
+ * @param string $type   Repair tool type.
+ * @param string $action Tool action.
  * @return string
  */
-function bbp_admin_repair_tool_run_state_option_name( $type = '' ) {
-	$type = sanitize_key( $type );
+function bbp_admin_repair_tool_run_state_option_name( $type = '', $action = 'run' ) {
+	$type   = sanitize_key( $type );
+	$action = sanitize_key( $action );
 
-	return in_array( $type, array( 'repair', 'upgrade' ), true )
-		? '_bbp_tools_run_' . $type
+	return in_array( $type, array( 'repair', 'upgrade' ), true ) && in_array( $action, array( 'run', 'dry-run' ), true )
+		? '_bbp_tools_' . ( 'run' === $action ? 'run' : 'dry_run' ) . '_' . $type
 		: '';
 }
 
@@ -97,14 +102,16 @@ function bbp_admin_repair_tool_run_state_option_name( $type = '' ) {
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string $type Repair tool type.
+ * @param string $type   Repair tool type.
+ * @param string $action Tool action.
  * @return string
  */
-function bbp_admin_repair_tool_run_status_option_name( $type = '' ) {
-	$type = sanitize_key( $type );
+function bbp_admin_repair_tool_run_status_option_name( $type = '', $action = 'run' ) {
+	$type   = sanitize_key( $type );
+	$action = sanitize_key( $action );
 
-	return in_array( $type, array( 'repair', 'upgrade' ), true )
-		? '_bbp_tools_run_status_' . $type
+	return in_array( $type, array( 'repair', 'upgrade' ), true ) && in_array( $action, array( 'run', 'dry-run' ), true )
+		? '_bbp_tools_' . ( 'run' === $action ? 'run_status' : 'dry_run_status' ) . '_' . $type
 		: '';
 }
 
@@ -120,10 +127,12 @@ function bbp_admin_repair_tool_run_status_option_name( $type = '' ) {
  *
  * @param string $type     Repair tool type.
  * @param bool   $filtered Whether to apply native option view filters.
+ * @param string $action   Tool action.
  * @return array Read success and normalized internal state, or false when absent.
  */
-function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false ) {
-	$option = bbp_admin_repair_tool_run_state_option_name( $type );
+function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $action = 'run' ) {
+	$action = sanitize_key( $action );
+	$option = bbp_admin_repair_tool_run_state_option_name( $type, $action );
 	if ( empty( $option ) ) {
 		return array( false, false );
 	}
@@ -149,7 +158,7 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false ) {
 		}
 	}
 	if ( ! $schema ) {
-		list( $read, $legacy ) = bbp_admin_repair_get_option( bbp_admin_repair_tool_run_status_option_name( $type ), array(), $filtered );
+		list( $read, $legacy ) = bbp_admin_repair_get_option( bbp_admin_repair_tool_run_status_option_name( $type, $action ), array(), $filtered );
 		if ( ! $read ) {
 			return array( false, false );
 		}
@@ -158,18 +167,25 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false ) {
 			$updated         = max( $updated, isset( $legacy['updated'] ) ? (int) $legacy['updated'] : 0 );
 		}
 	}
-	$status = isset( $state['status'] ) ? sanitize_key( $state['status'] ) : 'running';
+	$status     = isset( $state['status'] ) ? sanitize_key( $state['status'] ) : 'running';
+	$started    = ! empty( $state['started'] );
+	$preview_id = ( 'dry-run' === $action ) && ! empty( $state['preview_id'] )
+		? sanitize_text_field( $state['preview_id'] )
+		: sanitize_text_field( $state['id'] );
+
 	return array(
 		true,
 		array(
-			'schema'  => $schema,
-			'id'      => sanitize_text_field( $state['id'] ),
-			'type'    => sanitize_key( $type ),
-			'tools'   => $tools,
-			'status'  => in_array( $status, array( 'running', 'paused', 'error' ), true ) ? $status : 'error',
-			'user_id' => isset( $state['user_id'] ) ? (int) $state['user_id'] : 0,
-			'created' => isset( $state['created'] ) ? (int) $state['created'] : 0,
-			'updated' => $updated,
+			'schema'     => $schema,
+			'id'         => sanitize_text_field( $state['id'] ),
+			'preview_id' => $preview_id,
+			'type'       => sanitize_key( $type ),
+			'tools'      => $tools,
+			'status'     => in_array( $status, array( 'running', 'paused', 'error' ), true ) ? $status : 'error',
+			'started'    => $started,
+			'user_id'    => isset( $state['user_id'] ) ? (int) $state['user_id'] : 0,
+			'created'    => isset( $state['created'] ) ? (int) $state['created'] : 0,
+			'updated'    => $updated,
 		)
 	);
 }
@@ -179,13 +195,14 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false ) {
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string $type Repair tool type.
+ * @param string $type   Repair tool type.
+ * @param string $action Tool action.
  * @return array|false Run state, or false when no valid run exists.
  */
-function bbp_admin_repair_tool_get_run_state( $type = '' ) {
-	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, true );
+function bbp_admin_repair_tool_get_run_state( $type = '', $action = 'run' ) {
+	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, true, $action );
 	if ( is_array( $state ) ) {
-		unset( $state['schema'] );
+		unset( $state['schema'], $state['preview_id'], $state['started'] );
 	}
 	return $state;
 }
@@ -246,18 +263,64 @@ function bbp_admin_repair_tool_stale_run_error() {
  * @param string $type   Repair tool type.
  * @param array  $tools  Ordered repair tool IDs.
  * @param string $run_id Run owner.
+ * @param string $action Tool action.
  * @return string
  */
-function bbp_admin_repair_tool_continue_url( $type, $tools, $run_id ) {
+function bbp_admin_repair_tool_continue_url( $type, $tools, $run_id, $action = 'run' ) {
 	return bbp_get_admin_repair_tool_page_url(
 		array(
 			'page'          => 'bbp-' . $type,
-			'action'        => 'run',
+			'action'        => sanitize_key( $action ),
 			'checked'       => $tools,
 			'bbp-tools-run' => $run_id,
 			'_wpnonce'      => wp_create_nonce( 'bbpress-do-counts' )
 		)
 	);
+}
+
+/**
+ * Build a URL that discards one recoverable browser run.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param string $type   Repair tool type.
+ * @param string $run_id Run owner.
+ * @param string $action Tool action.
+ * @return string Discard URL.
+ */
+function bbp_admin_repair_tool_discard_url( $type, $run_id, $action = 'run' ) {
+	$action = sanitize_key( $action );
+	$run_id = sanitize_text_field( $run_id );
+
+	return add_query_arg(
+		'_wpnonce',
+		wp_create_nonce( bbp_admin_repair_tool_discard_nonce_action( $run_id, $action ) ),
+		bbp_get_admin_repair_tool_page_url(
+			array(
+				'page'                     => 'bbp-' . sanitize_key( $type ),
+				'bbp-tools-discard'        => $run_id,
+				'bbp-tools-discard-action' => $action,
+			)
+		)
+	);
+}
+
+/**
+ * Return the nonce action for discarding one browser run.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param string $run_id Run owner.
+ * @param string $action Tool action.
+ * @return string Nonce action.
+ */
+function bbp_admin_repair_tool_discard_nonce_action( $run_id, $action = 'run' ) {
+	$action = sanitize_key( $action );
+	$run_id = sanitize_text_field( $run_id );
+
+	return 'bbpress-tools-discard-' . ( 'run' === $action ? '' : $action . '-' ) . $run_id;
 }
 
 /**
@@ -276,11 +339,14 @@ function bbp_admin_repair_tool_continue_url( $type, $tools, $run_id ) {
  * @param string      $run_id        Current owner, or empty to create a run.
  * @param string|null $status        New status, or null to preserve it.
  * @param bool        $rotate_run_id Whether to replace the exact owner and queue.
+ * @param string      $action        Tool action.
+ * @param bool|null   $started       Whether the current tool has processed a batch.
  * @return array|false Saved public run state, or false on failure.
  */
-function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run_id = '', $status = null, $rotate_run_id = false ) {
+function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run_id = '', $status = null, $rotate_run_id = false, $action = 'run', $started = null ) {
 	$status_only = is_null( $tools );
-	$option      = bbp_admin_repair_tool_run_state_option_name( $type );
+	$action      = sanitize_key( $action );
+	$option      = bbp_admin_repair_tool_run_state_option_name( $type, $action );
 	$run_id      = sanitize_text_field( $run_id );
 	$status      = is_null( $status ) ? null : sanitize_key( $status );
 	if ( ! $status_only ) {
@@ -293,12 +359,12 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 	if ( $status_only && ( empty( $run_id ) || is_null( $status ) || $rotate_run_id ) ) {
 		return false;
 	}
-	$lock = bbp_admin_repair_tool_lock_run_state( $type );
+	$lock = bbp_admin_repair_tool_lock_run_state( $type, $action );
 	if ( false === $lock ) {
 		return false;
 	}
 	try {
-		list( $read, $existing ) = bbp_admin_repair_tool_read_run_state( $type );
+		list( $read, $existing ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
 		if ( ! $read ) {
 			return false;
 		}
@@ -321,6 +387,7 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 			'type'    => sanitize_key( $type ),
 			'tools'   => array(),
 			'status'  => 'running',
+			'started' => false,
 			'user_id' => 0,
 			'created' => 0,
 			'updated' => 0,
@@ -328,6 +395,9 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 		$state['schema']  = 1;
 		$state['id']      = $run_id;
 		$state['updated'] = time();
+		if ( 'dry-run' === $action && empty( $state['preview_id'] ) ) {
+			$state['preview_id'] = $run_id;
+		}
 		if ( ! $status_only ) {
 			$state['tools']   = $tools;
 			$state['user_id'] = ! empty( $state['user_id'] ) ? $state['user_id'] : get_current_user_id();
@@ -336,14 +406,17 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 		if ( ! is_null( $status ) ) {
 			$state['status'] = $status;
 		}
+		if ( ! is_null( $started ) ) {
+			$state['started'] = (bool) $started;
+		}
 		if ( ! bbp_admin_repair_tool_save_option( $option, $state ) ) {
 			return false;
 		}
 		if ( empty( $existing['schema'] ) ) {
 			// Best-effort legacy cleanup. The verified schema marker takes precedence.
-			delete_option( bbp_admin_repair_tool_run_status_option_name( $type ) );
+			delete_option( bbp_admin_repair_tool_run_status_option_name( $type, $action ) );
 		}
-		unset( $state['schema'] );
+		unset( $state['schema'], $state['preview_id'], $state['started'] );
 		return $state;
 	} finally {
 		bbp_admin_repair_tool_unlock( $lock );
@@ -360,10 +433,12 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
  * @param string      $run_id        Existing run ID, or empty to start a new run.
  * @param string|null $status        running|paused|error, or null to preserve status.
  * @param bool        $rotate_run_id Whether to replace the exact owner and queue.
+ * @param string      $action        Tool action.
+ * @param bool|null   $started       Whether the current tool has processed a batch.
  * @return array|false Saved run state, or false on invalid input.
  */
-function bbp_admin_repair_tool_save_run_state( $type = '', $tools = array(), $run_id = '', $status = 'running', $rotate_run_id = false ) {
-	return bbp_admin_repair_tool_update_run_state( $type, (array) $tools, $run_id, $status, $rotate_run_id );
+function bbp_admin_repair_tool_save_run_state( $type = '', $tools = array(), $run_id = '', $status = 'running', $rotate_run_id = false, $action = 'run', $started = null ) {
+	return bbp_admin_repair_tool_update_run_state( $type, (array) $tools, $run_id, $status, $rotate_run_id, $action, $started );
 }
 
 /**
@@ -376,8 +451,8 @@ function bbp_admin_repair_tool_save_run_state( $type = '', $tools = array(), $ru
  * @param string $run_id Current run ID.
  * @return array|false Resumed run state, or false on a mismatch.
  */
-function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $run_id = '' ) {
-	return bbp_admin_repair_tool_save_run_state( $type, $tools, $run_id, 'running', true );
+function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $run_id = '', $action = 'run' ) {
+	return bbp_admin_repair_tool_save_run_state( $type, $tools, $run_id, 'running', true, $action );
 }
 
 /**
@@ -390,8 +465,8 @@ function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $
  * @param string $status running|paused|error.
  * @return array|false Updated run state, or false on a mismatch.
  */
-function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $status = 'running' ) {
-	return bbp_admin_repair_tool_update_run_state( $type, null, $run_id, $status );
+function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $status = 'running', $action = 'run' ) {
+	return bbp_admin_repair_tool_update_run_state( $type, null, $run_id, $status, false, $action );
 }
 
 /**
@@ -399,33 +474,91 @@ function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $sta
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string $type   Repair tool type.
- * @param string $run_id Optional run ID ownership check.
+ * @param string $type           Repair tool type.
+ * @param string $run_id         Optional run ID ownership check.
+ * @param string $action         Tool action.
+ * @param bool   $delete_preview Whether to delete Dry Run preview state.
  * @return bool
  */
-function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '' ) {
-	$option = bbp_admin_repair_tool_run_state_option_name( $type );
+function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $action = 'run', $delete_preview = false ) {
+	$action = sanitize_key( $action );
+	$option = bbp_admin_repair_tool_run_state_option_name( $type, $action );
 	$run_id = sanitize_text_field( $run_id );
 	if ( empty( $option ) ) {
 		return false;
 	}
-	$lock = bbp_admin_repair_tool_lock_run_state( $type );
+	$lock = bbp_admin_repair_tool_lock_run_state( $type, $action );
 	if ( false === $lock ) {
 		return false;
 	}
 	try {
-		list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type );
+		list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
 		if ( ! $read || ! $state || ( ! empty( $run_id ) && ! hash_equals( $state['id'], $run_id ) ) ) {
+			return false;
+		}
+		if ( $delete_preview && 'dry-run' === $action && ! bbp_admin_repair_tool_delete_preview_state( $state['tools'], $state['preview_id'] ) ) {
 			return false;
 		}
 		$deleted = bbp_admin_repair_tool_save_option( $option, null, true );
 		if ( $deleted ) {
-			delete_option( bbp_admin_repair_tool_run_status_option_name( $type ) );
+			delete_option( bbp_admin_repair_tool_run_status_option_name( $type, $action ) );
 		}
 		return $deleted;
 	} finally {
 		bbp_admin_repair_tool_unlock( $lock );
 	}
+}
+
+/**
+ * Discard one browser run and its private Dry Run preview state.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param string $type   Repair tool type.
+ * @param string $run_id Run owner.
+ * @param string $action Tool action.
+ * @return bool Whether the owned run was discarded.
+ */
+function bbp_admin_repair_tool_discard_run( $type, $run_id, $action = 'run' ) {
+	return bbp_admin_repair_tool_delete_run_state( $type, $run_id, $action, true );
+}
+
+/**
+ * Delete state owned by one abandoned browser Dry Run.
+ *
+ * Preview namespaces include the run owner, so this cannot remove normal Run
+ * checkpoints or another preview generation.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param array  $tools      Repair tool IDs.
+ * @param string $preview_id Stable Dry Run preview namespace.
+ * @return bool Whether every discovered preview option was removed.
+ */
+function bbp_admin_repair_tool_delete_preview_state( $tools, $preview_id ) {
+	$db      = bbp_db();
+	$success = true;
+
+	bbp_admin_repair_tool_execution_context( 'dry-run', $preview_id );
+	try {
+		foreach ( (array) $tools as $tool_id ) {
+			$prefix = bbp_admin_repair_tool_batch_option_name( $tool_id );
+			$names  = $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s", $db->esc_like( $prefix ) . '%' ) );
+			if ( ! empty( $db->last_error ) ) {
+				$success = false;
+				continue;
+			}
+			foreach ( $names as $name ) {
+				$success = bbp_admin_repair_tool_save_option( $name, null, true ) && $success;
+			}
+		}
+	} finally {
+		bbp_admin_repair_tool_execution_context( 'run', '' );
+	}
+
+	return $success;
 }
 
 /**
@@ -436,36 +569,33 @@ function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '' ) {
  * @param string $type   Repair tool type.
  * @param array  $tools  Ordered repair tool IDs.
  * @param string $run_id Existing run ID, or empty to start a new run.
+ * @param string $action Tool action.
  * @return array|false Saved run state, or false on invalid input.
  */
-function bbp_admin_repair_tool_enqueue_runner( $type = '', $tools = array(), $run_id = '' ) {
-	$type  = sanitize_key( $type );
-	$tools = array_values( array_unique( array_map( 'sanitize_key', (array) $tools ) ) );
+function bbp_admin_repair_tool_enqueue_runner( $type = '', $tools = array(), $run_id = '', $action = 'run' ) {
+	$type   = sanitize_key( $type );
+	$action = sanitize_key( $action );
+	$tools  = array_values( bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) ) );
 
-	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) || empty( $tools ) ) {
+	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) || ! in_array( $action, array( 'run', 'dry-run' ), true ) || empty( $tools ) ) {
 		return false;
 	}
 
-	$state = bbp_admin_repair_tool_save_run_state( $type, $tools, $run_id );
+	$state = bbp_admin_repair_tool_save_run_state( $type, $tools, $run_id, 'running', false, $action );
 	if ( empty( $state ) ) {
 		return false;
 	}
 
-	$run_id     = $state['id'];
-	$return_url = bbp_get_admin_repair_tool_page_url( array( 'page' => 'bbp-' . $type ) );
-	$current    = array_shift( $tools );
-
-	if ( empty( $tools ) ) {
-		$complete_url = add_query_arg(
-			array(
-				'bbp-tools-complete' => $current,
-				'_wpnonce'           => wp_create_nonce( 'bbpress-tools-complete' )
-			),
-			$return_url
-		);
-	} else {
-		$complete_url = bbp_admin_repair_tool_continue_url( $type, $tools, $run_id );
-	}
+	$run_id       = $state['id'];
+	$return_url   = bbp_get_admin_repair_tool_page_url( array( 'page' => 'bbp-' . $type ) );
+	$complete     = end( $tools );
+	$complete_url = add_query_arg(
+		array(
+			'bbp-tools-complete' => $complete,
+			'_wpnonce'           => wp_create_nonce( 'bbpress-tools-complete' )
+		),
+		$return_url
+	);
 
 	wp_enqueue_script( 'bbp-admin-tools-js' );
 	wp_localize_script(
@@ -476,14 +606,22 @@ function bbp_admin_repair_tool_enqueue_runner( $type = '', $tools = array(), $ru
 			'nonce'       => wp_create_nonce( 'bbpress-tools-process' ),
 			'statusNonce' => wp_create_nonce( 'bbpress-tools-run-status' ),
 			'type'        => $type,
-			'tools'       => array( $current ),
+			'action'      => $action,
+			'tools'       => $tools,
 			'run'         => $run_id,
 			'returnUrl'   => $return_url,
 			'completeUrl' => $complete_url,
+			'stopUrl'     => bbp_admin_repair_tool_discard_url( $type, $run_id, $action ),
 			'pause'       => __( 'Pause', 'bbpress' ),
 			'resume'      => __( 'Resume', 'bbpress' ),
-			'running'     => __( 'Running...', 'bbpress' ),
+			'stop'        => __( 'Stop', 'bbpress' ),
+			'stopping'    => __( 'Stopping', 'bbpress' ),
+			'running'     => ( 'dry-run' === $action ) ? __( 'Checking', 'bbpress' ) : __( 'Running', 'bbpress' ),
+			/* translators: 1: Current action, 2: Batch number */
+			'progress'    => __( '%1$s batch %2$s', 'bbpress' ),
 			'paused'      => __( 'Paused.', 'bbpress' ),
+			/* translators: %s: Batch number */
+			'pausedBatch' => __( 'Paused on batch %s.', 'bbpress' ),
 			'error'       => __( 'The tool could not continue. Resume to try this batch again.', 'bbpress' )
 		)
 	);
@@ -520,16 +658,39 @@ function bbp_admin_repair_tool_run_status_ajax_handler() {
 	$run_id = isset( $_POST['run'] )
 		? sanitize_text_field( wp_unslash( $_POST['run'] ) )
 		: '';
+	$action = isset( $_POST['toolAction'] )
+		? sanitize_key( wp_unslash( $_POST['toolAction'] ) )
+		: 'run';
+
+	if ( ! in_array( $action, array( 'run', 'dry-run' ), true ) ) {
+		wp_send_json_error( array( 'message' => esc_html__( 'Invalid tool action.', 'bbpress' ) ), 400 );
+	}
 	$status = isset( $_POST['status'] )
 		? sanitize_key( wp_unslash( $_POST['status'] ) )
 		: '';
 
-	if ( ! in_array( $status, array( 'running', 'paused' ), true ) ) {
+	if ( ! in_array( $status, array( 'running', 'paused', 'discarded' ), true ) ) {
 		wp_send_json_error( array( 'message' => esc_html__( 'Invalid tool run status.', 'bbpress' ) ), 400 );
 	}
 
-	if ( ! bbp_admin_repair_tool_update_run_status( $type, $run_id, $status ) ) {
-		$state = bbp_admin_repair_tool_get_run_state( $type );
+	if ( 'discarded' === $status ) {
+		if ( bbp_admin_repair_tool_discard_run( $type, $run_id, $action ) ) {
+			wp_send_json_success();
+		}
+
+		list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+		if ( $read && bbp_admin_repair_tool_owns_run( $state, $run_id ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'The tool run could not be discarded. Try again shortly.', 'bbpress' ) ), 503 );
+		}
+
+		wp_send_json_error(
+			bbp_admin_repair_tool_stale_run_error(),
+			409
+		);
+	}
+
+	if ( ! bbp_admin_repair_tool_update_run_status( $type, $run_id, $status, $action ) ) {
+		$state = bbp_admin_repair_tool_get_run_state( $type, $action );
 		if ( bbp_admin_repair_tool_owns_run( $state, $run_id ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'The tool run status could not be saved. Try again shortly.', 'bbpress' ) ), 503 );
 		}
@@ -587,41 +748,167 @@ function bbp_admin_tools_repair_upgrade_notices() {
 		return;
 	}
 
-	$state = bbp_admin_repair_tool_get_run_state( $type );
-	if ( empty( $state ) ) {
-		return;
-	}
-
-	$discard = isset( $_GET['bbp-tools-discard'] )
+	$discard        = isset( $_GET['bbp-tools-discard'] )
 		? sanitize_text_field( wp_unslash( $_GET['bbp-tools-discard'] ) )
 		: '';
-	if ( ! empty( $discard ) && hash_equals( $state['id'], $discard ) && check_admin_referer( 'bbpress-tools-discard-' . $state['id'] ) ) {
-		bbp_admin_repair_tool_delete_run_state( $type, $state['id'] );
-		bbp_admin_tools_feedback( esc_html__( 'The previous forum tool run was discarded.', 'bbpress' ) );
+	$discard_action = isset( $_GET['bbp-tools-discard-action'] )
+		? sanitize_key( wp_unslash( $_GET['bbp-tools-discard-action'] ) )
+		: 'run';
+	$recoveries     = array();
+	foreach ( array( 'run', 'dry-run' ) as $action ) {
+		list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+		if ( ! $read || empty( $state ) ) {
+			continue;
+		}
+
+		$discard_nonce = bbp_admin_repair_tool_discard_nonce_action( $state['id'], $action );
+		if ( ! empty( $discard ) && $action === $discard_action && hash_equals( $state['id'], $discard ) && check_admin_referer( $discard_nonce ) ) {
+			if ( bbp_admin_repair_tool_discard_run( $type, $state['id'], $action ) ) {
+				bbp_admin_tools_feedback( esc_html__( 'The previous forum tool run was discarded.', 'bbpress' ) );
+			} else {
+				bbp_admin_tools_feedback( esc_html__( 'The previous forum tool run could not be discarded. Try again shortly.', 'bbpress' ), 'error' );
+			}
+			continue;
+		}
+		$is_recent = bbp_admin_repair_tool_run_is_active( $state );
+		if ( $is_recent ) {
+			$message = ( 'dry-run' === $action )
+				? esc_html__( 'A Dry Run of the forum tools is still active.', 'bbpress' )
+				: esc_html__( 'A forum tool run is still active.', 'bbpress' );
+		} else {
+			$url          = bbp_admin_repair_tool_continue_url( $type, $state['tools'], $state['id'], $action );
+			$discard_url  = bbp_admin_repair_tool_discard_url( $type, $state['id'], $action );
+			$recoveries[] = array(
+				'url'    => $discard_url,
+				'id'     => $state['id'],
+				'action' => $action,
+			);
+
+			$message = ( 'dry-run' === $action )
+				? '<strong>' . esc_html__( 'A previous Dry Run of the forum tools did not finish.', 'bbpress' ) . '</strong><br>'
+				: '<strong>' . esc_html__( 'A previous forum tool run did not finish.', 'bbpress' ) . '</strong><br>';
+			$message .= '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Resume', 'bbpress' ) . '</a> | ';
+			$message .= '<a href="' . esc_url( $discard_url ) . '">' . esc_html__( 'Discard', 'bbpress' ) . '</a>';
+		}
+
+		bbp_admin_tools_feedback( $message, 'warning', false );
+	}
+
+	if ( $recoveries ) {
+		wp_enqueue_script( 'bbp-admin-tools-js' );
+		wp_localize_script(
+			'bbp-admin-tools-js',
+			'bbpToolsRecovery',
+			array(
+				'url'         => admin_url( 'admin-ajax.php' ),
+				'statusNonce' => wp_create_nonce( 'bbpress-tools-run-status' ),
+				'type'        => $type,
+				'returnUrl'   => bbp_get_admin_repair_tool_page_url( array( 'page' => 'bbp-' . $type ) ),
+				'runs'        => $recoveries,
+				'discard'     => __( 'Discard', 'bbpress' ),
+				'discarding'  => __( 'Discarding...', 'bbpress' ),
+				'error'       => __( 'The tool run could not be discarded. Try again shortly.', 'bbpress' ),
+			)
+		);
+	}
+}
+
+/**
+ * Start or resume one browser-managed Run or Dry Run.
+ *
+ * Page rendering only validates and saves the queue. Tool callbacks execute
+ * through the AJAX runner so a slow batch cannot block the tools screen.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @access private
+ *
+ * @param string $action            Tool action.
+ * @param array  $selected_tool_ids Selected repair tool IDs.
+ * @param array  $registered_tools  Registered repair tools.
+ * @param string $run_id            Existing run owner, or empty for a new run.
+ * @return void
+ */
+function bbp_admin_repair_tool_start_browser_run( $action, $selected_tool_ids, $registered_tools, $run_id = '' ) {
+	$type = ! empty( $_GET['page'] ) ? bbp_get_admin_repair_tool_page_id() : '';
+	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) ) {
+		foreach ( $selected_tool_ids as $tool_id ) {
+			if ( isset( $registered_tools[ $tool_id ]['type'] ) ) {
+				$type = sanitize_key( $registered_tools[ $tool_id ]['type'] );
+				break;
+			}
+		}
+	}
+	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) ) {
+		bbp_admin_tools_feedback( esc_html__( 'The selected forum tools cannot run on this page.', 'bbpress' ), 'error' );
+		return;
+	}
+	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+	if ( ! $read ) {
+		bbp_admin_tools_feedback( esc_html__( 'Saved forum tool progress could not be read. Try again shortly.', 'bbpress' ), 'error' );
 		return;
 	}
 
-	$is_recent = bbp_admin_repair_tool_run_is_active( $state );
-	if ( $is_recent ) {
-		$message = esc_html__( 'A forum tool run appears to be in progress.', 'bbpress' );
-	} else {
-		$url = bbp_admin_repair_tool_continue_url( $type, $state['tools'], $state['id'] );
-		$discard_url = wp_nonce_url(
-			bbp_get_admin_repair_tool_page_url(
-				array(
-					'page'              => 'bbp-' . $type,
-					'bbp-tools-discard' => $state['id']
-				)
-			),
-			'bbpress-tools-discard-' . $state['id']
-		);
-
-		$message = '<strong>' . esc_html__( 'A previous forum tool run did not finish.', 'bbpress' ) . '</strong><br>';
-		$message .= '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Resume', 'bbpress' ) . '</a> | ';
-		$message .= '<a href="' . esc_url( $discard_url ) . '">' . esc_html__( 'Discard', 'bbpress' ) . '</a>';
+	$queue = array();
+	foreach ( $selected_tool_ids as $tool_id ) {
+		if ( isset( $registered_tools[ $tool_id ] ) && $type === $registered_tools[ $tool_id ]['type']
+			&& is_callable( bbp_get_admin_repair_tool_callback( $registered_tools[ $tool_id ], $action ) ) ) {
+			$queue[] = $tool_id;
+		}
+	}
+	$queue = array_values( bbp_get_unique_array_values( $queue ) );
+	if ( empty( $queue ) ) {
+		if ( ! empty( $run_id ) && bbp_admin_repair_tool_owns_run( $state, $run_id ) ) {
+			bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
+			$message = esc_html__( 'An unfinished forum tool is no longer available. Restore it or discard this run.', 'bbpress' );
+		} else {
+			$message = esc_html__( 'None of the selected forum tools support this action.', 'bbpress' );
+		}
+		bbp_admin_tools_feedback( $message, 'error' );
+		return;
 	}
 
-	bbp_admin_tools_feedback( $message, 'warning', false );
+	if ( ! empty( $run_id ) ) {
+		if ( ! bbp_admin_repair_tool_owns_run( $state, $run_id ) || $queue !== $state['tools'] ) {
+			bbp_admin_tools_feedback( esc_html__( 'This forum tool run is no longer current.', 'bbpress' ), 'error' );
+			return;
+		}
+
+		$state = bbp_admin_repair_tool_rotate_run_state( $type, $queue, $run_id, $action );
+		if ( empty( $state ) ) {
+			bbp_admin_tools_feedback( esc_html__( 'This forum tool run could not be resumed.', 'bbpress' ), 'error' );
+			return;
+		}
+		$run_id = $state['id'];
+	} else {
+		if ( bbp_admin_repair_tool_run_is_active( $state ) ) {
+			$message = 'dry-run' === $action
+				? esc_html__( 'A Dry Run of the forum tools is still active.', 'bbpress' )
+				: esc_html__( 'A forum tool run is still active.', 'bbpress' );
+			bbp_admin_tools_feedback( $message, 'error' );
+			return;
+		}
+
+		if ( ! empty( $state ) ) {
+			$message = 'dry-run' === $action
+				? esc_html__( 'A previous Dry Run did not finish. Resume or discard it before starting another.', 'bbpress' )
+				: esc_html__( 'A previous forum tool run did not finish. Resume or discard it before starting another.', 'bbpress' );
+			bbp_admin_tools_feedback( $message, 'error' );
+			return;
+		}
+	}
+
+	$state = bbp_admin_repair_tool_enqueue_runner( $type, $queue, $run_id, $action );
+	if ( empty( $state ) ) {
+		bbp_admin_tools_feedback( esc_html__( 'The forum tool run could not be started. Try again shortly.', 'bbpress' ), 'error' );
+		return;
+	}
+
+	$tool         = $registered_tools[ $queue[0] ];
+	$continue_url = bbp_admin_repair_tool_continue_url( $type, $queue, $state['id'], $action );
+	$continue     = '<a href="' . esc_url( $continue_url ) . '">' . esc_html__( 'Continue', 'bbpress' ) . '</a>';
+	$message      = bbp_admin_repair_tool_notice_message( $tool );
+	$message     .= ' <span class="bbp-tools-runner"></span> <span class="hide-if-js">' . $continue . '</span>';
+	bbp_admin_tools_feedback( $message, 'updated', false );
 }
 
 /**
@@ -673,231 +960,52 @@ function bbp_admin_repair_handler() {
 	// Get the list
 	$registered_tools = bbp_get_admin_repair_tools();
 
-	// Stores messages
-	$messages           = array();
-	$retry_tool_ids     = array();
-	$flush_cache        = false;
-	$runner_started     = false;
-	$runner_save_failed = false;
-	$lock_conflict      = false;
-	$run_type           = '';
-	$run_id             = isset( $_GET['bbp-tools-run'] )
+	$run_id = isset( $_GET['bbp-tools-run'] )
 		? sanitize_text_field( wp_unslash( $_GET['bbp-tools-run'] ) )
 		: '';
-
-	// Flush once around this group of selected Run callbacks
-	if ( 'run' === $action ) {
-		$types = array();
-		foreach ( $selected_tool_ids as $tool_id ) {
-			if ( isset( $registered_tools[ $tool_id ] ) && ! empty( $registered_tools[ $tool_id ]['type'] ) ) {
-				$types[] = sanitize_key( $registered_tools[ $tool_id ]['type'] );
-			}
-		}
-		$types    = array_values( array_unique( $types ) );
-		$run_type = ! empty( $_GET['page'] )
-			? bbp_get_admin_repair_tool_page_id()
-			: ( isset( $types[0] ) ? $types[0] : '' );
-
-		// A continuation must still own the exact saved queue
-		if ( ! empty( $run_id ) ) {
-			$state = bbp_admin_repair_tool_get_run_state( $run_type );
-			if ( ! bbp_admin_repair_tool_owns_run( $state, $run_id ) || ( $state['tools'] !== $selected_tool_ids ) ) {
-				bbp_admin_tools_feedback( esc_html__( 'This tool run is no longer current.', 'bbpress' ), 'error' );
-				return;
-			}
-
-			foreach ( $selected_tool_ids as $tool_id ) {
-				if ( ! isset( $registered_tools[ $tool_id ] ) || ( $run_type !== $registered_tools[ $tool_id ]['type'] ) ) {
-					bbp_admin_repair_tool_update_run_status( $run_type, $run_id, 'error' );
-					bbp_admin_tools_feedback( esc_html__( 'An unfinished forum tool is no longer available. Restore it or discard this run.', 'bbpress' ), 'error' );
-					return;
-				}
-			}
-
-			// Rotate ownership so older requests cannot continue the run
-			$state = bbp_admin_repair_tool_rotate_run_state( $run_type, $selected_tool_ids, $run_id );
-			if ( empty( $state ) ) {
-				bbp_admin_tools_feedback( esc_html__( 'This tool run could not be resumed.', 'bbpress' ), 'error' );
-				return;
-			}
-
-			$run_id = $state['id'];
-		} else {
-			// Do not let a new selection replace a recently active run
-			$inactive_runs = array();
-			foreach ( $types as $type ) {
-				$state     = bbp_admin_repair_tool_get_run_state( $type );
-				$is_active = bbp_admin_repair_tool_run_is_active( $state );
-				if ( $is_active ) {
-					bbp_admin_tools_feedback( esc_html__( 'A forum tool run appears to be in progress.', 'bbpress' ), 'error' );
-					return;
-				}
-
-				if ( ! empty( $state ) ) {
-					$inactive_runs[ $type ] = $state['id'];
-				}
-			}
-
-			// Starting a new selection intentionally replaces inactive recovery state
-			foreach ( $inactive_runs as $type => $inactive_run_id ) {
-				bbp_admin_repair_tool_delete_run_state( $type, $inactive_run_id );
-			}
-		}
-
-		foreach ( $selected_tool_ids as $tool_id ) {
-			if ( isset( $registered_tools[ $tool_id ] ) && is_callable( bbp_get_admin_repair_tool_callback( $registered_tools[ $tool_id ], 'run' ) ) && bbp_admin_repair_tool_flushes_cache( $registered_tools[ $tool_id ] ) ) {
-				$flush_cache = true;
-				break;
-			}
-		}
-
-		if ( $flush_cache ) {
-			wp_cache_flush();
-		}
+	if ( in_array( $action, array( 'run', 'dry-run' ), true ) ) {
+		bbp_admin_repair_tool_start_browser_run( $action, $selected_tool_ids, $registered_tools, $run_id );
+		return;
 	}
 
-	// Run through checked repair tools
-	if ( count( $selected_tool_ids ) ) {
-		foreach ( $selected_tool_ids as $tool_index => $tool_id ) {
-			if ( ! isset( $registered_tools[ $tool_id ] ) ) {
-				continue;
-			}
-
-			$tool              = $registered_tools[ $tool_id ];
-			$callbacks         = bbp_get_admin_repair_tool_callbacks( $tool );
-			$tool['id']        = $tool_id;
-			$tool['callback']  = isset( $callbacks['run'] ) ? $callbacks['run'] : false;
-			$tool['callbacks'] = $callbacks;
-			$callback          = isset( $callbacks[ $action ] ) ? $callbacks[ $action ] : false;
-			unset( $tool['_registered_callback'] );
-
-			if ( ! is_callable( $callback ) ) {
-				/* translators: %1$s: Repair tool title; %2$s: Action label */
-				$message = esc_html__( '%1$s does not support the %2$s action.', 'bbpress' );
-				$messages[] = array( 1, sprintf( $message, $tool['title'], bbp_admin_repair_tool_action_label( $action ) ) );
-				continue;
-			}
-
-			if ( 'run' === $action ) {
-				$lock = bbp_admin_repair_tool_lock( $tool_id );
-				if ( false === $lock ) {
-					/* translators: %s: Repair tool title */
-					$message = esc_html__( '%s is temporarily unavailable. Try again shortly.', 'bbpress' );
-					$messages[]    = array( 1, sprintf( $message, $tool['title'] ) );
-					$retry_tool_ids = array_values( array_unique( array_merge( $retry_tool_ids, array_slice( $selected_tool_ids, $tool_index ) ) ) );
-					$lock_conflict  = true;
-					break;
-				}
-
-				try {
-					$result = call_user_func( $callback );
-				} finally {
-					bbp_admin_repair_tool_unlock( $lock );
-				}
-			} else {
-				$result = call_user_func(
-					$callback,
-					array(
-						'action' => $action,
-						'tool'   => $tool
-					)
-				);
-			}
-
-			$normalized = bbp_admin_repair_tool_normalize_result( $result );
-			if ( false === $normalized ) {
-				/* translators: %1$s: Repair tool title; %2$s: Action label */
-				$message = esc_html__( '%1$s did not return a valid result for the %2$s action.', 'bbpress' );
-				$messages[] = array( 1, sprintf( $message, $tool['title'], bbp_admin_repair_tool_action_label( $action ) ) );
-				if ( 'run' === $action ) {
-					$retry_tool_ids[] = $tool_id;
-				}
-
-				continue;
-			}
-
-			if ( 'dry-run' === $action ) {
-				$status_code = isset( $result[0] ) && is_numeric( $result[0] )
-					? (int) $result[0]
-					: 0;
-				$dry_run_success       = $normalized['success'] && ( $status_code < 2 );
-				$normalized['message'] = bbp_admin_repair_tool_dry_run_message(
-					bbp_admin_repair_tool_result_detail( $normalized['message'] ),
-					$dry_run_success
-				);
-
-				if ( ! $dry_run_success ) {
-					$result['class'] = 'error';
-				}
-			}
-
-			$result[1] = bbp_admin_repair_tool_notice_message( $tool, $normalized['message'] );
-			$messages[] = $result;
-
-			// Other actions never alter pending upgrades or start the browser runner
-			if ( 'run' !== $action ) {
-				continue;
-			}
-
-			// Failed tools stay pending, while the remaining selected tools continue
-			if ( ! $normalized['success'] ) {
-				$retry_tool_ids[] = $tool_id;
-				continue;
-			}
-
-			// Successful legacy and final batches are complete
-			if ( $normalized['complete'] ) {
-				bbp_remove_pending_upgrade( $tool_id );
-				continue;
-			}
-
-			// Continue this tool and the remaining compatible Run tools in the browser
-			$queue = array();
-			foreach ( array_slice( $selected_tool_ids, $tool_index ) as $queue_id ) {
-				if ( isset( $registered_tools[ $queue_id ] ) && ( $tool['type'] === $registered_tools[ $queue_id ]['type'] ) && is_callable( bbp_get_admin_repair_tool_callback( $registered_tools[ $queue_id ], 'run' ) ) ) {
-					$queue[] = $queue_id;
-				}
-			}
-
-			$state = bbp_admin_repair_tool_enqueue_runner( $tool['type'], $queue, $run_id );
-			if ( empty( $state ) ) {
-				$runner_save_failed = true;
-				$retry_tool_ids     = array_values( array_unique( array_merge( $retry_tool_ids, $queue ) ) );
-				$messages[]         = array(
-					1,
-					esc_html__( 'The tool run could not be saved. Resume saved progress or run the selected tools again.', 'bbpress' ),
-					'class' => 'error'
-				);
-				break;
-			}
-
-			$run_id         = $state['id'];
-			$run_type       = $tool['type'];
-			$runner_started = true;
-
-			$continue_url = bbp_admin_repair_tool_continue_url( $tool['type'], $queue, $run_id );
-			$continue = '<a href="' . esc_url( $continue_url ) . '">' . esc_html__( 'Continue', 'bbpress' ) . '</a>';
-			$messages[ count( $messages ) - 1 ][1] .= ' <span class="bbp-tools-runner"></span> <span class="hide-if-js">' . $continue . '</span>';
-			$messages[ count( $messages ) - 1 ]['class']       = 'updated';
-			$messages[ count( $messages ) - 1 ]['dismissible'] = false;
-			break;
+	$messages = array();
+	foreach ( $selected_tool_ids as $tool_id ) {
+		if ( ! isset( $registered_tools[ $tool_id ] ) ) {
+			continue;
 		}
-	}
 
-	// Clear completed runs, or retain only tools that need another attempt
-	if ( ( 'run' === $action ) && ! $runner_started ) {
-		$recover_retry = ! empty( $run_id ) || $runner_save_failed || ( $lock_conflict && ( count( $selected_tool_ids ) > 1 ) );
-		if ( ! empty( $retry_tool_ids ) && $recover_retry ) {
-			$retry_type = isset( $registered_tools[ $retry_tool_ids[0] ]['type'] )
-				? $registered_tools[ $retry_tool_ids[0] ]['type']
-				: $run_type;
-			$state = bbp_admin_repair_tool_save_run_state( $retry_type, $retry_tool_ids, $run_id, 'error' );
-			if ( ! empty( $state ) ) {
-				$run_id = $state['id'];
-			}
-		} elseif ( ! empty( $run_id ) ) {
-			bbp_admin_repair_tool_delete_run_state( $run_type, $run_id );
+		$tool              = $registered_tools[ $tool_id ];
+		$callbacks         = bbp_get_admin_repair_tool_callbacks( $tool );
+		$tool['id']        = $tool_id;
+		$tool['callback']  = isset( $callbacks['run'] ) ? $callbacks['run'] : false;
+		$tool['callbacks'] = $callbacks;
+		$callback          = isset( $callbacks[ $action ] ) ? $callbacks[ $action ] : false;
+		unset( $tool['_registered_callback'] );
+
+		if ( ! is_callable( $callback ) ) {
+			/* translators: %1$s: Repair tool title; %2$s: Action label */
+			$message    = esc_html__( '%1$s does not support the %2$s action.', 'bbpress' );
+			$messages[] = array( 1, sprintf( $message, $tool['title'], bbp_admin_repair_tool_action_label( $action ) ) );
+			continue;
 		}
+
+		$result = call_user_func(
+			$callback,
+			array(
+				'action' => $action,
+				'tool'   => $tool,
+			)
+		);
+		$normalized = bbp_admin_repair_tool_normalize_result( $result );
+		if ( false === $normalized ) {
+			/* translators: %1$s: Repair tool title; %2$s: Action label */
+			$message    = esc_html__( '%1$s did not return a valid result for the %2$s action.', 'bbpress' );
+			$messages[] = array( 1, sprintf( $message, $tool['title'], bbp_admin_repair_tool_action_label( $action ) ) );
+			continue;
+		}
+
+		$result[1]  = bbp_admin_repair_tool_notice_message( $tool, $normalized['message'] );
+		$messages[] = $result;
 	}
 
 	// Feedback
@@ -907,11 +1015,6 @@ function bbp_admin_repair_handler() {
 			$dismissible = isset( $message['dismissible'] ) ? $message['dismissible'] : true;
 			bbp_admin_tools_feedback( $message[1], $class, $dismissible );
 		}
-	}
-
-	// Flush once after the selected Run callbacks and their latest checkpoint
-	if ( $flush_cache ) {
-		wp_cache_flush();
 	}
 }
 
@@ -948,15 +1051,22 @@ function bbp_admin_repair_ajax_handler() {
 	$tool_id = isset( $_POST['tool'] )
 		? sanitize_key( wp_unslash( $_POST['tool'] ) )
 		: '';
-	$run_id = isset( $_POST['run'] )
+	$run_id  = isset( $_POST['run'] )
 		? sanitize_text_field( wp_unslash( $_POST['run'] ) )
 		: '';
+	$action  = isset( $_POST['toolAction'] )
+		? sanitize_key( wp_unslash( $_POST['toolAction'] ) )
+		: 'run';
+
+	if ( ! in_array( $action, array( 'run', 'dry-run' ), true ) ) {
+		wp_send_json_error( array( 'message' => esc_html__( 'Invalid tool action.', 'bbpress' ) ), 400 );
+	}
 
 	bbp_register_repair_tools();
 	$registered_tools = bbp_get_admin_repair_tools( $type );
 
-	$state = bbp_admin_repair_tool_get_run_state( $type );
-	if ( ! bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id ) ) {
+	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+	if ( ! $read || ! bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id ) ) {
 		wp_send_json_error(
 			bbp_admin_repair_tool_stale_run_error(),
 			409
@@ -964,15 +1074,20 @@ function bbp_admin_repair_ajax_handler() {
 	}
 
 	if ( ! isset( $registered_tools[ $tool_id ] ) ) {
-		bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error' );
+		bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
 		wp_send_json_error( array( 'message' => esc_html__( 'The requested tool is not available.', 'bbpress' ) ), 404 );
 	}
 
-	$tool     = $registered_tools[ $tool_id ];
-	$callback = bbp_get_admin_repair_tool_callback( $tool, 'run' );
+	$tool              = $registered_tools[ $tool_id ];
+	$callbacks         = bbp_get_admin_repair_tool_callbacks( $tool );
+	$callback          = isset( $callbacks[ $action ] ) ? $callbacks[ $action ] : false;
+	$tool['id']        = $tool_id;
+	$tool['callback']  = isset( $callbacks['run'] ) ? $callbacks['run'] : false;
+	$tool['callbacks'] = $callbacks;
+	unset( $tool['_registered_callback'] );
 
 	if ( ! is_callable( $callback ) ) {
-		bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error' );
+		bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
 		wp_send_json_error( array( 'message' => esc_html__( 'The requested tool cannot be run.', 'bbpress' ) ), 400 );
 	}
 
@@ -993,8 +1108,8 @@ function bbp_admin_repair_ajax_handler() {
 	$message      = '';
 
 	// Recheck ownership and Pause after acquiring the callback lock
-	$state = bbp_admin_repair_tool_get_run_state( $type );
-	if ( ! bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id ) ) {
+	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+	if ( ! $read || ! bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id ) ) {
 		$error = bbp_admin_repair_tool_stale_run_error();
 	} elseif ( 'running' !== $state['status'] ) {
 		$error = array(
@@ -1009,56 +1124,78 @@ function bbp_admin_repair_ajax_handler() {
 	}
 
 	try {
-		$result     = call_user_func( $callback );
+		$execution_id = 'dry-run' === $action ? $state['preview_id'] : $run_id;
+		bbp_admin_repair_tool_execution_context( $action, $execution_id, $state['started'] );
+		$result = 'run' === $action
+			? call_user_func( $callback )
+			: call_user_func(
+				$callback,
+				array(
+					'action' => $action,
+					'tool'   => $tool,
+				)
+			);
 		$normalized = bbp_admin_repair_tool_normalize_result( $result );
 
 		// Keep the callback lock through final cache flushing and the queue save
-		if ( ( false !== $normalized ) && $normalized['success'] && $normalized['complete'] && bbp_admin_repair_tool_flushes_cache( $tool ) ) {
+		if ( 'run' === $action && ( false !== $normalized ) && $normalized['success'] && $normalized['complete'] && bbp_admin_repair_tool_flushes_cache( $tool ) ) {
 			wp_cache_flush();
 		}
 
 		if ( false === $normalized ) {
-			bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error' );
+			bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
 			$error = array( 'message' => esc_html__( 'The tool did not return a valid result.', 'bbpress' ) );
 		} else {
 			$title   = bbp_admin_repair_tool_result_message( $tool['title'] );
 			$title   = wp_specialchars_decode( $title, ENT_QUOTES );
 			$message = bbp_admin_repair_tool_result_detail( $normalized['message'] );
 			$message = wp_specialchars_decode( $message, ENT_QUOTES );
+			if ( 'dry-run' === $action ) {
+				$status_code = isset( $result[0] ) && is_numeric( $result[0] ) ? (int) $result[0] : 0;
+				$normalized['success'] = $normalized['success'] && ( $status_code < 2 );
+				$message     = bbp_admin_repair_tool_dry_run_message(
+					$message,
+					$normalized['success'],
+					$normalized['batches'],
+					$normalized['complete']
+				);
+				$message = wp_specialchars_decode( $message, ENT_QUOTES );
+			}
 
 			if ( ! $normalized['success'] ) {
-				bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error' );
+				bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
 				$error = array(
 					'title'   => $title,
 					'message' => $message
 				);
 			} else {
-				list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type );
+				list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
 				$queue_saved = $read && bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id );
 
 				if ( $queue_saved && $normalized['complete'] ) {
 					array_shift( $state['tools'] );
 					$queue_saved = empty( $state['tools'] )
-						? bbp_admin_repair_tool_delete_run_state( $type, $run_id )
-						: ( false !== bbp_admin_repair_tool_save_run_state( $type, $state['tools'], $run_id, null ) );
+						? bbp_admin_repair_tool_delete_run_state( $type, $run_id, $action )
+						: ( false !== bbp_admin_repair_tool_save_run_state( $type, $state['tools'], $run_id, null, false, $action, false ) );
 				} elseif ( $queue_saved ) {
-					$queue_saved = false !== bbp_admin_repair_tool_save_run_state( $type, $state['tools'], $run_id, null );
+					$queue_saved = false !== bbp_admin_repair_tool_save_run_state( $type, $state['tools'], $run_id, null, false, $action, true );
 				}
 
 				if ( ! $queue_saved ) {
-					$state = bbp_admin_repair_tool_get_run_state( $type );
+					$state = bbp_admin_repair_tool_get_run_state( $type, $action );
 					if ( bbp_admin_repair_tool_owns_run( $state, $run_id ) ) {
 						$error = array( 'message' => esc_html__( 'Progress could not be saved. Resume to try this batch again.', 'bbpress' ) );
 					} else {
 						$error_status = 409;
 						$error        = bbp_admin_repair_tool_stale_run_error();
 					}
-				} elseif ( $normalized['complete'] ) {
+				} elseif ( $normalized['complete'] && 'run' === $action ) {
 					bbp_remove_pending_upgrade( $tool_id );
 				}
 			}
 		}
 	} finally {
+		bbp_admin_repair_tool_execution_context( 'run', '' );
 		bbp_admin_repair_tool_unlock( $lock );
 	}
 
@@ -1069,6 +1206,7 @@ function bbp_admin_repair_ajax_handler() {
 	wp_send_json_success(
 		array(
 			'complete' => $normalized['complete'],
+			'batches'  => $normalized['batches'],
 			'title'    => $title,
 			'message'  => $message,
 			'tool'     => $tool_id

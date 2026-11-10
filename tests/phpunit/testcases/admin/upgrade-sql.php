@@ -934,6 +934,11 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$forums     = $this->fixture();
 		$this->size = $size;
 		$totals     = array( 'groups' => 0, 'forums' => 0, 'statuses' => 0 );
+		$full       = $this->run_batch( true );
+		$this->assertTrue( $full['complete'] );
+		$this->assertSame( 2, $full['groups'] );
+		$this->assertSame( 2, $full['forums'] );
+		$this->assertSame( 1, $full['statuses'] );
 		for ( $i = 0; $i < 300; ++$i ) {
 			$before  = $this->snapshot();
 			$preview = $this->run_batch( true );
@@ -941,9 +946,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			$result = $this->run_batch();
 			$this->assertSame( 0, $result['code'] );
 			$this->assertLessThanOrEqual( $size, $result['work'] );
-			foreach ( array( 'groups', 'forums', 'statuses', 'root', 'rename', 'roles', 'complete' ) as $key ) {
-				$this->assertSame( $preview[ $key ], $result[ $key ], $key );
-			}
+			$this->assertSame( 0, $preview['code'] );
+			$this->assertTrue( $preview['complete'] );
 			foreach ( $totals as $key => $value ) {
 				$totals[ $key ] += $result[ $key ];
 			}
@@ -963,6 +967,39 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$result     = $this->run_batch();
 		$this->assertTrue( $result['complete'] );
 		$this->assertSame( 0, $result['groups'] + $result['forums'] + $result['statuses'] );
+	}
+
+	public function test_browser_dry_run_uses_bounded_requests_and_cleans_its_plan() {
+		$this->fixture();
+		$this->size = 1;
+		$expected   = $this->run_batch( true );
+		$before     = $this->snapshot();
+		$requests   = 0;
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'group-forum-preview' );
+		$checkpoint = $this->checkpoint();
+		try {
+			for ( $i = 0; $i < 300; ++$i ) {
+				$result = $this->run_batch( true );
+				++$requests;
+				$this->assertSame( 0, $result['code'] );
+				$this->assertLessThanOrEqual( $this->size, $result['work'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertGreaterThan( 1, $requests );
+		$this->assertSame( $expected['batches'], $result['batches'] );
+		foreach ( array( 'groups', 'forums', 'statuses', 'root', 'rename', 'roles', 'mapping_error', 'no_data' ) as $field ) {
+			$this->assertSame( $expected[ $field ], $result[ $field ], $field );
+		}
+		$this->assertFalse( get_option( $checkpoint, false ) );
+		$this->assertSame( $before, $this->snapshot() );
 	}
 
 	public function current_id_formats() {

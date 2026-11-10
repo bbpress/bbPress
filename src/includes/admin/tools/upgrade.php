@@ -47,7 +47,7 @@ function bbp_admin_upgrade_user_mentions_automatically() {
 }
 
 /**
- * Preview the next mention upgrade batch without changing saved progress.
+ * Preview the complete mention upgrade without changing saved progress.
  *
  * @since 2.7.0 bbPress (r8264)
  *
@@ -103,9 +103,10 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		'removed'   => 0,
 		'complete'  => false,
 		'found'     => false,
-		'restarted' => false
+		'restarted' => false,
+		'batches'   => 0
 	);
-	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id );
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_valid_checkpoint', array(), $dry_run );
 	if ( ! $read ) {
 		$batch['code'] = 6;
 		return $batch;
@@ -128,33 +129,39 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		}
 	}
 
-	$size = bbp_admin_repair_tool_batch_size( $tool_id );
-	$rows = $bbp_db->get_results( $bbp_db->prepare( "SELECT meta_id, post_id, meta_value, (meta_key = '_bbp_topic_id') AS is_source FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['cursor'], $state['upper_id'], $size + 1 ) );
-	if ( ! empty( $bbp_db->last_error ) ) {
-		$batch['code'] = 2;
-		return $batch;
-	}
-	$complete         = count( $rows ) <= $size;
-	$rows             = array_slice( $rows, 0, $size );
-	$batch['found']   = ! empty( $rows );
-	$statuses         = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
-	$source           = bbp_admin_repair_get_engagements_query( $statuses, $statuses, true );
-	$repair           = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run );
-	$batch['code']    = $repair['code'];
-	$batch['added']   = $repair['added'];
-	$batch['removed'] = $repair['removed'];
-	if ( ! empty( $batch['code'] ) ) {
-		return $batch;
-	}
-	if ( ! empty( $rows ) ) {
-		$state['cursor'] = $repair['cursor'];
-	}
+	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
+	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'added', 'removed', 'found', 'batches' ) );
+	$planned       = isset( $preview_state['planned'] ) ? $preview_state['planned'] : array();
+	do {
+		$rows = $bbp_db->get_results( $bbp_db->prepare( "SELECT meta_id, post_id, meta_value, (meta_key = '_bbp_topic_id') AS is_source FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['cursor'], $state['upper_id'], $size + 1 ) );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			$batch['code'] = 2;
+			return $batch;
+		}
+		$complete         = count( $rows ) <= $size;
+		$rows             = array_slice( $rows, 0, $size );
+		$batch['found']   = $batch['found'] || ! empty( $rows );
+		$statuses         = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
+		$source           = bbp_admin_repair_get_engagements_query( $statuses, $statuses, true );
+		$repair           = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run, $planned );
+		$batch['code']    = $repair['code'];
+		$batch['added']  += $repair['added'];
+		$batch['removed'] += $repair['removed'];
+		if ( ! empty( $batch['code'] ) ) {
+			return $batch;
+		}
+		if ( ! empty( $rows ) ) {
+			$state['cursor'] = $repair['cursor'];
+		}
 
-	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
-		$batch['code'] = 6;
-		return $batch;
-	}
-	$batch['complete'] = $complete;
+		++$batch['batches'];
+		bbp_admin_repair_tool_store_preview( $state, $batch, array( 'added', 'removed', 'found', 'batches' ), array( 'planned' => $planned ) );
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
+			$batch['code'] = 6;
+			return $batch;
+		}
+		$batch['complete'] = $complete;
+	} while ( bbp_admin_repair_tool_continue_preview( $dry_run ) && ! $batch['code'] && ! $batch['complete'] );
 
 	return $batch;
 }
@@ -191,9 +198,9 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
 	if ( $dry_run ) {
 		/* translators: %s: Number of missing engagements that would be added */
-		$added = sprintf( _n( '%s missing engagement would be added from topic and reply authors in this batch.', '%s missing engagements would be added from topic and reply authors in this batch.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
+		$added = sprintf( _n( '%s missing engagement would be added from topic and reply authors.', '%s missing engagements would be added from topic and reply authors.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
 		/* translators: %s: Number of stale or duplicate engagement rows that would be removed */
-		$removed = sprintf( _n( '%s stale or duplicate engagement row would be cleaned up in this batch.', '%s stale or duplicate engagement rows would be cleaned up in this batch.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
+		$removed = sprintf( _n( '%s stale or duplicate engagement row would be cleaned up.', '%s stale or duplicate engagement rows would be cleaned up.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
 		$result  = $added . "\n" . $removed;
 	} else {
 		/* translators: %s: Number of missing engagements added */
@@ -206,7 +213,8 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 	return array(
 		0,
 		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
+		'complete' => $batch['complete'],
+		'batches'  => $batch['batches'],
 	);
 }
 
@@ -229,7 +237,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
  * Preview upgrading group forum ID mappings after a bbPress 1.x conversion.
  *
  * @since 2.7.0 bbPress (r8237)
- * @since 2.7.0 bbPress (r8315) Preview the next resumable batch without writes.
+ * @since 2.7.0 bbPress (r8315) Added resumable batching.
  *
  * @return array An array of the status code and the message.
  */
@@ -333,6 +341,7 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
 		sprintf( $statement, $result ),
 		'success'  => ! $batch['code'],
 		'complete' => $batch['complete'],
+		'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0,
 	);
 }
 
@@ -370,7 +379,7 @@ function bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state ) {
  * The checkpoint includes a fixed upper user-meta ID and a position within a
  * single user's list, so each request processes a bounded set of relationships.
  * Failed writes leave the checkpoint unchanged; existing relationships make retries
- * safe. Dry Run reads the same next batch without saving any progress.
+ * safe. Dry Run scans the complete source without saving any progress.
  *
  * @since 2.7.0 bbPress (r8253)
  * @since 2.7.0 bbPress (r8254) Safely restart malformed checkpoints.
@@ -389,9 +398,10 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 		'failed'    => 0,
 		'complete'  => false,
 		'found'     => false,
-		'restarted' => false
+		'restarted' => false,
+		'batches'   => 0
 	);
-	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id );
+	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run );
 	if ( ! $read ) {
 		$batch['code'] = 5;
 		return $batch;
@@ -438,98 +448,103 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 		}
 	}
 
-	$size    = bbp_admin_repair_tool_batch_size( $tool_id );
-	$work    = 0;
-	$planned = array();
+	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
+	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'added', 'failed', 'found', 'batches' ) );
+	$planned       = isset( $preview_state['planned'] ) ? $preview_state['planned'] : array();
+	do {
+		$work    = 0;
 
-	while ( ( $work < $size ) && ( $state['cursor'] <= $state['upper_id'] ) ) {
-		$meta = $bbp_db->get_row(
-			$bbp_db->prepare(
-				"SELECT umeta_id, user_id, meta_value FROM {$bbp_db->usermeta}
-				WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d
-				ORDER BY umeta_id LIMIT 1",
-				$old_key,
-				$state['cursor'],
-				$state['upper_id']
-			)
-		);
+		while ( ( $work < $size ) && ( $state['cursor'] <= $state['upper_id'] ) ) {
+			$meta = $bbp_db->get_row(
+				$bbp_db->prepare(
+					"SELECT umeta_id, user_id, meta_value FROM {$bbp_db->usermeta}
+					WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d
+					ORDER BY umeta_id LIMIT 1",
+					$old_key,
+					$state['cursor'],
+					$state['upper_id']
+				)
+			);
+			if ( ! empty( $bbp_db->last_error ) ) {
+				$batch['code'] = 2;
+				return $batch;
+			}
+			if ( empty( $meta ) ) {
+				break;
+			}
+			$batch['found'] = true;
+
+			$row_id   = (int) $meta->umeta_id;
+			$user_id  = (int) $meta->user_id;
+			$row_hash = md5( $user_id . ':' . $meta->meta_value );
+			$post_ids = array_values( array_filter( wp_parse_id_list( $meta->meta_value ) ) );
+			$offset   = ( $row_id === (int) $state['cursor'] ) && ( $row_hash === $state['row_hash'] )
+				? (int) $state['offset']
+				: 0;
+
+			// Empty lists still consume work, keeping every source scan bounded
+			if ( empty( $post_ids ) || ( $offset >= count( $post_ids ) ) ) {
+				++$work;
+				$state['cursor']   = $row_id + 1;
+				$state['offset']   = 0;
+				$state['row_hash'] = '';
+				continue;
+			}
+
+			foreach ( array_slice( $post_ids, $offset, $size - $work ) as $post_id ) {
+				++$work;
+				++$offset;
+				if ( isset( $planned[ $user_id ][ $post_id ] ) ) {
+					continue;
+				}
+				$planned[ $user_id ][ $post_id ] = true;
+
+				$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d LIMIT 1", $post_id, $new_key, $user_id ) );
+				if ( ! empty( $bbp_db->last_error ) ) {
+					$batch['code'] = 3;
+					return $batch;
+				}
+				if ( ! empty( $exists ) ) {
+					continue;
+				}
+
+				if ( ! $dry_run && bbp_admin_repair_metadata_add( 'post', $post_id, $new_key, $user_id )['code'] ) {
+					++$batch['failed'];
+				} else {
+					++$batch['added'];
+				}
+			}
+
+			if ( $offset < count( $post_ids ) ) {
+				$state['cursor']   = $row_id;
+				$state['offset']   = $offset;
+				$state['row_hash'] = $row_hash;
+			} else {
+				$state['cursor']   = $row_id + 1;
+				$state['offset']   = 0;
+				$state['row_hash'] = '';
+			}
+		}
+
+		if ( ! empty( $batch['failed'] ) ) {
+			$batch['code'] = 4;
+			return $batch;
+		}
+
+		$remaining = $bbp_db->get_var( $bbp_db->prepare( "SELECT umeta_id FROM {$bbp_db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $old_key, $state['cursor'], $state['upper_id'] ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			$batch['code'] = 2;
 			return $batch;
 		}
-		if ( empty( $meta ) ) {
-			break;
+		$batch['complete'] = empty( $remaining );
+
+		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
+		bbp_admin_repair_tool_store_preview( $state, $batch, array( 'added', 'failed', 'found', 'batches' ), array( 'planned' => $planned ) );
+		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'], $dry_run ) ) {
+			$batch['code']     = 5;
+			$batch['complete'] = false;
 		}
-		$batch['found'] = true;
-
-		$row_id   = (int) $meta->umeta_id;
-		$user_id  = (int) $meta->user_id;
-		$row_hash = md5( $user_id . ':' . $meta->meta_value );
-		$post_ids = array_values( array_filter( wp_parse_id_list( $meta->meta_value ) ) );
-		$offset   = ( $row_id === (int) $state['cursor'] ) && ( $row_hash === $state['row_hash'] )
-			? (int) $state['offset']
-			: 0;
-
-		// Empty lists still consume work, keeping every source scan bounded
-		if ( empty( $post_ids ) || ( $offset >= count( $post_ids ) ) ) {
-			++$work;
-			$state['cursor']   = $row_id + 1;
-			$state['offset']   = 0;
-			$state['row_hash'] = '';
-			continue;
-		}
-
-		foreach ( array_slice( $post_ids, $offset, $size - $work ) as $post_id ) {
-			++$work;
-			++$offset;
-			if ( isset( $planned[ $user_id ][ $post_id ] ) ) {
-				continue;
-			}
-			$planned[ $user_id ][ $post_id ] = true;
-
-			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d LIMIT 1", $post_id, $new_key, $user_id ) );
-			if ( ! empty( $bbp_db->last_error ) ) {
-				$batch['code'] = 3;
-				return $batch;
-			}
-			if ( ! empty( $exists ) ) {
-				continue;
-			}
-
-			if ( ! $dry_run && bbp_admin_repair_metadata_add( 'post', $post_id, $new_key, $user_id )['code'] ) {
-				++$batch['failed'];
-			} else {
-				++$batch['added'];
-			}
-		}
-
-		if ( $offset < count( $post_ids ) ) {
-			$state['cursor']   = $row_id;
-			$state['offset']   = $offset;
-			$state['row_hash'] = $row_hash;
-		} else {
-			$state['cursor']   = $row_id + 1;
-			$state['offset']   = 0;
-			$state['row_hash'] = '';
-		}
-	}
-
-	if ( ! empty( $batch['failed'] ) ) {
-		$batch['code'] = 4;
-		return $batch;
-	}
-
-	$remaining = $bbp_db->get_var( $bbp_db->prepare( "SELECT umeta_id FROM {$bbp_db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $old_key, $state['cursor'], $state['upper_id'] ) );
-	if ( ! empty( $bbp_db->last_error ) ) {
-		$batch['code'] = 2;
-		return $batch;
-	}
-	$batch['complete'] = empty( $remaining );
-
-	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'], $dry_run ) ) {
-		$batch['code']     = 5;
-		$batch['complete'] = false;
-	}
+	} while ( bbp_admin_repair_tool_continue_preview( $dry_run ) && ! $batch['code'] && ! $batch['complete'] );
 
 	return $batch;
 }
@@ -606,7 +621,7 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 		case 'favorites':
 			if ( $dry_run ) {
 				/* translators: %s: Number of relationships that would be added */
-				$result = sprintf( _n( '%s favorite relationship would be added to topic meta from user meta in this batch.', '%s favorite relationships would be added to topic meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
+				$result = sprintf( _n( '%s favorite relationship would be added to topic meta from user meta.', '%s favorite relationships would be added to topic meta from user meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 			} elseif ( $failed_total ) {
 				/* translators: %s: Number of relationships added */
 				$added = sprintf( _n( '%s favorite relationship added', '%s favorite relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
@@ -620,7 +635,7 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 		case 'topic-subscriptions':
 			if ( $dry_run ) {
 				/* translators: %s: Number of relationships that would be added */
-				$result = sprintf( _n( '%s topic subscription relationship would be added to topic meta from user meta in this batch.', '%s topic subscription relationships would be added to topic meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
+				$result = sprintf( _n( '%s topic subscription relationship would be added to topic meta from user meta.', '%s topic subscription relationships would be added to topic meta from user meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 			} elseif ( $failed_total ) {
 				/* translators: %s: Number of relationships added */
 				$added = sprintf( _n( '%s topic subscription relationship added', '%s topic subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
@@ -634,7 +649,7 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 		case 'forum-subscriptions':
 			if ( $dry_run ) {
 				/* translators: %s: Number of relationships that would be added */
-				$result = sprintf( _n( '%s forum subscription relationship would be added to forum meta from user meta in this batch.', '%s forum subscription relationships would be added to forum meta from user meta in this batch.', $total, 'bbpress' ), bbp_number_format( $total ) );
+				$result = sprintf( _n( '%s forum subscription relationship would be added to forum meta from user meta.', '%s forum subscription relationships would be added to forum meta from user meta.', $total, 'bbpress' ), bbp_number_format( $total ) );
 			} elseif ( $failed_total ) {
 				/* translators: %s: Number of relationships added */
 				$added = sprintf( _n( '%s forum subscription relationship added', '%s forum subscription relationships added', $total, 'bbpress' ), bbp_number_format( $total ) );
@@ -661,6 +676,7 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 		0,
 		sprintf( $statement, $result ),
 		'complete' => $batch['complete'],
+		'batches'  => $batch['batches'],
 	);
 }
 
@@ -844,7 +860,8 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 		'initial'   => false,
 		'complete'  => false,
 		'restarted' => false,
-		'message'   => ''
+		'message'   => '',
+		'batches'   => 0
 	);
 	if ( false === $config ) {
 		$batch['code'] = 6;
@@ -853,7 +870,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 	$tool_id  = $config['delete_tool_id'];
 	$key      = $config['source_key'];
 	$callback = static function () use ( $db, $tool_id, $key, $dry_run, $batch ) {
-		list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'key' => $key ) );
+		list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'key' => $key ), $dry_run );
 		if ( ! $read ) {
 			$batch['code'] = 6;
 			return $batch;
@@ -876,28 +893,34 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 			}
 		}
 		$size = bbp_admin_repair_tool_batch_size( $tool_id );
-		$rows = $db->get_results( $db->prepare( "SELECT umeta_id, user_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id > %d AND umeta_id <= %d ORDER BY umeta_id LIMIT %d", $key, $state['cursor'], $state['upper_id'], $size + 1 ) );
-		if ( ! empty( $db->last_error ) ) {
-			$batch['code'] = 2;
-			return $batch;
-		}
-		$complete = count( $rows ) <= $size;
-		foreach ( array_slice( $rows, 0, $size ) as $row ) {
-			if ( ! $dry_run ) {
-				$code = bbp_admin_repair_metadata_row( 'user', $row, $key, null );
-				if ( $code ) {
-					$batch['code'] = ( 1 === $code ) ? 2 : 3;
-					return $batch;
-				}
+		bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'removed', 'initial', 'batches' ) );
+		do {
+			$rows = $db->get_results( $db->prepare( "SELECT umeta_id, user_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id > %d AND umeta_id <= %d ORDER BY umeta_id LIMIT %d", $key, $state['cursor'], $state['upper_id'], $size + 1 ) );
+			if ( ! empty( $db->last_error ) ) {
+				$batch['code'] = 2;
+				return $batch;
 			}
-			++$batch['removed'];
-			$state['cursor'] = (int) $row->umeta_id;
-		}
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
-			$batch['code'] = 6;
-			return $batch;
-		}
-		$batch['complete'] = $complete;
+			$complete = count( $rows ) <= $size;
+			foreach ( array_slice( $rows, 0, $size ) as $row ) {
+				if ( ! $dry_run ) {
+					$code = bbp_admin_repair_metadata_row( 'user', $row, $key, null );
+					if ( $code ) {
+						$batch['code'] = ( 1 === $code ) ? 2 : 3;
+						return $batch;
+					}
+				}
+				++$batch['removed'];
+				$state['cursor'] = (int) $row->umeta_id;
+			}
+			++$batch['batches'];
+			bbp_admin_repair_tool_store_preview( $state, $batch, array( 'removed', 'initial', 'batches' ) );
+			if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
+				$batch['code'] = 6;
+				return $batch;
+			}
+			$batch['complete'] = $complete;
+		} while ( bbp_admin_repair_tool_continue_preview( $dry_run ) && ! $batch['complete'] );
+
 		return $batch;
 	};
 	$result = bbp_admin_upgrade_user_meta_cleanup( $config['move_tool_id'], $callback, $dry_run );
@@ -971,7 +994,8 @@ function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_r
 	return array(
 		$code,
 		sprintf( $statement, $result ),
-		'complete' => $batch['complete']
+		'complete' => $batch['complete'],
+		'batches'  => $batch['batches'],
 	);
 }
 

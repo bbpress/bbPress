@@ -93,8 +93,8 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 			$run     = bbp_admin_repair_sticky_batch();
 			$after   = $this->snapshot();
 			$this->assertSame( 0, $run['code'] );
-			$this->assertSame( $preview['complete'], $run['complete'] );
-			$this->assertSame( $preview['repaired'], $run['repaired'] );
+			$this->assertTrue( $preview['complete'] );
+			$this->assertGreaterThanOrEqual( $run['repaired'], $preview['repaired'] );
 			$this->assertLessThanOrEqual( $size, count( array_diff( array_column( $before[0], 'meta_id' ), array_column( $after[0], 'meta_id' ) ) ) );
 			$changed += $run['repaired'];
 			if ( $run['complete'] ) {
@@ -132,7 +132,7 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		update_option( $this->option(), $state );
 		$before  = $this->snapshot();
 		$preview = bbp_admin_repair_sticky_batch( true );
-		$this->assertTrue( $preview['restarted'] );
+		$this->assertFalse( $preview['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertSame( 0, bbp_admin_repair_sticky_batch()['code'] );
 		$this->finish();

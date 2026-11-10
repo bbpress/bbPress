@@ -111,9 +111,10 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 			$this->assertSame( $before, $this->snapshot() );
 			$result = bbp_admin_repair_reply_menu_order_batch();
 			$this->assertSame( 0, $result['code'] );
-			foreach ( array( 'relationships', 'positions', 'complete' ) as $key ) {
-				$this->assertSame( $preview[ $key ], $result[ $key ], $key );
+			foreach ( array( 'relationships', 'positions' ) as $key ) {
+				$this->assertGreaterThanOrEqual( $result[ $key ], $preview[ $key ], $key );
 			}
+			$this->assertTrue( $preview['complete'] );
 			$this->assertLessThanOrEqual( $size, $result['relationships'] + $result['positions'] );
 			$relationships += $result['relationships'];
 			$positions     += $result['positions'];
@@ -131,6 +132,34 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-sync-all-reply-positions', 'bbp_admin_repair_reply_menu_order' ) );
 		$this->size = 1000;
 		$this->assertSame( 1, bbp_admin_repair_reply_menu_order_dry_run()[0] );
+	}
+
+	public function test_browser_preview_uses_bounded_requests_and_aggregate_totals() {
+		$this->fixture( true );
+		$this->size = 2;
+		$before     = $this->snapshot();
+		$requests   = 0;
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'reply-position-preview' );
+		try {
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_repair_reply_menu_order_batch( true );
+				++$requests;
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertGreaterThan( 1, $requests );
+		$this->assertSame( 2, $result['relationships'] );
+		$this->assertSame( 3, $result['positions'] );
+		$this->assertSame( $requests, $result['batches'] );
+		$this->assertSame( $before, $this->snapshot() );
 	}
 
 	public function test_incorrect_unique_positions_are_repaired_without_changing_other_post_types() {
@@ -399,7 +428,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		$state[ $key ] = 'past-bound' === $value ? $state['meta_upper'] + 1 : $value;
 		update_option( $this->option(), $state, false );
 		$before = $this->snapshot();
-		$this->assertTrue( bbp_admin_repair_reply_menu_order_batch( true )['restarted'] );
+		$this->assertFalse( bbp_admin_repair_reply_menu_order_batch( true )['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertTrue( bbp_admin_repair_reply_menu_order_batch()['restarted'] );
 		$this->finish();
@@ -462,7 +491,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 				'bounds'     => 0 === strpos( $query, 'SELECT (SELECT MAX(ID)' ),
 				'metadata'   => 0 === strpos( $query, 'SELECT meta_id, post_id, (post_id' ),
 				'reply'      => 0 === strpos( $query, 'SELECT ID, post_parent, post_status, menu_order' ),
-				'rank'       => 0 === strpos( $query, 'SELECT COUNT(*)' ),
+				'rank'       => false !== strpos( $query, 'SELECT COUNT(*) AS reply_position' ),
 				'checkpoint' => 0 === strpos( $query, 'SELECT ' ) && false !== strpos( $query, $option ),
 			);
 			return $matches[ $point ] ? 'SELECT * FROM bbp_missing_reply_positions' : $query;

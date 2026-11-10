@@ -67,26 +67,35 @@ class BBP_Tests_Admin_Tag_Count_Batches extends BBP_UnitTestCase {
 		$this->fail( 'The tag recount did not finish.' );
 	}
 
-	public function test_previews_match_bounded_batches_and_repeated_runs_do_not_rewrite_counts() {
+	public function test_full_preview_matches_completed_run_and_repeated_runs_do_not_rewrite_counts() {
 		$tags     = $this->tags();
 		$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
 		$other    = wp_insert_term( 'Untouched category', 'category' );
 		bbp_db()->update( bbp_db()->term_taxonomy, array( 'count' => 77 ), array( 'term_taxonomy_id' => $other['term_taxonomy_id'] ) );
+		$preview = bbp_admin_repair_topic_tag_count_batch( $taxonomy, 'bbp_update_topic_tag_count', true );
+		$this->assertTrue( $preview['complete'] );
+		$this->assertSame( 5, $preview['repaired'] );
+		$this->assertSame( 3, $preview['batches'] );
+		$repaired = 0;
 		for ( $batch = 0; $batch < 5; ++$batch ) {
 			$before  = $this->snapshot();
 			$actions = did_action( 'edit_term_taxonomy' );
-			$preview = bbp_admin_repair_topic_tag_count_batch( $taxonomy, 'bbp_update_topic_tag_count', true );
+			$remaining = bbp_admin_repair_topic_tag_count_batch( $taxonomy, 'bbp_update_topic_tag_count', true );
 			$this->assertSame( $before, $this->snapshot() );
 			$this->assertSame( $actions, did_action( 'edit_term_taxonomy' ) );
 			$result = bbp_admin_repair_topic_tag_count_batch( $taxonomy, 'bbp_update_topic_tag_count' );
 			$this->assertSame( 0, $result['code'] );
-			$this->assertSame( $preview, $result );
+			$this->assertTrue( $remaining['complete'] );
+			$this->assertSame( 5 - $repaired, $remaining['repaired'] );
+			$repaired += $result['repaired'];
 			$this->assertLessThanOrEqual( 2, did_action( 'edit_term_taxonomy' ) - $actions );
 			if ( $result['complete'] ) {
 				break;
 			}
 		}
 		$this->assertTrue( $result['complete'] );
+		$this->assertSame( $preview['repaired'], $repaired );
+		$this->assertSame( $preview['batches'], $batch + 1 );
 		$this->assertSame( array_fill( 0, 5, 0 ), $this->counts( $tags ) );
 		$this->assertSame( array( 77 ), $this->counts( array( $other['term_taxonomy_id'] ) ) );
 		$before  = $this->snapshot();
@@ -232,7 +241,7 @@ class BBP_Tests_Admin_Tag_Count_Batches extends BBP_UnitTestCase {
 		$this->assertSame( array( 0, 0, 0, 0 ), $this->counts( array_merge( $tags, $new ) ) );
 	}
 
-	public function test_clean_incomplete_previews_report_only_the_current_batch() {
+	public function test_full_preview_reports_changes_beyond_a_clean_first_batch() {
 		$tags = $this->tags( 3 );
 		foreach ( array_slice( $tags, 0, 2 ) as $id ) {
 			bbp_db()->update( bbp_db()->term_taxonomy, array( 'count' => 0 ), array( 'term_taxonomy_id' => $id ) );
@@ -240,12 +249,25 @@ class BBP_Tests_Admin_Tag_Count_Batches extends BBP_UnitTestCase {
 		$before  = $this->snapshot();
 		$preview = bbp_admin_repair_topic_tag_count_dry_run();
 		$this->assertSame( 0, $preview[0] );
-		$this->assertFalse( $preview['complete'] );
-		$this->assertStringContainsString( 'This batch:', $preview[1] );
-		$this->assertStringContainsString( '0 topic-tags.', $preview[1] );
+		$this->assertTrue( $preview['complete'] );
+		$this->assertSame( 2, $preview['batches'] );
+		$this->assertStringNotContainsString( 'This batch:', $preview[1] );
+		$this->assertStringContainsString( '1 topic-tag.', $preview[1] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertFalse( bbp_admin_repair_topic_tag_count()['complete'] );
 		$this->assertStringContainsString( '1 topic-tag.', bbp_admin_repair_topic_tag_count_dry_run()[1] );
+	}
+
+	public function test_full_preview_ignores_an_existing_run_cursor() {
+		$tags = $this->tags();
+		$this->assertFalse( bbp_admin_repair_topic_tag_count()['complete'] );
+		bbp_db()->update( bbp_db()->term_taxonomy, array( 'count' => 99 ), array( 'term_taxonomy_id' => $tags[0] ) );
+		$before  = $this->snapshot();
+		$preview = bbp_admin_repair_topic_tag_count_dry_run();
+		$this->assertTrue( $preview['complete'] );
+		$this->assertSame( 3, $preview['batches'] );
+		$this->assertStringContainsString( '4 topic-tags.', $preview[1] );
+		$this->assertSame( $before, $this->snapshot() );
 	}
 
 	public function test_clean_final_batches_report_run_completion() {
@@ -302,7 +324,9 @@ class BBP_Tests_Admin_Tag_Count_Batches extends BBP_UnitTestCase {
 		update_option( $option, $state, false );
 		$before  = $this->snapshot();
 		$preview = bbp_admin_repair_topic_tag_count_dry_run();
-		$this->assertStringContainsString( 'Saved progress is invalid.', $preview[1] );
+		$this->assertTrue( $preview['complete'] );
+		$this->assertStringNotContainsString( 'Saved progress', $preview[1] );
+		$this->assertStringContainsString( '3 topic-tags.', $preview[1] );
 		$this->assertSame( $before, $this->snapshot() );
 		$this->assertStringContainsString( 'Saved progress was invalid.', bbp_admin_repair_topic_tag_count()[1] );
 		$this->finish();

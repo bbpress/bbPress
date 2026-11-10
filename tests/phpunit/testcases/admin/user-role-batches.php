@@ -142,7 +142,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 				$this->assertSame( $before, $this->snapshot() );
 				$this->assertSame( 0, $calls );
 				$batch = bbp_admin_repair_user_roles_batch();
-				$this->assertSame( $preview, $batch );
+				$this->assertTrue( $preview['complete'] );
+				$this->assertSame( 0, $preview['code'] );
 				$this->assertLessThanOrEqual( $size, $calls );
 				if ( $batch['complete'] ) {
 					break;
@@ -233,13 +234,15 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		$this->targets['subscriber'] = bbp_get_moderator_role();
 		$before = $this->snapshot();
 		$preview = bbp_admin_repair_user_roles_batch( true );
-		$this->assertTrue( $preview['restarted'] );
+		$this->assertFalse( $preview['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
-		$this->assertSame( $preview, bbp_admin_repair_user_roles_batch() );
+		$run = bbp_admin_repair_user_roles_batch();
+			$this->assertSame( 0, $run['code'] );
+			$this->assertGreaterThanOrEqual( $run['changed'], $preview['changed'] );
 		$state = get_option( $this->option() );
 		$state['phase'] = 99999;
 		update_option( $this->option(), $state, false );
-		$this->assertTrue( bbp_admin_repair_user_roles_batch( true )['restarted'] );
+		$this->assertFalse( bbp_admin_repair_user_roles_batch( true )['restarted'] );
 		$this->finish();
 		foreach ( $ids as $id ) {
 			$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $id ) );
@@ -256,7 +259,9 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		$this->size = 1000;
 		$preview = bbp_admin_repair_user_roles_batch( true );
 		$this->assertSame( 2, $preview['changed'] );
-		$this->assertSame( $preview, bbp_admin_repair_user_roles_batch() );
+		$run = bbp_admin_repair_user_roles_batch();
+			$this->assertSame( 0, $run['code'] );
+			$this->assertGreaterThanOrEqual( $run['changed'], $preview['changed'] );
 		$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $user_id ) );
 		$this->role_order = array( 'subscriber', 'editor' );
 		$this->finish();
@@ -336,9 +341,12 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 			$before = $this->snapshot();
 			$preview = bbp_admin_repair_user_roles_batch( true );
 			$this->assertSame( $before, $this->snapshot() );
-			$this->assertSame( 1, $preview['changed'] );
-			$this->assertFalse( $preview['complete'] );
-			$this->assertSame( $preview, bbp_admin_repair_user_roles_batch() );
+			$this->assertSame( $prefilled ? 1 : 3, $preview['changed'] );
+			$this->assertSame( $prefilled ? 2 : 0, $preview['code'] );
+			$this->assertSame( ! $prefilled, $preview['complete'] );
+			$run = bbp_admin_repair_user_roles_batch();
+			$this->assertSame( 0, $run['code'] );
+			$this->assertGreaterThanOrEqual( $run['changed'], $preview['changed'] );
 		} finally {
 			remove_filter( 'users_pre_query', $duplicates );
 		}
@@ -360,10 +368,12 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		try {
 			$before = $this->snapshot();
 			$preview = bbp_admin_repair_user_roles_batch( true );
-			$this->assertSame( 2, $preview['changed'] );
-			$this->assertFalse( $preview['complete'] );
+			$this->assertSame( 3, $preview['changed'] );
+			$this->assertTrue( $preview['complete'] );
 			$this->assertSame( $before, $this->snapshot() );
-			$this->assertSame( $preview, bbp_admin_repair_user_roles_batch() );
+			$run = bbp_admin_repair_user_roles_batch();
+			$this->assertSame( 0, $run['code'] );
+			$this->assertGreaterThanOrEqual( $run['changed'], $preview['changed'] );
 			$this->finish();
 			$this->assert_roles( $ids );
 		} finally {
@@ -390,9 +400,15 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		try {
 			foreach ( array( true, false ) as $dry_run ) {
 				$result = bbp_admin_repair_user_roles_process( $dry_run );
-				$this->assertSame( 2, $result[0] );
-				$this->assertFalse( $result['success'] );
-				$this->assertFalse( $result['complete'] );
+				if ( $dry_run && 'order' !== $bound ) {
+					// These IDs are valid within a fresh preview's bounds.
+					$this->assertTrue( bbp_admin_repair_tool_normalize_result( $result )['success'] );
+					$this->assertTrue( $result['complete'] );
+				} else {
+					$this->assertSame( 2, $result[0] );
+					$this->assertFalse( $result['success'] );
+					$this->assertFalse( $result['complete'] );
+				}
 				$this->assertSame( $state, get_option( $this->option() ) );
 				$this->assertSame( $before, $this->snapshot() );
 			}

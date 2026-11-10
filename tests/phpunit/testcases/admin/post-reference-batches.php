@@ -109,7 +109,8 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 				$result     = $this->batch( $reference );
 				$after_ids  = $this->meta_ids();
 				$this->assertSame( 0, $result['code'] );
-				$this->assertSame( $preview, $result );
+				$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 				$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				if ( 0 === $batch ) {
 					$this->assertFalse( $result['complete'] );
@@ -246,7 +247,8 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 			$before_ids = $this->meta_ids();
 			$result     = $this->batch( 'forum' );
 			$after_ids  = $this->meta_ids();
-			$this->assertSame( $preview, $result );
+			$this->assertTrue( $preview['complete'] );
+			$this->assertSame( 0, $preview['code'] );
 			$this->assertSame( 0, $result['code'] );
 			$this->assertLessThanOrEqual( 2, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
@@ -266,7 +268,7 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		$forum_state = get_option( $this->option( 'forum' ) );
 		$result      = $this->batch( 'topic' );
 		$this->assertFalse( $result['complete'] );
-		$this->assertSame( array( 'code', 'topics', 'replies', 'stale', 'initial', 'complete', 'restarted' ), array_keys( $result ) );
+		$this->assertSame( array( 'code', 'topics', 'replies', 'stale', 'initial', 'complete', 'restarted', 'batches' ), array_keys( $result ) );
 		$topic_state = get_option( $this->option( 'topic' ) );
 		$this->assertSame( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), $topic_state['post_types'] );
 		$this->finish( 'forum' );
@@ -285,7 +287,7 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		$state['post_types'] = array( 'old' );
 		update_option( $option, $state, false );
 		$before = $this->snapshot();
-		$this->assertTrue( $this->batch( 'forum', true )['restarted'] );
+		$this->assertFalse( $this->batch( 'forum', true )['restarted'] );
 		$this->assertSame( $before, $this->snapshot() );
 		add_filter( 'bbp_admin_repair_tool_automatic_batch_limit', '__return_true' );
 		try {

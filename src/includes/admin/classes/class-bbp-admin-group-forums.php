@@ -29,10 +29,12 @@ class BBP_Admin_Group_Forums {
 	private $tool_id = 'bbp-group-forums';
 	private $state;
 	private $dry_run;
+	private $async;
 	private $preview = array();
 	private $cleaned = array();
 	private $code = 0;
 	private $mapping_error = false;
+	private $batches = 0;
 	private $counts = array(
 		'groups'   => 0,
 		'forums'   => 0,
@@ -46,13 +48,14 @@ class BBP_Admin_Group_Forums {
 		$this->db              = bbp_db();
 		$this->forum_post_type = bbp_get_forum_post_type();
 		$this->dry_run         = $dry_run;
+		$this->async           = $dry_run && bbp_admin_repair_tool_is_async_dry_run();
 		$prefix                = apply_filters( 'bp_core_get_table_prefix', $this->db->base_prefix );
 		$this->groups_table    = $prefix . 'bp_groups';
 		$this->groupmeta_table = $prefix . 'bp_groups_groupmeta';
 	}
 
 	public function run() {
-		list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id );
+		list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
 		$complete  = false;
 		$restarted = false !== $saved && ! $this->valid_state( $saved );
 		if ( ! $read ) {
@@ -60,22 +63,38 @@ class BBP_Admin_Group_Forums {
 		} elseif ( false === $saved || $restarted ) {
 			$this->state = $this->new_state();
 			// Publish the generation before prepare can clean up an abandoned run.
-			if ( ! $this->code && ! $this->dry_run && ! $this->save() ) {
+			if ( ! $this->code && ! $this->save() ) {
 				$this->code = 11;
 			}
 		} else {
 			$this->state = $saved;
 		}
+		if ( $this->async && $this->state ) {
+			$preview = array_merge( $this->counts, array( 'batches' => 0 ) );
+			$data    = bbp_admin_repair_tool_restore_preview( $this->state, $preview, array_keys( $preview ) );
+			foreach ( array_keys( $this->counts ) as $field ) {
+				$this->counts[ $field ] = $preview[ $field ];
+			}
+			$this->batches       = $preview['batches'];
+			$this->mapping_error = ! empty( $data['mapping_error'] );
+		}
 		$size = bbp_admin_repair_tool_batch_size( $this->tool_id );
 		$work = 0;
-		while ( ! $this->code && ! $complete && $work < $size ) {
-			$work += $this->step( $size - $work, $complete );
+		while ( ! $this->code && ! $complete && ( bbp_admin_repair_tool_continue_preview( $this->dry_run ) || $work < $size ) ) {
+			$remaining = bbp_admin_repair_tool_continue_preview( $this->dry_run ) ? $size - ( $work % $size ) : $size - $work;
+			$work     += $this->step( $remaining, $complete );
 		}
-		if ( ! $this->dry_run && $this->state && 11 !== $this->code ) {
+		if ( $this->async && $work ) {
+			++$this->batches;
+		}
+		if ( ( ! $this->dry_run || $this->async ) && $this->state && 11 !== $this->code ) {
 			if ( in_array( $this->code, array( 7, 12 ), true ) ) {
 				// Rebuild invalid source plans. Previously written forum markers
 				// disambiguate partial upgrades when legacy and current IDs overlap.
 				$this->state = $this->new_state();
+			} elseif ( $this->async ) {
+				$preview = array_merge( $this->counts, array( 'batches' => $this->batches ) );
+				bbp_admin_repair_tool_store_preview( $this->state, $preview, array_keys( $preview ), array( 'mapping_error' => (bool) $this->mapping_error ) );
 			}
 			if ( $this->state && ! $this->save( ! $this->code && $complete ) ) {
 				$this->code = 11;
@@ -91,18 +110,34 @@ class BBP_Admin_Group_Forums {
 				'no_data'       => $complete && empty( $this->state['legacy_forum_count'] ),
 				'phase'         => isset( $this->state['phase'] ) ? $this->state['phase'] : 'prepare',
 				'work'          => $work,
+				'batches'       => $this->async ? $this->batches : max( 1, (int) ceil( $work / $size ) ),
 			)
 		);
 	}
 
 	private function valid_state( $state ) {
-		return bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'legacy_forum_count', 'group_marker_offset' ) )
+		$valid = bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'legacy_forum_count', 'group_marker_offset' ) )
 			&& isset( $state['phase'], $state['token'], $state['context'] )
 			&& in_array( $state['phase'], array( 'prepare', 'index', 'plan', 'verify', 'apply', 'root', 'cleanup' ), true )
 			&& is_string( $state['token'] ) && strlen( $state['token'] ) === 32 && ctype_xdigit( $state['token'] )
 			&& array( $this->forum_post_type, $this->groups_table, $this->groupmeta_table, 2 ) === $state['context']
 			&& ( $state['legacy_forum_count'] > 0 || ! in_array( $state['phase'], array( 'plan', 'verify', 'apply', 'root' ), true ) )
 			&& $state['legacy_forum_count'] <= $state['upper_id'] && ( 'index' === $state['phase'] || 0 === $state['group_marker_offset'] );
+		if ( ! $valid || ! isset( $state['_preview_state'] ) ) {
+			return $valid;
+		}
+
+		$totals = $state['_preview_state']['totals'];
+		$data   = $state['_preview_state']['data'];
+		foreach ( array( 'groups', 'forums', 'statuses', 'root', 'rename', 'batches' ) as $field ) {
+			if ( ! isset( $totals[ $field ] ) || ! is_int( $totals[ $field ] ) || $totals[ $field ] < 0 ) {
+				return false;
+			}
+		}
+		return isset( $totals['roles'], $data['mapping_error'] )
+			&& is_array( $totals['roles'] )
+			&& ! array_diff( $totals['roles'], array( 'member', 'inactive', 'blocked', 'moderator', 'keymaster' ) )
+			&& is_bool( $data['mapping_error'] );
 	}
 
 	private function new_state() {
@@ -148,7 +183,7 @@ class BBP_Admin_Group_Forums {
 
 	private function write_plan( $key, $value ) {
 		$name = $this->option( $key );
-		if ( $this->dry_run ) {
+		if ( $this->dry_run && ! $this->async ) {
 			$this->preview[ $name ] = $value;
 		} elseif ( ! bbp_admin_repair_tool_save_option( $name, $value ) ) {
 			$this->code = 11;
@@ -252,7 +287,7 @@ class BBP_Admin_Group_Forums {
 	private function step( $limit, &$complete ) {
 		$phase = $this->state['phase'];
 		if ( in_array( $phase, array( 'prepare', 'cleanup' ), true ) ) {
-			list( $success, $work, $finished ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run, $this->preview, $this->cleaned );
+			list( $success, $work, $finished ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run && ! $this->async, $this->preview, $this->cleaned );
 			if ( ! $success ) {
 				$this->code = 11;
 			} elseif ( $finished ) {

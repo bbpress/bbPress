@@ -74,6 +74,50 @@ function bbp_save_mention_backfill_status( $state, $previous = array() ) {
 }
 
 /**
+ * Plan one historical post's mention relationships and notification baseline.
+ *
+ * Run and Dry Run share this planner. Only Run applies and verifies its plan.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ *
+ * @param int $post_id Topic or reply ID.
+ * @return array|WP_Error Planned changes, or an invalid notification record.
+ */
+function bbp_get_mention_backfill_plan( $post_id = 0 ) {
+	$changes = bbp_get_post_mention_changes( $post_id );
+	$plan    = array(
+		'changes'  => $changes,
+		'handled'  => array(),
+		'baseline' => false
+	);
+	if ( ! $changes['post'] ) {
+		return $plan;
+	}
+
+	$handled = wp_parse_id_list( array_merge( $changes['current'], $changes['expected'] ) );
+	if ( empty( $handled ) ) {
+		return $plan;
+	}
+
+	$exists = metadata_exists( 'post', $post_id, '_bbp_mention_notification' );
+	$record = $exists ? get_post_meta( $post_id, '_bbp_mention_notification', true ) : false;
+	if ( $exists && ( ! is_array( $record ) || ! isset( $record['handled'] ) || ! is_array( $record['handled'] ) ) ) {
+		/* translators: %d: Post ID */
+		return new WP_Error( 'bbp_mention_backfill_post', sprintf( __( 'The mention notification record for post %d is invalid.', 'bbpress' ), $post_id ) );
+	}
+
+	// Existing unpublished records must retain their approval-time recipients.
+	$statuses = ( bbp_get_reply_post_type() === $changes['post']->post_type ) ? bbp_get_public_reply_statuses() : bbp_get_public_topic_statuses();
+	if ( $exists && ! in_array( $changes['post']->post_status, $statuses, true ) ) {
+		$handled = array();
+	}
+	$plan['handled']  = $handled;
+	$plan['baseline'] = ! $exists || ! empty( array_diff( $handled, wp_parse_id_list( $record['handled'] ) ) );
+
+	return $plan;
+}
+
+/**
  * Index one historical post and consume its existing mention recipients.
  *
  * This does not save the post, run publication hooks, or touch the mail queue.
@@ -90,29 +134,26 @@ function bbp_backfill_post_mentions( $post_id = 0 ) {
 	// Long-running commands must not reuse content cached by an earlier batch.
 	wp_cache_delete( $post_id, 'posts' );
 	wp_cache_delete( $post_id, 'post_meta' );
-	$post = get_post( $post_id );
-	if ( ! $post || ! in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+	$plan = bbp_get_mention_backfill_plan( $post_id );
+	if ( is_wp_error( $plan ) ) {
+		return false;
+	}
+	$post = $plan['changes']['post'];
+	if ( ! $post ) {
 		return true;
 	}
 
-	$old_ids  = bbp_get_users_for_object( $post_id, '_bbp_mention' );
-	$user_ids = bbp_update_post_mentions( $post_id );
+	$user_ids = bbp_apply_post_mention_changes( $post_id, $plan['changes'] );
 	$indexed  = bbp_get_users_for_object( $post_id, '_bbp_mention' );
 	if ( array_diff( $user_ids, $indexed ) || array_diff( $indexed, $user_ids ) ) {
 		return false;
 	}
 
-	$handled = wp_parse_id_list( array_merge( $old_ids, $user_ids ) );
-	if ( ! empty( $handled ) ) {
-		// Existing unpublished records must retain their approval-time recipients.
-		$statuses = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_public_reply_statuses() : bbp_get_public_topic_statuses();
-		if ( ! in_array( $post->post_status, $statuses, true ) && metadata_exists( 'post', $post_id, '_bbp_mention_notification' ) ) {
-			$handled = array();
-		}
-		bbp_claim_mention_notification_recipients( $post_id, $handled, $handled );
+	if ( $plan['changes']['current'] || $user_ids ) {
+		bbp_claim_mention_notification_recipients( $post_id, $plan['handled'], $plan['handled'] );
 		wp_cache_delete( $post_id, 'post_meta' );
 		$state = get_post_meta( $post_id, '_bbp_mention_notification', true );
-		if ( ! is_array( $state ) || ! isset( $state['handled'] ) || ! is_array( $state['handled'] ) || array_diff( $handled, $state['handled'] ) ) {
+		if ( ! is_array( $state ) || ! isset( $state['handled'] ) || ! is_array( $state['handled'] ) || array_diff( $plan['handled'], $state['handled'] ) ) {
 			return false;
 		}
 	}
@@ -299,43 +340,48 @@ function bbp_preview_mention_backfill( $state, $batch_size ) {
 		return $posts;
 	}
 
-	$started = microtime( true );
+	$types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$ids   = array();
 	foreach ( $posts as $row ) {
-		$post_id = (int) $row->ID;
-		++$preview['scanned'];
-		$preview['cursor'] = $post_id;
+		if ( in_array( $row->post_type, $types, true ) ) {
+			$ids[] = (int) $row->ID;
+		}
+	}
+	wp_cache_delete_multiple( $ids, 'posts' );
+	wp_cache_delete_multiple( $ids, 'post_meta' );
+	try {
+		_prime_post_caches( $ids, false, true );
+		if ( ! empty( bbp_db()->last_error ) ) {
+			return new WP_Error( 'bbp_mention_backfill_query', __( 'Could not read posts for the mention backfill.', 'bbpress' ) );
+		}
+		$started = microtime( true );
+		foreach ( $posts as $row ) {
+			$post_id = (int) $row->ID;
+			++$preview['scanned'];
+			$preview['cursor'] = $post_id;
 
-		if ( in_array( $row->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
-			wp_cache_delete( $post_id, 'posts' );
-			wp_cache_delete( $post_id, 'post_meta' );
-			$post = get_post( $post_id );
-			if ( $post && in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
-				$old_ids = bbp_get_users_for_object( $post_id, '_bbp_mention' );
-				$new_ids = bbp_get_mentioned_user_ids( $post->post_content );
-				$handled = wp_parse_id_list( array_merge( $old_ids, $new_ids ) );
-				++$preview['posts'];
-				$preview['added']   += count( array_diff( $new_ids, $old_ids ) );
-				$preview['removed'] += count( array_diff( $old_ids, $new_ids ) );
-
-				if ( ! empty( $handled ) ) {
-					$exists = metadata_exists( 'post', $post_id, '_bbp_mention_notification' );
-					$record = get_post_meta( $post_id, '_bbp_mention_notification', true );
-					if ( $exists && ( ! is_array( $record ) || ! isset( $record['handled'] ) || ! is_array( $record['handled'] ) ) ) {
-						/* translators: %d: Post ID */
-						return new WP_Error( 'bbp_mention_backfill_post', sprintf( __( 'The mention notification record for post %d is invalid.', 'bbpress' ), $post_id ) );
-					}
-					$statuses = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_public_reply_statuses() : bbp_get_public_topic_statuses();
-					if ( ! $exists || ( in_array( $post->post_status, $statuses, true ) && array_diff( $handled, $record['handled'] ) ) ) {
-						++$preview['baselines'];
-					}
+			if ( in_array( $row->post_type, $types, true ) ) {
+				$plan = bbp_get_mention_backfill_plan( $post_id );
+				if ( is_wp_error( $plan ) ) {
+					return $plan;
+				}
+				if ( $plan['changes']['post'] ) {
+					++$preview['posts'];
+					$preview['added']     += count( $plan['changes']['added'] );
+					$preview['removed']   += count( $plan['changes']['removed'] );
+					$preview['baselines'] += (int) $plan['baseline'];
 				}
 			}
-		}
 
-		// Leave time for the repair page to render on slower installations.
-		if ( ( microtime( true ) - $started ) >= 5 ) {
-			break;
+			// Leave time for the repair page to render on slower installations.
+			if ( ( microtime( true ) - $started ) >= 5 ) {
+				break;
+			}
 		}
+	} finally {
+		// Release only the posts inspected by this preview window.
+		wp_cache_delete_multiple( $ids, 'posts' );
+		wp_cache_delete_multiple( $ids, 'post_meta' );
 	}
 
 	// Check for another row without counting or loading the remaining history.

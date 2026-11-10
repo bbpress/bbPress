@@ -30,6 +30,7 @@ abstract class BBP_Admin_Forum_Repair {
 	protected $context;
 	protected $state;
 	protected $dry_run;
+	protected $async = false;
 	protected $legacy = false;
 	protected $persisted = false;
 	protected $nodes = array();
@@ -37,22 +38,28 @@ abstract class BBP_Admin_Forum_Repair {
 	protected $cleaned = array();
 	protected $changed = array();
 	protected $forums = array();
+	protected $metadata = null;
 	protected $code = 0;
 	protected $restarted = false;
 	protected $corrupt = false;
 	protected $stop = false;
+	protected $boundary = false;
+	protected $preview_repaired = 0;
 
 	/** Run one bounded request, preserving a replayable path through the tree. */
 	public function run() {
 		$complete = false;
 		$initial  = true;
+		$batches  = 0;
+		$estimate_work = 0;
+		$this->async = $this->dry_run && bbp_admin_repair_tool_is_async_dry_run();
 		if ( ! $this->valid_type() ) {
 			$this->code = 6;
 		} else {
 			$read  = true;
 			$saved = false;
 			if ( ! $this->legacy ) {
-				list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id );
+				list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
 			}
 			if ( ! $read ) {
 				return array(
@@ -61,6 +68,7 @@ abstract class BBP_Admin_Forum_Repair {
 					'initial'   => false,
 					'complete'  => false,
 					'restarted' => false,
+					'batches'   => 0,
 				);
 			}
 			if ( ( false !== $saved ) && ! $this->valid_state( $saved ) ) {
@@ -70,15 +78,43 @@ abstract class BBP_Admin_Forum_Repair {
 			$initial         = false === $saved;
 			$this->persisted = ! $initial;
 			$this->state     = $initial ? $this->new_state() : $saved;
-			if ( ! $this->code && ! $this->dry_run && $initial && ! $this->save() ) {
+			if ( ! $this->code && $this->async ) {
+				$initial                 = isset( $this->state['_preview_initial'] ) ? $this->state['_preview_initial'] : true;
+				$batches                 = isset( $this->state['_preview_batches'] ) ? $this->state['_preview_batches'] : 0;
+				$estimate_work            = isset( $this->state['_preview_estimate_work'] ) ? $this->state['_preview_estimate_work'] : 0;
+				$this->preview_repaired = isset( $this->state['_preview_repaired'] ) ? $this->state['_preview_repaired'] : 0;
+				$this->metadata          = isset( $this->state['_preview_metadata'] ) ? $this->state['_preview_metadata'] : null;
+				$this->load_preview_state();
+			}
+			if ( ! $this->code && ( ! $this->dry_run || $this->async ) && $initial && ! $this->save() ) {
 				$this->code = 7;
 			}
-			$size = $this->legacy ? null : bbp_admin_repair_tool_batch_size( $this->tool_id );
-			$work = 0;
-			// Whole-site status checks finish the traversal without a request budget.
-			while ( ! $this->code && ! $complete && ! $this->stop && ( $this->legacy || $work < $size ) ) {
-				$used  = $this->step( $this->legacy ? null : $size - $work, $complete );
-				$work += max( 1, $used );
+			$size         = $this->legacy ? null : bbp_admin_repair_tool_batch_size( $this->tool_id );
+			$work         = 0;
+			$request_work = 0;
+			// Direct Dry Runs remain synchronous; browser Dry Runs stop at one request boundary.
+			while ( ! $this->code && ! $complete && ! $this->stop && ( $this->legacy || ( $this->dry_run && ! $this->async ) || $request_work < $size ) ) {
+				$phase        = isset( $this->state['phase'] ) ? $this->state['phase'] : '';
+				$remaining    = $this->legacy ? null : $size - $request_work;
+				$used         = max( 1, $this->step( $remaining, $complete ) );
+				$work        += $used;
+				$request_work += $used;
+				if ( $this->async ) {
+					$estimate_work += $this->preview_estimated_work( $phase, $used );
+					while ( $estimate_work >= $size ) {
+						++$batches;
+						$estimate_work -= $size;
+					}
+					if ( $this->boundary ) {
+						$batches      += $estimate_work ? 1 : 0;
+						$estimate_work = 0;
+						$this->boundary = false;
+					}
+				} elseif ( $this->dry_run && ( $request_work >= $size || $this->boundary ) ) {
+					++$batches;
+					$request_work  = 0;
+					$this->boundary = false;
+				}
 				if ( $this->corrupt || ( 6 === $this->code ) ) {
 					$code            = $this->corrupt ? 0 : 6;
 					$this->state     = $this->new_state();
@@ -87,23 +123,38 @@ abstract class BBP_Admin_Forum_Repair {
 					$this->restarted = true;
 					$this->code      = $this->code ? $this->code : $code;
 					// Publish the new generation before prepare can remove the old tree.
-					if ( ! $this->dry_run && ! $this->code && ! $this->save() ) {
+					if ( ( ! $this->dry_run || $this->async ) && ! $this->code && ! $this->save() ) {
 						$this->code = 7;
 					}
 				}
 			}
-			if ( ! $this->dry_run ) {
+			if ( $this->async && $complete && $estimate_work ) {
+				++$batches;
+				$estimate_work = 0;
+			} elseif ( $this->dry_run && ! $this->async && $request_work ) {
+				++$batches;
+			}
+			if ( ! $this->dry_run || $this->async ) {
+				if ( $this->async ) {
+					$this->state['_preview_initial']  = $initial;
+					$this->state['_preview_batches']  = max( 1, $batches );
+					$this->state['_preview_estimate_work'] = $estimate_work;
+					$this->state['_preview_repaired'] = $this->preview_repaired;
+					$this->state['_preview_metadata'] = $this->metadata;
+					$this->save_preview_state();
+				}
 				if ( false !== $this->state && ! $this->save( ! $this->code && $complete ) ) {
 					$this->code = 7;
 				}
-				if ( $work ) {
+				if ( ! $this->dry_run && $work ) {
 					wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 				}
 			}
 		}
 		return array(
 			'code'      => $this->code,
-			'repaired'  => count( $this->changed ),
+			'repaired'  => $this->async ? $this->preview_repaired : count( $this->changed ),
+			'batches'   => $this->dry_run ? max( 1, $batches ) : 1,
 			'initial'   => $initial,
 			'complete'  => ! $this->code && $complete,
 			'restarted' => $this->restarted
@@ -118,6 +169,14 @@ abstract class BBP_Admin_Forum_Repair {
 			&& is_string( $state['token'] ) && ( 32 === strlen( $state['token'] ) ) && ctype_xdigit( $state['token'] )
 			&& in_array( $state['phase'], $this->phases(), true )
 			&& ( $state['context'] === $this->context );
+		if ( $valid && isset( $state['_preview_batches'] ) ) {
+			$valid = isset( $state['_preview_initial'] ) && is_bool( $state['_preview_initial'] )
+				&& is_int( $state['_preview_batches'] ) && $state['_preview_batches'] >= 0
+				&& isset( $state['_preview_estimate_work'] ) && is_int( $state['_preview_estimate_work'] ) && $state['_preview_estimate_work'] >= 0
+				&& isset( $state['_preview_repaired'] ) && is_int( $state['_preview_repaired'] ) && $state['_preview_repaired'] >= 0
+				&& array_key_exists( '_preview_metadata', $state )
+				&& ( null === $state['_preview_metadata'] || is_array( $state['_preview_metadata'] ) );
+		}
 		if ( ! $valid ) {
 			return false;
 		}
@@ -161,12 +220,12 @@ abstract class BBP_Admin_Forum_Repair {
 		}
 		$node = $this->nodes[ $id ];
 		if ( false !== $node ) {
-			$valid = is_array( $node ) && isset( $node['phase'], $node['values'], $node['counted'], $node['children'] );
+			$valid = is_array( $node ) && isset( $node['phase'], $node['values'], $node['counted'], $node['children'], $node['changed'] );
 			foreach ( array( 'id', 'parent', 'depth', 'next', 'await', 'edge', 'key' ) as $field ) {
 				$valid = $valid && isset( $node[ $field ] ) && is_int( $node[ $field ] ) && ( $node[ $field ] >= 0 );
 			}
 			$valid = $valid && ( $node['id'] === $id ) && in_array( $node['phase'], array( 'children', 'write', 'done' ), true )
-				&& is_bool( $node['counted'] ) && is_array( $node['values'] ) && ( array_keys( $node['values'] ) === $this->meta_keys )
+				&& is_bool( $node['counted'] ) && is_bool( $node['changed'] ) && is_array( $node['values'] ) && ( array_keys( $node['values'] ) === $this->meta_keys )
 				&& ( false === $node['children'] || is_array( $node['children'] ) ) && ( $node['key'] <= count( $this->meta_keys ) );
 			if ( $valid ) {
 				foreach ( $node['values'] as $key => $value ) {
@@ -209,10 +268,10 @@ abstract class BBP_Admin_Forum_Repair {
 
 	protected function save_node( $node ) {
 		$id = $node['id'];
-		if ( $this->dry_run && empty( $this->nodes[ $id ] ) ) {
+		if ( $this->dry_run && ! $this->async ) {
 			$this->created[ $this->option( $id ) ] = true;
 		}
-		return $this->dry_run || bbp_admin_repair_tool_save_option( $this->option( $id ), $node );
+		return ( $this->dry_run && ! $this->async ) || bbp_admin_repair_tool_save_option( $this->option( $id ), $node );
 	}
 
 	protected function enter( $id, $parent_id, $counted ) {
@@ -258,6 +317,7 @@ abstract class BBP_Admin_Forum_Repair {
 			'depth'    => $parent_node ? $parent_node['depth'] + 1 : 0,
 			'phase'    => $this->node_phase( $forum, $counted ),
 			'counted'  => $counted,
+			'changed'  => false,
 			'values'   => $values,
 			'next'     => 0,
 			'await'    => 0,
@@ -388,7 +448,7 @@ abstract class BBP_Admin_Forum_Repair {
 		}
 		$key    = $this->meta_keys[ $node['key'] ];
 		$value  = $node['values'][ $key ];
-		$result = bbp_admin_repair_single_metadata( 'post', $node['id'], $key, $value, $limit, $this->dry_run );
+		$result = bbp_admin_repair_single_metadata( 'post', $node['id'], $key, $value, $limit, $this->dry_run, $this->metadata );
 		if ( $result['code'] ) {
 			$codes = array(
 				2 => $this->meta_error(),
@@ -400,7 +460,7 @@ abstract class BBP_Admin_Forum_Repair {
 			return $result['work'];
 		}
 		if ( $result['changed'] ) {
-			$this->changed[ $node['id'] ] = true;
+			$node['changed'] = true;
 		}
 		if ( $result['complete'] ) {
 			if ( ! $this->dry_run && ! $this->verify( $node['id'], $key, $value ) ) {
@@ -413,6 +473,9 @@ abstract class BBP_Admin_Forum_Repair {
 				return $result['work'];
 			}
 			++$node['key'];
+			if ( $this->async ) {
+				$this->metadata = null;
+			}
 			if ( count( $this->meta_keys ) === $node['key'] ) {
 				foreach ( $node['values'] as $field => $expected ) {
 					if ( ! $this->dry_run && ! $this->verify( $node['id'], $field, $expected ) ) {
@@ -422,6 +485,9 @@ abstract class BBP_Admin_Forum_Repair {
 					}
 				}
 				$node['phase'] = 'done';
+				if ( $node['changed'] ) {
+					$this->changed[ $node['id'] ] = true;
+				}
 				$this->completed_node( $node );
 			}
 		}
@@ -434,7 +500,8 @@ abstract class BBP_Admin_Forum_Repair {
 			$complete = true;
 			return 1;
 		}
-		list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run, $this->created, $this->cleaned );
+		$preview = $this->dry_run && ! $this->async;
+		list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $preview, $this->created, $this->cleaned );
 		if ( ! $success ) {
 			$this->code = 7;
 		}
@@ -476,7 +543,7 @@ abstract class BBP_Admin_Forum_Repair {
 				// previous checkpoint. Failed final saves can then resume safely.
 				$this->state['phase']  = $counted ? 'prune' : 'cleanup';
 				$this->state['cursor'] = 0;
-				if ( ! $this->dry_run && ! $this->save() ) {
+				if ( ( ! $this->dry_run || $this->async ) && ! $this->save() ) {
 					$this->code = 7;
 				}
 				return 1;
@@ -510,6 +577,12 @@ abstract class BBP_Admin_Forum_Repair {
 			case 'write':
 				return $this->write( $node, $limit );
 			case 'done':
+				if ( $this->async ) {
+					if ( $node['changed'] ) {
+						++$this->preview_repaired;
+					}
+					$this->leaving_node( $node );
+				}
 				if ( $node['parent'] ) {
 					$parent_node = $this->node( $node['parent'] );
 					if ( $this->code ) {
@@ -592,7 +665,7 @@ abstract class BBP_Admin_Forum_Repair {
 	}
 
 	protected function before_write( $node ) {
-		if ( $this->legacy ) {
+		if ( $this->legacy || $this->dry_run ) {
 			return true;
 		}
 		$post = $this->source_post( $node['id'] );
@@ -614,6 +687,20 @@ abstract class BBP_Admin_Forum_Repair {
 	}
 
 	protected function completed_node( $node ) {}
+
+	/** Load subclass preview aggregates after a browser Dry Run resumes. */
+	protected function load_preview_state() {}
+
+	/** Add subclass preview aggregates to the browser Dry Run checkpoint. */
+	protected function save_preview_state() {}
+
+	/** Record a completed node immediately before its cursor advances. */
+	protected function leaving_node( $node ) {}
+
+	/** Return work that a normal Run would count toward its request budget. */
+	protected function preview_estimated_work( $phase, $work ) {
+		return $work;
+	}
 
 	abstract protected function values( $id, $post );
 	abstract protected function meta_error();

@@ -808,6 +808,18 @@ button.bbp-db-pass-toggle.password::after {
 
 /* Tools */
 
+.bbp-tools-runner-controls {
+	display: block;
+}
+
+.bbp-tools-runner-control {
+	display: inline-block;
+	padding: 0;
+	min-height: 0;
+	line-height: 1.5;
+	text-decoration: underline;
+}
+
 td.bbp-tool-title strong {
 	display: block;
 }
