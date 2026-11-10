@@ -472,13 +472,19 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$option_key = $this->get_user_option_key( $meta_key, $meta_type, 0, false, $context_key );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 
-		// Maybe trick WP_Query into ".ID IN (0)" to return no results
+		// Limit the query to these objects
+		$type = bbp_get_engagement_type( $meta_type );
+
+		// Bail if the user has no objects of a registered type
+		if ( ! empty( $type ) && empty( $object_ids ) ) {
+			return array();
+		}
+
+		// Maybe trick WP_Query into ".ID IN (0)" for unregistered types
 		if ( empty( $object_ids ) ) {
 			$object_ids = array( 0 );
 		}
 
-		// Limit the query to these objects
-		$type = bbp_get_engagement_type( $meta_type );
 		$args = ! empty( $type )
 			? (array) $type->get_query_args( $object_ids )
 			: array();

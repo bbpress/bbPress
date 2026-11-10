@@ -355,9 +355,9 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 			? wp_parse_id_list( $object_ids )
 			: array();
 
-		// Maybe trick the query into returning no results
+		// Bail if the user has no objects
 		if ( empty( $object_ids ) ) {
-			$object_ids = array( 0 );
+			return array();
 		}
 
 		// Limit the query to these objects

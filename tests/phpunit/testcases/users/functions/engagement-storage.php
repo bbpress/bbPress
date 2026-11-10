@@ -360,7 +360,10 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 		);
 
 		$subscribed = get_terms( array_merge( $query, bbp_get_user_object_query( $user_id, 'tag_subscriptions', '_bbp_subscription', 'term' ) ) );
-		$none       = get_terms( array_merge( $query, bbp_get_user_object_query( $other_id, 'tag_subscriptions', '_bbp_subscription', 'term' ) ) );
+		$none_query = bbp_get_user_object_query( $other_id, 'tag_subscriptions', '_bbp_subscription', 'term' );
+		$none       = ! empty( $none_query )
+			? get_terms( array_merge( $query, $none_query ) )
+			: array();
 
 		$this->assertEqualSets( array( $term_ids[0], $term_ids[2] ), $subscribed );
 		$this->assertSame( array(), $none );
