@@ -245,6 +245,141 @@ function bbp_reject_restricted_attachment_comments( $approved, $commentdata ) {
 }
 
 /**
+ * Check whether a query is the requested comment-feed shape.
+ *
+ * @since 2.6.22 bbPress (r8325)
+ *
+ * @param mixed $query       Possible WordPress query object.
+ * @param bool  $is_singular Whether the query must be singular.
+ * @return bool Whether this is the requested comment-feed shape.
+ */
+function bbp_is_attachment_comment_feed_query( $query, $is_singular ) {
+	return ( $query instanceof WP_Query )
+		&& $query->is_comment_feed()
+		&& ( (bool) $is_singular === $query->is_singular() );
+}
+
+/**
+ * Remove unreadable bbPress attachment comments from a comment-feed query.
+ *
+ * WordPress queries comment feeds separately from post visibility checks. Work
+ * only on the comments Core already selected so authorization cost stays
+ * bounded by the configured feed size, regardless of site history. Do not scan
+ * older comments to backfill restricted entries: affected feeds intentionally
+ * render fewer than the configured number of items.
+ *
+ * @since 2.6.22 bbPress (r8325)
+ *
+ * @param WP_Query $query WordPress query object.
+ * @return int[] Unreadable attachment post IDs.
+ */
+function bbp_filter_attachment_comment_feed_query( $query ) {
+	if ( empty( $query->comments ) ) {
+		return array();
+	}
+
+	$comments        = array();
+	$denied_post_ids = array();
+
+	foreach ( $query->comments as $comment ) {
+		$post = get_post( $comment->comment_post_ID );
+
+		// Core joined this post already. Fail closed if it disappeared or errored.
+		if ( empty( $post ) ) {
+			continue;
+		}
+
+		if ( ( 'attachment' !== $post->post_type ) || empty( $post->post_parent ) ) {
+			$comments[] = $comment;
+			continue;
+		}
+
+		$parent = get_post( $post->post_parent );
+
+		if ( empty( $parent ) || ! bbp_is_custom_post_type( $parent ) || bbp_user_can_view_attachment_parent( $parent ) ) {
+			$comments[] = $comment;
+		} else {
+			$denied_post_ids[ $post->ID ] = true;
+		}
+	}
+
+	$query->comments      = array_values( $comments );
+	$query->comment_count = count( $query->comments );
+
+	return wp_parse_id_list( array_keys( $denied_post_ids ) );
+}
+
+/**
+ * Exclude unreadable attachment posts from non-singular comment feeds.
+ *
+ * @since 2.6.22 bbPress (r8325)
+ *
+ * @param string[] $clauses Posts query clauses.
+ * @param WP_Query $query   WordPress query object.
+ * @return string[] Filtered posts query clauses.
+ */
+function bbp_filter_attachment_comment_feed_clauses( $clauses, $query ) {
+	if ( ! bbp_is_attachment_comment_feed_query( $query, false ) ) {
+		return $clauses;
+	}
+
+	$post_ids = bbp_filter_attachment_comment_feed_query( $query );
+
+	if ( ! empty( $post_ids ) ) {
+		$ids               = implode( ',', $post_ids );
+		$clauses['where'] .= ' AND ' . bbp_db()->posts . ".ID NOT IN ({$ids})";
+	}
+
+	return $clauses;
+}
+
+/**
+ * Exclude unreadable attachment posts from singular comment feeds.
+ *
+ * @since 2.6.22 bbPress (r8325)
+ *
+ * @param WP_Post[] $posts Queried posts.
+ * @param WP_Query  $query WordPress query object.
+ * @return WP_Post[] Filtered posts.
+ */
+function bbp_filter_attachment_comment_feed_posts( $posts, $query ) {
+	if ( ! bbp_is_attachment_comment_feed_query( $query, true ) ) {
+		return $posts;
+	}
+
+	$denied_post_ids = array_fill_keys( bbp_filter_attachment_comment_feed_query( $query ), true );
+	$is_attachment_query = $query->is_attachment() || in_array( 'attachment', (array) $query->get( 'post_type' ), true );
+
+	if ( empty( $denied_post_ids ) ) {
+		// Normalize nonexistent attachment feeds for compatibility with old Core.
+		if ( empty( $posts ) && $is_attachment_query ) {
+			$query->is_attachment = false;
+			$query->is_single     = false;
+			$query->is_singular   = false;
+		}
+
+		return $posts;
+	}
+
+	$filtered_posts = array();
+
+	foreach ( $posts as $post ) {
+		if ( ! isset( $denied_post_ids[ $post->ID ] ) ) {
+			$filtered_posts[] = $post;
+		}
+	}
+
+	// Match a nonexistent attachment and avoid null singular checks in old Core.
+	if ( empty( $filtered_posts ) ) {
+		$query->is_attachment = false;
+		$query->is_single     = false;
+		$query->is_singular   = false;
+	}
+
+	return array_values( $filtered_posts );
+}
+
+/**
  * Use bbPress permissions with Core and Gutenberg attachment controllers.
  *
  * @since 2.7.0 bbPress (r7481)
