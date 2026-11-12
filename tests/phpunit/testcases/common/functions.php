@@ -245,11 +245,33 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_unique_array_values_preserves_named_arguments() {
 		$this->assertSame(
-			array( 0 => 'first', 3 => 'second' ),
+			array( 'first', 'second' ),
 			call_user_func_array(
 				'bbp_get_unique_array_values',
 				array(
 					'array' => array( 'first', '', 'first', 'second' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * @covers ::bbp_get_unique_array_values
+	 * @ticket BBP3791
+	 */
+	public function test_bbp_get_unique_array_values_returns_unique_non_empty_values() {
+		$this->assertSame( array(), bbp_get_unique_array_values() );
+		$this->assertSame(
+			array( 'first', 'second' ),
+			bbp_get_unique_array_values(
+				array(
+					'first'     => 'first',
+					'empty'     => '',
+					'duplicate' => 'first',
+					'second'    => 'second',
+					'zero'      => 0,
+					'false'     => false,
+					'null'      => null,
 				)
 			)
 		);
