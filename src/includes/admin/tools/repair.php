@@ -738,7 +738,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			$rows     = array_slice( $rows, 0, $size );
 			$repair   = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run, $planned );
 			if ( ! empty( $repair['code'] ) ) {
-				bbp_admin_repair_tool_batch_fail( $batch, ( 3 === $repair['code'] ) ? 'source-read' : 'metadata-write' );
+				bbp_admin_repair_tool_batch_fail( $batch, $repair['error'] );
 				return $batch;
 			}
 			$topics += $repair['topics'];

@@ -406,7 +406,8 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 			$checkpoint = null;
 			for ( $i = 0; $i < 3; ++$i ) {
 				$result = bbp_admin_upgrade_user_engagements_batch();
-				$this->assertSame( 5, $result['code'] );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+				$this->assertSame( 'metadata-write', $result['error'] );
 				$this->assertFalse( $result['complete'] );
 				$this->assertSame( array(), $this->rows( 'post', $topic, '_bbp_engagement' ) );
 				$this->assertSame( $source, $this->rows( 'post', $topic, '_bbp_topic_id' ) );

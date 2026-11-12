@@ -7628,14 +7628,33 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$db->postmeta = 'bbp_missing_engagement_postmeta';
 			$result = bbp_admin_upgrade_user_engagements_dry_run();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 
 			$db->postmeta = $old_postmeta;
 			$db->posts    = 'bbp_missing_engagement_posts';
 			$result = bbp_admin_upgrade_user_engagements_dry_run();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
+			$this->assertFalse( $result['success'] );
+			$this->assertStringContainsString( 'Failed!', $result[1] );
+
+			$db->posts = $old_posts;
+			$fail_metadata_read = static function ( $query ) use ( $db ) {
+				return ( 0 === strpos( $query, "SELECT meta_id FROM {$db->postmeta} WHERE post_id" ) )
+					? 'SELECT meta_id FROM bbp_missing_engagement_postmeta'
+					: $query;
+			};
+			add_filter( 'query', $fail_metadata_read );
+			try {
+				$result = bbp_admin_upgrade_user_engagements_dry_run();
+			} finally {
+				remove_filter( 'query', $fail_metadata_read );
+			}
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 		} finally {
@@ -7663,7 +7682,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertSame( array( '999999', (string) $user_id ), get_post_meta( $topic_id, '_bbp_engagement', false ) );
@@ -7696,7 +7716,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertSame( array( '999999' ), get_post_meta( $topic_id, '_bbp_engagement', false ) );

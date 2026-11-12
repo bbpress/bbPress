@@ -82,6 +82,47 @@ function bbp_admin_upgrade_user_engagements_dry_run() {
 }
 
 /**
+ * Validate an engagement upgrade checkpoint and its aggregate preview state.
+ *
+ * @since 2.7.0 bbPress (r8346)
+ * @access private
+ *
+ * @param mixed $state Saved worker checkpoint.
+ * @return bool Whether the checkpoint can be resumed safely.
+ */
+function bbp_admin_upgrade_user_engagements_is_valid_checkpoint( $state ) {
+	$valid = bbp_admin_repair_tool_is_valid_checkpoint( $state );
+	if ( ! $valid || ! isset( $state['_preview_state'] ) ) {
+		return $valid;
+	}
+
+	$preview = $state['_preview_state'];
+	if ( ! is_array( $preview ) || ! isset( $preview['totals'], $preview['data'] )
+		|| ! is_array( $preview['totals'] ) || ! is_array( $preview['data'] )
+		|| ! isset( $preview['data']['planned'] ) || ! is_array( $preview['data']['planned'] )
+		|| ! isset( $preview['totals']['found'] ) || ! is_bool( $preview['totals']['found'] ) ) {
+		return false;
+	}
+	foreach ( array( 'added', 'removed', 'batches' ) as $field ) {
+		if ( ! isset( $preview['totals'][ $field ] ) || ! is_int( $preview['totals'][ $field ] ) || $preview['totals'][ $field ] < 0 ) {
+			return false;
+		}
+	}
+	foreach ( $preview['data']['planned'] as $topic_id => $users ) {
+		if ( ! is_int( $topic_id ) || $topic_id < 1 || ! is_array( $users ) ) {
+			return false;
+		}
+		foreach ( $users as $user_id => $planned ) {
+			if ( ! is_int( $user_id ) || $user_id < 0 || true !== $planned ) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+/**
  * Reconcile one bounded batch of engagements with topic and reply authors.
  *
  * Scan source relationships and existing engagements together by metadata ID.
@@ -97,34 +138,30 @@ function bbp_admin_upgrade_user_engagements_dry_run() {
 function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 	$bbp_db  = bbp_db();
 	$tool_id = 'bbp-user-topic-engagements-move';
-	$batch   = array(
-		'code'      => 0,
-		'added'     => 0,
-		'removed'   => 0,
-		'complete'  => false,
-		'found'     => false,
-		'restarted' => false,
-		'batches'   => 0
+	$batch   = bbp_admin_repair_tool_batch_status(
+		array(
+			'added'   => 0,
+			'removed' => 0,
+			'found'   => false,
+		)
 	);
-	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_valid_checkpoint', array(), $dry_run );
-	if ( ! $read ) {
-		$batch['code'] = 6;
+	$state = false;
+	if ( ! bbp_admin_repair_tool_batch_start( $tool_id, $state, $batch, 'bbp_admin_upgrade_user_engagements_is_valid_checkpoint', array(), $dry_run ) ) {
 		return $batch;
 	}
 
 	if ( false === $state ) {
 		$upper_id = $bbp_db->get_var( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') ORDER BY meta_id DESC LIMIT 1" );
 		if ( ! empty( $bbp_db->last_error ) ) {
-			$batch['code'] = 2;
+			bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 			return $batch;
 		}
 		$state = array(
 			'cursor'   => 0,
 			'upper_id' => (int) $upper_id
 		);
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run ) ) {
 			bbp_add_pending_upgrade( $tool_id );
-			$batch['code'] = 6;
 			return $batch;
 		}
 	}
@@ -135,7 +172,7 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 	do {
 		$rows = $bbp_db->get_results( $bbp_db->prepare( "SELECT meta_id, post_id, meta_value, (meta_key = '_bbp_topic_id') AS is_source FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['cursor'], $state['upper_id'], $size + 1 ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
-			$batch['code'] = 2;
+			bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 			return $batch;
 		}
 		$complete         = count( $rows ) <= $size;
@@ -144,10 +181,10 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		$statuses         = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
 		$source           = bbp_admin_repair_get_engagements_query( $statuses, $statuses, true );
 		$repair           = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run, $planned );
-		$batch['code']    = $repair['code'];
 		$batch['added']  += $repair['added'];
 		$batch['removed'] += $repair['removed'];
-		if ( ! empty( $batch['code'] ) ) {
+		if ( ! empty( $repair['code'] ) ) {
+			bbp_admin_repair_tool_batch_fail( $batch, $repair['error'] );
 			return $batch;
 		}
 		if ( ! empty( $rows ) ) {
@@ -155,13 +192,10 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		}
 
 		++$batch['batches'];
-		bbp_admin_repair_tool_store_preview( $state, $batch, array( 'added', 'removed', 'found', 'batches' ), array( 'planned' => $planned ) );
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
-			$batch['code'] = 6;
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, array( 'added', 'removed', 'found', 'batches' ), array( 'planned' => $planned ) ) ) {
 			return $batch;
 		}
-		$batch['complete'] = $complete;
-	} while ( bbp_admin_repair_tool_continue_preview( $dry_run ) && ! $batch['code'] && ! $batch['complete'] );
+	} while ( bbp_admin_repair_tool_batch_continue( $batch, $dry_run ) );
 
 	return $batch;
 }
@@ -189,10 +223,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
 	$batch     = bbp_admin_upgrade_user_engagements_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
-	if ( ! empty( $batch['code'] ) ) {
-		return bbp_admin_repair_tool_batch_result( $batch, $statement );
-	}
-	if ( ! $batch['found'] && $batch['complete'] ) {
+	if ( empty( $batch['code'] ) && ! $batch['found'] && $batch['complete'] ) {
 		return array( 1, sprintf( $statement, $no_engagements ) );
 	}
 
@@ -207,15 +238,10 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 		$added = sprintf( _n( '%s missing engagement added from topic and reply authors.', '%s missing engagements added from topic and reply authors.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
 		/* translators: %s: Number of stale or duplicate engagement rows removed */
 		$removed = sprintf( _n( '%s stale or duplicate engagement row cleaned up.', '%s stale or duplicate engagement rows cleaned up.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
-		$result  = bbp_admin_repair_tool_batch_message( $added . "\n" . $removed, $batch['complete'] );
+		$result  = $added . "\n" . $removed;
 	}
 
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete'],
-		'batches'  => $batch['batches'],
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
 
 /**

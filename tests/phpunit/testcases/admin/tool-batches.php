@@ -1310,6 +1310,48 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$this->assertSame( $this->expected_engagement_rows(), $this->engagement_rows() );
 	}
 
+	public function test_malformed_engagement_preview_state_restarts_and_preserves_full_totals() {
+		$topics = $this->factory->topic->create_many( 5 );
+		foreach ( $topics as $topic_id ) {
+			delete_post_meta( $topic_id, '_bbp_engagement' );
+		}
+		$expected = bbp_admin_upgrade_user_engagements_batch( true );
+		$before   = $this->engagement_rows();
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'malformed-engagement-preview' );
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' );
+		try {
+			$result = bbp_admin_upgrade_user_engagements_batch( true );
+			$this->assertFalse( $result['complete'] );
+
+			$state = get_option( $option );
+			$state['_preview_state']['totals']['added'] = -1;
+			update_option( $option, $state, false );
+			$result = bbp_admin_upgrade_user_engagements_batch( true );
+			$this->assertTrue( $result['restarted'] );
+
+			$state = get_option( $option );
+			$state['_preview_state']['data']['planned'] = array( 'broken' => array() );
+			update_option( $option, $state, false );
+			$result = bbp_admin_upgrade_user_engagements_batch( true );
+			$this->assertTrue( $result['restarted'] );
+
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_upgrade_user_engagements_batch( true );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( $expected, $result );
+		$this->assertSame( $before, $this->engagement_rows() );
+		$this->assertFalse( get_option( $option, false ) );
+	}
+
 	public function test_engagement_write_failures_keep_progress_and_retry_without_duplicates() {
 		$user_id = $this->factory->user->create();
 		$topics  = $this->factory->topic->create_many( 3, array( 'post_author' => $user_id ) );
@@ -1322,7 +1364,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' ) )['cursor'] );
@@ -1345,7 +1388,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
 			$this->assertSame( $before, $this->engagement_rows() );
@@ -1370,7 +1414,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( $state, get_option( $option ) );
@@ -1400,7 +1445,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $fail );
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( $state, get_option( $option ) );
@@ -1430,7 +1476,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_upgrade_user_engagements();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( 'bbp-user-topic-engagements-move' ) )['cursor'] );
@@ -1462,7 +1509,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		try {
 			foreach ( array( 'bbp_admin_upgrade_user_engagements', 'bbp_admin_upgrade_user_engagements_dry_run' ) as $callback ) {
 				$result = call_user_func( $callback );
-				$this->assertSame( 3, $result[0] );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+				$this->assertSame( 'source-read', $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertFalse( $result['complete'] );
 				$this->assertSame( $before, $this->stored_data() );

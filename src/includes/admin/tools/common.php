@@ -929,12 +929,13 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  * @param string $source Prepared source relationship query.
  * @param bool   $dry_run Whether to preview without writes or cache invalidation.
  * @param array  $planned Relationships already counted by this preview.
- * @return array Status code, additions, removals, changed topic IDs, and cursor.
+ * @return array Status, failure reason, additions, removals, changed topic IDs, and cursor.
  */
 function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$planned = array() ) {
 	$bbp_db = bbp_db();
 	$result = array(
 		'code'    => 0,
+		'error'   => '',
 		'added'   => 0,
 		'removed' => 0,
 		'topics'  => array(),
@@ -948,6 +949,7 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 		$relation = $bbp_db->get_row( $source . $where . ' LIMIT 1' );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			$result['code'] = 3;
+			$result['error'] = 'source-read';
 			return $result;
 		}
 		$exists = null;
@@ -955,6 +957,7 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 			$exists = $bbp_db->get_var( $bbp_db->prepare( "SELECT meta_id FROM {$bbp_db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_engagement' AND BINARY meta_value = %s ORDER BY meta_id LIMIT 1", $relation->post_id, $relation->user_id ) );
 			if ( ! empty( $bbp_db->last_error ) ) {
 				$result['code'] = 3;
+				$result['error'] = 'metadata-read';
 				return $result;
 			}
 		}
@@ -968,6 +971,7 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 					$added = bbp_admin_repair_metadata_add( 'post', $relation->post_id, '_bbp_engagement', $relation->user_id );
 					if ( $added['code'] ) {
 						$result['code'] = 5;
+						$result['error'] = 'metadata-write';
 						return $result;
 					}
 				}
@@ -979,6 +983,7 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 			if ( ! $dry_run ) {
 				if ( bbp_admin_repair_metadata_row( 'post', $row, '_bbp_engagement', null ) ) {
 					$result['code'] = 4;
+					$result['error'] = 'metadata-write';
 					return $result;
 				}
 			}

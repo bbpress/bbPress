@@ -239,7 +239,9 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
 			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
-			$this->assertSame( 5, bbp_admin_upgrade_user_engagements_batch()['code'] );
+			$upgrade = bbp_admin_upgrade_user_engagements_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $upgrade['code'] );
+			$this->assertSame( 'metadata-write', $upgrade['error'] );
 		} finally {
 			remove_filter( 'add_post_metadata', $fail, 10 );
 		}
