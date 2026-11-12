@@ -210,7 +210,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
@@ -238,7 +239,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( get_metadata_by_mid( 'post', $second ) );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $keep ) );
@@ -259,7 +261,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option(), $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
@@ -270,7 +273,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option(), $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $state, get_option( $this->option() ) );
 		} finally {
@@ -328,7 +332,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		add_action( 'added_post_meta', $corrupt, 10, 3 );
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
@@ -394,13 +399,13 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 		$db    = bbp_db();
 		$ids   = $this->topics( 3 );
 		$cases = array(
-			"SELECT MAX(ID) FROM {$db->posts}" => 1,
-			"SELECT MAX(post_id) FROM {$db->postmeta}" => 3,
-			"(SELECT ID FROM {$db->posts} WHERE post_type IN" => 7,
-			'SELECT posts.ID, CASE' => 2,
-			"SELECT meta_id FROM {$db->postmeta}" => 3
+			"SELECT MAX(ID) FROM {$db->posts}"                  => 'source-read',
+			"SELECT MAX(post_id) FROM {$db->postmeta}"         => 'metadata-read',
+			"(SELECT ID FROM {$db->posts} WHERE post_type IN"  => 'source-read',
+			'SELECT posts.ID, CASE'                             => 'source-read',
+			"SELECT meta_id FROM {$db->postmeta}"              => 'metadata-read'
 		);
-		foreach ( $cases as $prefix => $code ) {
+		foreach ( $cases as $prefix => $error ) {
 			if ( 0 === strpos( $prefix, 'SELECT meta_id' ) ) {
 				update_option( $this->option(), array( 'cursor' => 0, 'upper_id' => max( $ids ), 'post_types' => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ), false );
 			}
@@ -413,7 +418,8 @@ class BBP_Tests_Admin_Topic_Meta_Batches extends BBP_UnitTestCase {
 			try {
 				foreach ( array( 'bbp_admin_repair_topic_meta_dry_run', 'bbp_admin_repair_topic_meta' ) as $callback ) {
 					$result = call_user_func( $callback );
-					$this->assertSame( $code, $result[0] );
+					$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+					$this->assertSame( $error, $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertFalse( $result['complete'] );
 					$this->assertSame( $before, $this->snapshot() );

@@ -85,6 +85,42 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider references
+	 */
+	public function test_browser_dry_run_uses_bounded_requests_and_aggregate_totals( $reference ) {
+		$ids      = $this->objects( $reference );
+		$before   = $this->snapshot();
+		$run_id   = wp_generate_uuid4();
+		$requests = 0;
+		$result   = array();
+		$option   = '';
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', $run_id );
+		try {
+			$option = $this->option( $reference );
+			for ( $requests = 1; $requests < 30; ++$requests ) {
+				$result = $this->batch( $reference, true );
+				$this->assertSame( array_slice( $before, 0, 2 ), array_slice( $this->snapshot(), 0, 2 ) );
+				$this->assertSame( $requests, $result['batches'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$field = ( 'forum' === $reference ) ? 'forums' : 'topics';
+		$this->assertGreaterThan( 1, $requests );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( count( $ids ), $result[ $field ] );
+		$this->assertFalse( get_option( $option, false ) );
+		foreach ( $ids as $id ) {
+			$this->assertSame( array( 'invalid' ), get_post_meta( $id, $this->key( $reference ), false ) );
+		}
+	}
+
+	/**
 	 * @dataProvider boundary_sizes
 	 */
 	public function test_variant_only_and_duplicate_rows_have_bounded_preview_and_run_parity( $reference, $size ) {
@@ -110,7 +146,7 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 				$after_ids  = $this->meta_ids();
 				$this->assertSame( 0, $result['code'] );
 				$this->assertTrue( $preview['complete'] );
-			$this->assertSame( 0, $preview['code'] );
+				$this->assertSame( 0, $preview['code'] );
 				$this->assertLessThanOrEqual( $size, count( array_diff( $before_ids, $after_ids ) ) + count( array_diff( $after_ids, $before_ids ) ) );
 				if ( 0 === $batch ) {
 					$this->assertFalse( $result['complete'] );
@@ -140,7 +176,8 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = $this->batch( $reference );
-			$this->assertSame( ( 'forum' === $reference ) ? 2 : 5, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option( $reference ) )['cursor'] );
 			$this->assert_values( $reference, array( $ids[0] ) );
@@ -168,7 +205,8 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = $this->batch( $reference );
-			$this->assertSame( ( 'forum' === $reference ) ? 8 : 7, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
 			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
@@ -178,7 +216,8 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = $this->batch( $reference );
-			$this->assertSame( ( 'forum' === $reference ) ? 8 : 7, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $state, get_option( $option ) );
 		} finally {
 			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
@@ -268,7 +307,7 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		$forum_state = get_option( $this->option( 'forum' ) );
 		$result      = $this->batch( 'topic' );
 		$this->assertFalse( $result['complete'] );
-		$this->assertSame( array( 'code', 'topics', 'replies', 'stale', 'initial', 'complete', 'restarted', 'batches' ), array_keys( $result ) );
+		$this->assertSame( array( 'code', 'error', 'complete', 'restarted', 'batches', 'topics', 'replies', 'stale', 'initial' ), array_keys( $result ) );
 		$topic_state = get_option( $this->option( 'topic' ) );
 		$this->assertSame( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), $topic_state['post_types'] );
 		$this->finish( 'forum' );
@@ -301,7 +340,8 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		$this->assertNotContains( 'bbp-sync-forum-meta', bbp_get_pending_upgrades() );
 		$before = $this->snapshot();
 		$result = bbp_admin_repair_post_reference_batch( 'unknown' );
-		$this->assertSame( 7, $result['code'] );
+		$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+		$this->assertSame( 'callback', $result['error'] );
 		$this->assertFalse( $result['complete'] );
 		$this->assertSame( $before, $this->snapshot() );
 	}

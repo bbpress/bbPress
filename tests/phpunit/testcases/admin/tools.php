@@ -5987,11 +5987,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_meta_dry_run();
-			$this->assertSame( 4, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			$wpdb->posts = $old_posts;
@@ -6019,11 +6021,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_meta_dry_run();
-			$this->assertSame( 6, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -6051,11 +6055,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_meta_dry_run();
-			$this->assertSame( 7, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'metadata-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -6084,11 +6090,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_meta_dry_run();
-			$this->assertSame( 7, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'metadata-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -6123,7 +6131,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 		} finally {
@@ -6157,7 +6166,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_forum_id', true ) );
@@ -6195,7 +6205,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_forum_id', true ) );
@@ -6232,7 +6243,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 			$this->assertSame( (string) $forum_id, get_post_meta( $topic_id, '_bbp_forum_id', true ) );
@@ -6280,7 +6292,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 			$this->assertSame( '999', get_post_meta( $forum_id, '_bbp_forum_id', true ) );
@@ -6373,7 +6386,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 		} finally {
@@ -6403,7 +6417,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 		} finally {
@@ -6433,7 +6448,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_meta();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $forum_id, '_bbp_forum_id' ) ) );
 		} finally {
@@ -6588,11 +6604,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_topic_meta_dry_run();
-			$this->assertSame( 1, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			$wpdb->posts = $old_posts;
@@ -6622,11 +6640,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_topic_meta_dry_run();
-			$this->assertSame( 2, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -6655,11 +6675,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_topic_meta_dry_run();
-			$this->assertSame( 3, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'metadata-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -6700,7 +6722,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( (string) $topic_id, $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_topic_id' ) ) );
 			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_topic_id', true ) );
@@ -6740,11 +6763,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $topic_id, '_bbp_topic_id', 999 );
 
 		try {
-			foreach ( $query_filters as $index => $query_filter ) {
+			foreach ( $query_filters as $query_filter ) {
 				add_filter( 'query', $query_filter );
 
 				$result = bbp_admin_repair_topic_meta();
-				$this->assertSame( $index ? 2 : 7, $result[0] );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+				$this->assertSame( 'source-read', $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertSame( '999', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_topic_id' ) ) );
 
@@ -6755,7 +6779,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			add_filter( 'query', $query_filters[0] );
 
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( (string) $topic_id, $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s", $topic_id, '_bbp_topic_id' ) ) );
 		} finally {
@@ -6793,7 +6818,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_topic_id', true ) );
 
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_topic_id', true ) );
 		} finally {
@@ -6826,7 +6852,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', get_post_meta( $topic_id, '_bbp_topic_id', true ) );
 			$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_topic_id', true ) );
@@ -6861,7 +6888,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_topic_meta();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( (string) $topic_id, get_post_meta( $topic_id, '_bbp_topic_id', true ) );
 			$this->assertSame( '999', get_post_meta( $reply_id, '_bbp_topic_id', true ) );

@@ -227,49 +227,44 @@ function bbp_admin_mention_backfill_message( $state ) {
  * @return array Status code, repair counts, and progress flags.
  */
 function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run = false ) {
+	$batch = bbp_admin_repair_tool_batch_status(
+		array(
+			'topics'  => 0,
+			'replies' => 0,
+			'stale'   => 0,
+			'initial' => false,
+		)
+	);
+	if ( ! in_array( $reference, array( 'topic', 'forum' ), true ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'callback' );
+		return $batch;
+	}
+
 	$is_forum = ( 'forum' === $reference );
-	$async    = $dry_run && bbp_admin_repair_tool_is_async_dry_run();
 	$bbp_db   = bbp_db();
 	$tool_id  = $is_forum ? 'bbp-sync-forum-meta' : 'bbp-sync-topic-meta';
 	$key      = $is_forum ? '_bbp_forum_id' : '_bbp_topic_id';
 	$types    = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	if ( $is_forum ) {
-		$types[] = bbp_get_forum_post_type();
+		$types[]         = bbp_get_forum_post_type();
+		$batch['forums'] = 0;
 	}
-	$batch = array(
-		'code'      => 0,
-		'topics'    => 0,
-		'replies'   => 0,
-		'stale'     => 0,
-		'initial'   => false,
-		'complete'  => false,
-		'restarted' => false,
-		'batches'   => 0
-	);
-	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'post_types' => $types ), $dry_run );
-	if ( ! $read ) {
-		$batch['code'] = 7;
+	$state = false;
+	if ( ! bbp_admin_repair_tool_batch_start( $tool_id, $state, $batch, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'post_types' => $types ), $dry_run ) ) {
 		return $batch;
 	}
 
-	if ( ! in_array( $reference, array( 'topic', 'forum' ), true ) ) {
-		$batch['code'] = 7;
-		return $batch;
-	}
-	if ( $is_forum ) {
-		$batch['forums'] = 0;
-	}
 	$type_slots = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
 	$batch['initial'] = ( false === $state );
 	if ( $batch['initial'] ) {
 		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(ID) FROM {$bbp_db->posts} WHERE post_type IN ({$type_slots})", $types ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
-			$batch['code'] = 1;
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
 		$upper_meta = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(post_id) FROM {$bbp_db->postmeta} WHERE meta_key = %s", $key ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
-			$batch['code'] = 3;
+			bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 			return $batch;
 		}
 		$state = array(
@@ -278,24 +273,14 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 			'post_types' => $types
 		);
 	}
-	$totals = array(
-		'topics' => 0,
-		'replies' => 0,
-		'stale'   => 0,
-		'forums'  => 0,
-		'batches' => 0,
-	);
-	if ( $async && ! empty( $state['_preview_totals'] ) && is_array( $state['_preview_totals'] ) ) {
-		$totals = array_merge( $totals, array_intersect_key( $state['_preview_totals'], $totals ) );
+	$fields = array( 'topics', 'replies', 'stale', 'initial', 'batches' );
+	if ( $is_forum ) {
+		$fields[] = 'forums';
 	}
-	if ( $async && isset( $state['_preview_initial'] ) ) {
-		$batch['initial'] = (bool) $state['_preview_initial'];
-	}
-	$metadata = $async && isset( $state['_preview_metadata'] ) && is_array( $state['_preview_metadata'] )
-		? $state['_preview_metadata']
-		: null;
+	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
+	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
+	$metadata      = isset( $preview_state['metadata'] ) ? $preview_state['metadata'] : null;
 	do {
-		$size = bbp_admin_repair_tool_batch_size( $tool_id );
 		// Bound each side before combining source posts and stored references
 		$ids = $bbp_db->get_col(
 			$bbp_db->prepare(
@@ -307,7 +292,7 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 			)
 		);
 		if ( ! empty( $bbp_db->last_error ) ) {
-			$batch['code'] = 7;
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
 		$has_more = count( $ids ) > $size;
@@ -337,15 +322,14 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 				)
 			);
 			if ( ! empty( $bbp_db->last_error ) ) {
-				$batch['code'] = 2;
+				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 				return $batch;
 			}
 			foreach ( $rows as $row ) {
 				$expected[ (int) $row->ID ] = $row;
 			}
 		}
-		if ( $batch['initial'] && ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
-			$batch['code'] = 7;
+		if ( $batch['initial'] && ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run ) ) {
 			return $batch;
 		}
 		$work     = 0;
@@ -361,12 +345,7 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 			$kind   = ( null === $value ) ? 'stale' : $row->kind;
 			$repair = bbp_admin_repair_single_metadata( 'post', $id, $key, $value, $size - $work, $dry_run, $metadata );
 			if ( ! empty( $repair['code'] ) ) {
-				$codes = array(
-					2 => 3,
-					3 => 4,
-					4 => ( 'replies' === $kind ) ? 6 : 5
-				);
-				$batch['code'] = isset( $codes[ $repair['code'] ] ) ? $codes[ $repair['code'] ] : 7;
+				bbp_admin_repair_tool_batch_fail( $batch, ( 2 === $repair['code'] ) ? 'metadata-read' : 'metadata-write' );
 				return $batch;
 			}
 			$work += $repair['work'];
@@ -387,33 +366,16 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 		if ( ! $dry_run ) {
 			$mismatches = bbp_admin_repair_metadata_mismatches( 'post', $key, $verified );
 			if ( false === $mismatches || ! empty( $mismatches ) ) {
-				$batch['code'] = false === $mismatches ? 3 : 7;
+				bbp_admin_repair_tool_batch_fail( $batch, false === $mismatches ? 'metadata-read' : 'verify' );
 				return $batch;
 			}
 		}
 		$complete = ! $has_more && ( count( $ids ) === $finished );
-		if ( $async ) {
-			foreach ( array( 'topics', 'replies', 'stale', 'forums' ) as $field ) {
-				if ( isset( $batch[ $field ] ) ) {
-					$totals[ $field ] += $batch[ $field ];
-					$batch[ $field ]   = $totals[ $field ];
-				}
-			}
-			++$totals['batches'];
-			$batch['batches']          = $totals['batches'];
-			$state['_preview_totals']  = $totals;
-			$state['_preview_initial'] = $batch['initial'];
-			$state['_preview_metadata'] = $metadata;
-		}
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
-			$batch['code'] = 7;
+		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields, array( 'metadata' => $metadata ) ) ) {
 			return $batch;
 		}
-		$batch['complete'] = $complete;
-		if ( ! $async ) {
-			$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
-		}
-	} while ( $dry_run && ! $async && ! $batch['code'] && ! $batch['complete'] );
+	} while ( bbp_admin_repair_tool_batch_continue( $batch, $dry_run ) );
 
 	return $batch;
 }
@@ -3655,21 +3617,7 @@ function bbp_admin_repair_forum_meta_dry_run() {
  * @return array Status code, repair counts, and progress flags.
  */
 function bbp_admin_repair_forum_meta_batch( $dry_run = false ) {
-	$batch = bbp_admin_repair_post_reference_batch( 'forum', $dry_run );
-	// Preserve the parent-forum tool's existing failure codes
-	$codes = array(
-		1 => 4,
-		2 => 6,
-		3 => 7,
-		4 => 1,
-		5 => 2,
-		6 => 3,
-		7 => 8
-	);
-	if ( ! empty( $batch['code'] ) ) {
-		$batch['code'] = isset( $codes[ $batch['code'] ] ) ? $codes[ $batch['code'] ] : 8;
-	}
-	return $batch;
+	return bbp_admin_repair_post_reference_batch( 'forum', $dry_run );
 }
 
 /**
