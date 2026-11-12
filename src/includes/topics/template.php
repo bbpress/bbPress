@@ -3932,8 +3932,8 @@ function bbp_get_topic_tag_subscription_link( $args = array() ) {
 			'object_type' => 'term',
 			'before'      => '',
 			'after'       => '',
-			'subscribe'   => esc_html__( 'Subscribe to this topic tag',     'bbpress' ),
-			'unsubscribe' => esc_html__( 'Unsubscribe from this topic tag', 'bbpress' ),
+			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
 			'redirect_to' => $redirect_to
 		),
 		'get_topic_tag_subscribe_link'

@@ -12,6 +12,33 @@
 class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 
 	/**
+	 * @ticket BBP2989
+	 */
+	public function test_topic_tag_archive_uses_topic_search_form() {
+		$template_parts = array();
+		$capture        = function( $templates, $slug, $name ) use ( &$template_parts ) {
+			$template_parts[] = $slug . '-' . $name;
+
+			return $templates;
+		};
+
+		add_filter( 'bbp_is_topic_tag', '__return_true' );
+		add_filter( 'bbp_get_template_part', $capture, 10, 3 );
+
+		try {
+			ob_start();
+			include BBP_PLUGIN_DIR . 'templates/default/bbpress/content-archive-topic.php';
+			ob_end_clean();
+		} finally {
+			remove_filter( 'bbp_get_template_part', $capture, 10 );
+			remove_filter( 'bbp_is_topic_tag', '__return_true' );
+		}
+
+		$this->assertContains( 'form-topic-search', $template_parts );
+		$this->assertNotContains( 'form-search', $template_parts );
+	}
+
+	/**
 	 * @covers ::bbp_topic_tag_list
 	 * @covers ::bbp_get_topic_tag_list
 	 */
@@ -148,13 +175,13 @@ class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 		$this->set_current_user( $user_id );
 
 		$link = bbp_get_topic_tag_subscription_link( $args );
-		$this->assertStringContainsString( 'Subscribe to this topic tag', $link );
+		$this->assertStringContainsString( '>Subscribe<', $link );
 		$this->assertStringContainsString( 'id="subscribe-term-' . $term['term_id'] . '"', $link );
 		$this->assertStringContainsString( 'data-bbp-object-type="term"', $link );
 
 		bbp_add_user_subscription( $user_id, $term['term_id'], 'term' );
 		$link = bbp_get_topic_tag_subscription_link( $args );
-		$this->assertStringContainsString( 'Unsubscribe from this topic tag', $link );
+		$this->assertStringContainsString( '>Unsubscribe<', $link );
 
 		$this->expectOutputString( $link );
 		bbp_topic_tag_subscription_link( $args );

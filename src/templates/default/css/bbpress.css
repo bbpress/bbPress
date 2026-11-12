@@ -514,6 +514,11 @@ div.bbp-topic-tags {
 	float: right;
 }
 
+#bbpress-forums > div.bbp-search-form {
+	clear: both;
+	margin-bottom: 10px;
+}
+
 /* =Admin Links
 -------------------------------------------------------------- */
 
