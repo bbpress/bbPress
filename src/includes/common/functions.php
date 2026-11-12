@@ -358,9 +358,10 @@ function bbp_get_paged() {
 /** Misc **********************************************************************/
 
 /**
- * Return the unique non-empty values of an array.
+ * Return the unique non-empty values of an array as a list.
  *
  * @since 2.6.0 bbPress (r6481)
+ * @since 2.6.22 bbPress (r8341) Return values with consecutive numeric keys.
  *
  * @param array $array Array to get values of
  *
@@ -368,7 +369,7 @@ function bbp_get_paged() {
  */
 // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.arrayFound -- Preserve the public parameter name for PHP 8 named arguments.
 function bbp_get_unique_array_values( $array = array() ) {
-	return array_unique( array_filter( array_values( $array ) ) );
+	return array_values( array_unique( array_filter( $array ) ) );
 }
 
 /**
