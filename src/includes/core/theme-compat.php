@@ -937,6 +937,13 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Block themes
 		if ( wp_is_block_theme() ) {
+			$wp_query = bbp_get_wp_query();
+
+			// Set up Loop globals for the Post Content block
+			if ( ( $wp_query instanceof WP_Query ) && ( $wp_query->post instanceof WP_Post ) ) {
+				$wp_query->setup_postdata( $wp_query->post );
+			}
+
 			$template = bbp_get_theme_canvas_template();
 
 		// Non-block themes

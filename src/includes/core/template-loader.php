@@ -449,14 +449,13 @@ function bbp_get_topic_tag_edit_template() {
 }
 
 /**
- * Get the templates to use as the endpoint for bbPress template parts
+ * Get the theme compatibility template hierarchy.
  *
- * @since 2.0.0 bbPress (r3311)
- * @since 2.6.0 bbPress (r5950) Added `singular.php` to template stack
+ * @since 2.6.22 bbPress (r8344)
  *
- * @return string Path to template file
+ * @return array Template filenames.
  */
-function bbp_get_theme_compat_templates() {
+function bbp_get_theme_compat_template_hierarchy() {
 	$templates = array(
 		'plugin-bbpress.php',
 		'bbpress.php',
@@ -468,20 +467,52 @@ function bbp_get_theme_compat_templates() {
 		'singular.php',
 		'index.php'
 	);
-	return bbp_get_query_template( 'bbpress', $templates );
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_theme_compat_template_hierarchy', $templates );
+}
+
+/**
+ * Get the templates to use as the endpoint for bbPress template parts
+ *
+ * @since 2.0.0 bbPress (r3311)
+ * @since 2.6.0 bbPress (r5950) Added `singular.php` to template stack
+ *
+ * @return string Path to template file
+ */
+function bbp_get_theme_compat_templates() {
+	return bbp_get_query_template( 'bbpress', bbp_get_theme_compat_template_hierarchy() );
 }
 
 /**
  * Get the theme canvas template, used for Block Themes.
  *
  * @since 2.6.17 bbPress (r7425)
+ * @since 2.6.22 bbPress (r8344) Locate a compatible Block Template.
  *
  * @return string Path to canvas file.
  */
 function bbp_get_theme_canvas_template() {
+	$bbp       = bbpress();
+	$templates = ! empty( $bbp->theme_compat->templates )
+		? $bbp->theme_compat->templates
+		: array();
+	$templates = array_merge(
+		$templates,
+		array_diff( bbp_get_theme_compat_template_hierarchy(), $templates )
+	);
+	$templates = (array) apply_filters( 'bbp_get_bbpress_template', $templates );
 
-	// Default WordPress Canvas
-	$template = ABSPATH . WPINC . '/template-canvas.php';
+	// Stash the possible templates for this query
+	bbp_set_theme_compat_templates( $templates );
+
+	// Locate a compatible Block Template
+	$template = locate_block_template( '', 'bbpress', $templates );
+
+	// Fall back to the default WordPress Canvas
+	if ( empty( $template ) ) {
+		$template = ABSPATH . WPINC . '/template-canvas.php';
+	}
 
 	// Filter & return
 	return apply_filters( 'bbp_get_theme_canvas_template', $template );

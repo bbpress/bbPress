@@ -27,12 +27,66 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	 */
 	private $theme_root;
 
+	/**
+	 * Whether Block Template content existed before the test.
+	 *
+	 * @var bool
+	 */
+	private $had_block_template_content;
+
+	/**
+	 * Block Template content from before the test.
+	 *
+	 * @var string|null
+	 */
+	private $original_block_template_content;
+
+	/**
+	 * Whether a Block Template ID existed before the test.
+	 *
+	 * @var bool
+	 */
+	private $had_block_template_id;
+
+	/**
+	 * Block Template ID from before the test.
+	 *
+	 * @var string|null
+	 */
+	private $original_block_template_id;
+
+	/**
+	 * Whether a theme compatibility hierarchy existed before the test.
+	 *
+	 * @var bool
+	 */
+	private $had_theme_compat_templates;
+
+	/**
+	 * Theme compatibility hierarchy from before the test.
+	 *
+	 * @var array|null
+	 */
+	private $original_theme_compat_templates;
+
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->original_theme             = get_stylesheet();
-		$this->original_theme_directories = $GLOBALS['wp_theme_directories'];
-		$this->theme_root                 = BBP_TESTS_DIR . '/data/themes';
+		$this->original_theme                        = get_stylesheet();
+		$this->original_theme_directories            = $GLOBALS['wp_theme_directories'];
+		$this->theme_root                            = BBP_TESTS_DIR . '/data/themes';
+		$this->had_block_template_content            = isset( $GLOBALS['_wp_current_template_content'] );
+		$this->original_block_template_content       = $this->had_block_template_content
+			? $GLOBALS['_wp_current_template_content']
+			: null;
+		$this->had_block_template_id                 = isset( $GLOBALS['_wp_current_template_id'] );
+		$this->original_block_template_id            = $this->had_block_template_id
+			? $GLOBALS['_wp_current_template_id']
+			: null;
+		$this->had_theme_compat_templates            = property_exists( bbpress()->theme_compat, 'templates' );
+		$this->original_theme_compat_templates       = $this->had_theme_compat_templates
+			? bbpress()->theme_compat->templates
+			: null;
 
 		register_theme_directory( $this->theme_root );
 		wp_clean_themes_cache();
@@ -47,6 +101,24 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 		switch_theme( $this->original_theme );
 		$GLOBALS['wp_theme_directories'] = $this->original_theme_directories;
 		wp_clean_themes_cache();
+
+		if ( $this->had_block_template_content ) {
+			$GLOBALS['_wp_current_template_content'] = $this->original_block_template_content;
+		} else {
+			unset( $GLOBALS['_wp_current_template_content'] );
+		}
+
+		if ( $this->had_block_template_id ) {
+			$GLOBALS['_wp_current_template_id'] = $this->original_block_template_id;
+		} else {
+			unset( $GLOBALS['_wp_current_template_id'] );
+		}
+
+		if ( $this->had_theme_compat_templates ) {
+			bbp_set_theme_compat_templates( $this->original_theme_compat_templates );
+		} else {
+			unset( bbpress()->theme_compat->templates );
+		}
 
 		parent::tearDown();
 	}
@@ -81,6 +153,24 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 			$this->assertSame( 'first-second', apply_filters( $tag, '' ) );
 		} finally {
 			remove_all_filters( $tag );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_theme_compat_template_hierarchy
+	 * @ticket 3487
+	 */
+	public function test_theme_compat_template_hierarchy_is_filterable() {
+		$filter = function() {
+			return array( 'custom-bbpress.php' );
+		};
+
+		add_filter( 'bbp_get_theme_compat_template_hierarchy', $filter );
+
+		try {
+			$this->assertSame( array( 'custom-bbpress.php' ), bbp_get_theme_compat_template_hierarchy() );
+		} finally {
+			remove_filter( 'bbp_get_theme_compat_template_hierarchy', $filter );
 		}
 	}
 
@@ -214,6 +304,70 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 				: $this->theme_root . '/' . $expected_template,
 			$this->get_theme_compat_template()
 		);
+	}
+
+	/**
+	 * @covers ::bbp_get_theme_canvas_template
+	 * @covers ::bbp_template_include_theme_compat
+	 * @ticket 3487
+	 */
+	public function test_block_theme_compat_uses_post_content_template() {
+		global $_wp_current_template_content;
+
+		$original_query  = $GLOBALS['wp_query'];
+		$original_post   = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$content         = '<div class="bbpress">Generated bbPress content</div>';
+		$archive_content = 'Original archive topic content';
+		$archive_post_id = $this->factory->post->create( array( 'post_content' => $archive_content ) );
+
+		remove_theme_support( 'block-templates' );
+		switch_theme( 'bbp-block-theme' );
+		wp_enable_block_templates();
+
+		try {
+			$GLOBALS['wp_query'] = new WP_Query( array( 'p' => $archive_post_id ) );
+			$GLOBALS['wp_query']->the_post();
+
+			locate_block_template( '', 'archive', array( 'archive.php', 'index.php' ) );
+			$this->assertStringContainsString( 'wp:post-excerpt', $_wp_current_template_content );
+
+			bbp_theme_compat_reset_post( array( 'post_content' => $content ) );
+			$template = bbp_template_include_theme_compat( '/original-template.php' );
+			$html     = get_the_block_template_html();
+
+			$this->assertSame( ABSPATH . WPINC . '/template-canvas.php', $template );
+			$this->assertStringContainsString( 'wp:post-content', $_wp_current_template_content );
+			$this->assertStringNotContainsString( 'wp:post-excerpt', $_wp_current_template_content );
+			$this->assertStringContainsString( $content, $html );
+			$this->assertStringNotContainsString( $archive_content, $html );
+		} finally {
+			bbp_restore_all_filters( 'the_content' );
+			bbp_set_theme_compat_active( false );
+			$GLOBALS['wp_query'] = $original_query;
+			$GLOBALS['post']     = $original_post;
+
+			if ( ( $original_query instanceof WP_Query ) && ( $original_post instanceof WP_Post ) ) {
+				$original_query->setup_postdata( $original_post );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_theme_canvas_template
+	 * @ticket 3487
+	 */
+	public function test_block_theme_compat_preserves_query_specific_template() {
+		global $_wp_current_template_content;
+
+		remove_theme_support( 'block-templates' );
+		switch_theme( 'bbp-block-theme' );
+		wp_enable_block_templates();
+
+		bbp_set_theme_compat_templates( array( 'single-forum.php' ) );
+
+		$this->assertSame( ABSPATH . WPINC . '/template-canvas.php', $this->get_theme_compat_template() );
+		$this->assertStringContainsString( 'wp:bbpress/single-forum', $_wp_current_template_content );
+		$this->assertStringNotContainsString( 'wp:post-content', $_wp_current_template_content );
 	}
 
 	/**
