@@ -15,11 +15,13 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/common.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
+		remove_action( 'wpmu_new_blog', 'bbp_new_site', 10 );
 		add_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
 	}
 
 	public function tearDown(): void {
 		remove_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
+		add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 		parent::tearDown();
 	}
 
@@ -170,7 +172,9 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 		$before = $this->snapshot();
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
-			$this->assertSame( 6, bbp_admin_repair_topic_voice_count_batch()['code'] );
+			$result = bbp_admin_repair_topic_voice_count_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
 			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
@@ -179,7 +183,9 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 		$state = get_option( $option );
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
-			$this->assertSame( 6, bbp_admin_repair_topic_voice_count_batch()['code'] );
+			$result = bbp_admin_repair_topic_voice_count_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $state, get_option( $option ) );
 		} finally {
 			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
@@ -229,7 +235,9 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 		};
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
-			$this->assertSame( 5, bbp_admin_repair_topic_voice_count_batch()['code'] );
+			$result = bbp_admin_repair_topic_voice_count_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
 			$this->assertSame( 5, bbp_admin_upgrade_user_engagements_batch()['code'] );
 		} finally {
@@ -257,9 +265,13 @@ class BBP_Tests_Admin_Voice_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $fail );
 		try {
 			$before = $this->snapshot();
-			$this->assertSame( 3, bbp_admin_repair_topic_voice_count_batch( true )['code'] );
+			$result = bbp_admin_repair_topic_voice_count_batch( true );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertSame( $before, $this->snapshot() );
-			$this->assertSame( 3, bbp_admin_repair_topic_voice_count_batch()['code'] );
+			$result = bbp_admin_repair_topic_voice_count_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertSame( $state, get_option( $this->option() ) );
 		} finally {
 			remove_filter( 'query', $fail );

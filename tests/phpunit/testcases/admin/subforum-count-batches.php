@@ -16,11 +16,13 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		bbp_admin();
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/common.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+		remove_action( 'wpmu_new_blog', 'bbp_new_site', 10 );
 		add_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
 	}
 
 	public function tearDown(): void {
 		remove_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
+		add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 		parent::tearDown();
 	}
 
@@ -170,7 +172,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
@@ -198,7 +201,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
@@ -222,7 +226,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
@@ -233,7 +238,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $state, get_option( $option ) );
 		} finally {
@@ -426,13 +432,13 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		$db    = bbp_db();
 		$ids   = $this->forums( 3 );
 		$cases = array(
-			"SELECT MAX(ID) FROM {$db->posts}" => 3,
-			"SELECT ID FROM {$db->posts} WHERE post_type" => 5,
-			'SELECT `forums`.`ID`, COUNT( `children`.`ID` )' => 3,
-			"SELECT meta_id FROM {$db->postmeta}" => 4
+			"SELECT MAX(ID) FROM {$db->posts}" => 'source-read',
+			"SELECT ID FROM {$db->posts} WHERE post_type" => 'source-read',
+			'SELECT `forums`.`ID`, COUNT( `children`.`ID` )' => 'source-read',
+			"SELECT meta_id FROM {$db->postmeta}" => 'metadata-read'
 		);
-		foreach ( $cases as $prefix => $code ) {
-			if ( 4 === $code ) {
+		foreach ( $cases as $prefix => $error ) {
+			if ( 'metadata-read' === $error ) {
 				update_option( $this->option(), array( 'cursor' => 0, 'upper_id' => max( $ids ), 'post_type' => bbp_get_forum_post_type() ), false );
 			}
 			$fail = static function ( $query ) use ( $prefix ) {
@@ -444,7 +450,8 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 			try {
 				foreach ( array( 'bbp_admin_repair_forum_subforum_count_dry_run', 'bbp_admin_repair_forum_subforum_count' ) as $callback ) {
 					$result = call_user_func( $callback );
-					$this->assertSame( $code, $result[0] );
+					$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+					$this->assertSame( $error, $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertFalse( $result['complete'] );
 					$this->assertSame( $before, $this->snapshot() );

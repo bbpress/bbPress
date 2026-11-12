@@ -1158,6 +1158,114 @@ function bbp_admin_repair_tool_continue_preview( $dry_run = false ) {
 }
 
 /**
+ * Create the common result fields for one procedural worker batch.
+ *
+ * @since 2.7.0 bbPress (r8339)
+ * @access private
+ *
+ * @param array $fields Worker-specific result fields.
+ * @return array Complete initial batch result.
+ */
+function bbp_admin_repair_tool_batch_status( $fields = array() ) {
+	return array_merge(
+		array(
+			'code'      => 0,
+			'error'     => '',
+			'complete'  => false,
+			'restarted' => false,
+			'batches'   => 0,
+		),
+		$fields
+	);
+}
+
+/**
+ * Record the first failure encountered by a procedural worker.
+ *
+ * @since 2.7.0 bbPress (r8339)
+ * @access private
+ *
+ * @param array  $batch  Current worker result.
+ * @param string $reason Semantic failure reason.
+ * @return false
+ */
+function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
+	if ( empty( $batch['code'] ) ) {
+		$batch['code'] = BBP_Admin_Batch_Worker::RESULT_FAILED;
+	}
+	if ( empty( $batch['error'] ) && $reason ) {
+		$batch['error'] = (string) $reason;
+	}
+	$batch['complete'] = false;
+
+	return false;
+}
+
+/**
+ * Load one procedural worker checkpoint into its shared batch result.
+ *
+ * @since 2.7.0 bbPress (r8339)
+ * @access private
+ *
+ * @param string   $tool_id   Repair or upgrade tool ID.
+ * @param array    $state     Loaded checkpoint, or false for a new operation.
+ * @param array    $batch     Current worker result.
+ * @param callable $validator Checkpoint validator.
+ * @param mixed    $context   Validator context.
+ * @param bool     $dry_run   Whether this is a read-only preview.
+ * @return bool Whether the checkpoint was read successfully.
+ */
+function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false ) {
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator, $context, $dry_run );
+	if ( ! $read ) {
+		return bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+	}
+
+	return true;
+}
+
+/**
+ * Save a procedural worker checkpoint and its aggregate Dry Run state.
+ *
+ * @since 2.7.0 bbPress (r8339)
+ * @access private
+ *
+ * @param string $tool_id Repair or upgrade tool ID.
+ * @param array  $state   Current worker checkpoint.
+ * @param array  $batch   Current worker result.
+ * @param bool   $complete Whether this operation completed.
+ * @param bool   $dry_run Whether this is a read-only preview.
+ * @param array  $fields  Aggregate result fields to save.
+ * @param array  $data    Worker-local simulation data.
+ * @return bool Whether the checkpoint was saved or removed.
+ */
+function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete, $dry_run = false, $fields = array(), $data = array() ) {
+	if ( ! empty( $fields ) || ! empty( $data ) ) {
+		bbp_admin_repair_tool_store_preview( $state, $batch, $fields, $data );
+	}
+	if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
+		return bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+	}
+	$batch['complete'] = (bool) $complete;
+
+	return true;
+}
+
+/**
+ * Return whether a procedural Dry Run should process another virtual batch.
+ *
+ * @since 2.7.0 bbPress (r8339)
+ * @access private
+ *
+ * @param array $batch   Current worker result.
+ * @param bool  $dry_run Whether this is a read-only preview.
+ * @return bool
+ */
+function bbp_admin_repair_tool_batch_continue( $batch, $dry_run = false ) {
+	return bbp_admin_repair_tool_continue_preview( $dry_run ) && empty( $batch['code'] ) && empty( $batch['complete'] );
+}
+
+/**
  * Restore aggregate counters and worker-local simulation data for a browser Dry Run.
  *
  * @since 2.7.0 bbPress (r8331)

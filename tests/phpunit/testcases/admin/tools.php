@@ -1887,12 +1887,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
 		$query_filters   = array(
-			3 => static function ( $query ) use ( $db ) {
+			'source-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, 'SELECT `forums`.`ID`, COUNT( `children`.`ID` )' ) )
 					? str_replace( "FROM `{$db->posts}` AS `forums`", 'FROM `bbp_missing_subforum_count_forums` AS `forums`', $query )
 					: $query;
 			},
-			4 => static function ( $query ) use ( $db ) {
+			'metadata-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) || 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) )
 					? str_replace( "FROM {$db->postmeta}", 'FROM bbp_missing_subforum_count_meta', $query )
 					: $query;
@@ -1902,16 +1902,18 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $forum_id, '_bbp_forum_subforum_count', 99 );
 
 		try {
-			foreach ( $query_filters as $code => $query_filter ) {
+			foreach ( $query_filters as $error => $query_filter ) {
 				add_filter( 'query', $query_filter );
 
 				$dry_run = bbp_admin_repair_forum_subforum_count_dry_run();
-				$this->assertSame( $code, $dry_run[0] );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+				$this->assertSame( $error, $dry_run['error'] );
 				$this->assertFalse( $dry_run['success'] );
 				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 
 				$run = bbp_admin_repair_forum_subforum_count();
-				$this->assertSame( $code, $run[0] );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $run[0] );
+				$this->assertSame( $error, $run['error'] );
 				$this->assertFalse( $run['success'] );
 				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 
@@ -1944,7 +1946,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 		} finally {
@@ -1976,7 +1979,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 		} finally {
@@ -2011,7 +2015,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '0', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 			$this->assertFalse( $result['complete'] );
@@ -2044,7 +2049,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_subforum_count();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 		} finally {
@@ -7430,11 +7436,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_topic_tag_count_dry_run();
-			$this->assertSame( 3, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_topic_tag_count();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $term['term_taxonomy_id'] ) ) );
 		} finally {
@@ -7464,7 +7472,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_topic_tag_count();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'callback', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 99, (int) $db->get_var( $db->prepare( "SELECT count FROM {$db->term_taxonomy} WHERE term_taxonomy_id = %d", $term['term_taxonomy_id'] ) ) );
 		} finally {

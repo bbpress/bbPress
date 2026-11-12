@@ -16,11 +16,13 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		bbp_admin();
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/common.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+		remove_action( 'wpmu_new_blog', 'bbp_new_site', 10 );
 		add_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
 	}
 
 	public function tearDown(): void {
 		remove_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
+		add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 		parent::tearDown();
 	}
 
@@ -270,7 +272,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
@@ -299,7 +302,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertFalse( get_metadata_by_mid( 'post', $second ) );
@@ -326,7 +330,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
@@ -337,7 +342,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $state, get_option( $option ) );
 		} finally {
@@ -479,7 +485,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 			try {
 				foreach ( array( $callback . '_dry_run', $callback ) as $call ) {
 					$result = call_user_func( $call );
-					$this->assertSame( 1, $result[0] );
+					$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+					$this->assertSame( 'source-read', $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertFalse( $result['complete'] );
 					$this->assertSame( $before, $this->snapshot() );
@@ -500,7 +507,7 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 		$db     = bbp_db();
 		$topics = $this->topics( $hidden, $key, 3 );
 		$this->assertFalse( call_user_func( $callback )['complete'] );
-		foreach ( array( "SELECT COUNT(*) FROM {$db->posts}" => 1, "SELECT meta_id FROM {$db->postmeta}" => 2 ) as $prefix => $code ) {
+		foreach ( array( "SELECT COUNT(*) FROM {$db->posts}" => 'source-read', "SELECT meta_id FROM {$db->postmeta}" => 'metadata-read' ) as $prefix => $error ) {
 			$fail = static function ( $query ) use ( $prefix ) {
 				return ( 0 === strpos( $query, $prefix ) || ( 0 === strpos( $prefix, 'SELECT meta_id' ) && 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) ) ) ? 'SELECT ID FROM bbp_missing_topic_count_data' : $query;
 			};
@@ -510,7 +517,8 @@ class BBP_Tests_Admin_Topic_Count_Batches extends BBP_UnitTestCase {
 			try {
 				foreach ( array( $callback, $callback . '_dry_run' ) as $call ) {
 					$result = call_user_func( $call );
-					$this->assertSame( $code, $result[0] );
+					$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+					$this->assertSame( $error, $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertFalse( $result['complete'] );
 					$this->assertSame( $before, $this->snapshot() );

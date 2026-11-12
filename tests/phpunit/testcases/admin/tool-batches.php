@@ -19,11 +19,13 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
 		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
 
+		remove_action( 'wpmu_new_blog', 'bbp_new_site', 10 );
 		add_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
 	}
 
 	public function tearDown(): void {
 		remove_filter( 'bbp_admin_repair_tool_batch_size', array( $this, 'batch_size' ) );
+		add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 		parent::tearDown();
 	}
 
@@ -247,7 +249,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_user_metadata', $fail, 10, 3 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
@@ -279,7 +282,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_user_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 0, get_option( bbp_admin_repair_tool_batch_option_name( $tool_id ) )['cursor'] );
 			$this->assertNotFalse( get_metadata_by_mid( 'user', $keep_id ) );
@@ -306,7 +310,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $before, $this->stored_data() );
 		} finally {
@@ -331,7 +336,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $state, get_option( $option ) );
 		} finally {
@@ -410,7 +416,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		try {
 			foreach ( array( $callback, $callback . '_dry_run' ) as $call ) {
 				$result = call_user_func( $call );
-				$this->assertSame( 1, $result[0] );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+				$this->assertSame( 'source-read', $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertFalse( $result['complete'] );
 				$this->assertSame( $before, $this->stored_data() );

@@ -114,6 +114,40 @@ class BBP_Tests_Admin_Tool_State extends BBP_UnitTestCase {
 		$this->assertSame( array( true, $second, false ), bbp_admin_repair_tool_load_checkpoint( 'bbp-second' ) );
 	}
 
+	public function test_procedural_batch_lifecycle_loads_saves_and_completes_shared_state() {
+		$tool         = 'bbp-test-procedural-batch';
+		$state        = array( 'cursor' => 0, 'upper_id' => 3 );
+		$batch        = bbp_admin_repair_tool_batch_status( array( 'repaired' => 0 ) );
+		$loaded_state = false;
+
+		$this->assertTrue( bbp_admin_repair_tool_batch_start( $tool, $loaded_state, $batch ) );
+		$this->assertFalse( $loaded_state );
+		$this->assertTrue( bbp_admin_repair_tool_batch_save( $tool, $state, $batch, false ) );
+		$this->assertSame( $state, get_option( bbp_admin_repair_tool_batch_option_name( $tool ) ) );
+
+		$loaded       = bbp_admin_repair_tool_batch_status( array( 'repaired' => 0 ) );
+		$loaded_state = false;
+		$this->assertTrue( bbp_admin_repair_tool_batch_start( $tool, $loaded_state, $loaded ) );
+		$this->assertSame( $state, $loaded_state );
+		$this->assertTrue( bbp_admin_repair_tool_batch_continue( $loaded, true ) );
+		$this->assertTrue( bbp_admin_repair_tool_batch_save( $tool, $state, $loaded, true ) );
+		$this->assertTrue( $loaded['complete'] );
+		$this->assertFalse( bbp_admin_repair_tool_batch_continue( $loaded, true ) );
+		$this->assertFalse( get_option( bbp_admin_repair_tool_batch_option_name( $tool ), false ) );
+	}
+
+	public function test_procedural_batch_failure_uses_the_shared_status_contract() {
+		$batch = bbp_admin_repair_tool_batch_status( array( 'repaired' => 0 ) );
+
+		$this->assertFalse( bbp_admin_repair_tool_batch_fail( $batch, 'source-read' ) );
+		$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $batch['code'] );
+		$this->assertSame( 'source-read', $batch['error'] );
+		$this->assertFalse( $batch['complete'] );
+
+		bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+		$this->assertSame( 'source-read', $batch['error'] );
+	}
+
 	public function test_native_field_verification_rejects_successful_filters_and_transformed_values() {
 		$topic = $this->factory->topic->create();
 		add_post_meta( $topic, '_bbp_status', 'private' );
