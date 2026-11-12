@@ -33,7 +33,21 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed() {
-		return array( array( 'phase', 3 ), array( 'cursor', -1 ), array( 'meta_cursor', 'past-bound' ), array( 'context', 'post' ), array( 'changed', 1 ) );
+		return array(
+			array( 'phase', 3 ),
+			array( 'cursor', -1 ),
+			array( 'meta_cursor', 'past-bound' ),
+			array( 'context', 'post' ),
+			array( 'changed', 1 ),
+			array( '_preview', array() ),
+			array(
+				'_preview_state',
+				array(
+					'totals' => array( 'relationships' => -1, 'positions' => 0, 'batches' => 0 ),
+					'data'   => array( 'ranks' => array() ),
+				),
+			),
+		);
 	}
 
 	public function source_changes() {
@@ -41,7 +55,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 	}
 
 	public function read_failures() {
-		return array( array( 'bounds', 1 ), array( 'metadata', 1 ), array( 'reply', 2 ), array( 'rank', 4 ), array( 'checkpoint', 6 ) );
+		return array( array( 'bounds', 'source-read' ), array( 'metadata', 'metadata-read' ), array( 'reply', 'source-read' ), array( 'rank', 'source-read' ), array( 'checkpoint', 'progress' ) );
 	}
 
 	private function option() {
@@ -146,6 +160,12 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 				$result = bbp_admin_repair_reply_menu_order_batch( true );
 				++$requests;
 				$this->assertSame( 0, $result['code'] );
+				if ( 1 === $requests ) {
+					$state = get_option( $this->option() );
+					$this->assertArrayHasKey( '_preview_state', $state );
+					$this->assertArrayNotHasKey( '_preview', $state );
+					$this->assertArrayHasKey( 'ranks', $state['_preview_state']['data'] );
+				}
 				if ( $result['complete'] ) {
 					break;
 				}
@@ -287,7 +307,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		try {
 			$result = bbp_admin_repair_reply_menu_order_batch();
 			$this->assertTrue( $fired );
-			$this->assertSame( 4, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( array( 7, 7 ), $this->positions( array_slice( $ids, 1 ) ) );
 		} finally {
@@ -336,7 +357,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option(), $reject, 10, 2 );
 		try {
 			$result = bbp_admin_repair_reply_menu_order_batch();
-			$this->assertSame( 6, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( array( 1, 7, 7 ), $this->positions( $ids ) );
 			$this->assertSame( $state, get_option( $this->option() ) );
@@ -371,7 +393,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $reject );
 		try {
 			$result = bbp_admin_repair_reply_menu_order_batch();
-			$this->assertSame( 5, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'verify', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 0, get_option( $this->option() )['cursor'] );
 			$this->assertSame( array( 7, 7, 7 ), $this->positions( $ids ) );
@@ -393,7 +416,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $reject );
 		try {
 			$result = bbp_admin_repair_reply_menu_order_batch();
-			$this->assertSame( 3, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertLessThan( $first, get_option( $this->option() )['meta_cursor'] );
 			$this->assertSame( array( 7, 7, 7 ), $this->positions( $ids ) );
 		} finally {
@@ -480,7 +504,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 	}
 
 	/** @dataProvider read_failures */
-	public function test_failed_reads_never_report_completion_or_lose_the_failed_reply( $point, $code ) {
+	public function test_failed_reads_never_report_completion_or_lose_the_failed_reply( $point, $error ) {
 		list( $topic, $ids ) = $this->fixture();
 		if ( in_array( $point, array( 'reply', 'rank' ), true ) ) {
 			$this->seed();
@@ -500,7 +524,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $reject );
 		try {
 			$result = bbp_admin_repair_reply_menu_order_batch();
-			$this->assertSame( $code, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( $error, $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( array( 7, 7, 7 ), $this->positions( $ids ) );
 		} finally {
@@ -522,7 +547,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $reject );
 		try {
 			$result = bbp_admin_repair_reply_menu_order_batch();
-			$this->assertSame( 6, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertNotFalse( get_option( $option, false ) );
 			$this->assertSame( array( 1, 2, 3 ), $this->positions( $ids ) );

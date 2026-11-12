@@ -3930,18 +3930,18 @@ function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id,
 function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$ranks, &$preview ) {
 	$db      = bbp_db();
 	$preview = array(
-		'code'   => 0,
+		'error'  => '',
 		'rows'   => array(),
 		'cached' => array(),
 	);
 	if ( 0 === $state['phase'] ) {
 		$preview['rows'] = $db->get_results( $db->prepare( "SELECT meta_id, post_id, (post_id = meta_value) AS self_reference FROM {$db->postmeta} WHERE meta_key = '_bbp_reply_to' AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['meta_cursor'], $state['meta_upper'], $size ) );
-		$preview['code'] = empty( $db->last_error ) ? 0 : 1;
+		$preview['error'] = empty( $db->last_error ) ? '' : 'metadata-read';
 		return;
 	}
 	$preview['rows'] = $db->get_results( $db->prepare( "SELECT ID, post_parent, post_status, menu_order FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT %d", $state['context'], $state['cursor'], $state['upper_id'], $size ) );
 	if ( ! empty( $db->last_error ) ) {
-		$preview['code'] = 2;
+		$preview['error'] = 'source-read';
 		return;
 	}
 	if ( ! $preview['rows'] ) {
@@ -3956,7 +3956,7 @@ function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$rank
 	wp_cache_delete_multiple( $ids, 'post_meta' );
 	_prime_post_caches( $ids, false, true );
 	if ( ! empty( $db->last_error ) ) {
-		$preview['code'] = 4;
+		$preview['error'] = 'source-read';
 	}
 }
 
@@ -3973,20 +3973,22 @@ function bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) {
 		&& $state['phase'] <= 2 && $state['meta_cursor'] <= $state['meta_upper']
 		&& isset( $state['context'], $state['changed'] )
 		&& bbp_get_reply_post_type() === $state['context'] && is_bool( $state['changed'] );
-	if ( ! $valid || ! isset( $state['_preview'] ) ) {
-		return $valid;
+	if ( ! $valid || ! isset( $state['_preview_state'] ) ) {
+		return $valid && ! isset( $state['_preview'] );
 	}
 
-	$preview = $state['_preview'];
-	if ( ! is_array( $preview ) || ! isset( $preview['relationships'], $preview['positions'], $preview['batches'], $preview['ranks'] )
-		|| ! is_int( $preview['relationships'] ) || $preview['relationships'] < 0
-		|| ! is_int( $preview['positions'] ) || $preview['positions'] < 0
-		|| ! is_int( $preview['batches'] ) || $preview['batches'] < 0
-		|| ! is_array( $preview['ranks'] ) ) {
+	$preview = $state['_preview_state'];
+	if ( ! is_array( $preview ) || ! isset( $preview['totals'], $preview['data']['ranks'] )
+		|| ! is_array( $preview['totals'] ) || ! is_array( $preview['data']['ranks'] ) ) {
 		return false;
 	}
+	foreach ( array( 'relationships', 'positions', 'batches' ) as $field ) {
+		if ( ! isset( $preview['totals'][ $field ] ) || ! is_int( $preview['totals'][ $field ] ) || $preview['totals'][ $field ] < 0 ) {
+			return false;
+		}
+	}
 
-	foreach ( $preview['ranks'] as $topic_id => $rank ) {
+	foreach ( $preview['data']['ranks'] as $topic_id => $rank ) {
 		if ( ! is_int( $topic_id ) || $topic_id < 1 || ! is_array( $rank )
 			|| ! isset( $rank['cursor'], $rank['position'], $rank['last_changed'] )
 			|| ! is_int( $rank['cursor'] ) || $rank['cursor'] < 0
@@ -4014,25 +4016,21 @@ function bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) {
 function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 	$db      = bbp_db();
 	$tool_id = 'bbp-sync-all-reply-positions';
-	$async   = $dry_run && bbp_admin_repair_tool_is_async_dry_run();
-	$batch   = array(
-		'code'          => 0,
-		'relationships' => 0,
-		'positions'     => 0,
-		'changed'       => false,
-		'complete'      => false,
-		'restarted'     => false,
-		'batches'       => 0
+	$batch   = bbp_admin_repair_tool_batch_status(
+		array(
+			'relationships' => 0,
+			'positions'     => 0,
+			'changed'       => false,
+		)
 	);
-	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_reply_menu_order_is_valid_checkpoint', array(), $dry_run );
-	if ( ! $read ) {
-		$batch['code'] = 6;
+	$state = false;
+	if ( ! bbp_admin_repair_tool_batch_start( $tool_id, $state, $batch, 'bbp_admin_repair_reply_menu_order_is_valid_checkpoint', array(), $dry_run ) ) {
 		return $batch;
 	}
 	if ( false === $state ) {
 		$bounds = $db->get_row( "SELECT (SELECT MAX(ID) FROM {$db->posts}) AS upper_id, (SELECT MAX(meta_id) FROM {$db->postmeta}) AS meta_upper" );
 		if ( ! empty( $db->last_error ) || ! $bounds ) {
-			$batch['code'] = 1;
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
 		$state = array(
@@ -4044,30 +4042,18 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 			'context'     => bbp_get_reply_post_type(),
 			'changed'     => false,
 		);
-		if ( $async ) {
-			$state['_preview'] = array(
-				'relationships' => 0,
-				'positions'     => 0,
-				'batches'       => 0,
-				'ranks'         => array(),
-			);
-		}
-	} elseif ( $async && isset( $state['_preview'] ) ) {
-		$batch['relationships'] = $state['_preview']['relationships'];
-		$batch['positions']     = $state['_preview']['positions'];
-		$batch['batches']       = $state['_preview']['batches'];
 	}
-	$size  = bbp_admin_repair_tool_batch_size( $tool_id );
-	$ranks = $async && isset( $state['_preview']['ranks'] )
-		? $state['_preview']['ranks']
-		: array();
+	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
+	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'relationships', 'positions', 'batches' ) );
+	$ranks         = isset( $preview_state['ranks'] ) ? $preview_state['ranks'] : array();
 	do {
 		$preview = null;
+		$work    = 0;
 		try {
 			if ( $dry_run ) {
 				bbp_admin_repair_reply_menu_order_preview_window( $state, $size, $ranks, $preview );
-				if ( $preview['code'] ) {
-					$batch['code'] = $preview['code'];
+				if ( $preview['error'] ) {
+					bbp_admin_repair_tool_batch_fail( $batch, $preview['error'] );
 					break;
 				}
 			}
@@ -4075,15 +4061,15 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 				if ( 0 === $state['phase'] ) {
 					$row = $dry_run ? array_shift( $preview['rows'] ) : $db->get_row( $db->prepare( "SELECT meta_id, post_id, (post_id = meta_value) AS self_reference FROM {$db->postmeta} WHERE meta_key = '_bbp_reply_to' AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT 1", $state['meta_cursor'], $state['meta_upper'] ) );
 					if ( ! empty( $db->last_error ) ) {
-						$batch['code'] = 1;
+						bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 						break;
 					}
 					if ( ! $row ) {
 						$state['phase'] = 1;
 						if ( $dry_run && $work + 1 < $size ) {
 							bbp_admin_repair_reply_menu_order_preview_window( $state, $size - $work - 1, $ranks, $preview );
-							if ( $preview['code'] ) {
-								$batch['code'] = $preview['code'];
+							if ( $preview['error'] ) {
+								bbp_admin_repair_tool_batch_fail( $batch, $preview['error'] );
 								break;
 							}
 						}
@@ -4094,7 +4080,7 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 							wp_cache_delete( $row->post_id, 'post_meta' );
 						}
 						if ( ! $dry_run && bbp_admin_repair_metadata_row( 'post', $row, '_bbp_reply_to', null ) ) {
-							$batch['code'] = 3;
+							bbp_admin_repair_tool_batch_fail( $batch, 'metadata-write' );
 							break;
 						}
 						++$batch['relationships'];
@@ -4105,7 +4091,7 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 				}
 				$reply = $dry_run ? array_shift( $preview['rows'] ) : $db->get_row( $db->prepare( "SELECT ID, post_parent, post_status, menu_order FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $state['context'], $state['cursor'], $state['upper_id'] ) );
 				if ( ! empty( $db->last_error ) ) {
-					$batch['code'] = 2;
+					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 					break;
 				}
 				if ( ! $reply ) {
@@ -4114,13 +4100,13 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 				}
 				$position = bbp_admin_repair_reply_menu_order_position( $reply, $ranks, $preview );
 				if ( false === $position ) {
-					$batch['code'] = 4;
+					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 					break;
 				}
 				// A getter callback may have moved, converted or deleted the selected reply
 				$source = $db->get_row( $db->prepare( "SELECT post_parent, post_status FROM {$db->posts} WHERE ID = %d AND post_type = %s", $reply->ID, $state['context'] ) );
 				if ( ! empty( $db->last_error ) ) {
-					$batch['code'] = 2;
+					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 					break;
 				}
 				if ( ! $source || $source->post_parent !== $reply->post_parent
@@ -4139,7 +4125,7 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 							continue;
 						}
 						if ( ! empty( $db->last_error ) || (int) $stored !== $position ) {
-							$batch['code'] = 5;
+							bbp_admin_repair_tool_batch_fail( $batch, 'verify' );
 							break;
 						}
 					}
@@ -4157,21 +4143,10 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 		}
 
 		$batch['changed']  = $state['changed'];
-		$batch['complete'] = ! $batch['code'] && 2 === $state['phase'];
+		$complete          = ! $batch['code'] && 2 === $state['phase'];
 		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
-		if ( $async ) {
-			$state['_preview'] = array(
-				'relationships' => $batch['relationships'],
-				'positions'     => $batch['positions'],
-				'batches'       => $batch['batches'],
-				'ranks'         => $ranks,
-			);
-		}
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $batch['complete'], $dry_run ) ) {
-			$batch['code']     = 6;
-			$batch['complete'] = false;
-		}
-	} while ( $dry_run && ! $async && ! $batch['code'] && ! $batch['complete'] );
+		bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, array( 'relationships', 'positions', 'batches' ), array( 'ranks' => $ranks ) );
+	} while ( bbp_admin_repair_tool_batch_continue( $batch, $dry_run ) );
 
 	return $batch;
 }
@@ -4195,15 +4170,7 @@ function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 		$statement = esc_html__( 'Recalculating reply menu order&hellip; %s', 'bbpress' );
 	}
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
-	if ( $batch['code'] ) {
-		return array(
-			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
-			'success'  => false,
-			'complete' => false,
-		);
-	}
-	if ( $batch['complete'] && ! $batch['changed'] ) {
+	if ( ! $batch['code'] && $batch['complete'] && ! $batch['changed'] ) {
 		return array(
 			1,
 			sprintf( $statement, esc_html__( '0 reply positions or reply-to references to repair.', 'bbpress' ) ),
@@ -4224,11 +4191,5 @@ function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 	}
 	$details = sprintf( esc_html( $relationships ), bbp_number_format( $batch['relationships'] ) ) . "\n"
 		. sprintf( esc_html( $positions ), bbp_number_format( $batch['positions'] ) );
-	$result  = bbp_admin_repair_tool_batch_message( $details, $batch['complete'], $dry_run );
-	return array(
-		0,
-		sprintf( $statement, $result ),
-		'complete' => $batch['complete'],
-		'batches'  => $batch['batches'],
-	);
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $details, $dry_run );
 }
