@@ -20,16 +20,16 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.7.0 bbPress (r8315)
  * @access private
  */
-class BBP_Admin_Group_Forum_Upgrade {
+class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 
 	/**
-	 * WordPress database connection.
+	 * Saved checkpoint context version.
 	 *
-	 * @since 2.7.0 bbPress (r8315)
+	 * @since 2.7.0 bbPress (r8338)
 	 *
-	 * @var wpdb
+	 * @var int
 	 */
-	private $db;
+	const CONTEXT_VERSION = 2;
 
 	/**
 	 * BuddyPress groups table name.
@@ -59,42 +59,6 @@ class BBP_Admin_Group_Forum_Upgrade {
 	private $forum_post_type;
 
 	/**
-	 * Registered upgrade tool ID.
-	 *
-	 * @since 2.7.0 bbPress (r8315)
-	 *
-	 * @var string
-	 */
-	private $tool_id = 'bbp-group-forums';
-
-	/**
-	 * Current migration checkpoint.
-	 *
-	 * @since 2.7.0 bbPress (r8315)
-	 *
-	 * @var array|false
-	 */
-	private $state;
-
-	/**
-	 * Whether this run only previews changes.
-	 *
-	 * @since 2.7.0 bbPress (r8315)
-	 *
-	 * @var bool
-	 */
-	private $dry_run;
-
-	/**
-	 * Whether this is one request in a browser Dry Run.
-	 *
-	 * @since 2.7.0 bbPress (r8331)
-	 *
-	 * @var bool
-	 */
-	private $async;
-
-	/**
 	 * In-memory migration plans created by a synchronous Dry Run.
 	 *
 	 * @since 2.7.0 bbPress (r8315)
@@ -111,15 +75,6 @@ class BBP_Admin_Group_Forum_Upgrade {
 	 * @var array
 	 */
 	private $inspected_options = array();
-
-	/**
-	 * Current migration error code.
-	 *
-	 * @since 2.7.0 bbPress (r8315)
-	 *
-	 * @var int
-	 */
-	private $code = 0;
 
 	/**
 	 * Whether a legacy value maps ambiguously to multiple objects.
@@ -164,6 +119,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 	 */
 	public function __construct( $dry_run = false ) {
 		$this->db              = bbp_db();
+		$this->tool_id         = 'bbp-group-forums';
 		$this->forum_post_type = bbp_get_forum_post_type();
 		$this->dry_run         = $dry_run;
 		$this->async           = $dry_run && bbp_admin_repair_tool_is_async_dry_run();
@@ -185,12 +141,12 @@ class BBP_Admin_Group_Forum_Upgrade {
 		$complete  = false;
 		$restarted = false !== $saved && ! $this->valid_state( $saved );
 		if ( ! $read ) {
-			$this->code = 11;
+			$this->fail( 'progress' );
 		} elseif ( false === $saved || $restarted ) {
 			$this->state = $this->new_state();
 			// Publish the generation before prepare can clean up an abandoned run.
-			if ( ! $this->code && ! $this->save() ) {
-				$this->code = 11;
+			if ( ! $this->error && ! $this->save() ) {
+				$this->fail( 'progress' );
 			}
 		} else {
 			$this->state = $saved;
@@ -206,15 +162,15 @@ class BBP_Admin_Group_Forum_Upgrade {
 		}
 		$size = bbp_admin_repair_tool_batch_size( $this->tool_id );
 		$work = 0;
-		while ( ! $this->code && ! $complete && ( bbp_admin_repair_tool_continue_preview( $this->dry_run ) || $work < $size ) ) {
+		while ( ! $this->error && ! $complete && ( bbp_admin_repair_tool_continue_preview( $this->dry_run ) || $work < $size ) ) {
 			$remaining = bbp_admin_repair_tool_continue_preview( $this->dry_run ) ? $size - ( $work % $size ) : $size - $work;
 			$work     += $this->step( $remaining, $complete );
 		}
 		if ( $this->async && $work ) {
 			++$this->batches;
 		}
-		if ( ( ! $this->dry_run || $this->async ) && $this->state && 11 !== $this->code ) {
-			if ( in_array( $this->code, array( 7, 12 ), true ) ) {
+		if ( ( ! $this->dry_run || $this->async ) && $this->state && 'progress' !== $this->error ) {
+			if ( in_array( $this->error, array( 'ambiguous-mapping', 'verify' ), true ) ) {
 				// Rebuild invalid source plans. Previously written forum markers
 				// disambiguate partial upgrades when legacy and current IDs overlap.
 				$this->state = $this->new_state();
@@ -222,22 +178,23 @@ class BBP_Admin_Group_Forum_Upgrade {
 				$preview_totals = array_merge( $this->counts, array( 'batches' => $this->batches ) );
 				bbp_admin_repair_tool_store_preview( $this->state, $preview_totals, array_keys( $preview_totals ), array( 'mapping_error' => (bool) $this->mapping_error ) );
 			}
-			if ( $this->state && ! $this->save( ! $this->code && $complete ) ) {
-				$this->code = 11;
+			if ( $this->state && ! $this->save( ! $this->error && $complete ) ) {
+				$this->fail( 'progress' );
 			}
 		}
-		return array_merge(
-			$this->counts,
-			array(
-				'code'          => $this->code,
-				'mapping_error' => $this->mapping_error,
-				'complete'      => ! $this->code && $complete,
-				'restarted'     => $restarted,
-				'no_data'       => $complete && empty( $this->state['legacy_forum_count'] ),
-				'phase'         => isset( $this->state['phase'] ) ? $this->state['phase'] : 'prepare',
-				'work'          => $work,
-				'batches'       => $this->async ? $this->batches : max( 1, (int) ceil( $work / $size ) ),
-			)
+		return $this->result(
+			array_merge(
+				$this->counts,
+				array(
+					'mapping_error' => $this->mapping_error,
+					'restarted'     => $restarted,
+					'no_data'       => $complete && empty( $this->state['legacy_forum_count'] ),
+					'phase'         => isset( $this->state['phase'] ) ? $this->state['phase'] : 'prepare',
+					'work'          => $work,
+					'batches'       => $this->async ? $this->batches : max( 1, (int) ceil( $work / $size ) ),
+				)
+			),
+			$complete
 		);
 	}
 
@@ -254,11 +211,15 @@ class BBP_Admin_Group_Forum_Upgrade {
 			&& isset( $state['phase'], $state['token'], $state['context'] )
 			&& in_array( $state['phase'], array( 'prepare', 'index', 'plan', 'verify', 'apply', 'root', 'cleanup' ), true )
 			&& is_string( $state['token'] ) && strlen( $state['token'] ) === 32 && ctype_xdigit( $state['token'] )
-			&& array( $this->forum_post_type, $this->groups_table, $this->groupmeta_table, 2 ) === $state['context']
+			&& array( $this->forum_post_type, $this->groups_table, $this->groupmeta_table, self::CONTEXT_VERSION ) === $state['context']
 			&& ( $state['legacy_forum_count'] > 0 || ! in_array( $state['phase'], array( 'plan', 'verify', 'apply', 'root' ), true ) )
 			&& $state['legacy_forum_count'] <= $state['upper_id'] && ( 'index' === $state['phase'] || 0 === $state['group_marker_offset'] );
 		if ( ! $valid || ! isset( $state['_preview_state'] ) ) {
 			return $valid;
+		}
+		if ( ! is_array( $state['_preview_state'] ) || ! isset( $state['_preview_state']['totals'], $state['_preview_state']['data'] )
+			|| ! is_array( $state['_preview_state']['totals'] ) || ! is_array( $state['_preview_state']['data'] ) ) {
+			return false;
 		}
 
 		$totals = $state['_preview_state']['totals'];
@@ -270,6 +231,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 		}
 		return isset( $totals['roles'], $data['mapping_error'] )
 			&& is_array( $totals['roles'] )
+			&& count( $totals['roles'] ) === count( array_filter( $totals['roles'], 'is_string' ) )
 			&& ! array_diff( $totals['roles'], array( 'member', 'inactive', 'blocked', 'moderator', 'keymaster' ) )
 			&& is_bool( $data['mapping_error'] );
 	}
@@ -281,10 +243,10 @@ class BBP_Admin_Group_Forum_Upgrade {
 	 *
 	 * @return array|false New checkpoint, or false after a database failure.
 	 */
-	private function new_state() {
+	protected function new_state() {
 		$upper = (int) $this->db->get_var( $this->db->prepare( "SELECT MAX(ID) FROM {$this->db->posts} WHERE post_type = %s", $this->forum_post_type ) );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 2;
+			$this->fail( 'forums-read' );
 			return false;
 		}
 		return array(
@@ -294,20 +256,8 @@ class BBP_Admin_Group_Forum_Upgrade {
 			'group_marker_offset' => 0,
 			'phase'               => 'prepare',
 			'token'               => str_replace( '-', '', wp_generate_uuid4() ),
-			'context'             => array( $this->forum_post_type, $this->groups_table, $this->groupmeta_table, 2 ),
+			'context'             => array( $this->forum_post_type, $this->groups_table, $this->groupmeta_table, self::CONTEXT_VERSION ),
 		);
-	}
-
-	/**
-	 * Save or delete the current migration checkpoint.
-	 *
-	 * @since 2.7.0 bbPress (r8315)
-	 *
-	 * @param bool $complete Whether the migration completed successfully.
-	 * @return bool Whether the checkpoint operation succeeded.
-	 */
-	private function save( $complete = false ) {
-		return bbp_admin_repair_tool_save_checkpoint( $this->tool_id, $this->state, $complete, $this->dry_run );
 	}
 
 	/**
@@ -348,7 +298,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 		}
 		list( $read, $value ) = bbp_admin_repair_get_option( $name );
 		if ( ! $read ) {
-			$this->code = 11;
+			$this->fail( 'progress' );
 		}
 		return $value;
 	}
@@ -366,7 +316,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 		if ( $this->dry_run && ! $this->async ) {
 			$this->preview_plans[ $name ] = $value;
 		} elseif ( ! bbp_admin_repair_tool_save_option( $name, $value ) ) {
-			$this->code = 11;
+			$this->fail( 'progress' );
 		}
 	}
 
@@ -412,26 +362,26 @@ class BBP_Admin_Group_Forum_Upgrade {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param string $table  Metadata table name.
-	 * @param string $column Object ID column name.
-	 * @param int    $id     Object ID.
-	 * @param string $key    Metadata key.
-	 * @param int    $read_code Error code for a failed database read.
+	 * @param string $table      Metadata table name.
+	 * @param string $column     Object ID column name.
+	 * @param int    $id         Object ID.
+	 * @param string $key        Metadata key.
+	 * @param string $read_error Failure reason for a failed database read.
 	 * @return array|false Stored field description, or false on failure.
 	 */
-	private function read_field( $table, $column, $id, $key, $read_code ) {
+	private function read_field( $table, $column, $id, $key, $read_error ) {
 		$field = $this->db->get_row( $this->db->prepare( "SELECT COUNT(*) AS rows_found, MIN(meta_value) AS value, MIN(meta_key) AS field_key FROM `{$table}` WHERE `{$column}` = %d AND meta_key = %s", $id, $key ), ARRAY_A );
 		if ( ! empty( $this->db->last_error ) || ! is_array( $field ) || ! isset( $field['rows_found'] ) || ! array_key_exists( 'value', $field ) || ! array_key_exists( 'field_key', $field ) ) {
-			$this->code = $read_code;
+			$this->fail( $read_error );
 			return false;
 		}
 		$field['rows_found'] = (int) $field['rows_found'];
 		if ( $field['rows_found'] > 1 ) {
-			$this->code = 7;
+			$this->fail( 'ambiguous-mapping' );
 			return false;
 		}
 		if ( $field['rows_found'] && $field['field_key'] !== $key ) {
-			$this->code = 12;
+			$this->fail( 'verify' );
 			return false;
 		}
 		return $field;
@@ -448,27 +398,27 @@ class BBP_Admin_Group_Forum_Upgrade {
 	private function read_forum_source( $id ) {
 		$post = $this->db->get_row( $this->db->prepare( "SELECT ID, post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->forum_post_type ) );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 2;
+			$this->fail( 'forums-read' );
 			return false;
 		}
 		if ( ! $post ) {
 			return false;
 		}
-		$legacy = $this->read_field( $this->db->postmeta, 'post_id', $id, '_bbp_old_forum_id', 2 );
+		$legacy = $this->read_field( $this->db->postmeta, 'post_id', $id, '_bbp_old_forum_id', 'forums-read' );
 		$groups = array(
 			'rows_found' => 0,
 			'value'      => null,
 			'field_key'  => null,
 		);
 		if ( $legacy && ! empty( $legacy['value'] ) ) {
-			$groups = $this->read_field( $this->db->postmeta, 'post_id', $id, '_bbp_group_ids', 2 );
+			$groups = $this->read_field( $this->db->postmeta, 'post_id', $id, '_bbp_group_ids', 'forums-read' );
 		}
 		if ( false === $legacy || false === $groups ) {
 			return false;
 		}
 		$ids = $groups['rows_found'] ? $this->parse_id_list( maybe_unserialize( $groups['value'] ) ) : array();
 		if ( false === $ids ) {
-			$this->code = 12;
+			$this->fail( 'verify' );
 			return false;
 		}
 		return array(
@@ -491,10 +441,10 @@ class BBP_Admin_Group_Forum_Upgrade {
 	 * @return array|false Group migration source, or false on failure.
 	 */
 	private function read_group_forum_source( $id ) {
-		$field = $this->read_field( $this->groupmeta_table, 'group_id', $id, 'forum_id', 3 );
+		$field = $this->read_field( $this->groupmeta_table, 'group_id', $id, 'forum_id', 'groupmeta-read' );
 		$group = $this->db->get_row( $this->db->prepare( "SELECT status FROM `{$this->groups_table}` WHERE id = %d", $id ) );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 4;
+			$this->fail( 'groups-read' );
 			return false;
 		}
 		return false === $field ? false : array(
@@ -519,7 +469,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 		if ( in_array( $phase, array( 'prepare', 'cleanup' ), true ) ) {
 			list( $success, $work, $finished ) = bbp_admin_repair_tool_cleanup_options( $this->prefix(), $limit, $this->dry_run && ! $this->async, $this->preview_plans, $this->inspected_options );
 			if ( ! $success ) {
-				$this->code = 11;
+				$this->fail( 'progress' );
 			} elseif ( $finished ) {
 				if ( 'cleanup' === $phase ) {
 					$complete = true;
@@ -531,14 +481,14 @@ class BBP_Admin_Group_Forum_Upgrade {
 		}
 		if ( 'root' === $phase ) {
 			$this->finalize_root();
-			if ( ! $this->code ) {
+			if ( ! $this->error ) {
 				$this->next_phase( 'cleanup' );
 			}
 			return 1;
 		}
 		$id = (int) $this->db->get_var( $this->db->prepare( "SELECT ID FROM {$this->db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $this->forum_post_type, $this->state['cursor'], $this->state['upper_id'] ) );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 2;
+			$this->fail( 'forums-read' );
 			return 1;
 		}
 		if ( ! $id ) {
@@ -550,11 +500,11 @@ class BBP_Admin_Group_Forum_Upgrade {
 			);
 			if ( 'verify' === $phase ) {
 				$root = $this->read_root_source();
-				if ( ! $this->code ) {
+				if ( ! $this->error ) {
 					$this->write_plan( 'root', $root );
 				}
 			}
-			if ( ! $this->code ) {
+			if ( ! $this->error ) {
 				$this->next_phase( $this->state['legacy_forum_count'] ? $next[ $phase ] : 'cleanup' );
 			}
 			return 1;
@@ -563,27 +513,27 @@ class BBP_Admin_Group_Forum_Upgrade {
 			$this->index_forum( $id );
 		} else {
 			$plan = $this->read_plan( 'forum_' . $id );
-			if ( $this->code ) {
+			if ( $this->error ) {
 				return 1;
 			}
 			if ( ! $this->valid_plan( $plan, $id ) ) {
-				$this->code = 12;
+				$this->fail( 'verify' );
 			} elseif ( in_array( $phase, array( 'plan', 'verify' ), true ) && ! $this->source_matches( $plan ) ) {
-				$this->code = $this->code ? $this->code : 12;
+				$this->fail( 'verify' );
 			} elseif ( 'verify' === $phase && ! empty( $plan['legacy'] ) && ! $plan['skip'] && ( ! isset( $plan['group'], $plan['update_group'] ) || ! is_int( $plan['group'] ) || ! is_bool( $plan['update_group'] ) ) ) {
-				$this->code = 12;
+				$this->fail( 'verify' );
 			} elseif ( ! empty( $plan['legacy'] ) && ! $plan['skip'] ) {
 				if ( in_array( $phase, array( 'plan', 'verify' ), true ) ) {
 					if ( ! $this->plan_forum( $plan, 'verify' === $phase ) ) {
 						return 1;
 					}
 				} elseif ( ! isset( $plan['group'], $plan['update_group'] ) || ! is_int( $plan['group'] ) || ! is_bool( $plan['update_group'] ) ) {
-					$this->code = 12;
+					$this->fail( 'verify' );
 				} elseif ( $plan['group'] ) {
 					$this->apply_plan( $plan );
 				}
 			}
-			if ( ! $this->code ) {
+			if ( ! $this->error ) {
 				$this->state['cursor'] = $id;
 			}
 		}
@@ -658,13 +608,13 @@ class BBP_Admin_Group_Forum_Upgrade {
 	private function index_forum( $id ) {
 		$plan = $this->state['group_marker_offset'] ? $this->read_plan( 'forum_' . $id ) : $this->read_forum_source( $id );
 		if ( ! $this->valid_plan( $plan, $id ) || $this->state['group_marker_offset'] > count( $plan['groups'] ) ) {
-			$this->code = $this->code ? $this->code : 12;
+			$this->fail( 'verify' );
 			return;
 		}
 		if ( $this->state['group_marker_offset'] ) {
 			$live = $this->read_forum_source( $id );
 			if ( ! $live || $live['legacy_field'] !== $plan['legacy_field'] || $live['groups_field'] !== $plan['groups_field'] ) {
-				$this->code = $this->code ? $this->code : 12;
+				$this->fail( 'verify' );
 				return;
 			}
 		}
@@ -677,7 +627,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 			$ids        = $this->parse_id_list( maybe_unserialize( $value ) );
 			$owner      = ( ! empty( $value ) && false !== $ids && in_array( $id, $ids, true ) )
 				|| ( ! $serialized && (string) $value === $plan['legacy'] );
-			if ( $this->code ) {
+			if ( $this->error ) {
 				return;
 			}
 			if ( $owner ) {
@@ -712,9 +662,10 @@ class BBP_Admin_Group_Forum_Upgrade {
 	private function claim( $key, $id ) {
 		$claimed = $this->read_plan( $key );
 		if ( false !== $claimed && ( ! is_array( $claimed ) || ! isset( $claimed['forum'] ) || $claimed['forum'] !== $id ) ) {
-			$this->code          = 7;
-			$this->mapping_error = 0 === strpos( $key, 'legacy_' );
-		} elseif ( ! $this->code ) {
+			if ( $this->fail( 'ambiguous-mapping' ) ) {
+				$this->mapping_error = 0 === strpos( $key, 'legacy_' );
+			}
+		} elseif ( ! $this->error ) {
 			$this->write_plan( $key, array( 'forum' => $id ) );
 		}
 	}
@@ -738,14 +689,14 @@ class BBP_Admin_Group_Forum_Upgrade {
 		}
 		$stored = $plan['groups'] ? reset( $plan['groups'] ) : 0;
 		if ( $stored && ( ! array_key_exists( 'marker', $plan ) || $this->read_group_forum_source( $stored ) !== $plan['marker'] ) ) {
-			$this->code = $this->code ? $this->code : 12;
+			$this->fail( 'verify' );
 			return true;
 		}
 		if ( ! isset( $plan['scan'] ) ) {
 			// The forum's explicit marker takes precedence over other candidates.
 			$matches = $stored ? $this->db->get_row( $this->db->prepare( "SELECT MAX(meta_value = %s) AS legacy_match, MAX(meta_value = %d) AS current_match FROM `{$this->groupmeta_table}` WHERE group_id = %d AND meta_key = 'forum_id'", $plan['legacy'], $plan['id'], $stored ) ) : false;
 			if ( ! empty( $this->db->last_error ) ) {
-				$this->code = 3;
+				$this->fail( 'groupmeta-read' );
 				return true;
 			}
 			if ( $matches && ( $matches->legacy_match || $matches->current_match ) ) {
@@ -761,19 +712,19 @@ class BBP_Admin_Group_Forum_Upgrade {
 		$value  = $legacy ? $plan['legacy'] : $plan['id'];
 		$group  = (int) $this->db->get_var( $this->db->prepare( "SELECT group_id FROM `{$this->groupmeta_table}` WHERE meta_key = 'forum_id' AND meta_value = {$slot} AND group_id > %d ORDER BY group_id LIMIT 1", $value, $plan['candidate_cursor'] ) );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 3;
+			$this->fail( 'groupmeta-read' );
 			return true;
 		}
 		if ( $group ) {
 			$plan['candidate_cursor'] = $group;
 			$claimed                  = $this->read_plan( 'owner_' . $group );
 			if ( false !== $claimed && array( 'claimed' => true ) !== $claimed ) {
-				$this->code = 12;
+				$this->fail( 'verify' );
 			} elseif ( ! $claimed || ( $plan['owner'] && $stored === $group ) ) {
 				$key = $plan['scan'] . '_matches';
 				$plan[ $key ][] = $group;
 				if ( count( $plan[ $key ] ) > 1 ) {
-					$this->code = 7;
+					$this->fail( 'ambiguous-mapping' );
 				}
 			}
 		} elseif ( $legacy ) {
@@ -783,7 +734,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 			$group = $plan['legacy_matches'] ? reset( $plan['legacy_matches'] ) : ( $plan['current_matches'] ? reset( $plan['current_matches'] ) : 0 );
 			return $this->finish_plan( $plan, $group, ! empty( $plan['legacy_matches'] ) );
 		}
-		if ( ! $this->code ) {
+		if ( ! $this->error ) {
 			$this->write_plan( 'forum_' . $plan['id'], $plan );
 		}
 		return false;
@@ -808,32 +759,33 @@ class BBP_Admin_Group_Forum_Upgrade {
 			if ( $plan['update_group'] ) {
 				$this->claim( 'legacy_' . md5( $plan['legacy'] ), $plan['id'] );
 				if ( (string) (int) $plan['legacy'] === $plan['legacy'] && $this->read_plan( 'native_' . $plan['legacy'] ) ) {
-					$this->code          = 7;
-					$this->mapping_error = true;
+					if ( $this->fail( 'ambiguous-mapping' ) ) {
+						$this->mapping_error = true;
+					}
 				}
 			}
-			if ( ! $this->code ) {
+			if ( ! $this->error ) {
 				$this->claim( 'group_' . $group, $plan['id'] );
 			}
 			$source = $this->read_group_forum_source( $group );
 			// Candidate queries retain MySQL's comparison semantics for current IDs.
-			if ( ! $this->code && ( ! $source || ! $source['exists'] || is_serialized( $source['forum']['value'] ) ) ) {
-				$this->code = 12;
+			if ( ! $this->error && ( ! $source || ! $source['exists'] || is_serialized( $source['forum']['value'] ) ) ) {
+				$this->fail( 'verify' );
 			}
 			$plan['group_source'] = $source;
 		}
-		if ( isset( $plan['expected'] ) && ! $this->code ) {
+		if ( isset( $plan['expected'] ) && ! $this->error ) {
 			$actual = array(
 				'group'        => $plan['group'],
 				'update_group' => $plan['update_group'],
 				'group_source' => isset( $plan['group_source'] ) ? $plan['group_source'] : false,
 			);
 			if ( $actual !== $plan['expected'] ) {
-				$this->code = 12;
+				$this->fail( 'verify' );
 			}
 			unset( $plan['expected'] );
 		}
-		if ( ! $this->code ) {
+		if ( ! $this->error ) {
 			$this->write_plan( 'forum_' . $plan['id'], $plan );
 		}
 		return true;
@@ -864,7 +816,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 	private function visibility_matches( $id, $target, &$visibility = null ) {
 		$visibility = $this->db->get_var( $this->db->prepare( "SELECT post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->forum_post_type ) );
 		if ( ! empty( $this->db->last_error ) || null === $visibility ) {
-			$this->code = 9;
+			$this->fail( 'visibility' );
 			return false;
 		}
 		list( $hidden_read, $hidden )   = bbp_admin_repair_get_option( '_bbp_hidden_forums', array(), false );
@@ -872,7 +824,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 		$hidden_ids  = $this->parse_id_list( $hidden );
 		$private_ids = $this->parse_id_list( $private );
 		if ( ! $hidden_read || ! $private_read || false === $hidden_ids || false === $private_ids ) {
-			$this->code = 9;
+			$this->fail( 'visibility' );
 			return false;
 		}
 		return $visibility === $target
@@ -896,20 +848,20 @@ class BBP_Admin_Group_Forum_Upgrade {
 		$expected = $plan['group_source']['forum']['value'];
 		$target   = $source ? $this->group_visibility_target( $source ) : '';
 		$desired  = array( $group );
-		if ( $this->code ) {
+		if ( $this->error ) {
 			return;
 		}
 		// Accept our own partial writes, but never overwrite a changed mapping.
 		if ( ! $source || ! $source['exists'] || ! $forum || $forum['legacy_field'] !== $plan['legacy_field']
 			|| ( $forum['groups'] !== $plan['groups'] && $forum['groups'] !== $desired )
 			|| ( $value !== $expected && (string) $value !== (string) $id ) ) {
-			$this->code = 12;
+			$this->fail( 'verify' );
 			return;
 		}
 		if ( $forum['groups'] !== $desired ) {
 			if ( ! $this->dry_run ) {
 				if ( ! bbp_admin_repair_metadata_update( 'post', $id, '_bbp_group_ids', $desired ) ) {
-					$this->code = 8;
+					$this->fail( 'forum-meta-write' );
 					return;
 				}
 			}
@@ -922,13 +874,13 @@ class BBP_Admin_Group_Forum_Upgrade {
 				wp_cache_delete( $group, 'group_meta' );
 				$stored = $this->read_group_forum_source( $group );
 				if ( $failed || ! $stored || ! $stored['exists'] || (string) $stored['forum']['value'] !== (string) $id ) {
-					$this->code = 5;
+					$this->fail( 'groupmeta-write' );
 					return;
 				}
 			}
 			++$this->counts['groups'];
 		}
-		if ( $target && ! $this->visibility_matches( $id, $target, $current_visibility ) && ! $this->code ) {
+		if ( $target && ! $this->visibility_matches( $id, $target, $current_visibility ) && ! $this->error ) {
 			if ( ! $this->dry_run ) {
 				if ( bbp_get_public_status_id() === $target ) {
 					bbp_publicize_forum( $id, $current_visibility );
@@ -936,7 +888,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 					bbp_hide_forum( $id, $current_visibility );
 				}
 				if ( ! $this->visibility_matches( $id, $target ) ) {
-					$this->code = 9;
+					$this->fail( 'visibility' );
 					return;
 				}
 			}
@@ -955,12 +907,13 @@ class BBP_Admin_Group_Forum_Upgrade {
 		$legacy_root_id = function_exists( 'bp_forums_parent_forum_id' ) ? bp_forums_parent_forum_id() : ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ? (int) BP_FORUMS_PARENT_FORUM_ID : 1 );
 		$posts          = $this->db->get_results( $this->db->prepare( "SELECT DISTINCT p.ID, p.post_type, p.post_parent, p.post_status, p.post_title, p.post_name FROM {$this->db->posts} p INNER JOIN {$this->db->postmeta} m ON p.ID = m.post_id WHERE p.post_type = %s AND m.meta_key = '_bbp_old_forum_id' AND CAST(m.meta_value AS SIGNED) = %d ORDER BY p.ID LIMIT 2", $this->forum_post_type, $legacy_root_id ), ARRAY_A );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 2;
+			$this->fail( 'forums-read' );
 			return false;
 		}
 		if ( count( $posts ) > 1 ) {
-			$this->code          = 7;
-			$this->mapping_error = true;
+			if ( $this->fail( 'ambiguous-mapping' ) ) {
+				$this->mapping_error = true;
+			}
 			return false;
 		}
 		if ( ! $posts ) {
@@ -982,18 +935,18 @@ class BBP_Admin_Group_Forum_Upgrade {
 	private function finalize_root() {
 		$planned = $this->read_plan( 'root' );
 		$current = $this->read_root_source();
-		if ( $this->code ) {
+		if ( $this->error ) {
 			return;
 		}
 		if ( ! is_array( $planned ) || ! isset( $planned['ID'] ) || ! is_int( $planned['ID'] ) || ! $current || $planned['ID'] !== $current['ID'] ) {
-			$this->code = 12;
+			$this->fail( 'verify' );
 			return;
 		}
 		$id = (int) $current['ID'];
 		if ( $id ) {
 			foreach ( array( 'post_type', 'post_title', 'post_name', 'post_status' ) as $field ) {
 				if ( ! isset( $planned[ $field ] ) || ! is_string( $planned[ $field ] ) ) {
-					$this->code = 12;
+					$this->fail( 'verify' );
 					return;
 				}
 			}
@@ -1004,20 +957,20 @@ class BBP_Admin_Group_Forum_Upgrade {
 					$planned['rename_attempted'] = false;
 				}
 				if ( ! is_string( $planned['target_title'] ) || ! is_string( $planned['target_slug'] ) || ! is_bool( $planned['rename_attempted'] ) ) {
-					$this->code = 12;
+					$this->fail( 'verify' );
 					return;
 				}
 				$title = $planned['target_title'];
 				$slug  = $planned['target_slug'];
 				if ( ! $planned['rename_attempted'] && ( $current['post_title'] !== $planned['post_title'] || $current['post_name'] !== $planned['post_name'] ) ) {
-					$this->code = 12;
+					$this->fail( 'verify' );
 					return;
 				}
 				$rename = $current['post_title'] !== $title || $current['post_name'] !== $slug;
 				if ( ! $this->dry_run && $rename ) {
 					$planned['rename_attempted'] = true;
 					$this->write_plan( 'root', $planned );
-					if ( $this->code ) {
+					if ( $this->error ) {
 						return;
 					}
 					$result = wp_update_post(
@@ -1030,18 +983,18 @@ class BBP_Admin_Group_Forum_Upgrade {
 					);
 					$stored = $this->db->get_row( $this->db->prepare( "SELECT post_type, post_title, post_name FROM {$this->db->posts} WHERE ID = %d", $id ) );
 					if ( ! empty( $this->db->last_error ) || is_wp_error( $result ) || $id !== $result || ! $stored || $stored->post_type !== $this->forum_post_type || $stored->post_title !== $title || $stored->post_name !== $slug ) {
-						$this->code = 6;
+						$this->fail( 'root-rename' );
 						return;
 					}
 				}
 				$this->counts['rename'] += (int) $rename;
 			} elseif ( $planned['post_title'] !== $current['post_title'] || $planned['post_name'] !== $current['post_name'] ) {
-				$this->code = 12;
+				$this->fail( 'verify' );
 				return;
 			}
 			if ( ! bbp_admin_repair_option_matches( '_bbp_group_forums_root_id', $id ) ) {
 				if ( ! $this->dry_run && ! bbp_admin_repair_update_option( '_bbp_group_forums_root_id', $id ) ) {
-					$this->code = 10;
+					$this->fail( 'root-option' );
 					return;
 				}
 				++$this->counts['root'];
@@ -1060,7 +1013,7 @@ class BBP_Admin_Group_Forum_Upgrade {
 						$registry->role_objects = $objects;
 						$registry->role_names   = $names;
 						wp_cache_delete_multiple( array( $registry->role_key, 'alloptions', 'notoptions' ), 'options' );
-						$this->code = 13;
+						$this->fail( 'roles' );
 						return;
 					}
 				}

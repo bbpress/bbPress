@@ -101,7 +101,12 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 			}
 		}
 		$before = $this->snapshot();
-		$result = bbp_admin_repair_forum_count_get_status( $type );
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'forum-count-status' );
+		try {
+			$result = bbp_admin_repair_forum_count_get_status( $type );
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
 		$this->assertSame( 0, $result['code'] );
 		$this->assertSame( $forums, $result['forum_ids'] );
 		$this->assertSame( count( $forums ), $result['repair_count'] );
@@ -128,7 +133,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 			remove_filter( 'query', $fail );
 			$db->suppress_errors( $suppressed );
 		}
-		$this->assertSame( 'hidden-replies' === $type ? 4 : 5, $result['code'] );
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'hidden-replies' === $type ? 'hidden-reply-metadata-read' : 'forum-metadata-read', $result['error'] );
 		$this->assertSame( $before, $this->snapshot() );
 		$result = bbp_admin_repair_forum_count_get_status( $type );
 		$this->assertSame( 0, $result['code'] );
@@ -201,7 +207,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 					break;
 				}
 			}
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertNotFalse( get_option( $this->option( $type ), false ) );
 		} finally {
@@ -219,7 +226,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option( $type ), $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_count_batch( $type );
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 		} finally {
 			remove_filter( 'pre_update_option_' . $this->option( $type ), $fail, 10 );
 		}
@@ -316,7 +324,20 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		$suppress = $db->suppress_errors( true );
 		add_filter( 'query', $fail );
 		try {
-			$this->assertSame( 3, bbp_admin_repair_forum_count_batch( $type )['code'] );
+			bbp_admin_repair_tool_execution_context( 'dry-run', 'failed-forum-count-preview' );
+			try {
+				$preview = bbp_admin_repair_forum_count_batch( $type, true );
+			} finally {
+				bbp_admin_repair_tool_execution_context( 'run', '' );
+			}
+			$this->assertSame( 2, $preview['code'] );
+			$this->assertSame( 'source-read', $preview['error'] );
+			$this->assertFalse( get_option( $this->option( $type ), false ) );
+			$this->assertSame( array(), $this->nodes( $type ) );
+
+			$result = bbp_admin_repair_forum_count_batch( $type );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
 			remove_filter( 'query', $fail );
@@ -355,7 +376,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $fail );
 		try {
 			$result = bbp_admin_repair_forum_count_batch( $type );
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( array(), $this->nodes( $type ) );
 			$this->assertSame( 'cleanup', get_option( $option )['phase'] );
@@ -432,7 +454,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option( $type ), $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_count_batch( $type );
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $state, get_option( $this->option( $type ) ) );
 			$this->assertNotFalse( get_option( $prefix . $forums[0], false ) );
 		} finally {
@@ -454,7 +477,7 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		};
 		add_filter( 'pre_update_option_' . $this->option( $type ), $fail, 10, 2 );
 		try {
-			$this->assertSame( 7, bbp_admin_repair_forum_count_batch( $type )['code'] );
+			$this->assertSame( 2, bbp_admin_repair_forum_count_batch( $type )['code'] );
 			$this->assertSame( 'prepare', get_option( $this->option( $type ) )['phase'] );
 			$this->assertNotEmpty( $this->nodes( $type ) );
 		} finally {
@@ -481,7 +504,7 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		$fail  = static function ( $value, $old ) { return ! empty( $value['await'] ) ? $old : $value; };
 		add_filter( 'pre_update_option_' . $name, $fail, 10, 2 );
 		try {
-			$this->assertSame( 7, bbp_admin_repair_forum_count_batch( $type )['code'] );
+			$this->assertSame( 2, bbp_admin_repair_forum_count_batch( $type )['code'] );
 		} finally {
 			remove_filter( 'pre_update_option_' . $name, $fail, 10 );
 		}
@@ -597,7 +620,8 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $reject );
 		try {
 			$result = bbp_admin_repair_forum_count_batch( 'topics' );
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['restarted'] );
 		} finally {
 			remove_filter( 'query', $reject );

@@ -421,7 +421,7 @@ function bbp_admin_repair_tool_batch_message( $details, $complete, $dry_run = fa
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @param array  $batch     Worker status, including code and complete.
+ * @param array  $batch     Worker status, including code, error, and complete.
  * @param string $statement Translated status statement.
  * @param string $detail    Translated success detail.
  * @param bool   $dry_run   Whether to omit Run progress text.
@@ -429,18 +429,24 @@ function bbp_admin_repair_tool_batch_message( $details, $complete, $dry_run = fa
  */
 function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $dry_run = false ) {
 	if ( $batch['code'] ) {
+		$error  = isset( $batch['error'] ) ? $batch['error'] : '';
+		$result = 'progress' === $error
+			? esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' )
+			: esc_html__( 'Failed!', 'bbpress' );
 		return array(
 			$batch['code'],
-			sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ),
+			sprintf( $statement, $result ),
 			'success'  => false,
-			'complete' => false
+			'complete' => false,
+			'error'    => $error,
 		);
 	}
 	return array(
 		0,
 		sprintf( $statement, bbp_admin_repair_tool_batch_message( $detail, $batch['complete'], $dry_run ) ),
 		'complete' => $batch['complete'],
-		'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0
+		'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0,
+		'error'    => '',
 	);
 }
 

@@ -247,7 +247,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option(), $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness_batch();
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertFalse( get_metadata_by_mid( 'post', $orphan ) );
 			$this->assertSame( 0, get_option( $this->option() )['orphan_cursor'] );
@@ -344,7 +345,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option(), $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness_batch();
-			$this->assertSame( 7, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $state, get_option( $this->option() ) );
 			$this->assertSame( array( (string) $ids[3] ), get_post_meta( $ids[2], '_bbp_last_reply_id', false ) );
 		} finally {
@@ -365,7 +367,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = bbp_admin_repair_freshness();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( $reported ? 'metadata-verify' : 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertNotFalse( get_option( $this->option(), false ) );
@@ -418,7 +421,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 					break;
 				}
 			}
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			if ( 'initial' === $point ) {
 				$this->assertSame( $before, $this->snapshot() );
@@ -449,7 +453,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 					break;
 				}
 			}
-			$this->assertSame( 5, $result['code'] );
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$state = get_option( $this->option() );
 			$node = get_option( $this->option() . '_tree_' . $state['token'] . '_' . $state['current'] );
@@ -613,7 +618,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->size = 1000;
 		bbp_admin_repair_freshness_batch();
 		$result = bbp_admin_repair_freshness_batch();
-		$this->assertSame( 6, $result['code'] );
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'source-invalid', $result['error'] );
 		$this->assertFalse( $result['complete'] );
 		$db->update( $db->posts, array( 'post_parent' => 0 ), array( 'ID' => $ids[0] ) );
 		clean_post_cache( $ids[0] );
@@ -666,7 +672,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertNotFalse( get_metadata_by_mid( 'post', $meta ) );

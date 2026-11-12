@@ -316,21 +316,22 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
 	}
 
 	$errors = array(
-		2  => esc_html__( 'Failed! Converted forums could not be read.', 'bbpress' ),
-		3  => esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ),
-		4  => esc_html__( 'Failed! BuddyPress groups could not be read.', 'bbpress' ),
-		5  => esc_html__( 'Failed! BuddyPress group metadata could not be updated.', 'bbpress' ),
-		6  => esc_html__( 'Failed! The group forums root could not be renamed.', 'bbpress' ),
-		7  => $batch['mapping_error'] ? esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) : esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ),
-		8  => esc_html__( 'Failed! Forum group metadata could not be updated.', 'bbpress' ),
-		9  => esc_html__( 'Failed! Forum visibility could not be updated.', 'bbpress' ),
-		10 => esc_html__( 'Failed! The group forums root setting could not be updated.', 'bbpress' ),
-		11 => esc_html__( 'Failed! Upgrade progress could not be saved or read.', 'bbpress' ),
-		13 => esc_html__( 'Failed! Legacy forum roles could not be removed.', 'bbpress' ),
-		12 => esc_html__( 'Failed! Group-forum mappings or saved progress could not be verified. Check the mappings and run the upgrade again.', 'bbpress' ),
+		'forums-read'       => esc_html__( 'Failed! Converted forums could not be read.', 'bbpress' ),
+		'groupmeta-read'     => esc_html__( 'Failed! BuddyPress group metadata could not be read.', 'bbpress' ),
+		'groups-read'        => esc_html__( 'Failed! BuddyPress groups could not be read.', 'bbpress' ),
+		'groupmeta-write'    => esc_html__( 'Failed! BuddyPress group metadata could not be updated.', 'bbpress' ),
+		'root-rename'        => esc_html__( 'Failed! The group forums root could not be renamed.', 'bbpress' ),
+		'ambiguous-mapping'  => $batch['mapping_error'] ? esc_html__( 'Failed! Ambiguous converted forum ID mappings were found.', 'bbpress' ) : esc_html__( 'Failed! Ambiguous BuddyPress group-forum relationships were found.', 'bbpress' ),
+		'forum-meta-write'   => esc_html__( 'Failed! Forum group metadata could not be updated.', 'bbpress' ),
+		'visibility'         => esc_html__( 'Failed! Forum visibility could not be updated.', 'bbpress' ),
+		'root-option'        => esc_html__( 'Failed! The group forums root setting could not be updated.', 'bbpress' ),
+		'progress'           => esc_html__( 'Failed! Upgrade progress could not be saved or read.', 'bbpress' ),
+		'verify'             => esc_html__( 'Failed! Group-forum mappings or saved progress could not be verified. Check the mappings and run the upgrade again.', 'bbpress' ),
+		'roles'              => esc_html__( 'Failed! Legacy forum roles could not be removed.', 'bbpress' ),
 	);
 	if ( $batch['code'] ) {
-		$result = $errors[ $batch['code'] ] . ( $dry_run ? '' : "\n" . $result );
+		$error  = isset( $errors[ $batch['error'] ] ) ? $errors[ $batch['error'] ] : esc_html__( 'Failed!', 'bbpress' );
+		$result = $error . ( $dry_run ? '' : "\n" . $result );
 	} elseif ( $batch['no_data'] ) {
 		$result = esc_html__( '0 converted group forums to upgrade.', 'bbpress' );
 	} elseif ( in_array( $batch['phase'], array( 'prepare', 'index', 'plan', 'verify' ), true ) ) {
@@ -342,6 +343,7 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
 		'success'  => ! $batch['code'],
 		'complete' => $batch['complete'],
 		'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0,
+		'error'    => $batch['error'],
 	);
 }
 

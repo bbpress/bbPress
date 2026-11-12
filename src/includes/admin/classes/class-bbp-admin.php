@@ -176,6 +176,7 @@ class BBP_Admin {
 	private function includes() {
 
 		// Classes
+		require $this->admin_dir . 'classes/class-bbp-admin-batch-worker.php';
 		require $this->admin_dir . 'classes/class-bbp-admin-group-forum-upgrade.php';
 		require $this->admin_dir . 'classes/class-bbp-admin-forum-repair.php';
 		require $this->admin_dir . 'classes/class-bbp-admin-forum-counts.php';

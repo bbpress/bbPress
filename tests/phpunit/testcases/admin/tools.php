@@ -1355,12 +1355,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_topic_count_dry_run();
-			$this->assertSame( 6, $dry_run[0] );
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertSame( 'source-invalid', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 
 			$run = bbp_admin_repair_forum_topic_count();
-			$this->assertSame( 6, $run[0] );
+			$this->assertSame( 2, $run[0] );
+			$this->assertSame( 'source-invalid', $run['error'] );
 			$this->assertFalse( $run['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 		} finally {
@@ -1390,12 +1392,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_topic_count_dry_run();
-			$this->assertSame( 6, $dry_run[0] );
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertSame( 'source-invalid', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 			$this->assertSame( '99', get_post_meta( $parent_id, '_bbp_topic_count', true ) );
 
 			$run = bbp_admin_repair_forum_topic_count();
-			$this->assertSame( 6, $run[0] );
+			$this->assertSame( 2, $run[0] );
+			$this->assertSame( 'source-invalid', $run['error'] );
 			$this->assertFalse( $run['success'] );
 			$this->assertSame( '99', get_post_meta( $parent_id, '_bbp_topic_count', true ) );
 		} finally {
@@ -1466,12 +1470,14 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $first_forum_id, '_bbp_topic_count', 99 );
 
 		$dry_run = bbp_admin_repair_forum_topic_count_dry_run();
-		$this->assertSame( 6, $dry_run[0] );
+		$this->assertSame( 2, $dry_run[0] );
+		$this->assertSame( 'source-invalid', $dry_run['error'] );
 		$this->assertFalse( $dry_run['success'] );
 		$this->assertSame( '99', get_post_meta( $first_forum_id, '_bbp_topic_count', true ) );
 
 		$run = bbp_admin_repair_forum_topic_count();
-		$this->assertSame( 6, $run[0] );
+		$this->assertSame( 2, $run[0] );
+		$this->assertSame( 'source-invalid', $run['error'] );
 		$this->assertFalse( $run['success'] );
 		$this->assertSame( '99', get_post_meta( $first_forum_id, '_bbp_topic_count', true ) );
 	}
@@ -1563,16 +1569,16 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
 		$query_filters = array(
-			3 => static function ( $query ) use ( $db ) {
+			'source-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT ID, post_parent, post_status" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			4 => static function ( $query ) use ( $db ) {
+			'count-rows-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT COUNT(*) FROM {$db->posts} WHERE post_parent" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			9 => static function ( $query ) use ( $db ) {
+			'public-topic-count-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "FROM {$db->posts} AS p" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			5 => static function ( $query ) use ( $db ) {
+			'forum-metadata-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT meta_id FROM {$db->postmeta}" ) || 0 === strpos( $query, 'SELECT post_id AS object_id, COUNT(*) AS row_count' ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
@@ -1580,17 +1586,19 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $forum_id, '_bbp_topic_count', 99 );
 
 		try {
-			foreach ( $query_filters as $code => $query_filter ) {
+			foreach ( $query_filters as $error => $query_filter ) {
 				add_filter( 'query', $query_filter );
 
 				$dry_run = bbp_admin_repair_forum_topic_count_dry_run();
-				$this->assertSame( $code, $dry_run[0] );
+				$this->assertSame( 2, $dry_run[0] );
+				$this->assertSame( $error, $dry_run['error'] );
 				$this->assertFalse( $dry_run['success'] );
 				$this->assertStringContainsString( 'Failed!', $dry_run[1] );
 				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 
 				$run = bbp_admin_repair_forum_topic_count();
-				$this->assertSame( $code, $run[0] );
+				$this->assertSame( 2, $run[0] );
+				$this->assertSame( $error, $run['error'] );
 				$this->assertFalse( $run['success'] );
 				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 
@@ -1620,7 +1628,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_topic_count();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 		} finally {
@@ -1650,7 +1659,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_topic_count();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 		} finally {
@@ -1682,7 +1692,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_topic_count();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_topic_count', true ) );
 		} finally {
@@ -2419,10 +2430,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 			try {
 				$dry_run = bbp_admin_repair_forum_hidden_reply_count_dry_run();
-				$this->assertSame( 6, $dry_run[0] );
+				$this->assertSame( 2, $dry_run[0] );
+				$this->assertSame( 'source-invalid', $dry_run['error'] );
 				$this->assertFalse( $dry_run['success'] );
 				$result = bbp_admin_repair_forum_hidden_reply_count();
-				$this->assertSame( 6, $result[0] );
+				$this->assertSame( 2, $result[0] );
+				$this->assertSame( 'source-invalid', $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertSame( '99', get_post_meta( $parent_id, '_bbp_reply_count_hidden', true ) );
 			} finally {
@@ -2433,7 +2446,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 1, $db->update( $db->posts, array( 'post_parent' => $parent_id ), array( 'ID' => $parent_id ) ) );
 		wp_cache_delete( $parent_id, 'posts' );
 		$dry_run = bbp_admin_repair_forum_hidden_reply_count_dry_run();
-		$this->assertSame( 6, $dry_run[0] );
+		$this->assertSame( 2, $dry_run[0] );
+		$this->assertSame( 'source-invalid', $dry_run['error'] );
 		$this->assertFalse( $dry_run['success'] );
 	}
 
@@ -2561,7 +2575,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 99, bbp_get_non_public_child_count( $forum_id, bbp_get_reply_post_type() ) );
 		} finally {
@@ -2584,13 +2599,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
 		$query_filters = array(
-			3 => static function ( $query ) use ( $db ) {
+			'source-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT ID, post_parent, post_status" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			4 => static function ( $query ) use ( $db ) {
+			'hidden-reply-metadata-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT meta_value FROM {$db->postmeta}" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			5 => static function ( $query ) use ( $db ) {
+			'hidden-reply-count-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "FROM {$db->posts} AS p" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
@@ -2599,14 +2614,16 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', 99 );
 
 		try {
-			foreach ( $query_filters as $code => $query_filter ) {
+			foreach ( $query_filters as $error => $query_filter ) {
 				add_filter( 'query', $query_filter );
 
 				$dry_run = bbp_admin_repair_forum_hidden_reply_count_dry_run();
-				$this->assertSame( $code, $dry_run[0] );
+				$this->assertSame( 2, $dry_run[0] );
+				$this->assertSame( $error, $dry_run['error'] );
 				$this->assertFalse( $dry_run['success'] );
 				$result = bbp_admin_repair_forum_hidden_reply_count();
-				$this->assertSame( $code, $result[0] );
+				$this->assertSame( 2, $result[0] );
+				$this->assertSame( $error, $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count_hidden', true ) );
 
@@ -2640,7 +2657,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count_hidden', true ) );
 		} finally {
@@ -2669,7 +2687,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count_hidden', true ) );
 		} finally {
@@ -2701,7 +2720,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_hidden_reply_count();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count_hidden', true ) );
 		} finally {
@@ -3235,11 +3255,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
-			$this->assertSame( 6, $dry_run[0] );
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertSame( 'source-invalid', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_reply_count();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'source-invalid', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $parent_id, '_bbp_reply_count', true ) );
 		} finally {
@@ -3264,11 +3286,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
-			$this->assertSame( 6, $dry_run[0] );
+			$this->assertSame( 2, $dry_run[0] );
+			$this->assertSame( 'source-invalid', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_reply_count();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'source-invalid', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 		} finally {
@@ -3291,11 +3315,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $forum_id, '_bbp_reply_count', 99 );
 
 		$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
-		$this->assertSame( 6, $dry_run[0] );
+		$this->assertSame( 2, $dry_run[0] );
+		$this->assertSame( 'source-invalid', $dry_run['error'] );
 		$this->assertFalse( $dry_run['success'] );
 
 		$result = bbp_admin_repair_forum_reply_count();
-		$this->assertSame( 6, $result[0] );
+		$this->assertSame( 2, $result[0] );
+		$this->assertSame( 'source-invalid', $result['error'] );
 		$this->assertFalse( $result['success'] );
 		$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 	}
@@ -3352,7 +3378,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_reply_count();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 99, bbp_get_forum_reply_count( $forum_id, true, true ) );
 		} finally {
@@ -3375,13 +3402,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$forum_id        = $this->factory->forum->create();
 		$old_suppression = $db->suppress_errors( true );
 		$query_filters = array(
-			3 => static function ( $query ) use ( $db ) {
+			'source-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT ID, post_parent, post_status" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			4 => static function ( $query ) use ( $db ) {
+			'count-rows-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT COUNT(*) FROM {$db->posts} AS replies" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
-			5 => static function ( $query ) use ( $db ) {
+			'forum-metadata-read' => static function ( $query ) use ( $db ) {
 				return ( false !== strpos( $query, "SELECT meta_value FROM {$db->postmeta}" ) ) ? 'SELECT * FROM bbp_missing_forum_count_source' : $query;
 			},
 		);
@@ -3390,15 +3417,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		update_post_meta( $forum_id, '_bbp_total_reply_count', 99 );
 
 		try {
-			foreach ( $query_filters as $code => $query_filter ) {
+			foreach ( $query_filters as $error => $query_filter ) {
 				add_filter( 'query', $query_filter );
 
 				$dry_run = bbp_admin_repair_forum_reply_count_dry_run();
-				$this->assertSame( $code, $dry_run[0] );
+				$this->assertSame( 2, $dry_run[0] );
+				$this->assertSame( $error, $dry_run['error'] );
 				$this->assertFalse( $dry_run['success'] );
 
 				$result = bbp_admin_repair_forum_reply_count();
-				$this->assertSame( $code, $result[0] );
+				$this->assertSame( 2, $result[0] );
+				$this->assertSame( $error, $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 
@@ -3432,7 +3461,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_reply_count();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 		} finally {
@@ -3461,7 +3491,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_reply_count();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 		} finally {
@@ -3493,7 +3524,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_reply_count();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '99', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
 		} finally {
@@ -5135,18 +5167,25 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	public function test_bbp_admin_repair_freshness_reports_read_errors() {
 		$db = bbp_db();
 		$topic = $this->factory->topic->create();
-		$points = array( 'SELECT MAX(ID)' => 3, 'SELECT MAX(meta_id)' => 5, 'SELECT ID FROM' => 3, 'SELECT MAX(ID) AS last_id' => 3 );
+		$points = array(
+			'SELECT MAX(ID)'            => 'source-read',
+			'SELECT MAX(meta_id)'       => 'metadata-read',
+			'SELECT ID FROM'            => 'source-read',
+			'SELECT MAX(ID) AS last_id' => 'source-read',
+		);
 		$suppression = $db->suppress_errors( true );
 		try {
-			foreach ( $points as $prefix => $code ) {
+			foreach ( $points as $prefix => $error ) {
 				$fail = static function ( $query ) use ( $prefix ) { return 0 === strpos( $query, $prefix ) ? 'SELECT * FROM bbp_missing_freshness_read' : $query; };
 				add_filter( 'query', $fail );
 				try {
 					$preview = bbp_admin_repair_freshness_dry_run();
-					$this->assertSame( $code, $preview[0] );
+					$this->assertSame( 2, $preview[0] );
+					$this->assertSame( $error, $preview['error'] );
 					$this->assertFalse( $preview['success'] );
 					$result = bbp_admin_repair_freshness();
-					$this->assertSame( $code, $result[0] );
+					$this->assertSame( 2, $result[0] );
+					$this->assertSame( $error, $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertFalse( $result['complete'] );
 				} finally {
@@ -5174,7 +5213,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 				add_filter( 'query', $fail );
 				try {
 					$result = bbp_admin_repair_freshness();
-					$this->assertSame( 5, $result[0] );
+					$this->assertSame( 2, $result[0] );
+					$this->assertSame( 'metadata-read', $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertContains( '999', get_post_meta( $topic, '_bbp_last_reply_id', false ) );
 				} finally {
@@ -5202,7 +5242,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( '999', get_post_meta( $post, '_bbp_last_reply_id', true ) );
 		} finally {
@@ -5226,7 +5267,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'delete_post_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$result = bbp_admin_repair_freshness();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertContains( '999', get_post_meta( $topic, '_bbp_last_reply_id', false ) );
 		} finally {
@@ -5256,7 +5298,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 					break;
 				}
 			}
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 		} finally {
 			remove_filter( 'query', $fail );

@@ -2841,15 +2841,7 @@ function bbp_admin_repair_freshness_process( $dry_run = false ) {
 	$batch     = bbp_admin_repair_freshness_batch( $dry_run );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( $batch['code'] ) {
-		$result = 7 === $batch['code']
-			? esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' )
-			: esc_html__( 'Failed!', 'bbpress' );
-		return array(
-			$batch['code'],
-			sprintf( $statement, $result ),
-			'success'  => false,
-			'complete' => false
-		);
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
 	if ( $batch['initial'] && $batch['complete'] && ! $batch['topics'] && ! $batch['forums'] && ! $batch['stale'] ) {
 		return array(

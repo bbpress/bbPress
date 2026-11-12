@@ -152,7 +152,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		}
 		$upper = (int) $this->db->get_var( "SELECT MAX(meta_id) FROM {$this->db->postmeta}" );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 5;
+			$this->fail( 'metadata-read' );
 			return false;
 		}
 		$state['orphan_cursor'] = 0;
@@ -162,7 +162,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			$slots  = implode( ', ', array_fill( 0, count( $this->meta_keys ), '%s' ) );
 			$exists = $this->db->get_var( $this->db->prepare( "SELECT meta_id FROM {$this->db->postmeta} WHERE meta_key IN ({$slots}) LIMIT 1", $this->meta_keys ) );
 			if ( ! empty( $this->db->last_error ) ) {
-				$this->code = 5;
+				$this->fail( 'metadata-read' );
 				return false;
 			}
 			if ( ! $exists ) {
@@ -196,7 +196,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		}
 		list( $read, $node ) = bbp_admin_repair_get_option( $this->topic_option( $id ) );
 		if ( ! $read ) {
-			$this->code = 7;
+			$this->fail( 'progress' );
 		}
 		return $node;
 	}
@@ -376,7 +376,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		if ( $this->context['topic'] === $post->post_type ) {
 			$reply = $this->db->get_row( $this->db->prepare( "SELECT MAX(ID) AS last_id, MAX(post_date) AS last_time FROM {$this->db->posts} WHERE post_parent = %d AND post_type = %s AND post_status = %s", $id, $this->context['reply'], $this->context['public'] ) );
 			if ( ! empty( $this->db->last_error ) || ! $reply ) {
-				$this->code = 3;
+				$this->fail( 'source-read' );
 				return $values;
 			}
 			$values['_bbp_last_reply_id']    = (int) $reply->last_id;
@@ -387,7 +387,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		if ( 'auto-draft' === $post->post_status ) {
 			$values['_bbp_last_topic_id'] = (int) $this->db->get_var( $this->db->prepare( "SELECT MAX(ID) FROM {$this->db->posts} WHERE post_parent = %d AND post_type = %s AND post_status = %s", $id, $this->context['topic'], $this->context['public'] ) );
 			if ( ! empty( $this->db->last_error ) ) {
-				$this->code = 3;
+				$this->fail( 'source-read' );
 			}
 			return $values;
 		}
@@ -414,14 +414,14 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			usort( $topics, array( $this, 'compare_topic_times' ) );
 		}
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 3;
+			$this->fail( 'source-read' );
 			return $values;
 		}
 		$values['_bbp_last_topic_id'] = empty( $topics ) ? 0 : (int) ( is_object( $topics[0] ) ? $topics[0]->ID : $topics[0] );
 		foreach ( array( '_bbp_last_reply_id', '_bbp_last_active_id' ) as $key ) {
 			$activity = bbp_forum_query_last_activity_id( $id );
 			if ( false === $activity || ! empty( $this->db->last_error ) ) {
-				$this->code = 3;
+				$this->fail( 'source-read' );
 				return $values;
 			}
 			$values[ $key ] = (int) $activity;
@@ -430,14 +430,14 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	/**
-	 * Return the repair error code for a metadata read failure.
+	 * Return the failure reason for a metadata read failure.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return int Repair error code.
+	 * @return string Semantic failure reason.
 	 */
 	protected function meta_error() {
-		return 5;
+		return 'metadata-read';
 	}
 
 	/**
@@ -472,7 +472,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		if ( $this->async && $id ) {
 			list( $read, $node ) = bbp_admin_repair_get_option( $this->topic_option( $id ) );
 			if ( ! $read ) {
-				$this->code = 7;
+				$this->fail( 'progress' );
 				return '';
 			}
 			if ( ! is_array( $node ) || ! isset( $node['kind'], $node['values']['_bbp_last_active_time'] ) || 'topics' !== $node['kind'] ) {
@@ -485,7 +485,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$time = $id ? get_post_meta( $id, '_bbp_last_active_time', true ) : '';
 		if ( ! empty( $this->db->last_error ) ) {
 			wp_cache_delete( $id, 'post_meta' );
-			$this->code = 5;
+			$this->fail( 'metadata-read' );
 			return '';
 		}
 		return empty( $time ) ? $this->post_date( $id, 'db' ) : (string) $time;
@@ -504,7 +504,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$date = $id ? get_post_field( 'post_date', $id, $context ) : '';
 		if ( ! empty( $this->db->last_error ) ) {
 			wp_cache_delete( $id, 'posts' );
-			$this->code = 3;
+			$this->fail( 'source-read' );
 		}
 		return (string) $date;
 	}
@@ -649,7 +649,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		);
 		$rows = $this->db->get_results( $query );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = 5;
+			$this->fail( 'metadata-read' );
 			return 1;
 		}
 		$work = 0;
@@ -658,7 +658,11 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 				if ( ! $this->dry_run ) {
 					$code = bbp_admin_repair_metadata_row( 'post', $row, $row->meta_key, null );
 					if ( $code ) {
-						$this->code = 1 === $code ? 5 : 1;
+						$this->fail(
+							1 === $code
+								? 'metadata-read'
+								: 'metadata-write'
+						);
 						return max( 1, $work );
 					}
 				}
@@ -687,7 +691,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		if ( 'preview-cleanup' === $this->state['phase'] ) {
 			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->topic_prefix(), $limit, false, $this->created_options, $this->inspected_options );
 			if ( ! $success ) {
-				$this->code = 7;
+				$this->fail( 'progress' );
 			}
 			return $work;
 		}
@@ -697,7 +701,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		if ( 'topics' === $this->state['phase'] && ! $this->state['current'] ) {
 			$id = (int) $this->db->get_var( $this->db->prepare( "SELECT ID FROM {$this->db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $this->context['topic'], $this->state['cursor'], $this->state['upper_id'] ) );
 			if ( ! empty( $this->db->last_error ) ) {
-				$this->code = 3;
+				$this->fail( 'source-read' );
 				return 1;
 			}
 			if ( ! $id ) {

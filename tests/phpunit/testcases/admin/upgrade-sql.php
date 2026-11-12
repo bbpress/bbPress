@@ -152,11 +152,13 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			$wpdb->posts = 'bbp_missing_group_forum_posts';
 			$result      = bbp_admin_upgrade_group_forum_relationships_dry_run();
 			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'forums-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
 			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'forums-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			$wpdb->posts = $old_posts;
@@ -179,12 +181,14 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'groupmeta-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'groupmeta-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			$wpdb->suppress_errors( $old_suppression );
@@ -207,12 +211,14 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'groups-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'groups-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			$wpdb->suppress_errors( $old_suppression );
@@ -248,7 +254,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			$this->assertSame( '42', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 7 ) ) );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'groupmeta-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( "0 groups updated.\n1 forum updated", $result[1] );
 			$this->assertSame( '42', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 7 ) ) );
@@ -287,7 +294,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'forum-meta-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( array( (string) $forum_ids[0], (string) $forum_ids[0] ), $wpdb->get_col( "SELECT meta_value FROM `{$this->groupmeta_table}` ORDER BY group_id" ) );
 			$this->assertSame( array( 7 ), get_post_meta( $forum_ids[0], '_bbp_group_ids', true ) );
@@ -332,7 +340,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_group_ids', false ) );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 8, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'forum-meta-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Forum group metadata could not be updated.', $result[1] );
 			$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_group_ids', false ) );
@@ -374,7 +383,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			$this->assertStringContainsString( '1 forum status would be synced', $dry_run[1] );
 
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 9, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'visibility', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Forum visibility could not be updated.', $result[1] );
 			$this->assertSame( bbp_get_public_status_id(), bbp_get_forum_visibility( $forum_id ) );
@@ -604,12 +614,12 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$wpdb->insert( $this->groupmeta_table, array( 'group_id' => 7, 'meta_key' => 'forum_id', 'meta_value' => '42' ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertStringContainsString( 'Ambiguous converted forum ID mappings', $result[1] );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertSame( '42', $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 7 ) ) );
 	}
@@ -684,12 +694,12 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$wpdb->insert( $this->groupmeta_table, array( 'group_id' => 7, 'meta_key' => 'forum_id', 'meta_value' => $native_forum_id ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertStringContainsString( 'Ambiguous converted forum ID mappings', $result[1] );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertSame( (string) $native_forum_id, $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM `{$this->groupmeta_table}` WHERE group_id = %d", 7 ) ) );
 		$this->assertSame( array(), get_post_meta( $converted_forum_id, '_bbp_group_ids', false ) );
@@ -711,12 +721,12 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$wpdb->insert( $this->groupmeta_table, array( 'group_id' => 9, 'meta_key' => 'forum_id', 'meta_value' => '42' ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertStringContainsString( 'Ambiguous BuddyPress group-forum relationships', $result[1] );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertSame( array( '42', '42' ), $wpdb->get_col( "SELECT meta_value FROM `{$this->groupmeta_table}` ORDER BY group_id" ) );
 		$this->assertSame( array(), get_post_meta( $forum_id, '_bbp_group_ids', false ) );
@@ -741,11 +751,11 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$wpdb->insert( $this->groupmeta_table, array( 'group_id' => 11, 'meta_key' => 'forum_id', 'meta_value' => '84' ) );
 
 		$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 
 		$result = bbp_admin_upgrade_group_forum_relationships();
-		$this->assertSame( 7, $result[0] );
+		$this->assertSame( 2, $result[0] );
 		$this->assertFalse( $result['success'] );
 		$this->assertSame( array( '42', '84', '84' ), $wpdb->get_col( "SELECT meta_value FROM `{$this->groupmeta_table}` ORDER BY group_id" ) );
 		$this->assertSame( array(), get_post_meta( $forum_ids[0], '_bbp_group_ids', false ) );
@@ -814,7 +824,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_group_forum_relationships();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( 2, $result[0] );
+			$this->assertSame( 'root-rename', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'The group forums root could not be renamed.', $result[1] );
 			$this->assertSame( 'Default Forum', get_post( $forum_id )->post_title );
@@ -855,7 +866,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 
 			try {
 				$result = bbp_admin_upgrade_group_forum_relationships();
-				$this->assertSame( 10, $result[0] );
+				$this->assertSame( 2, $result[0] );
+				$this->assertSame( 'root-option', $result['error'] );
 				$this->assertFalse( $result['success'] );
 				$this->assertStringContainsString( 'The group forums root setting could not be updated.', $result[1] );
 				$this->assertSame( 'Group Forums', get_post( $forum_id )->post_title );
@@ -1002,6 +1014,47 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->assertSame( $before, $this->snapshot() );
 	}
 
+	/** @dataProvider malformed_preview_states */
+	public function test_browser_dry_run_restarts_a_malformed_preview_checkpoint( $field ) {
+		$this->fixture();
+		$this->size = 1;
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'malformed-group-forum-preview' );
+		$checkpoint = $this->checkpoint();
+		try {
+			$this->run_batch( true );
+			$state = get_option( $checkpoint );
+			$this->assertIsArray( $state['_preview_state'] );
+			if ( 'roles' === $field ) {
+				$state['_preview_state']['totals']['roles'] = array( array( 'member' ) );
+			} else {
+				$state['_preview_state'] = 'invalid';
+			}
+			update_option( $checkpoint, $state );
+
+			$this->size = 1000;
+			$restarted = false;
+			for ( $i = 0; $i < 20; ++$i ) {
+				$result = $this->run_batch( true );
+				$restarted = $restarted || $result['restarted'];
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $restarted );
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( get_option( $checkpoint, false ) );
+	}
+
+	public function malformed_preview_states() {
+		return array( array( 'state' ), array( 'roles' ) );
+	}
+
 	public function current_id_formats() {
 		return array( array( 'zeros', false ), array( 'zeros', true ), array( 'spaces', false ), array( 'spaces', true ) );
 	}
@@ -1050,7 +1103,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 				break;
 			}
 		}
-		$this->assertSame( 7, $result['code'] );
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'ambiguous-mapping', $result['error'] );
 		$this->assertFalse( $result['complete'] );
 	}
 
@@ -1060,7 +1114,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->until_phase( 'apply' );
 		update_post_meta( $forums[0], '_bbp_group_ids', array( 99 ) );
 		$result = $this->run_batch();
-		$this->assertSame( 12, $result['code'] );
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( array( 99 ), get_post_meta( $forums[0], '_bbp_group_ids', true ) );
 		$this->assertSame( 'legacy-0', bbp_db()->get_var( "SELECT meta_value FROM {$this->groupmeta_table} WHERE group_id = 7" ) );
 	}
@@ -1072,7 +1127,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$reject = static function ( $value, $old ) { return $old; };
 		add_filter( 'pre_update_option_' . $this->checkpoint(), $reject, 10, 2 );
 		try {
-			$this->assertSame( 11, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 		} finally {
 			remove_filter( 'pre_update_option_' . $this->checkpoint(), $reject, 10 );
 		}
@@ -1124,7 +1181,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$hook   = 'pre_update_option_' . wp_roles()->role_key;
 		add_filter( $hook, $reject, 10, 2 );
 		try {
-			$this->assertSame( 13, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'roles', $result['error'] );
 			$this->assertNotNull( get_role( 'member' ) );
 		} finally {
 			remove_filter( $hook, $reject, 10 );
@@ -1154,7 +1213,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->size = 1;
 		$this->until_phase( 'plan' );
 		update_post_meta( $forums[0], '_bbp_old_forum_id', 'different' );
-		$this->assertSame( 12, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		$this->size = 1000;
 		$this->assertTrue( $this->run_batch()['complete'] );
@@ -1166,7 +1227,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$state      = $this->until_phase( 'apply' );
 		$name       = $this->checkpoint() . '_groups_' . $state['token'] . '_forum_' . $forums[0];
 		delete_option( $name );
-		$this->assertSame( 12, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		$this->size = 1000;
 		$this->assertTrue( $this->run_batch()['complete'] );
@@ -1181,7 +1244,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		wp_cache_set( 7, array( 'forum_id' => array( 'legacy-0' ) ), 'group_meta' );
 		add_filter( 'query', $reject );
 		try {
-			$this->assertSame( 5, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'groupmeta-write', $result['error'] );
 			$this->assertSame( 'legacy-0', $db->get_var( "SELECT meta_value FROM {$this->groupmeta_table} WHERE group_id = 7" ) );
 			$this->assertFalse( wp_cache_get( 7, 'group_meta' ) );
 		} finally {
@@ -1198,7 +1263,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		};
 		add_filter( 'update_post_metadata', $reject, 10, 3 );
 		try {
-			$this->assertSame( 8, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'forum-meta-write', $result['error'] );
 			$this->assertSame( 'legacy-0', bbp_db()->get_var( "SELECT meta_value FROM {$this->groupmeta_table} WHERE group_id = 7" ) );
 			$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		} finally {
@@ -1221,7 +1288,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		};
 		add_filter( 'pre_update_option', $reject_update, 10, 3 );
 		try {
-			$this->assertSame( 11, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $before, get_option( $this->checkpoint() ) );
 		} finally {
 			remove_filter( 'pre_add_option', $reject, 10 );
@@ -1245,14 +1314,17 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$forums = $this->fixture();
 		update_post_meta( $forums[0], '_bbp_group_ids', array( new stdClass() ) );
 		$result = $this->invoke_without_errors( function () { return $this->run_batch(); } );
-		$this->assertSame( 12, $result['code'] );
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( 'legacy-0', bbp_db()->get_var( "SELECT meta_value FROM {$this->groupmeta_table} WHERE group_id = 7" ) );
 	}
 
 	public function test_mixed_legacy_and_modern_group_values_fail_during_preflight() {
 		$forums = $this->fixture();
 		bbp_db()->insert( $this->groupmeta_table, array( 'group_id' => 8, 'meta_key' => 'forum_id', 'meta_value' => serialize( array( 99, 100 ) ) ) );
-		$this->assertSame( 7, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'ambiguous-mapping', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 	}
 
@@ -1265,7 +1337,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$suppressed = $db->suppress_errors( true );
 		add_filter( 'query', $reject );
 		try {
-			$this->assertSame( 2, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'forums-read', $result['error'] );
 			$this->assertFalse( get_option( $this->checkpoint(), false ) );
 		} finally {
 			remove_filter( 'query', $reject );
@@ -1281,7 +1355,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->size = 1;
 		$this->until_phase( 'apply' );
 		add_post_meta( $forums[0], '_bbp_group_ids', array( 8, 9 ) );
-		$this->assertSame( 7, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'ambiguous-mapping', $result['error'] );
 		$this->assertSame( array( array( 99 ), array( 8, 9 ) ), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		$this->assertSame( 'legacy-0', bbp_db()->get_var( "SELECT meta_value FROM {$this->groupmeta_table} WHERE group_id = 7" ) );
 	}
@@ -1291,7 +1367,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->size = 1;
 		$this->until_phase( 'apply' );
 		bbp_db()->insert( $this->groupmeta_table, array( 'group_id' => 7, 'meta_key' => 'forum_id', 'meta_value' => serialize( array( 222, 333 ) ) ) );
-		$this->assertSame( 7, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'ambiguous-mapping', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		$this->assertSame( array( 'legacy-0', serialize( array( 222, 333 ) ) ), bbp_db()->get_col( "SELECT meta_value FROM {$this->groupmeta_table} WHERE group_id = 7" ) );
 	}
@@ -1324,7 +1402,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			}
 			$this->assertFalse( $result['complete'] );
 		}
-		$this->assertSame( 'deleted' === $when ? 12 : 7, $result['code'] );
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'deleted' === $when ? 'verify' : 'ambiguous-mapping', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 	}
 
@@ -1344,9 +1423,13 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 			bbp_db()->insert( $this->groupmeta_table, array( 'group_id' => 7, 'meta_key' => 'forum_id', 'meta_value' => $identical ? 'legacy-0' : (string) $forums[0] ) );
 		}
 		$before = $this->snapshot();
-		$this->assertSame( 7, $this->run_batch( true )['code'] );
+		$preview = $this->run_batch( true );
+		$this->assertSame( 2, $preview['code'] );
+		$this->assertSame( 'ambiguous-mapping', $preview['error'] );
 		$this->assertSame( $before, $this->snapshot() );
-		$this->assertSame( 7, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'ambiguous-mapping', $result['error'] );
 		$after = $this->snapshot();
 		foreach ( array( 0, 1, 3 ) as $key ) {
 			$this->assertSame( $before[ $key ], $after[ $key ] );
@@ -1362,7 +1445,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$forums = $this->fixture();
 		update_post_meta( $forums[0], '_bbp_group_ids', $value );
 		$stored = get_post_meta( $forums[0], '_bbp_group_ids', true );
-		$this->assertSame( 12, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( $stored, get_post_meta( $forums[0], '_bbp_group_ids', true ) );
 	}
 
@@ -1391,7 +1476,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$mask = static function () use ( $forums ) { return array( $forums[0] ); };
 		add_filter( 'pre_option__bbp_hidden_forums', $mask );
 		try {
-			$this->assertSame( 9, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'visibility', $result['error'] );
 		} finally {
 			remove_filter( 'pre_option__bbp_hidden_forums', $mask );
 		}
@@ -1404,7 +1491,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		foreach ( $forums as $id ) {
 			update_post_meta( $id, '_bbp_old_forum_id', 1 );
 		}
-		$this->assertSame( 7, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'ambiguous-mapping', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		$this->assertFalse( get_option( '_bbp_group_forums_root_id', false ) );
 	}
@@ -1421,7 +1510,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		};
 		add_filter( 'wp_insert_post_data', $reject, 10, 2 );
 		try {
-			$this->assertSame( 6, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'root-rename', $result['error'] );
 			$this->assertFalse( get_option( '_bbp_group_forums_root_id', false ) );
 			$this->assertNotNull( get_role( 'member' ) );
 		} finally {
@@ -1458,7 +1549,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->size = 1;
 		$this->until_phase( 'root' );
 		wp_update_post( array( 'ID' => $id, 'post_title' => 'Custom group root' ) );
-		$this->assertSame( 12, $this->run_batch()['code'] );
+		$result = $this->run_batch();
+		$this->assertSame( 2, $result['code'] );
+		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( 'Custom group root', get_post_field( 'post_title', $id ) );
 		$this->size = 1000;
 		$this->assertTrue( $this->run_batch()['complete'] );
@@ -1476,7 +1569,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		};
 		add_filter( 'wp_insert_post_data', $transform, 10, 2 );
 		try {
-			$this->assertSame( 6, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'root-rename', $result['error'] );
 			$this->assertFalse( get_option( '_bbp_group_forums_root_id', false ) );
 		} finally {
 			remove_filter( 'wp_insert_post_data', $transform, 10 );
@@ -1492,7 +1587,9 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$reject = static function ( $value, $old ) { return $old; };
 		add_filter( 'pre_update_option__bbp_group_forums_root_id', $reject, 10, 2 );
 		try {
-			$this->assertSame( 10, $this->run_batch()['code'] );
+			$result = $this->run_batch();
+			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( 'root-option', $result['error'] );
 			$this->assertSame( 'group-forums-2', get_post_field( 'post_name', $id ) );
 		} finally {
 			remove_filter( 'pre_update_option__bbp_group_forums_root_id', $reject, 10 );

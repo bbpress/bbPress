@@ -69,7 +69,10 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 				'forum_ids'    => array_values( $this->status_forum_ids ),
 				'repair_count' => $result['repaired']
 			)
-			: array( 'code' => $result['code'] );
+			: array(
+				'code'  => $result['code'],
+				'error' => $result['error'],
+			);
 	}
 
 	/**
@@ -94,7 +97,11 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		$query = apply_filters( 'bbp_get_child_counts_query', $query, $id, $this->context['forum'] );
 		$rows  = $this->db->get_results( $query, ARRAY_A );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = $hidden ? 5 : 9;
+			$this->fail(
+				$hidden
+					? 'hidden-reply-count-read'
+					: 'public-topic-count-read'
+			);
 			return 0;
 		}
 		$counts = wp_list_pluck( $rows, 'type', 'type' );
@@ -131,18 +138,18 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		if ( 'topics' === $this->type ) {
 			$public = $this->child_count( $id, $this->context['topic'], $this->context['topics'], false );
 			$hidden = 0;
-			if ( ! $this->code && ! empty( $this->context['hidden'] ) ) {
+			if ( ! $this->error && ! empty( $this->context['hidden'] ) ) {
 				$slots  = implode( ', ', array_fill( 0, count( $this->context['hidden'] ), '%s' ) );
 				$hidden = (int) $this->db->get_var( $this->db->prepare( "SELECT COUNT(*) FROM {$this->db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$slots})", array_merge( array( $id, $this->context['topic'] ), $this->context['hidden'] ) ) );
 				if ( ! empty( $this->db->last_error ) ) {
-					$this->code = 4;
+					$this->fail( 'count-rows-read' );
 				}
 			}
 			return array_combine( $this->meta_keys, array( $public, $public, $hidden, $hidden ) );
 		}
 		$forum_type = $this->db->get_var( $this->db->prepare( "SELECT meta_value FROM {$this->db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_forum_type' ORDER BY meta_id LIMIT 1", $id ) );
 		if ( ! empty( $this->db->last_error ) ) {
-			$this->code = $this->meta_error();
+			$this->fail( $this->meta_error() );
 			return array();
 		}
 		$forum_type = maybe_unserialize( $forum_type );
@@ -162,7 +169,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 				);
 				$count = bbp_number_not_negative( $this->db->get_var( $query ) );
 				if ( ! empty( $this->db->last_error ) ) {
-					$this->code = 4;
+					$this->fail( 'count-rows-read' );
 				}
 			}
 		}
@@ -219,7 +226,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		}
 		if ( ! $this->status_only && $node['counted'] ) {
 			$direct = $this->values( $node['id'], null );
-			if ( $this->code ) {
+			if ( $this->error ) {
 				return false;
 			}
 			if ( $direct !== $node['direct'] ) {
@@ -231,14 +238,16 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	}
 
 	/**
-	 * Return the error code for a metadata read failure.
+	 * Return the failure reason for a metadata read failure.
 	 *
 	 * @since 2.7.0 bbPress (r8284)
 	 *
-	 * @return int Repair error code.
+	 * @return string Semantic failure reason.
 	 */
 	protected function meta_error() {
-		return ( 'hidden-replies' === $this->type ) ? 4 : 5;
+		return ( 'hidden-replies' === $this->type )
+			? 'hidden-reply-metadata-read'
+			: 'forum-metadata-read';
 	}
 
 	/**
