@@ -275,6 +275,24 @@ class BBP_Tests_Core_Template_Loader extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_theme_compat_template_hierarchy
+	 * @ticket 3487
+	 */
+	public function test_theme_compat_template_hierarchy_is_filterable() {
+		$filter = function() {
+			return array( 'custom-bbpress.php' );
+		};
+
+		add_filter( 'bbp_get_theme_compat_template_hierarchy', $filter );
+
+		try {
+			$this->assertSame( array( 'custom-bbpress.php' ), bbp_get_theme_compat_template_hierarchy() );
+		} finally {
+			remove_filter( 'bbp_get_theme_compat_template_hierarchy', $filter );
+		}
+	}
+
+	/**
 	 * Template getter cases.
 	 *
 	 * @return array[] Template getter cases.

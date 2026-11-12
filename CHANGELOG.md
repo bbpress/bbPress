@@ -157,6 +157,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented Block Themes from rendering archive excerpts or original post
+  content in place of bbPress theme-compatibility screens.
 - Make repair and upgrade Dry Runs preview complete operations and estimate batch
   counts without changing data or saved Run progress.
 - Kept toolbar hover backgrounds square with bbPress admin color schemes on
