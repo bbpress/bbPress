@@ -1199,22 +1199,6 @@ function bbp_admin_repair_tool_is_async_dry_run() {
 }
 
 /**
- * Return whether a Dry Run should continue through every virtual batch now.
- *
- * Direct callback calls retain the synchronous full-preview contract. Browser
- * Dry Runs return after one bounded request and resume from isolated state.
- *
- * @since 2.7.0 bbPress (r8331)
- * @access private
- *
- * @param bool $dry_run Whether this is a Dry Run.
- * @return bool
- */
-function bbp_admin_repair_tool_continue_preview( $dry_run = false ) {
-	return $dry_run && ! bbp_admin_repair_tool_is_async_dry_run();
-}
-
-/**
  * Create the common result fields for one procedural worker batch.
  *
  * @since 2.7.0 bbPress (r8339)
@@ -1313,7 +1297,7 @@ function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete
  * @return bool
  */
 function bbp_admin_repair_tool_batch_continue( $batch, $dry_run = false ) {
-	return bbp_admin_repair_tool_continue_preview( $dry_run ) && empty( $batch['code'] ) && empty( $batch['complete'] );
+	return $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() && empty( $batch['code'] ) && empty( $batch['complete'] );
 }
 
 /**

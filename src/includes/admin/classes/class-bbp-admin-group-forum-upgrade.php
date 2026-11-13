@@ -160,10 +160,11 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 			$this->batches       = $preview_totals['batches'];
 			$this->mapping_error = ! empty( $data['mapping_error'] );
 		}
-		$size = bbp_admin_repair_tool_batch_size( $this->tool_id );
-		$work = 0;
-		while ( ! $this->error && ! $complete && ( bbp_admin_repair_tool_continue_preview( $this->dry_run ) || $work < $size ) ) {
-			$remaining = bbp_admin_repair_tool_continue_preview( $this->dry_run ) ? $size - ( $work % $size ) : $size - $work;
+		$size         = bbp_admin_repair_tool_batch_size( $this->tool_id );
+		$full_preview = $this->dry_run && ! $this->async;
+		$work         = 0;
+		while ( ! $this->error && ! $complete && ( $full_preview || $work < $size ) ) {
+			$remaining = $full_preview ? $size - ( $work % $size ) : $size - $work;
 			$work     += $this->step( $remaining, $complete );
 		}
 		if ( $this->async && $work ) {

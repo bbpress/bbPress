@@ -77,8 +77,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			'public'    => bbp_get_public_status_id(),
 			'forums'    => bbp_get_string_array_values( bbp_get_countable_forum_statuses() ),
 			'topics'    => bbp_get_string_array_values( bbp_get_public_topic_statuses() ),
-			'filtered'  => false !== has_filter( 'bbp_forum_query_subforum_ids' ),
-			'aggregate' => 1
+			'filtered' => false !== has_filter( 'bbp_forum_query_subforum_ids' )
 		);
 	}
 
