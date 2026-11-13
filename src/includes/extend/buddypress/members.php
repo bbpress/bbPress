@@ -334,13 +334,13 @@ class BBP_BuddyPress_Members {
 		// Default URL value
 		$url = array();
 
-		// BuddyPress < 12.0 (deprecated code is intentionally included)
-		if ( function_exists( 'bp_core_get_user_domain' ) ) {
-			$url = array( bp_core_get_user_domain( $user_id ) );
-
-		// BuddyPress > 12.0 (rewrite rules)
-		} elseif ( function_exists( 'bp_members_get_user_url' ) ) {
+		// BuddyPress 12.0 and newer (rewrite rules)
+		if ( function_exists( 'bp_members_get_user_url' ) ) {
 			$url = array( bp_members_get_user_url( $user_id ) );
+
+		// BuddyPress before 12.0 (deprecated code is intentionally included)
+		} elseif ( function_exists( 'bp_core_get_user_domain' ) ) {
+			$url = array( bp_core_get_user_domain( $user_id ) );
 		}
 
 		// Maybe push slug to end of URL array

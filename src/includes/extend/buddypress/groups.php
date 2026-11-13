@@ -1983,13 +1983,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Default return value
 		$retval = '';
 
-		// BuddyPress < 12.0 (deprecated code is intentionally included)
-		if ( function_exists( 'bp_get_group_permalink' ) ) {
-			$retval = bp_get_group_permalink( $group_id );
-
-		// BuddyPress > 12.0 (rewrite rules)
-		} elseif ( function_exists( 'bp_get_group_url' ) ) {
+		// BuddyPress 12.0 and newer (rewrite rules)
+		if ( function_exists( 'bp_get_group_url' ) ) {
 			$retval = bp_get_group_url( $group_id );
+
+		// BuddyPress before 12.0 (deprecated code is intentionally included)
+		} elseif ( function_exists( 'bp_get_group_permalink' ) ) {
+			$retval = bp_get_group_permalink( $group_id );
 		}
 
 		// Return
