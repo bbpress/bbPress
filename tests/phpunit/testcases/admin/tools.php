@@ -1162,7 +1162,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_dry_run_is_read_only() {
@@ -1227,7 +1226,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_handles_recursive_totals_and_malformed_rows() {
@@ -1270,7 +1268,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_removes_rows_from_uncountable_forums() {
@@ -1300,7 +1297,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_preserves_count_filters() {
@@ -1339,7 +1335,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_reports_filtered_non_forum_ids() {
@@ -1373,7 +1368,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_reports_filtered_cycles() {
@@ -1410,7 +1404,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_preserves_filtered_duplicate_subforums() {
@@ -1455,7 +1448,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_reports_database_cycles() {
@@ -1485,7 +1477,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_invalidates_stale_child_count_caches() {
@@ -1513,7 +1504,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_preserves_nested_total_filters() {
@@ -1561,7 +1551,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_reports_read_errors_without_writes() {
@@ -1674,7 +1663,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_reports_update_errors_and_can_retry() {
@@ -1708,7 +1696,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_topic_count_process
 	 */
 	public function test_bbp_admin_repair_forum_topic_count_reports_no_data() {
@@ -2081,7 +2068,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count() {
@@ -2132,7 +2118,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_dry_run_is_read_only_and_repairs_malformed_rows() {
@@ -2171,7 +2156,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_uses_first_unserialized_forum_type() {
@@ -2197,7 +2181,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_preserves_child_count_filters() {
@@ -2253,7 +2236,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_preserves_empty_status_filter_behavior() {
@@ -2281,7 +2263,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_preserves_recursive_count_filters() {
@@ -2310,7 +2291,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_preserves_forum_type_filters() {
@@ -2344,7 +2324,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_uses_filtered_child_id_for_recursive_count_filter() {
@@ -2382,7 +2361,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_preserves_filtered_child_order() {
@@ -2413,7 +2391,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_reports_invalid_hierarchies() {
@@ -2460,7 +2437,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_removes_rows_from_uncountable_forums() {
@@ -2482,7 +2458,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_uses_database_status_collation() {
@@ -2511,10 +2486,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @covers ::bbp_admin_repair_forum_topic_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_topic_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 */
 	public function test_forum_topic_and_reply_count_dry_runs_use_database_status_collation() {
 		$db        = bbp_db();
@@ -2555,7 +2528,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_run_clears_stale_caches_when_database_matches() {
@@ -2597,7 +2569,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_reports_read_errors_without_writes() {
@@ -2707,7 +2678,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_reports_update_errors_and_can_retry() {
@@ -2742,7 +2712,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_hidden_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_hidden_reply_count_reports_no_data() {
@@ -2758,7 +2727,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count() {
@@ -2895,7 +2863,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_dry_run_is_read_only_and_repairs_malformed_rows() {
@@ -2959,7 +2926,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_preserves_number_not_negative_filter() {
@@ -2990,7 +2956,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_uses_first_unserialized_forum_type() {
@@ -3019,7 +2984,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_excludes_non_public_replies_and_topics() {
@@ -3045,7 +3009,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_preserves_recursive_count_filters() {
@@ -3076,7 +3039,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_preserves_forum_type_filters() {
@@ -3112,7 +3074,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_preserves_filtered_forum_ids() {
@@ -3144,7 +3105,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_uses_filtered_child_id_for_recursive_count_filter() {
@@ -3182,7 +3142,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_preserves_filtered_child_order() {
@@ -3213,7 +3172,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_handles_empty_public_statuses() {
@@ -3246,7 +3204,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_reports_filtered_cycles() {
@@ -3278,7 +3235,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_reports_filtered_non_forum_ids() {
@@ -3309,7 +3265,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_reports_database_cycles() {
@@ -3335,7 +3290,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_removes_rows_from_uncountable_forums() {
@@ -3359,7 +3313,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_run_clears_stale_cache_when_database_matches() {
@@ -3400,7 +3353,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_reports_read_errors_without_writes() {
@@ -3511,7 +3463,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_reports_update_errors_and_can_retry() {
@@ -3546,7 +3497,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
 	 * @covers ::bbp_admin_repair_forum_reply_count_dry_run
-	 * @covers ::bbp_admin_repair_forum_reply_count_get_status
 	 * @covers ::bbp_admin_repair_forum_reply_count_process
 	 */
 	public function test_bbp_admin_repair_forum_reply_count_reports_no_data() {

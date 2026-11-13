@@ -90,18 +90,6 @@ function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 }
 
 /**
- * Output the URL for a specific repair tool action.
- *
- * @since 2.7.0 bbPress (r8218)
- *
- * @param array  $component Repair tool registration.
- * @param string $action    Repair tool action.
- */
-function bbp_admin_repair_tool_action_url( $component = array(), $action = 'run' ) {
-	echo esc_url( bbp_get_admin_repair_tool_action_url( $component, $action ) );
-}
-
-/**
  * Return the URL for a specific repair tool action.
  *
  * @since 2.7.0 bbPress (r8218)
@@ -255,7 +243,7 @@ function bbp_get_admin_repair_tool_actions( $tools = array() ) {
 		$actions = array_merge( $actions, array_keys( bbp_get_admin_repair_tool_callbacks( $tool ) ) );
 	}
 
-	return array_values( array_unique( $actions ) );
+	return bbp_get_unique_array_values( $actions );
 }
 
 /**

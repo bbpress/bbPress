@@ -156,10 +156,6 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertSame( 'dry-run', $query['action'] );
 
 		ob_start();
-		bbp_admin_repair_tool_action_url( $component, 'dry-run' );
-		$this->assertSame( esc_url( $url ), ob_get_clean() );
-
-		ob_start();
 		bbp_admin_repair_tool_run_url( $component );
 		$this->assertSame( esc_url( $repair_url ), ob_get_clean() );
 

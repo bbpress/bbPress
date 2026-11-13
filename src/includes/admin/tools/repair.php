@@ -950,19 +950,6 @@ function bbp_admin_repair_forum_count_batch( $type = 'topics', $dry_run = false 
 }
 
 /**
- * Preserve whole-site status checks without writing state or metadata.
- *
- * @since 2.7.0 bbPress (r8284)
- *
- * @param string $type Count type.
- * @return array Status code, countable forum IDs, and repair count.
- */
-function bbp_admin_repair_forum_count_get_status( $type = 'topics' ) {
-	$worker = new BBP_Admin_Forum_Counts( $type, true );
-	return $worker->get_status();
-}
-
-/**
  * Format a shared forum recount batch result.
  *
  * @since 2.7.0 bbPress (r8284)
@@ -1049,21 +1036,6 @@ function bbp_admin_repair_forum_topic_count_dry_run() {
 }
 
 /**
- * Compare calculated forum topic counts with their stored metadata.
- *
- * This helper reads directly from the database so Dry Run does not populate or
- * invalidate persistent object caches.
- *
- * @since 2.7.0 bbPress (r8242)
- * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
- *
- * @return array Status code, countable forum IDs, and number of forums to repair.
- */
-function bbp_admin_repair_forum_topic_count_get_status() {
-	return bbp_admin_repair_forum_count_get_status( 'topics' );
-}
-
-/**
  * Repair or preview repairing forum topic counts.
  *
  * @since 2.7.0 bbPress (r8242)
@@ -1114,7 +1086,7 @@ function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
 	$bbp_db    = bbp_db();
 	$fpt       = bbp_get_forum_post_type();
 	$eligible  = array_keys( get_post_stati() );
-	$countable = array_values( array_unique( array_filter( bbp_get_countable_forum_statuses() ) ) );
+	$countable = bbp_get_unique_array_values( bbp_get_countable_forum_statuses() );
 	$statuses  = implode( ', ', array_fill( 0, count( $eligible ), '%s' ) );
 	$children  = ! empty( $countable )
 		? 'AND `children`.`post_status` IN (' . implode( ', ', array_fill( 0, count( $countable ), '%s' ) ) . ')'
@@ -1364,14 +1336,14 @@ function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_
 	$bbp_db          = bbp_db();
 	$tax_id          = $taxonomy->name;
 	$object_types    = (array) $taxonomy->object_type;
-	$object_statuses = array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) );
+	$object_statuses = bbp_get_unique_array_values( bbp_get_public_topic_statuses() );
 
 	foreach ( $object_types as &$object_type ) {
 		list( $object_type ) = explode( ':', $object_type );
 	}
 	unset( $object_type );
 
-	$object_types = array_values( array_unique( array_filter( $object_types, 'post_type_exists' ) ) );
+	$object_types = bbp_get_unique_array_values( array_filter( $object_types, 'post_type_exists' ) );
 	$type_sql     = 'AND 1 = 0';
 	$type_args    = array();
 
@@ -1656,21 +1628,6 @@ function bbp_admin_repair_forum_reply_count_dry_run() {
 }
 
 /**
- * Compare calculated forum reply counts with their stored metadata.
- *
- * This helper reads directly from the database so Dry Run does not populate or
- * invalidate persistent object caches.
- *
- * @since 2.7.0 bbPress (r8245)
- * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
- *
- * @return array Status code, countable forum IDs, and number of forums to repair.
- */
-function bbp_admin_repair_forum_reply_count_get_status() {
-	return bbp_admin_repair_forum_count_get_status( 'replies' );
-}
-
-/**
  * Repair or preview repairing forum reply counts.
  *
  * @since 2.7.0 bbPress (r8245)
@@ -1707,21 +1664,6 @@ function bbp_admin_repair_forum_hidden_reply_count() {
  */
 function bbp_admin_repair_forum_hidden_reply_count_dry_run() {
 	return bbp_admin_repair_forum_hidden_reply_count_process( true );
-}
-
-/**
- * Compare calculated non-public forum reply counts with stored metadata.
- *
- * This helper reads directly from the database so Dry Run does not populate or
- * invalidate persistent object caches.
- *
- * @since 2.7.0 bbPress (r8246)
- * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
- *
- * @return array Status code, countable forum IDs, and number of forums to repair.
- */
-function bbp_admin_repair_forum_hidden_reply_count_get_status() {
-	return bbp_admin_repair_forum_count_get_status( 'hidden-replies' );
 }
 
 /**
@@ -3236,7 +3178,7 @@ function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context
 	}
 	if ( isset( $state['_preview_state'] ) ) {
 		$evaluated = $state['_preview_state']['data']['evaluated'];
-		if ( array_values( array_unique( $evaluated ) ) !== $evaluated || array_diff( $evaluated, array( 'private', 'hidden' ) ) ) {
+		if ( bbp_get_unique_array_values( $evaluated ) !== $evaluated || array_diff( $evaluated, array( 'private', 'hidden' ) ) ) {
 			return false;
 		}
 	}
@@ -3357,7 +3299,7 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
 	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
 	if ( isset( $preview_state['evaluated'] ) ) {
-		$batch['evaluated'] = array_values( array_unique( array_merge( $batch['evaluated'], $preview_state['evaluated'] ) ) );
+		$batch['evaluated'] = bbp_get_unique_array_values( array_merge( $batch['evaluated'], $preview_state['evaluated'] ) );
 	}
 	do {
 		$work = 0;

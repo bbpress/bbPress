@@ -322,6 +322,8 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertNotEmpty( $state['id'] );
 		$this->assertSame( 'running', $state['status'] );
 		$this->assertSame( array( 'bbp-test-batch-one', 'bbp-test-batch-two' ), $state['tools'] );
+		$this->assertSame( array( 'id', 'tools', 'status', 'updated' ), array_keys( $state ) );
+		$this->assertSame( array( 'id', 'tools', 'status', 'started', 'updated' ), array_keys( get_option( '_bbp_tools_run_upgrade' ) ) );
 		$this->assertSame( $state, bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
 		$this->assertFalse( bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-two' ) ) );
 		$this->assertFalse( bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-two' ), $state['id'], 'running', true ) );
@@ -2393,7 +2395,7 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		bbp_admin_repair_tool_execution_context( 'run', '' );
 		$this->assertNotSame( $old_option, $new_option );
 		$this->assertFalse( get_option( $new_option, false ) );
-		$this->assertTrue( bbp_admin_repair_tool_delete_preview_state( $tools, $state['id'] ) );
+		$this->assertTrue( bbp_admin_repair_tool_delete_batch_state( $tools, $state['id'], 'dry-run' ) );
 		$this->assertTrue( bbp_admin_repair_tool_delete_run_state( 'upgrade', $settings['run'], 'dry-run' ) );
 	}
 

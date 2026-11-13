@@ -46,33 +46,11 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			'topic'    => bbp_get_topic_post_type(),
 			'reply'    => bbp_get_reply_post_type(),
 			'forums'   => bbp_get_string_array_values( bbp_get_countable_forum_statuses() ),
-			'topics'   => array_values( array_unique( array_filter( bbp_get_public_topic_statuses() ) ) ),
-			'hidden'   => array_values( array_unique( array_filter( bbp_get_non_public_topic_statuses() ) ) ),
+			'topics'   => bbp_get_unique_array_values( bbp_get_public_topic_statuses() ),
+			'hidden'   => bbp_get_unique_array_values( bbp_get_non_public_topic_statuses() ),
 			'replies'  => array_values( array_unique( ( 'hidden-replies' === $type ) ? bbp_get_non_public_reply_statuses() : array_filter( bbp_get_public_reply_statuses() ) ) ),
 			'filtered' => false !== has_filter( 'bbp_forum_query_subforum_ids' )
 		);
-	}
-
-	/**
-	 * Preserve the historical whole-site, read-only status API.
-	 *
-	 * @since 2.7.0 bbPress (r8284)
-	 *
-	 * @return array Status code, forum IDs, and number of repairs when successful.
-	 */
-	public function get_status() {
-		$this->status_only = true;
-		$result       = $this->run();
-		return empty( $result['code'] )
-			? array(
-				'code'         => 0,
-				'forum_ids'    => array_values( $this->status_forum_ids ),
-				'repair_count' => $result['repaired']
-			)
-			: array(
-				'code'  => $result['code'],
-				'error' => $result['error'],
-			);
 	}
 
 	/**
@@ -224,7 +202,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		if ( ! parent::before_write( $node ) ) {
 			return false;
 		}
-		if ( ! $this->status_only && $node['counted'] ) {
+		if ( $node['counted'] ) {
 			$direct = $this->values( $node['id'], null );
 			if ( $this->error ) {
 				return false;

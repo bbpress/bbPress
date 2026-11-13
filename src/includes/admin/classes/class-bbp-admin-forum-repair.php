@@ -60,15 +60,6 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	protected $context;
 
 	/**
-	 * Whether to preserve the historical synchronous status API.
-	 *
-	 * @since 2.7.0 bbPress (r8299)
-	 *
-	 * @var bool
-	 */
-	protected $status_only = false;
-
-	/**
 	 * Whether the current checkpoint was loaded from storage.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
@@ -112,15 +103,6 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @var array
 	 */
 	protected $changed_ids = array();
-
-	/**
-	 * Forum IDs discovered by the historical status API.
-	 *
-	 * @since 2.7.0 bbPress (r8299)
-	 *
-	 * @var array
-	 */
-	protected $status_forum_ids = array();
 
 	/**
 	 * In-progress metadata cleanup state for a browser Dry Run.
@@ -189,15 +171,11 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 		$batches        = 0;
 		$estimated_work = 0;
 		$restarts       = 0;
-		$this->async = ! $this->status_only && $this->dry_run && bbp_admin_repair_tool_is_async_dry_run();
+		$this->async = $this->dry_run && bbp_admin_repair_tool_is_async_dry_run();
 		if ( ! $this->valid_type() ) {
 			$this->fail( 'source-invalid' );
 		} else {
-			$read  = true;
-			$saved = false;
-			if ( ! $this->status_only ) {
-				list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
-			}
+			list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
 			if ( ! $read ) {
 				$this->fail( 'progress' );
 				return $this->result(
@@ -235,13 +213,13 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			if ( ! $this->error && ( ! $this->dry_run || $this->async ) && $initial && ! $this->save() ) {
 				$this->fail( 'progress' );
 			}
-			$batch_size = $this->status_only ? null : bbp_admin_repair_tool_batch_size( $this->tool_id );
+			$batch_size = bbp_admin_repair_tool_batch_size( $this->tool_id );
 			$total_work = 0;
 			$batch_work = 0;
 			// Direct Dry Runs remain synchronous; browser Dry Runs stop at one request boundary.
-			while ( ! $this->error && ! $complete && ! $this->stop && ( $this->status_only || ( $this->dry_run && ! $this->async ) || $batch_work < $batch_size ) ) {
+			while ( ! $this->error && ! $complete && ! $this->stop && ( ( $this->dry_run && ! $this->async ) || $batch_work < $batch_size ) ) {
 				$phase       = isset( $this->state['phase'] ) ? $this->state['phase'] : '';
-				$remaining   = $this->status_only ? null : $batch_size - $batch_work;
+				$remaining   = $batch_size - $batch_work;
 				$step_work   = max( 1, $this->step( $remaining, $complete ) );
 				$total_work += $step_work;
 				$batch_work += $step_work;
@@ -364,7 +342,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			'upper_id' => $upper,
 			'root'     => 0,
 			'current'  => 0,
-			'phase'    => $this->status_only ? 'count' : 'prepare',
+			'phase'    => 'prepare',
 			'token'    => str_replace( '-', '', wp_generate_uuid4() ),
 			'context'  => $this->context
 		);
@@ -761,10 +739,6 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @return int Work units consumed.
 	 */
 	protected function cleanup( $limit, &$complete ) {
-		if ( $this->status_only ) {
-			$complete = true;
-			return 1;
-		}
 		$preview = $this->dry_run && ! $this->async;
 		list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->node_option_prefix(), $limit, $preview, $this->created_options, $this->inspected_options );
 		if ( ! $success ) {
@@ -821,9 +795,6 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 					$this->fail( 'progress' );
 				}
 				return 1;
-			}
-			if ( $counted ) {
-				$this->status_forum_ids[ $id ] = $id;
 			}
 			$node = $this->enter_node( $id, 0, $counted );
 			if ( false !== $node ) {
@@ -1054,7 +1025,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @return bool Whether the node remains safe to write.
 	 */
 	protected function before_write( &$node ) {
-		if ( $this->status_only || $this->dry_run ) {
+		if ( $this->dry_run ) {
 			return true;
 		}
 		$post = $this->source_post( $node['id'] );

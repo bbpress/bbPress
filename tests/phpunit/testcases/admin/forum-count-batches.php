@@ -93,56 +93,6 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 	}
 
 	/** @dataProvider tools */
-	public function test_whole_site_status_completes_read_only_with_duplicate_metadata( $type, $key, $total, $callback ) {
-		$forums = $this->forums( $type, $key, $total, 3 );
-		foreach ( $forums as $forum ) {
-			for ( $i = 0; $i < 5; ++$i ) {
-				add_post_meta( $forum, $key, 99 );
-			}
-		}
-		$before = $this->snapshot();
-		bbp_admin_repair_tool_execution_context( 'dry-run', 'forum-count-status' );
-		try {
-			$result = bbp_admin_repair_forum_count_get_status( $type );
-		} finally {
-			bbp_admin_repair_tool_execution_context( 'run', '' );
-		}
-		$this->assertSame( 0, $result['code'] );
-		$this->assertSame( $forums, $result['forum_ids'] );
-		$this->assertSame( count( $forums ), $result['repair_count'] );
-		$this->assertSame( $before, $this->snapshot() );
-		$this->assertSame( $result, bbp_admin_repair_forum_count_get_status( $type ) );
-		$this->assertSame( $before, $this->snapshot() );
-	}
-
-	/** @dataProvider tools */
-	public function test_failed_whole_site_metadata_plan_is_read_only_and_can_be_retried( $type, $key, $total, $callback ) {
-		$db     = bbp_db();
-		$forums = $this->forums( $type, $key, $total, 3 );
-		$before = $this->snapshot();
-		$fail   = static function ( $query ) use ( $key ) {
-			return false !== strpos( $query, 'BINARY meta_key' ) && false !== strpos( $query, "'{$key}'" )
-				? 'SELECT * FROM bbp_bounds_missing_metadata_table'
-				: $query;
-		};
-		$suppressed = $db->suppress_errors( true );
-		add_filter( 'query', $fail );
-		try {
-			$result = bbp_admin_repair_forum_count_get_status( $type );
-		} finally {
-			remove_filter( 'query', $fail );
-			$db->suppress_errors( $suppressed );
-		}
-		$this->assertSame( 2, $result['code'] );
-		$this->assertSame( 'hidden-replies' === $type ? 'hidden-reply-metadata-read' : 'forum-metadata-read', $result['error'] );
-		$this->assertSame( $before, $this->snapshot() );
-		$result = bbp_admin_repair_forum_count_get_status( $type );
-		$this->assertSame( 0, $result['code'] );
-		$this->assertSame( $forums, $result['forum_ids'] );
-		$this->assertSame( $before, $this->snapshot() );
-	}
-
-	/** @dataProvider tools */
 	public function test_one_item_batches_preview_exact_writes_through_deep_hierarchies( $type, $key, $total, $callback ) {
 		$db     = bbp_db();
 		$forums = $this->forums( $type, $key, $total, 10 );
@@ -190,6 +140,24 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		$this->assertFalse( get_option( $stale, false ) );
 		$this->assertSame( array(), $this->nodes( $type ) );
 		$this->assert_counts( $forums, $key, $total );
+	}
+
+	public function test_explicit_empty_hidden_reply_status_is_not_treated_as_all_statuses() {
+		$forums = $this->forums( 'hidden-replies', '_bbp_reply_count_hidden', '_bbp_total_reply_count_hidden', 1 );
+		$filter = static function () { return array( '' ); };
+		add_filter( 'bbp_get_non_public_reply_statuses', $filter );
+		try {
+			$before  = $this->snapshot();
+			$preview = bbp_admin_repair_forum_count_batch( 'hidden-replies', true );
+			$this->assertTrue( $preview['complete'] );
+			$this->assertGreaterThan( 0, $preview['repaired'] );
+			$this->assertSame( $before, $this->snapshot() );
+			$this->finish( 'hidden-replies' );
+			$this->assertSame( array( '0' ), get_post_meta( $forums[0], '_bbp_reply_count_hidden', false ) );
+			$this->assertSame( array( '0' ), get_post_meta( $forums[0], '_bbp_total_reply_count_hidden', false ) );
+		} finally {
+			remove_filter( 'bbp_get_non_public_reply_statuses', $filter );
+		}
 	}
 
 	/** @dataProvider tools */

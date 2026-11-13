@@ -115,7 +115,7 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 	if ( ! $read || ! is_array( $state ) || empty( $state['id'] ) || empty( $state['tools'] ) ) {
 		return array( $read, false );
 	}
-	$tools = array_values( bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $state['tools'] ) ) );
+	$tools = bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $state['tools'] ) );
 	if ( empty( $tools ) ) {
 		return array( true, false );
 	}
@@ -130,12 +130,9 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 		array(
 			'id'         => sanitize_text_field( $state['id'] ),
 			'preview_id' => $preview_id,
-			'type'       => sanitize_key( $type ),
 			'tools'      => $tools,
 			'status'     => in_array( $status, array( 'running', 'paused', 'error' ), true ) ? $status : 'error',
 			'started'    => $started,
-			'user_id'    => isset( $state['user_id'] ) ? (int) $state['user_id'] : 0,
-			'created'    => isset( $state['created'] ) ? (int) $state['created'] : 0,
 			'updated'    => isset( $state['updated'] ) ? (int) $state['updated'] : 0,
 		)
 	);
@@ -301,7 +298,7 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 	$run_id      = sanitize_text_field( $run_id );
 	$status      = is_null( $status ) ? null : sanitize_key( $status );
 	if ( ! $status_only ) {
-		$tools = array_values( bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) ) );
+		$tools = bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) );
 	}
 	if ( empty( $option ) || array() === $tools || ( $rotate_run_id && empty( $run_id ) )
 		|| ( ! is_null( $status ) && ! in_array( $status, array( 'running', 'paused', 'error' ), true ) ) ) {
@@ -334,13 +331,9 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 		}
 		$state = $existing ? $existing : array(
 			'id'      => $run_id,
-			'type'    => sanitize_key( $type ),
 			'tools'   => array(),
 			'status'  => 'running',
 			'started' => false,
-			'user_id' => 0,
-			'created' => 0,
-			'updated' => 0,
 		);
 		$state['id']      = $run_id;
 		$state['updated'] = time();
@@ -348,9 +341,7 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 			$state['preview_id'] = $run_id;
 		}
 		if ( ! $status_only ) {
-			$state['tools']   = $tools;
-			$state['user_id'] = ! empty( $state['user_id'] ) ? $state['user_id'] : get_current_user_id();
-			$state['created'] = ! empty( $state['created'] ) ? $state['created'] : $state['updated'];
+			$state['tools'] = $tools;
 		}
 		if ( ! is_null( $status ) ) {
 			$state['status'] = $status;
@@ -492,7 +483,7 @@ function bbp_admin_repair_tool_delete_batch_state( $tools, $run_id, $action = 'r
 	$action  = sanitize_key( $action );
 	$run_id  = sanitize_text_field( $run_id );
 	$type    = sanitize_key( $type );
-	$tools   = array_values( bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) ) );
+	$tools   = bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) );
 
 	if ( empty( $run_id ) || empty( $tools ) || ! in_array( $action, array( 'run', 'dry-run' ), true ) ) {
 		return false;
@@ -551,21 +542,6 @@ function bbp_admin_repair_tool_delete_batch_state( $tools, $run_id, $action = 'r
 }
 
 /**
- * Delete state owned by one abandoned browser Dry Run.
- *
- * @since 2.7.0 bbPress (r8331)
- * @since 2.7.0 bbPress (r8350) Lock tools while deleting preview state.
- * @access private
- *
- * @param array  $tools      Repair tool IDs.
- * @param string $preview_id Stable Dry Run preview namespace.
- * @return bool Whether every discovered preview option was removed.
- */
-function bbp_admin_repair_tool_delete_preview_state( $tools, $preview_id ) {
-	return bbp_admin_repair_tool_delete_batch_state( $tools, $preview_id, 'dry-run' );
-}
-
-/**
  * Save one browser queue transition, retrying one transient failure.
  *
  * Tool callbacks delete their completed checkpoint before the queue advances.
@@ -617,7 +593,7 @@ function bbp_admin_repair_tool_save_queue_progress( $type, $state, $run_id, $act
 function bbp_admin_repair_tool_enqueue_runner( $type = '', $tools = array(), $run_id = '', $action = 'run' ) {
 	$type   = sanitize_key( $type );
 	$action = sanitize_key( $action );
-	$tools  = array_values( bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) ) );
+	$tools  = bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) );
 
 	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) || ! in_array( $action, array( 'run', 'dry-run' ), true ) || empty( $tools ) ) {
 		return false;
@@ -897,7 +873,7 @@ function bbp_admin_repair_tool_start_browser_run( $action, $selected_tool_ids, $
 			$queue[] = $tool_id;
 		}
 	}
-	$queue = array_values( bbp_get_unique_array_values( $queue ) );
+	$queue = bbp_get_unique_array_values( $queue );
 	if ( empty( $queue ) ) {
 		if ( ! empty( $run_id ) && bbp_admin_repair_tool_owns_run( $state, $run_id ) ) {
 			bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
