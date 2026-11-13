@@ -23,8 +23,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 	private $old_pending;
 	private $old_repair_run;
 	private $old_upgrade_run;
-	private $old_repair_run_status;
-	private $old_upgrade_run_status;
 	private $old_repair_dry_run;
 	private $old_upgrade_dry_run;
 	private $old_user;
@@ -57,8 +55,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->old_pending            = get_option( '_bbp_db_pending_upgrades', null );
 		$this->old_repair_run         = get_option( '_bbp_tools_run_repair', null );
 		$this->old_upgrade_run        = get_option( '_bbp_tools_run_upgrade', null );
-		$this->old_repair_run_status  = get_option( '_bbp_tools_run_status_repair', null );
-		$this->old_upgrade_run_status = get_option( '_bbp_tools_run_status_upgrade', null );
 		$this->old_repair_dry_run     = get_option( '_bbp_tools_dry_run_repair', null );
 		$this->old_upgrade_dry_run    = get_option( '_bbp_tools_dry_run_upgrade', null );
 		$this->old_user               = get_current_user_id();
@@ -115,16 +111,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 			delete_option( '_bbp_tools_run_upgrade' );
 		} else {
 			update_option( '_bbp_tools_run_upgrade', $this->old_upgrade_run );
-		}
-		if ( null === $this->old_repair_run_status ) {
-			delete_option( '_bbp_tools_run_status_repair' );
-		} else {
-			update_option( '_bbp_tools_run_status_repair', $this->old_repair_run_status );
-		}
-		if ( null === $this->old_upgrade_run_status ) {
-			delete_option( '_bbp_tools_run_status_upgrade' );
-		} else {
-			update_option( '_bbp_tools_run_status_upgrade', $this->old_upgrade_run_status );
 		}
 		if ( null === $this->old_repair_dry_run ) {
 			delete_option( '_bbp_tools_dry_run_repair' );
@@ -322,7 +308,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 	/**
 	 * @ticket 3777
 	 * @covers ::bbp_admin_repair_tool_run_state_option_name
-	 * @covers ::bbp_admin_repair_tool_run_status_option_name
 	 * @covers ::bbp_admin_repair_tool_get_run_state
 	 * @covers ::bbp_admin_repair_tool_save_run_state
 	 * @covers ::bbp_admin_repair_tool_update_run_status
@@ -374,7 +359,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertFalse( bbp_admin_repair_tool_update_run_status( 'upgrade', $state['id'], 'running' ) );
 		$this->assertFalse( bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-one' ), $state['id'] ) );
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
-		$this->assertFalse( get_option( '_bbp_tools_run_status_upgrade', false ) );
 	}
 
 	/**
@@ -392,7 +376,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$new['id']     = wp_generate_uuid4();
 		$new['tools']  = array( 'bbp-test-batch-two' );
 		$new['status'] = 'paused';
-		$new['schema'] = 1;
 
 		// Simulate another request changing the database after our cached read
 		$this->assertSame( 1, $db->update( $db->options, array( 'option_value' => maybe_serialize( $new ) ), array( 'option_name' => '_bbp_tools_run_upgrade' ) ) );
@@ -413,67 +396,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertSame( 'paused', $next['status'] );
 		$this->assertSame( array( 'bbp-test-batch-two' ), $next['tools'] );
 		$this->assertSame( $next, bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
-	}
-
-	public function legacy_run_statuses() {
-		return array( array( 'matching', 'paused' ), array( 'stale', 'running' ), array( 'absent', 'running' ) );
-	}
-
-	/** @dataProvider legacy_run_statuses */
-	public function test_legacy_run_status_is_folded_into_the_next_queue_write( $companion, $status ) {
-		$state = array(
-			'id'      => wp_generate_uuid4(),
-			'type'    => 'upgrade',
-			'tools'   => array( 'bbp-test-batch-one', 'bbp-test-batch-two' ),
-			'status'  => 'running',
-			'user_id' => get_current_user_id(),
-			'created' => time() - 10,
-			'updated' => time() - 5,
-		);
-		update_option( '_bbp_tools_run_upgrade', $state, false );
-		delete_option( '_bbp_tools_run_status_upgrade' );
-		if ( 'absent' !== $companion ) {
-			update_option( '_bbp_tools_run_status_upgrade', array( 'id' => 'matching' === $companion ? $state['id'] : wp_generate_uuid4(), 'status' => 'paused', 'updated' => time() ), false );
-		}
-		$this->assertSame( $status, bbp_admin_repair_tool_get_run_state( 'upgrade' )['status'] );
-		$saved = bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-two' ), $state['id'], null );
-		$this->assertSame( $status, $saved['status'] );
-		$this->assertSame( array( 'bbp-test-batch-two' ), $saved['tools'] );
-		$this->assertCount( 7, $saved );
-		$this->assertSame( $saved, bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
-		$this->assertFalse( get_option( '_bbp_tools_run_status_upgrade', false ) );
-	}
-
-	public function run_state_views() {
-		return array( 'native' => array( false ), 'public fields' => array( true ) );
-	}
-
-	/** @dataProvider run_state_views */
-	public function test_unified_state_does_not_depend_on_legacy_status_cleanup( $replace_view ) {
-		$state = bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-one' ) );
-		update_option( '_bbp_tools_run_upgrade', $state, false );
-		update_option( '_bbp_tools_run_status_upgrade', array( 'id' => $state['id'], 'status' => 'paused', 'updated' => time() ), false );
-		$block = static function ( $query ) {
-			return 0 === strpos( $query, 'DELETE ' ) && false !== strpos( $query, '_bbp_tools_run_status_upgrade' ) ? 'SELECT 0' : $query;
-		};
-		$public_fields = static function ( $value ) {
-			return array_intersect_key( $value, array_fill_keys( array( 'id', 'type', 'tools', 'status', 'user_id', 'created', 'updated' ), true ) );
-		};
-		add_filter( 'query', $block );
-		if ( $replace_view ) {
-			add_filter( 'option__bbp_tools_run_upgrade', $public_fields );
-		}
-		try {
-			$saved = bbp_admin_repair_tool_update_run_status( 'upgrade', $state['id'], 'running' );
-			$this->assertSame( 'running', $saved['status'] );
-			$this->assertSame( $saved, bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
-			list( $read, $legacy ) = bbp_get_raw_option( '_bbp_tools_run_status_upgrade' );
-			$this->assertTrue( $read );
-			$this->assertSame( 'paused', $legacy['status'] );
-		} finally {
-			remove_filter( 'query', $block );
-			remove_filter( 'option__bbp_tools_run_upgrade', $public_fields );
-		}
 	}
 
 	public function test_bulk_queue_and_tool_checkpoints_remain_independent() {
@@ -684,7 +606,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 			return $old_value;
 		};
 		add_filter( 'pre_update_option__bbp_tools_run_upgrade', $filter, 10, 2 );
-		add_filter( 'pre_update_option__bbp_tools_run_status_upgrade', $filter, 10, 2 );
 
 		try {
 			$this->assertFalse( bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-two' ), $state['id'], null ) );
@@ -692,7 +613,6 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 			$this->assertSame( $state, bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
 		} finally {
 			remove_filter( 'pre_update_option__bbp_tools_run_upgrade', $filter, 10 );
-			remove_filter( 'pre_update_option__bbp_tools_run_status_upgrade', $filter, 10 );
 		}
 	}
 

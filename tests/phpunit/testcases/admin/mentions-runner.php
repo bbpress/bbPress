@@ -28,7 +28,7 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 		$this->scripts = wp_scripts();
 		$this->tools   = bbp_admin()->tools;
 		$this->notices = bbp_admin()->notices;
-		foreach ( array( '_bbp_mention_backfill', '_bbp_db_pending_upgrades', '_bbp_tools_run_repair', '_bbp_tools_run_upgrade', '_bbp_tools_run_status_repair', '_bbp_tools_run_status_upgrade' ) as $name ) {
+		foreach ( array( '_bbp_mention_backfill', '_bbp_db_pending_upgrades', '_bbp_tools_run_repair', '_bbp_tools_run_upgrade' ) as $name ) {
 			$this->options[ $name ] = get_option( $name, null );
 			delete_option( $name );
 		}

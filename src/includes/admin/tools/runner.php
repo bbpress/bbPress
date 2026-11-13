@@ -95,32 +95,7 @@ function bbp_admin_repair_tool_run_state_option_name( $type = '', $action = 'run
 }
 
 /**
- * Return the option name for a recoverable repair tool run status.
- *
- * Retained for recognizing and cleaning up older development checkpoints.
- * Current queue and status changes share one owner-checked run-state record.
- *
- * @since 2.7.0 bbPress (r8252)
- *
- * @param string $type   Repair tool type.
- * @param string $action Tool action.
- * @return string
- */
-function bbp_admin_repair_tool_run_status_option_name( $type = '', $action = 'run' ) {
-	$type   = sanitize_key( $type );
-	$action = sanitize_key( $action );
-
-	return in_array( $type, array( 'repair', 'upgrade' ), true ) && in_array( $action, array( 'run', 'dry-run' ), true )
-		? '_bbp_tools_' . ( 'run' === $action ? 'run_status' : 'dry_run_status' ) . '_' . $type
-		: '';
-}
-
-/**
- * Read and normalize the stored run, including older separate status records.
- *
- * The internal schema marker makes a unified write authoritative even if an
- * old companion option cannot be removed. Public callers receive only the
- * original seven run fields.
+ * Read and normalize one stored run-state record.
  *
  * @since 2.7.0 bbPress (r8315)
  * @access private
@@ -144,29 +119,6 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 	if ( empty( $tools ) ) {
 		return array( true, false );
 	}
-	$schema  = isset( $state['schema'] ) && 1 === $state['schema'] ? 1 : 0;
-	$updated = isset( $state['updated'] ) ? (int) $state['updated'] : 0;
-	if ( $filtered && ! $schema ) {
-		// View filters may return only public fields. Storage owns the format.
-		list( $read, $stored ) = bbp_admin_repair_get_option( $option, array(), false );
-		if ( ! $read ) {
-			return array( false, false );
-		}
-		if ( is_array( $stored ) && isset( $stored['schema'], $stored['id'] ) && 1 === $stored['schema']
-			&& hash_equals( sanitize_text_field( $stored['id'] ), sanitize_text_field( $state['id'] ) ) ) {
-			$schema = 1;
-		}
-	}
-	if ( ! $schema ) {
-		list( $read, $legacy ) = bbp_admin_repair_get_option( bbp_admin_repair_tool_run_status_option_name( $type, $action ), array(), $filtered );
-		if ( ! $read ) {
-			return array( false, false );
-		}
-		if ( is_array( $legacy ) && ! empty( $legacy['id'] ) && hash_equals( sanitize_text_field( $state['id'] ), sanitize_text_field( $legacy['id'] ) ) ) {
-			$state['status'] = isset( $legacy['status'] ) ? $legacy['status'] : 'error';
-			$updated         = max( $updated, isset( $legacy['updated'] ) ? (int) $legacy['updated'] : 0 );
-		}
-	}
 	$status     = isset( $state['status'] ) ? sanitize_key( $state['status'] ) : 'running';
 	$started    = ! empty( $state['started'] );
 	$preview_id = ( 'dry-run' === $action ) && ! empty( $state['preview_id'] )
@@ -176,7 +128,6 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 	return array(
 		true,
 		array(
-			'schema'     => $schema,
 			'id'         => sanitize_text_field( $state['id'] ),
 			'preview_id' => $preview_id,
 			'type'       => sanitize_key( $type ),
@@ -185,7 +136,7 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 			'started'    => $started,
 			'user_id'    => isset( $state['user_id'] ) ? (int) $state['user_id'] : 0,
 			'created'    => isset( $state['created'] ) ? (int) $state['created'] : 0,
-			'updated'    => $updated,
+			'updated'    => isset( $state['updated'] ) ? (int) $state['updated'] : 0,
 		)
 	);
 }
@@ -202,7 +153,7 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 function bbp_admin_repair_tool_get_run_state( $type = '', $action = 'run' ) {
 	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, true, $action );
 	if ( is_array( $state ) ) {
-		unset( $state['schema'], $state['preview_id'], $state['started'] );
+		unset( $state['preview_id'], $state['started'] );
 	}
 	return $state;
 }
@@ -382,7 +333,6 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 			$run_id = wp_generate_uuid4();
 		}
 		$state = $existing ? $existing : array(
-			'schema'  => 0,
 			'id'      => $run_id,
 			'type'    => sanitize_key( $type ),
 			'tools'   => array(),
@@ -392,7 +342,6 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 			'created' => 0,
 			'updated' => 0,
 		);
-		$state['schema']  = 1;
 		$state['id']      = $run_id;
 		$state['updated'] = time();
 		if ( 'dry-run' === $action && empty( $state['preview_id'] ) ) {
@@ -412,11 +361,7 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
 		if ( ! bbp_admin_repair_tool_save_option( $option, $state ) ) {
 			return false;
 		}
-		if ( empty( $existing['schema'] ) ) {
-			// Best-effort legacy cleanup. The verified schema marker takes precedence.
-			delete_option( bbp_admin_repair_tool_run_status_option_name( $type, $action ) );
-		}
-		unset( $state['schema'], $state['preview_id'], $state['started'] );
+		unset( $state['preview_id'], $state['started'] );
 		return $state;
 	} finally {
 		bbp_admin_repair_tool_unlock( $lock );
@@ -495,11 +440,7 @@ function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $acti
 		if ( ! $read || ! $state || ( ! empty( $run_id ) && ! hash_equals( $state['id'], $run_id ) ) ) {
 			return false;
 		}
-		$deleted = bbp_admin_repair_tool_save_option( $option, null, true );
-		if ( $deleted ) {
-			delete_option( bbp_admin_repair_tool_run_status_option_name( $type, $action ) );
-		}
-		return $deleted;
+		return bbp_admin_repair_tool_save_option( $option, null, true );
 	} finally {
 		bbp_admin_repair_tool_unlock( $lock );
 	}

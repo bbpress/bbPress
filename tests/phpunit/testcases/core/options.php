@@ -159,10 +159,6 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->remember_option( '_bbp_tools_run_upgrade' );
 		$this->remember_option( '_bbp_tools_dry_run_repair' );
 		$this->remember_option( '_bbp_tools_dry_run_upgrade' );
-		$this->remember_option( '_bbp_tools_run_status_repair' );
-		$this->remember_option( '_bbp_tools_run_status_upgrade' );
-		$this->remember_option( '_bbp_tools_dry_run_status_repair' );
-		$this->remember_option( '_bbp_tools_dry_run_status_upgrade' );
 		$this->remember_option( '_bbp_pending_upgrades_lock' );
 		$this->remember_option( '_bbp_mention_backfill' );
 		$this->remember_option( 'bbp_test_unrelated' );
@@ -173,10 +169,6 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->set_option( '_bbp_tools_run_upgrade', array( 'temporary' ) );
 		$this->set_option( '_bbp_tools_dry_run_repair', array( 'temporary' ) );
 		$this->set_option( '_bbp_tools_dry_run_upgrade', array( 'temporary' ) );
-		$this->set_option( '_bbp_tools_run_status_repair', array( 'temporary' ) );
-		$this->set_option( '_bbp_tools_run_status_upgrade', array( 'temporary' ) );
-		$this->set_option( '_bbp_tools_dry_run_status_repair', array( 'temporary' ) );
-		$this->set_option( '_bbp_tools_dry_run_status_upgrade', array( 'temporary' ) );
 		$this->set_option( '_bbp_pending_upgrades_lock', 'temporary' );
 		$this->set_option( '_bbp_mention_backfill', array( 'temporary' ) );
 		$this->set_option( 'bbp_test_unrelated', 'keep' );
@@ -206,10 +198,6 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertFalse( get_option( '_bbp_tools_run_upgrade', false ) );
 		$this->assertFalse( get_option( '_bbp_tools_dry_run_repair', false ) );
 		$this->assertFalse( get_option( '_bbp_tools_dry_run_upgrade', false ) );
-		$this->assertFalse( get_option( '_bbp_tools_run_status_repair', false ) );
-		$this->assertFalse( get_option( '_bbp_tools_run_status_upgrade', false ) );
-		$this->assertFalse( get_option( '_bbp_tools_dry_run_status_repair', false ) );
-		$this->assertFalse( get_option( '_bbp_tools_dry_run_status_upgrade', false ) );
 		$this->assertFalse( get_option( '_bbp_pending_upgrades_lock', false ) );
 		$this->assertFalse( get_option( '_bbp_mention_backfill', false ) );
 		$this->assertSame( 'keep', get_option( 'bbp_test_unrelated' ) );
