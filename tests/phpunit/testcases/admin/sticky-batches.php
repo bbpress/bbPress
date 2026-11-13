@@ -200,7 +200,9 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		$fail = static function ( $value, $old ) { return $old; };
 		add_filter( 'pre_update_option_' . $this->option(), $fail, 10, 2 );
 		try {
-			$this->assertSame( 6, bbp_admin_repair_sticky_batch()['code'] );
+			$result = bbp_admin_repair_sticky_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 		} finally {
 			remove_filter( 'pre_update_option_' . $this->option(), $fail, 10 );
 		}
@@ -262,7 +264,9 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		$fail = static function ( $value, $old ) { return $old; };
 		add_filter( 'pre_update_option_' . $this->option(), $fail, 10, 2 );
 		try {
-			$this->assertSame( 6, bbp_admin_repair_sticky_batch()['code'] );
+			$result = bbp_admin_repair_sticky_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $before, $this->snapshot()[0] );
 		} finally {
 			remove_filter( 'pre_update_option_' . $this->option(), $fail, 10 );
@@ -302,7 +306,8 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $fail );
 		try {
 			$result = bbp_admin_repair_sticky_batch();
-			$this->assertSame( 2, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 		} finally {
 			remove_filter( 'query', $fail );

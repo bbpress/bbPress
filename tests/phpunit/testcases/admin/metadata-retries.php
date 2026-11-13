@@ -201,7 +201,8 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 		add_filter( 'sanitize_post_meta__bbp_sticky_topics', $alter );
 		try {
 			$result = bbp_admin_repair_sticky_batch();
-			$this->assertSame( 5, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$rows = $this->rows( 'post', $forum, $key );
 			$this->assertSame( $before, $rows[1] );

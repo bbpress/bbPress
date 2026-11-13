@@ -383,7 +383,8 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		try {
 			$result = bbp_admin_repair_forum_visibility_batch();
 			$this->assertSame( $point, $reads );
-			$this->assertSame( 9, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 		} finally {
 			remove_filter( 'query', $fail );
@@ -455,7 +456,8 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option__bbp_forum_visibility_version', $reject, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_visibility_batch();
-			$this->assertSame( 9, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( array( 999999 ), get_option( '_bbp_private_forums' ) );
 			$this->assertSame( 'malformed', get_option( '_bbp_hidden_forums' ) );
@@ -476,7 +478,8 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		try {
 			bbp_privatize_forum( $earlier, bbp_get_public_status_id() );
 			$result = bbp_admin_repair_forum_visibility_batch();
-			$this->assertSame( 9, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 		} finally {
 			remove_filter( 'pre_update_option__bbp_forum_visibility_version', $reject, 10 );
@@ -492,7 +495,8 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $this->option(), $reject, 10, 2 );
 		try {
 			$result = bbp_admin_repair_forum_visibility_batch();
-			$this->assertSame( 8, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( array( 999999 ), get_option( '_bbp_private_forums' ) );
 			$this->assertSame( 'malformed', get_option( '_bbp_hidden_forums' ) );
@@ -518,7 +522,9 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		};
 		add_filter( 'query', $fail );
 		try {
-			$this->assertSame( 6, bbp_admin_repair_forum_visibility_batch()['code'] );
+			$result = bbp_admin_repair_forum_visibility_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertTrue( $fired );
 			$this->assertSame( array( 999999 ), get_option( '_bbp_private_forums' ) );
 		} finally {
@@ -539,7 +545,9 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		$reject = static function ( $new, $old ) { return $old; };
 		add_filter( 'pre_update_option_' . $this->option(), $reject, 10, 2 );
 		try {
-			$this->assertSame( 8, bbp_admin_repair_forum_visibility_batch()['code'] );
+			$result = bbp_admin_repair_forum_visibility_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertSame( $private, get_option( '_bbp_private_forums' ) );
 			$this->assertSame( 'malformed', get_option( '_bbp_hidden_forums' ) );
 		} finally {
@@ -576,7 +584,8 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		try {
 			$result = bbp_admin_repair_forum_visibility_batch();
 			$this->assertTrue( $fired );
-			$this->assertSame( 8, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( $private, get_option( '_bbp_private_forums' ) );
 			$this->assertSame( $hidden, get_option( '_bbp_hidden_forums' ) );

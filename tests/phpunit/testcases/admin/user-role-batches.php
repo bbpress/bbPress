@@ -170,7 +170,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		add_filter( 'update_user_metadata', $fail, 10, 3 );
 		try {
 			$result = bbp_admin_repair_user_roles();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'verify', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( bbp_get_default_role(), bbp_get_user_role( $ids[0] ) );
@@ -203,7 +204,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		}
 		try {
 			$result = bbp_admin_repair_user_roles();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( 'initial' === $phase ? bbp_get_spectator_role() : bbp_get_default_role(), bbp_get_user_role( $ids[0] ) );
@@ -246,6 +248,26 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		$this->finish();
 		foreach ( $ids as $id ) {
 			$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $id ) );
+		}
+	}
+
+	public function test_malformed_browser_preview_plan_restarts_safely() {
+		$this->fixture();
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'malformed-role-preview' );
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-user-role-map' );
+		try {
+			$result = bbp_admin_repair_user_roles_batch( true );
+			$this->assertFalse( $result['complete'] );
+			$state = get_option( $option );
+			$state['_preview_state']['data']['planned'] = array( 'broken' => array() );
+			update_option( $option, $state, false );
+
+			$result = bbp_admin_repair_user_roles_batch( true );
+			$this->assertSame( 0, $result['code'] );
+			$this->assertTrue( $result['restarted'] );
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+			delete_option( $option );
 		}
 	}
 
@@ -342,7 +364,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 			$preview = bbp_admin_repair_user_roles_batch( true );
 			$this->assertSame( $before, $this->snapshot() );
 			$this->assertSame( $prefilled ? 1 : 3, $preview['changed'] );
-			$this->assertSame( $prefilled ? 2 : 0, $preview['code'] );
+			$this->assertSame( $prefilled ? BBP_Admin_Batch_Worker::RESULT_FAILED : 0, $preview['code'] );
+			$this->assertSame( $prefilled ? 'source-read' : '', $preview['error'] );
 			$this->assertSame( ! $prefilled, $preview['complete'] );
 			$run = bbp_admin_repair_user_roles_batch();
 			$this->assertSame( 0, $run['code'] );
@@ -405,7 +428,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 					$this->assertTrue( bbp_admin_repair_tool_normalize_result( $result )['success'] );
 					$this->assertTrue( $result['complete'] );
 				} else {
-					$this->assertSame( 2, $result[0] );
+					$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+					$this->assertSame( 'source-read', $result['error'] );
 					$this->assertFalse( $result['success'] );
 					$this->assertFalse( $result['complete'] );
 				}
@@ -426,7 +450,8 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		add_filter( 'bbp_get_user_role_map', '__return_empty_array', 20 );
 		try {
 			$result = bbp_admin_repair_user_roles_dry_run();
-			$this->assertSame( 1, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-invalid', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertFalse( bbp_admin_repair_tool_run_automatically( 'bbp-user-role-map', 'bbp_admin_repair_user_roles' ) );
@@ -462,7 +487,9 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $fail );
 		try {
 			$result = bbp_admin_repair_user_roles_process( $dry_run );
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$error = in_array( $point, array( 'upper', 'selection' ), true ) ? 'source-read' : 'metadata-read';
+			$this->assertSame( $error, $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertFalse( wp_cache_get( $ids[0], 'user_meta' ) );
@@ -486,7 +513,9 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		};
 		add_filter( 'update_user_metadata', $fail, 10, 4 );
 		try {
-			$this->assertSame( 3, bbp_admin_repair_user_roles()[0] );
+			$result = bbp_admin_repair_user_roles();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'verify', $result['error'] );
 			$this->assertFalse( bbp_get_user_role( $ids[0] ) );
 			$this->assertContains( 'subscriber', get_userdata( $ids[0] )->roles );
 		} finally {

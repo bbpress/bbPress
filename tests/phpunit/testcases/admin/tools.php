@@ -4872,8 +4872,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'bbp_get_user_role_map', $empty_map );
 
 		try {
-			$this->assertSame( 1, bbp_admin_repair_user_roles_dry_run()[0] );
-			$this->assertSame( 1, bbp_admin_repair_user_roles()[0] );
+			$dry_run = bbp_admin_repair_user_roles_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-invalid', $dry_run['error'] );
+			$result = bbp_admin_repair_user_roles();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-invalid', $result['error'] );
 			$this->assertSame( bbp_get_blocked_role(), bbp_get_user_role( $user_id ) );
 		} finally {
 			remove_filter( 'bbp_get_user_role_map', $empty_map );
@@ -5711,11 +5715,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
-			$this->assertSame( 3, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_visibility();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -5742,11 +5748,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
-			$this->assertSame( 4, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_visibility();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -5773,11 +5781,13 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$dry_run = bbp_admin_repair_forum_visibility_dry_run();
-			$this->assertSame( 5, $dry_run[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $dry_run[0] );
+			$this->assertSame( 'source-read', $dry_run['error'] );
 			$this->assertFalse( $dry_run['success'] );
 
 			$result = bbp_admin_repair_forum_visibility();
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -5853,7 +5863,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_visibility();
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( array(), get_option( '_bbp_private_forums' ) );
 		} finally {
@@ -5881,7 +5892,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_repair_forum_visibility();
-			$this->assertSame( 7, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( array( $private_id ), get_option( '_bbp_private_forums' ) );
 			$this->assertSame( array(), get_option( '_bbp_hidden_forums' ) );
@@ -7852,7 +7864,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_remove_favorites_from_usermeta();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
@@ -7945,7 +7958,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );
@@ -8038,7 +8052,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
 			$this->assertTrue( metadata_exists( 'user', $user_id, $key ) );

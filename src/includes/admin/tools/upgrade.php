@@ -845,6 +845,21 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
 }
 
 /**
+ * Validate a legacy user-meta cleanup checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8348)
+ * @access private
+ *
+ * @param mixed $state   Saved checkpoint.
+ * @param array $context Current legacy user-meta key.
+ * @return bool Whether the cleanup checkpoint can be resumed.
+ */
+function bbp_admin_upgrade_remove_user_meta_is_valid_checkpoint( $state, $context ) {
+	return bbp_admin_repair_tool_is_matching_checkpoint( $state, $context )
+		&& bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'removed', 'batches' ), array( 'initial' ) );
+}
+
+/**
  * Remove one bounded batch of migrated legacy user-meta rows.
  *
  * Capture a fixed upper metadata ID, delete individual rows through WordPress,
@@ -852,6 +867,7 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
  * failed checkpoint only revisits surviving rows. Later rows wait for a new run.
  *
  * @since 2.7.0 bbPress (r8286)
+ * @since 2.7.0 bbPress (r8348) Share source and worker lifecycle helpers.
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
@@ -860,32 +876,29 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
 function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run = false ) {
 	$db     = bbp_db();
 	$config = bbp_admin_get_user_relationship_config( $type );
-	$batch  = array(
-		'code'      => 0,
-		'removed'   => 0,
-		'initial'   => false,
-		'complete'  => false,
-		'restarted' => false,
-		'message'   => '',
-		'batches'   => 0
+	$batch  = bbp_admin_repair_tool_batch_status(
+		array(
+			'removed' => 0,
+			'initial' => false,
+			'message' => '',
+		)
 	);
 	if ( false === $config ) {
-		$batch['code'] = 6;
+		bbp_admin_repair_tool_batch_fail( $batch, 'callback' );
 		return $batch;
 	}
 	$tool_id  = $config['delete_tool_id'];
 	$key      = $config['source_key'];
 	$callback = static function () use ( $db, $tool_id, $key, $dry_run, $batch ) {
-		list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_tool_is_matching_checkpoint', array( 'key' => $key ), $dry_run );
-		if ( ! $read ) {
-			$batch['code'] = 6;
+		$fields = array( 'removed', 'initial', 'batches' );
+		$state  = false;
+		if ( ! bbp_admin_repair_tool_batch_start( $tool_id, $state, $batch, 'bbp_admin_upgrade_remove_user_meta_is_valid_checkpoint', array( 'key' => $key ), $dry_run ) ) {
 			return $batch;
 		}
 		$batch['initial'] = false === $state;
 		if ( $batch['initial'] ) {
-			$upper = (int) $db->get_var( $db->prepare( "SELECT MAX(umeta_id) FROM {$db->usermeta} WHERE meta_key = %s", $key ) );
-			if ( ! empty( $db->last_error ) ) {
-				$batch['code'] = 2;
+			$upper = bbp_admin_repair_user_meta_upper_id( $key, $batch );
+			if ( false === $upper ) {
 				return $batch;
 			}
 			$state = array(
@@ -893,17 +906,16 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 				'upper_id' => $upper,
 				'key'      => $key
 			);
-			if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
-				$batch['code'] = 6;
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
 				return $batch;
 			}
 		}
 		$size = bbp_admin_repair_tool_batch_size( $tool_id );
-		bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'removed', 'initial', 'batches' ) );
+		bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
 		do {
 			$rows = $db->get_results( $db->prepare( "SELECT umeta_id, user_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id > %d AND umeta_id <= %d ORDER BY umeta_id LIMIT %d", $key, $state['cursor'], $state['upper_id'], $size + 1 ) );
 			if ( ! empty( $db->last_error ) ) {
-				$batch['code'] = 2;
+				bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 				return $batch;
 			}
 			$complete = count( $rows ) <= $size;
@@ -911,7 +923,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 				if ( ! $dry_run ) {
 					$code = bbp_admin_repair_metadata_row( 'user', $row, $key, null );
 					if ( $code ) {
-						$batch['code'] = ( 1 === $code ) ? 2 : 3;
+						bbp_admin_repair_tool_batch_fail( $batch, 1 === $code ? 'metadata-read' : 'metadata-write' );
 						return $batch;
 					}
 				}
@@ -919,20 +931,17 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 				$state['cursor'] = (int) $row->umeta_id;
 			}
 			++$batch['batches'];
-			bbp_admin_repair_tool_store_preview( $state, $batch, array( 'removed', 'initial', 'batches' ) );
-			if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, $complete, $dry_run ) ) {
-				$batch['code'] = 6;
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields ) ) {
 				return $batch;
 			}
-			$batch['complete'] = $complete;
-		} while ( bbp_admin_repair_tool_continue_preview( $dry_run ) && ! $batch['complete'] );
+		} while ( bbp_admin_repair_tool_batch_continue( $batch, $dry_run ) );
 
 		return $batch;
 	};
 	$result = bbp_admin_upgrade_user_meta_cleanup( $config['move_tool_id'], $callback, $dry_run );
 	if ( is_wp_error( $result ) ) {
-		$batch['code']    = 4;
 		$batch['message'] = $result->get_error_message();
+		bbp_admin_repair_tool_batch_fail( $batch, $result->get_error_code() );
 		return $batch;
 	}
 	return $result;
@@ -952,7 +961,7 @@ function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_r
 	if ( ! empty( $batch['code'] ) ) {
 		if ( ! empty( $batch['message'] ) ) {
 			$result = $batch['message'];
-		} elseif ( 6 === $batch['code'] ) {
+		} elseif ( 'progress' === $batch['error'] ) {
 			$result = esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' );
 		} else {
 			$result = esc_html__( 'Failed!', 'bbpress' );
@@ -960,6 +969,7 @@ function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_r
 		return array(
 			$batch['code'],
 			$result,
+			'error'    => $batch['error'],
 			'success'  => false,
 			'complete' => false
 		);

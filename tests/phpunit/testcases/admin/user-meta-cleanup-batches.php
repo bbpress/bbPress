@@ -157,7 +157,8 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		add_filter( 'delete_user_metadata_by_mid', $fail, 10, 2 );
 		try {
 			$batch = bbp_admin_upgrade_remove_user_meta_batch( $type );
-			$this->assertSame( 3, $batch['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $batch['code'] );
+			$this->assertSame( 'metadata-write', $batch['error'] );
 			$this->assertFalse( $batch['complete'] );
 			$this->assertSame( 1, $batch['removed'] );
 			$this->assertFalse( get_metadata_by_mid( 'user', $rows[0] ) );
@@ -195,9 +196,11 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		}
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 6, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
+			$this->assertStringContainsString( 'Progress could not be saved.', $result[1] );
 			$this->assertCount( 'initial' === $phase ? 3 : ( 'progress' === $phase ? 2 : 0 ), get_user_meta( $user, $this->key( $suffix ), false ) );
 		} finally {
 			remove_filter( 'query', $delete );
@@ -228,7 +231,9 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 				$this->assertFalse( call_user_func( $callback . '_dry_run' )['success'] );
 			}
 			$this->assertSame( $before, $this->snapshot() );
-			$this->assertSame( 4, call_user_func( $callback )[0] );
+			$result = call_user_func( $callback );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'bbp_upgrade_incomplete', $result['error'] );
 			$this->assertSame( $before, $this->snapshot() );
 		} finally {
 			if ( $lock ) {
@@ -259,7 +264,9 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $filter );
 		$before = $db->get_results( "SELECT * FROM {$db->usermeta} ORDER BY umeta_id", ARRAY_A );
 		try {
-			$this->assertSame( 4, call_user_func( $callback )[0] );
+			$result = call_user_func( $callback );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'bbp_upgrade_incomplete', $result['error'] );
 			$this->assertTrue( $changed );
 			$this->assertSame( $before, $db->get_results( "SELECT * FROM {$db->usermeta} ORDER BY umeta_id", ARRAY_A ) );
 		} finally {
@@ -335,7 +342,8 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		$before = $this->snapshot();
 		foreach ( array( $callback . '_dry_run', $callback ) as $action ) {
 			$result = call_user_func( $action );
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'bbp_upgrade_user_meta_in_use', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'data is in use', $result[1] );
 			$this->assertSame( $before, $this->snapshot() );
@@ -353,8 +361,12 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		$filter = static function () { return 'user'; };
 		add_filter( 'bbp_engagements_strategy', $filter );
 		try {
-			$this->assertSame( 4, bbp_admin_upgrade_remove_user_meta_batch()['code'] );
-			$this->assertSame( 4, bbp_admin_upgrade_remove_user_meta_batch( 'favorites', true )['code'] );
+			$run = bbp_admin_upgrade_remove_user_meta_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $run['code'] );
+			$this->assertSame( 'bbp_upgrade_user_meta_in_use', $run['error'] );
+			$preview = bbp_admin_upgrade_remove_user_meta_batch( 'favorites', true );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $preview['code'] );
+			$this->assertSame( 'bbp_upgrade_user_meta_in_use', $preview['error'] );
 			$this->assertCount( 3, get_user_meta( $user, $this->key( 'favorites' ), false ) );
 		} finally {
 			remove_filter( 'bbp_engagements_strategy', $filter );
@@ -378,7 +390,9 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		};
 		add_filter( 'query', $filter );
 		try {
-			$this->assertSame( 4, bbp_admin_upgrade_remove_user_meta_batch()['code'] );
+			$result = bbp_admin_upgrade_remove_user_meta_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'bbp_upgrade_user_meta_in_use', $result['error'] );
 			$this->assertTrue( $changed );
 			$this->assertCount( 3, get_user_meta( $user, $this->key( 'favorites' ), false ) );
 		} finally {
@@ -398,7 +412,8 @@ class BBP_Tests_Admin_User_Meta_Cleanup_Batches extends BBP_UnitTestCase {
 		add_filter( 'query', $fail );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['complete'] );
 		} finally {

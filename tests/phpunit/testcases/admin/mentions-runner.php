@@ -215,6 +215,49 @@ class BBP_Tests_Admin_Mentions_Runner extends BBP_UnitTestCase {
 		$this->assertSame( array(), $this->mail );
 	}
 
+	public function test_malformed_dry_run_totals_restart_without_losing_aggregate_counts() {
+		$this->historical_posts();
+		$fields   = array( 'posts', 'scanned', 'added', 'removed', 'baselines', 'batches' );
+		$expected = bbp_admin_repair_user_mentions_preview_batch( 3, 'bbp-mentions' );
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'malformed-mention-preview' );
+		$option = bbp_admin_repair_tool_batch_option_name( 'bbp-mentions' );
+		try {
+			$result = bbp_admin_repair_user_mentions_preview_batch( 3, 'bbp-mentions' );
+			$this->assertFalse( $result['complete'] );
+			$state = get_option( $option );
+			$state['_preview_state']['totals']['posts'] = -1;
+			update_option( $option, $state, false );
+
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_repair_user_mentions_preview_batch( 3, 'bbp-mentions' );
+				if ( 0 === $i ) {
+					$this->assertTrue( $result['restarted'] );
+				}
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+			delete_option( $option );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		foreach ( $fields as $field ) {
+			$this->assertSame( $expected[ $field ], $result[ $field ] );
+		}
+	}
+
+	public function test_invalid_dry_run_batch_size_uses_the_shared_failure_contract() {
+		$result = bbp_admin_repair_user_mentions_process( 0, false, true );
+
+		$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+		$this->assertSame( 'callback', $result['error'] );
+		$this->assertFalse( $result['success'] );
+		$this->assertFalse( $result['complete'] );
+	}
+
 	public function test_backfill_errors_pause_the_shared_run_and_retain_pending_upgrade() {
 		$progress = array( 'cursor' => 0, 'upper' => 100, 'processed' => 0, 'complete' => false, 'token' => 'owner', 'expires' => time() + 300 );
 		update_option( '_bbp_mention_backfill', $progress );
