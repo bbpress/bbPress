@@ -2188,6 +2188,7 @@ function bbp_get_do_not_reply_address() {
  * content is not sent to former participants.
  *
  * @since 2.6.17 bbPress (r7493)
+ * @since 2.7.0 bbPress (r8353) Prime user caches in chunks.
  *
  * @param array $user_ids Subscriber user IDs.
  * @param int   $forum_id Forum ID.
@@ -2199,6 +2200,12 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$reply_id = bbp_get_reply_id( $reply_id );
+	$limit    = apply_filters( 'bbp_get_users_chunk_limit', 100 );
+
+	// Prime user caches in chunks before checking capabilities
+	foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
+		cache_users( $user_ids_chunk );
+	}
 
 	foreach ( $user_ids as $key => $user_id ) {
 		$can_view_forum = user_can( $user_id, 'read_forum', $forum_id );

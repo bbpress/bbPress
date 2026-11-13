@@ -1991,6 +1991,51 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_filter_subscription_user_ids
+	 */
+	public function test_bbp_filter_subscription_user_ids_primes_user_caches_in_chunks() {
+		global $wpdb;
+
+		$user_ids = $this->factory->user->create_many( 5 );
+		$forum_id = $this->factory->forum->create();
+		$limit    = function() {
+			return 2;
+		};
+
+		foreach ( $user_ids as $user_id ) {
+			bbp_set_user_role( $user_id, bbp_get_participant_role() );
+			clean_user_cache( $user_id );
+			wp_cache_delete( $user_id, 'user_meta' );
+		}
+
+		$user_queries      = 0;
+		$user_meta_queries = 0;
+		$count_queries     = function( $query ) use ( &$user_queries, &$user_meta_queries, $wpdb ) {
+			if ( ( false !== strpos( $query, "FROM {$wpdb->users}" ) ) && ( false !== strpos( $query, 'ID IN' ) ) ) {
+				$user_queries++;
+			}
+
+			if ( ( false !== strpos( $query, "FROM {$wpdb->usermeta}" ) ) && ( false !== strpos( $query, 'user_id IN' ) ) ) {
+				$user_meta_queries++;
+			}
+
+			return $query;
+		};
+
+		add_filter( 'bbp_get_users_chunk_limit', $limit );
+		add_filter( 'query', $count_queries );
+
+		try {
+			$this->assertSame( $user_ids, array_values( bbp_filter_subscription_user_ids( $user_ids, $forum_id ) ) );
+			$this->assertSame( 3, $user_queries );
+			$this->assertSame( 3, $user_meta_queries );
+		} finally {
+			remove_filter( 'bbp_get_users_chunk_limit', $limit );
+			remove_filter( 'query', $count_queries );
+		}
+	}
+
+	/**
 	 * @ticket 3229
 	 *
 	 * @covers ::bbp_send_subscription_emails
