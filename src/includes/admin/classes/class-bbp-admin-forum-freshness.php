@@ -24,6 +24,15 @@ defined( 'ABSPATH' ) || exit;
 class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 
 	/**
+	 * Saved checkpoint context version.
+	 *
+	 * @since 2.7.0 bbPress (r8356)
+	 *
+	 * @var int
+	 */
+	const CONTEXT_VERSION = 1;
+
+	/**
 	 * Calculated topic activity times keyed by topic ID.
 	 *
 	 * @since 2.7.0 bbPress (r8331)
@@ -71,13 +80,14 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$this->dry_run   = $dry_run;
 		$this->meta_keys = array( '_bbp_last_topic_id', '_bbp_last_reply_id', '_bbp_last_active_id', '_bbp_last_active_time' );
 		$this->context   = array(
-			'forum'     => bbp_get_forum_post_type(),
-			'topic'     => bbp_get_topic_post_type(),
-			'reply'     => bbp_get_reply_post_type(),
-			'public'    => bbp_get_public_status_id(),
-			'forums'    => bbp_get_string_array_values( bbp_get_countable_forum_statuses() ),
-			'topics'    => bbp_get_string_array_values( bbp_get_public_topic_statuses() ),
-			'filtered' => false !== has_filter( 'bbp_forum_query_subforum_ids' )
+			'forum'    => bbp_get_forum_post_type(),
+			'topic'    => bbp_get_topic_post_type(),
+			'reply'    => bbp_get_reply_post_type(),
+			'public'   => bbp_get_public_status_id(),
+			'forums'   => bbp_get_string_array_values( bbp_get_countable_forum_statuses() ),
+			'topics'   => bbp_get_string_array_values( bbp_get_public_topic_statuses() ),
+			'filtered' => false !== has_filter( 'bbp_forum_query_subforum_ids' ),
+			'version'  => self::CONTEXT_VERSION
 		);
 	}
 

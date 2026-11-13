@@ -639,6 +639,21 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->assertSame( array(), get_post_meta( $ids[2] ) );
 	}
 
+	public function test_checkpoint_without_context_version_restarts() {
+		$ids        = $this->fixture();
+		$this->size = 1;
+		bbp_admin_repair_freshness_batch();
+		$state = get_option( $this->option() );
+		$this->assertSame( BBP_Admin_Forum_Freshness::CONTEXT_VERSION, $state['context']['version'] );
+		unset( $state['context']['version'] );
+		update_option( $this->option(), $state );
+		$result = bbp_admin_repair_freshness_batch();
+		$this->assertTrue( $result['restarted'] );
+		$this->size = 1000;
+		$this->finish();
+		$this->assert_freshness( $ids );
+	}
+
 	public function test_higher_topic_and_forum_ids_wait_for_a_new_run() {
 		$ids = $this->fixture();
 		bbp_admin_repair_freshness_batch();
