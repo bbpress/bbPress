@@ -713,6 +713,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', $fail, 10, 3 );
 		try {
 			$result = call_user_func( $callback );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( 0, get_option( $option )['cursor'] );
 			$this->assertSame( 0, get_option( $option )['offset'] );
@@ -789,7 +791,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( array(), get_post_meta( $post_id, $new_key, false ) );
 			$this->assertContains( $tool_id, bbp_get_pending_upgrades() );
@@ -821,12 +824,48 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
 		try {
 			$result = call_user_func( $callback );
-			$this->assertSame( 5, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertSame( $before, get_option( $option ) );
 		} finally {
 			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
 		}
+		$this->finish( $callback );
+		foreach ( $posts as $post_id ) {
+			$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, $new_key, false ) );
+		}
+	}
+
+	/**
+	 * @dataProvider upgrade_tools
+	 */
+	public function test_user_meta_source_read_failures_preserve_progress_and_retry_safely( $tool_id, $old_key, $new_key, $callback ) {
+		$db      = bbp_db();
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->post->create_many( 5 );
+		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		add_user_meta( $user_id, $db->prefix . $old_key, implode( ',', $posts ) );
+		$this->assertFalse( call_user_func( $callback )['complete'] );
+		$state    = get_option( $option );
+		$before   = $this->stored_data();
+		$usermeta = $db->usermeta;
+		$suppress = $db->suppress_errors( true );
+		try {
+			$db->usermeta = 'bbp_missing_upgrade_user_meta';
+			foreach ( array( $callback . '_dry_run', $callback ) as $call ) {
+				$result = call_user_func( $call );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+				$this->assertSame( 'metadata-read', $result['error'] );
+				$this->assertFalse( $result['success'] );
+				$this->assertFalse( $result['complete'] );
+			}
+		} finally {
+			$db->usermeta = $usermeta;
+			$db->suppress_errors( $suppress );
+		}
+		$this->assertSame( $state, get_option( $option ) );
+		$this->assertSame( $before, $this->stored_data() );
 		$this->finish( $callback );
 		foreach ( $posts as $post_id ) {
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, $new_key, false ) );
@@ -922,6 +961,49 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		foreach ( $posts as $post_id ) {
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $post_id, $new_key, false ) );
 		}
+	}
+
+	public function test_malformed_user_meta_preview_state_restarts_and_preserves_full_totals() {
+		$user_id = $this->factory->user->create();
+		$posts   = $this->factory->topic->create_many( 5 );
+		$key     = bbp_db()->prefix . '_bbp_favorites';
+		$tool_id = 'bbp-user-favorites-move';
+		add_user_meta( $user_id, $key, implode( ',', $posts ) );
+		$expected = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
+		$before   = $this->stored_data();
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'malformed-user-meta-preview' );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		try {
+			$result = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
+			$this->assertFalse( $result['complete'] );
+
+			$state = get_option( $option );
+			$state['_preview_state']['totals']['added'] = -1;
+			update_option( $option, $state, false );
+			$result = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
+			$this->assertTrue( $result['restarted'] );
+
+			$state = get_option( $option );
+			$state['_preview_state']['data']['planned'] = array( 'broken' => array() );
+			update_option( $option, $state, false );
+			$result = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
+			$this->assertTrue( $result['restarted'] );
+
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( $expected, $result );
+		$this->assertSame( $before, $this->stored_data() );
+		$this->assertFalse( get_option( $option, false ) );
 	}
 
 	/**

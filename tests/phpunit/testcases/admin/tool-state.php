@@ -169,7 +169,8 @@ class BBP_Tests_Admin_Tool_State extends BBP_UnitTestCase {
 		add_filter( 'add_post_metadata', '__return_true' );
 		try {
 			$result = bbp_admin_upgrade_user_meta_batch( 'bbp-user-favorites-move', $key, '_bbp_favorite' );
-			$this->assertSame( 4, $result['code'] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['complete'] );
 			$this->assertSame( (string) $topic, get_user_meta( $user, $key, true ) );
 		} finally {

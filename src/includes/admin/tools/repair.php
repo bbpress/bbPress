@@ -1999,33 +1999,18 @@ function bbp_admin_repair_user_reply_count_process( $dry_run = false ) {
 }
 
 /**
- * Parse the canonical IDs recognized by legacy comma-separated user lists.
- *
- * @since 2.7.0 bbPress (r8286)
- *
- * @param string|null $value Stored list.
- * @return array Unique positive IDs in numeric order.
- */
-function bbp_admin_repair_user_meta_ids( $value ) {
-	$value = (string) $value;
-	$ids   = wp_parse_id_list( $value );
-	$ids   = array_intersect( $ids, explode( ',', $value ) );
-	$ids   = array_filter( $ids );
-	sort( $ids, SORT_NUMERIC );
-	return $ids;
-}
-
-/**
  * Check the saved position and context of a legacy user-list repair.
  *
  * @since 2.7.0 bbPress (r8286)
+ * @since 2.7.0 bbPress (r8347) Validate shared source and preview state.
  *
  * @param mixed $state   Saved progress.
  * @param array $context Current key, post type, and public statuses.
  * @return bool Whether the saved state can be resumed.
  */
 function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
-	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'offset' ) ) ) {
+	if ( ! bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state )
+		|| ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'repaired', 'batches' ), array( 'initial' ) ) ) {
 		return false;
 	}
 	if ( ! isset( $state['phase'], $state['context'], $state['row_hash'], $state['kept'], $state['ready'] )
@@ -2054,6 +2039,7 @@ function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
  * and parsed as a unit; saved kept IDs never exceed that single source list.
  *
  * @since 2.7.0 bbPress (r8286)
+ * @since 2.7.0 bbPress (r8347) Share source and worker lifecycle helpers.
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
@@ -2062,17 +2048,15 @@ function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
 function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false ) {
 	$db     = bbp_db();
 	$config = bbp_admin_get_user_relationship_config( $type );
-	$batch  = array(
-		'code'      => 0,
-		'repaired'  => 0,
-		'initial'   => false,
-		'complete'  => false,
-		'empty'     => false,
-		'restarted' => false,
-		'batches'   => 0
+	$batch  = bbp_admin_repair_tool_batch_status(
+		array(
+			'repaired' => 0,
+			'initial'  => false,
+			'empty'    => false,
+		)
 	);
 	if ( false === $config ) {
-		$batch['code'] = 6;
+		bbp_admin_repair_tool_batch_fail( $batch, 'callback' );
 		return $batch;
 	}
 	$tool_id = $config['repair_tool_id'];
@@ -2087,21 +2071,20 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 	$slots    = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
 	$args     = array_merge( array( $context['post_type'] ), $statuses );
 	$source   = "SELECT ID FROM {$db->posts} WHERE post_type = %s AND post_status IN ({$slots})";
-	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, 'bbp_admin_repair_user_meta_is_valid_checkpoint', $context, $dry_run );
-	if ( ! $read ) {
-		$batch['code'] = 6;
+	$fields   = array( 'repaired', 'initial', 'batches' );
+	$state    = false;
+	if ( ! bbp_admin_repair_tool_batch_start( $tool_id, $state, $batch, 'bbp_admin_repair_user_meta_is_valid_checkpoint', $context, $dry_run ) ) {
 		return $batch;
 	}
 	$batch['initial'] = false === $state;
 	if ( $batch['initial'] ) {
-		$upper = (int) $db->get_var( $db->prepare( "SELECT MAX(umeta_id) FROM {$db->usermeta} WHERE meta_key = %s", $key ) );
-		if ( ! empty( $db->last_error ) ) {
-			$batch['code'] = 1;
+		$upper = bbp_admin_repair_user_meta_upper_id( $key, $batch );
+		if ( false === $upper ) {
 			return $batch;
 		}
 		$live = $db->get_var( $db->prepare( $source . ' LIMIT 1', $args ) );
 		if ( ! empty( $db->last_error ) ) {
-			$batch['code'] = 2;
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
 		$state = array(
@@ -2115,34 +2098,29 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 			'context'  => $context
 		);
 		if ( empty( $live ) ) {
-			$batch['complete'] = $batch['empty'] = true;
-			if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, true, $dry_run ) ) {
-				$batch['code']     = 6;
-				$batch['complete'] = false;
-			}
+			$batch['empty'] = true;
+			bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, true, $dry_run, $fields );
 			return $batch;
 		}
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
-			$batch['code'] = 6;
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
 			return $batch;
 		}
 	}
 	$size = bbp_admin_repair_tool_batch_size( $tool_id );
-	bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'repaired', 'initial', 'batches' ) );
+	bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
 	do {
-		$work    = 0;
+		$work = 0;
 		while ( $work < $size && $state['cursor'] <= $state['upper_id'] ) {
-			$row = $db->get_row( $db->prepare( "SELECT umeta_id, user_id, meta_key, meta_value FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $key, $state['cursor'], $state['upper_id'] ) );
-			if ( ! empty( $db->last_error ) ) {
-				$batch['code'] = 1;
-				break;
+			$row = bbp_admin_repair_user_meta_row( $key, $state['cursor'], $state['upper_id'], $batch );
+			if ( false === $row ) {
+				return $batch;
 			}
 			if ( empty( $row ) ) {
 				$batch['complete'] = true;
 				break;
 			}
 			$id   = (int) $row->umeta_id;
-			$hash = md5( $row->user_id . ':' . $row->meta_key . ':' . $row->meta_value );
+			$hash = bbp_admin_repair_user_meta_row_hash( $row, true );
 			$ids  = bbp_admin_repair_user_meta_ids( $row->meta_value );
 			$same = $id === $state['cursor'] && $hash === $state['row_hash'];
 			$bad  = $same && ( $state['offset'] > count( $ids ) || ( $state['ready'] && count( $ids ) !== $state['offset'] )
@@ -2162,8 +2140,8 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 					$id_slots = implode( ', ', array_fill( 0, count( $next ), '%d' ) );
 					$valid    = $db->get_col( $db->prepare( $source . " AND ID IN ({$id_slots}) ORDER BY ID", array_merge( $args, $next ) ) );
 					if ( ! empty( $db->last_error ) ) {
-						$batch['code'] = 2;
-						break;
+						bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+						return $batch;
 					}
 				}
 				$work += count( $next );
@@ -2173,9 +2151,8 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 						$state['phase']    = 'repair';
 						$state['cursor']   = $state['offset'] = 0;
 						$state['row_hash'] = '';
-						if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, false, $dry_run ) ) {
-							$batch['code'] = 6;
-							break;
+						if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
+							return $batch;
 						}
 					} elseif ( $state['offset'] >= count( $ids ) ) {
 						$work += empty( $next ) ? 1 : 0;
@@ -2196,9 +2173,10 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 			++$work;
 			$value = $state['kept'];
 			if ( ! $dry_run ) {
-				$batch['code'] = bbp_admin_repair_metadata_row( 'user', $row, $key, '' === $value ? null : $value );
-				if ( $batch['code'] ) {
-					break;
+				$code = bbp_admin_repair_metadata_row( 'user', $row, $key, '' === $value ? null : $value );
+				if ( $code ) {
+					bbp_admin_repair_tool_batch_fail( $batch, 1 === $code ? 'metadata-read' : 'metadata-write' );
+					return $batch;
 				}
 			}
 			if ( '' === $value || $row->meta_value !== $value || $row->meta_key !== $key ) {
@@ -2209,24 +2187,19 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 			$state['row_hash'] = $state['kept'] = '';
 			$state['ready']    = false;
 		}
-		if ( ! $batch['code'] && ! $batch['complete'] ) {
-			$remaining = $db->get_var( $db->prepare( "SELECT umeta_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $key, $state['cursor'], $state['upper_id'] ) );
-			if ( ! empty( $db->last_error ) ) {
-				$batch['code'] = 1;
-			} else {
-				$batch['complete'] = empty( $remaining );
+		if ( ! $batch['complete'] ) {
+			$remaining = bbp_admin_repair_user_meta_row( $key, $state['cursor'], $state['upper_id'], $batch );
+			if ( false === $remaining ) {
+				return $batch;
 			}
+			$batch['complete'] = empty( $remaining );
 		}
 		$batch['empty']    = $batch['complete'] && 'probe' === $state['phase'];
 		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
-		bbp_admin_repair_tool_store_preview( $state, $batch, array( 'repaired', 'initial', 'batches' ) );
-		if ( ! bbp_admin_repair_tool_save_checkpoint( $tool_id, $state, ! $batch['code'] && $batch['complete'], $dry_run ) ) {
-			$batch['code'] = 6;
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $batch['complete'], $dry_run, $fields ) ) {
+			return $batch;
 		}
-		if ( $batch['code'] ) {
-			$batch['complete'] = false;
-		}
-	} while ( bbp_admin_repair_tool_continue_preview( $dry_run ) && ! $batch['code'] && ! $batch['complete'] );
+	} while ( bbp_admin_repair_tool_batch_continue( $batch, $dry_run ) );
 
 	return $batch;
 }

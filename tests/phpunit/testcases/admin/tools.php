@@ -4209,11 +4209,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$db->usermeta = 'bbp_missing_favorites_usermeta';
-			$this->assertSame( 1, bbp_admin_repair_user_favorites_dry_run()[0] );
+			$result = bbp_admin_repair_user_favorites_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 
 			$db->usermeta = $old_usermeta;
 			$db->posts    = 'bbp_missing_favorites_posts';
-			$this->assertSame( 2, bbp_admin_repair_user_favorites_dry_run()[0] );
+			$result = bbp_admin_repair_user_favorites_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 		} finally {
 			$db->usermeta = $old_usermeta;
 			$db->posts    = $old_posts;
@@ -4242,7 +4246,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'query', $query_filter );
 
 		try {
-			$this->assertSame( 4, bbp_admin_repair_user_favorites()[0] );
+			$result = bbp_admin_repair_user_favorites();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( '999999', get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -4273,7 +4279,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'query', $query_filter );
 
 		try {
-			$this->assertSame( 5, bbp_admin_repair_user_favorites()[0] );
+			$result = bbp_admin_repair_user_favorites();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -4453,11 +4461,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$db->usermeta = 'bbp_missing_topic_subscriptions_usermeta';
-			$this->assertSame( 1, bbp_admin_repair_user_topic_subscriptions_dry_run()[0] );
+			$result = bbp_admin_repair_user_topic_subscriptions_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 
 			$db->usermeta = $old_usermeta;
 			$db->posts    = 'bbp_missing_topic_subscriptions_posts';
-			$this->assertSame( 2, bbp_admin_repair_user_topic_subscriptions_dry_run()[0] );
+			$result = bbp_admin_repair_user_topic_subscriptions_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 		} finally {
 			$db->usermeta = $old_usermeta;
 			$db->posts    = $old_posts;
@@ -4486,7 +4498,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'query', $query_filter );
 
 		try {
-			$this->assertSame( 4, bbp_admin_repair_user_topic_subscriptions()[0] );
+			$result = bbp_admin_repair_user_topic_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( '999999', get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -4517,7 +4531,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'query', $query_filter );
 
 		try {
-			$this->assertSame( 5, bbp_admin_repair_user_topic_subscriptions()[0] );
+			$result = bbp_admin_repair_user_topic_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -4697,11 +4713,15 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$db->usermeta = 'bbp_missing_forum_subscriptions_usermeta';
-			$this->assertSame( 1, bbp_admin_repair_user_forum_subscriptions_dry_run()[0] );
+			$result = bbp_admin_repair_user_forum_subscriptions_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 
 			$db->usermeta = $old_usermeta;
 			$db->posts    = 'bbp_missing_forum_subscriptions_posts';
-			$this->assertSame( 2, bbp_admin_repair_user_forum_subscriptions_dry_run()[0] );
+			$result = bbp_admin_repair_user_forum_subscriptions_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'source-read', $result['error'] );
 		} finally {
 			$db->usermeta = $old_usermeta;
 			$db->posts    = $old_posts;
@@ -4730,7 +4750,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'query', $query_filter );
 
 		try {
-			$this->assertSame( 4, bbp_admin_repair_user_forum_subscriptions()[0] );
+			$result = bbp_admin_repair_user_forum_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( '999999', get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -4761,7 +4783,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'query', $query_filter );
 
 		try {
-			$this->assertSame( 5, bbp_admin_repair_user_forum_subscriptions()[0] );
+			$result = bbp_admin_repair_user_forum_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertSame( "{$live_id},999999", get_user_meta( $user_id, $key, true ) );
 		} finally {
 			remove_filter( 'query', $query_filter );
@@ -8096,18 +8120,24 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$db->usermeta = 'bbp_missing_favorites_usermeta';
 			$result       = bbp_admin_upgrade_user_favorites_dry_run();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( 2, bbp_admin_upgrade_user_favorites()[0] );
+			$result = bbp_admin_upgrade_user_favorites();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 
 			$db->usermeta = $old_usermeta;
 			$db->postmeta = 'bbp_missing_favorites_postmeta';
 			$result       = bbp_admin_upgrade_user_favorites_dry_run();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( 3, bbp_admin_upgrade_user_favorites()[0] );
+			$result = bbp_admin_upgrade_user_favorites();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 		} finally {
 			$db->usermeta = $old_usermeta;
 			$db->postmeta = $old_postmeta;
@@ -8135,7 +8165,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_user_favorites();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( "Failed!\n2 favorite relationships added.\n1 favorite relationship could not be added.", $result[1] );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[0], '_bbp_favorite', false ) );
@@ -8224,18 +8255,24 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$db->usermeta = 'bbp_missing_topic_subscriptions_usermeta';
 			$result       = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( 2, bbp_admin_upgrade_user_topic_subscriptions()[0] );
+			$result = bbp_admin_upgrade_user_topic_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 
 			$db->usermeta = $old_usermeta;
 			$db->postmeta = 'bbp_missing_topic_subscriptions_postmeta';
 			$result       = bbp_admin_upgrade_user_topic_subscriptions_dry_run();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( 3, bbp_admin_upgrade_user_topic_subscriptions()[0] );
+			$result = bbp_admin_upgrade_user_topic_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 		} finally {
 			$db->usermeta = $old_usermeta;
 			$db->postmeta = $old_postmeta;
@@ -8264,7 +8301,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_user_topic_subscriptions();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( "Failed!\n2 topic subscription relationships added.\n1 topic subscription relationship could not be added.", $result[1] );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $topic_ids[0], '_bbp_subscription', false ) );
@@ -8349,18 +8387,24 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$db->usermeta = 'bbp_missing_forum_subscriptions_usermeta';
 			$result       = bbp_admin_upgrade_user_forum_subscriptions_dry_run();
-			$this->assertSame( 2, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( 2, bbp_admin_upgrade_user_forum_subscriptions()[0] );
+			$result = bbp_admin_upgrade_user_forum_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 
 			$db->usermeta = $old_usermeta;
 			$db->postmeta = 'bbp_missing_forum_subscriptions_postmeta';
 			$result       = bbp_admin_upgrade_user_forum_subscriptions_dry_run();
-			$this->assertSame( 3, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( 'Failed!', $result[1] );
-			$this->assertSame( 3, bbp_admin_upgrade_user_forum_subscriptions()[0] );
+			$result = bbp_admin_upgrade_user_forum_subscriptions();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-read', $result['error'] );
 		} finally {
 			$db->usermeta = $old_usermeta;
 			$db->postmeta = $old_postmeta;
@@ -8389,7 +8433,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		try {
 			$result = bbp_admin_upgrade_user_forum_subscriptions();
-			$this->assertSame( 4, $result[0] );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'metadata-write', $result['error'] );
 			$this->assertFalse( $result['success'] );
 			$this->assertStringContainsString( "Failed!\n2 forum subscription relationships added.\n1 forum subscription relationship could not be added.", $result[1] );
 			$this->assertSame( array( (string) $user_id ), get_post_meta( $forum_ids[0], '_bbp_subscription', false ) );

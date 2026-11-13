@@ -1364,11 +1364,55 @@ function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admi
 		return array( false, false, false );
 	}
 	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run );
-	$preview_valid = ! isset( $state['_preview_state'] ) || ( is_array( $state['_preview_state'] )
-		&& isset( $state['_preview_state']['totals'], $state['_preview_state']['data'] )
-		&& is_array( $state['_preview_state']['totals'] ) && is_array( $state['_preview_state']['data'] ) );
+	$preview_valid = bbp_admin_repair_tool_is_valid_preview_state( $state );
 	$restarted = $read && false !== $state && ( ! $preview_valid || ! call_user_func( $validator, $state, $context ) );
 	return array( $read, $restarted ? false : $state, $restarted );
+}
+
+/**
+ * Validate the typed aggregate fields saved by a browser Dry Run.
+ *
+ * Workers name the integer, boolean, and array fields that belong to their
+ * preview contract. Direct Runs and checkpoints created before a preview have
+ * no aggregate state and remain valid.
+ *
+ * @since 2.7.0 bbPress (r8347)
+ * @access private
+ *
+ * @param mixed $state          Saved worker checkpoint.
+ * @param array $integer_fields Nonnegative integer total fields.
+ * @param array $boolean_fields Boolean total fields.
+ * @param array $array_fields   Array data fields.
+ * @return bool Whether the aggregate preview state is valid.
+ */
+function bbp_admin_repair_tool_is_valid_preview_state( $state, $integer_fields = array(), $boolean_fields = array(), $array_fields = array() ) {
+	if ( ! isset( $state['_preview_state'] ) ) {
+		return true;
+	}
+
+	$preview = $state['_preview_state'];
+	if ( ! is_array( $preview ) || ! isset( $preview['totals'], $preview['data'] )
+		|| ! is_array( $preview['totals'] ) || ! is_array( $preview['data'] ) ) {
+		return false;
+	}
+
+	foreach ( $integer_fields as $field ) {
+		if ( ! isset( $preview['totals'][ $field ] ) || ! is_int( $preview['totals'][ $field ] ) || $preview['totals'][ $field ] < 0 ) {
+			return false;
+		}
+	}
+	foreach ( $boolean_fields as $field ) {
+		if ( ! isset( $preview['totals'][ $field ] ) || ! is_bool( $preview['totals'][ $field ] ) ) {
+			return false;
+		}
+	}
+	foreach ( $array_fields as $field ) {
+		if ( ! isset( $preview['data'][ $field ] ) || ! is_array( $preview['data'][ $field ] ) ) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**
@@ -1414,6 +1458,123 @@ function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = arra
 	}
 
 	return $state['cursor'] <= $state['upper_id'];
+}
+
+/**
+ * Validate the shared cursor within one legacy user-meta list.
+ *
+ * @since 2.7.0 bbPress (r8347)
+ * @access private
+ *
+ * @param mixed $state Saved worker checkpoint.
+ * @return bool Whether the source row and list offset can be resumed.
+ */
+function bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state ) {
+	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'offset' ) )
+		|| ! isset( $state['row_hash'] ) || ! is_string( $state['row_hash'] ) ) {
+		return false;
+	}
+
+	if ( 0 === $state['offset'] ) {
+		return '' === $state['row_hash'];
+	}
+
+	return 0 !== $state['cursor'] && 1 === preg_match( '/^[a-f0-9]{32}$/D', $state['row_hash'] );
+}
+
+/**
+ * Parse IDs from a legacy comma-separated user-meta list.
+ *
+ * Canonical parsing retains only literal positive integer tokens and sorts
+ * them for repaired storage. Migration parsing preserves the historical
+ * wp_parse_id_list() order while removing zero values.
+ *
+ * @since 2.7.0 bbPress (r8286)
+ * @since 2.7.0 bbPress (r8347) Share repair and migration list parsing.
+ *
+ * @param string|null $value     Stored list.
+ * @param bool        $canonical Whether to require canonical integer tokens.
+ * @return array Unique positive IDs.
+ */
+function bbp_admin_repair_user_meta_ids( $value, $canonical = true ) {
+	$value = (string) $value;
+	$ids   = wp_parse_id_list( $value );
+	if ( $canonical ) {
+		$ids = array_intersect( $ids, explode( ',', $value ) );
+		sort( $ids, SORT_NUMERIC );
+	}
+
+	return array_values( array_filter( $ids ) );
+}
+
+/**
+ * Create the stable fingerprint for one legacy user-meta source row.
+ *
+ * Repairs include the stored key because they canonicalize key variants.
+ * Migrations retain their historical user-and-value fingerprint.
+ *
+ * @since 2.7.0 bbPress (r8347)
+ * @access private
+ *
+ * @param object $row         User-meta source row.
+ * @param bool   $include_key Whether to include the stored metadata key.
+ * @return string MD5 row fingerprint.
+ */
+function bbp_admin_repair_user_meta_row_hash( $row, $include_key = false ) {
+	$value = (int) $row->user_id . ':';
+	if ( $include_key ) {
+		$value .= $row->meta_key . ':';
+	}
+
+	return md5( $value . $row->meta_value );
+}
+
+/**
+ * Read the fixed upper source-row bound for one legacy user-meta key.
+ *
+ * @since 2.7.0 bbPress (r8347)
+ * @access private
+ *
+ * @param string $key   Legacy user-meta key.
+ * @param array  $batch Current worker result.
+ * @return int|false Upper metadata ID, or false on a read failure.
+ */
+function bbp_admin_repair_user_meta_upper_id( $key, &$batch ) {
+	$db       = bbp_db();
+	$upper_id = $db->get_var( $db->prepare( "SELECT MAX(umeta_id) FROM {$db->usermeta} WHERE meta_key = %s", $key ) );
+	if ( ! empty( $db->last_error ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
+		return false;
+	}
+
+	return (int) $upper_id;
+}
+
+/**
+ * Read the next legacy user-meta source row within fixed bounds.
+ *
+ * A false return is a read failure recorded in the batch. A null return means
+ * no source row remains. Supplying the same cursor and bound reads one exact
+ * metadata row for checkpoint validation.
+ *
+ * @since 2.7.0 bbPress (r8347)
+ * @access private
+ *
+ * @param string $key      Legacy user-meta key.
+ * @param int    $cursor   Inclusive metadata ID cursor.
+ * @param int    $upper_id Inclusive fixed upper metadata ID.
+ * @param array  $batch    Current worker result.
+ * @return object|null|false Source row, no row, or a read failure.
+ */
+function bbp_admin_repair_user_meta_row( $key, $cursor, $upper_id, &$batch ) {
+	$db  = bbp_db();
+	$row = $db->get_row( $db->prepare( "SELECT umeta_id, user_id, meta_key, meta_value FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id >= %d AND umeta_id <= %d ORDER BY umeta_id LIMIT 1", $key, $cursor, $upper_id ) );
+	if ( ! empty( $db->last_error ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
+		return false;
+	}
+
+	return $row;
 }
 
 /**
