@@ -192,6 +192,7 @@ function bbp_add_options() {
  * @since 2.7.0 bbPress (r8253) Delete built-in tool batch checkpoints.
  * @since 2.7.0 bbPress (r8284) Delete temporary forum hierarchy nodes.
  * @since 2.7.0 bbPress (r8303) Clean up the shared batch namespace.
+ * @since 2.7.0 bbPress (r8350) Delete Dry Run, lock, and mention backfill state.
  */
 function bbp_delete_options() {
 
@@ -203,21 +204,48 @@ function bbp_delete_options() {
 	// Delete non-default temporary options
 	delete_option( '_bbp_tools_run_repair' );
 	delete_option( '_bbp_tools_run_upgrade' );
+	delete_option( '_bbp_tools_dry_run_repair' );
+	delete_option( '_bbp_tools_dry_run_upgrade' );
 	delete_option( '_bbp_tools_run_status_repair' );
 	delete_option( '_bbp_tools_run_status_upgrade' );
+	delete_option( '_bbp_tools_dry_run_status_repair' );
+	delete_option( '_bbp_tools_dry_run_status_upgrade' );
 	delete_option( '_bbp_pending_upgrades_lock' );
+	delete_option( '_bbp_mention_backfill' );
 
 	// Delete batch checkpoints and scratch data without loading admin tools
-	$bbp_db  = bbp_db();
-	$pattern = $bbp_db->esc_like( '_bbp_tool_batch_' ) . '%';
+	bbp_delete_options_with_prefix( '_bbp_tool_batch_' );
+	bbp_delete_options_with_prefix( '_bbp_tool_lock_' );
+
+	// Allow previously activated plugins to append their own options.
+	do_action( 'bbp_delete_options' );
+}
+
+/**
+ * Delete non-autoloaded options in one internal namespace.
+ *
+ * @since 2.7.0 bbPress (r8350)
+ * @access private
+ *
+ * @param string $prefix Exact option-name prefix.
+ * @return bool Whether every discovered option was deleted.
+ */
+function bbp_delete_options_with_prefix( $prefix = '' ) {
+	$bbp_db = bbp_db();
+	$prefix = (string) $prefix;
+	if ( empty( $prefix ) ) {
+		return false;
+	}
+
+	$pattern = $bbp_db->esc_like( $prefix ) . '%';
 	do {
 		$names = $bbp_db->get_col( $bbp_db->prepare( "SELECT option_name FROM {$bbp_db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT 100", $pattern ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
-			break;
+			return false;
 		}
 		foreach ( $names as $name ) {
 			if ( ! delete_option( $name ) ) {
-				break 2;
+				return false;
 			}
 		}
 		if ( ! empty( $names ) ) {
@@ -229,8 +257,7 @@ function bbp_delete_options() {
 		$count = count( $names );
 	} while ( 100 === $count );
 
-	// Allow previously activated plugins to append their own options.
-	do_action( 'bbp_delete_options' );
+	return true;
 }
 
 /**

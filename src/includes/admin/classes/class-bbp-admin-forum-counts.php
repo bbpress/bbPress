@@ -217,10 +217,10 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array $node Traversal node, passed by reference.
 	 * @return bool Whether the node remains safe to write.
 	 */
-	protected function before_write( $node ) {
+	protected function before_write( &$node ) {
 		if ( ! parent::before_write( $node ) ) {
 			return false;
 		}
@@ -230,8 +230,12 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 				return false;
 			}
 			if ( $direct !== $node['direct'] ) {
-				$this->corrupt = true;
-				return false;
+				foreach ( $this->meta_keys as $key ) {
+					$node['values'][ $key ] += $direct[ $key ] - $node['direct'][ $key ];
+				}
+				$node['direct'] = $direct;
+				$node['phase']  = 'write';
+				$node['key']    = 0;
 			}
 		}
 		return true;

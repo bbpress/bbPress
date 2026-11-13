@@ -33,6 +33,18 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	private $topic_times = array();
 
 	/**
+	 * Latest direct topic activity keyed by forum ID.
+	 *
+	 * Batched Runs and browser Dry Runs persist the same aggregate, so a forum
+	 * step reads one bounded summary instead of every direct topic.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @var array
+	 */
+	private $forum_topics = array();
+
+	/**
 	 * Aggregate repair counts keyed by source kind.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
@@ -59,13 +71,14 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$this->dry_run   = $dry_run;
 		$this->meta_keys = array( '_bbp_last_topic_id', '_bbp_last_reply_id', '_bbp_last_active_id', '_bbp_last_active_time' );
 		$this->context   = array(
-			'forum'    => bbp_get_forum_post_type(),
-			'topic'    => bbp_get_topic_post_type(),
-			'reply'    => bbp_get_reply_post_type(),
-			'public'   => bbp_get_public_status_id(),
-			'forums'   => bbp_get_string_array_values( bbp_get_countable_forum_statuses() ),
-			'topics'   => bbp_get_string_array_values( bbp_get_public_topic_statuses() ),
-			'filtered' => false !== has_filter( 'bbp_forum_query_subforum_ids' )
+			'forum'     => bbp_get_forum_post_type(),
+			'topic'     => bbp_get_topic_post_type(),
+			'reply'     => bbp_get_reply_post_type(),
+			'public'    => bbp_get_public_status_id(),
+			'forums'    => bbp_get_string_array_values( bbp_get_countable_forum_statuses() ),
+			'topics'    => bbp_get_string_array_values( bbp_get_public_topic_statuses() ),
+			'filtered'  => false !== has_filter( 'bbp_forum_query_subforum_ids' ),
+			'aggregate' => 1
 		);
 	}
 
@@ -88,7 +101,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @return array Freshness phase names.
 	 */
 	protected function phases() {
-		return array_merge( parent::phases(), array( 'topics', 'orphans', 'preview-cleanup' ) );
+		return array_merge( parent::phases(), array( 'topics', 'orphans', 'summary-cleanup', 'preview-cleanup' ) );
 	}
 
 	/**
@@ -111,20 +124,12 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @return bool Whether the checkpoint can be resumed.
 	 */
 	protected function valid_state( $state ) {
-		$valid = parent::valid_state( $state )
+		return parent::valid_state( $state )
 			&& isset( $state['orphan_cursor'], $state['orphan_upper'] )
 			&& is_int( $state['orphan_cursor'] ) && is_int( $state['orphan_upper'] )
 			&& $state['orphan_cursor'] >= 0 && $state['orphan_upper'] >= $state['orphan_cursor']
 			&& array_key_exists( 'topic_node', $state )
 			&& ( 'topics' === $state['phase'] && $state['current'] && ! $this->async ? is_array( $state['topic_node'] ) : false === $state['topic_node'] );
-		if ( ! $valid || ! isset( $state['_preview_totals'] ) ) {
-			return $valid;
-		}
-
-		$totals = $state['_preview_totals'];
-		return is_array( $totals ) && array_keys( $totals ) === array_keys( $this->totals )
-			&& count( array_filter( $totals, 'is_int' ) ) === count( $totals )
-			&& min( $totals ) >= 0;
 	}
 
 	/**
@@ -229,7 +234,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @return string Topic-node option prefix.
 	 */
 	private function topic_prefix() {
-		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_topics_' . $this->state['token'] . '_';
+		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_topics_';
 	}
 
 	/**
@@ -241,7 +246,30 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @return string Topic-node option name.
 	 */
 	private function topic_option( $id ) {
-		return $this->topic_prefix() . $id;
+		return $this->topic_prefix() . $this->state['token'] . '_' . $id;
+	}
+
+	/**
+	 * Return the option-name prefix for direct-topic summaries.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @return string Forum-topic aggregate option prefix.
+	 */
+	private function forum_topic_prefix() {
+		return bbp_admin_repair_tool_batch_option_name( $this->tool_id ) . '_forum_topics_';
+	}
+
+	/**
+	 * Return the option name for one forum's direct-topic aggregate.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param int $id Forum ID.
+	 * @return string Forum-topic aggregate option name.
+	 */
+	private function forum_topic_option( $id ) {
+		return $this->forum_topic_prefix() . $this->state['token'] . '_' . $id;
 	}
 
 	/**
@@ -391,39 +419,17 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			}
 			return $values;
 		}
-		$args = array(
-			'post_parent'            => $id,
-			'post_type'              => $this->context['topic'],
-			'meta_key'               => '_bbp_last_active_time',
-			'meta_type'              => 'DATETIME',
-			'orderby'                => 'meta_value',
-			'numberposts'            => 1,
-			'fields'                 => 'ids',
-			'cache_results'          => false,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false
-		);
-		if ( $this->dry_run ) {
-			// Compare against the topic activity calculated by this same preview.
-			unset( $args['meta_key'], $args['meta_type'] );
-			$args['numberposts'] = -1;
-			$args['orderby']     = 'ID';
+		$topic = $this->forum_topic( $id );
+		if ( $this->error || $this->corrupt ) {
+			return $values;
 		}
-		$topics = get_posts( $args );
-		if ( $this->dry_run ) {
-			usort( $topics, array( $this, 'compare_topic_times' ) );
-		}
-		if ( ! empty( $this->db->last_error ) ) {
+		$values['_bbp_last_topic_id'] = $topic;
+		$activity = bbp_forum_query_last_activity_id( $id );
+		if ( false === $activity || ! empty( $this->db->last_error ) ) {
 			$this->fail( 'source-read' );
 			return $values;
 		}
-		$values['_bbp_last_topic_id'] = empty( $topics ) ? 0 : (int) ( is_object( $topics[0] ) ? $topics[0]->ID : $topics[0] );
 		foreach ( array( '_bbp_last_reply_id', '_bbp_last_active_id' ) as $key ) {
-			$activity = bbp_forum_query_last_activity_id( $id );
-			if ( false === $activity || ! empty( $this->db->last_error ) ) {
-				$this->fail( 'source-read' );
-				return $values;
-			}
 			$values[ $key ] = (int) $activity;
 		}
 		return $values;
@@ -441,19 +447,83 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	/**
-	 * Compare topics by calculated activity time and topic ID.
+	 * Return one forum's latest direct topic from the current repair.
 	 *
-	 * @since 2.7.0 bbPress (r8331)
+	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param int|object $left  Left topic ID or object.
-	 * @param int|object $right Right topic ID or object.
-	 * @return int Less than, equal to, or greater than zero for sorting.
+	 * @param int $id Forum ID.
+	 * @return int Topic ID.
 	 */
-	public function compare_topic_times( $left, $right ) {
-		$left  = is_object( $left ) ? (int) $left->ID : (int) $left;
-		$right = is_object( $right ) ? (int) $right->ID : (int) $right;
-		$comparison = strcmp( $this->topic_time( $right ), $this->topic_time( $left ) );
-		return $comparison ? $comparison : $right <=> $left;
+	private function forum_topic( $id ) {
+		if ( isset( $this->forum_topics[ $id ] ) ) {
+			return $this->forum_topics[ $id ]['id'];
+		}
+
+		$summary = false;
+		if ( ! $this->dry_run || $this->async ) {
+			list( $read, $summary ) = bbp_admin_repair_get_option( $this->forum_topic_option( $id ) );
+			if ( ! $read ) {
+				$this->fail( 'progress' );
+				return 0;
+			}
+		}
+		if ( false === $summary ) {
+			$summary = array(
+				'id'   => 0,
+				'time' => '',
+			);
+		}
+		if ( ! is_array( $summary ) || array_keys( $summary ) !== array( 'id', 'time' ) || ! is_int( $summary['id'] ) || $summary['id'] < 0 || ! is_string( $summary['time'] ) ) {
+			$this->corrupt = true;
+			return 0;
+		}
+
+		$this->forum_topics[ $id ] = $summary;
+		return $summary['id'];
+	}
+
+	/**
+	 * Add one calculated public topic to its forum's aggregate.
+	 *
+	 * Replaying a completed topic is safe because the aggregate is a maximum by
+	 * activity time and then topic ID.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $node Completed topic node.
+	 * @return bool Whether the aggregate was recorded.
+	 */
+	private function record_forum_topic( $node ) {
+		$forum_id = $node['source']['parent'];
+		if ( ! $forum_id || $this->context['public'] !== $node['source']['status'] ) {
+			return true;
+		}
+
+		$this->forum_topic( $forum_id );
+		if ( $this->error || $this->corrupt ) {
+			return false;
+		}
+		$summary    = $this->forum_topics[ $forum_id ];
+		$topic_id   = $node['id'];
+		$topic_time = (string) $node['values']['_bbp_last_active_time'];
+		$comparison = strcmp( $topic_time, $summary['time'] );
+		if ( $comparison < 0 || ( 0 === $comparison && $topic_id <= $summary['id'] ) ) {
+			return true;
+		}
+
+		$summary = array(
+			'id'   => $topic_id,
+			'time' => $topic_time,
+		);
+		$option = $this->forum_topic_option( $forum_id );
+		if ( $this->dry_run && ! $this->async ) {
+			$this->created_options[ $option ] = true;
+		} elseif ( ! bbp_admin_repair_tool_save_option( $option, $summary ) ) {
+			$this->fail( 'progress' );
+			return false;
+		}
+		$this->forum_topics[ $forum_id ] = $summary;
+		return true;
 	}
 
 	/**
@@ -570,11 +640,18 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Completed traversal node.
+	 * @param array $node Completed traversal node, passed by reference.
 	 */
-	protected function completed_node( $node ) {
-		if ( $this->dry_run && ! $this->async && 'topics' === $node['kind'] ) {
-			$this->topic_times[ $node['id'] ] = $node['values']['_bbp_last_active_time'];
+	protected function completed_node( &$node ) {
+		if ( 'topics' === $node['kind'] ) {
+			if ( $this->dry_run ) {
+				$this->topic_times[ $node['id'] ] = $node['values']['_bbp_last_active_time'];
+			}
+			if ( ! $this->record_forum_topic( $node ) ) {
+				$node['phase'] = 'write';
+				--$node['key'];
+				return;
+			}
 		}
 		if ( ! $this->async ) {
 			++$this->totals[ $node['kind'] ];
@@ -593,23 +670,45 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	}
 
 	/**
+	 * Validate aggregate totals in a browser Dry Run checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $data Preview simulation data.
+	 * @return bool Whether the aggregate totals are valid.
+	 */
+	protected function valid_preview_state( $data ) {
+		if ( ! parent::valid_preview_state( $data ) || ! isset( $data['totals'] ) || ! is_array( $data['totals'] ) ) {
+			return false;
+		}
+		$totals = $data['totals'];
+		return array_keys( $totals ) === array_keys( $this->totals )
+			&& count( array_filter( $totals, 'is_int' ) ) === count( $totals )
+			&& min( $totals ) >= 0;
+	}
+
+	/**
 	 * Restore aggregate totals when a browser Dry Run resumes.
 	 *
-	 * @since 2.7.0 bbPress (r8331)
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $data Preview simulation data.
 	 */
-	protected function load_preview_state() {
-		if ( isset( $this->state['_preview_totals'] ) ) {
-			$this->totals = $this->state['_preview_totals'];
+	protected function load_preview_state( $data ) {
+		if ( isset( $data['totals'] ) ) {
+			$this->totals = $data['totals'];
 		}
 	}
 
 	/**
 	 * Add aggregate totals to the browser Dry Run checkpoint.
 	 *
-	 * @since 2.7.0 bbPress (r8331)
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $data Preview simulation data, passed by reference.
 	 */
-	protected function save_preview_state() {
-		$this->state['_preview_totals'] = $this->totals;
+	protected function save_preview_state( &$data ) {
+		$data['totals'] = $this->totals;
 	}
 
 	/**
@@ -688,6 +787,18 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @return int Work units consumed.
 	 */
 	protected function step( $limit, &$complete ) {
+		if ( 'summary-cleanup' === $this->state['phase'] ) {
+			$preview = $this->dry_run && ! $this->async;
+			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->forum_topic_prefix(), $limit, $preview, $this->created_options, $this->inspected_options );
+			if ( ! $success ) {
+				$this->fail( 'progress' );
+			}
+			if ( $complete && $this->async ) {
+				$complete             = false;
+				$this->state['phase'] = 'preview-cleanup';
+			}
+			return $work;
+		}
 		if ( 'preview-cleanup' === $this->state['phase'] ) {
 			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_options( $this->topic_prefix(), $limit, false, $this->created_options, $this->inspected_options );
 			if ( ! $success ) {
@@ -721,9 +832,9 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$phase = $this->state['phase'];
 		$id    = $this->state['current'];
 		$work  = parent::step( $limit, $complete );
-		if ( $this->async && 'cleanup' === $phase && $complete ) {
+		if ( 'cleanup' === $phase && $complete ) {
 			$complete             = false;
-			$this->state['phase'] = 'preview-cleanup';
+			$this->state['phase'] = 'summary-cleanup';
 		}
 		if ( 'topics' === $phase && ! $this->state['current'] ) {
 			$this->state['topic_node'] = false;

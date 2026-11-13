@@ -157,16 +157,28 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->remember_option( '_bbp_test_option' );
 		$this->remember_option( '_bbp_tools_run_repair' );
 		$this->remember_option( '_bbp_tools_run_upgrade' );
+		$this->remember_option( '_bbp_tools_dry_run_repair' );
+		$this->remember_option( '_bbp_tools_dry_run_upgrade' );
 		$this->remember_option( '_bbp_tools_run_status_repair' );
 		$this->remember_option( '_bbp_tools_run_status_upgrade' );
+		$this->remember_option( '_bbp_tools_dry_run_status_repair' );
+		$this->remember_option( '_bbp_tools_dry_run_status_upgrade' );
+		$this->remember_option( '_bbp_pending_upgrades_lock' );
+		$this->remember_option( '_bbp_mention_backfill' );
 		$this->remember_option( 'bbp_test_unrelated' );
 
 		$this->set_option( '_bbp_root_slug', 'delete-me' );
 		$this->set_option( '_bbp_test_option', 'delete-me-too' );
 		$this->set_option( '_bbp_tools_run_repair', array( 'temporary' ) );
 		$this->set_option( '_bbp_tools_run_upgrade', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_dry_run_repair', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_dry_run_upgrade', array( 'temporary' ) );
 		$this->set_option( '_bbp_tools_run_status_repair', array( 'temporary' ) );
 		$this->set_option( '_bbp_tools_run_status_upgrade', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_dry_run_status_repair', array( 'temporary' ) );
+		$this->set_option( '_bbp_tools_dry_run_status_upgrade', array( 'temporary' ) );
+		$this->set_option( '_bbp_pending_upgrades_lock', 'temporary' );
+		$this->set_option( '_bbp_mention_backfill', array( 'temporary' ) );
 		$this->set_option( 'bbp_test_unrelated', 'keep' );
 
 		$called = 0;
@@ -192,8 +204,14 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertFalse( get_option( '_bbp_test_option', false ) );
 		$this->assertFalse( get_option( '_bbp_tools_run_repair', false ) );
 		$this->assertFalse( get_option( '_bbp_tools_run_upgrade', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_dry_run_repair', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_dry_run_upgrade', false ) );
 		$this->assertFalse( get_option( '_bbp_tools_run_status_repair', false ) );
 		$this->assertFalse( get_option( '_bbp_tools_run_status_upgrade', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_dry_run_status_repair', false ) );
+		$this->assertFalse( get_option( '_bbp_tools_dry_run_status_upgrade', false ) );
+		$this->assertFalse( get_option( '_bbp_pending_upgrades_lock', false ) );
+		$this->assertFalse( get_option( '_bbp_mention_backfill', false ) );
 		$this->assertSame( 'keep', get_option( 'bbp_test_unrelated' ) );
 	}
 
@@ -211,7 +229,13 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		for ( $i = 0; $i < 105; ++$i ) {
 			$this->set_option( $scratch . $i, array( 'id' => $i ) );
 		}
-		$unrelated = array( 'bbp_test_unrelated_tree', '_bbp_tool_batching_keep', 'XbbpXtoolXbatchXkeep', '_bbp_tool_lock_keep' );
+		$locks = array();
+		for ( $i = 0; $i < 105; ++$i ) {
+			$option  = '_bbp_tool_lock_' . md5( 'custom-tool-' . $i );
+			$locks[] = $option;
+			$this->set_option( $option, 'temporary' );
+		}
+		$unrelated = array( 'bbp_test_unrelated_tree', '_bbp_tool_batching_keep', 'XbbpXtoolXbatchXkeep', '_bbp_tools_lock_keep' );
 		foreach ( $unrelated as $option ) {
 			$this->set_option( $option, 'keep' );
 		}
@@ -230,6 +254,9 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		}
 		for ( $i = 0; $i < 105; ++$i ) {
 			$this->assertFalse( get_option( $scratch . $i, false ) );
+		}
+		foreach ( $locks as $option ) {
+			$this->assertFalse( get_option( $option, false ) );
 		}
 		foreach ( $unrelated as $option ) {
 			$this->assertSame( 'keep', get_option( $option ) );

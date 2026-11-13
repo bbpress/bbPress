@@ -5513,6 +5513,32 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_sticky
+	 * @covers ::bbp_admin_repair_sticky_process
+	 */
+	public function test_bbp_admin_repair_sticky_reports_worker_failures() {
+		$db   = bbp_db();
+		$fail = static function ( $query ) use ( $db ) {
+			return false !== strpos( $query, "SELECT MAX(ID) FROM {$db->posts}" )
+				? 'SELECT MAX(ID) FROM bbp_missing_sticky_posts'
+				: $query;
+		};
+		$suppression = $db->suppress_errors( true );
+		add_filter( 'query', $fail );
+		try {
+			$result = bbp_admin_repair_sticky();
+		} finally {
+			remove_filter( 'query', $fail );
+			$db->suppress_errors( $suppression );
+		}
+
+		$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+		$this->assertFalse( $result['success'] );
+		$this->assertFalse( $result['complete'] );
+		$this->assertSame( 'source-read', $result['error'] );
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_closed_topics
 	 * @covers ::bbp_admin_repair_closed_topics_dry_run
 	 * @covers ::bbp_admin_repair_closed_topics_process

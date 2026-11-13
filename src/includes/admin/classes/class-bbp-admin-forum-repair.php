@@ -24,6 +24,15 @@ defined( 'ABSPATH' ) || exit;
 abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 
 	/**
+	 * Maximum synchronous Dry Run restarts in one request.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @var int
+	 */
+	const SYNCHRONOUS_RESTART_LIMIT = 3;
+
+	/**
 	 * Repair operation type.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
@@ -179,6 +188,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 		$initial        = true;
 		$batches        = 0;
 		$estimated_work = 0;
+		$restarts       = 0;
 		$this->async = ! $this->status_only && $this->dry_run && bbp_admin_repair_tool_is_async_dry_run();
 		if ( ! $this->valid_type() ) {
 			$this->fail( 'source-invalid' );
@@ -208,12 +218,19 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			$this->persisted = ! $initial;
 			$this->state     = $initial ? $this->new_state() : $saved;
 			if ( ! $this->error && $this->async ) {
-				$initial                = isset( $this->state['_preview_initial'] ) ? $this->state['_preview_initial'] : true;
-				$batches                = isset( $this->state['_preview_batches'] ) ? $this->state['_preview_batches'] : 0;
-				$estimated_work         = isset( $this->state['_preview_estimate_work'] ) ? $this->state['_preview_estimate_work'] : 0;
-				$this->preview_repaired = isset( $this->state['_preview_repaired'] ) ? $this->state['_preview_repaired'] : 0;
-				$this->preview_metadata = isset( $this->state['_preview_metadata'] ) ? $this->state['_preview_metadata'] : null;
-				$this->load_preview_state();
+				$preview = array(
+					'initial'        => true,
+					'batches'        => 0,
+					'estimated_work' => 0,
+					'repaired'       => 0,
+				);
+				$data = bbp_admin_repair_tool_restore_preview( $this->state, $preview, array_keys( $preview ) );
+				$initial                = $preview['initial'];
+				$batches                = $preview['batches'];
+				$estimated_work         = $preview['estimated_work'];
+				$this->preview_repaired = $preview['repaired'];
+				$this->preview_metadata = isset( $data['metadata'] ) ? $data['metadata'] : null;
+				$this->load_preview_state( $data );
 			}
 			if ( ! $this->error && ( ! $this->dry_run || $this->async ) && $initial && ! $this->save() ) {
 				$this->fail( 'progress' );
@@ -245,6 +262,10 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 					$this->phase_boundary = false;
 				}
 				if ( $this->corrupt || ( 'source-invalid' === $this->error ) ) {
+					if ( $this->corrupt && $this->dry_run && ! $this->async && ++$restarts > self::SYNCHRONOUS_RESTART_LIMIT ) {
+						$this->fail( 'source-invalid' );
+						break;
+					}
 					$this->state     = $this->new_state();
 					$this->nodes     = array();
 					$this->persisted = $this->corrupt = false;
@@ -263,12 +284,15 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			}
 			if ( ! $this->dry_run || $this->async ) {
 				if ( $this->async && false !== $this->state ) {
-					$this->state['_preview_initial']       = $initial;
-					$this->state['_preview_batches']       = max( 1, $batches );
-					$this->state['_preview_estimate_work'] = $estimated_work;
-					$this->state['_preview_repaired']      = $this->preview_repaired;
-					$this->state['_preview_metadata']      = $this->preview_metadata;
-					$this->save_preview_state();
+					$preview = array(
+						'initial'        => $initial,
+						'batches'        => max( 1, $batches ),
+						'estimated_work' => $estimated_work,
+						'repaired'       => $this->preview_repaired,
+					);
+					$data = array( 'metadata' => $this->preview_metadata );
+					$this->save_preview_state( $data );
+					bbp_admin_repair_tool_store_preview( $this->state, $preview, array_keys( $preview ), $data );
 				}
 				if ( false !== $this->state && ! $this->save( ! $this->error && $complete ) ) {
 					$this->fail( 'progress' );
@@ -305,13 +329,14 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			&& is_string( $state['token'] ) && ( 32 === strlen( $state['token'] ) ) && ctype_xdigit( $state['token'] )
 			&& in_array( $state['phase'], $this->phases(), true )
 			&& ( $state['context'] === $this->context );
-		if ( $valid && isset( $state['_preview_batches'] ) ) {
-			$valid = isset( $state['_preview_initial'] ) && is_bool( $state['_preview_initial'] )
-				&& is_int( $state['_preview_batches'] ) && $state['_preview_batches'] >= 0
-				&& isset( $state['_preview_estimate_work'] ) && is_int( $state['_preview_estimate_work'] ) && $state['_preview_estimate_work'] >= 0
-				&& isset( $state['_preview_repaired'] ) && is_int( $state['_preview_repaired'] ) && $state['_preview_repaired'] >= 0
-				&& array_key_exists( '_preview_metadata', $state )
-				&& ( null === $state['_preview_metadata'] || is_array( $state['_preview_metadata'] ) );
+		if ( $valid && isset( $state['_preview_state'] ) ) {
+			$valid = bbp_admin_repair_tool_is_valid_preview_state(
+				$state,
+				array( 'batches', 'estimated_work', 'repaired' ),
+				array( 'initial' )
+			) && array_key_exists( 'metadata', $state['_preview_state']['data'] )
+				&& ( null === $state['_preview_state']['data']['metadata'] || is_array( $state['_preview_state']['data']['metadata'] ) )
+				&& $this->valid_preview_state( $state['_preview_state']['data'] );
 		}
 		if ( ! $valid ) {
 			return false;
@@ -592,8 +617,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 				$this->state['current'] = $child['id'];
 				return;
 			}
-			$this->merge_checked_child( $node, $child, $node['edge'] );
-			if ( $this->error || $this->corrupt ) {
+			if ( ! $this->merge_checked_child( $node, $child, $node['edge'] ) || $this->error || $this->corrupt ) {
 				return;
 			}
 			$node['await'] = 0;
@@ -630,8 +654,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			return;
 		}
 		if ( 'done' === $child['phase'] ) {
-			$this->merge_checked_child( $node, $child, $edge );
-			if ( $this->error || $this->corrupt ) {
+			if ( ! $this->merge_checked_child( $node, $child, $edge ) || $this->error || $this->corrupt ) {
 				return;
 			}
 		} else {
@@ -1027,10 +1050,10 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 * @since 2.7.0 bbPress (r8315) Revalidate source identity before writes.
 	 *
-	 * @param array $node Traversal node.
+	 * @param array $node Traversal node, passed by reference.
 	 * @return bool Whether the node remains safe to write.
 	 */
-	protected function before_write( $node ) {
+	protected function before_write( &$node ) {
 		if ( $this->status_only || $this->dry_run ) {
 			return true;
 		}
@@ -1054,11 +1077,20 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param array $parent_node Parent traversal node, passed by reference.
 	 * @param array $child       Completed child traversal node.
 	 * @param int   $edge        Child post ID used by the parent edge.
+	 * @return bool Whether the child was ready and merged.
 	 */
 	protected function merge_checked_child( &$parent_node, $child, $edge ) {
-		if ( $this->before_write( $child ) ) {
-			$this->merge_child( $parent_node, $child, $edge );
+		if ( ! $this->before_write( $child ) ) {
+			return false;
 		}
+		if ( 'done' !== $child['phase'] ) {
+			if ( $this->persist_node( $child ) ) {
+				$this->state['current'] = $child['id'];
+			}
+			return false;
+		}
+		$this->merge_child( $parent_node, $child, $edge );
+		return true;
 	}
 
 	/**
@@ -1066,23 +1098,39 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Completed traversal node.
+	 * @param array $node Completed traversal node, passed by reference.
 	 */
-	protected function completed_node( $node ) {}
+	protected function completed_node( &$node ) {}
 
 	/**
-	 * Load subclass preview aggregates after a browser Dry Run resumes.
+	 * Validate subclass data in a browser Dry Run checkpoint.
 	 *
-	 * @since 2.7.0 bbPress (r8331)
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $data Preview simulation data.
+	 * @return bool Whether the subclass data is valid.
 	 */
-	protected function load_preview_state() {}
+	protected function valid_preview_state( $data ) {
+		return true;
+	}
 
 	/**
-	 * Add subclass preview aggregates to the browser Dry Run checkpoint.
+	 * Restore subclass data when a browser Dry Run resumes.
 	 *
-	 * @since 2.7.0 bbPress (r8331)
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $data Preview simulation data.
 	 */
-	protected function save_preview_state() {}
+	protected function load_preview_state( $data ) {}
+
+	/**
+	 * Add subclass data to a browser Dry Run checkpoint.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param array $data Preview simulation data, passed by reference.
+	 */
+	protected function save_preview_state( &$data ) {}
 
 	/**
 	 * Record a completed node immediately before its cursor advances.

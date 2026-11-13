@@ -524,6 +524,71 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_automatic_deadline
+	 * @covers ::bbp_admin_repair_tool_run_automatically
+	 */
+	public function test_small_site_automatic_runner_honors_the_shared_update_deadline() {
+		$old_pending = get_option( '_bbp_db_pending_upgrades', null );
+		$calls       = 0;
+		$callback    = static function () use ( &$calls ) {
+			++$calls;
+			return array( 0, 'Complete.' );
+		};
+
+		delete_option( '_bbp_db_pending_upgrades' );
+		bbp_admin_repair_tool_automatic_deadline( microtime( true ) - 1 );
+
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( 'bbp-test-shared-deadline', $callback ) );
+			$this->assertSame( 0, $calls );
+			$this->assertContains( 'bbp-test-shared-deadline', bbp_get_pending_upgrades() );
+		} finally {
+			bbp_admin_repair_tool_automatic_deadline( 0 );
+			if ( null === $old_pending ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $old_pending );
+			}
+		}
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_automatic_deadline
+	 * @covers ::bbp_admin_repair_tool_run_automatically
+	 */
+	public function test_per_tool_deadline_still_allows_one_batch_with_a_shared_deadline() {
+		$old_pending = get_option( '_bbp_db_pending_upgrades', null );
+		$calls       = 0;
+		$time_limit  = static function () {
+			return 0.000000001;
+		};
+		$callback = static function () use ( &$calls ) {
+			++$calls;
+			return array( 0, 'More batches remain.', 'complete' => false );
+		};
+
+		delete_option( '_bbp_db_pending_upgrades' );
+		bbp_admin_repair_tool_automatic_deadline( microtime( true ) + 20 );
+		add_filter( 'bbp_admin_repair_tool_automatic_time_limit', $time_limit );
+
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_run_automatically( 'bbp-test-tool-deadline', $callback ) );
+			$this->assertSame( 1, $calls );
+			$this->assertContains( 'bbp-test-tool-deadline', bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_automatic_time_limit', $time_limit );
+			bbp_admin_repair_tool_automatic_deadline( 0 );
+			if ( null === $old_pending ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $old_pending );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_version_updater
 	 */
 	public function test_version_updater_does_not_keep_successful_favorites_pending() {

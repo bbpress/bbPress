@@ -350,6 +350,34 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_tool_invoke_callback
+	 */
+	public function test_repair_tool_callback_arguments_follow_the_action_contract() {
+		$run_arguments = null;
+		$run = static function () use ( &$run_arguments ) {
+			$run_arguments = func_get_args();
+			return 'run';
+		};
+		$dry_run_arguments = null;
+		$dry_run = static function ( $arguments ) use ( &$dry_run_arguments ) {
+			$dry_run_arguments = $arguments;
+			return 'dry-run';
+		};
+		$tool = array( 'id' => 'bbp-test-callback-arguments' );
+
+		$this->assertSame( 'run', bbp_admin_repair_tool_invoke_callback( $run, 'run', $tool ) );
+		$this->assertSame( array(), $run_arguments );
+		$this->assertSame( 'dry-run', bbp_admin_repair_tool_invoke_callback( $dry_run, 'dry-run', $tool ) );
+		$this->assertSame(
+			array(
+				'action' => 'dry-run',
+				'tool'   => $tool,
+			),
+			$dry_run_arguments
+		);
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_handler
 	 */
 	public function test_repair_handler_routes_dry_run_without_running_or_clearing_pending_upgrade() {
@@ -456,7 +484,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 				'callbacks' => array(
 					'run'     => '__return_empty_array',
 					'dry-run' => function () {
-						return array( 2, 'Rows could not be read.' );
+						return array( 2, 'Rows could not be read.', 'success' => false );
 					},
 				),
 			)

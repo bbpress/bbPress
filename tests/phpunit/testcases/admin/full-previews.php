@@ -42,16 +42,6 @@ class BBP_Tests_Admin_Full_Previews extends BBP_UnitTestCase {
 		return $this->size;
 	}
 
-	public function test_freshness_query_objects_are_accepted_without_writes() {
-		$topics = $this->factory->topic->create_many( 2 );
-		update_post_meta( $topics[0], '_bbp_last_active_time', '2020-01-01 00:00:00' );
-		update_post_meta( $topics[1], '_bbp_last_active_time', '2021-01-01 00:00:00' );
-		$before = $this->snapshot();
-		$worker = new BBP_Admin_Forum_Freshness( true );
-		$this->assertLessThan( 0, $worker->compare_topic_times( (object) array( 'ID' => $topics[1] ), (object) array( 'ID' => $topics[0] ) ) );
-		$this->assertSame( $before, $this->snapshot() );
-	}
-
 	public function test_full_mention_preview_preserves_unrelated_post_caches() {
 		$post = $this->factory->post->create();
 		$this->factory->topic->create();

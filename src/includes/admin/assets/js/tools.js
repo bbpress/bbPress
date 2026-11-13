@@ -100,7 +100,17 @@ jQuery( function( $ ) {
 	}
 
 	function setProgress( batches ) {
-		if ( ! paused && batches > 0 ) {
+		if ( ! paused ) {
+			// Run callbacks report work for this request. Dry Runs restore their
+			// aggregate estimate from the preview checkpoint.
+			if ( 'run' === settings.action ) {
+				batches = progressBatch + 1;
+			}
+
+			if ( batches < 1 ) {
+				return;
+			}
+
 			progressBatch = batches;
 			progressText  = settings.progress.replace( '%1$s', settings.running ).replace( '%2$s', batches );
 			status.text( progressText );

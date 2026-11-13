@@ -474,13 +474,12 @@ function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $sta
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string $type           Repair tool type.
- * @param string $run_id         Optional run ID ownership check.
- * @param string $action         Tool action.
- * @param bool   $delete_preview Whether to delete Dry Run preview state.
+ * @param string $type   Repair tool type.
+ * @param string $run_id Optional run ID ownership check.
+ * @param string $action Tool action.
  * @return bool
  */
-function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $action = 'run', $delete_preview = false ) {
+function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $action = 'run' ) {
 	$action = sanitize_key( $action );
 	$option = bbp_admin_repair_tool_run_state_option_name( $type, $action );
 	$run_id = sanitize_text_field( $run_id );
@@ -494,9 +493,6 @@ function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $acti
 	try {
 		list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
 		if ( ! $read || ! $state || ( ! empty( $run_id ) && ! hash_equals( $state['id'], $run_id ) ) ) {
-			return false;
-		}
-		if ( $delete_preview && 'dry-run' === $action && ! bbp_admin_repair_tool_delete_preview_state( $state['tools'], $state['preview_id'] ) ) {
 			return false;
 		}
 		$deleted = bbp_admin_repair_tool_save_option( $option, null, true );
@@ -521,29 +517,72 @@ function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $acti
  * @return bool Whether the owned run was discarded.
  */
 function bbp_admin_repair_tool_discard_run( $type, $run_id, $action = 'run' ) {
-	return bbp_admin_repair_tool_delete_run_state( $type, $run_id, $action, true );
+	$action = sanitize_key( $action );
+	$run_id = sanitize_text_field( $run_id );
+	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+	if ( ! $read || ! $state || empty( $run_id ) || ! hash_equals( $state['id'], $run_id ) ) {
+		return false;
+	}
+
+	$execution_id = 'dry-run' === $action ? $state['preview_id'] : $state['id'];
+	return bbp_admin_repair_tool_delete_batch_state( $state['tools'], $execution_id, $action, $type );
 }
 
 /**
- * Delete state owned by one abandoned browser Dry Run.
+ * Delete checkpoints and scratch state owned by one browser run.
  *
- * Preview namespaces include the run owner, so this cannot remove normal Run
- * checkpoints or another preview generation.
+ * Tool locks prevent a finishing batch from restoring state after Stop or
+ * Discard removes it. Dry Run namespaces include the run owner, so one preview
+ * cannot remove another preview generation.
  *
- * @since 2.7.0 bbPress (r8331)
+ * @since 2.7.0 bbPress (r8350)
  * @access private
  *
- * @param array  $tools      Repair tool IDs.
- * @param string $preview_id Stable Dry Run preview namespace.
- * @return bool Whether every discovered preview option was removed.
+ * @param array  $tools  Repair tool IDs.
+ * @param string $run_id Browser-run owner or Dry Run preview namespace.
+ * @param string $action Tool action.
+ * @param string $type   Optional repair tool type whose run state should also be deleted.
+ * @return bool Whether every discovered batch option was removed.
  */
-function bbp_admin_repair_tool_delete_preview_state( $tools, $preview_id ) {
+function bbp_admin_repair_tool_delete_batch_state( $tools, $run_id, $action = 'run', $type = '' ) {
 	$db      = bbp_db();
 	$success = true;
+	$locks   = array();
+	$action  = sanitize_key( $action );
+	$run_id  = sanitize_text_field( $run_id );
+	$type    = sanitize_key( $type );
+	$tools   = array_values( bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $tools ) ) );
 
-	bbp_admin_repair_tool_execution_context( 'dry-run', $preview_id );
+	if ( empty( $run_id ) || empty( $tools ) || ! in_array( $action, array( 'run', 'dry-run' ), true ) ) {
+		return false;
+	}
+
+	sort( $tools, SORT_STRING );
+	foreach ( $tools as $tool_id ) {
+		$lock = bbp_admin_repair_tool_lock( $tool_id );
+		if ( false === $lock ) {
+			foreach ( array_reverse( $locks ) as $owned ) {
+				bbp_admin_repair_tool_unlock( $owned );
+			}
+			return false;
+		}
+		$locks[] = $lock;
+	}
+
+	bbp_admin_repair_tool_execution_context( $action, $run_id );
 	try {
-		foreach ( (array) $tools as $tool_id ) {
+		if ( ! empty( $type ) ) {
+			list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
+			if ( ! $read || ! $state ) {
+				return false;
+			}
+			$expected_id = 'dry-run' === $action ? $state['preview_id'] : $state['id'];
+			if ( ! hash_equals( $expected_id, $run_id ) ) {
+				return false;
+			}
+		}
+
+		foreach ( $tools as $tool_id ) {
 			$prefix = bbp_admin_repair_tool_batch_option_name( $tool_id );
 			$names  = $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s", $db->esc_like( $prefix ) . '%' ) );
 			if ( ! empty( $db->last_error ) ) {
@@ -551,14 +590,76 @@ function bbp_admin_repair_tool_delete_preview_state( $tools, $preview_id ) {
 				continue;
 			}
 			foreach ( $names as $name ) {
+				if ( 'run' === $action && 0 === strpos( $name, $prefix . '_preview_' ) ) {
+					continue;
+				}
 				$success = bbp_admin_repair_tool_save_option( $name, null, true ) && $success;
 			}
 		}
+		if ( $success && ! empty( $type ) ) {
+			$success = bbp_admin_repair_tool_delete_run_state( $type, $state['id'], $action );
+		}
 	} finally {
 		bbp_admin_repair_tool_execution_context( 'run', '' );
+		foreach ( array_reverse( $locks ) as $lock ) {
+			bbp_admin_repair_tool_unlock( $lock );
+		}
 	}
 
 	return $success;
+}
+
+/**
+ * Delete state owned by one abandoned browser Dry Run.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ * @since 2.7.0 bbPress (r8350) Lock tools while deleting preview state.
+ * @access private
+ *
+ * @param array  $tools      Repair tool IDs.
+ * @param string $preview_id Stable Dry Run preview namespace.
+ * @return bool Whether every discovered preview option was removed.
+ */
+function bbp_admin_repair_tool_delete_preview_state( $tools, $preview_id ) {
+	return bbp_admin_repair_tool_delete_batch_state( $tools, $preview_id, 'dry-run' );
+}
+
+/**
+ * Save one browser queue transition, retrying one transient failure.
+ *
+ * Tool callbacks delete their completed checkpoint before the queue advances.
+ * Retrying the queue write avoids replaying a completed tool when the first
+ * option write is lost or rejected transiently.
+ *
+ * @since 2.7.0 bbPress (r8350)
+ * @access private
+ *
+ * @param string $type          Repair tool type.
+ * @param array  $state         Owned run state.
+ * @param string $run_id        Run owner.
+ * @param string $action        Tool action.
+ * @param bool   $tool_complete Whether the current tool completed.
+ * @return bool Whether the queue transition was saved.
+ */
+function bbp_admin_repair_tool_save_queue_progress( $type, $state, $run_id, $action, $tool_complete ) {
+	$tools = $state['tools'];
+	if ( $tool_complete ) {
+		array_shift( $tools );
+	}
+
+	for ( $attempt = 0; $attempt < 2; $attempt++ ) {
+		if ( empty( $tools ) ) {
+			$saved = bbp_admin_repair_tool_delete_run_state( $type, $run_id, $action );
+		} else {
+			$saved = false !== bbp_admin_repair_tool_save_run_state( $type, $tools, $run_id, null, false, $action, ! $tool_complete );
+		}
+
+		if ( $saved ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -989,13 +1090,7 @@ function bbp_admin_repair_handler() {
 			continue;
 		}
 
-		$result = call_user_func(
-			$callback,
-			array(
-				'action' => $action,
-				'tool'   => $tool,
-			)
-		);
+		$result = bbp_admin_repair_tool_invoke_callback( $callback, $action, $tool );
 		$normalized = bbp_admin_repair_tool_normalize_result( $result );
 		if ( false === $normalized ) {
 			/* translators: %1$s: Repair tool title; %2$s: Action label */
@@ -1126,15 +1221,7 @@ function bbp_admin_repair_ajax_handler() {
 	try {
 		$execution_id = 'dry-run' === $action ? $state['preview_id'] : $run_id;
 		bbp_admin_repair_tool_execution_context( $action, $execution_id, $state['started'] );
-		$result = 'run' === $action
-			? call_user_func( $callback )
-			: call_user_func(
-				$callback,
-				array(
-					'action' => $action,
-					'tool'   => $tool,
-				)
-			);
+		$result = bbp_admin_repair_tool_invoke_callback( $callback, $action, $tool );
 		$normalized = bbp_admin_repair_tool_normalize_result( $result );
 
 		// Keep the callback lock through final cache flushing and the queue save
@@ -1151,8 +1238,6 @@ function bbp_admin_repair_ajax_handler() {
 			$message = bbp_admin_repair_tool_result_detail( $normalized['message'] );
 			$message = wp_specialchars_decode( $message, ENT_QUOTES );
 			if ( 'dry-run' === $action ) {
-				$status_code = isset( $result[0] ) && is_numeric( $result[0] ) ? (int) $result[0] : 0;
-				$normalized['success'] = $normalized['success'] && ( $status_code < 2 );
 				$message     = bbp_admin_repair_tool_dry_run_message(
 					$message,
 					$normalized['success'],
@@ -1172,13 +1257,8 @@ function bbp_admin_repair_ajax_handler() {
 				list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
 				$queue_saved = $read && bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id );
 
-				if ( $queue_saved && $normalized['complete'] ) {
-					array_shift( $state['tools'] );
-					$queue_saved = empty( $state['tools'] )
-						? bbp_admin_repair_tool_delete_run_state( $type, $run_id, $action )
-						: ( false !== bbp_admin_repair_tool_save_run_state( $type, $state['tools'], $run_id, null, false, $action, false ) );
-				} elseif ( $queue_saved ) {
-					$queue_saved = false !== bbp_admin_repair_tool_save_run_state( $type, $state['tools'], $run_id, null, false, $action, true );
+				if ( $queue_saved ) {
+					$queue_saved = bbp_admin_repair_tool_save_queue_progress( $type, $state, $run_id, $action, $normalized['complete'] );
 				}
 
 				if ( ! $queue_saved ) {
@@ -1215,6 +1295,29 @@ function bbp_admin_repair_ajax_handler() {
 }
 
 /**
+ * Get or set the shared deadline for one automatic update sequence.
+ *
+ * Direct automatic-tool calls retain their per-tool budget. The version
+ * updater sets one request-wide deadline so several eligible tools cannot each
+ * consume the complete PHP request budget.
+ *
+ * @since 2.7.0 bbPress (r8350)
+ * @access private
+ *
+ * @param float|null $deadline Absolute microtime deadline, zero to clear, or null to read.
+ * @return float Current absolute deadline, or zero when disabled.
+ */
+function bbp_admin_repair_tool_automatic_deadline( $deadline = null ) {
+	static $current = 0.0;
+
+	if ( null !== $deadline ) {
+		$current = max( 0, (float) $deadline );
+	}
+
+	return $current;
+}
+
+/**
  * Run every batch of a repair or upgrade during a small-site update.
  *
  * Legacy callbacks complete after one call. Batched callbacks continue until
@@ -1228,8 +1331,9 @@ function bbp_admin_repair_ajax_handler() {
  * @return bool True when the tool completed, false when manual work remains.
  */
 function bbp_admin_repair_tool_run_automatically( $tool_id = '', $callback = '' ) {
-	$tool_id = sanitize_key( $tool_id );
-	$started = microtime( true );
+	$tool_id         = sanitize_key( $tool_id );
+	$started         = microtime( true );
+	$shared_deadline = bbp_admin_repair_tool_automatic_deadline();
 
 	/**
 	 * Filters the maximum number of automatic batches for one small-site tool.
@@ -1255,6 +1359,9 @@ function bbp_admin_repair_tool_run_automatically( $tool_id = '', $callback = '' 
 	 * @param callable $callback Repair tool callback.
 	 */
 	$time_limit = (float) apply_filters( 'bbp_admin_repair_tool_automatic_time_limit', 20, $tool_id, $callback );
+	$tool_deadline  = $time_limit > 0 ? $started + $time_limit : 0;
+	$shared_limit   = $shared_deadline > 0 && ( ! $tool_deadline || $shared_deadline < $tool_deadline );
+	$deadline       = $shared_limit ? $shared_deadline : $tool_deadline;
 
 	if ( empty( $tool_id ) ) {
 		return false;
@@ -1273,7 +1380,7 @@ function bbp_admin_repair_tool_run_automatically( $tool_id = '', $callback = '' 
 
 	try {
 		for ( $batch = 0; $batch < $batch_limit; $batch++ ) {
-			if ( ( $batch > 0 ) && ( $time_limit > 0 ) && ( ( microtime( true ) - $started ) >= $time_limit ) ) {
+			if ( $deadline > 0 && microtime( true ) >= $deadline && ( $batch > 0 || $shared_limit ) ) {
 				break;
 			}
 

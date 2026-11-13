@@ -184,6 +184,46 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 
 	/**
 	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_ajax_handler
+	 */
+	public function test_run_and_dry_run_use_the_same_explicit_success_contract() {
+		$tool_id = 'bbp-test-numeric-code';
+		$callback = static function () {
+			return array( 2, 'Complete without an explicit failure.' );
+		};
+		$register = static function () use ( $tool_id, $callback ) {
+			bbp_register_repair_tool(
+				array(
+					'id'        => $tool_id,
+					'type'      => 'upgrade',
+					'title'     => 'Test numeric code',
+					'priority'  => 10,
+					'callbacks' => array(
+						'run'     => $callback,
+						'dry-run' => $callback,
+					)
+				)
+			);
+		};
+		add_action( 'bbp_register_repair_tools', $register );
+		$register();
+
+		try {
+			$nonce = wp_create_nonce( 'bbpress-tools-process' );
+			$run   = bbp_admin_repair_tool_save_run_state( 'upgrade', array( $tool_id ) );
+			$response = $this->ajax( 'upgrade', $tool_id, $nonce, 'POST', $run['id'] );
+			$this->assertTrue( $response['success'], wp_json_encode( $response ) );
+
+			$preview = bbp_admin_repair_tool_save_run_state( 'upgrade', array( $tool_id ), '', 'running', false, 'dry-run' );
+			$response = $this->ajax( 'upgrade', $tool_id, $nonce, 'POST', $preview['id'], 'dry-run' );
+			$this->assertTrue( $response['success'], wp_json_encode( $response ) );
+		} finally {
+			remove_action( 'bbp_register_repair_tools', $register );
+		}
+	}
+
+	/**
+	 * @ticket 3777
 	 * @covers ::bbp_register_repair_tools
 	 */
 	public function test_repair_tools_include_action_registrations() {
@@ -1093,6 +1133,55 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 		$this->assertStringContainsString( 'Progress could not be saved.', $response['data']['message'] );
 		$this->assertSame( $tools, bbp_get_pending_upgrades() );
 		$this->assertSame( $tools, bbp_admin_repair_tool_get_run_state( 'upgrade' )['tools'] );
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_save_queue_progress
+	 */
+	public function test_queue_progress_retries_one_transient_update_failure() {
+		$state    = bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-one', 'bbp-test-batch-two' ) );
+		$attempts = 0;
+		$fail_once = static function ( $value, $old_value ) use ( &$attempts ) {
+			++$attempts;
+			return 1 === $attempts ? $old_value : $value;
+		};
+		add_filter( 'pre_update_option__bbp_tools_run_upgrade', $fail_once, 10, 2 );
+
+		try {
+			$this->assertTrue( bbp_admin_repair_tool_save_queue_progress( 'upgrade', $state, $state['id'], 'run', true ) );
+		} finally {
+			remove_filter( 'pre_update_option__bbp_tools_run_upgrade', $fail_once, 10 );
+		}
+
+		$this->assertSame( 2, $attempts );
+		$this->assertSame( array( 'bbp-test-batch-two' ), bbp_admin_repair_tool_get_run_state( 'upgrade' )['tools'] );
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_save_queue_progress
+	 */
+	public function test_final_queue_progress_retries_one_transient_delete_failure() {
+		$state   = bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-one' ) );
+		$blocked = false;
+		$fail_once = static function ( $query ) use ( &$blocked ) {
+			if ( ! $blocked && 0 === strpos( $query, 'DELETE ' ) && false !== strpos( $query, '_bbp_tools_run_upgrade' ) ) {
+				$blocked = true;
+				return 'SELECT 0';
+			}
+			return $query;
+		};
+		add_filter( 'query', $fail_once );
+
+		try {
+			$this->assertTrue( bbp_admin_repair_tool_save_queue_progress( 'upgrade', $state, $state['id'], 'run', true ) );
+		} finally {
+			remove_filter( 'query', $fail_once );
+		}
+
+		$this->assertTrue( $blocked );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
 	}
 
 	/**
@@ -2118,6 +2207,64 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 
 		$response = $this->ajax_status( 'upgrade', $preview['id'], 'discarded', $nonce, 'dry-run' );
 		$this->assertTrue( $response['success'] );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade', 'dry-run' ) );
+		$this->assertFalse( get_option( $option, false ) );
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_discard_run
+	 * @covers ::bbp_admin_repair_tool_delete_batch_state
+	 */
+	public function test_discarded_run_deletes_its_batch_state_without_deleting_a_preview() {
+		$tool    = 'bbp-test-batch-one';
+		$run     = bbp_admin_repair_tool_save_run_state( 'upgrade', array( $tool ) );
+		$preview = bbp_admin_repair_tool_save_run_state( 'upgrade', array( $tool ), '', 'paused', false, 'dry-run' );
+
+		$this->assertTrue( bbp_admin_repair_tool_save_checkpoint( $tool, array( 'cursor' => 5, 'upper_id' => 10 ) ) );
+		$run_option = bbp_admin_repair_tool_batch_option_name( $tool );
+		$run_scratch = $run_option . '_scratch';
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $run_scratch, array( 'value' => 'run' ) ) );
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', $preview['id'] );
+		$preview_option = bbp_admin_repair_tool_batch_option_name( $tool );
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $preview_option, array( 'cursor' => 2, 'upper_id' => 10 ) ) );
+		bbp_admin_repair_tool_execution_context( 'run', '' );
+
+		$this->assertTrue( bbp_admin_repair_tool_discard_run( 'upgrade', $run['id'] ) );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
+		$this->assertFalse( get_option( $run_option, false ) );
+		$this->assertFalse( get_option( $run_scratch, false ) );
+		$this->assertSame( array( 'cursor' => 2, 'upper_id' => 10 ), get_option( $preview_option ) );
+		$this->assertSame( $preview, bbp_admin_repair_tool_get_run_state( 'upgrade', 'dry-run' ) );
+
+		$this->assertTrue( bbp_admin_repair_tool_discard_run( 'upgrade', $preview['id'], 'dry-run' ) );
+	}
+
+	/**
+	 * @ticket 3777
+	 * @covers ::bbp_admin_repair_tool_discard_run
+	 * @covers ::bbp_admin_repair_tool_delete_batch_state
+	 */
+	public function test_discard_waits_for_an_in_flight_batch_before_deleting_state() {
+		$tool  = 'bbp-test-batch-one';
+		$state = bbp_admin_repair_tool_save_run_state( 'upgrade', array( $tool ), '', 'running', false, 'dry-run' );
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', $state['id'] );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool );
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $option, array( 'cursor' => 2, 'upper_id' => 10 ) ) );
+		bbp_admin_repair_tool_execution_context( 'run', '' );
+
+		$lock = bbp_admin_repair_tool_lock( $tool );
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_discard_run( 'upgrade', $state['id'], 'dry-run' ) );
+			$this->assertSame( $state, bbp_admin_repair_tool_get_run_state( 'upgrade', 'dry-run' ) );
+			$this->assertSame( array( 'cursor' => 2, 'upper_id' => 10 ), get_option( $option ) );
+		} finally {
+			bbp_admin_repair_tool_unlock( $lock );
+		}
+
+		$this->assertTrue( bbp_admin_repair_tool_discard_run( 'upgrade', $state['id'], 'dry-run' ) );
 		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade', 'dry-run' ) );
 		$this->assertFalse( get_option( $option, false ) );
 	}

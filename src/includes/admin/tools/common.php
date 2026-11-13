@@ -213,6 +213,34 @@ function bbp_get_admin_repair_tool_callback( $tool = array(), $action = 'run' ) 
 }
 
 /**
+ * Invoke an admin repair tool callback with its action-specific arguments.
+ *
+ * Run retains the historical no-argument callback contract. Every other
+ * action receives its normalized action and complete tool registration.
+ *
+ * @since 2.7.0 bbPress (r8350)
+ * @access private
+ *
+ * @param callable $callback Repair tool callback.
+ * @param string   $action   Repair tool action.
+ * @param array    $tool     Complete repair tool registration.
+ * @return mixed Callback result.
+ */
+function bbp_admin_repair_tool_invoke_callback( $callback, $action, $tool ) {
+	$action = sanitize_key( $action );
+
+	return 'run' === $action
+		? call_user_func( $callback )
+		: call_user_func(
+			$callback,
+			array(
+				'action' => $action,
+				'tool'   => $tool,
+			)
+		);
+}
+
+/**
  * Return the actions registered for one or more admin repair tools.
  *
  * @since 2.7.0 bbPress (r8218)
@@ -448,6 +476,42 @@ function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $
 		'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0,
 		'error'    => '',
 	);
+}
+
+/**
+ * Present one worker batch through the shared tools notice contract.
+ *
+ * Tool callbacks retain their translated status and detail strings. This
+ * helper centralizes restart notices, semantic failures, completed no-op
+ * results, and successful batch results so every presenter follows the same
+ * lifecycle.
+ *
+ * @since 2.7.0 bbPress (r8350)
+ * @access private
+ *
+ * @param array  $batch          Worker result.
+ * @param string $statement      Translated status statement with one placeholder.
+ * @param string $detail         Translated success detail.
+ * @param bool   $dry_run        Whether this is a read-only preview.
+ * @param bool   $no_changes     Whether the completed operation found no work.
+ * @param string $no_change_text Translated completed no-op detail.
+ * @return array Tool callback result.
+ */
+function bbp_admin_repair_tool_present_batch( $batch, $statement, $detail = '', $dry_run = false, $no_changes = false, $no_change_text = '' ) {
+	$statement = bbp_admin_repair_tool_restart_statement( $statement, ! empty( $batch['restarted'] ), $dry_run );
+	if ( ! empty( $batch['code'] ) ) {
+		return bbp_admin_repair_tool_batch_result( $batch, $statement );
+	}
+	if ( $no_changes && ! empty( $batch['complete'] ) ) {
+		return array(
+			1,
+			sprintf( $statement, $no_change_text ),
+			'complete' => true,
+			'batches'  => isset( $batch['batches'] ) ? $batch['batches'] : 0,
+		);
+	}
+
+	return bbp_admin_repair_tool_batch_result( $batch, $statement, $detail, $dry_run );
 }
 
 /**
@@ -1173,10 +1237,8 @@ function bbp_admin_repair_tool_continue_preview( $dry_run = false ) {
  */
 function bbp_admin_repair_tool_batch_status( $fields = array() ) {
 	return array_merge(
+		BBP_Admin_Batch_Worker::result_fields(),
 		array(
-			'code'      => 0,
-			'error'     => '',
-			'complete'  => false,
 			'restarted' => false,
 			'batches'   => 0,
 		),
@@ -1195,13 +1257,9 @@ function bbp_admin_repair_tool_batch_status( $fields = array() ) {
  * @return false
  */
 function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
-	if ( empty( $batch['code'] ) ) {
-		$batch['code'] = BBP_Admin_Batch_Worker::RESULT_FAILED;
-	}
-	if ( empty( $batch['error'] ) && $reason ) {
-		$batch['error'] = (string) $reason;
-	}
-	$batch['complete'] = false;
+	$error = isset( $batch['error'] ) ? $batch['error'] : '';
+	BBP_Admin_Batch_Worker::record_failure( $error, $reason );
+	$batch = array_merge( $batch, BBP_Admin_Batch_Worker::result_fields( $error, false ) );
 
 	return false;
 }

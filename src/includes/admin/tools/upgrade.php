@@ -214,10 +214,6 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 	}
 
 	$batch     = bbp_admin_upgrade_user_engagements_batch( $dry_run );
-	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
-	if ( empty( $batch['code'] ) && ! $batch['found'] && $batch['complete'] ) {
-		return array( 1, sprintf( $statement, $no_engagements ) );
-	}
 
 	if ( $dry_run ) {
 		/* translators: %s: Number of missing engagements that would be added */
@@ -233,7 +229,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 		$result  = $added . "\n" . $removed;
 	}
 
-	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
+	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, ! $batch['found'], $no_engagements );
 }
 
 /**

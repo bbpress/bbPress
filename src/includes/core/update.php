@@ -315,6 +315,19 @@ function bbp_create_initial_content( $args = array() ) {
 function bbp_version_updater() {
 	$safe_to_bump = true;
 
+	/**
+	 * Filters the shared time budget for automatic tools in one update request.
+	 *
+	 * A zero value disables the shared deadline. Individual tools retain their
+	 * own batch and time limits.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 *
+	 * @param float $seconds Maximum elapsed seconds for all automatic tools.
+	 */
+	$automatic_time_limit = (float) apply_filters( 'bbp_admin_repair_tool_automatic_update_time_limit', 20 );
+	bbp_admin_repair_tool_automatic_deadline( $automatic_time_limit > 0 ? microtime( true ) + $automatic_time_limit : 0 );
+
 	// Get the raw database version
 	$raw_db_version = (int) bbp_get_db_version_raw();
 
@@ -462,8 +475,10 @@ function bbp_version_updater() {
 
 	// Do not acknowledge lost pending work by advancing the database version.
 	if ( ! $safe_to_bump ) {
+		bbp_admin_repair_tool_automatic_deadline( 0 );
 		return false;
 	}
+	bbp_admin_repair_tool_automatic_deadline( 0 );
 
 	// Bump the version
 	bbp_version_bump();

@@ -70,6 +70,10 @@ function bbp_admin_tools_box() {
  * must save their own progress, tolerate retries, and invalidate the cache
  * entries they change between batches. The shared runner flushes the whole
  * cache only around the initial Run request and after a tool's final batch.
+ * Browser Run callbacks receive no arguments for legacy compatibility.
+ * Browser Dry Run callbacks receive an action array containing the action and
+ * registered tool. Other synchronous tools-page actions pass the same action
+ * array to their registered callback.
  *
  * @param array $args Repair tool arguments. The callbacks value maps action
  *                    names to callables. The legacy callback value is used for

@@ -81,6 +81,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 				$this->assertFalse( get_option( $this->option(), false ) );
 				$db = bbp_db();
 				$this->assertSame( array(), $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s", $db->esc_like( $this->option() . '_tree_' ) . '%' ) ) );
+				$this->assertSame( array(), $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s", $db->esc_like( $this->option() . '_forum_topics_' ) . '%' ) ) );
 				return;
 			}
 		}
@@ -192,6 +193,166 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		// Browser-only preview cleanup is not part of the normal Run estimate.
 		$this->assertGreaterThanOrEqual( $result['batches'], $requests );
 		$this->assertSame( $before, $this->snapshot() );
+	}
+
+	public function test_browser_preview_removes_abandoned_scratch_generations() {
+		$this->fixture();
+		$this->size = 2;
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-abandoned-scratch' );
+		$prefix   = $this->option();
+		$scratch  = $prefix . '_topics_abandoned_1';
+		$summary  = $prefix . '_forum_topics_abandoned_1';
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $scratch, array( 'abandoned' => true ) ) );
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $summary, array( 'id' => 1, 'time' => '' ) ) );
+		try {
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( get_option( $scratch, false ) );
+		$this->assertFalse( get_option( $summary, false ) );
+	}
+
+	public function test_browser_preview_avoids_an_unbounded_direct_topic_query_per_forum() {
+		$forum      = $this->factory->forum->create();
+		$topics     = $this->factory->topic->create_many( 6, array( 'post_parent' => $forum ) );
+		$this->size = 1;
+		$run_id     = 'freshness-skewed-preview';
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', $run_id );
+		try {
+			$worker = new BBP_Admin_Forum_Freshness( true );
+			$method = new ReflectionMethod( $worker, 'new_state' );
+			$method->setAccessible( true );
+			$state          = $method->invoke( $worker );
+			$state['phase'] = 'topics';
+			$this->assertTrue( bbp_admin_repair_tool_save_checkpoint( 'bbp-sync-all-topics-forums', $state, false, true ) );
+
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				if ( $result['code'] ) {
+					$this->fail( 'Freshness preview failed before reaching its forum phase.' );
+				}
+				$state = get_option( $this->option() );
+				if ( is_array( $state ) && 'count' === $state['phase'] && ! $state['current'] ) {
+					break;
+				}
+			}
+
+			$this->assertSame( 'count', $state['phase'] );
+			$this->size     = 1;
+			$queries        = 0;
+			$unbounded_read = false;
+			$count_query = static function ( $query ) use ( &$queries ) {
+				++$queries;
+				return $query;
+			};
+			$detect_unbounded_read = static function ( $query ) use ( $forum, &$unbounded_read ) {
+				if ( $forum === (int) $query->get( 'post_parent' )
+					&& bbp_get_topic_post_type() === $query->get( 'post_type' )
+					&& -1 === (int) $query->get( 'posts_per_page' ) ) {
+					$unbounded_read = true;
+				}
+			};
+			add_filter( 'query', $count_query );
+			add_action( 'pre_get_posts', $detect_unbounded_read );
+			try {
+				$result = bbp_admin_repair_freshness_batch( true );
+			} finally {
+				remove_filter( 'query', $count_query );
+				remove_action( 'pre_get_posts', $detect_unbounded_read );
+			}
+
+			$this->assertSame( 0, $result['code'] );
+			$this->assertFalse( $unbounded_read );
+			$this->assertLessThanOrEqual( 20, $queries );
+
+			$this->size = 1000;
+			for ( $i = 0; $i < 1000 && ! $result['complete']; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+			}
+			$this->assertTrue( $result['complete'] );
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertCount( 6, $topics );
+	}
+
+	public function test_browser_preview_retries_a_failed_forum_topic_aggregate_save() {
+		$forum  = $this->factory->forum->create();
+		$failed = false;
+		$this->factory->topic->create( array( 'post_parent' => $forum ) );
+
+		$this->size = 1000;
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-aggregate-retry' );
+		try {
+			$prefix    = $this->option() . '_forum_topics_';
+			$fail_once = static function ( $value, $option, $old_value ) use ( $prefix, &$failed ) {
+				if ( ! $failed && 0 === strpos( $option, $prefix ) ) {
+					$failed = true;
+					return $old_value;
+				}
+				return $value;
+			};
+			add_filter( 'pre_update_option', $fail_once, 10, 3 );
+			try {
+				for ( $i = 0; $i < 100 && ! $failed; ++$i ) {
+					$result = bbp_admin_repair_freshness_batch( true );
+				}
+				$this->assertTrue( $failed );
+				$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+				$this->assertSame( 'progress', $result['error'] );
+			} finally {
+				remove_filter( 'pre_update_option', $fail_once, 10 );
+			}
+
+			for ( $i = 0; $i < 100 && ! $result['complete']; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+			}
+
+			$this->assertTrue( $result['complete'] );
+			$this->assertSame( 1, $result['topics'] );
+			$this->assertSame( 1, $result['forums'] );
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+	}
+
+	public function test_run_retries_a_failed_forum_topic_aggregate_save() {
+		$ids    = $this->fixture();
+		$failed = false;
+
+		$this->size = 1000;
+		$prefix     = $this->option() . '_forum_topics_';
+		$fail_once  = static function ( $value, $option, $old_value ) use ( $prefix, &$failed ) {
+			if ( ! $failed && 0 === strpos( $option, $prefix ) ) {
+				$failed = true;
+				return $old_value;
+			}
+			return $value;
+		};
+		add_filter( 'pre_update_option', $fail_once, 10, 3 );
+		try {
+			$result = bbp_admin_repair_freshness_batch();
+			$this->assertTrue( $failed );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
+		} finally {
+			remove_filter( 'pre_update_option', $fail_once, 10 );
+		}
+
+		$this->finish();
+		$this->assert_freshness( $ids );
 	}
 
 	public function test_orphan_cleanup_is_bounded_and_preserves_other_metadata() {

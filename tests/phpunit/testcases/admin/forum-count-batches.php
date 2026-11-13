@@ -596,7 +596,7 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 				break;
 			}
 		}
-		$this->assertTrue( $restarted );
+		$this->assertSame( 'direct' !== $change, $restarted );
 		$this->assertTrue( $result['complete'] );
 		$this->assertSame( 'direct' === $change ? 3 : 1, (int) get_post_meta( $forums[0], $total, true ) );
 		$this->assertSame( 'move' === $change ? 2 : 1, (int) get_post_meta( $destination, $total, true ) );
@@ -629,6 +629,21 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		}
 		$this->assertSame( $state['token'], get_option( $this->option( 'topics' ) )['token'] );
 		$this->finish( 'topics' );
+	}
+
+	public function test_synchronous_preview_stops_after_repeated_corrupt_restarts() {
+		$worker = new class( 'topics', true ) extends BBP_Admin_Forum_Counts {
+			protected function step( $limit, &$complete ) {
+				$this->corrupt = true;
+				return 1;
+			}
+		};
+		$result = $worker->run();
+
+		$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+		$this->assertSame( 'source-invalid', $result['error'] );
+		$this->assertFalse( $result['complete'] );
+		$this->assertTrue( $result['restarted'] );
 	}
 
 }

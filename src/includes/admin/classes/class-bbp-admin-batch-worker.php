@@ -90,6 +90,48 @@ abstract class BBP_Admin_Batch_Worker {
 	protected $error = '';
 
 	/**
+	 * Record the first semantic worker failure.
+	 *
+	 * Procedural and class-based workers share this first-failure contract so
+	 * later cleanup errors cannot hide the original cause.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 * @access private
+	 *
+	 * @param string $error  Current failure reason, passed by reference.
+	 * @param string $reason Candidate semantic failure reason.
+	 * @return bool Whether this call recorded the failure.
+	 */
+	public static function record_failure( &$error, $reason ) {
+		if ( empty( $error ) && $reason ) {
+			$error = (string) $reason;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Return the shared worker result fields.
+	 *
+	 * @since 2.7.0 bbPress (r8350)
+	 * @access private
+	 *
+	 * @param string $error    Semantic failure reason.
+	 * @param bool   $complete Whether the operation completed.
+	 * @return array Normalized result fields.
+	 */
+	public static function result_fields( $error = '', $complete = false ) {
+		$error = (string) $error;
+
+		return array(
+			'code'     => $error ? self::RESULT_FAILED : 0,
+			'error'    => $error,
+			'complete' => ! $error && (bool) $complete,
+		);
+	}
+
+	/**
 	 * Record the first failure encountered by this worker.
 	 *
 	 * @since 2.7.0 bbPress (r8338)
@@ -98,26 +140,7 @@ abstract class BBP_Admin_Batch_Worker {
 	 * @return bool Whether this call recorded the failure.
 	 */
 	protected function fail( $reason ) {
-		if ( ! $this->error && $reason ) {
-			$this->error = (string) $reason;
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Return the normalized callback result code.
-	 *
-	 * Worker-specific numeric failures are intentionally not part of the tools
-	 * API. Semantic failure reasons are returned separately for diagnostics and
-	 * user-facing messages.
-	 *
-	 * @since 2.7.0 bbPress (r8338)
-	 *
-	 * @return int Zero on success, or two on failure.
-	 */
-	protected function result_code() {
-		return $this->error ? self::RESULT_FAILED : 0;
+		return self::record_failure( $this->error, $reason );
 	}
 
 	/**
@@ -132,11 +155,7 @@ abstract class BBP_Admin_Batch_Worker {
 	protected function result( $result, $complete ) {
 		return array_merge(
 			$result,
-			array(
-				'code'     => $this->result_code(),
-				'error'    => $this->error,
-				'complete' => ! $this->error && $complete,
-			)
+			self::result_fields( $this->error, $complete )
 		);
 	}
 
