@@ -32,7 +32,7 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 		return array( array( 1, false ), array( 1000, false ), array( 1, true ), array( 1000, true ) );
 	}
 
-	public function preview_fields() {
+	public function metadata_fields() {
 		return array(
 			array( null, array(), 1, false ),
 			array( 0, array(), 1, true ),
@@ -46,8 +46,8 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 		);
 	}
 
-	/** @dataProvider preview_fields */
-	public function test_full_metadata_preview_estimates_the_same_work_as_run( $value, $rows, $work, $changed ) {
+	/** @dataProvider metadata_fields */
+	public function test_metadata_status_matches_the_bounded_plan( $value, $rows, $work, $changed ) {
 		$db   = bbp_db();
 		$post = $this->factory->post->create();
 		foreach ( $rows as $row ) {
@@ -55,7 +55,7 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 		}
 		$before = $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A );
 		$status = bbp_admin_repair_metadata_status( 'post', '_bbp_preview', array( $post => $value ) );
-		$this->assertSame( array( 'changed' => $changed, 'work' => $work ), $status[ $post ] );
+		$this->assertSame( array( 'changed' => $changed ), $status[ $post ] );
 		$this->assertSame( $before, $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A ) );
 		$run = bbp_admin_repair_single_metadata( 'post', $post, '_bbp_preview', $value, count( $rows ) + 1 );
 		$this->assertSame( 0, $run['code'] );

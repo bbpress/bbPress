@@ -218,18 +218,12 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 		if ( ! $valid || ! isset( $state['_preview_state'] ) ) {
 			return $valid;
 		}
-		if ( ! is_array( $state['_preview_state'] ) || ! isset( $state['_preview_state']['totals'], $state['_preview_state']['data'] )
-			|| ! is_array( $state['_preview_state']['totals'] ) || ! is_array( $state['_preview_state']['data'] ) ) {
+		if ( ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'groups', 'forums', 'statuses', 'root', 'rename', 'batches' ) ) ) {
 			return false;
 		}
 
 		$totals = $state['_preview_state']['totals'];
 		$data   = $state['_preview_state']['data'];
-		foreach ( array( 'groups', 'forums', 'statuses', 'root', 'rename', 'batches' ) as $field ) {
-			if ( ! isset( $totals[ $field ] ) || ! is_int( $totals[ $field ] ) || $totals[ $field ] < 0 ) {
-				return false;
-			}
-		}
 		return isset( $totals['roles'], $data['mapping_error'] )
 			&& is_array( $totals['roles'] )
 			&& count( $totals['roles'] ) === count( array_filter( $totals['roles'], 'is_string' ) )

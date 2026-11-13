@@ -3814,17 +3814,11 @@ function bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) {
 		return $valid && ! isset( $state['_preview'] );
 	}
 
-	$preview = $state['_preview_state'];
-	if ( ! is_array( $preview ) || ! isset( $preview['totals'], $preview['data']['ranks'] )
-		|| ! is_array( $preview['totals'] ) || ! is_array( $preview['data']['ranks'] ) ) {
+	if ( ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'relationships', 'positions', 'batches' ), array(), array( 'ranks' ) ) ) {
 		return false;
 	}
-	foreach ( array( 'relationships', 'positions', 'batches' ) as $field ) {
-		if ( ! isset( $preview['totals'][ $field ] ) || ! is_int( $preview['totals'][ $field ] ) || $preview['totals'][ $field ] < 0 ) {
-			return false;
-		}
-	}
 
+	$preview = $state['_preview_state'];
 	foreach ( $preview['data']['ranks'] as $topic_id => $rank ) {
 		if ( ! is_int( $topic_id ) || $topic_id < 1 || ! is_array( $rank )
 			|| ! isset( $rank['cursor'], $rank['position'], $rank['last_changed'] )

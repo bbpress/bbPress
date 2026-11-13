@@ -663,9 +663,8 @@ function bbp_admin_repair_metadata_mismatches( $meta_type, $key, $expected ) {
 /**
  * Inspect a window of complete metadata fields without loading duplicate rows.
  *
- * Work includes retaining or creating the canonical value and cleaning up its
- * other rows. Repair workers use this only to verify completed writes; Dry Run
- * executes the same bounded mutation planner as Run.
+ * Repair workers use this only to verify completed writes; Dry Run executes the
+ * same bounded mutation planner as Run.
  *
  * @since 2.7.0 bbPress (r8331)
  * @access private
@@ -673,7 +672,7 @@ function bbp_admin_repair_metadata_mismatches( $meta_type, $key, $expected ) {
  * @param string $meta_type Metadata type: 'post' or 'user'.
  * @param string $key       Canonical metadata key.
  * @param array  $expected  Object IDs mapped to values, or null for absence.
- * @return array|false Change and work totals by object ID, or a read error.
+ * @return array|false Change status by object ID, or a read error.
  */
 function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 	if ( ! in_array( $meta_type, array( 'post', 'user' ), true ) ) {
@@ -687,7 +686,7 @@ function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 	$column = $meta_type . '_id';
 	$slots  = implode( ', ', array_fill( 0, count( $expected ), '%d' ) );
 	$cases  = array();
-	$args   = array( $key, $key );
+	$args   = array( $key );
 	foreach ( $expected as $id => $value ) {
 		$cases[] = null === $value ? 'WHEN %d THEN NULL' : 'WHEN %d THEN %s';
 		$args[]  = $id;
@@ -699,7 +698,6 @@ function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 	$rows   = $db->get_results(
 		$db->prepare(
 			"SELECT {$column} AS object_id, COUNT(*) AS row_count,
-				SUM(BINARY meta_key = BINARY %s) AS exact_keys,
 				SUM(BINARY meta_key = BINARY %s AND BINARY meta_value = BINARY ({$values})) AS correct_values
 			FROM {$table} WHERE meta_key = %s AND {$column} IN ({$slots}) GROUP BY {$column}",
 			array_merge( $args, array( $key ), array_keys( $expected ) )
@@ -714,14 +712,8 @@ function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 		$row     = isset( $rows[ $id ] ) ? $rows[ $id ] : null;
 		$count   = $row ? (int) $row->row_count : 0;
 		$correct = $row && $row->correct_values > 0;
-		$work    = $count;
-		if ( null !== $value ) {
-			// Reuse a later exact-key row only when the original source survives.
-			$work += $correct ? -1 : ( $row && $row->exact_keys > 1 ? 0 : 1 );
-		}
 		$status[ $id ] = array(
-			'changed' => null === $value ? $count > 0 : ( ! $correct || 1 !== $count ),
-			'work'    => max( 1, $work ),
+			'changed' => null === $value ? $count > 0 : ( ! $correct || 1 !== $count )
 		);
 	}
 	return $status;
