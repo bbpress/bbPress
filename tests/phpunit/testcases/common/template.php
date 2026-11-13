@@ -976,6 +976,36 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::is_bbpress
+	 * @covers ::bbp_title
+	 */
+	public function test_subscription_unsubscribe_is_bbpress_and_has_title() {
+		$wp_query   = bbp_get_wp_query();
+		$property   = 'bbp_is_subscription_unsubscribe';
+		$had_value  = property_exists( $wp_query, $property );
+		$old_value  = $had_value ? $wp_query->{$property} : null;
+		$old_status = get_query_var( 'bbp_subscription_unsubscribe' );
+
+		try {
+			$wp_query->{$property} = true;
+			set_query_var( 'bbp_subscription_unsubscribe', 'confirm' );
+
+			$this->assertTrue( is_bbpress() );
+			$this->assertSame( ' | Confirm Unsubscribe', bbp_title( 'Original', '|', '' ) );
+		} finally {
+			set_query_var( 'bbp_subscription_unsubscribe', $old_status );
+
+			if ( $had_value ) {
+				$wp_query->{$property} = $old_value;
+			} else {
+				unset( $wp_query->{$property} );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_wp_login_action
 	 * @covers ::bbp_get_wp_login_action
 	 */
@@ -1991,6 +2021,13 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 
 	public static function body_class_specific_state_provider() {
 		return array(
+			'subscription unsubscribe' => array(
+				array( 'bbp_is_subscription_unsubscribe' => true ),
+				null,
+				array( 'bbp-subscription-unsubscribe', 'single', 'singular' ),
+				array(),
+				'bbp_is_subscription_unsubscribe',
+			),
 			'topic merge' => array(
 				array( 'bbp_is_topic_edit' => true ),
 				'merge',

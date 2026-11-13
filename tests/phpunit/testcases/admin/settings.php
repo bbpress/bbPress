@@ -95,6 +95,8 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$this->assertSame( 'intval', $fields['bbp_settings_users']['_bbp_allow_moderation_links']['sanitize_callback'] );
 		$this->assertSame( 'bbp_admin_setting_callback_user_block_actions', $fields['bbp_settings_users']['_bbp_user_block_actions']['callback'] );
 		$this->assertSame( 'bbp_admin_sanitize_user_block_actions', $fields['bbp_settings_users']['_bbp_user_block_actions']['sanitize_callback'] );
+		$this->assertSame( 'bbp_admin_setting_callback_unsubscribe_slug', $fields['bbp_settings_single_slugs']['_bbp_unsubscribe_slug']['callback'] );
+		$this->assertSame( 'bbp_sanitize_slug', $fields['bbp_settings_single_slugs']['_bbp_unsubscribe_slug']['sanitize_callback'] );
 		$this->assertGreaterThan(
 			array_search( '_bbp_allow_anonymous', array_keys( $fields['bbp_settings_users'] ), true ),
 			array_search( '_bbp_user_block_actions', array_keys( $fields['bbp_settings_users'] ), true )
@@ -579,6 +581,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_setting_callback_topic_tag_slug
 	 * @covers ::bbp_admin_setting_callback_view_slug
 	 * @covers ::bbp_admin_setting_callback_search_slug
+	 * @covers ::bbp_admin_setting_callback_unsubscribe_slug
 	 * @covers ::bbp_admin_setting_callback_edit_slug
 	 *
 	 * @dataProvider slug_setting_callback_provider
@@ -612,6 +615,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			'topic tag'     => array( 'bbp_admin_setting_callback_topic_tag_slug', '_bbp_topic_tag_slug' ),
 			'view'          => array( 'bbp_admin_setting_callback_view_slug', '_bbp_view_slug' ),
 			'search'        => array( 'bbp_admin_setting_callback_search_slug', '_bbp_search_slug' ),
+			'unsubscribe'   => array( 'bbp_admin_setting_callback_unsubscribe_slug', '_bbp_unsubscribe_slug' ),
 			'edit'          => array( 'bbp_admin_setting_callback_edit_slug', '_bbp_edit_slug' ),
 		);
 	}

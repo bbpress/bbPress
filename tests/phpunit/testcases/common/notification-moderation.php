@@ -94,8 +94,9 @@ class BBP_Tests_Common_Notification_Moderation extends BBP_UnitTestCase {
 		$subscriber_email = get_userdata( $content['subscriber_id'] )->user_email;
 		$author_email     = get_userdata( $content['author_id'] )->user_email;
 
-		$this->assertStringContainsString( $subscriber_email, $headers );
-		$this->assertStringNotContainsString( $author_email, $headers );
+		$this->assertSame( $subscriber_email, $this->mail[0]['to'] );
+		$this->assertNotSame( $author_email, $this->mail[0]['to'] );
+		$this->assertStringContainsString( 'List-Unsubscribe:', $headers );
 	}
 
 	/**

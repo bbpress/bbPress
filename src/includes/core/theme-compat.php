@@ -565,7 +565,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * @see https://bbpress.trac.wordpress.org/ticket/1478
 	 * @see https://bbpress.trac.wordpress.org/ticket/2429
 	 */
-	if ( bbp_is_template_included() ) {
+	if ( bbp_is_template_included() && ! bbp_is_subscription_unsubscribe() ) {
 		return $template;
 	}
 
@@ -589,9 +589,32 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		return $template;
 	}
 
+	/** Subscription Unsubscribe **********************************************/
+
+	if ( bbp_is_subscription_unsubscribe() ) {
+
+		// Use a generic wrapper instead of the subscribed object's template
+		bbp_set_template_included( false );
+		bbp_set_theme_compat_templates( bbp_get_theme_compat_template_hierarchy() );
+
+		// Reset post
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => 0,
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => bbp_buffer_template_part( 'content', 'subscription-unsubscribe', false ),
+				'post_type'      => '',
+				'post_title'     => bbp_get_subscription_unsubscribe_title(),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
+			)
+		);
+
 	/** Users *****************************************************************/
 
-	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
+	} elseif ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post(
@@ -979,6 +1002,24 @@ function bbp_do_not_redirect_edits( $redirect_url = '' ) {
 	if ( bbp_is_edit() ) {
 		$retval = '';
 	}
+
+	// Return
+	return $retval;
+}
+
+/**
+ * Prevent canonical redirection of signed subscription-unsubscribe requests.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param string $redirect_url The redirect URL.
+ *
+ * @return string Empty string if cancelling redirection.
+ */
+function bbp_do_not_redirect_subscription_unsubscribes( $redirect_url = '' ) {
+	$retval = bbp_is_subscription_unsubscribe()
+		? ''
+		: $redirect_url;
 
 	// Return
 	return $retval;

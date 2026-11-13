@@ -54,6 +54,16 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 		return implode( "\n", (array) $this->mail[0]['headers'] );
 	}
 
+	private function unsubscribe_query() {
+		$matches = array();
+		$this->assertSame( 1, preg_match( '/List-Unsubscribe: <([^>]+)>/', $this->mail_headers(), $matches ) );
+
+		$query = array();
+		wp_parse_str( wp_parse_url( $matches[1], PHP_URL_QUERY ), $query );
+
+		return $query;
+	}
+
 	/**
 	 * @ticket BBP2989
 	 *
@@ -76,8 +86,13 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 		add_filter( 'bbp_forum_subscription_user_ids', array( $this, 'capture_subscriber_sources' ), 10, 5 );
 
 		$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
-		$this->assertStringContainsString( 'Bcc: tag-subscriber@example.org', $this->mail_headers() );
+		$this->assertCount( 1, $this->mail );
+		$this->assertSame( 'tag-subscriber@example.org', $this->mail[0]['to'] );
 		$this->assertStringContainsString( 'subscribed to related forum activity', $this->mail[0]['message'] );
+		$this->assertStringContainsString( 'Unsubscribe from these emails:', $this->mail[0]['message'] );
+		$this->assertStringContainsString( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $this->mail_headers() );
+		$this->assertSame( (string) $term_id, $this->unsubscribe_query()['object_id'] );
+		$this->assertSame( 'term', $this->unsubscribe_query()['object_type'] );
 		$this->assertSame( array(), $this->subscriber_sources['forum_user_ids'] );
 		$this->assertSame( array( $subscriber_id ), $this->subscriber_sources['term_user_ids'] );
 	}
@@ -108,8 +123,11 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 		add_filter( 'bbp_forum_subscription_user_ids', array( $this, 'capture_subscriber_sources' ), 10, 5 );
 
 		$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
-		$this->assertSame( 1, substr_count( $this->mail_headers(), 'Bcc: shared-subscriber@example.org' ) );
+		$this->assertCount( 1, $this->mail );
+		$this->assertSame( 'shared-subscriber@example.org', $this->mail[0]['to'] );
 		$this->assertStringContainsString( 'subscribed to a forum', $this->mail[0]['message'] );
+		$this->assertSame( (string) $content['forum_id'], $this->unsubscribe_query()['object_id'] );
+		$this->assertSame( 'post', $this->unsubscribe_query()['object_type'] );
 		$this->assertSame( array( $subscriber_id ), $this->subscriber_sources['forum_user_ids'] );
 		$this->assertSame( array(), $this->subscriber_sources['term_user_ids'] );
 	}
@@ -147,7 +165,10 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 			update_option( '_bbp_enable_subscriptions', array( 'term:' . $taxonomy ) );
 
 			$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
-			$this->assertStringContainsString( 'Bcc: custom-subscriber@example.org', $this->mail_headers() );
+			$this->assertCount( 1, $this->mail );
+			$this->assertSame( 'custom-subscriber@example.org', $this->mail[0]['to'] );
+			$this->assertSame( (string) $term_id, $this->unsubscribe_query()['object_id'] );
+			$this->assertSame( 'term', $this->unsubscribe_query()['object_type'] );
 		} finally {
 			unregister_taxonomy( $taxonomy );
 		}

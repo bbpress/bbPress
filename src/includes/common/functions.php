@@ -2235,18 +2235,100 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 }
 
 /**
+ * Send a subscription email to each recipient with an unsubscribe link.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param array  $email_addresses Email addresses.
+ * @param string $subject         Email subject.
+ * @param string $message         Email message.
+ * @param array  $headers         Email headers.
+ * @param array  $subscriptions   Subscription object data keyed by user ID.
+ * @return bool Whether any email was sent.
+ */
+function bbp_send_subscription_emails( $email_addresses = array(), $subject = '', $message = '', $headers = array(), $subscriptions = array() ) {
+	$sent = false;
+
+	foreach ( (array) $email_addresses as $email_address ) {
+		$email_address = sanitize_email( $email_address );
+		if ( empty( $email_address ) ) {
+			continue;
+		}
+
+		$user          = get_user_by( 'email', $email_address );
+		$user_id       = ( $user instanceof WP_User )
+			? $user->ID
+			: 0;
+		$subscription  = ! empty( $user_id ) && ! empty( $subscriptions[ $user_id ] )
+			? wp_parse_args(
+				$subscriptions[ $user_id ],
+				array(
+					'object_id'   => 0,
+					'object_type' => 'post'
+				)
+			)
+			: array();
+		$object_id     = ! empty( $subscription['object_id'] )
+			? absint( $subscription['object_id'] )
+			: 0;
+		$object_type   = ! empty( $subscription['object_type'] ) && is_string( $subscription['object_type'] )
+			? sanitize_key( $subscription['object_type'] )
+			: 'post';
+		$unsubscribe   = ! empty( $object_id )
+			? bbp_get_subscription_unsubscribe_url( $user_id, $object_id, $object_type )
+			: false;
+		$email_headers = (array) $headers;
+
+		if ( ! empty( $unsubscribe ) ) {
+			$email_message   = $message . "\n\n" . sprintf(
+				/* translators: %s: Unsubscribe URL */
+				__( "Unsubscribe from these emails:\n%s", 'bbpress' ),
+				$unsubscribe
+			);
+			$email_headers[] = 'List-Unsubscribe: <' . esc_url_raw( $unsubscribe ) . '>';
+			$email_headers[] = 'List-Unsubscribe-Post: List-Unsubscribe=One-Click';
+		} else {
+			$email_message = $message . "\n\n" . __( 'Login and visit your subscriptions to unsubscribe from these emails.', 'bbpress' );
+		}
+
+		$email = array(
+			'to'          => $email_address,
+			'subject'     => $subject,
+			'message'     => $email_message,
+			'headers'     => $email_headers,
+			'attachments' => array()
+		);
+
+		/**
+		 * Filters an individual subscription email before it is sent.
+		 *
+		 * @since 2.7.0 bbPress (r8349)
+		 *
+		 * @param array  $email       Arguments passed to wp_mail().
+		 * @param int    $user_id     Recipient user ID.
+		 * @param int    $object_id   Subscribed object ID.
+		 * @param string $object_type Registered engagement type.
+		 */
+		$email = (array) apply_filters( 'bbp_subscription_email', $email, $user_id, $object_id, $object_type );
+
+		if ( empty( $email['to'] ) || empty( $email['subject'] ) || empty( $email['message'] ) ) {
+			continue;
+		}
+
+		$sent = wp_mail( $email['to'], $email['subject'], $email['message'], $email['headers'], $email['attachments'] ) || $sent;
+	}
+
+	return $sent;
+}
+
+/**
  * Sends notification emails for new replies to subscribed topics.
  *
  * Gets new post ID and check if there are subscribed users to that topic, and
  * if there are, send notifications.
  *
- * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
- * with everyone BCC'd. This may have negative repercussions for email services
- * that limit the number of addresses in a BCC field (often to around 500.) In
- * those cases, we recommend unhooking this function and creating your own
- * custom email script.
- *
  * @since 2.6.0 bbPress (r5413)
+ * @since 2.7.0 bbPress (r8349) Send individual emails with unsubscribe links.
  *
  * @param int $reply_id ID of the newly made reply.
  * @param int $topic_id ID of the topic of the reply.
@@ -2346,9 +2428,7 @@ Post Link: %s
 
 -----------
 
-You are receiving this email because you subscribed to a forum topic.
-
-Login and visit the topic to unsubscribe from these emails.',
+You are receiving this email because you subscribed to a forum topic.',
 				'bbpress'
 			),
 			$reply_url
@@ -2370,9 +2450,7 @@ Post Link: %3$s
 
 -----------
 
-You are receiving this email because you subscribed to a forum topic.
-
-Login and visit the topic to unsubscribe from these emails.',
+You are receiving this email because you subscribed to a forum topic.',
 				'bbpress'
 			),
 			$reply_author_name,
@@ -2413,22 +2491,33 @@ Login and visit the topic to unsubscribe from these emails.',
 	// Setup the From header
 	$headers[]  = 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>';
 
-	// Loop through addresses
-	foreach ( (array) $email_addresses as $address ) {
-		$headers[] = 'Bcc: ' . $address;
-	}
-
 	/** Send it ***************************************************************/
 
 	// Custom headers
-	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
-	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
+	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
+
+	// The shared To address is incompatible with per-recipient unsubscribe links
+	apply_filters_deprecated(
+		'bbp_subscription_to_email',
+		array( $no_reply ),
+		'2.7.0',
+		'bbp_subscription_email'
+	);
+
+	// Identify the subscription represented by each recipient's email.
+	$subscriptions = array();
+	foreach ( $user_ids as $subscriber_id ) {
+		$subscriptions[ $subscriber_id ] = array(
+			'object_id'   => $topic_id,
+			'object_type' => 'post'
+		);
+	}
 
 	// Before
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
-	// Send notification email
-	wp_mail( $to_email, $subject, $message, $headers );
+	// Send notification emails
+	bbp_send_subscription_emails( $email_addresses, $subject, $message, $headers, $subscriptions );
 
 	// After
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
@@ -2447,14 +2536,9 @@ Login and visit the topic to unsubscribe from these emails.',
  * Gets new post ID and check if there are subscribed users to that forum, and
  * if there are, send notifications.
  *
- * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
- * with everyone BCC'd. This may have negative repercussions for email services
- * that limit the number of addresses in a BCC field (often to around 500.) In
- * those cases, we recommend unhooking this function and creating your own
- * custom email script.
- *
  * @since 2.5.0 bbPress (r5156)
  * @since 2.7.0 bbPress (r8335) Include active taxonomy subscribers.
+ * @since 2.7.0 bbPress (r8349) Send individual emails with unsubscribe links.
  *
  * @param int $topic_id ID of the newly made reply.
  * @param int $forum_id ID of the forum for the topic.
@@ -2573,9 +2657,7 @@ Topic Link: %s
 
 -----------
 
-You are receiving this email because you subscribed to related forum activity.
-
-Login and visit your subscriptions to unsubscribe from these emails.',
+You are receiving this email because you subscribed to related forum activity.',
 				'bbpress'
 			),
 			$topic_url
@@ -2592,9 +2674,7 @@ Topic Link: %s
 
 -----------
 
-You are receiving this email because you subscribed to a forum.
-
-Login and visit the topic to unsubscribe from these emails.',
+You are receiving this email because you subscribed to a forum.',
 				'bbpress'
 			),
 			$topic_url
@@ -2616,9 +2696,7 @@ Topic Link: %3$s
 
 -----------
 
-You are receiving this email because you subscribed to related forum activity.
-
-Login and visit your subscriptions to unsubscribe from these emails.',
+You are receiving this email because you subscribed to related forum activity.',
 				'bbpress'
 			),
 			$topic_author_name,
@@ -2642,9 +2720,7 @@ Topic Link: %3$s
 
 -----------
 
-You are receiving this email because you subscribed to a forum.
-
-Login and visit the topic to unsubscribe from these emails.',
+You are receiving this email because you subscribed to a forum.',
 				'bbpress'
 			),
 			$topic_author_name,
@@ -2685,22 +2761,52 @@ Login and visit the topic to unsubscribe from these emails.',
 	// Setup the From header
 	$headers[] = 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>';
 
-	// Loop through addresses
-	foreach ( (array) $email_addresses as $address ) {
-		$headers[] = 'Bcc: ' . $address;
-	}
-
 	/** Send it ***************************************************************/
 
 	// Custom headers
-	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
-	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
+	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
+
+	// The shared To address is incompatible with per-recipient unsubscribe links
+	apply_filters_deprecated(
+		'bbp_subscription_to_email',
+		array( $no_reply ),
+		'2.7.0',
+		'bbp_subscription_email'
+	);
+
+	// Identify the forum or term subscription represented by each email.
+	$term_ids = ! empty( $term_user_ids )
+		? wp_get_object_terms( $topic_id, $term_subscriptions, array( 'fields' => 'ids' ) )
+		: array();
+	$term_ids = ! is_wp_error( $term_ids )
+		? wp_parse_id_list( $term_ids )
+		: array();
+	$subscriptions = array();
+	$recipients    = array_fill_keys( $user_ids, true );
+
+	foreach ( array_intersect( $user_ids, $forum_user_ids ) as $subscriber_id ) {
+		$subscriptions[ $subscriber_id ] = array(
+			'object_id'   => $forum_id,
+			'object_type' => 'post'
+		);
+	}
+
+	foreach ( $term_ids as $term_id ) {
+		foreach ( bbp_get_subscribers( $term_id, 'term' ) as $subscriber_id ) {
+			if ( isset( $recipients[ $subscriber_id ] ) && ! isset( $subscriptions[ $subscriber_id ] ) ) {
+				$subscriptions[ $subscriber_id ] = array(
+					'object_id'   => $term_id,
+					'object_type' => 'term'
+				);
+			}
+		}
+	}
 
 	// Before
 	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
-	// Send notification email
-	wp_mail( $to_email, $subject, $message, $headers );
+	// Send notification emails
+	bbp_send_subscription_emails( $email_addresses, $subject, $message, $headers, $subscriptions );
 
 	// After
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );

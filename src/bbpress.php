@@ -307,6 +307,7 @@ final class bbPress {
 		$this->search_id         = apply_filters( 'bbp_search_id',      'bbp_search'      );
 		$this->engagements_id    = apply_filters( 'bbp_engagements_id', 'bbp_engagements' );
 		$this->mentions_id       = apply_filters( 'bbp_mentions_id',    'bbp_mentions'    );
+		$this->unsubscribe_id    = apply_filters( 'bbp_unsubscribe_id', 'bbp_unsubscribe' );
 
 		/** Queries ***********************************************************/
 
@@ -1037,6 +1038,7 @@ final class bbPress {
 		add_rewrite_tag( '%' . bbp_get_user_mentions_rewrite_id()      . '%', '([1]{1,})' ); // User Mentions tag
 		add_rewrite_tag( '%' . bbp_get_user_topics_rewrite_id()        . '%', '([1]{1,})' ); // User Topics Tag
 		add_rewrite_tag( '%' . bbp_get_user_replies_rewrite_id()       . '%', '([1]{1,})' ); // User Replies Tag
+		add_rewrite_tag( '%' . bbp_get_subscription_unsubscribe_rewrite_id() . '%', '([1]{1,})' ); // Subscription Unsubscribe tag
 	}
 
 	/**
@@ -1067,6 +1069,7 @@ final class bbPress {
 		$user_slug          = bbp_get_user_slug();
 		$view_slug          = bbp_get_view_slug();
 		$search_slug        = bbp_get_search_slug();
+		$unsubscribe_slug   = bbp_get_subscription_unsubscribe_slug();
 		$topic_archive_slug = bbp_get_topic_archive_slug();
 		$reply_archive_slug = bbp_get_reply_archive_slug();
 
@@ -1092,6 +1095,7 @@ final class bbPress {
 		$user_reps_id       = bbp_get_user_replies_rewrite_id();
 		$user_engs_id       = bbp_get_user_engagements_rewrite_id();
 		$user_ment_id       = bbp_get_user_mentions_rewrite_id();
+		$unsubscribe_id     = bbp_get_subscription_unsubscribe_rewrite_id();
 
 		// Rewrite rule matches used repeatedly below
 		$root_rule    = '/([^/]+)/?$';
@@ -1124,6 +1128,9 @@ final class bbPress {
 		add_rewrite_rule( $topic_slug . $edit_rule, 'index.php?' . bbp_get_topic_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
 		add_rewrite_rule( $reply_slug . $edit_rule, 'index.php?' . bbp_get_reply_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
 		add_rewrite_rule( $ttag_slug  . $edit_rule, 'index.php?' . bbp_get_topic_tag_tax_id() . '=$matches[1]&' . $edit_id . '=1', $priority );
+
+		// Subscription unsubscribe confirmation
+		add_rewrite_rule( $unsubscribe_slug . '/?$', 'index.php?' . $unsubscribe_id . '=1', $priority );
 
 		// User Pagination|Edit|View
 		add_rewrite_rule( $user_slug . $tops_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_tops_id . '=1&' . $paged_id . '=$matches[2]', $priority );

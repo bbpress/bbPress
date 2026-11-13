@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added signed unsubscribe links, a configurable confirmation page, and
+  one-click unsubscribe headers to forum, topic, and taxonomy subscription
+  emails.
 - Added per-content-type controls for registered post types and taxonomies that
   support subscriptions, including topic-tag links, profile management, and
   new-topic notifications for subscribed taxonomy terms.
@@ -65,6 +68,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Changed subscription notifications to send one email per recipient, and
+  deprecated `bbp_subscription_to_email` in favor of `bbp_subscription_email`.
 - Keep unfinished automatic upgrades durably pending, and retry storage failures
   without advancing the database version. Recheck completed forum recount nodes
   after source changes so moved forums do not contribute stale totals.

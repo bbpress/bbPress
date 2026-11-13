@@ -1622,6 +1622,119 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 }
 
 /**
+ * Whether the current request is a subscription-unsubscribe request.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param string $status Optional. Status to compare.
+ * @return bool Whether this is an unsubscribe request with the requested status.
+ */
+function bbp_is_subscription_unsubscribe( $status = '' ) {
+	$current = get_query_var( 'bbp_subscription_unsubscribe' );
+
+	// Compare the current result when a status was requested
+	if ( ! empty( $status ) ) {
+		$retval = ( $status === $current );
+
+	// Otherwise check the main query and rewrite variable
+	} else {
+		$wp_query   = bbp_get_wp_query();
+		$rewrite_id = bbp_get_subscription_unsubscribe_rewrite_id();
+		$retval     = ! empty( $current );
+
+		if ( empty( $retval ) && ! empty( $wp_query->bbp_is_subscription_unsubscribe ) ) {
+			$retval = ( true === $wp_query->bbp_is_subscription_unsubscribe );
+		}
+
+		if ( empty( $retval ) && ! empty( get_query_var( $rewrite_id ) ) ) {
+			$retval = true;
+		}
+	}
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_subscription_unsubscribe', $retval, $status, $current );
+}
+
+/**
+ * Get the title for the current subscription-unsubscribe request.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @return string Unsubscribe page title.
+ */
+function bbp_get_subscription_unsubscribe_title() {
+	$status = get_query_var( 'bbp_subscription_unsubscribe' );
+
+	if ( 'confirm' === $status ) {
+		$title = __( 'Confirm Unsubscribe', 'bbpress' );
+	} elseif ( 'success' === $status ) {
+		$title = __( 'Unsubscribed', 'bbpress' );
+	} else {
+		$title = __( 'Unable to Unsubscribe', 'bbpress' );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_subscription_unsubscribe_title', $title, $status );
+}
+
+/**
+ * Output the feedback class for the current subscription-unsubscribe request.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ */
+function bbp_subscription_unsubscribe_feedback_class() {
+	echo esc_attr( bbp_get_subscription_unsubscribe_feedback_class() );
+}
+
+/**
+ * Get the feedback class for the current subscription-unsubscribe request.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @return string Feedback class.
+ */
+function bbp_get_subscription_unsubscribe_feedback_class() {
+	$status = get_query_var( 'bbp_subscription_unsubscribe' );
+	$class  = ( 'success' === $status )
+		? 'info'
+		: 'error';
+
+	// Filter & return
+	return apply_filters( 'bbp_get_subscription_unsubscribe_feedback_class', $class, $status );
+}
+
+/**
+ * Output feedback for the current subscription-unsubscribe request.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ */
+function bbp_subscription_unsubscribe_feedback() {
+	echo esc_html( bbp_get_subscription_unsubscribe_feedback() );
+}
+
+/**
+ * Get feedback for the current subscription-unsubscribe request.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @return string Feedback message.
+ */
+function bbp_get_subscription_unsubscribe_feedback() {
+	$status = get_query_var( 'bbp_subscription_unsubscribe' );
+
+	if ( 'success' === $status ) {
+		$feedback = __( 'You have been unsubscribed.', 'bbpress' );
+	} elseif ( 'failed' === $status ) {
+		$feedback = __( 'There was a problem unsubscribing.', 'bbpress' );
+	} else {
+		$feedback = __( 'This unsubscribe link is invalid or has expired.', 'bbpress' );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_subscription_unsubscribe_feedback', $feedback, $status );
+}
+
+/**
  * Output a user's subscribed taxonomy terms.
  *
  * @since 2.7.0 bbPress (r8335)

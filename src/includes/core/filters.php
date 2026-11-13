@@ -160,10 +160,11 @@ add_filter( 'get_the_excerpt',     'bbp_get_theme_compat_excerpt',        9, 2 )
  * works for a number of reasons, and they are individually hooked to a
  * dedicated sub-action to make them easier to customize.
  */
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_edits',       10, 2 );
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_paginations', 10, 2 );
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_restricted_posts', 10, 2 );
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_restricted_attachments', 10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_edits',                      10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_paginations',                10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_subscription_unsubscribes',  10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_restricted_posts',           10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_restricted_attachments',     10, 2 );
 add_filter( 'old_slug_redirect_post_id', 'bbp_filter_old_slug_redirect_post_id' );
 add_filter( 'oembed_request_post_id', 'bbp_filter_oembed_request_post_id' );
 add_filter( 'oembed_request_post_id', 'bbp_filter_oembed_request_attachment_id' );

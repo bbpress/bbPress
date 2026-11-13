@@ -318,10 +318,12 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_do_not_redirect_edits
 	 * @covers ::bbp_do_not_redirect_paginations
+	 * @covers ::bbp_do_not_redirect_subscription_unsubscribes
 	 */
 	public function test_theme_compat_redirect_helpers_only_cancel_matching_pretty_urls() {
 		$wp_query       = bbp_get_wp_query();
 		$original_query = $wp_query->query;
+		$original_state = get_query_var( 'bbp_subscription_unsubscribe' );
 		$redirect       = 'https://example.org/canonical';
 
 		add_filter( 'bbp_pretty_urls', '__return_false' );
@@ -349,6 +351,10 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 				$this->assertSame( '', bbp_do_not_redirect_paginations( $redirect ) );
 				remove_filter( $filter, '__return_true' );
 			}
+
+			$this->assertSame( $redirect, bbp_do_not_redirect_subscription_unsubscribes( $redirect ) );
+			set_query_var( 'bbp_subscription_unsubscribe', 'confirm' );
+			$this->assertSame( '', bbp_do_not_redirect_subscription_unsubscribes( $redirect ) );
 		} finally {
 			remove_filter( 'bbp_pretty_urls', '__return_true' );
 			remove_filter( 'bbp_is_edit', '__return_true' );
@@ -356,6 +362,7 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 			remove_filter( 'bbp_is_single_forum', '__return_true' );
 			remove_filter( 'bbp_is_single_reply', '__return_true' );
 			$wp_query->query = $original_query;
+			set_query_var( 'bbp_subscription_unsubscribe', $original_state );
 		}
 	}
 
@@ -679,6 +686,49 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_template_include_theme_compat
+	 */
+	public function test_subscription_unsubscribe_uses_block_theme_template_parts() {
+		$original_query = $GLOBALS['wp_query'];
+		$original_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$ambient_id     = $this->factory->post->create();
+
+		remove_theme_support( 'block-templates' );
+		switch_theme( 'bbp-block-theme' );
+		wp_enable_block_templates();
+
+		$GLOBALS['wp_query'] = new WP_Query( array( 'p' => $ambient_id ) );
+		$GLOBALS['wp_query']->the_post();
+		set_query_var( 'bbp_subscription_unsubscribe', 'confirm' );
+		bbp_set_template_included( '/theme/single-forum.php' );
+		add_action( 'bbp_locate_template', array( $this, 'load_located_template' ), 10, 6 );
+
+		try {
+			$template = bbp_template_include_theme_compat( '/theme/single-forum.php' );
+			$html     = get_the_block_template_html();
+
+			$this->assertSame( ABSPATH . WPINC . '/template-canvas.php', $template );
+			$this->assertFalse( bbp_is_template_included() );
+			$this->assertSame( 'Confirm Unsubscribe', get_the_title() );
+			$this->assertStringContainsString( 'Do you want to unsubscribe from these emails?', $html );
+			$this->assertStringContainsString( 'name="List-Unsubscribe" value="One-Click"', $html );
+		} finally {
+			remove_action( 'bbp_locate_template', array( $this, 'load_located_template' ), 10 );
+			bbp_restore_all_filters( 'the_content' );
+			bbp_set_theme_compat_active( false );
+			bbp_set_template_included( false );
+			$GLOBALS['wp_query'] = $original_query;
+			$GLOBALS['post']     = $original_post;
+
+			if ( ( $original_query instanceof WP_Query ) && ( $original_post instanceof WP_Post ) ) {
+				$original_query->setup_postdata( $original_post );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_theme_canvas_template
 	 * @ticket 3487
 	 */
@@ -944,5 +994,21 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 		bbp_restore_all_filters( 'the_content' );
 
 		return $template;
+	}
+
+	/**
+	 * Load located templates when the PHPUnit bootstrap disables themes.
+	 *
+	 * @param string $located       Located template path.
+	 * @param string $template_name Last template name checked.
+	 * @param array  $templates     Template names.
+	 * @param array  $locations     Template locations.
+	 * @param bool   $load          Whether to load the template.
+	 * @param bool   $require_once  Whether to require the template once.
+	 */
+	public function load_located_template( $located, $template_name, $templates, $locations, $load, $require_once ) {
+		if ( $load && $located && ( ! defined( 'WP_USE_THEMES' ) || ! WP_USE_THEMES ) ) {
+			load_template( $located, $require_once );
+		}
 	}
 }

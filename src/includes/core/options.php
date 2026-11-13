@@ -112,8 +112,9 @@ function bbp_get_default_options() {
 
 			/** Other Slugs *******************************************************/
 
-			'_bbp_view_slug'            => 'view',      // View slug
-			'_bbp_search_slug'          => 'search',    // Search slug
+			'_bbp_view_slug'            => 'view',        // View slug
+			'_bbp_search_slug'          => 'search',      // Search slug
+			'_bbp_unsubscribe_slug'     => 'unsubscribe', // Subscription unsubscribe slug
 
 			/** Topics ************************************************************/
 
@@ -1378,6 +1379,7 @@ function bbp_get_route_root_slugs() {
 		bbp_get_reply_slug(),
 		bbp_get_user_slug(),
 		bbp_get_view_slug(),
+		bbp_get_subscription_unsubscribe_slug(),
 	);
 
 	// Filter & return
@@ -1396,6 +1398,20 @@ function bbp_get_search_slug( $default = 'search' ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_search_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_search_slug', $default ) );
+}
+
+/**
+ * Return the subscription unsubscribe slug.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param string $default Optional. Default value 'unsubscribe'.
+ * @return string
+ */
+function bbp_get_subscription_unsubscribe_slug( $default = 'unsubscribe' ) {
+
+	// Filter & return
+	return apply_filters( 'bbp_get_subscription_unsubscribe_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_unsubscribe_slug', $default ) );
 }
 
 /**

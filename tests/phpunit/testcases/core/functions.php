@@ -381,6 +381,7 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_user_favorites_rewrite_id
 	 * @covers ::bbp_get_user_subscriptions_rewrite_id
 	 * @covers ::bbp_get_user_engagements_rewrite_id
+	 * @covers ::bbp_get_subscription_unsubscribe_rewrite_id
 	 * @covers ::bbp_get_view_rewrite_id
 	 * @covers ::bbp_get_paged_rewrite_id
 	 */
@@ -393,6 +394,7 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 		$this->assertSame( bbpress()->favs_id, bbp_get_user_favorites_rewrite_id() );
 		$this->assertSame( bbpress()->subs_id, bbp_get_user_subscriptions_rewrite_id() );
 		$this->assertSame( bbpress()->engagements_id, bbp_get_user_engagements_rewrite_id() );
+		$this->assertSame( bbpress()->unsubscribe_id, bbp_get_subscription_unsubscribe_rewrite_id() );
 		$this->assertSame( bbpress()->view_id, bbp_get_view_rewrite_id() );
 		$this->assertSame( bbpress()->paged_id, bbp_get_paged_rewrite_id() );
 	}

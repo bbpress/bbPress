@@ -244,6 +244,22 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_parse_query
+	 */
+	public function test_parse_query_sets_subscription_unsubscribe_state() {
+		$query = $this->set_main_query();
+		$query->is_home = true;
+		$query->set( bbp_get_subscription_unsubscribe_rewrite_id(), 1 );
+
+		bbp_parse_query( $query );
+		$this->assertTrue( $query->bbp_is_subscription_unsubscribe );
+		$this->assertFalse( $query->bbp_is_404 );
+		$this->assertFalse( $query->is_home );
+	}
+
+	/**
 	 * @covers ::bbp_parse_query
 	 */
 	public function test_parse_query_sets_post_edit_states() {

@@ -226,6 +226,203 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'po
 }
 
 /**
+ * Generate a signed subscription-unsubscribe token.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param int    $user_id     User ID.
+ * @param int    $object_id   Subscribed object ID.
+ * @param string $object_type Optional. Registered engagement type.
+ * @param int    $expiration  Optional. Token expiration timestamp.
+ * @return string|false Signed token, or false when it cannot be generated.
+ */
+function bbp_get_subscription_unsubscribe_token( $user_id = 0, $object_id = 0, $object_type = 'post', $expiration = 0 ) {
+	$user        = get_userdata( absint( $user_id ) );
+	$object_id   = absint( $object_id );
+	$object_type = is_string( $object_type )
+		? sanitize_key( $object_type )
+		: '';
+
+	if ( ! ( $user instanceof WP_User ) || empty( $object_id ) || empty( bbp_get_engagement_type( $object_type ) ) ) {
+		return false;
+	}
+
+	if ( empty( $expiration ) ) {
+		$lifetime = (int) apply_filters( 'bbp_subscription_unsubscribe_token_lifetime', WEEK_IN_SECONDS, $user->ID, $object_id, $object_type );
+		$expiration = time() + $lifetime;
+	}
+
+	$expiration = absint( $expiration );
+	if ( empty( $expiration ) ) {
+		return false;
+	}
+
+	$pass_frag = substr( $user->user_pass, 8, 4 );
+	$data      = implode( '|', array( $user->ID, $object_id, $object_type, $user->user_email, $pass_frag, $expiration ) );
+	$hash      = hash_hmac( 'sha256', $data, wp_salt( 'nonce' ) );
+
+	// Filter & return.
+	return apply_filters( 'bbp_get_subscription_unsubscribe_token', $user->ID . '|' . $expiration . '|' . $hash, $user->ID, $object_id, $object_type, $expiration );
+}
+
+/**
+ * Validate a signed subscription-unsubscribe token.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param string $token       Signed token.
+ * @param int    $object_id   Subscribed object ID.
+ * @param string $object_type Optional. Registered engagement type.
+ * @return int|false User ID when valid, otherwise false.
+ */
+function bbp_validate_subscription_unsubscribe_token( $token = '', $object_id = 0, $object_type = 'post' ) {
+	$parts = is_string( $token )
+		? explode( '|', $token )
+		: array();
+
+	if ( 3 !== count( $parts ) ) {
+		return false;
+	}
+
+	list( $user_id, $expiration ) = array_map( 'absint', array_slice( $parts, 0, 2 ) );
+	$expected = bbp_get_subscription_unsubscribe_token( $user_id, $object_id, $object_type, $expiration );
+
+	if ( empty( $expected ) || ( $expiration < time() ) || ! hash_equals( $expected, $token ) ) {
+		return false;
+	}
+
+	return $user_id;
+}
+
+/**
+ * Get a signed URL that unsubscribes a user without requiring authentication.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @param int    $user_id     User ID.
+ * @param int    $object_id   Subscribed object ID.
+ * @param string $object_type Optional. Registered engagement type.
+ * @return string|false Unsubscribe URL, or false when unavailable.
+ */
+function bbp_get_subscription_unsubscribe_url( $user_id = 0, $object_id = 0, $object_type = 'post' ) {
+	$user_id     = absint( $user_id );
+	$object_id   = absint( $object_id );
+	$object_type = is_string( $object_type )
+		? sanitize_key( $object_type )
+		: '';
+	$type        = bbp_get_engagement_type( $object_type );
+
+	if ( empty( $user_id ) || empty( $object_id ) || empty( $type ) || ! bbp_is_user_subscribed( $user_id, $object_id, $object_type ) ) {
+		return false;
+	}
+
+	$token = bbp_get_subscription_unsubscribe_token( $user_id, $object_id, $object_type );
+	if ( empty( $token ) ) {
+		return false;
+	}
+
+	// Pretty permalinks
+	if ( bbp_use_pretty_urls() ) {
+		$url = bbp_get_root_url() . bbp_get_subscription_unsubscribe_slug();
+		$url = user_trailingslashit( $url );
+		$url = home_url( $url );
+
+	// Unpretty permalinks
+	} else {
+		$url = add_query_arg(
+			bbp_get_subscription_unsubscribe_rewrite_id(),
+			'1',
+			home_url( '/' )
+		);
+	}
+
+	$url = add_query_arg(
+		array(
+			'action'                 => 'bbp_email_unsubscribe',
+			'object_id'              => $object_id,
+			'object_type'            => $object_type,
+			'bbp_subscription_token' => $token
+		),
+		$url
+	);
+
+	// Filter & return.
+	return apply_filters( 'bbp_get_subscription_unsubscribe_url', $url, $user_id, $object_id, $object_type );
+}
+
+/**
+ * Handle a signed subscription-unsubscribe request.
+ *
+ * Normal GET requests show a confirmation form. One-click email clients and
+ * that form submit `List-Unsubscribe=One-Click` with POST.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ */
+function bbp_subscription_unsubscribe_handler() {
+	if ( empty( get_query_var( bbp_get_subscription_unsubscribe_rewrite_id() ) ) ) {
+		return;
+	}
+
+	// Do not cache unsubscribe tokens or their results.
+	nocache_headers();
+	set_query_var( 'bbp_subscription_unsubscribe', 'invalid' );
+
+	if (
+		empty( $_GET['bbp_subscription_token'] ) ||
+		empty( $_GET['object_id'] ) ||
+		empty( $_GET['action'] ) ||
+		! is_string( $_GET['action'] ) ||
+		( 'bbp_email_unsubscribe' !== sanitize_key( $_GET['action'] ) )
+	) {
+		status_header( 403 );
+		return;
+	}
+
+	$token       = sanitize_text_field( wp_unslash( $_GET['bbp_subscription_token'] ) );
+	$object_id   = absint( $_GET['object_id'] );
+	$object_type = ! empty( $_GET['object_type'] ) && is_string( $_GET['object_type'] )
+		? sanitize_key( $_GET['object_type'] )
+		: 'post';
+	$user_id     = bbp_validate_subscription_unsubscribe_token( $token, $object_id, $object_type );
+
+	if ( empty( $user_id ) ) {
+		status_header( 403 );
+		return;
+	}
+
+	// Confirm normal link clicks before changing the subscription.
+	if ( ! bbp_is_post_request() ) {
+		set_query_var( 'bbp_subscription_unsubscribe', 'confirm' );
+		status_header( 200 );
+		return;
+	}
+
+	// The signed token replaces a nonce and only authorizes unsubscription.
+	$one_click = isset( $_POST['List-Unsubscribe'] ) && is_string( $_POST['List-Unsubscribe'] )
+		? sanitize_text_field( wp_unslash( $_POST['List-Unsubscribe'] ) )
+		: ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+	if ( 'One-Click' !== $one_click ) {
+		status_header( 403 );
+		return;
+	}
+
+	$success = ! bbp_is_user_subscribed( $user_id, $object_id, $object_type )
+		|| bbp_remove_user_subscription( $user_id, $object_id, $object_type );
+
+	do_action( 'bbp_subscriptions_handler', $success, $user_id, $object_id, 'bbp_unsubscribe', $object_type );
+
+	if ( empty( $success ) ) {
+		set_query_var( 'bbp_subscription_unsubscribe', 'failed' );
+		status_header( 500 );
+		return;
+	}
+
+	set_query_var( 'bbp_subscription_unsubscribe', 'success' );
+	status_header( 200 );
+}
+
+/**
  * Apply a topic form's subscription choice for its author.
  *
  * @since 2.6.20 bbPress (r7765)

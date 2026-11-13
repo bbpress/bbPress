@@ -1143,9 +1143,15 @@ function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 	// Default to no classes
 	$bbp_classes = array();
 
-	/* Archives ***************************************************************/
+	/* Subscription Unsubscribe ***********************************************/
 
-	if ( bbp_is_forum_archive() ) {
+	if ( bbp_is_subscription_unsubscribe() ) {
+		$bbp_classes[] = 'bbp-subscription-unsubscribe';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+
+	/* Archives ***************************************************************/
+	} elseif ( bbp_is_forum_archive() ) {
 		$bbp_classes[] = bbp_get_forum_post_type() . '-archive';
 	} elseif ( bbp_is_topic_archive() ) {
 		$bbp_classes[] = bbp_get_topic_post_type() . '-archive';
@@ -1350,9 +1356,13 @@ function is_bbpress() {
 		return $retval;
 	}
 
-	/* Archives ***************************************************************/
+	/* Subscription Unsubscribe ***********************************************/
 
-	if ( bbp_is_forum_archive() ) {
+	if ( bbp_is_subscription_unsubscribe() ) {
+		$retval = true;
+
+	/* Archives ***************************************************************/
+	} elseif ( bbp_is_forum_archive() ) {
 		$retval = true;
 	} elseif ( bbp_is_topic_archive() ) {
 		$retval = true;
@@ -2915,10 +2925,13 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Title array
 	$new_title = array();
 
-	/* Archives ************************************************************* */
+	/* Subscription Unsubscribe **********************************************/
 
-	// Forum Archive
-	if ( bbp_is_forum_archive() ) {
+	if ( bbp_is_subscription_unsubscribe() ) {
+		$new_title['text'] = bbp_get_subscription_unsubscribe_title();
+
+	/* Archives ************************************************************* */
+	} elseif ( bbp_is_forum_archive() ) {
 		$new_title['text'] = bbp_get_forum_archive_title();
 
 	// Topic Archive

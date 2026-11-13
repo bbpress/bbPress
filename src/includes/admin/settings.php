@@ -460,6 +460,14 @@ function bbp_admin_get_settings_fields() {
 					'callback'          => 'bbp_admin_setting_callback_search_slug',
 					'sanitize_callback' => 'bbp_sanitize_slug',
 					'args'              => array( 'label_for' => '_bbp_search_slug' )
+				),
+
+				// Subscription unsubscribe slug setting
+				'_bbp_unsubscribe_slug' => array(
+					'title'             => esc_html__( 'Unsubscribe', 'bbpress' ),
+					'callback'          => 'bbp_admin_setting_callback_unsubscribe_slug',
+					'sanitize_callback' => 'bbp_sanitize_slug',
+					'args'              => array( 'label_for' => '_bbp_unsubscribe_slug' )
 				)
 			),
 
@@ -1841,6 +1849,21 @@ function bbp_admin_setting_callback_search_slug() {
 }
 
 /**
+ * Subscription unsubscribe slug setting field.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ */
+function bbp_admin_setting_callback_unsubscribe_slug() {
+?>
+
+	<input name="_bbp_unsubscribe_slug" id="_bbp_unsubscribe_slug" type="text" class="regular-text code" value="<?php bbp_form_option( '_bbp_unsubscribe_slug', 'unsubscribe', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_unsubscribe_slug' ); ?> />
+
+<?php
+	// Slug Check
+	bbp_form_slug_conflict_check( '_bbp_unsubscribe_slug', 'unsubscribe' );
+}
+
+/**
  * Edit slug setting field.
  *
  * @since 2.6.2 bbPress (r6967)
@@ -2675,6 +2698,13 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 				'_bbp_topic_tag_slug' => array(
 					'name'    => esc_html__( 'Topic tag slug', 'bbpress' ),
 					'default' => 'topic-tag',
+					'context' => 'bbPress'
+				),
+
+				// Subscription unsubscribe slug
+				'_bbp_unsubscribe_slug' => array(
+					'name'    => esc_html__( 'Unsubscribe slug', 'bbpress' ),
+					'default' => 'unsubscribe',
 					'context' => 'bbPress'
 				),
 			)

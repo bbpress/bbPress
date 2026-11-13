@@ -528,6 +528,152 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_get_subscription_unsubscribe_token
+	 * @covers ::bbp_validate_subscription_unsubscribe_token
+	 * @covers ::bbp_get_subscription_unsubscribe_url
+	 */
+	public function test_subscription_unsubscribe_token_and_url() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+
+		$this->assertTrue( bbp_add_user_forum_subscription( $user_id, $forum_id ) );
+
+		$token = bbp_get_subscription_unsubscribe_token( $user_id, $forum_id );
+		$this->assertSame( $user_id, bbp_validate_subscription_unsubscribe_token( $token, $forum_id ) );
+		$this->assertFalse( bbp_validate_subscription_unsubscribe_token( $token, $forum_id + 1 ) );
+		$this->assertFalse( bbp_validate_subscription_unsubscribe_token( $token . 'changed', $forum_id ) );
+
+		$expired = bbp_get_subscription_unsubscribe_token( $user_id, $forum_id, 'post', time() - 1 );
+		$this->assertFalse( bbp_validate_subscription_unsubscribe_token( $expired, $forum_id ) );
+
+		add_filter( 'bbp_pretty_urls', '__return_true' );
+		$url = bbp_get_subscription_unsubscribe_url( $user_id, $forum_id );
+		remove_filter( 'bbp_pretty_urls', '__return_true' );
+
+		$query = array();
+		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query );
+
+		$this->assertSame( 'bbp_email_unsubscribe', $query['action'] );
+		$this->assertSame( (string) $forum_id, $query['object_id'] );
+		$this->assertSame( 'post', $query['object_type'] );
+		$this->assertSame( '/' . bbp_get_subscription_unsubscribe_slug(), untrailingslashit( wp_parse_url( $url, PHP_URL_PATH ) ) );
+		$this->assertSame( $user_id, bbp_validate_subscription_unsubscribe_token( $query['bbp_subscription_token'], $forum_id ) );
+		$this->assertFalse( bbp_validate_subscription_unsubscribe_token( $query['bbp_subscription_token'], $forum_id, 'term' ) );
+
+		bbPress::add_rewrite_tags();
+		bbPress::add_rewrite_rules();
+		$rewrite_rule = bbp_get_subscription_unsubscribe_slug() . '/?$';
+		$this->assertSame( 'index.php?' . bbp_get_subscription_unsubscribe_rewrite_id() . '=1', bbp_rewrite()->extra_rules_top[ $rewrite_rule ] );
+
+		add_filter( 'bbp_pretty_urls', '__return_false' );
+		$plain_url = bbp_get_subscription_unsubscribe_url( $user_id, $forum_id );
+		remove_filter( 'bbp_pretty_urls', '__return_false' );
+		$plain_query = array();
+		wp_parse_str( wp_parse_url( $plain_url, PHP_URL_QUERY ), $plain_query );
+		$this->assertSame( '1', $plain_query[ bbp_get_subscription_unsubscribe_rewrite_id() ] );
+	}
+
+	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_subscription_unsubscribe_handler
+	 */
+	public function test_subscription_unsubscribe_handler_confirms_get_and_processes_post() {
+		$old_get    = $_GET;
+		$old_post   = $_POST;
+		$old_server = $_SERVER;
+		$old_user   = get_current_user_id();
+		$old_status = get_query_var( 'bbp_subscription_unsubscribe' );
+		$old_route  = get_query_var( bbp_get_subscription_unsubscribe_rewrite_id() );
+		$user_id    = $this->factory->user->create();
+		$forum_id   = $this->factory->forum->create();
+		$query      = array();
+
+		$this->assertTrue( bbp_add_user_forum_subscription( $user_id, $forum_id ) );
+		$url = bbp_get_subscription_unsubscribe_url( $user_id, $forum_id );
+		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query );
+
+		try {
+			$this->set_current_user( 0 );
+			$_GET                      = array();
+			$_POST                     = array();
+			$_SERVER['REQUEST_METHOD'] = 'GET';
+			set_query_var( bbp_get_subscription_unsubscribe_rewrite_id(), '1' );
+
+			bbp_subscription_unsubscribe_handler();
+			$this->assertTrue( bbp_is_subscription_unsubscribe( 'invalid' ) );
+			$this->assertTrue( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
+
+			$_GET = $query;
+
+			bbp_subscription_unsubscribe_handler();
+			$this->assertTrue( bbp_is_subscription_unsubscribe( 'confirm' ) );
+			$this->assertTrue( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
+
+			$_SERVER['REQUEST_METHOD'] = 'POST';
+			bbp_subscription_unsubscribe_handler();
+			$this->assertTrue( bbp_is_subscription_unsubscribe( 'invalid' ) );
+			$this->assertTrue( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
+
+			$_POST['List-Unsubscribe'] = 'One-Click';
+
+			bbp_subscription_unsubscribe_handler();
+			$this->assertTrue( bbp_is_subscription_unsubscribe( 'success' ) );
+			$this->assertFalse( bbp_is_user_subscribed_to_forum( $user_id, $forum_id ) );
+
+			// Repeating the request is intentionally idempotent.
+			bbp_subscription_unsubscribe_handler();
+			$this->assertTrue( bbp_is_subscription_unsubscribe( 'success' ) );
+		} finally {
+			$_GET    = $old_get;
+			$_POST   = $old_post;
+			$_SERVER = $old_server;
+			set_query_var( 'bbp_subscription_unsubscribe', $old_status );
+			set_query_var( bbp_get_subscription_unsubscribe_rewrite_id(), $old_route );
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_subscription_unsubscribe_handler
+	 */
+	public function test_subscription_unsubscribe_handler_processes_term_subscription() {
+		$old_get    = $_GET;
+		$old_post   = $_POST;
+		$old_server = $_SERVER;
+		$old_status = get_query_var( 'bbp_subscription_unsubscribe' );
+		$old_route  = get_query_var( bbp_get_subscription_unsubscribe_rewrite_id() );
+		$user_id    = $this->factory->user->create();
+		$term_id    = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+		$query      = array();
+
+		$this->assertTrue( bbp_add_user_subscription( $user_id, $term_id, 'term' ) );
+		$url = bbp_get_subscription_unsubscribe_url( $user_id, $term_id, 'term' );
+		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query );
+
+		try {
+			$_GET                      = $query;
+			$_POST                     = array( 'List-Unsubscribe' => 'One-Click' );
+			$_SERVER['REQUEST_METHOD'] = 'POST';
+			set_query_var( bbp_get_subscription_unsubscribe_rewrite_id(), '1' );
+
+			bbp_subscription_unsubscribe_handler();
+			$this->assertTrue( bbp_is_subscription_unsubscribe( 'success' ) );
+			$this->assertFalse( bbp_is_user_subscribed( $user_id, $term_id, 'term' ) );
+		} finally {
+			$_GET    = $old_get;
+			$_POST   = $old_post;
+			$_SERVER = $old_server;
+			set_query_var( 'bbp_subscription_unsubscribe', $old_status );
+			set_query_var( bbp_get_subscription_unsubscribe_rewrite_id(), $old_route );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_subscriptions_handler
 	 * @ticket 3706
 	 */

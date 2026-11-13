@@ -1991,7 +1991,47 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_send_subscription_emails
+	 */
+	public function test_bbp_send_subscription_emails_accepts_string_headers() {
+		$user_id  = $this->factory->user->create( array( 'user_email' => 'subscriber@example.org' ) );
+		$forum_id = $this->factory->forum->create();
+		$mail     = null;
+		$capture  = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+
+			return true;
+		};
+
+		bbp_add_user_forum_subscription( $user_id, $forum_id );
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+
+		$result = bbp_send_subscription_emails(
+			array( 'subscriber@example.org' ),
+			'Subject',
+			'Message',
+			'X-Test: Value',
+			array(
+				$user_id => array(
+					'object_id'   => $forum_id,
+					'object_type' => 'post'
+				)
+			)
+		);
+
+		remove_filter( 'pre_wp_mail', $capture, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertSame( 'subscriber@example.org', $mail['to'] );
+		$this->assertContains( 'X-Test: Value', $mail['headers'] );
+		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
+	}
+
+	/**
 	 * @covers ::bbp_notify_topic_subscribers
+	 * @expectedDeprecated bbp_subscription_to_email
 	 */
 	public function test_bbp_notify_topic_subscribers() {
 		$participant_id = $this->factory->user->create( array(
@@ -2027,19 +2067,29 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		bbp_add_user_topic_subscription( $participant_id, $topic_id );
 		bbp_add_user_topic_subscription( $moderator_id, $topic_id );
 
-		$mail = null;
+		$mail             = null;
+		$deprecated_calls = 0;
 		$pre_wp_mail = function( $return, $atts ) use ( &$mail ) {
 			$mail = $atts;
 			return true;
 		};
+		$old_to_filter = function() use ( &$deprecated_calls ) {
+			$deprecated_calls++;
+
+			return 'redirect@example.org';
+		};
 		add_filter( 'pre_wp_mail', $pre_wp_mail, 10, 2 );
+		add_filter( 'bbp_subscription_to_email', $old_to_filter );
 
 		$result = bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, array(), $author_id );
 		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
+		remove_filter( 'bbp_subscription_to_email', $old_to_filter );
 
 		$this->assertTrue( $result );
-		$this->assertContains( 'Bcc: moderator@example.org', $mail['headers'] );
-		$this->assertNotContains( 'Bcc: participant@example.org', $mail['headers'] );
+		$this->assertSame( 1, $deprecated_calls );
+		$this->assertSame( 'moderator@example.org', $mail['to'] );
+		$this->assertStringContainsString( 'Unsubscribe from these emails:', $mail['message'] );
+		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
 	}
 
 	/**
@@ -2082,8 +2132,9 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
 
 		$this->assertTrue( $result );
-		$this->assertContains( 'Bcc: moderator@example.org', $mail['headers'] );
-		$this->assertNotContains( 'Bcc: participant@example.org', $mail['headers'] );
+		$this->assertSame( 'moderator@example.org', $mail['to'] );
+		$this->assertStringContainsString( 'Unsubscribe from these emails:', $mail['message'] );
+		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
 	}
 
 	/**
@@ -2749,11 +2800,12 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		$original_request = $wp->request;
 		$slug_options     = array(
-			'_bbp_topic_slug'     => 'discussion',
-			'_bbp_topic_tag_slug' => 'discussion-label',
-			'_bbp_reply_slug'     => 'response',
-			'_bbp_user_slug'      => 'members',
-			'_bbp_view_slug'      => 'collection',
+			'_bbp_topic_slug'       => 'discussion',
+			'_bbp_topic_tag_slug'   => 'discussion-label',
+			'_bbp_reply_slug'       => 'response',
+			'_bbp_user_slug'        => 'members',
+			'_bbp_view_slug'        => 'collection',
+			'_bbp_unsubscribe_slug' => 'leave',
 		);
 		$original_options = array();
 

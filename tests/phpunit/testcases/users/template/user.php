@@ -496,6 +496,49 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
  	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_is_subscription_unsubscribe
+	 * @covers ::bbp_get_subscription_unsubscribe_title
+	 * @covers ::bbp_subscription_unsubscribe_feedback_class
+	 * @covers ::bbp_get_subscription_unsubscribe_feedback_class
+	 * @covers ::bbp_subscription_unsubscribe_feedback
+	 * @covers ::bbp_get_subscription_unsubscribe_feedback
+	 */
+	public function test_bbp_subscription_unsubscribe_template_parts() {
+		$old_status = get_query_var( 'bbp_subscription_unsubscribe' );
+
+		add_action( 'bbp_locate_template', array( $this, 'load_located_template' ), 10, 6 );
+
+		try {
+			set_query_var( 'bbp_subscription_unsubscribe', 'confirm' );
+			$confirm = bbp_buffer_template_part( 'content', 'subscription-unsubscribe', false );
+
+			$this->assertTrue( bbp_is_subscription_unsubscribe() );
+			$this->assertSame( 'Confirm Unsubscribe', bbp_get_subscription_unsubscribe_title() );
+			$this->assertStringContainsString( 'Do you want to unsubscribe from these emails?', $confirm );
+			$this->assertStringContainsString( 'name="List-Unsubscribe" value="One-Click"', $confirm );
+
+			set_query_var( 'bbp_subscription_unsubscribe', 'success' );
+			$success = bbp_buffer_template_part( 'content', 'subscription-unsubscribe', false );
+
+			$this->assertSame( 'Unsubscribed', bbp_get_subscription_unsubscribe_title() );
+			$this->assertSame( 'info', bbp_get_subscription_unsubscribe_feedback_class() );
+			$this->assertSame( 'You have been unsubscribed.', bbp_get_subscription_unsubscribe_feedback() );
+			$this->assertStringContainsString( 'bbp-template-notice info', $success );
+			$this->assertStringContainsString( 'You have been unsubscribed.', $success );
+
+			set_query_var( 'bbp_subscription_unsubscribe', 'invalid' );
+			$this->assertSame( 'Unable to Unsubscribe', bbp_get_subscription_unsubscribe_title() );
+			$this->assertSame( 'error', bbp_get_subscription_unsubscribe_feedback_class() );
+			$this->assertSame( 'This unsubscribe link is invalid or has expired.', bbp_get_subscription_unsubscribe_feedback() );
+		} finally {
+			remove_action( 'bbp_locate_template', array( $this, 'load_located_template' ), 10 );
+			set_query_var( 'bbp_subscription_unsubscribe', $old_status );
+		}
+	}
+
+	/**
 	 * @ticket BBP2989
 	 *
 	 * @covers BBP_Term_Query

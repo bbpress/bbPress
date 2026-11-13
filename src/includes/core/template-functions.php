@@ -523,6 +523,8 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  *
  * If it's a view page, WP_Query::bbp_is_view is set to true.
  * If it's a search page, WP_Query::bbp_is_search is set to true.
+ * If it's a subscription unsubscribe page,
+ * WP_Query::bbp_is_subscription_unsubscribe is set to true.
  *
  * @since 2.1.0 bbPress (r3646)
  *
@@ -546,10 +548,11 @@ function bbp_parse_query( $posts_query ) {
 	}
 
 	// Get query variables (default to null if not set)
-	$bbp_view  = $posts_query->get( bbp_get_view_rewrite_id(),   null );
-	$bbp_user  = $posts_query->get( bbp_get_user_rewrite_id(),   null );
-	$is_edit   = $posts_query->get( bbp_get_edit_rewrite_id(),   null );
-	$is_search = $posts_query->get( bbp_get_search_rewrite_id(), null );
+	$bbp_view       = $posts_query->get( bbp_get_view_rewrite_id(),                     null );
+	$bbp_user       = $posts_query->get( bbp_get_user_rewrite_id(),                     null );
+	$is_edit        = $posts_query->get( bbp_get_edit_rewrite_id(),                     null );
+	$is_search      = $posts_query->get( bbp_get_search_rewrite_id(),                   null );
+	$is_unsubscribe = $posts_query->get( bbp_get_subscription_unsubscribe_rewrite_id(), null );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( ! is_null( $bbp_user ) ) {
@@ -712,6 +715,18 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->bbp_is_search = true;
 
 		// No 404 because search is always public
+		$posts_query->bbp_is_404 = false;
+
+	// Subscription Unsubscribe Page
+	} elseif ( ! is_null( $is_unsubscribe ) ) {
+
+		// Correct is_home variable
+		$posts_query->is_home = false;
+
+		// We are on a subscription unsubscribe page
+		$posts_query->bbp_is_subscription_unsubscribe = true;
+
+		// No 404 because the unsubscribe page is always public
 		$posts_query->bbp_is_404 = false;
 
 	// Forum/Topic/Reply Edit Page

@@ -611,6 +611,17 @@ function bbp_get_user_mentions_rewrite_id() {
 }
 
 /**
+ * Return the subscription unsubscribe rewrite ID.
+ *
+ * @since 2.7.0 bbPress (r8349)
+ *
+ * @return string
+ */
+function bbp_get_subscription_unsubscribe_rewrite_id() {
+	return bbpress()->unsubscribe_id;
+}
+
+/**
  * Return the unique ID for topic view rewrite rules.
  *
  * @since 2.1.0 bbPress (r3762)

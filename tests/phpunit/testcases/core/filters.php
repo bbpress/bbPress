@@ -175,6 +175,7 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 			array( 'wp_insert_post_data',       'bbp_fix_post_author',                     30, 2 ),
 			array( 'the_title',                 'bbp_filter_post_title',                    1, 2 ),
 			array( 'wp_untrash_post_status',    'bbp_fix_untrash_post_status',             10, 3 ),
+			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_subscription_unsubscribes', 10, 2 ),
 			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_restricted_posts',    10, 2 ),
 			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_restricted_attachments', 10, 2 ),
 			array( 'oembed_request_post_id',    'bbp_filter_oembed_request_attachment_id', 10, 1 ),

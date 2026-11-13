@@ -74,6 +74,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertFalse( $options['_bbp_moderation_links'] );
 		$this->assertSame( 15, $options['_bbp_topics_per_page'] );
 		$this->assertSame( 'forums', $options['_bbp_root_slug'] );
+		$this->assertSame( 'unsubscribe', $options['_bbp_unsubscribe_slug'] );
 		$this->assertSame( 'meta', $options['_bbp_engagements_strategy'] );
 
 		$filter = function( $defaults ) {
@@ -765,6 +766,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_user_slug
 	 * @covers ::bbp_get_view_slug
 	 * @covers ::bbp_get_search_slug
+	 * @covers ::bbp_get_subscription_unsubscribe_slug
 	 */
 	public function test_rooted_slugs_honor_the_include_root_option() {
 		$this->set_option( '_bbp_root_slug', 'community' );
@@ -776,6 +778,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->set_option( '_bbp_user_slug', 'member' );
 		$this->set_option( '_bbp_view_slug', 'collection' );
 		$this->set_option( '_bbp_search_slug', 'find' );
+		$this->set_option( '_bbp_unsubscribe_slug', 'leave' );
 
 		$this->assertSame( 'community', bbp_get_root_slug() );
 		$this->assertSame( 'community/', bbp_maybe_get_root_slug() );
@@ -786,6 +789,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertSame( 'community/member', bbp_get_user_slug() );
 		$this->assertSame( 'community/collection', bbp_get_view_slug() );
 		$this->assertSame( 'community/find', bbp_get_search_slug() );
+		$this->assertSame( 'community/leave', bbp_get_subscription_unsubscribe_slug() );
 
 		update_option( '_bbp_include_root', 0 );
 		$this->assertSame( '', bbp_maybe_get_root_slug() );
