@@ -2075,6 +2075,71 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3229
+	 *
+	 * @covers ::bbp_get_subscription_email_contexts
+	 * @covers ::bbp_send_subscription_emails
+	 */
+	public function test_bbp_send_subscription_emails_filters_subscription_context() {
+		$user_id   = $this->factory->user->create( array( 'user_email' => 'term-subscriber@example.org' ) );
+		$term_data = wp_insert_term( 'Email Subscription Context', bbp_get_topic_tag_tax_id() );
+		$term_id   = $term_data['term_id'];
+		$mail      = null;
+		$context   = null;
+		$filter    = function( $subscriptions, $email_addresses ) use ( $user_id, $term_id, &$context ) {
+			$context = array( $subscriptions, $email_addresses );
+			$subscriptions[ $user_id ] = array(
+				'object_id'   => $term_id,
+				'object_type' => 'term'
+			);
+
+			return $subscriptions;
+		};
+		$capture   = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+
+			return true;
+		};
+
+		bbp_add_user_subscription( $user_id, $term_id, 'term' );
+		add_filter( 'bbp_get_subscription_email_contexts', $filter, 10, 2 );
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+
+		$result = bbp_send_subscription_emails(
+			array( 'term-subscriber@example.org' ),
+			'Subject',
+			'Message',
+			array(),
+			array(
+				$user_id => array(
+					'object_id'   => 123,
+					'object_type' => 'post'
+				)
+			)
+		);
+
+		remove_filter( 'bbp_get_subscription_email_contexts', $filter, 10 );
+		remove_filter( 'pre_wp_mail', $capture, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertSame(
+			array(
+				array(
+					$user_id => array(
+						'object_id'   => 123,
+						'object_type' => 'post'
+					)
+				),
+				array( 'term-subscriber@example.org' )
+			),
+			$context
+		);
+		$this->assertStringContainsString( 'object_id=' . $term_id, $mail['message'] );
+		$this->assertStringContainsString( 'object_type=term', $mail['message'] );
+		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
+	}
+
+	/**
 	 * @covers ::bbp_notify_topic_subscribers
 	 * @expectedDeprecated bbp_subscription_to_email
 	 */
@@ -3267,27 +3332,45 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_email_addresses_from_user_ids
 	 */
 	public function test_bbp_get_email_addresses_from_user_ids_chunks_and_deduplicates_users() {
+		global $wpdb;
+
 		$user_ids = array(
 			$this->factory->user->create( array( 'user_email' => 'first@example.org' ) ),
 			$this->factory->user->create( array( 'user_email' => 'second@example.org' ) ),
 			$this->factory->user->create( array( 'user_email' => 'third@example.org' ) ),
 		);
-		$filter = function() {
+		$filter   = function() {
 			return 2;
 		};
-		$queries = 0;
-		$count_queries = function() use ( &$queries ) {
-			$queries++;
+
+		foreach ( $user_ids as $user_id ) {
+			clean_user_cache( $user_id );
+			wp_cache_delete( $user_id, 'user_meta' );
+		}
+
+		$user_queries      = 0;
+		$user_meta_queries = 0;
+		$count_queries     = function( $query ) use ( &$user_queries, &$user_meta_queries, $wpdb ) {
+			if ( ( false !== strpos( $query, "FROM {$wpdb->users}" ) ) && ( false !== strpos( $query, 'ID IN' ) ) ) {
+				$user_queries++;
+			}
+
+			if ( ( false !== strpos( $query, "FROM {$wpdb->usermeta}" ) ) && ( false !== strpos( $query, 'user_id IN' ) ) ) {
+				$user_meta_queries++;
+			}
+
+			return $query;
 		};
 		add_filter( 'bbp_get_users_chunk_limit', $filter );
-		add_action( 'pre_get_users', $count_queries );
+		add_filter( 'query', $count_queries );
 
 		try {
 			$this->assertEqualSets(
 				array( 'first@example.org', 'second@example.org', 'third@example.org' ),
-				bbp_get_email_addresses_from_user_ids( array( $user_ids[0], $user_ids[1], $user_ids[0], $user_ids[2] ) )
+				bbp_get_email_addresses_from_user_ids( array( $user_ids[0], $user_ids[1], 'not-an-id', $user_ids[0], $user_ids[2] ) )
 			);
-			$this->assertSame( 2, $queries );
+			$this->assertSame( 2, $user_queries );
+			$this->assertSame( 2, $user_meta_queries );
 			$this->assertSame( array(), bbp_get_email_addresses_from_user_ids() );
 
 			if ( is_multisite() ) {
@@ -3297,7 +3380,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			}
 		} finally {
 			remove_filter( 'bbp_get_users_chunk_limit', $filter );
-			remove_action( 'pre_get_users', $count_queries );
+			remove_filter( 'query', $count_queries );
 		}
 	}
 

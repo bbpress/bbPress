@@ -2242,6 +2242,21 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 }
 
 /**
+ * Get the subscription object context represented by each email recipient.
+ *
+ * @since 2.7.0 bbPress (r8358)
+ *
+ * @param array $contexts        Subscription object data keyed by user ID.
+ * @param array $email_addresses Recipient email addresses.
+ * @return array Subscription object data keyed by user ID.
+ */
+function bbp_get_subscription_email_contexts( $contexts = array(), $email_addresses = array() ) {
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_subscription_email_contexts', $contexts, $email_addresses );
+}
+
+/**
  * Send a subscription email to each recipient with an unsubscribe link.
  *
  * @since 2.7.0 bbPress (r8349)
@@ -2254,7 +2269,8 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
  * @return bool Whether any email was sent.
  */
 function bbp_send_subscription_emails( $email_addresses = array(), $subject = '', $message = '', $headers = array(), $subscriptions = array() ) {
-	$sent = false;
+	$sent          = false;
+	$subscriptions = bbp_get_subscription_email_contexts( $subscriptions, $email_addresses );
 
 	foreach ( (array) $email_addresses as $email_address ) {
 		$email_address = sanitize_email( $email_address );
@@ -2853,6 +2869,7 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
  * Return an array of user email addresses from an array of user IDs.
  *
  * @since 2.6.0 bbPress (r6725)
+ * @since 2.7.0 bbPress (r8358) Prime user caches in chunks.
  *
  * @param array $user_ids
  * @return array
@@ -2867,43 +2884,17 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 
 	// Only do the work if there are user IDs to query for
 	if ( ! empty( $user_ids ) ) {
+		foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $loop_ids ) {
 
-		// Get total number of sets
-		$steps = ceil( count( $user_ids ) / $limit );
-		$range = array_map( 'intval', range( 1, $steps ) );
+			// Prime user and usermeta caches in batches
+			cache_users( $loop_ids );
 
-		// Loop through users
-		foreach ( $range as $loop ) {
+			foreach ( $loop_ids as $user_id ) {
+				$user = get_userdata( $user_id );
 
-			// Initial loop has no offset
-			$offset = $limit * ( $loop - 1 );
-
-			// Calculate user IDs to include
-			$loop_ids = array_slice( $user_ids, $offset, $limit );
-
-			// Skip if something went wrong
-			if ( empty( $loop_ids ) ) {
-				continue;
-			}
-
-			// Call get_users() in a way that users are cached
-			$loop_users = get_users(
-				array(
-					'blog_id' => 0,
-					'fields'  => 'all_with_meta',
-					'include' => $loop_ids
-				)
-			);
-
-			// Pluck emails from users
-			$loop_emails = wp_list_pluck( $loop_users, 'user_email' );
-
-			// Clean-up memory, for big user sets
-			unset( $loop_users );
-
-			// Merge users into return value
-			if ( ! empty( $loop_emails ) ) {
-				$retval = array_merge( $retval, $loop_emails );
+				if ( $user instanceof WP_User ) {
+					$retval[] = $user->user_email;
+				}
 			}
 		}
 
