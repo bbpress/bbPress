@@ -104,6 +104,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->assertCount( 1, $this->mail );
 		$this->assertSame( get_userdata( $this->recipient )->user_email, $this->mail[0]['to'] );
 		$this->assertStringContainsString( bbp_get_topic_permalink( $topic ), $this->mail[0]['message'] );
+		$this->assertStringContainsString( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", $this->mail[0]['message'] );
 		$this->assertStringNotContainsString( 'Hello', $this->mail[0]['message'] );
 		$this->assertSame( array( 'handled' => array( $this->recipient ) ), get_post_meta( $topic, '_bbp_mention_notification', true ) );
 	}

@@ -375,6 +375,7 @@ function bbp_record_mention_subscription_recipients( $post_id, $parent_id, $user
  * included in these emails.
  *
  * @since 2.7.0 bbPress (r8264)
+ * @since 2.7.0 bbPress (r8361) Add instructions for replying to notifications.
  */
 function bbp_send_mention_notifications() {
 	$queue = (array) bbpress()->mention_notification_queue;
@@ -411,7 +412,7 @@ function bbp_send_mention_notifications() {
 				/* translators: %s: Site name */
 				$subject = sprintf( __( '[%s] You were mentioned in a forum discussion', 'bbpress' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );
 				/* translators: 1: Discussion URL, 2: Profile settings URL */
-				$message = sprintf( __( "Someone mentioned you in a forum discussion:\n\n%1\$s\n\nYou can turn off mention emails in your profile settings:\n%2\$s", 'bbpress' ), $link, apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id ) );
+				$message = sprintf( __( "Someone mentioned you in a forum discussion:\n\n%1\$s\n\nTo reply, visit the above link and log in.\nReplies to this email will be ignored.\n\nYou can turn off mention emails in your profile settings:\n%2\$s", 'bbpress' ), $link, apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id ) );
 				$message = apply_filters( 'bbp_mention_notification_message', $message, $post_id, $user_id );
 				$subject = apply_filters( 'bbp_mention_notification_subject', $subject, $post_id, $user_id );
 

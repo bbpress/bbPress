@@ -2409,6 +2409,7 @@ function bbp_send_subscription_emails( $email_addresses = array(), $subject = ''
  *
  * @since 2.6.0 bbPress (r5413)
  * @since 2.7.0 bbPress (r8349) Send individual emails with unsubscribe links.
+ * @since 2.7.0 bbPress (r8361) Add instructions for replying to notifications.
  *
  * @param int $reply_id ID of the newly made reply.
  * @param int $topic_id ID of the topic of the reply.
@@ -2554,6 +2555,8 @@ Post Link: %3$s
 		);
 	}
 
+	$message .= "\n\n" . esc_html__( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", 'bbpress' );
+
 	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id );
 	if ( empty( $message ) ) {
@@ -2652,6 +2655,7 @@ Post Link: %3$s
  * @since 2.5.0 bbPress (r5156)
  * @since 2.7.0 bbPress (r8335) Include active taxonomy subscribers.
  * @since 2.7.0 bbPress (r8349) Send individual emails with unsubscribe links.
+ * @since 2.7.0 bbPress (r8361) Add instructions for replying to notifications.
  *
  * @param int $topic_id ID of the newly made reply.
  * @param int $forum_id ID of the forum for the topic.
@@ -2794,6 +2798,8 @@ Topic Link: %3$s
 			$topic_url
 		);
 	}
+
+	$message .= "\n\n" . esc_html__( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", 'bbpress' );
 
 	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );

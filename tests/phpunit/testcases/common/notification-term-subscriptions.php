@@ -111,6 +111,7 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 		$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
 		$this->assertCount( 1, $this->mail );
 		$this->assertSame( 'tag-subscriber@example.org', $this->mail[0]['to'] );
+		$this->assertStringContainsString( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", $this->mail[0]['message'] );
 		$this->assertStringContainsString( 'subscribed to the topic tag: ' . get_term( $term_id )->name, $this->mail[0]['message'] );
 		$this->assertStringContainsString( 'Unsubscribe from this subscription:', $this->mail[0]['message'] );
 		$this->assertStringContainsString( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $this->mail_headers() );
@@ -274,6 +275,7 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 		$this->assertTrue( bbp_notify_topic_subscribers( $reply['reply_id'], $content['topic_id'], $content['forum_id'], array(), $reply['author_id'] ) );
 		$this->assertCount( 1, $this->mail );
 		$this->assertSame( 'tag-reply-subscriber@example.org', $this->mail[0]['to'] );
+		$this->assertStringContainsString( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", $this->mail[0]['message'] );
 		$this->assertStringContainsString( 'subscribed to the topic tag: ' . get_term( $term_id )->name, $this->mail[0]['message'] );
 		$this->assertSame( (string) $term_id, $this->unsubscribe_query()['object_id'] );
 		$this->assertSame( 'term', $this->unsubscribe_query()['object_type'] );

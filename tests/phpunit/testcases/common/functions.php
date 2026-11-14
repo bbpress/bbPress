@@ -2261,6 +2261,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$this->assertTrue( $result );
 		$this->assertSame( 1, $deprecated_calls );
 		$this->assertSame( 'moderator@example.org', $mail['to'] );
+		$this->assertStringContainsString( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", $mail['message'] );
 		$this->assertStringContainsString( 'Unsubscribe from this subscription:', $mail['message'] );
 		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
 	}
@@ -2306,6 +2307,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		$this->assertTrue( $result );
 		$this->assertSame( 'moderator@example.org', $mail['to'] );
+		$this->assertStringContainsString( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", $mail['message'] );
 		$this->assertStringContainsString( 'Unsubscribe from this subscription:', $mail['message'] );
 		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
 	}
