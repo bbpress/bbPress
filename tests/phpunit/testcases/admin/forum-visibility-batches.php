@@ -53,7 +53,7 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed() {
-		return array( array( 'phase', -1 ), array( 'phase', 5 ), array( 'cursor', 'past-bound' ), array( 'values', false ), array( 'sources', false ), array( 'changed', 'yes' ), array( 'context', array() ) );
+		return array( array( 'phase', -1 ), array( 'phase', 5 ), array( 'cursor', 'past-bound' ), array( 'sources', false ), array( 'changed', 'yes' ), array( 'context', array() ) );
 	}
 
 	private function option() {
@@ -143,6 +143,9 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 					$totals[ $type ] += $run[ $type ];
 				}
 				$state = get_option( $this->option(), false );
+				if ( $state ) {
+					$this->assertArrayNotHasKey( 'values', $state );
+				}
 				if ( $state && $state['phase'] <= 2 ) {
 					$this->assertSame( array( 999999 ), get_option( '_bbp_private_forums' ) );
 					$this->assertSame( 'malformed', get_option( '_bbp_hidden_forums' ) );
@@ -161,8 +164,11 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		$this->assertSame( $hidden, get_option( '_bbp_hidden_forums' ) );
 		$this->assertNotEmpty( $queries );
 		foreach ( $queries as $query ) {
-			$this->assertStringContainsString( 'LIMIT ', $query );
-			$this->assertMatchesRegularExpression( '/LIMIT [1-9][0-9]*$/', $query );
+			if ( false !== strpos( $query, 'LIMIT ' ) ) {
+				$this->assertMatchesRegularExpression( '/LIMIT [1-9][0-9]*$/', $query );
+			} else {
+				$this->assertMatchesRegularExpression( '/AND ID <= [0-9]+ ORDER BY ID$/', $query );
+			}
 		}
 		$this->assertFalse( get_option( $this->option(), false ) );
 		$this->size = 1000;

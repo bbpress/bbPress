@@ -37,7 +37,7 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed_states() {
-		return array( array( 'cursor', 'bad' ), array( 'kept', false ), array( 'ready', 'true' ), array( 'source_hash', false ), array( 'offset', -1 ), array( 'current', 'past-bound' ), array( 'length', -1 ), array( 'changed', 8 ) );
+		return array( array( 'cursor', 'bad' ), array( 'token', false ), array( 'phase', 'invalid' ), array( 'ready', 'true' ), array( 'source_hash', false ), array( 'offset', -1 ), array( 'current', 'past-bound' ), array( 'length', -1 ), array( 'changed', 8 ) );
 	}
 
 	private function option() {
@@ -121,6 +121,109 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		$this->assertCount( 31, get_post_meta( $forum, '_bbp_sticky_topics', true ) );
 		$this->assertSame( 30, $this->finish() );
 		$this->assertSame( array( (string) $super ), get_post_meta( $forum, '_bbp_sticky_topics', true ) );
+	}
+
+	public function test_checkpoint_validator_rejects_impossible_list_progress() {
+		$this->fixture( 30 );
+		bbp_admin_repair_sticky_batch();
+		bbp_admin_repair_sticky_batch();
+		$state   = get_option( $this->option() );
+		$context = $state['context'];
+
+		$state['changed'] = $state['offset'] + 1;
+		$this->assertFalse( bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) );
+
+		$state            = get_option( $this->option() );
+		$state['offset']  = $state['length'];
+		$state['ready']   = false;
+		$this->assertFalse( bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) );
+	}
+
+	public function test_failed_chunk_save_does_not_advance_the_list_checkpoint() {
+		list( $first, $forum, $topic, $super ) = $this->fixture( 8 );
+		bbp_admin_repair_sticky_batch();
+		bbp_admin_repair_sticky_batch();
+		$before     = get_option( $this->option() );
+		$collection = 'sticky_' . md5( $before['current'] . '|' . $before['source_hash'] );
+		$option     = bbp_admin_repair_tool_scratch_option_name( 'bbp-sync-all-topics-sticky', $before['token'], $collection, $before['offset'] );
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $option, array( 'invalid' => true ) ) );
+		$reject = static function ( $value, $old ) {
+			return $old;
+		};
+		add_filter( 'pre_update_option_' . $option, $reject, 10, 2 );
+		try {
+			$result = bbp_admin_repair_sticky_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'progress', $result['error'] );
+			$after = get_option( $this->option() );
+			$this->assertSame( $before['offset'], $after['offset'] );
+			$this->assertSame( $before['changed'], $after['changed'] );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $reject, 10 );
+		}
+
+		$this->assertSame( 8, $this->finish() );
+		$this->assertSame( array( (string) $super ), get_post_meta( $forum, '_bbp_sticky_topics', true ) );
+	}
+
+	public function test_missing_scratch_chunk_restarts_only_the_current_forum() {
+		list( $first, $forum, $topic, $super ) = $this->fixture( 8 );
+		for ( $i = 0; $i < 30; ++$i ) {
+			bbp_admin_repair_sticky_batch();
+			$state = get_option( $this->option() );
+			if ( $state['current'] === $forum && $state['ready'] ) {
+				break;
+			}
+		}
+		$this->assertTrue( $state['ready'] );
+		$collection = 'sticky_' . md5( $state['current'] . '|' . $state['source_hash'] );
+		$option     = bbp_admin_repair_tool_scratch_option_name( 'bbp-sync-all-topics-sticky', $state['token'], $collection, 0 );
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $option, null, true ) );
+
+		$result = bbp_admin_repair_sticky_batch();
+		$this->assertSame( 0, $result['code'] );
+		$this->assertTrue( $result['restarted'] );
+		$restarted = get_option( $this->option() );
+		$this->assertSame( $forum, $restarted['current'] );
+		$this->assertTrue( $restarted['scratch_retry'] );
+
+		$this->assertSame( 8, $this->finish() );
+		$this->assertSame( array( (string) $super ), get_post_meta( $forum, '_bbp_sticky_topics', true ) );
+	}
+
+	public function test_browser_preview_uses_bounded_scratch_and_fixed_size_checkpoints() {
+		$this->fixture( 12 );
+		$before = $this->snapshot();
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'bounded-sticky-preview' );
+		$option = $this->option();
+		$prefix = bbp_admin_repair_tool_scratch_namespace( 'bbp-sync-all-topics-sticky' );
+		try {
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_repair_sticky_batch( true );
+				$state  = get_option( $option, false );
+				if ( is_array( $state ) ) {
+					$this->assertArrayNotHasKey( 'kept', $state );
+				}
+				$rows = bbp_db()->get_results( bbp_db()->prepare( "SELECT option_name, option_value FROM " . bbp_db()->options . " WHERE option_name LIKE %s", bbp_db()->esc_like( $prefix ) . '%' ) );
+				foreach ( $rows as $row ) {
+					$chunk = maybe_unserialize( $row->option_value );
+					$this->assertLessThanOrEqual( 191, strlen( $row->option_name ) );
+					$this->assertSame( array( 'offset', 'next', 'items' ), array_keys( $chunk ) );
+					$this->assertLessThanOrEqual( $this->size, count( $chunk['items'] ) );
+				}
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( get_option( $option, false ) );
+		$this->assertSame( 0, (int) bbp_db()->get_var( bbp_db()->prepare( "SELECT COUNT(*) FROM " . bbp_db()->options . " WHERE option_name LIKE %s", bbp_db()->esc_like( $prefix ) . '%' ) ) );
+		$this->assertSame( $before, $this->snapshot() );
 	}
 
 	/** @dataProvider malformed_states */

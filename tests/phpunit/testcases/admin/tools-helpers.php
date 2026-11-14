@@ -181,6 +181,52 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_tool_filter_limit
+	 */
+	public function test_legacy_filter_limit_has_a_practical_default_and_hard_bound() {
+		$this->assertSame( 10000, bbp_admin_repair_tool_filter_limit( 'test_filter', 1, 'test-tool' ) );
+
+		$raised = static function () {
+			return 50000;
+		};
+		add_filter( 'bbp_admin_repair_tool_filter_limit', $raised );
+		try {
+			$this->assertSame( 50000, bbp_admin_repair_tool_filter_limit( 'test_filter', 1, 'test-tool' ) );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_filter_limit', $raised );
+		}
+
+		$unbounded = static function () {
+			return 200000;
+		};
+		add_filter( 'bbp_admin_repair_tool_filter_limit', $unbounded );
+		try {
+			$this->assertSame( 100000, bbp_admin_repair_tool_filter_limit( 'test_filter', 1, 'test-tool' ) );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_filter_limit', $unbounded );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_tool_batch_result
+	 */
+	public function test_legacy_filter_limit_failure_explains_the_required_configuration_change() {
+		$result = bbp_admin_repair_tool_batch_result(
+			array(
+				'code'     => BBP_Admin_Batch_Worker::RESULT_FAILED,
+				'error'    => 'source-limit',
+				'complete' => false,
+			),
+			'%s'
+		);
+
+		$this->assertFalse( $result['success'] );
+		$this->assertSame( 'source-limit', $result['error'] );
+		$this->assertStringContainsString( 'bbp_admin_repair_tool_filter_limit', $result[1] );
+		$this->assertStringNotContainsString( 'Run the tool again to retry.', $result[1] );
+	}
+
+	/**
 	 * @covers ::bbp_get_admin_repair_tools
 	 * @covers ::bbp_register_default_repair_tools
 	 * @covers ::bbp_register_repair_tool
@@ -427,6 +473,58 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		$this->assertStringNotContainsString( 'normal Run', $message );
 		$this->assertStringContainsString( '1 row would be updated.', $message );
 		$this->assertStringContainsString( '2 rows would be created.', $message );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_handler
+	 */
+	public function test_repair_handler_cannot_run_an_upgrade_tool_from_the_repair_page() {
+		$called = false;
+		$user   = $this->factory->user->create();
+		get_user_by( 'id', $user )->add_cap( 'run_repair_tools' );
+		$this->set_current_user( $user );
+
+		$map = static function ( $caps, $cap ) {
+			if ( 'bbp_tools_repair_page' === $cap ) {
+				return array( 'run_repair_tools' );
+			}
+			if ( 'bbp_tools_upgrade_page' === $cap ) {
+				return array( 'run_upgrade_tools' );
+			}
+			return $caps;
+		};
+		add_filter( 'map_meta_cap', $map, 99, 2 );
+		try {
+			bbp_admin()->tools = array();
+			bbp_register_repair_tool(
+				array(
+					'id'        => 'custom-upgrade-action',
+					'type'      => 'upgrade',
+					'title'     => 'Custom upgrade action',
+					'priority'  => 10,
+					'callbacks' => array(
+						'custom-action' => static function () use ( &$called ) {
+							$called = true;
+							return array( 0, 'Complete.' );
+						},
+					),
+				)
+			);
+
+			$_GET = array(
+				'page'     => 'bbp-repair',
+				'action'   => 'custom-action',
+				'checked'  => array( 'custom-upgrade-action' ),
+				'_wpnonce' => wp_create_nonce( 'bbpress-do-counts' ),
+			);
+			$_REQUEST                  = $_GET;
+			$_SERVER['REQUEST_METHOD'] = 'GET';
+
+			bbp_admin_repair_handler();
+			$this->assertFalse( $called );
+		} finally {
+			remove_filter( 'map_meta_cap', $map, 99 );
+		}
 	}
 
 	/**
@@ -991,6 +1089,88 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		ob_start();
 		bbp_admin_tools_box();
 		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_tool_scratch_namespace
+	 * @covers ::bbp_admin_repair_tool_scratch_prefix
+	 * @covers ::bbp_admin_repair_tool_scratch_option_name
+	 */
+	public function test_scratch_option_names_are_fixed_size_and_preview_specific() {
+		$tool       = str_repeat( 'long-tool-', 30 );
+		$collection = str_repeat( 'long-collection-', 30 );
+		$token      = bbp_admin_repair_tool_new_token();
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', str_repeat( 'long-preview-', 30 ) );
+		$first = bbp_admin_repair_tool_scratch_option_name( $tool, $token, $collection, str_repeat( 'long-key-', 30 ) );
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'another-preview' );
+		$second = bbp_admin_repair_tool_scratch_option_name( $tool, $token, $collection, str_repeat( 'long-key-', 30 ) );
+
+		bbp_admin_repair_tool_execution_context( 'run', '' );
+		$this->assertLessThanOrEqual( 191, strlen( $first ) );
+		$this->assertSame( strlen( $first ), strlen( $second ) );
+		$this->assertNotSame( $first, $second );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_tool_scratch_chunks
+	 */
+	public function test_scratch_chunks_reject_missing_windows() {
+		$tool       = 'bbp-test-scratch-windows';
+		$token      = bbp_admin_repair_tool_new_token();
+		$collection = 'values';
+
+		$this->assertTrue( bbp_admin_repair_tool_scratch_set( $tool, $token, $collection, 0, array( 'offset' => 0, 'next' => 2, 'ids' => array( 1 ) ) ) );
+		$this->assertTrue( bbp_admin_repair_tool_scratch_set( $tool, $token, $collection, 4, array( 'offset' => 4, 'next' => 6, 'ids' => array( 3 ) ) ) );
+		$this->assertFalse( bbp_admin_repair_tool_scratch_chunks( $tool, $token, $collection, 'ids', 6 ) );
+
+		$this->assertTrue( bbp_admin_repair_tool_scratch_set( $tool, $token, $collection, 2, array( 'offset' => 2, 'next' => 4, 'ids' => array() ) ) );
+		$this->assertSame( array( 1, 3 ), bbp_admin_repair_tool_scratch_chunks( $tool, $token, $collection, 'ids', 6 ) );
+
+		$this->assertTrue( bbp_admin_repair_tool_cleanup_scratch( $tool, 10 )[0] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_meta_canonical_id_batch
+	 */
+	public function test_bounded_canonical_user_list_parser_matches_complete_parser() {
+		$values = array(
+			''                                => array(),
+			'1'                               => array( 1 ),
+			'3,2,2,1'                         => array( 1, 2, 3 ),
+			'3,2,2,01,-4,+5, 6,7x,8.0,0,,9,' => array( 2, 3, 9 ),
+		);
+
+		foreach ( $values as $value => $expected ) {
+			$offset = 0;
+			$ids    = array();
+			do {
+				$batch  = bbp_admin_repair_user_meta_canonical_id_batch( $value, $offset, 2 );
+				$ids    = array_merge( $ids, $batch['ids'] );
+				$offset = $batch['offset'];
+			} while ( ! $batch['complete'] );
+
+			$ids = wp_parse_id_list( $ids );
+			sort( $ids, SORT_NUMERIC );
+			$this->assertSame( $expected, $ids, $value );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_meta_id_batch
+	 */
+	public function test_bounded_migration_parser_accepts_every_wordpress_whitespace_delimiter() {
+		$value  = "1\f2\t3\n4\r5\v6,7";
+		$offset = 0;
+		$ids    = array();
+		do {
+			$batch  = bbp_admin_repair_user_meta_id_batch( $value, $offset, 2 );
+			$ids    = array_merge( $ids, $batch['ids'] );
+			$offset = $batch['offset'];
+		} while ( ! $batch['complete'] );
+
+		$this->assertSame( wp_parse_id_list( $value ), wp_parse_id_list( $ids ) );
 	}
 
 	private function tool( $args = array() ) {

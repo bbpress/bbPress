@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Nodes live in non-autoloaded options so a request need not load the complete
  * hierarchy. Default child discovery is paginated. A custom child-list filter
- * still receives its complete list, as required by that existing API.
+ * receives its complete list up to an explicit compatibility bound.
  *
  * @since 2.7.0 bbPress (r8299)
  * @since 2.7.0 bbPress (r8315) Revalidate shared source identity before writes and child merges.
@@ -218,13 +218,12 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			$batch_work = 0;
 			// Direct Dry Runs remain synchronous; browser Dry Runs stop at one request boundary.
 			while ( ! $this->error && ! $complete && ! $this->stop && ( ( $this->dry_run && ! $this->async ) || $batch_work < $batch_size ) ) {
-				$phase       = isset( $this->state['phase'] ) ? $this->state['phase'] : '';
 				$remaining   = $batch_size - $batch_work;
 				$step_work   = max( 1, $this->step( $remaining, $complete ) );
 				$total_work += $step_work;
 				$batch_work += $step_work;
 				if ( $this->async ) {
-					$estimated_work += $this->preview_estimated_work( $phase, $step_work );
+					$estimated_work += $step_work;
 					while ( $estimated_work >= $batch_size ) {
 						++$batches;
 						$estimated_work -= $batch_size;
@@ -246,8 +245,18 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 					}
 					$this->state     = $this->new_state();
 					$this->nodes     = array();
+					$this->changed_ids = array();
+					$this->preview_repaired = 0;
+					$this->preview_metadata = null;
 					$this->persisted = $this->corrupt = false;
 					$this->restarted = true;
+					$initial         = true;
+					$batches         = 0;
+					$estimated_work  = 0;
+					if ( $this->dry_run && ! $this->async ) {
+						$batch_work = 0;
+					}
+					$this->reset_generation();
 					// Publish the new generation before prepare can remove the old tree.
 					if ( ( ! $this->dry_run || $this->async ) && ! $this->error && ! $this->save() ) {
 						$this->fail( 'progress' );
@@ -389,7 +398,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			foreach ( array( 'id', 'parent', 'depth', 'next', 'await', 'edge', 'key' ) as $field ) {
 				$valid = $valid && isset( $node[ $field ] ) && is_int( $node[ $field ] ) && ( $node[ $field ] >= 0 );
 			}
-			$valid = $valid && ( $node['id'] === $id ) && in_array( $node['phase'], array( 'children', 'write', 'done' ), true )
+			$valid = $valid && ( $node['id'] === $id ) && in_array( $node['phase'], $this->node_phases(), true )
 				&& is_bool( $node['counted'] ) && is_bool( $node['changed'] ) && is_array( $node['values'] ) && ( array_keys( $node['values'] ) === $this->meta_keys )
 				&& ( false === $node['children'] || is_array( $node['children'] ) ) && ( $node['key'] <= count( $this->meta_keys ) );
 			if ( $valid ) {
@@ -526,12 +535,25 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			'children' => false
 		);
 		$node = $this->prepare_node( $node, $post );
+		if ( $this->error ) {
+			return false;
+		}
 		if ( $counted && 'children' === $node['phase'] && $this->context['filtered'] ) {
-			$children = $this->child_ids( $id );
+			$limit    = bbp_admin_repair_tool_filter_limit( 'bbp_forum_query_subforum_ids', $id, $this->tool_id );
+			$children = $this->child_ids( $id, null, $limit + 1 );
 			if ( $this->error ) {
 				return false;
 			}
-			$node['children'] = array_values( array_map( 'absint', (array) apply_filters( 'bbp_forum_query_subforum_ids', $children, $id ) ) );
+			if ( count( $children ) > $limit ) {
+				$this->fail( 'source-limit' );
+				return false;
+			}
+			$children = (array) apply_filters( 'bbp_forum_query_subforum_ids', $children, $id );
+			if ( count( $children ) > $limit ) {
+				$this->fail( 'source-limit' );
+				return false;
+			}
+			$node['children'] = array_values( array_map( 'absint', $children ) );
 		}
 		return $this->persist_node( $node ) ? $node : false;
 	}
@@ -542,10 +564,11 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int      $id     Parent forum ID.
-	 * @param int|null $cursor Last child ID, or null to return the complete list.
+	 * @param int|null $cursor Last child ID, or null to return a compatibility list.
+	 * @param int      $limit  Optional maximum compatibility-list rows.
 	 * @return array Child forum IDs.
 	 */
-	protected function child_ids( $id, $cursor = null ) {
+	protected function child_ids( $id, $cursor = null, $limit = 0 ) {
 		if ( empty( $this->context['forums'] ) ) {
 			return array();
 		}
@@ -560,6 +583,9 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 		$sql .= $descending ? ' ORDER BY ID DESC' : ' ORDER BY ID ASC';
 		if ( null !== $cursor ) {
 			$sql .= ' LIMIT 1';
+		} elseif ( $limit ) {
+			$sql   .= ' LIMIT %d';
+			$args[] = max( 1, (int) $limit );
 		}
 		$ids = $this->db->get_col( $this->db->prepare( $sql, $args ) );
 		if ( ! empty( $this->db->last_error ) ) {
@@ -699,6 +725,10 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 		if ( $result['complete'] ) {
 			if ( ! $this->dry_run && ! $this->verify( $node['id'], $key, $value ) ) {
 				$node['key'] = 0;
+				$this->persist_node( $node );
+				return $result['work'];
+			}
+			if ( ! $this->after_write( $node, $key, $result ) ) {
 				$this->persist_node( $node );
 				return $result['work'];
 			}
@@ -971,6 +1001,17 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	}
 
 	/**
+	 * Return every valid phase for one traversal node.
+	 *
+	 * @since 2.7.0 bbPress (r8359)
+	 *
+	 * @return array Node phase names.
+	 */
+	protected function node_phases() {
+		return array( 'children', 'write', 'done' );
+	}
+
+	/**
 	 * Add shared source identity to a new traversal node.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
@@ -999,6 +1040,22 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	}
 	// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
+	// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Subclasses may verify state immediately after one metadata write.
+	/**
+	 * Verify subclass state immediately after one metadata field is complete.
+	 *
+	 * @since 2.7.0 bbPress (r8359)
+	 *
+	 * @param array  $node   Traversal node, passed by reference.
+	 * @param string $key    Completed metadata key.
+	 * @param array  $result Shared metadata result.
+	 * @return bool Whether processing may continue.
+	 */
+	protected function after_write( &$node, $key, $result ) {
+		return true;
+	}
+	// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+
 	/**
 	 * Normalize source fields used to detect changes during a run.
 	 *
@@ -1016,7 +1073,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	}
 
 	/**
-	 * Revalidate a node's source identity immediately before writing.
+	 * Revalidate a node's source identity immediately before writing or previewing.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 * @since 2.7.0 bbPress (r8315) Revalidate source identity before writes.
@@ -1025,9 +1082,6 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @return bool Whether the node remains safe to write.
 	 */
 	protected function before_write( &$node ) {
-		if ( $this->dry_run ) {
-			return true;
-		}
 		$post = $this->source_post( $node['id'] );
 		if ( ! empty( $this->db->last_error ) ) {
 			$this->fail( 'source-read' );
@@ -1074,6 +1128,13 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	protected function completed_node( &$node ) {}
 
 	/**
+	 * Reset subclass state after rotating to a new traversal generation.
+	 *
+	 * @since 2.7.0 bbPress (r8359)
+	 */
+	protected function reset_generation() {}
+
+	/**
 	 * Validate subclass data in a browser Dry Run checkpoint.
 	 *
 	 * @since 2.7.0 bbPress (r8350)
@@ -1111,19 +1172,6 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param array $node Completed traversal node.
 	 */
 	protected function leaving_node( $node ) {}
-
-	/**
-	 * Return work that a normal Run would count toward its request budget.
-	 *
-	 * @since 2.7.0 bbPress (r8331)
-	 *
-	 * @param string $phase Traversal phase before the work was performed.
-	 * @param int    $work  Work units consumed by the preview.
-	 * @return int Estimated normal Run work.
-	 */
-	protected function preview_estimated_work( $phase, $work ) {
-		return $work;
-	}
 
 	/**
 	 * Calculate direct values for one source post.

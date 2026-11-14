@@ -333,6 +333,28 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_complete_reply_filter_lists_have_an_explicit_bound() {
+		$this->fixture();
+		$children = static function ( $ids ) {
+			return $ids;
+		};
+		$limit = static function ( $value, $hook ) {
+			return 'bbp_get_all_child_ids' === $hook ? 2 : $value;
+		};
+		add_filter( 'bbp_get_all_child_ids', $children );
+		add_filter( 'bbp_admin_repair_tool_filter_limit', $limit, 10, 2 );
+		$this->size = 1000;
+		try {
+			$result = bbp_admin_repair_reply_menu_order_batch();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'source-limit', $result['error'] );
+			$this->assertFalse( $result['complete'] );
+		} finally {
+			remove_filter( 'bbp_admin_repair_tool_filter_limit', $limit, 10 );
+			remove_filter( 'bbp_get_all_child_ids', $children );
+		}
+	}
+
 	public function test_statuses_and_zero_reply_count_preserve_native_position_rules() {
 		list( $topic, $ids ) = $this->fixture();
 		foreach ( array( 'pending', 'spam', 'trash', 'draft', 'future' ) as $status ) {

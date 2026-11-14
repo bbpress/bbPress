@@ -5155,7 +5155,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			'SELECT MAX(ID)'            => 'source-read',
 			'SELECT MAX(meta_id)'       => 'metadata-read',
 			'SELECT ID FROM'            => 'source-read',
-			'SELECT MAX(ID) AS last_id' => 'source-read',
+			'SELECT ID, post_date'       => 'source-read',
 		);
 		$suppression = $db->suppress_errors( true );
 		try {

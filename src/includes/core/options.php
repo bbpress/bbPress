@@ -1551,6 +1551,53 @@ function bbp_acquire_option_lock( $name ) {
 	return false;
 }
 
+/**
+ * Refresh an option lock while preserving its exact owner token.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param array $lock Lock ownership, updated with the refreshed value.
+ * @return bool Whether this caller still owns the lock.
+ */
+function bbp_refresh_option_lock( &$lock ) {
+	global $wpdb;
+
+	if ( empty( $lock['name'] ) || empty( $lock['value'] ) ) {
+		return false;
+	}
+	$parts = explode( '|', $lock['value'], 2 );
+	if ( 2 !== count( $parts ) || empty( $parts[1] ) ) {
+		return false;
+	}
+	$value = time() . '|' . $parts[1];
+	if ( $value === $lock['value'] ) {
+		$stored = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT `option_value` FROM `{$wpdb->options}` WHERE `option_name` = %s LIMIT 1",
+				$lock['name']
+			)
+		);
+		return empty( $wpdb->last_error ) && $stored === $lock['value'];
+	}
+	$updated = $wpdb->query(
+		$wpdb->prepare(
+			"UPDATE `{$wpdb->options}` SET `option_value` = %s WHERE `option_name` = %s AND `option_value` = %s /* LOCK */",
+			$value,
+			$lock['name'],
+			$lock['value']
+		)
+	);
+	if ( 1 !== $updated ) {
+		return false;
+	}
+
+	$lock['value'] = $value;
+	wp_cache_delete( $lock['name'], 'options' );
+	wp_cache_delete( 'notoptions', 'options' );
+
+	return true;
+}
 
 /**
  * Release only the exact option-lock owner, including expired owners.

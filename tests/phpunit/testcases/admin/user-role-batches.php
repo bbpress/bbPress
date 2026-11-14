@@ -271,6 +271,37 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_malformed_browser_preview_scratch_plan_is_recalculated() {
+		$ids = $this->fixture();
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'malformed-role-scratch' );
+		try {
+			for ( $i = 0; $i < 10; ++$i ) {
+				$result = bbp_admin_repair_user_roles_batch( true );
+				$state  = get_option( $this->option() );
+				if ( 'scan' === $state['mode'] ) {
+					break;
+				}
+			}
+			$this->assertSame( 0, $result['code'] );
+			$this->assertSame( 'scan', $state['mode'] );
+			$remaining = array_values( array_filter( $ids, static function ( $id ) use ( $state ) {
+				return $id > $state['cursor'];
+			} ) );
+			$target = reset( $remaining );
+			$this->assertNotEmpty( $target );
+			$this->assertTrue( bbp_admin_repair_tool_scratch_set( 'bbp-user-role-map', $state['token'], 'roles', $target, array( 'invalid-role' ) ) );
+
+			$result = bbp_admin_repair_user_roles_batch( true );
+			$this->assertSame( 0, $result['code'] );
+			list( $read, $exists, $roles ) = bbp_admin_repair_tool_scratch_get( 'bbp-user-role-map', $state['token'], 'roles', $target );
+			$this->assertTrue( $read );
+			$this->assertTrue( $exists );
+			$this->assertTrue( bbp_admin_repair_user_role_plan_is_valid( $roles ) );
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+	}
+
 	public function test_multiple_blog_role_passes_preserve_filtered_order_and_blocked_exclusivity() {
 		$this->role_order = array( 'editor', 'subscriber' );
 		$this->targets['editor'] = bbp_get_blocked_role();

@@ -411,6 +411,40 @@ function bbp_admin_repair_tool_batch_size( $tool_id = '' ) {
 }
 
 /**
+ * Return the maximum complete list passed through a legacy source filter.
+ *
+ * These filters predate resumable tools and require one complete list. Keep
+ * their compatibility path explicitly bounded; larger sources fail safely
+ * instead of defeating the request budget or exhausting memory.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $hook      Legacy filter name.
+ * @param int    $object_id Parent object ID.
+ * @param string $tool_id   Repair tool ID.
+ * @return int Compatibility-list limit between 1 and 100000.
+ */
+function bbp_admin_repair_tool_filter_limit( $hook, $object_id, $tool_id ) {
+	/**
+	 * Filters the maximum complete list used for a legacy repair-tool filter.
+	 *
+	 * The default preserves complete-list compatibility for established large
+	 * forums and topics. The hard maximum remains a rational memory bound.
+	 *
+	 * @since 2.7.0 bbPress (r8359)
+	 *
+	 * @param int    $limit     Maximum list length.
+	 * @param string $hook      Legacy filter name.
+	 * @param int    $object_id Parent object ID.
+	 * @param string $tool_id   Repair tool ID.
+	 */
+	$limit = apply_filters( 'bbp_admin_repair_tool_filter_limit', 10000, $hook, $object_id, $tool_id );
+
+	return max( 1, min( 100000, (int) $limit ) );
+}
+
+/**
  * Format batch progress for Run and complete details for Dry Run notices.
  *
  * @since 2.7.0 bbPress (r8315)
@@ -446,9 +480,15 @@ function bbp_admin_repair_tool_batch_message( $details, $complete, $dry_run = fa
 function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $dry_run = false ) {
 	if ( $batch['code'] ) {
 		$error  = isset( $batch['error'] ) ? $batch['error'] : '';
-		$result = 'progress' === $error
-			? esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' )
-			: esc_html__( 'Failed!', 'bbpress' );
+		if ( 'progress' === $error ) {
+			$result = esc_html__( 'Failed! Progress could not be saved. Run the tool again to retry.', 'bbpress' );
+		} elseif ( 'source-limit' === $error ) {
+			$result = esc_html__( 'Failed! A legacy filter returned more data than this tool can process safely. Adjust the bbp_admin_repair_tool_filter_limit filter or remove the legacy callback before trying again.', 'bbpress' );
+		} elseif ( 'source-invalid' === $error ) {
+			$result = esc_html__( 'Failed! Source data changed or could not be processed safely. Run the tool again to retry.', 'bbpress' );
+		} else {
+			$result = esc_html__( 'Failed!', 'bbpress' );
+		}
 		return array(
 			$batch['code'],
 			sprintf( $statement, $result ),
@@ -972,10 +1012,11 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  * @param array  $rows    Selected metadata rows, including is_source flags.
  * @param string $source Prepared source relationship query.
  * @param bool   $dry_run Whether to preview without writes or cache invalidation.
- * @param array  $planned Relationships already counted by this preview.
+ * @param array         $planned Relationships already counted by a synchronous preview.
+ * @param callable|null $claim   Optional bounded cross-request relationship claim.
  * @return array Status, failure reason, additions, removals, changed topic IDs, and cursor.
  */
-function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$planned = array() ) {
+function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$planned = array(), $claim = null ) {
 	$bbp_db = bbp_db();
 	$result = array(
 		'code'    => 0,
@@ -1010,7 +1051,16 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 			wp_cache_delete( $cache_id, 'post_meta' );
 		}
 		if ( $is_source ) {
-			if ( ! empty( $relation ) && empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] ) ) {
+			$first = ! empty( $relation ) && empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] );
+			if ( $first && is_callable( $claim ) ) {
+				list( $saved, $first ) = call_user_func( $claim, (int) $relation->post_id, (int) $relation->user_id );
+				if ( ! $saved ) {
+					$result['code']  = 6;
+					$result['error'] = 'progress';
+					return $result;
+				}
+			}
+			if ( $first ) {
 				if ( ! $dry_run ) {
 					$added = bbp_admin_repair_metadata_add( 'post', $relation->post_id, '_bbp_engagement', $relation->user_id );
 					if ( $added['code'] ) {
@@ -1019,7 +1069,9 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 						return $result;
 					}
 				}
-				$planned[ $relation->post_id ][ $relation->user_id ] = true;
+				if ( ! is_callable( $claim ) ) {
+					$planned[ $relation->post_id ][ $relation->user_id ] = true;
+				}
 				$result['topics'][ (int) $relation->post_id ]        = true;
 				++$result['added'];
 			}
@@ -1126,6 +1178,302 @@ function bbp_admin_repair_tool_batch_option_name( $tool_id = '' ) {
 	}
 
 	return $option;
+}
+
+/**
+ * Create an opaque generation token for bounded tool scratch state.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @return string Thirty-two-character hexadecimal token.
+ */
+function bbp_admin_repair_tool_new_token() {
+	return str_replace( '-', '', wp_generate_uuid4() );
+}
+
+/**
+ * Check one checkpoint for a valid scratch generation token.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param mixed $state Tool checkpoint.
+ * @return bool Whether the checkpoint owns a valid scratch generation.
+ */
+function bbp_admin_repair_tool_has_valid_scratch_token( $state ) {
+	return is_array( $state ) && isset( $state['token'] ) && is_string( $state['token'] )
+		&& 32 === strlen( $state['token'] ) && ctype_xdigit( $state['token'] );
+}
+
+/**
+ * Return the fixed-size namespace for one tool's scratch state.
+ *
+ * Hash the complete checkpoint option name so browser Dry Runs remain isolated
+ * without approaching WordPress's 191-character option-name limit.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id Repair or upgrade tool ID.
+ * @return string Scratch option namespace.
+ */
+function bbp_admin_repair_tool_scratch_namespace( $tool_id ) {
+	$tool_id = sanitize_key( $tool_id );
+	if ( empty( $tool_id ) ) {
+		return '';
+	}
+
+	return '_bbp_tool_scratch_' . md5( bbp_admin_repair_tool_batch_option_name( $tool_id ) ) . '_';
+}
+
+/**
+ * Return the option prefix for one tool scratch generation.
+ *
+ * Scratch entries keep large cross-batch sets out of the main checkpoint.
+ * Every entry remains independently readable, writable, and cleanable within
+ * the normal batch budget.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id   Repair or upgrade tool ID.
+ * @param string $token     Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @return string Scratch option prefix, or an empty string for invalid input.
+ */
+function bbp_admin_repair_tool_scratch_prefix( $tool_id, $token, $collection ) {
+	$tool_id   = sanitize_key( $tool_id );
+	$token     = sanitize_key( $token );
+	$collection = (string) $collection;
+	if ( empty( $tool_id ) || 32 !== strlen( $token ) || ! ctype_xdigit( $token ) || '' === $collection ) {
+		return '';
+	}
+	return bbp_admin_repair_tool_scratch_namespace( $tool_id ) . $token . '_' . md5( $collection ) . '_';
+}
+
+/**
+ * Return the option name for one keyed scratch value.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id   Repair or upgrade tool ID.
+ * @param string $token     Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @param mixed  $key       Stable value key.
+ * @return string Scratch option name, or an empty string for invalid input.
+ */
+function bbp_admin_repair_tool_scratch_option_name( $tool_id, $token, $collection, $key ) {
+	$prefix = bbp_admin_repair_tool_scratch_prefix( $tool_id, $token, $collection );
+	return $prefix ? $prefix . md5( maybe_serialize( $key ) ) : '';
+}
+
+/**
+ * Read one keyed scratch value without option view filters.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id   Repair or upgrade tool ID.
+ * @param string $token     Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @param mixed  $key       Stable value key.
+ * @return array Read success, existence, and stored value.
+ */
+function bbp_admin_repair_tool_scratch_get( $tool_id, $token, $collection, $key ) {
+	$option = bbp_admin_repair_tool_scratch_option_name( $tool_id, $token, $collection, $key );
+	if ( empty( $option ) ) {
+		return array( false, false, null );
+	}
+	list( $read, $value ) = bbp_admin_repair_get_option( $option, null, false );
+	return array( $read, $read && null !== $value, $value );
+}
+
+/**
+ * Save one keyed scratch value and verify it through the shared option writer.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id   Repair or upgrade tool ID.
+ * @param string $token     Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @param mixed  $key       Stable value key.
+ * @param mixed  $value     Non-null value to store.
+ * @return bool Whether the exact value was saved.
+ */
+function bbp_admin_repair_tool_scratch_set( $tool_id, $token, $collection, $key, $value ) {
+	$option = bbp_admin_repair_tool_scratch_option_name( $tool_id, $token, $collection, $key );
+	return ! empty( $option ) && null !== $value && bbp_admin_repair_tool_save_option( $option, $value );
+}
+
+/**
+ * Claim one keyed scratch marker.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id   Repair or upgrade tool ID.
+ * @param string $token     Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @param mixed  $key       Stable value key.
+ * @return array Save success and whether this was the first claim.
+ */
+function bbp_admin_repair_tool_scratch_claim( $tool_id, $token, $collection, $key ) {
+	// Individual option names provide indexed, cross-batch deduplication without
+	// growing the main checkpoint into one unbounded serialized value.
+	list( $read, $exists ) = bbp_admin_repair_tool_scratch_get( $tool_id, $token, $collection, $key );
+	if ( ! $read ) {
+		return array( false, false );
+	}
+	if ( $exists ) {
+		return array( true, false );
+	}
+	return array( bbp_admin_repair_tool_scratch_set( $tool_id, $token, $collection, $key, true ), true );
+}
+
+/**
+ * Remove one bounded page of a tool's scratch generation.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id Repair or upgrade tool ID.
+ * @param int    $limit   Maximum options to inspect.
+ * @return array Cleanup success, work used, and completion flag.
+ */
+function bbp_admin_repair_tool_cleanup_scratch( $tool_id, $limit ) {
+	$created   = array();
+	$inspected = array();
+	$prefix    = bbp_admin_repair_tool_scratch_namespace( $tool_id );
+	if ( empty( $prefix ) ) {
+		return array( false, 1, false );
+	}
+	return bbp_admin_repair_tool_cleanup_options( $prefix, $limit, false, $created, $inspected );
+}
+
+/**
+ * Check whether the current tool namespace contains scratch state.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id Repair or upgrade tool ID.
+ * @return bool|null Whether scratch state exists, or null after a read failure.
+ */
+function bbp_admin_repair_tool_has_scratch( $tool_id ) {
+	$db     = bbp_db();
+	$prefix = bbp_admin_repair_tool_scratch_namespace( $tool_id );
+	if ( empty( $prefix ) ) {
+		return null;
+	}
+	$name   = $db->get_var( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s LIMIT 1", $db->esc_like( $prefix ) . '%' ) );
+
+	return empty( $db->last_error ) ? null !== $name : null;
+}
+
+/**
+ * Read every bounded chunk in one scratch collection for final publication.
+ *
+ * Workers keep each chunk within their normal batch limit. Materializing the
+ * collection is reserved for the point where the established destination API
+ * itself requires one complete value.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id    Repair or upgrade tool ID.
+ * @param string $token      Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @return array|false Stored chunks, or false after a read failure.
+ */
+function bbp_admin_repair_tool_scratch_values( $tool_id, $token, $collection ) {
+	$db     = bbp_db();
+	$prefix = bbp_admin_repair_tool_scratch_prefix( $tool_id, $token, $collection );
+	if ( empty( $prefix ) ) {
+		return false;
+	}
+	$values = $db->get_col( $db->prepare( "SELECT option_value FROM {$db->options} WHERE option_name LIKE %s ORDER BY option_name", $db->esc_like( $prefix ) . '%' ) );
+	if ( ! empty( $db->last_error ) ) {
+		return false;
+	}
+
+	return array_map( 'maybe_unserialize', $values );
+}
+
+/**
+ * Materialize ordered arrays from one bounded scratch-chunk collection.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id    Repair or upgrade tool ID.
+ * @param string $token      Scratch generation token.
+ * @param string $collection Logical scratch collection.
+ * @param string $field      Chunk field containing ordered values.
+ * @param int    $end        Expected exclusive end offset.
+ * @return array|false Ordered values, or false on invalid scratch data.
+ */
+function bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, $field, $end ) {
+	$chunks = bbp_admin_repair_tool_scratch_values( $tool_id, $token, $collection );
+	$end    = (int) $end;
+	if ( false === $chunks || $end < 0 ) {
+		return false;
+	}
+	foreach ( $chunks as $chunk ) {
+		if ( ! is_array( $chunk ) || array_keys( $chunk ) !== array( 'offset', 'next', $field )
+			|| ! is_int( $chunk['offset'] ) || ! is_int( $chunk['next'] ) || $chunk['offset'] < 0
+			|| $chunk['next'] <= $chunk['offset'] || ! is_array( $chunk[ $field ] ) ) {
+			return false;
+		}
+	}
+	usort(
+		$chunks,
+		static function ( $left, $right ) {
+			return $left['offset'] <=> $right['offset'];
+		}
+	);
+	$values = array();
+	$next   = 0;
+	foreach ( $chunks as $chunk ) {
+		if ( $chunk['offset'] !== $next ) {
+			return false;
+		}
+		foreach ( $chunk[ $field ] as $value ) {
+			$values[] = $value;
+		}
+		$next = $chunk['next'];
+	}
+
+	return $next === $end ? $values : false;
+}
+
+/**
+ * Restart one invalid scratch collection without losing later source rows.
+ *
+ * One restart repairs a missing or malformed chunk. A repeated invalid
+ * collection reports a progress failure instead of looping indefinitely.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param array $state Saved worker checkpoint, passed by reference.
+ * @param array $batch Batch status, passed by reference.
+ * @param array $reset Worker fields to reset for the current source row.
+ * @return bool Whether the collection was restarted.
+ */
+function bbp_admin_repair_tool_restart_scratch( &$state, &$batch, $reset ) {
+	if ( ! empty( bbp_db()->last_error ) || ! empty( $state['scratch_retry'] ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+		return false;
+	}
+
+	$state                  = array_merge( $state, $reset );
+	$state['token']         = bbp_admin_repair_tool_new_token();
+	$state['scratch_retry'] = true;
+	$batch['restarted']     = true;
+	return true;
 }
 
 /**
@@ -1267,6 +1615,9 @@ function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validat
  * @return bool Whether the checkpoint was saved or removed.
  */
 function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete, $dry_run = false, $fields = array(), $data = array() ) {
+	if ( ! bbp_admin_repair_tool_refresh_lock() ) {
+		return bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+	}
 	if ( ! empty( $fields ) || ! empty( $data ) ) {
 		bbp_admin_repair_tool_store_preview( $state, $batch, $fields, $data );
 	}
@@ -1488,45 +1839,117 @@ function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = arra
  * @since 2.7.0 bbPress (r8347)
  * @access private
  *
- * @param mixed $state Saved worker checkpoint.
+ * @param mixed $state           Saved worker checkpoint.
+ * @param bool  $allow_row_start Whether a parsed row may wait at byte zero for publication.
  * @return bool Whether the source row and list offset can be resumed.
  */
-function bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state ) {
+function bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state, $allow_row_start = false ) {
 	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'offset' ) )
 		|| ! isset( $state['row_hash'] ) || ! is_string( $state['row_hash'] ) ) {
 		return false;
 	}
 
 	if ( 0 === $state['offset'] ) {
-		return '' === $state['row_hash'];
+		return '' === $state['row_hash'] || ( $allow_row_start && 0 !== $state['cursor'] && 1 === preg_match( '/^[a-f0-9]{32}$/D', $state['row_hash'] ) );
 	}
 
 	return 0 !== $state['cursor'] && 1 === preg_match( '/^[a-f0-9]{32}$/D', $state['row_hash'] );
 }
 
 /**
- * Parse IDs from a legacy comma-separated user-meta list.
+ * Parse one bounded token window from a legacy user-meta ID list.
  *
- * Canonical parsing retains only literal positive integer tokens and sorts
- * them for repaired storage. Migration parsing preserves the historical
- * wp_parse_id_list() order while removing zero values.
+ * Migration values historically accept commas or whitespace and normalize
+ * tokens with absint(). The byte cursor avoids materializing the complete list
+ * before the worker can apply its batch limit. Duplicate and zero IDs remain
+ * visible to the caller so every source token consumes bounded work.
  *
- * @since 2.7.0 bbPress (r8286)
- * @since 2.7.0 bbPress (r8347) Share repair and migration list parsing.
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
  *
- * @param string|null $value     Stored list.
- * @param bool        $canonical Whether to require canonical integer tokens.
- * @return array Unique positive IDs.
+ * @param string|null $value  Stored list.
+ * @param int         $offset Inclusive byte offset.
+ * @param int         $limit  Maximum source tokens to inspect.
+ * @return array Parsed positive IDs, next byte offset, work used, and completion flag.
  */
-function bbp_admin_repair_user_meta_ids( $value, $canonical = true ) {
-	$value = (string) $value;
-	$ids   = wp_parse_id_list( $value );
-	if ( $canonical ) {
-		$ids = array_intersect( $ids, explode( ',', $value ) );
-		sort( $ids, SORT_NUMERIC );
+function bbp_admin_repair_user_meta_id_batch( $value, $offset, $limit ) {
+	$value      = (string) $value;
+	$length     = strlen( $value );
+	$position   = max( 0, min( (int) $offset, $length ) );
+	$limit      = max( 1, (int) $limit );
+	$delimiters = " \t\n\r\f\0\x0B,";
+	$ids        = array();
+	$work       = 0;
+
+	while ( $position < $length && $work < $limit ) {
+		$position += strspn( $value, $delimiters, $position );
+		if ( $position >= $length ) {
+			break;
+		}
+		$token_length = strcspn( $value, $delimiters, $position );
+		$id           = absint( substr( $value, $position, $token_length ) );
+		$position    += $token_length;
+		++$work;
+		if ( $id ) {
+			$ids[] = $id;
+		}
+	}
+	if ( $position < $length ) {
+		$position += strspn( $value, $delimiters, $position );
 	}
 
-	return array_values( array_filter( $ids ) );
+	return array(
+		'ids'      => $ids,
+		'offset'   => $position,
+		'work'     => $work,
+		'complete' => $position >= $length,
+	);
+}
+
+/**
+ * Parse one bounded token window from a canonical legacy user-meta ID list.
+ *
+ * Repair values historically retain only comma-delimited positive decimal
+ * tokens without whitespace, signs, or leading zeroes. Duplicate tokens stay
+ * visible so each source entry consumes bounded work; callers de-duplicate the
+ * surviving IDs before publication.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string|null $value  Stored list.
+ * @param int         $offset Inclusive byte offset.
+ * @param int         $limit  Maximum source tokens to inspect.
+ * @return array Parsed positive IDs, next byte offset, work used, and completion flag.
+ */
+function bbp_admin_repair_user_meta_canonical_id_batch( $value, $offset, $limit ) {
+	$value    = (string) $value;
+	$length   = strlen( $value );
+	$position = max( 0, min( (int) $offset, $length ) );
+	$limit    = max( 1, (int) $limit );
+	$ids      = array();
+	$work     = 0;
+
+	while ( $position < $length && $work < $limit ) {
+		$token_length = strcspn( $value, ',', $position );
+		$token        = substr( $value, $position, $token_length );
+		$id           = absint( $token );
+		$position    += $token_length;
+		if ( $position < $length ) {
+			++$position;
+		}
+		++$work;
+		if ( $id && (string) $id === $token ) {
+			$ids[] = $id;
+		}
+	}
+
+	return array(
+		'ids'      => $ids,
+		'offset'   => $position,
+		'work'     => $work,
+		'complete' => $position >= $length,
+	);
 }
 
 /**

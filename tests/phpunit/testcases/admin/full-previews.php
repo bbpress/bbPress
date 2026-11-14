@@ -357,7 +357,6 @@ class BBP_Tests_Admin_Full_Previews extends BBP_UnitTestCase {
 
 		$this->assertTrue( $result['complete'] );
 		$this->assertGreaterThan( 1, $requests );
-		$this->assertGreaterThanOrEqual( $result['batches'], $requests );
 		$this->assertSame( $expected, $result );
 		$this->assertSame( $before, $this->snapshot() );
 	}

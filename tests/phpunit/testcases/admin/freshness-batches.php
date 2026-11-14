@@ -41,7 +41,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed_nodes() {
-		return array( array( 'topics', 'values' ), array( 'topics', 'type' ), array( 'count', 'values' ), array( 'count', 'type' ) );
+		return array( array( 'topics', 'values' ), array( 'topics', 'type' ), array( 'topics', 'key' ), array( 'topics', 'missing' ), array( 'count', 'values' ), array( 'count', 'type' ) );
 	}
 
 	public function checkpoint_failures() {
@@ -167,6 +167,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 	}
 
 	public function test_browser_preview_uses_bounded_requests_and_aggregate_totals() {
+		$db = bbp_db();
 		$this->fixture();
 		$this->size = 2;
 		$before     = $this->snapshot();
@@ -178,6 +179,11 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 				$result = bbp_admin_repair_freshness_batch( true );
 				++$requests;
 				$this->assertSame( 0, $result['code'] );
+				$state = get_option( $this->option() );
+				if ( is_array( $state ) && 'topics' === $state['phase'] && $state['current'] ) {
+					$this->assertIsArray( $state['topic_node'] );
+				}
+				$this->assertSame( array(), $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s", $db->esc_like( $this->option() . '_topics_' ) . '%' ) ) );
 				if ( $result['complete'] ) {
 					break;
 				}
@@ -190,21 +196,33 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->assertGreaterThan( 1, $requests );
 		$this->assertSame( 1, $result['topics'] );
 		$this->assertSame( 2, $result['forums'] );
-		// Browser-only preview cleanup is not part of the normal Run estimate.
-		$this->assertGreaterThanOrEqual( $result['batches'], $requests );
+		$this->assertGreaterThan( 1, $result['batches'] );
 		$this->assertSame( $before, $this->snapshot() );
 	}
 
-	public function test_browser_preview_removes_abandoned_scratch_generations() {
-		$this->fixture();
+	public function test_browser_preview_preserves_filtered_topic_activity_without_topic_scratch_rows() {
+		$db          = bbp_db();
+		$parent      = $this->factory->forum->create();
+		$child       = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$other       = $this->factory->forum->create();
+		$parent_topic = $this->factory->topic->create( array( 'post_parent' => $parent ) );
+		$this->factory->topic->create( array( 'post_parent' => $child ) );
+		$filtered_topic = $this->factory->topic->create( array( 'post_parent' => $other ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-03 12:00:00' ), array( 'ID' => $parent_topic ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-05 12:00:00' ), array( 'ID' => $filtered_topic ) );
+		$parent_values = array();
+		$filter = static function ( $topic_id, $forum_id ) use ( $parent, $child, $filtered_topic, &$parent_values ) {
+			if ( $child === $forum_id ) {
+				return $filtered_topic;
+			}
+			if ( $parent === $forum_id ) {
+				$parent_values[] = $topic_id;
+			}
+			return $topic_id;
+		};
+		add_filter( 'bbp_update_forum_last_topic_id', $filter, 10, 2 );
 		$this->size = 2;
-
-		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-abandoned-scratch' );
-		$prefix   = $this->option();
-		$scratch  = $prefix . '_topics_abandoned_1';
-		$summary  = $prefix . '_forum_topics_abandoned_1';
-		$this->assertTrue( bbp_admin_repair_tool_save_option( $scratch, array( 'abandoned' => true ) ) );
-		$this->assertTrue( bbp_admin_repair_tool_save_option( $summary, array( 'id' => 1, 'time' => '' ) ) );
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-filtered-topic' );
 		try {
 			for ( $i = 0; $i < 1000; ++$i ) {
 				$result = bbp_admin_repair_freshness_batch( true );
@@ -215,11 +233,12 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 			}
 		} finally {
 			bbp_admin_repair_tool_execution_context( 'run', '' );
+			remove_filter( 'bbp_update_forum_last_topic_id', $filter, 10 );
 		}
 
 		$this->assertTrue( $result['complete'] );
-		$this->assertFalse( get_option( $scratch, false ) );
-		$this->assertFalse( get_option( $summary, false ) );
+		$this->assertNotEmpty( $parent_values );
+		$this->assertSame( $filtered_topic, end( $parent_values ) );
 	}
 
 	public function test_browser_preview_avoids_an_unbounded_direct_topic_query_per_forum() {
@@ -286,6 +305,239 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		}
 
 		$this->assertCount( 6, $topics );
+	}
+
+	public function test_reply_heavy_browser_preview_uses_bounded_reply_windows() {
+		$forum      = $this->factory->forum->create();
+		$topic      = $this->factory->topic->create( array( 'post_parent' => $forum ) );
+		$replies    = $this->factory->reply->create_many( 7, array( 'post_parent' => $topic ) );
+		$this->size = 2;
+		$queries   = array();
+		$aggregates = array();
+		$capture    = static function ( $query ) use ( $topic, &$queries, &$aggregates ) {
+			if ( false !== strpos( $query, "post_parent = {$topic}" ) ) {
+				if ( false !== strpos( $query, 'SELECT ID, post_date' ) ) {
+					$queries[] = $query;
+				}
+				if ( false !== strpos( $query, 'MAX(post_date)' ) ) {
+					$aggregates[] = $query;
+				}
+			}
+			return $query;
+		};
+
+		add_filter( 'query', $capture );
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-reply-windows' );
+		try {
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+			remove_filter( 'query', $capture );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertGreaterThan( 1, count( $queries ) );
+		foreach ( $queries as $query ) {
+			$this->assertMatchesRegularExpression( '/LIMIT [1-3]$/', trim( $query ) );
+		}
+		foreach ( $aggregates as $query ) {
+			$this->assertMatchesRegularExpression( '/AND ID <= [0-9]+/', $query );
+		}
+		$this->assertCount( 7, $replies );
+	}
+
+	public function test_browser_preview_keeps_its_fixed_snapshot_after_a_new_reply() {
+		$ids        = $this->fixture();
+		$this->size = 1;
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-new-reply' );
+		try {
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				$this->assertSame( 0, $result['code'] );
+				$state = get_option( $this->option() );
+				if ( is_array( $state ) && 'count' === $state['phase'] && ! $state['current'] ) {
+					break;
+				}
+			}
+			$this->assertSame( 1, $result['topics'] );
+
+			$new_reply = $this->factory->reply->create( array( 'post_parent' => $ids[2] ) );
+			$restarted = false;
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				$this->assertSame( 0, $result['code'] );
+				$restarted = $restarted || $result['restarted'];
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertFalse( $restarted );
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 1, $result['topics'] );
+		$this->assertSame( 2, $result['forums'] );
+		$this->size = 1000;
+		$this->finish();
+		$this->assertSame( (string) $new_reply, get_post_meta( $ids[2], '_bbp_last_reply_id', true ) );
+	}
+
+	public function test_browser_preview_counts_a_topic_once_when_new_activity_precedes_entry() {
+		$ids        = $this->fixture();
+		$this->size = 1;
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'freshness-new-reply-before-topic' );
+		try {
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result = bbp_admin_repair_freshness_batch( true );
+				$this->assertSame( 0, $result['code'] );
+				$state = get_option( $this->option() );
+				if ( is_array( $state ) && 'topics' === $state['phase'] && ! $state['current'] ) {
+					break;
+				}
+			}
+
+			$new_reply = $this->factory->reply->create( array( 'post_parent' => $ids[2] ) );
+			$new_time  = get_post_field( 'post_date', $new_reply );
+			bbp_update_topic_last_reply_id( $ids[2], $new_reply );
+			bbp_update_topic_last_active_id( $ids[2], $new_reply );
+			bbp_update_topic_last_active_time( $ids[2], $new_time );
+
+			$restarted = false;
+			for ( $i = 0; $i < 1000; ++$i ) {
+				$result    = bbp_admin_repair_freshness_batch( true );
+				$restarted = $restarted || $result['restarted'];
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( $restarted );
+		$this->assertSame( 1, $result['topics'] );
+		$this->assertSame( 2, $result['forums'] );
+	}
+
+	public function test_concurrent_acceptance_does_not_mutate_a_node_after_a_read_failure() {
+		$worker  = new BBP_Admin_Forum_Freshness( true );
+		$method  = new ReflectionMethod( $worker, 'accept_concurrent_metadata' );
+		$node    = $this->concurrent_forum_node();
+		$before  = $node;
+		$current = array_fill_keys( array_keys( $node['observed'] ), '' );
+		$db      = bbp_db();
+		$topic   = $this->factory->topic->create();
+
+		$method->setAccessible( true );
+		get_post_meta( $topic, '_bbp_last_active_time', true );
+		$current['_bbp_last_topic_id'] = (string) $topic;
+		$db->last_error = 'Forced metadata read failure.';
+		try {
+			$arguments = array( &$node, $current, true );
+			$this->assertFalse( $method->invokeArgs( $worker, $arguments ) );
+		} finally {
+			$db->last_error = '';
+		}
+
+		$this->assertSame( $before, $node );
+	}
+
+	public function test_reaccepted_completed_nodes_do_not_increment_totals_twice() {
+		$worker  = new BBP_Admin_Forum_Freshness( true );
+		$method  = new ReflectionMethod( $worker, 'accept_concurrent_metadata' );
+		$totals  = new ReflectionProperty( $worker, 'totals' );
+		$node    = $this->concurrent_forum_node();
+		$current = array_fill_keys( array_keys( $node['observed'] ), '' );
+
+		$method->setAccessible( true );
+		$totals->setAccessible( true );
+		$arguments = array( &$node, $current, true );
+		$this->assertTrue( $method->invokeArgs( $worker, $arguments ) );
+		$this->assertSame( 1, $totals->getValue( $worker )['forums'] );
+
+		$arguments = array( &$node, $current, true );
+		$this->assertTrue( $method->invokeArgs( $worker, $arguments ) );
+		$this->assertSame( 1, $totals->getValue( $worker )['forums'] );
+	}
+
+	private function concurrent_forum_node() {
+		$values = array(
+			'_bbp_last_topic_id'   => null,
+			'_bbp_last_reply_id'   => null,
+			'_bbp_last_active_id'  => null,
+			'_bbp_last_active_time' => null,
+		);
+
+		return array(
+			'id'         => 0,
+			'phase'      => 'children',
+			'counted'    => true,
+			'kind'       => 'forums',
+			'values'     => $values,
+			'direct'     => $values,
+			'observed'   => array_fill_keys( array_keys( $values ), 'previous' ),
+			'topic_time' => '',
+			'returns'    => array(
+				'topic'      => 0,
+				'topic_time' => '',
+				'reply'      => 0,
+				'active'     => 0,
+			),
+		);
+	}
+
+	public function test_concurrent_reply_activity_is_preserved_without_restarting_the_generation() {
+		$ids        = $this->fixture();
+		$this->size = 1;
+		for ( $i = 0; $i < 1000; ++$i ) {
+			$state = $this->advance_to_topic( $ids[2], 0 );
+			if ( 'write' === $state['topic_node']['phase'] ) {
+				break;
+			}
+		}
+
+		$new_reply = $this->factory->reply->create( array( 'post_parent' => $ids[2] ) );
+		$new_time  = get_post_field( 'post_date', $new_reply );
+		bbp_update_topic_last_reply_id( $ids[2], $new_reply );
+		bbp_update_topic_last_active_id( $ids[2], $new_reply );
+		bbp_update_topic_last_active_time( $ids[2], $new_time );
+		bbp_update_topic_walker( $ids[2], $new_time, $ids[1], $new_reply, false );
+
+		$restarted = false;
+		for ( $i = 0; $i < 1000; ++$i ) {
+			$result    = bbp_admin_repair_freshness_batch();
+			$restarted = $restarted || $result['restarted'];
+			$this->assertSame( 0, $result['code'] );
+			if ( $result['complete'] ) {
+				break;
+			}
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( $restarted );
+		$this->assertSame( array( '999999' ), get_post_meta( $ids[2], '_bbp_last_topic_id', false ) );
+		foreach ( array( $ids[0], $ids[1] ) as $forum_id ) {
+			$this->assertSame( (string) $ids[2], get_post_meta( $forum_id, '_bbp_last_topic_id', true ) );
+		}
+		foreach ( array( $ids[0], $ids[1], $ids[2] ) as $post_id ) {
+			$this->assertSame( (string) $new_reply, get_post_meta( $post_id, '_bbp_last_reply_id', true ) );
+			$this->assertSame( (string) $new_reply, get_post_meta( $post_id, '_bbp_last_active_id', true ) );
+			$this->assertSame( $new_time, get_post_meta( $post_id, '_bbp_last_active_time', true ) );
+		}
+
+		$this->finish();
+		$this->assertSame( array(), get_post_meta( $ids[2], '_bbp_last_topic_id', false ) );
+		$this->assertSame( (string) $new_reply, get_post_meta( $ids[2], '_bbp_last_reply_id', true ) );
 	}
 
 	public function test_browser_preview_retries_a_failed_forum_topic_aggregate_save() {
@@ -599,7 +851,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->assert_freshness( $ids );
 	}
 
-	public function test_failed_child_merge_does_not_acknowledge_the_unread_activity() {
+	public function test_child_merge_carries_repaired_activity_without_a_metadata_read() {
 		$db = bbp_db();
 		$ids = $this->fixture();
 		$fail = static function ( $query ) use ( $db ) {
@@ -610,21 +862,16 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		try {
 			for ( $i = 0; $i < 200; ++$i ) {
 				$result = bbp_admin_repair_freshness_batch();
-				if ( $result['code'] ) {
+				$this->assertSame( 0, $result['code'] );
+				if ( $result['complete'] ) {
 					break;
 				}
 			}
-			$this->assertSame( 2, $result['code'] );
-			$this->assertSame( 'metadata-read', $result['error'] );
-			$this->assertFalse( $result['complete'] );
-			$state = get_option( $this->option() );
-			$node = get_option( $this->option() . '_tree_' . $state['token'] . '_' . $state['current'] );
-			$this->assertGreaterThan( 0, $node['await'] );
+			$this->assertTrue( $result['complete'] );
 		} finally {
 			remove_filter( 'query', $fail );
 			$db->suppress_errors( $suppression );
 		}
-		$this->finish();
 		$this->assert_freshness( $ids );
 	}
 
@@ -660,12 +907,41 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$forum = $this->factory->forum->create();
 		$topic = $this->factory->topic->create( array( 'post_parent' => $forum ) );
 		update_post_meta( $topic, '_bbp_last_reply_id', 999999 );
-		$this->finish();
+		$restarted = false;
+		for ( $i = 0; $i < 1000; ++$i ) {
+			$result    = bbp_admin_repair_freshness_batch();
+			$restarted = $restarted || $result['restarted'];
+			$this->assertSame( 0, $result['code'] );
+			if ( $result['complete'] ) {
+				break;
+			}
+		}
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( $restarted );
 		$this->assertSame( '999999', get_post_meta( $topic, '_bbp_last_reply_id', true ) );
 		$this->assert_freshness( $ids );
 		$this->finish();
 		$this->assertSame( '0', get_post_meta( $topic, '_bbp_last_reply_id', true ) );
 		$this->assertSame( (string) $topic, get_post_meta( $forum, '_bbp_last_topic_id', true ) );
+	}
+
+	public function test_higher_unrelated_post_ids_do_not_restart_the_current_generation() {
+		$ids = $this->fixture();
+		bbp_admin_repair_freshness_batch();
+		$this->factory->post->create();
+		$restarted = false;
+		for ( $i = 0; $i < 1000; ++$i ) {
+			$result    = bbp_admin_repair_freshness_batch();
+			$restarted = $restarted || $result['restarted'];
+			$this->assertSame( 0, $result['code'] );
+			if ( $result['complete'] ) {
+				break;
+			}
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( $restarted );
+		$this->assert_freshness( $ids );
 	}
 
 	public function test_forum_hooks_and_custom_child_lists_keep_their_existing_results() {
@@ -767,8 +1043,12 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$this->assertGreaterThan( 0, $state['current'] );
 		$name = $this->option() . '_tree_' . $state['token'] . '_' . $state['current'];
 		$node = 'topics' === $phase ? $state['topic_node'] : get_option( $name );
-		if ( 'values' === $field ) {
+		if ( 'missing' === $field ) {
+			$node = false;
+		} elseif ( 'values' === $field ) {
 			$node['values'] = array( 'invalid' => 10 );
+		} elseif ( 'key' === $field ) {
+			$node['key'] = 1;
 		} else {
 			$node['source']['type'] = 'unrelated';
 		}

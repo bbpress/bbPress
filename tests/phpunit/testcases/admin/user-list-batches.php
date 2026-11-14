@@ -336,6 +336,84 @@ class BBP_Tests_Admin_User_List_Batches extends BBP_UnitTestCase {
 		$this->assertFalse( get_option( $option, false ) );
 	}
 
+	public function test_browser_preview_uses_bounded_scratch_and_fixed_size_checkpoints() {
+		$this->fixture( 'favorites', 'topic' );
+		$before = $this->snapshot();
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', 'bounded-user-list-preview' );
+		$option = $this->option( 'favorites' );
+		$prefix = bbp_admin_repair_tool_scratch_namespace( 'bbp-user-favorites' );
+		try {
+			for ( $i = 0; $i < 100; ++$i ) {
+				$result = bbp_admin_repair_user_meta_batch( 'favorites', true );
+				$state  = get_option( $option, false );
+				if ( is_array( $state ) ) {
+					$this->assertArrayNotHasKey( 'kept', $state );
+				}
+				$rows = bbp_db()->get_results( bbp_db()->prepare( "SELECT option_name, option_value FROM " . bbp_db()->options . " WHERE option_name LIKE %s", bbp_db()->esc_like( $prefix ) . '%' ) );
+				foreach ( $rows as $row ) {
+					$chunk = maybe_unserialize( $row->option_value );
+					$this->assertLessThanOrEqual( 191, strlen( $row->option_name ) );
+					$this->assertSame( array( 'offset', 'next', 'ids' ), array_keys( $chunk ) );
+					$this->assertLessThanOrEqual( $this->size, count( $chunk['ids'] ) );
+				}
+				if ( $result['complete'] ) {
+					break;
+				}
+			}
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertFalse( get_option( $option, false ) );
+		$this->assertSame( 0, (int) bbp_db()->get_var( bbp_db()->prepare( "SELECT COUNT(*) FROM " . bbp_db()->options . " WHERE option_name LIKE %s", bbp_db()->esc_like( $prefix ) . '%' ) ) );
+		$this->assertSame( $before, $this->snapshot() );
+	}
+
+	public function test_missing_scratch_chunk_restarts_only_the_current_user_list() {
+		$data = $this->fixture( 'favorites', 'topic' );
+		for ( $i = 0; $i < 100; ++$i ) {
+			bbp_admin_repair_user_meta_batch( 'favorites' );
+			$state = get_option( $this->option( 'favorites' ) );
+			if ( $state['ready'] ) {
+				break;
+			}
+		}
+		$this->assertTrue( $state['ready'] );
+		$collection = 'user_' . md5( $state['cursor'] . '|' . $state['row_hash'] );
+		$option     = bbp_admin_repair_tool_scratch_option_name( 'bbp-user-favorites', $state['token'], $collection, 0 );
+		$this->assertTrue( bbp_admin_repair_tool_save_option( $option, null, true ) );
+
+		$result = bbp_admin_repair_user_meta_batch( 'favorites' );
+		$this->assertSame( 0, $result['code'] );
+		$this->assertTrue( $result['restarted'] );
+		$restarted = get_option( $this->option( 'favorites' ) );
+		$this->assertSame( $state['cursor'], $restarted['cursor'] );
+		$this->assertTrue( $restarted['scratch_retry'] );
+
+		$this->finish( 'favorites' );
+		$this->assert_values( $data, 'favorites' );
+	}
+
+	public function test_empty_preview_batch_estimate_matches_full_run_requests() {
+		$this->factory->topic->create();
+		$user = $this->factory->user->create();
+		add_user_meta( $user, $this->key( 'favorites' ), '999999,999998' );
+		$preview = bbp_admin_repair_user_meta_batch( 'favorites', true );
+		$requests = 0;
+		for ( $i = 0; $i < 100; ++$i ) {
+			$result = bbp_admin_repair_user_meta_batch( 'favorites' );
+			++$requests;
+			if ( $result['complete'] ) {
+				break;
+			}
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( $requests, $preview['batches'] );
+	}
+
 	/** @dataProvider tools */
 	public function test_automatic_budget_exhaustion_retains_progress_until_retry( $type, $suffix, $post, $callback ) {
 		$data = $this->fixture( $suffix, $post );

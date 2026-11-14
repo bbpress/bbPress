@@ -169,7 +169,8 @@ abstract class BBP_Admin_Batch_Worker {
 	 * @return bool Whether the checkpoint operation succeeded.
 	 */
 	protected function save( $complete = false ) {
-		return bbp_admin_repair_tool_save_checkpoint( $this->tool_id, $this->state, $complete, $this->dry_run );
+		return bbp_admin_repair_tool_refresh_lock()
+			&& bbp_admin_repair_tool_save_checkpoint( $this->tool_id, $this->state, $complete, $this->dry_run );
 	}
 
 	/**

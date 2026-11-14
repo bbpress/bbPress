@@ -595,7 +595,9 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 
 		$result = call_user_func( $callback );
 		$this->assertFalse( $result['complete'] );
-		$this->assertSame( 2, get_option( $option )['offset'] );
+		$first_row = implode( ',', $posts ) . ',invalid,' . $posts[0];
+		$parsed    = bbp_admin_repair_user_meta_id_batch( $first_row, 0, 2 );
+		$this->assertSame( $parsed['offset'], get_option( $option )['offset'] );
 		$this->assertSame( array(), get_post_meta( $posts[2], $new_key, false ) );
 
 		$before = $this->stored_data();
@@ -811,6 +813,33 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 	/**
 	 * @dataProvider upgrade_tools
 	 */
+	public function test_dry_run_initial_checkpoint_failures_do_not_add_pending_relationship_upgrades( $tool_id, $old_key, $new_key, $callback ) {
+		$user_id = $this->factory->user->create();
+		$post_id = $this->factory->post->create();
+		bbp_remove_pending_upgrade( $tool_id );
+		add_user_meta( $user_id, bbp_db()->prefix . $old_key, $post_id );
+
+		bbp_admin_repair_tool_execution_context( 'dry-run', wp_generate_uuid4() );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$fail   = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
+		try {
+			$result = call_user_func( $callback . '_dry_run' );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
+			$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+			$this->assertSame( array(), get_post_meta( $post_id, $new_key, false ) );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+	}
+
+	/**
+	 * @dataProvider upgrade_tools
+	 */
 	public function test_failed_progress_saves_do_not_skip_relationships( $tool_id, $old_key, $new_key, $callback ) {
 		$user_id = $this->factory->user->create();
 		$posts   = $this->factory->post->create_many( 5 );
@@ -898,7 +927,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 				'string offset'        => array( 'offset', '2' ),
 				'negative offset'      => array( 'offset', -1 ),
 				'impossible offset'    => array( 'offset', 'past-bound' ),
-				'offset at list end'   => array( 'offset', 5 ),
+				'offset at list end'   => array( 'offset', 'at-list-end' ),
 				'invalid fingerprint'  => array( 'row_hash', 'invalid' ),
 				'empty fingerprint'    => array( 'row_hash', '' ),
 				'offset without row'   => array( 'cursor', 0 ),
@@ -928,6 +957,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			$state = $value;
 		} elseif ( 'past-bound' === $value ) {
 			$state[ $field ] = ( 'offset' === $field ? $list_length : $state['upper_id'] ) + 1;
+		} elseif ( 'at-list-end' === $value ) {
+			$state[ $field ] = $list_length;
 		} elseif ( null === $value ) {
 			unset( $state[ $field ] );
 		} else {
@@ -945,7 +976,7 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
 		add_user_meta( $user_id, bbp_db()->prefix . $old_key, implode( ',', $posts ) );
 		call_user_func( $callback );
-		$this->corrupt_checkpoint( $option, $field, $value, count( $posts ) );
+		$this->corrupt_checkpoint( $option, $field, $value, strlen( implode( ',', $posts ) ) );
 		$before  = $this->stored_data();
 		$preview = call_user_func( $callback . '_dry_run' );
 		$this->assertSame( 0, $preview[0] );
@@ -984,8 +1015,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
 			$this->assertTrue( $result['restarted'] );
 
-			$state = get_option( $option );
-			$state['_preview_state']['data']['planned'] = array( 'broken' => array() );
+			$state          = get_option( $option );
+			$state['token'] = 'broken';
 			update_option( $option, $state, false );
 			$result = bbp_admin_upgrade_user_meta_batch( $tool_id, $key, '_bbp_favorite', true );
 			$this->assertTrue( $result['restarted'] );
@@ -1412,8 +1443,8 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_user_engagements_batch( true );
 			$this->assertTrue( $result['restarted'] );
 
-			$state = get_option( $option );
-			$state['_preview_state']['data']['planned'] = array( 'broken' => array() );
+			$state          = get_option( $option );
+			$state['token'] = 'broken';
 			update_option( $option, $state, false );
 			$result = bbp_admin_upgrade_user_engagements_batch( true );
 			$this->assertTrue( $result['restarted'] );
@@ -1480,6 +1511,27 @@ class BBP_Tests_Admin_Tool_Batches extends BBP_UnitTestCase {
 		}
 		$this->assertTrue( bbp_admin_repair_tool_run_automatically( $tool_id, 'bbp_admin_upgrade_user_engagements' ) );
 		$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+	}
+
+	public function test_engagement_dry_run_initial_checkpoint_failures_do_not_add_a_pending_upgrade() {
+		$this->factory->topic->create_many( 3 );
+		$tool_id = 'bbp-user-topic-engagements-move';
+		bbp_remove_pending_upgrade( $tool_id );
+		bbp_admin_repair_tool_execution_context( 'dry-run', wp_generate_uuid4() );
+		$option = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$fail   = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_' . $option, $fail, 10, 2 );
+		try {
+			$result = bbp_admin_upgrade_user_engagements_dry_run();
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result[0] );
+			$this->assertSame( 'progress', $result['error'] );
+			$this->assertNotContains( $tool_id, bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'pre_update_option_' . $option, $fail, 10 );
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
 	}
 
 	public function test_engagement_progress_save_failures_can_be_retried_safely() {

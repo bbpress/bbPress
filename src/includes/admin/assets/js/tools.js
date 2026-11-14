@@ -48,10 +48,26 @@ jQuery( function( $ ) {
 
 	if ( recovery ) {
 		$.each( recovery.runs, function( index, run ) {
-			$( 'a' ).filter( function() {
+			var link = $( 'a' ).filter( function() {
 				return this.href === run.url;
-			} ).on( 'click', function( event ) {
-				var link = $( this );
+			} );
+
+			link.on( 'click', function( event ) {
+				var discard = function() {
+					persistRunStatus( recovery, 'discarded', run.id, run.action, false ).done( function( response ) {
+						if ( response.data && false === response.data.complete ) {
+							discard();
+							return;
+						}
+						window.location.replace( recovery.returnUrl );
+					} ).fail( function( request ) {
+						var response = request.responseJSON,
+							error    = response && response.data && response.data.message ? response.data.message : recovery.error;
+
+						link.removeAttr( 'aria-disabled' ).text( recovery.discard );
+						link.after( $( '<span class="bbp-tools-recovery-error"></span>' ).text( ' ' + error ) );
+					} );
+				};
 
 				event.preventDefault();
 				if ( link.attr( 'aria-disabled' ) ) {
@@ -60,16 +76,12 @@ jQuery( function( $ ) {
 
 				link.attr( 'aria-disabled', 'true' ).text( recovery.discarding );
 				link.siblings( '.bbp-tools-recovery-error' ).remove();
-				persistRunStatus( recovery, 'discarded', run.id, run.action, false ).done( function() {
-					window.location.replace( recovery.returnUrl );
-				} ).fail( function( request ) {
-					var response = request.responseJSON,
-						error    = response && response.data && response.data.message ? response.data.message : recovery.error;
-
-					link.removeAttr( 'aria-disabled' ).text( recovery.discard );
-					link.after( $( '<span class="bbp-tools-recovery-error"></span>' ).text( ' ' + error ) );
-				} );
+				discard();
 			} );
+
+			if ( run.automatic ) {
+				link.trigger( 'click' );
+			}
 		} );
 	}
 
@@ -301,7 +313,11 @@ jQuery( function( $ ) {
 		var statusRequest,
 			request,
 			discard = function() {
-				persistStatus( 'discarded', false ).done( function() {
+				persistStatus( 'discarded', false ).done( function( response ) {
+					if ( response.data && false === response.data.complete ) {
+						discard();
+						return;
+					}
 					redirecting = true;
 					window.location.replace( settings.returnUrl );
 				} ).fail( function( request ) {

@@ -92,6 +92,58 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_one_request_reuses_unchanged_direct_count_validation() {
+		$forum = $this->factory->forum->create();
+		$this->factory->topic->create( array( 'post_parent' => $forum ) );
+		$this->size = 1000;
+		$worker = new class( 'topics' ) extends BBP_Admin_Forum_Counts {
+			public $count_reads = 0;
+
+			protected function values( $id, $post ) {
+				++$this->count_reads;
+				return parent::values( $id, $post );
+			}
+		};
+
+		$result = $worker->run();
+		$this->assertTrue( $result['complete'] );
+		$this->assertSame( 2, $worker->count_reads );
+	}
+
+	public function test_one_request_rechecks_direct_counts_after_a_post_change() {
+		$forum = $this->factory->forum->create();
+		$this->factory->topic->create( array( 'post_parent' => $forum ) );
+		$reads = 0;
+		$added = false;
+		$add_topic = function ( $query ) use ( $forum, &$reads, &$added ) {
+			if ( false !== strpos( $query, 'GROUP BY p.post_status, p.post_type UNION ALL' ) && 2 === ++$reads ) {
+				$added = true;
+				$this->factory->topic->create( array( 'post_parent' => $forum ) );
+			}
+			return $query;
+		};
+		add_filter( 'query', $add_topic );
+		$this->size = 1000;
+		$worker = new class( 'topics' ) extends BBP_Admin_Forum_Counts {
+			public $count_reads = 0;
+
+			protected function values( $id, $post ) {
+				++$this->count_reads;
+				return parent::values( $id, $post );
+			}
+		};
+		try {
+			$result = $worker->run();
+		} finally {
+			remove_filter( 'query', $add_topic );
+		}
+
+		$this->assertTrue( $result['complete'] );
+		$this->assertTrue( $added );
+		$this->assertGreaterThan( 2, $worker->count_reads );
+		$this->assertSame( 2, (int) get_post_meta( $forum, '_bbp_topic_count', true ) );
+	}
+
 	/** @dataProvider tools */
 	public function test_one_item_batches_preview_exact_writes_through_deep_hierarchies( $type, $key, $total, $callback ) {
 		$db     = bbp_db();
@@ -597,6 +649,41 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		}
 		$this->assertSame( $state['token'], get_option( $this->option( 'topics' ) )['token'] );
 		$this->finish( 'topics' );
+	}
+
+	public function test_complete_child_filter_lists_have_an_explicit_bound() {
+		$parent = $this->factory->forum->create();
+		$this->factory->forum->create_many( 3, array( 'post_parent' => $parent ) );
+		$children = static function ( $ids ) {
+			return $ids;
+		};
+		$limit = static function ( $value, $hook ) {
+			return 'bbp_forum_query_subforum_ids' === $hook ? 2 : $value;
+		};
+		$queries = array();
+		$capture = static function ( $query ) use ( $parent, &$queries ) {
+			if ( false !== strpos( $query, 'post_parent = ' . $parent ) ) {
+				$queries[] = $query;
+			}
+			return $query;
+		};
+		add_filter( 'bbp_forum_query_subforum_ids', $children );
+		add_filter( 'bbp_admin_repair_tool_filter_limit', $limit, 10, 2 );
+		add_filter( 'query', $capture );
+		$this->size = 1000;
+		try {
+			$result = bbp_admin_repair_forum_count_batch( 'topics' );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $result['code'] );
+			$this->assertSame( 'source-limit', $result['error'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertFalse( $result['restarted'] );
+			$this->assertNotEmpty( $queries );
+			$this->assertStringContainsString( 'LIMIT 3', end( $queries ) );
+		} finally {
+			remove_filter( 'query', $capture );
+			remove_filter( 'bbp_admin_repair_tool_filter_limit', $limit, 10 );
+			remove_filter( 'bbp_forum_query_subforum_ids', $children );
+		}
 	}
 
 	public function test_synchronous_preview_stops_after_repeated_corrupt_restarts() {

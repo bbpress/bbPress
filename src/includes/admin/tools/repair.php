@@ -674,13 +674,23 @@ function bbp_admin_repair_topic_voice_count_dry_run() {
  * @return bool Whether progress can resume.
  */
 function bbp_admin_repair_topic_voice_count_is_valid_checkpoint( $state, $context ) {
-	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'topic_upper' ) ) ) {
+	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'topic_upper' ) )
+		|| ! bbp_admin_repair_tool_has_valid_scratch_token( $state )
+		|| ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'engagements', 'voices', 'batches' ) ) ) {
 		return false;
 	}
-	if ( ! isset( $state['phase'], $state['context'] ) || ( $context !== $state['context'] ) || ! in_array( $state['phase'], array( 'engagements', 'voices' ), true ) ) {
+	if ( ! isset( $state['phase'], $state['context'] ) || ( $context !== $state['context'] ) || ! in_array( $state['phase'], array( 'prepare', 'engagements', 'voices', 'cleanup' ), true ) ) {
 		return false;
 	}
-	return ( 'voices' !== $state['phase'] ) || ( $state['upper_id'] === $state['topic_upper'] );
+	if ( isset( $state['_preview_state'] ) ) {
+		$data = $state['_preview_state']['data'];
+		if ( array_diff_key( $data, array( 'metadata' => true ) )
+			|| ( isset( $data['metadata'] ) && ! is_array( $data['metadata'] ) ) ) {
+			return false;
+		}
+	}
+
+	return ! in_array( $state['phase'], array( 'voices', 'cleanup' ), true ) || ( $state['upper_id'] === $state['topic_upper'] );
 }
 
 /**
@@ -722,24 +732,51 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			return $batch;
 		}
 		$state = array(
-			'phase'       => 'engagements',
+			'phase'       => $dry_run && bbp_admin_repair_tool_is_async_dry_run() ? 'prepare' : 'engagements',
 			'cursor'      => 0,
 			'upper_id'    => $upper_id,
 			'topic_upper' => $topic_upper,
-			'context'     => $context
+			'context'     => $context,
+			'token'       => bbp_admin_repair_tool_new_token(),
 		);
 		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run ) ) {
 			return $batch;
 		}
 	}
 	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
-	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, array( 'engagements', 'voices', 'batches' ) );
-	$planned       = isset( $preview_state['planned'] ) ? $preview_state['planned'] : array();
-	$topics        = isset( $preview_state['topics'] ) ? $preview_state['topics'] : array();
+	$fields        = array( 'engagements', 'voices', 'batches' );
+	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
+	$planned       = array();
+	$topics        = array();
 	$metadata      = isset( $preview_state['metadata'] ) ? $preview_state['metadata'] : null;
 	do {
 		$work   = 0;
 		$source = bbp_admin_repair_get_engagements_query( $context[2], $context[3] );
+		if ( 'prepare' === $state['phase'] ) {
+			list( $success, $cleanup_work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
+			if ( ! $success ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			if ( $complete ) {
+				$state['phase'] = 'engagements';
+			}
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
+				return $batch;
+			}
+			continue;
+		}
+		if ( 'cleanup' === $state['phase'] ) {
+			list( $success, $cleanup_work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
+			if ( ! $success ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields ) ) {
+				return $batch;
+			}
+			continue;
+		}
 		if ( 'engagements' === $state['phase'] ) {
 			$rows = $bbp_db->get_results(
 				$bbp_db->prepare(
@@ -761,13 +798,29 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			}
 			$has_more = count( $rows ) > $size;
 			$rows     = array_slice( $rows, 0, $size );
-			$repair   = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run, $planned );
+			$claim    = $dry_run && bbp_admin_repair_tool_is_async_dry_run()
+				? static function ( $topic_id, $user_id ) use ( $tool_id, $state ) {
+					return bbp_admin_repair_tool_scratch_claim( $tool_id, $state['token'], 'relationships', array( $topic_id, $user_id ) );
+				}
+				: null;
+			$repair   = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run, $planned, $claim );
 			if ( ! empty( $repair['code'] ) ) {
 				bbp_admin_repair_tool_batch_fail( $batch, $repair['error'] );
 				return $batch;
 			}
-			$topics += $repair['topics'];
-			$batch['engagements'] = count( $topics );
+			if ( $dry_run && bbp_admin_repair_tool_is_async_dry_run() ) {
+				foreach ( array_keys( $repair['topics'] ) as $topic_id ) {
+					list( $saved, $first ) = bbp_admin_repair_tool_scratch_claim( $tool_id, $state['token'], 'topics', $topic_id );
+					if ( ! $saved ) {
+						bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+						return $batch;
+					}
+					$batch['engagements'] += (int) $first;
+				}
+			} else {
+				$topics += $repair['topics'];
+				$batch['engagements'] = count( $topics );
+			}
 			$work                 = count( $rows );
 			if ( ! empty( $rows ) ) {
 				$state['cursor'] = $repair['cursor'];
@@ -835,6 +888,11 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 				}
 			}
 			$batch['complete'] = ! $has_more && ( count( $ids ) === $finished );
+			if ( $batch['complete'] && $dry_run && bbp_admin_repair_tool_is_async_dry_run() ) {
+				$state['phase']    = 'cleanup';
+				$state['cursor']   = $state['upper_id'];
+				$batch['complete'] = false;
+			}
 		}
 		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
 		if ( ! bbp_admin_repair_tool_batch_save(
@@ -843,10 +901,8 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 			$batch,
 			$batch['complete'],
 			$dry_run,
-			array( 'engagements', 'voices', 'batches' ),
+			$fields,
 			array(
-				'planned'  => $planned,
-				'topics'   => $topics,
 				'metadata' => $metadata,
 			)
 		) ) {
@@ -1937,34 +1993,59 @@ function bbp_admin_repair_user_reply_count_process( $dry_run = false ) {
  * @return bool Whether the saved state can be resumed.
  */
 function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
-	if ( ! bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state )
+	if ( ! bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state, true )
+		|| ! bbp_admin_repair_tool_has_valid_scratch_token( $state )
 		|| ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'repaired', 'batches' ), array( 'initial' ) ) ) {
 		return false;
 	}
-	if ( ! isset( $state['phase'], $state['context'], $state['row_hash'], $state['kept'], $state['ready'] )
-		|| ! in_array( $state['phase'], array( 'probe', 'repair' ), true )
+	if ( ! isset( $state['phase'], $state['context'], $state['row_hash'], $state['ready'], $state['available'], $state['scratch_retry'] )
+		|| ! in_array( $state['phase'], array( 'prepare', 'probe', 'repair', 'cleanup' ), true )
 		|| ( $context !== $state['context'] ) || ! is_string( $state['row_hash'] )
-		|| ! is_string( $state['kept'] ) || ! is_bool( $state['ready'] ) ) {
+		|| ! is_bool( $state['ready'] ) || ! is_bool( $state['available'] ) || ! is_bool( $state['scratch_retry'] ) ) {
 		return false;
 	}
+	if ( in_array( $state['phase'], array( 'prepare', 'cleanup' ), true ) ) {
+		return 0 === $state['cursor'] && 0 === $state['offset'] && '' === $state['row_hash'] && ! $state['ready'] && ! $state['scratch_retry'];
+	}
 	if ( '' === $state['row_hash'] ) {
-		return ( 0 === $state['offset'] ) && ( '' === $state['kept'] ) && ! $state['ready'];
+		return ( 0 === $state['offset'] ) && ! $state['ready'] && ! $state['scratch_retry'];
 	}
 	if ( ! $state['cursor'] || ( 1 !== preg_match( '/^[a-f0-9]{32}$/D', $state['row_hash'] ) ) ) {
 		return false;
 	}
-	$kept = bbp_admin_repair_user_meta_ids( $state['kept'] );
-	return ( implode( ',', $kept ) === $state['kept'] ) && ( count( $kept ) <= $state['offset'] )
-		&& ( 'repair' === $state['phase'] || ( '' === $state['kept'] && ! $state['ready'] ) );
+	return 'repair' === $state['phase'] || ! $state['ready'];
+}
+
+/**
+ * Materialize one legacy user-list row's bounded scratch chunks.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id    Repair tool ID.
+ * @param string $token      Scratch generation token.
+ * @param string $collection Source-row collection.
+ * @param int    $length     Source value length in bytes.
+ * @return array|false Sorted unique IDs, or false on invalid scratch data.
+ */
+function bbp_admin_repair_user_meta_values( $tool_id, $token, $collection, $length ) {
+	$ids = bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, 'ids', $length );
+	if ( false === $ids ) {
+		return false;
+	}
+	$ids = wp_parse_id_list( $ids );
+	sort( $ids, SORT_NUMERIC );
+
+	return $ids;
 }
 
 /**
  * Repair one bounded batch of legacy favorites or subscription lists.
  *
  * Probe for a surviving relationship before changing any rows, preserving the
- * historical all-empty no-op. Scan referenced IDs within the shared budget and
- * update each completed row in place. One legacy CSV cell must still be read
- * and parsed as a unit; saved kept IDs never exceed that single source list.
+ * historical all-empty no-op. Parse each legacy CSV value through a byte cursor
+ * and keep surviving IDs in bounded scratch chunks. The final publication step
+ * materializes one row because the established metadata API stores one string.
  *
  * @since 2.7.0 bbPress (r8286)
  * @since 2.7.0 bbPress (r8347) Share source and worker lifecycle helpers.
@@ -2015,17 +2096,24 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
+		$has_scratch = bbp_admin_repair_tool_has_scratch( $tool_id );
+		if ( null === $has_scratch ) {
+			bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+			return $batch;
+		}
 		$state = array(
-			'cursor'   => 0,
-			'upper_id' => $upper,
-			'offset'   => 0,
-			'row_hash' => '',
-			'kept'     => '',
-			'ready'    => false,
-			'phase'    => 'probe',
-			'context'  => $context
+			'cursor'        => 0,
+			'upper_id'      => $upper,
+			'offset'        => 0,
+			'row_hash'      => '',
+			'ready'         => false,
+			'scratch_retry' => false,
+			'available'     => ! empty( $live ),
+			'phase'         => ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) || ! $has_scratch ? 'probe' : 'prepare',
+			'token'         => bbp_admin_repair_tool_new_token(),
+			'context'       => $context
 		);
-		if ( empty( $live ) ) {
+		if ( empty( $live ) && 'prepare' !== $state['phase'] ) {
 			$batch['empty'] = true;
 			bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, true, $dry_run, $fields );
 			return $batch;
@@ -2036,7 +2124,29 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 	}
 	$size = bbp_admin_repair_tool_batch_size( $tool_id );
 	bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
+	$planned        = array();
+	$scratch_chunks = 0;
 	do {
+		if ( 'prepare' === $state['phase'] || 'cleanup' === $state['phase'] ) {
+			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
+			if ( ! $success ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			if ( $complete ) {
+				if ( 'cleanup' === $state['phase'] || ! $state['available'] ) {
+					$batch['complete'] = true;
+					$batch['empty']    = ! $state['available'];
+				} else {
+					$state['phase'] = 'probe';
+				}
+			}
+			$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $batch['complete'], $dry_run, $fields ) ) {
+				return $batch;
+			}
+			continue;
+		}
 		$work = 0;
 		while ( $work < $size && $state['cursor'] <= $state['upper_id'] ) {
 			$row = bbp_admin_repair_user_meta_row( $key, $state['cursor'], $state['upper_id'], $batch );
@@ -2044,25 +2154,37 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 				return $batch;
 			}
 			if ( empty( $row ) ) {
-				$batch['complete'] = true;
+				if ( 'probe' === $state['phase'] || ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) ) {
+					$batch['complete'] = true;
+					$batch['empty']    = 'probe' === $state['phase'];
+				} else {
+					$state['phase']         = 'cleanup';
+					$state['cursor']        = $state['offset'] = 0;
+					$state['row_hash']      = '';
+					$state['ready']         = false;
+					$state['scratch_retry'] = false;
+				}
 				break;
 			}
-			$id   = (int) $row->umeta_id;
-			$hash = bbp_admin_repair_user_meta_row_hash( $row, true );
-			$ids  = bbp_admin_repair_user_meta_ids( $row->meta_value );
-			$same = $id === $state['cursor'] && $hash === $state['row_hash'];
-			$bad  = $same && ( $state['offset'] > count( $ids ) || ( $state['ready'] && count( $ids ) !== $state['offset'] )
-				|| array_diff( bbp_admin_repair_user_meta_ids( $state['kept'] ), array_slice( $ids, 0, $state['offset'] ) ) );
-			if ( ! $same || $bad ) {
-				$state['cursor']    = $id;
-				$state['offset']    = 0;
-				$state['row_hash']  = $hash;
-				$state['kept']      = '';
-				$state['ready']     = false;
-				$batch['restarted'] = $batch['restarted'] || (bool) $bad;
+			$id     = (int) $row->umeta_id;
+			$hash   = bbp_admin_repair_user_meta_row_hash( $row, true );
+			$length = strlen( (string) $row->meta_value );
+			$same   = $id === $state['cursor'] && $hash === $state['row_hash']
+				&& $state['offset'] <= $length && ( ! $state['ready'] || $state['offset'] === $length );
+			if ( ! $same ) {
+				$resuming            = $id === $state['cursor'] && '' !== $state['row_hash'];
+				$state['cursor']        = $id;
+				$state['offset']        = 0;
+				$state['row_hash']      = $hash;
+				$state['ready']         = false;
+				$state['scratch_retry'] = false;
+				$batch['restarted'] = $batch['restarted'] || $resuming;
+				$planned            = array();
 			}
 			if ( ! $state['ready'] ) {
-				$next  = array_slice( $ids, $state['offset'], $size - $work );
+				$chunk_start = $state['offset'];
+				$parsed      = bbp_admin_repair_user_meta_canonical_id_batch( $row->meta_value, $chunk_start, $size - $work );
+				$next        = $parsed['ids'];
 				$valid = array();
 				if ( ! empty( $next ) ) {
 					$id_slots = implode( ', ', array_fill( 0, count( $next ), '%d' ) );
@@ -2072,34 +2194,70 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 						return $batch;
 					}
 				}
-				$work += count( $next );
-				$state['offset'] += count( $next );
+				$work += max( 1, $parsed['work'] );
+				$state['offset'] = $parsed['offset'];
 				if ( 'probe' === $state['phase'] ) {
 					if ( ! empty( $valid ) ) {
 						$state['phase']    = 'repair';
 						$state['cursor']   = $state['offset'] = 0;
 						$state['row_hash'] = '';
+						$state['scratch_retry'] = false;
 						if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
 							return $batch;
 						}
-					} elseif ( $state['offset'] >= count( $ids ) ) {
-						$work += empty( $next ) ? 1 : 0;
+					} elseif ( $parsed['complete'] ) {
 						$state['cursor']   = $id + 1;
 						$state['offset']   = 0;
 						$state['row_hash'] = '';
+						$state['scratch_retry'] = false;
 					}
 					continue;
 				}
-				if ( ! empty( $valid ) ) {
-					$state['kept'] .= ( '' === $state['kept'] ? '' : ',' ) . implode( ',', $valid );
+				if ( $parsed['work'] && ( ! $dry_run || bbp_admin_repair_tool_is_async_dry_run() ) ) {
+					$collection = 'user_' . md5( $id . '|' . $hash );
+					$chunk = array(
+						'offset' => $chunk_start,
+						'next'   => $parsed['offset'],
+						'ids'    => array_map( 'intval', $valid ),
+					);
+					if ( ! bbp_admin_repair_tool_scratch_set( $tool_id, $state['token'], $collection, $chunk_start, $chunk ) ) {
+						bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+						return $batch;
+					}
+				} elseif ( $parsed['work'] ) {
+					foreach ( $valid as $valid_id ) {
+						$planned[ (int) $valid_id ] = true;
+					}
+					++$scratch_chunks;
 				}
-				$state['ready'] = count( $ids ) === $state['offset'];
+				$state['ready'] = $parsed['complete'];
 				if ( ! $state['ready'] || $work >= $size ) {
 					continue;
 				}
 			}
 			++$work;
-			$value = $state['kept'];
+			if ( ! $dry_run || bbp_admin_repair_tool_is_async_dry_run() ) {
+				$collection = 'user_' . md5( $id . '|' . $hash );
+				$ids        = bbp_admin_repair_user_meta_values( $tool_id, $state['token'], $collection, $length );
+			} else {
+				$ids = array_keys( $planned );
+				sort( $ids, SORT_NUMERIC );
+			}
+			if ( false === $ids ) {
+				if ( bbp_admin_repair_tool_restart_scratch(
+					$state,
+					$batch,
+					array(
+						'offset' => 0,
+						'ready'  => false,
+					)
+				) ) {
+					$planned = array();
+					continue;
+				}
+				return $batch;
+			}
+			$value = implode( ',', $ids );
 			if ( ! $dry_run ) {
 				$code = bbp_admin_repair_metadata_row( 'user', $row, $key, '' === $value ? null : $value );
 				if ( $code ) {
@@ -2110,19 +2268,34 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 			if ( '' === $value || $row->meta_value !== $value || $row->meta_key !== $key ) {
 				++$batch['repaired'];
 			}
-			$state['cursor']   = $id + 1;
-			$state['offset']   = 0;
-			$state['row_hash'] = $state['kept'] = '';
-			$state['ready']    = false;
+			$state['cursor']        = $id + 1;
+			$state['offset']        = 0;
+			$state['row_hash']      = '';
+			$state['ready']         = false;
+			$state['scratch_retry'] = false;
+			$planned           = array();
 		}
-		if ( ! $batch['complete'] ) {
+		if ( ! $batch['complete'] && 'cleanup' !== $state['phase'] ) {
 			$remaining = bbp_admin_repair_user_meta_row( $key, $state['cursor'], $state['upper_id'], $batch );
 			if ( false === $remaining ) {
 				return $batch;
 			}
-			$batch['complete'] = empty( $remaining );
+			if ( empty( $remaining ) ) {
+				if ( 'probe' === $state['phase'] || ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) ) {
+					$batch['complete'] = true;
+				} else {
+					$state['phase']         = 'cleanup';
+					$state['cursor']        = $state['offset'] = 0;
+					$state['row_hash']      = '';
+					$state['ready']         = false;
+					$state['scratch_retry'] = false;
+				}
+			}
 		}
-		$batch['empty']    = $batch['complete'] && 'probe' === $state['phase'];
+		$batch['empty']    = $batch['empty'] || ( $batch['complete'] && ( 'probe' === $state['phase'] || ! $state['available'] ) );
+		if ( $batch['complete'] && $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() && 'repair' === $state['phase'] ) {
+			$batch['batches'] += max( 1, (int) ceil( $scratch_chunks / $size ) );
+		}
 		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
 		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $batch['complete'], $dry_run, $fields ) ) {
 			return $batch;
@@ -2419,6 +2592,29 @@ function bbp_admin_repair_user_role( $user_id, $role, $dry_run = false, $planned
 }
 
 /**
+ * Validate a simulated set of forum roles for one user.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param mixed $roles Simulated forum roles.
+ * @return bool Whether the role plan can be resumed safely.
+ */
+function bbp_admin_repair_user_role_plan_is_valid( $roles ) {
+	if ( ! is_array( $roles ) || array_values( $roles ) !== $roles || count( $roles ) !== count( array_unique( $roles ) ) ) {
+		return false;
+	}
+
+	foreach ( $roles as $role ) {
+		if ( ! is_string( $role ) || ! bbp_is_valid_role( $role ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
  * Validate a forum-role mapping checkpoint.
  *
  * @since 2.7.0 bbPress (r8348)
@@ -2430,25 +2626,14 @@ function bbp_admin_repair_user_role( $user_id, $role, $dry_run = false, $planned
  */
 function bbp_admin_repair_user_roles_is_valid_checkpoint( $state, $context ) {
 	$valid = bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'phase' ) )
+		&& bbp_admin_repair_tool_has_valid_scratch_token( $state )
 		&& isset( $state['context'] ) && $context === $state['context']
-		&& $state['phase'] <= count( $context['roles'] )
-		&& bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'changed', 'batches' ), array(), array( 'planned' ) );
-	if ( ! $valid || ! isset( $state['_preview_state'] ) ) {
-		return $valid;
-	}
+		&& isset( $state['mode'] ) && in_array( $state['mode'], array( 'prepare', 'scan', 'cleanup' ), true )
+		&& $state['phase'] <= count( $context['roles'] ) + 1
+		&& bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'changed', 'batches' ) )
+		&& ( ! isset( $state['_preview_state'] ) || empty( $state['_preview_state']['data'] ) );
 
-	foreach ( $state['_preview_state']['data']['planned'] as $user_id => $roles ) {
-		if ( ! is_int( $user_id ) || $user_id < 1 || ! is_array( $roles ) || array_values( $roles ) !== $roles || count( $roles ) !== count( array_unique( $roles ) ) ) {
-			return false;
-		}
-		foreach ( $roles as $role ) {
-			if ( ! is_string( $role ) || ! bbp_is_valid_role( $role ) ) {
-				return false;
-			}
-		}
-	}
-
-	return true;
+	return $valid && ( 'cleanup' !== $state['mode'] || $state['phase'] > count( $context['roles'] ) );
 }
 
 /**
@@ -2505,18 +2690,45 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 			'cursor'   => 0,
 			'upper_id' => $upper,
 			'phase'    => 0,
-			'context'  => $context
+			'mode'     => $dry_run && bbp_admin_repair_tool_is_async_dry_run() ? 'prepare' : 'scan',
+			'context'  => $context,
+			'token'    => bbp_admin_repair_tool_new_token(),
 		);
-		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields, array( 'planned' => array() ) ) ) {
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
 			return $batch;
 		}
 	}
 	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
-	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
-	$planned       = isset( $preview_state['planned'] ) ? $preview_state['planned'] : array();
+	bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
+	$planned = array();
 	$keys          = array_keys( $roles );
 	do {
 		$work    = 0;
+		if ( 'prepare' === $state['mode'] ) {
+			list( $success, $cleanup_work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
+			if ( ! $success ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			if ( $complete ) {
+				$state['mode'] = 'scan';
+			}
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields ) ) {
+				return $batch;
+			}
+			continue;
+		}
+		if ( 'cleanup' === $state['mode'] ) {
+			list( $success, $cleanup_work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
+			if ( ! $success ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields ) ) {
+				return $batch;
+			}
+			continue;
+		}
 		while ( $work < $size && $state['phase'] <= $phase_count ) {
 			if ( isset( $keys[ $state['phase'] ] ) ) {
 				$role   = $keys[ $state['phase'] ];
@@ -2548,13 +2760,30 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 				++$work;
 			}
 			foreach ( $ids as $user_id ) {
-				$previous = isset( $planned[ $user_id ] ) ? $planned[ $user_id ] : null;
+				$previous = null;
+				if ( $dry_run && bbp_admin_repair_tool_is_async_dry_run() ) {
+					list( $read, $exists, $previous ) = bbp_admin_repair_tool_scratch_get( $tool_id, $state['token'], 'roles', $user_id );
+					if ( ! $read ) {
+						bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+						return $batch;
+					}
+					if ( ! $exists || ! bbp_admin_repair_user_role_plan_is_valid( $previous ) ) {
+						$previous = null;
+					}
+				} elseif ( $dry_run && isset( $planned[ $user_id ] ) ) {
+					$previous = $planned[ $user_id ];
+				}
 				$result   = bbp_admin_repair_user_role( $user_id, $target, $dry_run, $previous );
 				if ( $result['code'] ) {
 					bbp_admin_repair_tool_batch_fail( $batch, 2 === $result['code'] ? 'metadata-read' : 'verify' );
 					return $batch;
 				}
-				if ( $dry_run ) {
+				if ( $dry_run && bbp_admin_repair_tool_is_async_dry_run() ) {
+					if ( ! bbp_admin_repair_tool_scratch_set( $tool_id, $state['token'], 'roles', $user_id, $result['roles'] ) ) {
+						bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+						return $batch;
+					}
+				} elseif ( $dry_run ) {
 					$planned[ $user_id ] = $result['roles'];
 				}
 				$batch['changed'] += $result['changed'];
@@ -2569,8 +2798,12 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 			}
 		}
 		$complete = $state['phase'] > $phase_count;
+		if ( $complete && $dry_run && bbp_admin_repair_tool_is_async_dry_run() ) {
+			$state['mode'] = 'cleanup';
+			$complete      = false;
+		}
 		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
-		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields, array( 'planned' => $planned ) ) ) {
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields ) ) {
 			return $batch;
 		}
 	} while ( bbp_admin_repair_tool_batch_continue( $batch, $dry_run ) );
@@ -2719,26 +2952,47 @@ function bbp_admin_repair_sticky_dry_run() {
  */
 function bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) {
 	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'current', 'offset', 'length', 'changed' ) )
-		|| ! isset( $state['context'], $state['source_hash'], $state['kept'], $state['ready'] )
+		|| ! bbp_admin_repair_tool_has_valid_scratch_token( $state )
+		|| ! isset( $state['context'], $state['source_hash'], $state['phase'], $state['ready'], $state['scratch_retry'] )
 		|| $state['context'] !== $context || ! is_string( $state['source_hash'] )
-		|| ! is_array( $state['kept'] ) || array_values( $state['kept'] ) !== $state['kept'] || ! is_bool( $state['ready'] )
+		|| ! in_array( $state['phase'], array( 'prepare', 'scan', 'cleanup' ), true ) || ! is_bool( $state['ready'] ) || ! is_bool( $state['scratch_retry'] )
 		|| ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'repaired', 'batches' ), array( 'initial' ), array( 'metadata' ) )
-		|| count( $state['kept'] ) + $state['changed'] !== $state['offset']
-		|| $state['offset'] > $state['length'] || ( $state['ready'] && $state['offset'] !== $state['length'] )
+		|| $state['changed'] > $state['offset'] || $state['offset'] > $state['length']
+		|| ( $state['current'] && $state['ready'] && $state['offset'] !== $state['length'] )
+		|| ( $state['current'] && ! $state['ready'] && $state['offset'] === $state['length'] )
 		|| $state['current'] > $state['upper_id'] ) {
 		return false;
 	}
+	if ( 'scan' !== $state['phase'] ) {
+		return 0 === $state['current'] && 0 === $state['length'] && 0 === $state['offset'] && 0 === $state['changed'] && '' === $state['source_hash'] && ! $state['ready'] && ! $state['scratch_retry'];
+	}
 	return $state['current'] ? $state['current'] > $state['cursor'] && 32 === strlen( $state['source_hash'] )
-		: 0 === $state['length'] && 0 === $state['offset'] && 0 === $state['changed'] && '' === $state['source_hash'] && empty( $state['kept'] ) && ! $state['ready'];
+		: 0 === $state['length'] && 0 === $state['offset'] && 0 === $state['changed'] && '' === $state['source_hash'] && ! $state['ready'] && ! $state['scratch_retry'];
+}
+
+/**
+ * Materialize one forum's bounded sticky-list chunks for final publication.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $tool_id    Repair tool ID.
+ * @param string $token      Scratch generation token.
+ * @param string $collection Forum source collection.
+ * @param int    $length     Number of source assignments.
+ * @return array|false Ordered surviving assignments, or false on invalid data.
+ */
+function bbp_admin_repair_sticky_values( $tool_id, $token, $collection, $length ) {
+	return bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, 'items', $length );
 }
 
 /**
  * Repair a bounded selection of sticky assignments and metadata rows.
  *
- * Keep only the current forum's surviving list in the checkpoint. A changed
- * source list restarts that forum, and verified writes can safely be replayed.
- * Serialized lists must be read as a unit, but topic checks and duplicate-row
- * cleanup share the request's work budget.
+ * Keep surviving assignments in bounded scratch chunks rather than the main
+ * checkpoint. A changed source list starts a new collection, and verified
+ * writes can safely be replayed. Serialized lists must be read as a unit, but
+ * topic checks and duplicate-row cleanup share the request's work budget.
  *
  * @since 2.7.0 bbPress (r8303)
  * @since 2.7.0 bbPress (r8348) Share the procedural worker lifecycle.
@@ -2772,13 +3026,13 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 	}
 	$batch['initial'] = false === $state;
 	$reset = array(
-		'current'     => 0,
-		'length'      => 0,
-		'offset'      => 0,
-		'changed'     => 0,
-		'source_hash' => '',
-		'kept'        => array(),
-		'ready'       => false
+		'current'       => 0,
+		'length'        => 0,
+		'offset'        => 0,
+		'changed'       => 0,
+		'source_hash'   => '',
+		'ready'         => false,
+		'scratch_retry' => false,
 	);
 	if ( $batch['initial'] ) {
 		$upper = (int) $db->get_var( "SELECT MAX(ID) FROM {$db->posts}" );
@@ -2786,12 +3040,19 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
+		$has_scratch = bbp_admin_repair_tool_has_scratch( $tool_id );
+		if ( null === $has_scratch ) {
+			bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+			return $batch;
+		}
 		$state = array_merge(
 			$reset,
 			array(
 				'cursor'   => 0,
 				'upper_id' => $upper,
-				'context'  => $context
+				'context'  => $context,
+				'phase'    => ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) || ! $has_scratch ? 'scan' : 'prepare',
+				'token'    => bbp_admin_repair_tool_new_token()
 			)
 		);
 		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run, $fields, array( 'metadata' => array() ) ) ) {
@@ -2801,7 +3062,28 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 	$size          = bbp_admin_repair_tool_batch_size( $tool_id );
 	$preview_state = bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
 	$metadata      = isset( $preview_state['metadata'] ) ? $preview_state['metadata'] : array();
+	$kept          = array();
+	$scratch_chunks = 0;
 	do {
+		if ( 'prepare' === $state['phase'] || 'cleanup' === $state['phase'] ) {
+			list( $success, $work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
+			if ( ! $success ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			if ( $complete ) {
+				if ( 'cleanup' === $state['phase'] ) {
+					$batch['complete'] = true;
+				} else {
+					$state['phase'] = 'scan';
+				}
+			}
+			$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $batch['complete'], $dry_run, $fields, array( 'metadata' => $metadata ) ) ) {
+				return $batch;
+			}
+			continue;
+		}
 		$work = 0;
 		while ( $work < $size ) {
 			$id = $state['current'];
@@ -2812,7 +3094,11 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 					break;
 				}
 				if ( ! $id ) {
-					$batch['complete'] = true;
+					if ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) {
+						$batch['complete'] = true;
+					} else {
+						$state['phase'] = 'cleanup';
+					}
 					break;
 				}
 			}
@@ -2827,12 +3113,33 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 				bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 				break;
 			}
-			$hash     = md5( serialize( $stickies ) );
-			$expected = $state['kept'] ? array_values( $state['kept'] ) : '';
+			$hash         = md5( serialize( $stickies ) );
+			$collection   = $state['current'] ? 'sticky_' . md5( $state['current'] . '|' . $state['source_hash'] ) : '';
+			$materialized = $state['ready'] && $collection && ( ! $dry_run || bbp_admin_repair_tool_is_async_dry_run() );
+			$expected     = $materialized
+				? bbp_admin_repair_sticky_values( $tool_id, $state['token'], $collection, $state['length'] )
+				: $kept;
+			if ( false === $expected ) {
+				if ( bbp_admin_repair_tool_restart_scratch(
+					$state,
+					$batch,
+					array(
+						'offset'  => 0,
+						'changed' => 0,
+						'ready'   => false,
+					)
+				) ) {
+					++$work;
+					continue;
+				}
+				break;
+			}
+			$expected = $expected ? array_values( $expected ) : '';
 			$length   = is_array( $stickies ) ? count( $stickies ) : ( empty( $stickies ) ? 0 : 1 );
 			$same     = $id === $state['current'] && ( ( $hash === $state['source_hash'] && $length === $state['length'] ) || ( $state['ready'] && $stickies === $expected ) );
 			if ( ! $same ) {
 				$batch['restarted'] = $batch['restarted'] || (bool) $state['current'];
+				$kept = array();
 				$state = array_merge(
 					$state,
 					$reset,
@@ -2842,6 +3149,8 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 						'source_hash' => $hash
 					)
 				);
+				$collection   = 'sticky_' . md5( $id . '|' . $hash );
+				$materialized = false;
 			}
 			if ( ! $live || ( ! $state['ready'] && empty( $stickies ) ) ) {
 				$state           = array_merge( $state, $reset );
@@ -2851,13 +3160,30 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 			}
 			if ( ! $state['ready'] ) {
 				if ( ! is_array( $stickies ) ) {
+					if ( ! $dry_run || bbp_admin_repair_tool_is_async_dry_run() ) {
+						$chunk = array(
+							'offset' => 0,
+							'next'   => 1,
+							'items'  => array(),
+						);
+						if ( ! bbp_admin_repair_tool_scratch_set( $tool_id, $state['token'], $collection, 0, $chunk ) ) {
+							bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+							break;
+						}
+					} else {
+						++$scratch_chunks;
+					}
 					$state['changed'] = 1;
 					$state['offset']  = 1;
 					$state['ready']   = true;
 					++$work;
 				} else {
-					$items = array_values( $stickies );
-					foreach ( array_slice( $items, $state['offset'], $size - $work ) as $item ) {
+					$items       = array_values( $stickies );
+					$chunk_start = $state['offset'];
+					$chunk       = array();
+					$next_offset = $state['offset'];
+					$next_changed = $state['changed'];
+					foreach ( array_slice( $items, $chunk_start, $size - $work ) as $item ) {
 						$topic = bbp_get_topic_id( $item );
 						wp_cache_delete( $topic, 'posts' );
 						wp_cache_delete( $topic, 'post_meta' );
@@ -2868,20 +3194,62 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 							break 2;
 						}
 						if ( $parent === $id ) {
-							$state['kept'][] = $item;
+							$chunk[] = $item;
 						} else {
-							++$state['changed'];
+							++$next_changed;
 						}
-						++$state['offset'];
+						++$next_offset;
 						++$work;
 					}
+					if ( ! $dry_run || bbp_admin_repair_tool_is_async_dry_run() ) {
+						$saved = bbp_admin_repair_tool_scratch_set(
+							$tool_id,
+							$state['token'],
+							$collection,
+							$chunk_start,
+							array(
+								'offset' => $chunk_start,
+								'next'   => $next_offset,
+								'items'  => $chunk,
+							)
+						);
+						if ( ! $saved ) {
+							bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+							break;
+						}
+					} else {
+						foreach ( $chunk as $item ) {
+							$kept[] = $item;
+						}
+						++$scratch_chunks;
+					}
+					$state['offset']  = $next_offset;
+					$state['changed'] = $next_changed;
 					$state['ready'] = count( $items ) === $state['offset'];
 				}
 				if ( ! $state['ready'] || $work >= $size ) {
 					continue;
 				}
 			}
-			$value  = $state['kept'] ? array_values( $state['kept'] ) : '';
+			$value = ( ! $dry_run || bbp_admin_repair_tool_is_async_dry_run() )
+				? ( $materialized ? $expected : bbp_admin_repair_sticky_values( $tool_id, $state['token'], $collection, $state['length'] ) )
+				: $kept;
+			if ( false === $value ) {
+				if ( bbp_admin_repair_tool_restart_scratch(
+					$state,
+					$batch,
+					array(
+						'offset'  => 0,
+						'changed' => 0,
+						'ready'   => false,
+					)
+				) ) {
+					++$work;
+					continue;
+				}
+				break;
+			}
+			$value  = $value ? array_values( $value ) : '';
 			$repair = bbp_admin_repair_single_metadata( 'post', $id, '_bbp_sticky_topics', $value, $size - $work, $dry_run, $metadata );
 			$work  += $repair['work'];
 			if ( $repair['code'] ) {
@@ -2899,6 +3267,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 				$batch['repaired'] += $state['changed'];
 				$state             = array_merge( $state, $reset );
 				$state['cursor']   = $id;
+				$kept               = array();
 			}
 		}
 		if ( ! $batch['code'] && ! $state['current'] && ! $batch['complete'] ) {
@@ -2906,7 +3275,16 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 			if ( ! empty( $db->last_error ) ) {
 				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			}
-			$batch['complete'] = ! $batch['code'] && ! $next;
+			if ( ! $batch['code'] && ! $next ) {
+				if ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) {
+					$batch['complete'] = true;
+				} else {
+					$state['phase'] = 'cleanup';
+				}
+			}
+		}
+		if ( $batch['complete'] && $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) {
+			$batch['batches'] += max( 1, (int) ceil( $scratch_chunks / $size ) );
 		}
 		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
 		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $batch['complete'], $dry_run, $fields, array( 'metadata' => $metadata ) ) ) {
@@ -3144,7 +3522,29 @@ function bbp_admin_repair_forum_visibility_changes( $stored, $expected ) {
 }
 
 /**
- * Validate staged visibility lists before resuming their scan or publication.
+ * Read the complete published value for one forum visibility option.
+ *
+ * The existing visibility API stores each status as one option array, so its
+ * publication step necessarily materializes that final value. Scanning and
+ * Dry Run progress remain bounded and never serialize this list in a checkpoint.
+ *
+ * @since 2.7.0 bbPress (r8359)
+ * @access private
+ *
+ * @param string $post_type Forum post type.
+ * @param string $status    Forum visibility status.
+ * @param int    $upper_id  Fixed post ID bound for this generation.
+ * @return array|false Ordered forum IDs, or false on a read failure.
+ */
+function bbp_admin_repair_forum_visibility_ids( $post_type, $status, $upper_id ) {
+	$db  = bbp_db();
+	$ids = $db->get_col( $db->prepare( "SELECT ID FROM `{$db->posts}` WHERE `post_type` = %s AND `post_status` = %s AND ID <= %d ORDER BY ID", $post_type, $status, $upper_id ) );
+
+	return empty( $db->last_error ) ? array_map( 'intval', $ids ) : false;
+}
+
+/**
+ * Validate visibility scan and publication progress.
  *
  * @since 2.7.0 bbPress (r8304)
  * @since 2.7.0 bbPress (r8348) Validate aggregate preview state.
@@ -3155,25 +3555,16 @@ function bbp_admin_repair_forum_visibility_changes( $stored, $expected ) {
  */
 function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) {
 	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'phase' ) )
-		|| $state['phase'] > 4 || ! isset( $state['context'], $state['values'], $state['sources'], $state['changed'] )
+		|| $state['phase'] > 4 || ! isset( $state['context'], $state['sources'], $state['changed'] )
 		|| $state['context'] !== $context || ! is_bool( $state['changed'] )
 		|| ! bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'private', 'hidden', 'checked', 'batches' ), array( 'changed' ), array( 'evaluated' ) )
-		|| ! is_array( $state['values'] ) || ! is_array( $state['sources'] )
-		|| array_keys( $state['values'] ) !== array( 'private', 'hidden' )
+		|| ! is_array( $state['sources'] )
 		|| array_keys( $state['sources'] ) !== array( 'private', 'hidden' ) ) {
 		return false;
 	}
-	foreach ( $state['values'] as $type => $ids ) {
-		if ( ! is_array( $ids ) || array_values( $ids ) !== $ids
-			|| ! is_string( $state['sources'][ $type ] ) || 32 !== strlen( $state['sources'][ $type ] ) ) {
+	foreach ( $state['sources'] as $source ) {
+		if ( ! is_string( $source ) || 32 !== strlen( $source ) || ! ctype_xdigit( $source ) ) {
 			return false;
-		}
-		$previous = 0;
-		foreach ( $ids as $id ) {
-			if ( ! is_int( $id ) || $id <= $previous || $id > $state['upper_id'] ) {
-				return false;
-			}
-			$previous = $id;
 		}
 	}
 	if ( isset( $state['_preview_state'] ) ) {
@@ -3185,18 +3576,16 @@ function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context
 	if ( $state['phase'] >= 2 ) {
 		return 0 === $state['cursor'];
 	}
-	$type   = 0 === $state['phase'] ? 'private' : 'hidden';
-	$ids    = $state['values'][ $type ];
-	$cursor = empty( $ids ) ? 0 : end( $ids );
-	return ( 1 === $state['phase'] || empty( $state['values']['hidden'] ) ) && $cursor === $state['cursor'];
+	return true;
 }
 
 /**
- * Build visibility lists in bounded scans, then verify each published option.
+ * Scan visibility sources in bounded requests, then verify each published option.
  *
- * Keep live options intact until both scans finish. Serialized option lists and
- * their staged replacements are still read as whole values. Source-option or
- * configuration changes restart the scan; verified writes can be replayed.
+ * Keep live options intact until both scans finish. The established option API
+ * requires one complete ID array at publication, but checkpoints remain fixed
+ * size. Source-option or configuration changes restart the scan; verified
+ * writes can be replayed.
  *
  * @since 2.7.0 bbPress (r8304)
  * @since 2.7.0 bbPress (r8348) Share the procedural worker lifecycle.
@@ -3255,7 +3644,10 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 		}
 		if ( false !== $state && md5( serialize( $stored[ $type ] ) ) !== $state['sources'][ $type ] ) {
 			// A completed scan may have published this option before a failed save
-			$same = $state['phase'] >= 2 && bbp_admin_repair_option_matches( $option, $state['values'][ $type ] );
+			$expected = $state['phase'] >= 2
+				? bbp_admin_repair_forum_visibility_ids( $context['forum'], $context['statuses'][ $index ], $state['upper_id'] )
+				: false;
+			$same = is_array( $expected ) && bbp_admin_repair_option_matches( $option, $expected );
 			if ( ! empty( $db->last_error ) ) {
 				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 				return $batch;
@@ -3267,7 +3659,7 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 		}
 	}
 	if ( false === $state ) {
-		$upper = (int) $db->get_var( "SELECT MAX(ID) FROM `{$db->posts}`" );
+		$upper = (int) $db->get_var( $db->prepare( "SELECT MAX(ID) FROM `{$db->posts}` WHERE `post_type` = %s", $context['forum'] ) );
 		if ( ! empty( $db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
@@ -3277,10 +3669,6 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 			'upper_id' => $upper,
 			'phase'    => 0,
 			'context'  => $context,
-			'values'   => array(
-				'private' => array(),
-				'hidden'  => array(),
-			),
 			'sources'  => array(
 				'private' => md5( serialize( $stored['private'] ) ),
 				'hidden'  => md5( serialize( $stored['hidden'] ) ),
@@ -3315,9 +3703,8 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 					break;
 				}
 				$selected = array_slice( $ids, 0, $remaining );
-				foreach ( $selected as $id ) {
-					$state['values'][ $type ][] = (int) $id;
-					$state['cursor']            = (int) $id;
+				if ( ! empty( $selected ) ) {
+					$state['cursor'] = (int) end( $selected );
 				}
 				$batch['checked'] += count( $selected );
 				$work             += max( 1, count( $selected ) );
@@ -3334,9 +3721,14 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 				}
 				break;
 			}
-			$changes = bbp_admin_repair_forum_visibility_changes( $stored[ $type ], $state['values'][ $type ] );
+			$expected = bbp_admin_repair_forum_visibility_ids( $context['forum'], $context['statuses'][ $index ], $state['upper_id'] );
+			if ( false === $expected ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+				break;
+			}
+			$changes = bbp_admin_repair_forum_visibility_changes( $stored[ $type ], $expected );
 			if ( ! $dry_run ) {
-				if ( $changes && ! bbp_admin_repair_update_option( $option, $state['values'][ $type ] ) ) {
+				if ( $changes && ! bbp_admin_repair_update_option( $option, $expected ) ) {
 					bbp_admin_repair_tool_batch_fail( $batch, 'metadata-write' );
 					break;
 				}
@@ -3675,12 +4067,13 @@ function bbp_admin_repair_reply_menu_order_dry_run() {
  *
  * @since 2.7.0 bbPress (r8305)
  *
- * @param object $reply Current reply row.
- * @param array  $ranks Ranks shared within this batch, keyed by topic ID.
+ * @param object     $reply   Current reply row.
+ * @param array      $ranks   Ranks shared within this batch, keyed by topic ID.
  * @param array|null $preview Read-only window context, or null for Run.
+ * @param string     $error   Optional semantic failure reason, passed by reference.
  * @return int|false Position, or false after a read failure.
  */
-function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), &$preview = null ) {
+function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), &$preview = null, &$error = '' ) {
 	$db      = bbp_db();
 	$dry_run = is_array( $preview );
 	if ( ! $dry_run ) {
@@ -3698,8 +4091,29 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 		wp_cache_delete( $topic_id, 'post_meta' );
 	}
 	if ( has_filter( 'bbp_get_all_child_ids' ) ) {
-		$position = bbp_get_reply_position_raw( $reply->ID, $topic_id );
-		return empty( $db->last_error ) ? $position : false;
+		$count = bbp_get_topic_reply_count( $topic_id, false );
+		if ( ! empty( $db->last_error ) ) {
+			return false;
+		}
+		if ( empty( $topic_id ) || (int) $reply->ID === $topic_id || empty( $count ) || (int) $reply->post_parent !== $topic_id ) {
+			return 0;
+		}
+		$limit    = bbp_admin_repair_tool_filter_limit( 'bbp_get_all_child_ids', $topic_id, 'bbp-sync-all-reply-positions' );
+		$children = $db->get_col( $db->prepare( "SELECT ID FROM {$db->posts} WHERE post_parent = %d AND post_status NOT IN ('draft', 'future') AND post_type = %s ORDER BY ID DESC LIMIT %d", $topic_id, bbp_get_reply_post_type(), $limit + 1 ) );
+		if ( ! empty( $db->last_error ) ) {
+			return false;
+		}
+		if ( count( $children ) > $limit ) {
+			$error = 'source-limit';
+			return false;
+		}
+		$children = (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() );
+		if ( count( $children ) > $limit ) {
+			$error = 'source-limit';
+			return false;
+		}
+		$position = array_search( (int) $reply->ID, array_reverse( $children ), true );
+		return false === $position ? 0 : $position + 1;
 	}
 	$topic_id = ! empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply->ID );
 	$count    = bbp_get_topic_reply_count( $topic_id, false );
@@ -3929,9 +4343,10 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 					$state['phase'] = 2;
 					continue;
 				}
-				$position = bbp_admin_repair_reply_menu_order_position( $reply, $ranks, $preview );
+				$position_error = '';
+				$position       = bbp_admin_repair_reply_menu_order_position( $reply, $ranks, $preview, $position_error );
 				if ( false === $position ) {
-					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+					bbp_admin_repair_tool_batch_fail( $batch, $position_error ? $position_error : 'source-read' );
 					break;
 				}
 				// A getter callback may have moved, converted or deleted the selected reply

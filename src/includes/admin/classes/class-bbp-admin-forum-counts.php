@@ -23,6 +23,15 @@ defined( 'ABSPATH' ) || exit;
 class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 
 	/**
+	 * Direct counts already recalculated for one posts-cache generation.
+	 *
+	 * @since 2.7.0 bbPress (r8359)
+	 *
+	 * @var array
+	 */
+	private $validated_counts = array();
+
+	/**
 	 * Set up one forum recount worker.
 	 *
 	 * @since 2.7.0 bbPress (r8284)
@@ -203,10 +212,17 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			return false;
 		}
 		if ( $node['counted'] ) {
-			$direct = $this->values( $node['id'], null );
-			if ( $this->error ) {
-				return false;
+			$last_changed = wp_cache_get_last_changed( 'posts' );
+			if ( ! isset( $this->validated_counts[ $node['id'] ] ) || $last_changed !== $this->validated_counts[ $node['id'] ]['last_changed'] ) {
+				$this->validated_counts[ $node['id'] ] = array(
+					'last_changed' => $last_changed,
+					'values'       => $this->values( $node['id'], null ),
+				);
+				if ( $this->error ) {
+					return false;
+				}
 			}
+			$direct = $this->validated_counts[ $node['id'] ]['values'];
 			if ( $direct !== $node['direct'] ) {
 				foreach ( $this->meta_keys as $key ) {
 					$node['values'][ $key ] += $direct[ $key ] - $node['direct'][ $key ];
