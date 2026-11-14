@@ -84,6 +84,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 	 * @ticket BBP2989
 	 *
 	 * @covers ::bbp_get_topic_subscription_taxonomies
+	 * @covers ::bbp_get_topic_term_subscription_contexts
 	 * @covers ::bbp_get_subscribers_for_topic_terms
 	 */
 	public function test_bbp_get_subscribers_for_topic_terms_in_active_taxonomies() {
@@ -120,6 +121,16 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 			$this->assertEqualSets( array( bbp_get_topic_tag_tax_id(), $taxonomy ), bbp_get_topic_subscription_taxonomies() );
 			$this->assertEqualSets( array( $shared_user, $custom_user ), bbp_get_subscribers_for_topic_terms( $topic_id ) );
+			$contexts = bbp_get_topic_term_subscription_contexts( $topic_id );
+			$this->assertContains( $contexts[ $shared_user ]['object_id'], array( $tag_id, $custom_id ) );
+			$this->assertSame( 'term', $contexts[ $shared_user ]['object_type'] );
+			$this->assertSame(
+				array(
+					'object_id'   => $custom_id,
+					'object_type' => 'term'
+				),
+				$contexts[ $custom_user ]
+			);
 
 			update_option( '_bbp_enable_subscriptions', array( 'term:' . bbp_get_topic_tag_tax_id() ) );
 

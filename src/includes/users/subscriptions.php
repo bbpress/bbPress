@@ -112,14 +112,16 @@ function bbp_get_topic_subscription_taxonomies() {
 }
 
 /**
- * Get user IDs subscribed to terms assigned to a topic.
+ * Get subscription contexts for users subscribed to terms assigned to a topic.
  *
- * @since 2.7.0 bbPress (r8335)
+ * The first matching term is used when a user subscribes to more than one term.
+ *
+ * @since 2.7.0 bbPress (r8360)
  *
  * @param int $topic_id Optional. Topic ID.
- * @return array User IDs.
+ * @return array Subscription object data keyed by user ID.
  */
-function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
+function bbp_get_topic_term_subscription_contexts( $topic_id = 0 ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );
 	$taxonomies = bbp_get_topic_subscription_taxonomies();
 	$term_ids   = ! empty( $topic_id ) && ! empty( $taxonomies )
@@ -128,16 +130,50 @@ function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
 	$term_ids   = ! is_wp_error( $term_ids )
 		? wp_parse_id_list( $term_ids )
 		: array();
-	$user_ids   = array();
+	$contexts   = array();
 
 	foreach ( $term_ids as $term_id ) {
-		$user_ids = array_merge( $user_ids, bbp_get_subscribers( $term_id, 'term' ) );
+		foreach ( bbp_get_subscribers( $term_id, 'term' ) as $user_id ) {
+			$user_id = (int) $user_id;
+
+			if ( ! isset( $contexts[ $user_id ] ) ) {
+				$contexts[ $user_id ] = array(
+					'object_id'   => $term_id,
+					'object_type' => 'term'
+				);
+			}
+		}
 	}
 
+	// Preserve the existing subscriber filter
+	$user_ids = (array) apply_filters( 'bbp_get_subscribers_for_topic_terms', array_keys( $contexts ), $topic_id, $term_ids, $taxonomies );
 	$user_ids = wp_parse_id_list( $user_ids );
 
+	// Remove filtered users and retain filtered additions without a context
+	$contexts = array_intersect_key( $contexts, array_fill_keys( $user_ids, true ) );
+	foreach ( $user_ids as $user_id ) {
+		if ( ! isset( $contexts[ $user_id ] ) ) {
+			$contexts[ $user_id ] = array();
+		}
+	}
+
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_subscribers_for_topic_terms', $user_ids, $topic_id, $term_ids, $taxonomies );
+	return (array) apply_filters( 'bbp_get_topic_term_subscription_contexts', $contexts, $topic_id, $term_ids, $taxonomies );
+}
+
+/**
+ * Get user IDs subscribed to terms assigned to a topic.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ *
+ * @param int $topic_id Optional. Topic ID.
+ * @return array User IDs.
+ */
+function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
+	$user_ids = array_keys( bbp_get_topic_term_subscription_contexts( $topic_id ) );
+
+	// Filter & return
+	return wp_parse_id_list( $user_ids );
 }
 
 /**

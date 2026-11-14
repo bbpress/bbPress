@@ -2257,6 +2257,59 @@ function bbp_get_subscription_email_contexts( $contexts = array(), $email_addres
 }
 
 /**
+ * Get the receipt text for an individual subscription email.
+ *
+ * @since 2.7.0 bbPress (r8360)
+ *
+ * @param int    $user_id     Recipient user ID.
+ * @param int    $object_id   Subscribed object ID.
+ * @param string $object_type Registered engagement type.
+ * @return string Subscription receipt text.
+ */
+function bbp_get_subscription_email_receipt( $user_id = 0, $object_id = 0, $object_type = 'post' ) {
+	$user_id     = absint( $user_id );
+	$object_id   = absint( $object_id );
+	$object_type = is_string( $object_type )
+		? sanitize_key( $object_type )
+		: '';
+	$subtype     = ! empty( $object_type ) && ! empty( $object_id )
+		? get_object_subtype( $object_type, $object_id )
+		: '';
+	$label       = '';
+	$name        = '';
+	$receipt     = '';
+
+	if ( 'post' === $object_type ) {
+		$post_type = get_post_type_object( $subtype );
+
+		if ( $post_type instanceof WP_Post_Type ) {
+			$label = $post_type->labels->singular_name;
+			$name  = get_the_title( $object_id );
+		}
+	} elseif ( 'term' === $object_type ) {
+		$taxonomy = get_taxonomy( $subtype );
+		$term     = get_term( $object_id );
+
+		if ( ( $taxonomy instanceof WP_Taxonomy ) && ( $term instanceof WP_Term ) ) {
+			$label = $taxonomy->labels->singular_name;
+			$name  = $term->name;
+		}
+	}
+
+	if ( ! empty( $user_id ) && ! empty( $label ) && ! empty( $name ) ) {
+		$receipt = sprintf(
+			/* translators: 1: Subscription object type label, 2: Subscribed object name. */
+			__( 'You are receiving this email because you subscribed to the %1$s: %2$s.', 'bbpress' ),
+			strtolower( bbp_make_plain_text( $label ) ),
+			bbp_make_plain_text( $name )
+		);
+	}
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_get_subscription_email_receipt', $receipt, $user_id, $object_id, $object_type );
+}
+
+/**
  * Send a subscription email to each recipient with an unsubscribe link.
  *
  * @since 2.7.0 bbPress (r8349)
@@ -2297,21 +2350,25 @@ function bbp_send_subscription_emails( $email_addresses = array(), $subject = ''
 		$object_type   = ! empty( $subscription['object_type'] ) && is_string( $subscription['object_type'] )
 			? sanitize_key( $subscription['object_type'] )
 			: 'post';
+		$receipt       = bbp_get_subscription_email_receipt( $user_id, $object_id, $object_type );
 		$unsubscribe   = ! empty( $object_id )
 			? bbp_get_subscription_unsubscribe_url( $user_id, $object_id, $object_type )
 			: false;
 		$email_headers = (array) $headers;
+		$email_message = ! empty( $receipt )
+			? $message . "\n\n" . $receipt
+			: $message;
 
 		if ( ! empty( $unsubscribe ) ) {
-			$email_message   = $message . "\n\n" . sprintf(
+			$email_message  .= "\n\n" . sprintf(
 				/* translators: %s: Unsubscribe URL */
-				__( "Unsubscribe from these emails:\n%s", 'bbpress' ),
+				__( "Unsubscribe from this subscription:\n%s", 'bbpress' ),
 				$unsubscribe
 			);
 			$email_headers[] = 'List-Unsubscribe: <' . esc_url_raw( $unsubscribe ) . '>';
 			$email_headers[] = 'List-Unsubscribe-Post: List-Unsubscribe=One-Click';
 		} else {
-			$email_message = $message . "\n\n" . __( 'Login and visit your subscriptions to unsubscribe from these emails.', 'bbpress' );
+			$email_message .= "\n\n" . __( 'Login and visit your subscriptions to unsubscribe from these emails.', 'bbpress' );
 		}
 
 		$email = array(
@@ -2364,8 +2421,11 @@ function bbp_send_subscription_emails( $email_addresses = array(), $subject = ''
  */
 function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 
-	// Bail if topic subscriptions are turned off
-	if ( ! bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) ) {
+	// Bail if topic and taxonomy subscriptions are turned off
+	$topic_subscriptions = bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() );
+	$term_subscriptions  = bbp_get_topic_subscription_taxonomies();
+
+	if ( empty( $topic_subscriptions ) && empty( $term_subscriptions ) ) {
 		return false;
 	}
 
@@ -2400,17 +2460,33 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	/** Users *****************************************************************/
 
-	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_subscribers( $topic_id );
+	// Get topic and taxonomy subscribers
+	$topic_user_ids = ! empty( $topic_subscriptions )
+		? bbp_get_subscribers( $topic_id )
+		: array();
+	$term_contexts  = ! empty( $term_subscriptions )
+		? bbp_get_topic_term_subscription_contexts( $topic_id )
+		: array();
+	$term_user_ids  = array_keys( $term_contexts );
 
-	// Remove the reply author from the list.
-	$reply_author_key = array_search( (int) $reply_author, $user_ids, true );
-	if ( false !== $reply_author_key ) {
-		unset( $user_ids[ $reply_author_key ] );
-	}
+	// Prefer topic subscriptions for shared users, and remove the reply author
+	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $topic_user_ids, array( (int) $reply_author ) ) );
+	$topic_user_ids = wp_parse_id_list( array_diff( $topic_user_ids, array( (int) $reply_author ) ) );
+	$user_ids       = wp_parse_id_list( array_merge( $topic_user_ids, $term_user_ids ) );
 
-	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids, $reply_id, $topic_id );
+	/**
+	 * Filters the user IDs that receive a new-reply subscription email.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 * @since 2.7.0 bbPress (r8360) Add topic and term subscriber IDs.
+	 *
+	 * @param array $user_ids       Subscriber user IDs.
+	 * @param int   $reply_id       Reply ID.
+	 * @param int   $topic_id       Topic ID.
+	 * @param array $topic_user_ids Topic subscriber user IDs.
+	 * @param array $term_user_ids  Term-only subscriber user IDs.
+	 */
+	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids, $reply_id, $topic_id, $topic_user_ids, $term_user_ids );
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id, $reply_id );
@@ -2449,9 +2525,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 Post Link: %s
 
------------
-
-You are receiving this email because you subscribed to a forum topic.',
+-----------',
 				'bbpress'
 			),
 			$reply_url
@@ -2471,9 +2545,7 @@ You are receiving this email because you subscribed to a forum topic.',
 
 Post Link: %3$s
 
------------
-
-You are receiving this email because you subscribed to a forum topic.',
+-----------',
 				'bbpress'
 			),
 			$reply_author_name,
@@ -2527,13 +2599,31 @@ You are receiving this email because you subscribed to a forum topic.',
 		'bbp_subscription_email'
 	);
 
-	// Identify the subscription represented by each recipient's email.
+	// Identify the topic or term subscription represented by each email
 	$subscriptions = array();
-	foreach ( $user_ids as $subscriber_id ) {
+	$recipients    = array_fill_keys( $user_ids, true );
+
+	foreach ( array_intersect( $user_ids, $topic_user_ids ) as $subscriber_id ) {
 		$subscriptions[ $subscriber_id ] = array(
 			'object_id'   => $topic_id,
 			'object_type' => 'post'
 		);
+	}
+
+	foreach ( $term_contexts as $subscriber_id => $subscription ) {
+		if ( isset( $recipients[ $subscriber_id ] ) && ! isset( $subscriptions[ $subscriber_id ] ) && ! empty( $subscription ) ) {
+			$subscriptions[ $subscriber_id ] = $subscription;
+		}
+	}
+
+	// Preserve topic context for subscriber filters that add recipients
+	foreach ( $user_ids as $subscriber_id ) {
+		if ( ! isset( $subscriptions[ $subscriber_id ] ) ) {
+			$subscriptions[ $subscriber_id ] = array(
+				'object_id'   => $topic_id,
+				'object_type' => 'post'
+			);
+		}
 	}
 
 	// Before
@@ -2615,9 +2705,10 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$forum_user_ids = ! empty( $forum_subscriptions )
 		? bbp_get_subscribers( $forum_id )
 		: array();
-	$term_user_ids  = ! empty( $term_subscriptions )
-		? bbp_get_subscribers_for_topic_terms( $topic_id )
+	$term_contexts  = ! empty( $term_subscriptions )
+		? bbp_get_topic_term_subscription_contexts( $topic_id )
 		: array();
+	$term_user_ids  = array_keys( $term_contexts );
 
 	// Prefer forum subscriptions for shared users, and remove the topic author
 	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $forum_user_ids, array( (int) $topic_author ) ) );
@@ -2640,9 +2731,6 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id );
-
-	// Use a message that covers both subscription types when needed
-	$has_term_subscribers = ! empty( array_intersect( $user_ids, $term_user_ids ) );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
@@ -2669,7 +2757,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$topic_url         = bbp_get_topic_permalink( $topic_id );
 
 	// Do not include protected content in subscription emails
-	if ( ! empty( $password_protected ) && ! empty( $has_term_subscribers ) ) {
+	if ( ! empty( $password_protected ) ) {
 		$message = sprintf(
 
 			/* translators: %s: Topic URL */
@@ -2678,56 +2766,13 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 Topic Link: %s
 
------------
-
-You are receiving this email because you subscribed to related forum activity.',
-				'bbpress'
-			),
-			$topic_url
-		);
-
-	} elseif ( ! empty( $password_protected ) ) {
-		$message = sprintf(
-
-			/* translators: %s: Topic URL */
-			esc_html__(
-				'A new topic was posted in a password-protected discussion.
-
-Topic Link: %s
-
------------
-
-You are receiving this email because you subscribed to a forum.',
+-----------',
 				'bbpress'
 			),
 			$topic_url
 		);
 
 	// Include the topic details in normal subscription emails
-	} elseif ( ! empty( $has_term_subscribers ) ) {
-		$topic_author_name = bbp_make_plain_text( $topic_author_name );
-		$topic_content     = bbp_make_plain_text( bbp_get_topic_content( $topic_id ) );
-		$message           = sprintf(
-
-			/* translators: 1: Topic author name, 2: Topic content, 3: Topic URL */
-			esc_html__(
-				'%1$s wrote:
-
-%2$s
-
-Topic Link: %3$s
-
------------
-
-You are receiving this email because you subscribed to related forum activity.',
-				'bbpress'
-			),
-			$topic_author_name,
-			$topic_content,
-			$topic_url
-		);
-
-	// Include the topic details in normal forum subscription emails
 	} else {
 		$topic_author_name = bbp_make_plain_text( $topic_author_name );
 		$topic_content     = bbp_make_plain_text( bbp_get_topic_content( $topic_id ) );
@@ -2741,9 +2786,7 @@ You are receiving this email because you subscribed to related forum activity.',
 
 Topic Link: %3$s
 
------------
-
-You are receiving this email because you subscribed to a forum.',
+-----------',
 				'bbpress'
 			),
 			$topic_author_name,
@@ -2797,13 +2840,7 @@ You are receiving this email because you subscribed to a forum.',
 		'bbp_subscription_email'
 	);
 
-	// Identify the forum or term subscription represented by each email.
-	$term_ids = ! empty( $term_user_ids )
-		? wp_get_object_terms( $topic_id, $term_subscriptions, array( 'fields' => 'ids' ) )
-		: array();
-	$term_ids = ! is_wp_error( $term_ids )
-		? wp_parse_id_list( $term_ids )
-		: array();
+	// Identify the forum or term subscription represented by each email
 	$subscriptions = array();
 	$recipients    = array_fill_keys( $user_ids, true );
 
@@ -2814,14 +2851,19 @@ You are receiving this email because you subscribed to a forum.',
 		);
 	}
 
-	foreach ( $term_ids as $term_id ) {
-		foreach ( bbp_get_subscribers( $term_id, 'term' ) as $subscriber_id ) {
-			if ( isset( $recipients[ $subscriber_id ] ) && ! isset( $subscriptions[ $subscriber_id ] ) ) {
-				$subscriptions[ $subscriber_id ] = array(
-					'object_id'   => $term_id,
-					'object_type' => 'term'
-				);
-			}
+	foreach ( $term_contexts as $subscriber_id => $subscription ) {
+		if ( isset( $recipients[ $subscriber_id ] ) && ! isset( $subscriptions[ $subscriber_id ] ) && ! empty( $subscription ) ) {
+			$subscriptions[ $subscriber_id ] = $subscription;
+		}
+	}
+
+	// Preserve forum context for subscriber filters that add recipients
+	foreach ( $user_ids as $subscriber_id ) {
+		if ( ! isset( $subscriptions[ $subscriber_id ] ) ) {
+			$subscriptions[ $subscriber_id ] = array(
+				'object_id'   => $forum_id,
+				'object_type' => 'post'
+			);
 		}
 	}
 

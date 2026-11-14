@@ -2077,6 +2077,69 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	/**
 	 * @ticket 3229
 	 *
+	 * @covers ::bbp_get_subscription_email_receipt
+	 * @covers ::bbp_send_subscription_emails
+	 */
+	public function test_bbp_send_subscription_emails_filters_subscription_receipt() {
+		$user_id  = $this->factory->user->create( array( 'user_email' => 'receipt-subscriber@example.org' ) );
+		$forum_id = $this->factory->forum->create();
+		$mail     = null;
+		$args     = null;
+		$receipt  = function( $text, $recipient_id, $object_id, $object_type ) use ( &$args ) {
+			$args = compact( 'text', 'recipient_id', 'object_id', 'object_type' );
+
+			return 'Custom subscription receipt.';
+		};
+		$capture  = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+
+			return true;
+		};
+
+		wp_update_post(
+			array(
+				'ID'         => $forum_id,
+				'post_title' => 'Testing 123'
+			)
+		);
+
+		bbp_add_user_forum_subscription( $user_id, $forum_id );
+		add_filter( 'bbp_get_subscription_email_receipt', $receipt, 10, 4 );
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+
+		$result = bbp_send_subscription_emails(
+			array( 'receipt-subscriber@example.org' ),
+			'Subject',
+			'Message',
+			array(),
+			array(
+				$user_id => array(
+					'object_id'   => $forum_id,
+					'object_type' => 'post'
+				)
+			)
+		);
+
+		remove_filter( 'bbp_get_subscription_email_receipt', $receipt, 10 );
+		remove_filter( 'pre_wp_mail', $capture, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertSame(
+			array(
+				'text'          => 'You are receiving this email because you subscribed to the forum: Testing 123.',
+				'recipient_id'  => $user_id,
+				'object_id'     => $forum_id,
+				'object_type'   => 'post'
+			),
+			$args
+		);
+		$this->assertStringContainsString( 'Custom subscription receipt.', $mail['message'] );
+		$this->assertStringNotContainsString( 'subscribed to the forum: Testing 123.', $mail['message'] );
+	}
+
+	/**
+	 * @ticket 3229
+	 *
 	 * @covers ::bbp_get_subscription_email_contexts
 	 * @covers ::bbp_send_subscription_emails
 	 */
@@ -2198,7 +2261,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$this->assertTrue( $result );
 		$this->assertSame( 1, $deprecated_calls );
 		$this->assertSame( 'moderator@example.org', $mail['to'] );
-		$this->assertStringContainsString( 'Unsubscribe from these emails:', $mail['message'] );
+		$this->assertStringContainsString( 'Unsubscribe from this subscription:', $mail['message'] );
 		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
 	}
 
@@ -2243,7 +2306,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		$this->assertTrue( $result );
 		$this->assertSame( 'moderator@example.org', $mail['to'] );
-		$this->assertStringContainsString( 'Unsubscribe from these emails:', $mail['message'] );
+		$this->assertStringContainsString( 'Unsubscribe from this subscription:', $mail['message'] );
 		$this->assertContains( 'List-Unsubscribe-Post: List-Unsubscribe=One-Click', $mail['headers'] );
 	}
 
