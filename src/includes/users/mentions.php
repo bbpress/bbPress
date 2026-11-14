@@ -408,11 +408,16 @@ function bbp_send_mention_notifications() {
 				}
 
 				$switched_locale = switch_to_locale( get_user_locale( $user ) );
-				$link = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
+				$link         = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
+				$settings_url = apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id );
 				/* translators: %s: Site name */
 				$subject = sprintf( __( '[%s] You were mentioned in a forum discussion', 'bbpress' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );
-				/* translators: 1: Discussion URL, 2: Profile settings URL */
-				$message = sprintf( __( "Someone mentioned you in a forum discussion:\n\n%1\$s\n\nTo reply, visit the above link and log in.\nReplies to this email will be ignored.\n\nYou can turn off mention emails in your profile settings:\n%2\$s", 'bbpress' ), $link, apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id ) );
+				$message  = __( 'Someone mentioned you in a forum discussion:', 'bbpress' );
+				$message .= "\n\n" . $link;
+				$message .= "\n\n" . __( 'To reply, visit the above link and log in.', 'bbpress' );
+				$message .= "\n" . __( 'Replies to this email will be ignored.', 'bbpress' );
+				$message .= "\n\n" . __( 'You can turn off mention emails in your profile settings:', 'bbpress' );
+				$message .= "\n" . $settings_url;
 				$message = apply_filters( 'bbp_mention_notification_message', $message, $post_id, $user_id );
 				$subject = apply_filters( 'bbp_mention_notification_subject', $subject, $post_id, $user_id );
 

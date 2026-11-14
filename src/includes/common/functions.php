@@ -1873,14 +1873,25 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 
 	$author_name = bbp_make_plain_text( $author_name );
 
-	$message = sprintf(
-		/* translators: 1: Author name, 2: Forum title, 3: Topic title, 4: Topic or reply content, 5: Moderation URL */
-		__( "Author: %1\$s\nForum: %2\$s\nTopic: %3\$s\n\n%4\$s\n\n-----------\n\nReview this post:\n%5\$s\n\nYou are receiving this email because you are included in the forum moderation notification settings.", 'bbpress' ),
-		$author_name,
-		$forum_name,
-		$title,
-		$content,
-		$url
+	$message = implode(
+		"\n",
+		array(
+			/* translators: %s: Author name. */
+			sprintf( __( 'Author: %s', 'bbpress' ), $author_name ),
+			/* translators: %s: Forum title. */
+			sprintf( __( 'Forum: %s', 'bbpress' ), $forum_name ),
+			/* translators: %s: Topic title. */
+			sprintf( __( 'Topic: %s', 'bbpress' ), $title ),
+			'',
+			$content,
+			'',
+			'-----------',
+			'',
+			__( 'Review this post:', 'bbpress' ),
+			$url,
+			'',
+			__( 'You are receiving this email because you are included in the forum moderation notification settings.', 'bbpress' )
+		)
 	);
 
 	/**
@@ -2360,11 +2371,8 @@ function bbp_send_subscription_emails( $email_addresses = array(), $subject = ''
 			: $message;
 
 		if ( ! empty( $unsubscribe ) ) {
-			$email_message  .= "\n\n" . sprintf(
-				/* translators: %s: Unsubscribe URL */
-				__( "Unsubscribe from this subscription:\n%s", 'bbpress' ),
-				$unsubscribe
-			);
+			$email_message  .= "\n\n" . __( 'Unsubscribe from this subscription:', 'bbpress' );
+			$email_message  .= "\n" . $unsubscribe;
 			$email_headers[] = 'List-Unsubscribe: <' . esc_url_raw( $unsubscribe ) . '>';
 			$email_headers[] = 'List-Unsubscribe-Post: List-Unsubscribe=One-Click';
 		} else {
@@ -2555,7 +2563,8 @@ Post Link: %3$s
 		);
 	}
 
-	$message .= "\n\n" . esc_html__( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", 'bbpress' );
+	$message .= "\n\n" . esc_html__( 'To reply, visit the above link and log in.', 'bbpress' );
+	$message .= "\n" . esc_html__( 'Replies to this email will be ignored.', 'bbpress' );
 
 	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id );
@@ -2799,7 +2808,8 @@ Topic Link: %3$s
 		);
 	}
 
-	$message .= "\n\n" . esc_html__( "To reply, visit the above link and log in.\nReplies to this email will be ignored.", 'bbpress' );
+	$message .= "\n\n" . esc_html__( 'To reply, visit the above link and log in.', 'bbpress' );
+	$message .= "\n" . esc_html__( 'Replies to this email will be ignored.', 'bbpress' );
 
 	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );
