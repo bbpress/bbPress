@@ -925,6 +925,35 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 }
 
 /**
+ * Suspend the core deleted-topic walker for one forum.
+ *
+ * The enclosing forum deletion refreshes the forum after its topics are
+ * removed. Other deleted-topic callbacks continue to run.
+ *
+ * @since 2.6.22 bbPress (r8369)
+ *
+ * @param int       $forum_id Forum ID.
+ * @param bool|null $suspend Whether to suspend, or null to read the current state.
+ * @return bool Whether the deleted-topic walker is suspended for this forum.
+ */
+function bbp_suspend_deleted_topic_walker( $forum_id = 0, $suspend = null ) {
+	static $suspended = array();
+
+	$forum_id = (int) $forum_id;
+	if ( $forum_id < 1 ) {
+		return false;
+	}
+
+	if ( true === $suspend ) {
+		$suspended[ $forum_id ] = true;
+	} elseif ( false === $suspend ) {
+		unset( $suspended[ $forum_id ] );
+	}
+
+	return isset( $suspended[ $forum_id ] );
+}
+
+/**
  * Walks up the post_parent tree from the current topic_id, and updates the
  * meta data of forums above it. This calls several functions that all run
  * manual queries against the database to get their results. As such, this
@@ -956,6 +985,11 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 
 		// Set the active_id based on topic_id/reply_id
 		$active_id = empty( $reply_id ) ? $topic_id : $reply_id;
+	}
+
+	// The enclosing forum deletion refreshes the forum after its topics are removed.
+	if ( ( 'bbp_deleted_topic' === current_filter() ) && bbp_suspend_deleted_topic_walker( $forum_id ) ) {
+		return;
 	}
 
 	// Topic status
@@ -3604,6 +3638,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
  * Usually you'll want to do this before the topic itself is deleted.
  *
  * @since 2.6.0 bbPress (r5406)
+ * @since 2.6.22 bbPress (r8369) Defer redundant reply refreshes during deletion.
  *
  * @param int $topic_id
  */
@@ -3619,11 +3654,62 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 		bbp_get_reply_post_type(),
 		array_keys( get_post_stati() )
 	);
+	if ( empty( $reply_ids ) ) {
+		return;
+	}
 
-	// Loop through and delete child replies
-	if ( ! empty( $reply_ids ) ) {
+	// Defer reply walks until the final reply or enclosing forum refresh.
+	// Direct callers still update the topic and forum after each reply.
+	$suspend_walker = doing_action( 'before_delete_post' )
+		&& doing_action( 'bbp_delete_topic' )
+		&& ( false !== has_action( 'deleted_post', 'bbp_deleted_topic' ) )
+		&& ( false !== has_action( 'bbp_deleted_topic', 'bbp_update_topic_walker' ) )
+		&& ( false !== has_action( 'bbp_deleted_reply', 'bbp_update_reply_walker' ) );
+	$previous = bbp_suspend_deleted_reply_walker( $topic_id );
+	if ( $suspend_walker ) {
+		bbp_suspend_deleted_reply_walker( $topic_id, true );
+	}
+
+	// A standalone topic may survive a failed post delete, so let its last
+	// reply refresh topic and forum metadata before the topic itself goes.
+	$forum_id     = bbp_get_topic_forum_id( $topic_id );
+	$refresh_last = $suspend_walker && ! $previous && ! bbp_suspend_deleted_topic_walker( $forum_id );
+	$last_reply   = end( $reply_ids );
+	$completed    = false;
+	$failed       = false;
+	try {
 		foreach ( $reply_ids as $reply_id ) {
-			wp_delete_post( $reply_id, true );
+			if ( $refresh_last && ( $last_reply === $reply_id ) ) {
+				bbp_suspend_deleted_reply_walker( $topic_id, false );
+			}
+
+			if ( ! wp_delete_post( $reply_id, true ) ) {
+				$failed = true;
+			}
+		}
+		$completed = ! $failed;
+	} finally {
+		if ( $suspend_walker ) {
+			bbp_suspend_deleted_reply_walker( $topic_id, $previous );
+
+			// An interrupted deletion leaves the topic in place with fewer replies.
+			if ( ! $previous && ! $completed ) {
+				bbp_update_reply_walker( 0, '', $forum_id, $topic_id );
+				bbp_update_topic_reply_count( $topic_id );
+				bbp_update_topic_reply_count_hidden( $topic_id );
+				bbp_update_topic_voice_count( $topic_id );
+
+				$forum = bbp_get_forum( $forum_id );
+				if ( ! empty( $forum ) ) {
+					bbp_update_forum(
+						array(
+							'forum_id'    => $forum->ID,
+							'post_parent' => $forum->post_parent,
+							'recount'     => true
+						)
+					);
+				}
+			}
 		}
 	}
 }

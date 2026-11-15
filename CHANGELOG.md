@@ -24,6 +24,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Avoided repeated forum activity scans and recounts while permanently deleting
+  a topic or forum.
 - Prevented Block Themes from rendering archive excerpts or original post
   content in place of bbPress theme-compatibility screens.
 - Kept toolbar hover backgrounds square with bbPress admin color schemes on
