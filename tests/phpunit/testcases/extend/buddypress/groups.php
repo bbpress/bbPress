@@ -328,6 +328,54 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_new_topic_handler
+	 * @covers ::BBP_Forums_Group_Extension::user_can_view_group_forum
+	 */
+	public function test_anonymous_topic_creation_respects_community_visibility() {
+		$creator_id      = $this->factory->user->create();
+		$group_id        = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$group_forum_id  = $this->factory->forum->create();
+		$public_forum_id = $this->factory->forum->create();
+
+		$this->attach_forum_to_group( $group_forum_id, $group_id );
+		update_option( '_bbp_allow_anonymous', true );
+		update_option( '_bbp_allow_content_throttle', false );
+		update_option( '_bp_community_visibility', array( 'global' => 'members' ) );
+		$this->set_current_user( 0 );
+		$this->group_extension = new BBP_Forums_Group_Extension();
+
+		$this->assertFalse( user_can( 0, 'read_forum', $group_forum_id ) );
+		$this->assertTrue( user_can( 0, 'read_forum', $public_forum_id ) );
+		add_filter( 'bbp_filter_anonymous_post_data', '__return_empty_array' );
+		try {
+			bbpress()->errors = new WP_Error();
+			$this->assertSame( 0, $this->submit_group_topic( $group_forum_id, 'members-only' ) );
+			$this->assertContains( 'bbp_new_topic_forum_read', bbpress()->errors->get_error_codes() );
+			$this->assertSame( array(), get_posts( array(
+				'fields'           => 'ids',
+				'post_parent'      => $group_forum_id,
+				'post_status'      => 'any',
+				'post_type'        => bbp_get_topic_post_type(),
+				'posts_per_page'   => -1,
+				'suppress_filters' => true,
+			) ) );
+
+			bbpress()->errors = new WP_Error();
+			$public_topic_id = $this->submit_group_topic( $public_forum_id, 'standalone-public' );
+			$this->assertGreaterThan( 0, $public_topic_id );
+			$this->assertSame( $public_forum_id, (int) get_post_field( 'post_parent', $public_topic_id ) );
+
+			update_option( '_bp_community_visibility', array( 'global' => 'anyone' ) );
+			bbpress()->errors = new WP_Error();
+			$group_topic_id = $this->submit_group_topic( $group_forum_id, 'community-public' );
+			$this->assertGreaterThan( 0, $group_topic_id );
+			$this->assertSame( $group_forum_id, (int) get_post_field( 'post_parent', $group_topic_id ) );
+		} finally {
+			remove_filter( 'bbp_filter_anonymous_post_data', '__return_empty_array' );
+		}
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::remove_group_forum_meta_cap_map
 	 */
 	public function test_group_forum_cap_map_is_removed_after_display() {
@@ -2027,6 +2075,10 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 			'bbp_topic_title'   => 'Group permission ' . $label,
 			'bbp_topic_content' => 'Group permission topic ' . $label,
 		);
+		if ( bbp_is_anonymous() ) {
+			$_POST['bbp_anonymous_name']  = 'Anonymous User';
+			$_POST['bbp_anonymous_email'] = 'anonymous@example.org';
+		}
 		$_REQUEST                  = array(
 			'_wpnonce' => wp_create_nonce( 'bbp-new-topic' ),
 		);

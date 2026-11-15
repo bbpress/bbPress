@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Required forum read access when creating topics.
 - Prevented WordPress post navigation on bbPress pages.
 - Improved protected-content handling in public WordPress discovery.
 - Matched attachment comment submissions to forum visibility rules.

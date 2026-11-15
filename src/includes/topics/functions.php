@@ -249,13 +249,19 @@ function bbp_new_topic_handler( $action = '' ) {
 				bbp_add_error( 'bbp_new_topic_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new topics.', 'bbpress' ) );
 			}
 
+			$can_read_forum = current_user_can( 'read_forum', $forum_id );
+
 			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+			if ( bbp_is_forum_private( $forum_id ) && ! $can_read_forum ) {
 				bbp_add_error( 'bbp_new_topic_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
 
 			// Forum is hidden and user cannot access
-			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! $can_read_forum ) {
 				bbp_add_error( 'bbp_new_topic_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+
+			// Forum is otherwise unreadable by the user
+			} elseif ( ! $can_read_forum ) {
+				bbp_add_error( 'bbp_new_topic_forum_read', __( '<strong>Error</strong>: You do not have the capability to read or create new topics in this forum.', 'bbpress' ) );
 			}
 
 			// The forum or one of its ancestors still requires a password
