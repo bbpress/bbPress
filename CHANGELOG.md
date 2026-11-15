@@ -24,6 +24,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Avoided repeated activity scans while trashing or restoring a topic's replies.
 - Avoided repeated forum activity scans and recounts while permanently deleting
   a topic or forum.
 - Prevented Block Themes from rendering archive excerpts or original post
