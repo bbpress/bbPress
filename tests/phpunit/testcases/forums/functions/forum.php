@@ -700,6 +700,73 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_trash_forum_topics
+	 * @covers ::bbp_untrash_forum_topics
+	 */
+	public function test_interrupted_forum_trash_and_restore_can_retry() {
+		$forum_id  = $this->factory->forum->create();
+		$topic_ids = $this->factory->topic->create_many( 3, array( 'post_parent' => $forum_id ) );
+		$trashed   = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		wp_trash_post( $trashed );
+
+		$calls     = 0;
+		$interrupt = function() use ( &$calls ) {
+			if ( 2 === ++$calls ) {
+				throw new RuntimeException( 'Interrupted child transition.' );
+			}
+		};
+		add_action( 'bbp_trash_topic', $interrupt, 1 );
+		try {
+			wp_trash_post( $forum_id );
+			$this->fail( 'Forum trash should have stopped.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Interrupted child transition.', $exception->getMessage() );
+		} finally {
+			remove_action( 'bbp_trash_topic', $interrupt, 1 );
+		}
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $forum_id ) );
+		$this->assertEqualSets( $topic_ids, get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+		wp_trash_post( $forum_id );
+
+		$calls = 0;
+		add_action( 'bbp_untrash_topic', $interrupt, 1 );
+		try {
+			wp_untrash_post( $forum_id );
+			$this->fail( 'Forum restore should have stopped.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Interrupted child transition.', $exception->getMessage() );
+		} finally {
+			remove_action( 'bbp_untrash_topic', $interrupt, 1 );
+		}
+
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $forum_id ) );
+		$this->assertEqualSets( $topic_ids, get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+		wp_untrash_post( $forum_id );
+		foreach ( $topic_ids as $topic_id ) {
+			$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		}
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $trashed ) );
+		$this->assertSame( '', get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+
+		wp_trash_post( $forum_id );
+		$block = function( $check, $post ) use ( $topic_ids ) {
+			return ( $topic_ids[1] === $post->ID ) ? false : $check;
+		};
+		add_filter( 'pre_untrash_post', $block, 10, 2 );
+		try {
+			wp_untrash_post( $forum_id );
+		} finally {
+			remove_filter( 'pre_untrash_post', $block, 10 );
+		}
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $topic_ids[1] ) );
+		$this->assertEqualSets( $topic_ids, get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+		bbp_untrash_forum_topics( $forum_id );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_ids[1] ) );
+		$this->assertSame( '', get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_delete_forum
 	 */
 	public function test_bbp_delete_forum() {

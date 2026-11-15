@@ -3771,19 +3771,15 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	// the bbp_trash_topic() action.
 	if ( ! empty( $topic_ids ) ) {
 
-		// Prevent debug notices
-		$pre_trashed_topics = array();
+		// Save the restore list before trashing, so an interrupted request can retry.
+		$pre_trashed_topics = wp_parse_id_list( get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+		$pre_trashed_topics = wp_parse_id_list( array_merge( $pre_trashed_topics, $topic_ids ) );
+		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
 
-		// Loop through topics, trash them, and add them to array
+		// Loop through topics and trash them.
 		foreach ( $topic_ids as $topic_id ) {
 			wp_trash_post( $topic_id, true );
-			$pre_trashed_topics[] = $topic_id;
 		}
-
-		// Set a post_meta entry of the topics that were trashed by this action.
-		// This is so we can possibly untrash them, without untrashing topics
-		// that were purposefully trashed before.
-		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
 	}
 }
 
@@ -3806,6 +3802,8 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
 	// Get the topics that were not previously trashed
 	$pre_trashed_topics = get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true );
 
+	$failed = false;
+
 	// There are topics to untrash
 	if ( ! empty( $pre_trashed_topics ) ) {
 
@@ -3816,8 +3814,18 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
 
 		// Loop through topics
 		foreach ( (array) $pre_trashed_topics as $topic ) {
-			wp_untrash_post( $topic );
+			if ( bbp_get_trash_status_id() === get_post_status( $topic ) ) {
+				wp_untrash_post( $topic );
+				if ( bbp_get_trash_status_id() === get_post_status( $topic ) ) {
+					$failed = true;
+				}
+			}
 		}
+	}
+
+	// Keep the restore list when a topic remains trashed.
+	if ( ! $failed ) {
+		delete_post_meta( $forum_id, '_bbp_pre_trashed_topics' );
 	}
 }
 

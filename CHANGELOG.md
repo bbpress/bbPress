@@ -71,6 +71,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Keep topic and forum restore lists intact when trash or restore is interrupted.
 - Avoid repeated activity scans while trashing or restoring a topic's replies.
 - Avoid repeated forum activity scans and recounts while permanently deleting
   a topic or forum.
