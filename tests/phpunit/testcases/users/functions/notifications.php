@@ -133,6 +133,13 @@ class BBP_Tests_Users_Functions_Notifications extends BBP_UnitTestCase {
 
 		$this->assertStringContainsString( 'name="bbp_notification_preferences[mentions]"', $html );
 		$this->assertStringContainsString( 'name="bbp_notification_preferences[subscriptions]"', $html );
+
+		$document = new DOMDocument();
+		$document->loadHTML( $html );
+		$xpath = new DOMXPath( $document );
+		$this->assertSame( 2, $xpath->query( '//div/select[starts-with(@name, "bbp_notification_preferences[")]' )->length );
+		$this->assertSame( 0, $xpath->query( '//p/select[starts-with(@name, "bbp_notification_preferences[")]' )->length );
+		$this->assertSame( 0, $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " bbp-user-notification-preferences ")]' )->length );
 	}
 
 	public function test_explicit_user_does_not_change_the_displayed_user_after_rendering() {

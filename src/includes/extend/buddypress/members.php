@@ -207,16 +207,69 @@ class BBP_BuddyPress_Members {
 	}
 
 	/**
-	 * Display the bbPress preference in BuddyPress notification settings.
+	 * Display bbPress preferences in BuddyPress notification settings.
 	 *
 	 * @since 2.7.0 bbPress (r8363)
 	 */
 	public function notification_settings() {
-		bbp_user_notification_settings( get_userdata( bp_displayed_user_id() ) );
+		$user_id = bp_displayed_user_id();
+		if ( ! bbp_current_user_can_edit_user_field( 'email', $user_id ) ) {
+			return;
+		}
+
+		$types = array();
+		foreach ( bbp_get_notification_types() as $type => $args ) {
+			if ( is_string( $type ) && is_array( $args ) && ! empty( $args['label'] ) && is_string( $args['label'] ) ) {
+				$types[ $type ] = $args;
+			}
+		}
+
+		if ( empty( $types ) ) {
+			return;
+		}
+		?>
+
+		<table class="notification-settings" id="bbpress-notification-settings">
+			<thead>
+				<tr>
+					<th class="icon">&nbsp;</th>
+					<th class="title"><?php esc_html_e( 'Forums', 'bbpress' ); ?></th>
+					<th class="yes default"><?php esc_html_e( 'Default', 'bbpress' ); ?></th>
+					<th class="yes"><?php esc_html_e( 'Yes', 'bbpress' ); ?></th>
+					<th class="no"><?php esc_html_e( 'No', 'bbpress' ); ?></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<?php foreach ( $types as $type => $args ) : ?>
+					<?php $choice = bbp_get_user_notification_preference_choice( $user_id, $type ); ?>
+					<tr id="bbpress-notification-settings-<?php echo esc_attr( $type ); ?>">
+						<td>&nbsp;</td>
+						<td><?php echo esc_html( $args['label'] ); ?></td>
+						<td class="yes default">
+							<input type="radio" name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>-default" value="default" <?php checked( $choice, 'default' ); ?> />
+							<label for="bbp-notification-<?php echo esc_attr( $type ); ?>-default" class="bp-screen-reader-text"><?php esc_html_e( 'Use the default setting', 'bbpress' ); ?></label>
+						</td>
+						<td class="yes">
+							<input type="radio" name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>-yes" value="yes" <?php checked( $choice, 'yes' ); ?> />
+							<label for="bbp-notification-<?php echo esc_attr( $type ); ?>-yes" class="bp-screen-reader-text"><?php esc_html_e( 'Yes, send email', 'bbpress' ); ?></label>
+						</td>
+						<td class="no">
+							<input type="radio" name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>-no" value="no" <?php checked( $choice, 'no' ); ?> />
+							<label for="bbp-notification-<?php echo esc_attr( $type ); ?>-no" class="bp-screen-reader-text"><?php esc_html_e( 'No, do not send email', 'bbpress' ); ?></label>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+
+		<?php wp_nonce_field( 'bbp-notification-preferences-' . $user_id, '_bbp_notification_nonce', false ); ?>
+
+		<?php
 	}
 
 	/**
-	 * Save the independently authorized bbPress email preference.
+	 * Save independently authorized bbPress email preferences.
 	 *
 	 * @since 2.7.0 bbPress (r8363)
 	 */
