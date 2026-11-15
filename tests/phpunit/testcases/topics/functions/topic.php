@@ -1122,6 +1122,174 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 		$count = count( bbp_get_all_child_ids( $t, bbp_get_reply_post_type() ) );
 		$this->assertSame( 0, ( $count ) );
+		$this->assertSame( $t, bbp_get_forum_last_active_id( $f ) );
+	}
+
+	/**
+	 * @covers ::bbp_delete_topic_replies
+	 */
+	public function test_direct_topic_delete_action_still_refreshes_after_each_reply() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->reply->create_many( 2, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		$query_count = 0;
+		$count_query = function( $query ) use ( &$query_count ) {
+			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
+				++$query_count;
+			}
+			return $query;
+		};
+		add_filter( 'query', $count_query );
+		try {
+			bbp_delete_topic( $topic_id );
+		} finally {
+			remove_filter( 'query', $count_query );
+		}
+
+		$this->assertSame( 4, $query_count );
+		$this->assertNotNull( get_post( $topic_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $forum_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_delete_topic_replies
+	 * @covers ::bbp_suspend_deleted_reply_walker
+	 * @covers ::bbp_update_reply_walker
+	 */
+	public function test_deleting_topic_refreshes_forum_once_after_replies() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_ids = $this->factory->reply->create_many( 3, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$remaining_topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$remaining_reply_id = $this->factory->reply->create( array(
+			'post_parent' => $remaining_topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $remaining_topic_id ),
+		) );
+
+		$query_count = 0;
+		$deleted     = array();
+		$count_query = function( $query ) use ( &$query_count ) {
+			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
+				++$query_count;
+			}
+			return $query;
+		};
+		$record_reply = function( $reply_id ) use ( &$deleted ) {
+			$deleted[] = $reply_id;
+		};
+		add_filter( 'query', $count_query );
+		add_action( 'bbp_deleted_reply', $record_reply );
+
+		try {
+			wp_delete_post( $topic_id, true );
+		} finally {
+			remove_filter( 'query', $count_query );
+			remove_action( 'bbp_deleted_reply', $record_reply );
+		}
+
+		$this->assertEqualSets( $reply_ids, $deleted );
+		$this->assertSame( 4, $query_count );
+		$this->assertSame( $remaining_reply_id, bbp_get_forum_last_active_id( $forum_id ) );
+		$this->assertNull( get_post( $topic_id ) );
+		$this->assertFalse( bbp_suspend_deleted_reply_walker( $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_delete_topic_replies
+	 * @covers ::bbp_suspend_deleted_reply_walker
+	 */
+	public function test_interrupted_topic_deletion_restores_reply_counts_and_activity() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_ids = $this->factory->reply->create_many( 3, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		rsort( $reply_ids );
+
+		$seen      = 0;
+		$interrupt = function() use ( &$seen ) {
+			if ( 2 === ++$seen ) {
+				throw new RuntimeException( 'Interrupted reply deletion.' );
+			}
+		};
+		add_action( 'bbp_delete_reply', $interrupt, 1 );
+		try {
+			wp_delete_post( $topic_id, true );
+			$this->fail( 'The topic deletion should have stopped.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Interrupted reply deletion.', $exception->getMessage() );
+		} finally {
+			remove_action( 'bbp_delete_reply', $interrupt, 1 );
+		}
+
+		$this->assertNotNull( get_post( $topic_id ) );
+		$this->assertNull( get_post( $reply_ids[0] ) );
+		$this->assertSame( 2, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( $reply_ids[1], bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $reply_ids[1], bbp_get_forum_last_active_id( $forum_id ) );
+		$this->assertFalse( bbp_suspend_deleted_reply_walker( $topic_id ) );
+
+		wp_delete_post( $topic_id, true );
+		$this->assertNull( get_post( $topic_id ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_delete_topic_replies
+	 * @covers ::bbp_suspend_deleted_reply_walker
+	 */
+	public function test_failed_topic_row_delete_keeps_forum_activity_current() {
+		global $wpdb;
+
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->reply->create_many( 2, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		$delete_query = 'DELETE FROM `' . $wpdb->posts . '` WHERE `ID` = ' . $topic_id;
+		$block_delete = function( $query ) use ( $delete_query ) {
+			return ( $delete_query === $query ) ? 'SELECT 1 WHERE 0' : $query;
+		};
+		add_filter( 'query', $block_delete );
+		try {
+			$this->assertFalse( wp_delete_post( $topic_id, true ) );
+		} finally {
+			remove_filter( 'query', $block_delete );
+		}
+
+		$this->assertNotNull( get_post( $topic_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $forum_id ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertFalse( bbp_suspend_deleted_reply_walker( $topic_id ) );
+
+		wp_delete_post( $topic_id, true );
+		$this->assertNull( get_post( $topic_id ) );
 	}
 
 	/**

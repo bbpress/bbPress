@@ -2445,6 +2445,7 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
  * but is necessary to keep everything accurate.
  *
  * @since 2.0.0 bbPress (r2907)
+ * @since 2.6.22 bbPress (r8369) Added the explicit recount argument.
  *
  * @param array $args Supports these arguments:
  *  - forum_id: Forum id
@@ -2452,6 +2453,7 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
  *  - last_reply_id: Last reply id
  *  - last_active_id: Last active post id
  *  - last_active_time: last active time
+ *  - recount: Recalculate counts for this forum and its ancestors
  */
 function bbp_update_forum( $args = array() ) {
 
@@ -2465,7 +2467,8 @@ function bbp_update_forum( $args = array() ) {
 			'last_reply_id'      => 0,
 			'last_active_id'     => 0,
 			'last_active_time'   => 0,
-			'last_active_status' => bbp_get_public_status_id()
+			'last_active_status' => bbp_get_public_status_id(),
+			'recount'            => false
 		),
 		'update_forum'
 	);
@@ -2492,8 +2495,8 @@ function bbp_update_forum( $args = array() ) {
 	// Subforum counts are updated on bbp_transition_post_status,
 	// bbp_post_updated, and bbp_deleted_forum.
 
-	// Only update topic count if we've deleted a topic
-	if ( in_array( current_filter(), array( 'bbp_deleted_topic', 'save_post' ), true ) ) {
+	// Recount after topic deletion or when a bulk caller requests one final refresh
+	if ( ( true === $r['recount'] ) || in_array( current_filter(), array( 'bbp_deleted_topic', 'save_post' ), true ) ) {
 		bbp_update_forum_reply_count(        $r['forum_id'] );
 		bbp_update_forum_topic_count(        $r['forum_id'] );
 		bbp_update_forum_topic_count_hidden( $r['forum_id'] );
@@ -3677,6 +3680,7 @@ function bbp_check_forum_edit() {
  * Delete all topics (and their replies) for a specific forum ID.
  *
  * @since 2.1.0 bbPress (r3669)
+ * @since 2.6.22 bbPress (r8369) Defer forum refresh during permanent deletion.
  *
  * @param int $forum_id
  */
@@ -3696,11 +3700,40 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 		array_keys( get_post_stati() )
 	);
 
-	// Loop through and delete child topics. Topic replies will get deleted by
-	// the bbp_delete_topic() action.
-	if ( ! empty( $topic_ids ) ) {
+	if ( empty( $topic_ids ) ) {
+		return;
+	}
+
+	// The enclosing forum deletion needs one final refresh after all topics go.
+	// Standalone calls still refresh the forum after each topic.
+	$suspend_walker = doing_action( 'before_delete_post' )
+		&& doing_action( 'bbp_delete_forum' )
+		&& ( false !== has_action( 'bbp_deleted_topic', 'bbp_update_topic_walker' ) );
+	$previous = bbp_suspend_deleted_topic_walker( $forum_id );
+	if ( $suspend_walker ) {
+		bbp_suspend_deleted_topic_walker( $forum_id, true );
+	}
+
+	try {
+		// Topic replies are deleted by the bbp_delete_topic() action.
 		foreach ( $topic_ids as $topic_id ) {
 			wp_delete_post( $topic_id, true );
+		}
+	} finally {
+		if ( $suspend_walker ) {
+			bbp_suspend_deleted_topic_walker( $forum_id, $previous );
+			if ( ! $previous ) {
+				// Ensure the custom query cache is fresh before the final recount.
+				wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
+
+				bbp_update_forum(
+					array(
+						'forum_id'    => $forum_id,
+						'post_parent' => wp_get_post_parent_id( $forum_id ),
+						'recount'     => true
+					)
+				);
+			}
 		}
 	}
 }

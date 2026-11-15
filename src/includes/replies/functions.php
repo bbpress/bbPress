@@ -984,7 +984,36 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 }
 
 /**
- * Walk up the ancestor tree from the current reply, and update all the counts.
+ * Suspend the core deleted-reply walker for one topic.
+ *
+ * The deleted-topic walker refreshes the forum after the replies are removed.
+ * Other deleted-reply callbacks continue to run while this walker is suspended.
+ *
+ * @since 2.6.22 bbPress (r8369)
+ *
+ * @param int       $topic_id Topic ID.
+ * @param bool|null $suspend Whether to suspend, or null to read the current state.
+ * @return bool Whether the deleted-reply walker is suspended for this topic.
+ */
+function bbp_suspend_deleted_reply_walker( $topic_id = 0, $suspend = null ) {
+	static $suspended = array();
+
+	$topic_id = (int) $topic_id;
+	if ( $topic_id < 1 ) {
+		return false;
+	}
+
+	if ( true === $suspend ) {
+		$suspended[ $topic_id ] = true;
+	} elseif ( false === $suspend ) {
+		unset( $suspended[ $topic_id ] );
+	}
+
+	return isset( $suspended[ $topic_id ] );
+}
+
+/**
+ * Walk up the ancestor tree and update reply counts and last activity.
  *
  * @since 2.0.0 bbPress (r2895)
  *
@@ -1012,6 +1041,11 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 		if ( empty( $forum_id ) ) {
 			$forum_id = bbp_get_reply_forum_id( $reply_id );
 		}
+	}
+
+	// The enclosing topic deletion performs one final forum refresh.
+	if ( ( 'bbp_deleted_reply' === current_filter() ) && bbp_suspend_deleted_reply_walker( $topic_id ) ) {
+		return;
 	}
 
 	// Set the active_id based on topic_id/reply_id
