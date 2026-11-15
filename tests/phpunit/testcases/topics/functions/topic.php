@@ -1471,6 +1471,105 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_spam_topic_replies
+	 * @covers ::bbp_unspam_topic_replies
+	 */
+	public function test_topic_spam_and_unspam_defer_reply_walker() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_ids = $this->factory->reply->create_many( 4, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$pre_trashed = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		wp_trash_post( $pre_trashed );
+		$trashed_before   = did_action( 'bbp_trashed_reply' );
+		$untrashed_before = did_action( 'bbp_untrashed_reply' );
+
+		$activity_queries = 0;
+		$count_query = function( $query ) use ( &$activity_queries ) {
+			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
+				++$activity_queries;
+			}
+			return $query;
+		};
+		add_filter( 'query', $count_query );
+		try {
+			bbp_spam_topic( $topic_id );
+			$spam_queries     = $activity_queries;
+			$activity_queries = 0;
+			bbp_unspam_topic( $topic_id );
+			$unspam_queries = $activity_queries;
+		} finally {
+			remove_filter( 'query', $count_query );
+		}
+
+		$this->assertLessThan( 8, $spam_queries );
+		$this->assertLessThan( 8, $unspam_queries );
+		$this->assertSame( 4, did_action( 'bbp_trashed_reply' ) - $trashed_before );
+		$this->assertSame( 4, did_action( 'bbp_untrashed_reply' ) - $untrashed_before );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		foreach ( $reply_ids as $reply_id ) {
+			$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+		}
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $pre_trashed ) );
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_spam_topic_replies
+	 * @covers ::bbp_unspam_topic_replies
+	 */
+	public function test_interrupted_topic_spam_and_unspam_can_retry() {
+		$topic_id  = $this->factory->topic->create();
+		$reply_ids = $this->factory->reply->create_many( 3, array( 'post_parent' => $topic_id ) );
+		$calls     = 0;
+		$interrupt = function() use ( &$calls ) {
+			if ( 2 === ++$calls ) {
+				throw new RuntimeException( 'Interrupted topic spam.' );
+			}
+		};
+		add_action( 'bbp_trash_reply', $interrupt, 1 );
+		try {
+			bbp_spam_topic( $topic_id );
+			$this->fail( 'Topic spam should have stopped.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Interrupted topic spam.', $exception->getMessage() );
+		} finally {
+			remove_action( 'bbp_trash_reply', $interrupt, 1 );
+		}
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		$this->assertEqualSets( $reply_ids, get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
+		bbp_spam_topic( $topic_id );
+
+		$block = function( $check, $post ) use ( $reply_ids ) {
+			return ( $reply_ids[1] === $post->ID ) ? false : $check;
+		};
+		add_filter( 'pre_untrash_post', $block, 10, 2 );
+		try {
+			bbp_unspam_topic( $topic_id );
+		} finally {
+			remove_filter( 'pre_untrash_post', $block, 10 );
+		}
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $reply_ids[1] ) );
+		$this->assertEqualSets( $reply_ids, get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
+		bbp_unspam_topic_replies( $topic_id );
+		foreach ( $reply_ids as $reply_id ) {
+			$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+		}
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_untrash_topic
 	 */
 	public function test_bbp_untrash_topic() {

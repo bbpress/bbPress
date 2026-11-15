@@ -75,6 +75,8 @@ Development for the next bbPress release is in progress. See the active
 
 - Keep topic and forum restore lists intact when trash or restore is interrupted.
 - Avoid repeated activity scans while trashing or restoring a topic's replies.
+- Avoid repeated activity scans while spamming or unspamming a topic's replies,
+  and retain restore progress if the operation is interrupted.
 - Avoid repeated forum activity scans and recounts while permanently deleting
   a topic or forum.
 - Changed subscription notifications to send one email per recipient, and

@@ -3258,20 +3258,31 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 	);
 
 	if ( ! empty( $reply_ids ) ) {
+		// Save the restore list before trashing so an interrupted run can retry.
+		$pre_spammed_replies = wp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+		$pre_spammed_replies = wp_parse_id_list( array_merge( $pre_spammed_replies, $reply_ids ) );
+		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
 
-		// Prevent debug notices
-		$pre_spammed_replies = array();
-
-		// Loop through replies, trash them, and add them to array
-		foreach ( $reply_ids as $reply_id ) {
-			wp_trash_post( $reply_id );
-			$pre_spammed_replies[] = $reply_id;
+		$defer    = doing_action( 'bbp_spam_topic' )
+			&& ( false !== has_action( 'bbp_spammed_topic', 'bbp_update_topic_walker' ) )
+			&& ( false !== has_action( 'bbp_trashed_reply', 'bbp_update_reply_walker' ) );
+		$previous = bbp_suspend_reply_walker( $topic_id );
+		if ( $defer ) {
+			bbp_suspend_reply_walker( $topic_id, true );
 		}
 
-		// Set a post_meta entry of the replies that were trashed by this action.
-		// This is so we can possibly untrash them, without untrashing replies
-		// that were purposefully trashed before.
-		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
+		try {
+			foreach ( $reply_ids as $reply_id ) {
+				wp_trash_post( $reply_id );
+			}
+		} finally {
+			if ( $defer ) {
+				bbp_suspend_reply_walker( $topic_id, $previous );
+				if ( ! $previous ) {
+					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+				}
+			}
+		}
 	}
 }
 
@@ -3387,22 +3398,46 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
 	// Get the replies that were not previously trashed
 	$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
 
+	$failed = false;
+
 	// There are replies to untrash
 	if ( ! empty( $pre_spammed_replies ) ) {
-
-		// Maybe reverse the trashed replies array
-		if ( is_array( $pre_spammed_replies ) ) {
-			$pre_spammed_replies = array_reverse( $pre_spammed_replies );
+		$defer    = doing_action( 'bbp_unspam_topic' )
+			&& ( false !== has_action( 'bbp_unspammed_topic', 'bbp_update_topic_walker' ) )
+			&& ( false !== has_action( 'bbp_untrashed_reply', 'bbp_update_reply_walker' ) );
+		$previous = bbp_suspend_reply_walker( $topic_id );
+		if ( $defer ) {
+			bbp_suspend_reply_walker( $topic_id, true );
 		}
 
-		// Loop through replies
-		foreach ( (array) $pre_spammed_replies as $reply ) {
-			wp_untrash_post( $reply );
+		try {
+			// Maybe reverse the trashed replies array
+			if ( is_array( $pre_spammed_replies ) ) {
+				$pre_spammed_replies = array_reverse( $pre_spammed_replies );
+			}
+
+			foreach ( (array) $pre_spammed_replies as $reply ) {
+				if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
+					wp_untrash_post( $reply );
+					if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
+						$failed = true;
+					}
+				}
+			}
+		} finally {
+			if ( $defer ) {
+				bbp_suspend_reply_walker( $topic_id, $previous );
+				if ( ! $previous ) {
+					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+				}
+			}
 		}
 	}
 
-	// Clear the trasheed reply meta for the topic
-	delete_post_meta( $topic_id, '_bbp_pre_spammed_replies' );
+	// Keep the restore list when a reply remains trashed.
+	if ( ! $failed ) {
+		delete_post_meta( $topic_id, '_bbp_pre_spammed_replies' );
+	}
 }
 
 /**
