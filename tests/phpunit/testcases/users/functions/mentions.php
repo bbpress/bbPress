@@ -410,7 +410,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	 */
 	public function test_disabled_subscription_email_does_not_suppress_mention_email() {
 		bbp_add_user_subscription( $this->recipient, $this->forum );
-		bbp_update_user_notification_preferences( $this->recipient, array( 'subscriptions' => false ) );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'subscriptions:post:' . bbp_get_forum_post_type() => false ) );
 		$topic = $this->topic();
 		$this->assertFalse( bbp_notify_forum_subscribers( $topic, $this->forum, array(), $this->author ) );
 		bbp_send_mention_notifications();
@@ -520,7 +520,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		do_action( 'edit_user_profile', bbpress()->displayed_user );
 		$html = ob_get_clean();
 		$this->assertSame( 1, substr_count( $html, 'name="bbp_notification_preferences[mentions]"' ) );
-		$this->assertSame( 1, substr_count( $html, 'name="bbp_notification_preferences[subscriptions]"' ) );
+		$this->assertSame( 1, substr_count( $html, 'name="bbp_notification_preferences[subscriptions:post:' . bbp_get_forum_post_type() . ']"' ) );
 		$this->assertSame( 1, substr_count( $html, 'name="_bbp_notification_nonce"' ) );
 
 		set_current_screen( 'profile' );
@@ -588,7 +588,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 
 		$this->assertSame( 1, $xpath->query( '//form[@id="bbp-your-profile"]/fieldset[@id="bbp-user-notifications"][legend="Notifications"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//select[@name="bbp_notification_preferences[mentions]"]' )->length );
-		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//select[@name="bbp_notification_preferences[subscriptions]"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//select[@name="bbp_notification_preferences[subscriptions:post:' . bbp_get_forum_post_type() . ']"]' )->length );
 		$this->assertSame( 0, $xpath->query( '//fieldset[legend="Account"]//select[@name="bbp_notification_preferences[mentions]"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//input[@name="_bbp_notification_nonce"]' )->length );
 	}

@@ -168,7 +168,8 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 
 		$this->set_current_user( $user_id );
 		buddypress()->displayed_user = (object) array( 'id' => $user_id );
-		bbp_update_user_notification_preferences( $user_id, array( 'mentions' => true, 'subscriptions' => false ) );
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
+		bbp_update_user_notification_preferences( $user_id, array( 'mentions' => true, $forum_type => false ) );
 
 		ob_start();
 		$this->members->notification_settings();
@@ -179,9 +180,11 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		$xpath = new DOMXPath( $document );
 
 		$this->assertSame( 1, $xpath->query( '//table[@id="bbpress-notification-settings" and contains(concat(" ", normalize-space(@class), " "), " notification-settings ")]' )->length );
-		$this->assertSame( 2, $xpath->query( '//table[@id="bbpress-notification-settings"]/tbody/tr' )->length );
+		$this->assertSame( count( bbp_get_notification_types() ), $xpath->query( '//table[@id="bbpress-notification-settings"]/tbody/tr' )->length );
 		$this->assertSame( 1, $xpath->query( '//input[@id="bbp-notification-mentions-yes" and @checked]' )->length );
-		$this->assertSame( 1, $xpath->query( '//input[@id="bbp-notification-subscriptions-no" and @checked]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@id="bbp-notification-' . $forum_type . '-no" and @checked]' )->length );
+		$this->assertSame( 1, $xpath->query( '//tr[@id="bbpress-notification-settings-' . $forum_type . '"]/td[@class="yes default"]/span[text()="On"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//tr[@id="bbpress-notification-settings-mentions"]/td[@class="yes default"]/span[text()="Off"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//input[@name="_bbp_notification_nonce"]' )->length );
 	}
 
@@ -207,6 +210,7 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 	 */
 	public function test_notification_settings_save_explicit_and_default_choices() {
 		$user_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
 
 		$this->set_current_user( $user_id );
 		buddypress()->displayed_user = (object) array( 'id' => $user_id );
@@ -214,15 +218,15 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 		$_POST['_bbp_notification_nonce']      = wp_create_nonce( 'bbp-notification-preferences-' . $user_id );
 		$_POST['bbp_notification_preferences'] = array(
 			'mentions'      => 'yes',
-			'subscriptions' => 'no'
+			$forum_type     => 'no'
 		);
 
 		$this->members->save_notification_settings();
-		$this->assertSame( array( 'mentions' => true, 'subscriptions' => false ), get_user_meta( $user_id, '_bbp_notification_preferences', true ) );
+		$this->assertSame( array( 'mentions' => true, $forum_type => false ), get_user_meta( $user_id, '_bbp_notification_preferences', true ) );
 
 		$_POST['bbp_notification_preferences'] = array(
 			'mentions'      => 'default',
-			'subscriptions' => 'default'
+			$forum_type     => 'default'
 		);
 
 		$this->members->save_notification_settings();

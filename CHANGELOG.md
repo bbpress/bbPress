@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added separate user email preferences for subscriptions to forums, topics,
+  topic tags, and other registered subscription types.
 - Added signed unsubscribe links, a configurable confirmation page, and
   one-click unsubscribe headers to forum, topic, and taxonomy subscription
   emails.

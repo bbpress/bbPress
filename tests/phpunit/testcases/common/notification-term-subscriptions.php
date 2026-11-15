@@ -126,7 +126,7 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 	 *
 	 * @covers ::bbp_notify_forum_subscribers
 	 */
-	public function test_disabling_subscription_emails_preserves_forum_and_tag_subscriptions() {
+	public function test_disabling_forum_and_tag_emails_preserves_subscriptions() {
 		$content       = $this->create_topic();
 		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$term_id       = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
@@ -134,14 +134,16 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 		wp_set_object_terms( $content['topic_id'], $term_id, bbp_get_topic_tag_tax_id() );
 		bbp_add_user_forum_subscription( $subscriber_id, $content['forum_id'] );
 		bbp_add_user_subscription( $subscriber_id, $term_id, 'term' );
-		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions' => false ) );
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
+		$tag_type   = 'subscriptions:term:' . bbp_get_topic_tag_tax_id();
+		bbp_update_user_notification_preferences( $subscriber_id, array( $forum_type => false, $tag_type => false ) );
 
 		$this->assertFalse( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
 		$this->assertCount( 0, $this->mail );
 		$this->assertTrue( bbp_is_user_subscribed( $subscriber_id, $content['forum_id'] ) );
 		$this->assertTrue( bbp_is_user_subscribed( $subscriber_id, $term_id, 'term' ) );
 
-		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions' => null ) );
+		bbp_update_user_notification_preferences( $subscriber_id, array( $forum_type => null, $tag_type => null ) );
 		$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
 		$this->assertCount( 1, $this->mail );
 	}
@@ -151,17 +153,127 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 	 *
 	 * @covers ::bbp_notify_topic_subscribers
 	 */
-	public function test_disabling_subscription_emails_suppresses_reply_delivery() {
+	public function test_disabling_topic_emails_suppresses_reply_delivery() {
 		$content       = $this->create_topic();
 		$reply         = $this->create_reply( $content['topic_id'], $content['forum_id'] );
 		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 
 		bbp_add_user_topic_subscription( $subscriber_id, $content['topic_id'] );
-		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions' => false ) );
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions:post:' . bbp_get_topic_post_type() => false ) );
 
 		$this->assertFalse( bbp_notify_topic_subscribers( $reply['reply_id'], $content['topic_id'], $content['forum_id'], array(), $reply['author_id'] ) );
 		$this->assertCount( 0, $this->mail );
 		$this->assertTrue( bbp_is_user_subscribed( $subscriber_id, $content['topic_id'] ) );
+	}
+
+	/**
+	 * @ticket BBP3792
+	 */
+	public function test_tag_email_is_used_when_forum_emails_are_disabled() {
+		$content       = $this->create_topic();
+		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term_id       = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		wp_set_object_terms( $content['topic_id'], $term_id, bbp_get_topic_tag_tax_id() );
+		bbp_add_user_forum_subscription( $subscriber_id, $content['forum_id'] );
+		bbp_add_user_subscription( $subscriber_id, $term_id, 'term' );
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions:post:' . bbp_get_forum_post_type() => false ) );
+
+		$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+		$this->assertCount( 1, $this->mail );
+		$this->assertSame( (string) $term_id, $this->unsubscribe_query()['object_id'] );
+		$this->assertSame( 'term', $this->unsubscribe_query()['object_type'] );
+	}
+
+	/**
+	 * @ticket BBP3792
+	 */
+	public function test_subscriber_filter_cannot_bypass_disabled_forum_emails() {
+		$content       = $this->create_topic();
+		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$add_user      = function( $user_ids ) use ( $subscriber_id ) {
+			$user_ids[] = $subscriber_id;
+			return $user_ids;
+		};
+
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions:post:' . bbp_get_forum_post_type() => false ) );
+		add_filter( 'bbp_forum_subscription_user_ids', $add_user );
+
+		try {
+			$this->assertFalse( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+			$this->assertCount( 0, $this->mail );
+		} finally {
+			remove_filter( 'bbp_forum_subscription_user_ids', $add_user );
+		}
+	}
+
+	/**
+	 * @ticket BBP3792
+	 */
+	public function test_topic_email_is_used_when_tag_emails_are_disabled() {
+		$content       = $this->create_topic();
+		$reply         = $this->create_reply( $content['topic_id'], $content['forum_id'] );
+		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term_id       = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		wp_set_object_terms( $content['topic_id'], $term_id, bbp_get_topic_tag_tax_id() );
+		bbp_add_user_topic_subscription( $subscriber_id, $content['topic_id'] );
+		bbp_add_user_subscription( $subscriber_id, $term_id, 'term' );
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions:term:' . bbp_get_topic_tag_tax_id() => false ) );
+
+		$this->assertTrue( bbp_notify_topic_subscribers( $reply['reply_id'], $content['topic_id'], $content['forum_id'], array(), $reply['author_id'] ) );
+		$this->assertCount( 1, $this->mail );
+		$this->assertSame( (string) $content['topic_id'], $this->unsubscribe_query()['object_id'] );
+		$this->assertSame( 'post', $this->unsubscribe_query()['object_type'] );
+	}
+
+	/**
+	 * @ticket BBP3792
+	 */
+	public function test_tag_email_is_used_when_topic_emails_are_disabled() {
+		$content       = $this->create_topic();
+		$reply         = $this->create_reply( $content['topic_id'], $content['forum_id'] );
+		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term_id       = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		wp_set_object_terms( $content['topic_id'], $term_id, bbp_get_topic_tag_tax_id() );
+		bbp_add_user_topic_subscription( $subscriber_id, $content['topic_id'] );
+		bbp_add_user_subscription( $subscriber_id, $term_id, 'term' );
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions:post:' . bbp_get_topic_post_type() => false ) );
+
+		$this->assertTrue( bbp_notify_topic_subscribers( $reply['reply_id'], $content['topic_id'], $content['forum_id'], array(), $reply['author_id'] ) );
+		$this->assertCount( 1, $this->mail );
+		$this->assertSame( (string) $term_id, $this->unsubscribe_query()['object_id'] );
+		$this->assertSame( 'term', $this->unsubscribe_query()['object_type'] );
+	}
+
+	/**
+	 * @ticket BBP3792
+	 */
+	public function test_custom_taxonomy_email_is_used_when_tag_emails_are_disabled() {
+		$taxonomy = 'bbp_test_notification_fallback';
+		register_taxonomy( $taxonomy, bbp_get_topic_post_type(), array( 'bbp_subscriptions' => true ) );
+
+		try {
+			$content       = $this->create_topic();
+			$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+			$tag_id        = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+			$custom_id     = $this->factory->term->create( array( 'taxonomy' => $taxonomy ) );
+
+			wp_set_object_terms( $content['topic_id'], $tag_id, bbp_get_topic_tag_tax_id() );
+			wp_set_object_terms( $content['topic_id'], $custom_id, $taxonomy );
+			bbp_add_user_subscription( $subscriber_id, $tag_id, 'term' );
+			bbp_add_user_subscription( $subscriber_id, $custom_id, 'term' );
+			bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions:term:' . bbp_get_topic_tag_tax_id() => false ) );
+
+			$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+			$this->assertCount( 1, $this->mail );
+			$this->assertSame( (string) $custom_id, $this->unsubscribe_query()['object_id'] );
+			$this->assertSame( 'term', $this->unsubscribe_query()['object_type'] );
+			$this->assertEqualSets( array( $subscriber_id ), bbp_get_subscribers_for_topic_terms( $content['topic_id'] ) );
+		} finally {
+			unregister_taxonomy( $taxonomy );
+		}
 	}
 
 	/**

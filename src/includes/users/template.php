@@ -2748,14 +2748,15 @@ function bbp_user_notification_preference_field( $user_id = 0, $type = '' ) {
 
 	$label  = $types[ $type ]['label'];
 	$choice = bbp_get_user_notification_preference_choice( $user_id, $type );
+	$default = bbp_get_user_notification_default( $user_id, $type );
 	?>
 
 	<div>
 		<label for="bbp-notification-<?php echo esc_attr( $type ); ?>"><?php echo esc_html( $label ); ?></label>
 		<select name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>">
-			<option value="default" <?php selected( $choice, 'default' ); ?>><?php esc_html_e( 'Default', 'bbpress' ); ?></option>
-			<option value="yes" <?php selected( $choice, 'yes' ); ?>><?php esc_html_e( 'Yes', 'bbpress' ); ?></option>
-			<option value="no" <?php selected( $choice, 'no' ); ?>><?php esc_html_e( 'No', 'bbpress' ); ?></option>
+			<option value="default" <?php selected( $choice, 'default' ); ?>><?php echo esc_html( $default ? __( 'Default (emails on)', 'bbpress' ) : __( 'Default (emails off)', 'bbpress' ) ); ?></option>
+			<option value="yes" <?php selected( $choice, 'yes' ); ?>><?php esc_html_e( 'Send emails', 'bbpress' ); ?></option>
+			<option value="no" <?php selected( $choice, 'no' ); ?>><?php esc_html_e( 'No emails', 'bbpress' ); ?></option>
 		</select>
 	</div>
 

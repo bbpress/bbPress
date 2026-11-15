@@ -2470,13 +2470,14 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	/** Users *****************************************************************/
 
 	// Get topic and taxonomy subscribers
-	$topic_user_ids = ! empty( $topic_subscriptions )
-		? bbp_get_subscribers( $topic_id )
+	$topic_email_type = 'subscriptions:post:' . bbp_get_topic_post_type();
+	$topic_user_ids   = ! empty( $topic_subscriptions )
+		? bbp_filter_notification_user_ids( bbp_get_subscribers( $topic_id ), $topic_email_type )
 		: array();
-	$term_contexts  = ! empty( $term_subscriptions )
-		? bbp_get_topic_term_subscription_contexts( $topic_id )
+	$term_contexts    = ! empty( $term_subscriptions )
+		? bbp_get_topic_term_subscription_contexts( $topic_id, true )
 		: array();
-	$term_user_ids  = array_keys( $term_contexts );
+	$term_user_ids    = array_keys( $term_contexts );
 
 	// Prefer topic subscriptions for shared users, and remove the reply author
 	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $topic_user_ids, array( (int) $reply_author ) ) );
@@ -2499,7 +2500,14 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id, $reply_id );
-	$user_ids = bbp_filter_notification_user_ids( $user_ids, 'subscriptions' );
+
+	// Subscriber filters may add recipients without a term context
+	$topic_recipients = array_fill_keys( $topic_user_ids, true );
+	foreach ( $user_ids as $key => $subscriber_id ) {
+		if ( ! isset( $topic_recipients[ $subscriber_id ] ) && empty( $term_contexts[ $subscriber_id ] ) && ! bbp_is_user_notification_enabled( $subscriber_id, $topic_email_type ) ) {
+			unset( $user_ids[ $key ] );
+		}
+	}
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
@@ -2716,13 +2724,14 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	/** Users *****************************************************************/
 
 	// Get forum and taxonomy subscribers
-	$forum_user_ids = ! empty( $forum_subscriptions )
-		? bbp_get_subscribers( $forum_id )
+	$forum_email_type = 'subscriptions:post:' . bbp_get_forum_post_type();
+	$forum_user_ids   = ! empty( $forum_subscriptions )
+		? bbp_filter_notification_user_ids( bbp_get_subscribers( $forum_id ), $forum_email_type )
 		: array();
-	$term_contexts  = ! empty( $term_subscriptions )
-		? bbp_get_topic_term_subscription_contexts( $topic_id )
+	$term_contexts    = ! empty( $term_subscriptions )
+		? bbp_get_topic_term_subscription_contexts( $topic_id, true )
 		: array();
-	$term_user_ids  = array_keys( $term_contexts );
+	$term_user_ids    = array_keys( $term_contexts );
 
 	// Prefer forum subscriptions for shared users, and remove the topic author
 	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $forum_user_ids, array( (int) $topic_author ) ) );
@@ -2745,7 +2754,14 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id );
-	$user_ids = bbp_filter_notification_user_ids( $user_ids, 'subscriptions' );
+
+	// Subscriber filters may add recipients without a term context
+	$forum_recipients = array_fill_keys( $forum_user_ids, true );
+	foreach ( $user_ids as $key => $subscriber_id ) {
+		if ( ! isset( $forum_recipients[ $subscriber_id ] ) && empty( $term_contexts[ $subscriber_id ] ) && ! bbp_is_user_notification_enabled( $subscriber_id, $forum_email_type ) ) {
+			unset( $user_ids[ $key ] );
+		}
+	}
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {

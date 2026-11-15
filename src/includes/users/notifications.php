@@ -13,21 +13,27 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Get the notification types that support a user email preference.
  *
+ * Each registered subscription subtype gets its own preference.
+ *
  * @since 2.7.0 bbPress (r8363)
  *
  * @return array Notification types, labels, and default values.
  */
 function bbp_get_notification_types() {
 	$types = array(
-		'mentions'      => array(
+		'mentions' => array(
 			'label'   => __( 'Mention emails', 'bbpress' ),
 			'default' => false
-		),
-		'subscriptions' => array(
-			'label'   => __( 'Subscription emails', 'bbpress' ),
-			'default' => true
 		)
 	);
+
+	foreach ( bbp_get_subscription_subtype_labels() as $subtype => $label ) {
+		$types[ 'subscriptions:' . $subtype ] = array(
+			/* translators: %s: Subscription type, such as Forums or Topic Tags. */
+			'label'   => sprintf( __( '%s emails', 'bbpress' ), $label ),
+			'default' => true
+		);
+	}
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_notification_types', $types );
@@ -57,6 +63,30 @@ function bbp_get_user_notification_preference( $user_id = 0, $type = '' ) {
 	return is_array( $preferences ) && array_key_exists( $type, $preferences ) && is_bool( $preferences[ $type ] )
 		? $preferences[ $type ]
 		: null;
+}
+
+/**
+ * Get the notification setting used when a user has not made a choice.
+ *
+ * @since 2.7.0 bbPress (r8376)
+ *
+ * @param int    $user_id User ID.
+ * @param string $type    Registered notification type.
+ * @return bool Whether the default sends email.
+ */
+function bbp_get_user_notification_default( $user_id = 0, $type = '' ) {
+	$user_id = bbp_get_user_id( $user_id, false, true );
+	$types   = bbp_get_notification_types();
+
+	if ( empty( $user_id ) || ! is_string( $type ) || ! isset( $types[ $type ] ) ) {
+		return false;
+	}
+
+	$inherited = apply_filters( 'bbp_get_user_notification_inherited_preference', null, $user_id, $type );
+
+	return is_bool( $inherited )
+		? $inherited
+		: ! empty( $types[ $type ]['default'] );
 }
 
 /**
@@ -151,6 +181,12 @@ function bbp_filter_notification_user_ids( $user_ids = array(), $type = '' ) {
 
 	if ( ! is_string( $type ) || ! isset( $types[ $type ] ) ) {
 		return $user_ids;
+	}
+
+	// Prime user metadata in batches before checking each preference
+	$limit = apply_filters( 'bbp_get_users_chunk_limit', 100 );
+	foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
+		cache_users( $user_ids_chunk );
 	}
 
 	foreach ( $user_ids as $key => $user_id ) {

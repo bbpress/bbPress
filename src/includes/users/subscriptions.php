@@ -115,13 +115,16 @@ function bbp_get_topic_subscription_taxonomies() {
  * Get subscription contexts for users subscribed to terms assigned to a topic.
  *
  * The first matching term is used when a user subscribes to more than one term.
+ * For emails, the first term with notifications enabled is used instead.
  *
  * @since 2.7.0 bbPress (r8360)
+ * @since 2.7.0 bbPress (r8376) Optionally limit contexts to enabled emails.
  *
  * @param int $topic_id Optional. Topic ID.
+ * @param bool $for_email Optional. Only include enabled email subscriptions.
  * @return array Subscription object data keyed by user ID.
  */
-function bbp_get_topic_term_subscription_contexts( $topic_id = 0 ) {
+function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = false ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );
 	$taxonomies = bbp_get_topic_subscription_taxonomies();
 	$term_ids   = ! empty( $topic_id ) && ! empty( $taxonomies )
@@ -133,7 +136,16 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0 ) {
 	$contexts   = array();
 
 	foreach ( $term_ids as $term_id ) {
-		foreach ( bbp_get_subscribers( $term_id, 'term' ) as $user_id ) {
+		$user_ids = bbp_get_subscribers( $term_id, 'term' );
+
+		if ( $for_email ) {
+			$term     = get_term( $term_id );
+			$user_ids = ( $term instanceof WP_Term )
+				? bbp_filter_notification_user_ids( $user_ids, 'subscriptions:term:' . $term->taxonomy )
+				: array();
+		}
+
+		foreach ( $user_ids as $user_id ) {
 			$user_id = (int) $user_id;
 
 			if ( ! isset( $contexts[ $user_id ] ) ) {

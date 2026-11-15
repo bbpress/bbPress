@@ -23,20 +23,28 @@ class BBP_Tests_Users_Functions_Notifications extends BBP_UnitTestCase {
 	}
 
 	public function test_missing_and_explicit_choices_use_one_global_row() {
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
+		$tag_type   = 'subscriptions:term:' . bbp_get_topic_tag_tax_id();
+
 		$this->assertNull( bbp_get_user_notification_preference( $this->user_id, 'mentions' ) );
 		$this->assertFalse( bbp_is_user_notification_enabled( $this->user_id, 'mentions' ) );
-		$this->assertTrue( bbp_is_user_notification_enabled( $this->user_id, 'subscriptions' ) );
+		$this->assertTrue( bbp_is_user_notification_enabled( $this->user_id, $forum_type ) );
+		$this->assertTrue( bbp_is_user_notification_enabled( $this->user_id, $tag_type ) );
+		$this->assertFalse( bbp_get_user_notification_default( $this->user_id, 'mentions' ) );
+		$this->assertTrue( bbp_get_user_notification_default( $this->user_id, $forum_type ) );
 
-		bbp_update_user_notification_preferences( $this->user_id, array( 'mentions' => true, 'subscriptions' => false ) );
-		$this->assertSame( array( 'mentions' => true, 'subscriptions' => false ), get_user_meta( $this->user_id, '_bbp_notification_preferences', true ) );
+		bbp_update_user_notification_preferences( $this->user_id, array( 'mentions' => true, $forum_type => false ) );
+		$this->assertSame( array( 'mentions' => true, $forum_type => false ), get_user_meta( $this->user_id, '_bbp_notification_preferences', true ) );
 		$this->assertTrue( bbp_get_user_notification_preference( $this->user_id, 'mentions' ) );
-		$this->assertFalse( bbp_get_user_notification_preference( $this->user_id, 'subscriptions' ) );
-		$this->assertFalse( bbp_is_user_notification_enabled( $this->user_id, 'subscriptions' ) );
+		$this->assertFalse( bbp_get_user_notification_preference( $this->user_id, $forum_type ) );
+		$this->assertFalse( bbp_is_user_notification_enabled( $this->user_id, $forum_type ) );
+		$this->assertTrue( bbp_get_user_notification_default( $this->user_id, $forum_type ) );
+		$this->assertTrue( bbp_is_user_notification_enabled( $this->user_id, $tag_type ) );
 
 		bbp_update_user_notification_preferences( $this->user_id, array( 'mentions' => null ) );
-		$this->assertSame( array( 'subscriptions' => false ), get_user_meta( $this->user_id, '_bbp_notification_preferences', true ) );
+		$this->assertSame( array( $forum_type => false ), get_user_meta( $this->user_id, '_bbp_notification_preferences', true ) );
 		$this->assertNull( bbp_get_user_notification_preference( $this->user_id, 'mentions' ) );
-		bbp_update_user_notification_preferences( $this->user_id, array( 'subscriptions' => null ) );
+		bbp_update_user_notification_preferences( $this->user_id, array( $forum_type => null ) );
 		$this->assertFalse( metadata_exists( 'user', $this->user_id, '_bbp_notification_preferences' ) );
 	}
 
@@ -48,8 +56,10 @@ class BBP_Tests_Users_Functions_Notifications extends BBP_UnitTestCase {
 
 		try {
 			$this->assertTrue( bbp_is_user_notification_enabled( $this->user_id, 'mentions' ) );
+			$this->assertTrue( bbp_get_user_notification_default( $this->user_id, 'mentions' ) );
 			bbp_update_user_notification_preferences( $this->user_id, array( 'mentions' => false ) );
 			$this->assertFalse( bbp_is_user_notification_enabled( $this->user_id, 'mentions' ) );
+			$this->assertTrue( bbp_get_user_notification_default( $this->user_id, 'mentions' ) );
 		} finally {
 			remove_filter( 'bbp_get_user_notification_inherited_preference', $callback, 10 );
 		}
@@ -82,43 +92,78 @@ class BBP_Tests_Users_Functions_Notifications extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_registered_taxonomy_gets_its_own_email_preference() {
+		$taxonomy = 'bbp_test_notification_taxonomy';
+		register_taxonomy(
+			$taxonomy,
+			bbp_get_topic_post_type(),
+			array(
+				'bbp_subscriptions' => true,
+				'labels'            => array( 'name' => 'Plugins' )
+			)
+		);
+
+		try {
+			$type = 'subscriptions:term:' . $taxonomy;
+			$this->assertSame( 'Plugins emails', bbp_get_notification_types()[ $type ]['label'] );
+			$this->assertTrue( bbp_is_user_notification_enabled( $this->user_id, $type ) );
+
+			$this->set_current_user( $this->user_id );
+			ob_start();
+			bbp_user_notification_settings( get_userdata( $this->user_id ) );
+			$html = ob_get_clean();
+			$this->assertStringContainsString( 'name="bbp_notification_preferences[' . $type . ']"', $html );
+		} finally {
+			unregister_taxonomy( $taxonomy );
+		}
+	}
+
 	public function test_unregistered_type_does_not_remove_notification_recipients() {
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
 		$callback = function( $types ) {
-			unset( $types['subscriptions'] );
+			unset( $types[ 'subscriptions:post:' . bbp_get_forum_post_type() ] );
 			return $types;
 		};
 		add_filter( 'bbp_get_notification_types', $callback );
 
 		try {
-			$this->assertSame( array( $this->user_id ), bbp_filter_notification_user_ids( array( $this->user_id ), 'subscriptions' ) );
+			$this->assertSame( array( $this->user_id ), bbp_filter_notification_user_ids( array( $this->user_id ), $forum_type ) );
 		} finally {
 			remove_filter( 'bbp_get_notification_types', $callback );
 		}
 	}
 
 	public function test_profile_selects_save_yes_no_and_default() {
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
+		$tag_type   = 'subscriptions:term:' . bbp_get_topic_tag_tax_id();
 		$this->set_current_user( $this->user_id );
 		ob_start();
 		bbp_user_notification_settings( get_userdata( $this->user_id ) );
 		$html = ob_get_clean();
 		$this->assertStringContainsString( 'name="bbp_notification_preferences[mentions]"', $html );
-		$this->assertStringContainsString( 'name="bbp_notification_preferences[subscriptions]"', $html );
-		$this->assertSame( 2, substr_count( $html, 'value="default"' ) );
+		$this->assertStringContainsString( 'name="bbp_notification_preferences[' . $forum_type . ']"', $html );
+		$this->assertStringContainsString( 'name="bbp_notification_preferences[' . $tag_type . ']"', $html );
+		$this->assertSame( count( bbp_get_notification_types() ), substr_count( $html, 'value="default"' ) );
+		$this->assertStringContainsString( 'Default (emails on)', $html );
+		$this->assertStringContainsString( 'Default (emails off)', $html );
+		$this->assertStringContainsString( 'Send emails', $html );
+		$this->assertStringContainsString( 'No emails', $html );
 
 		$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->user_id );
-		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'yes', 'subscriptions' => 'no' );
+		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'yes', $forum_type => 'no' );
 		bbp_save_user_notification_preferences( $this->user_id );
-		$this->assertSame( array( 'mentions' => true, 'subscriptions' => false ), get_user_meta( $this->user_id, '_bbp_notification_preferences', true ) );
+		$this->assertSame( array( 'mentions' => true, $forum_type => false ), get_user_meta( $this->user_id, '_bbp_notification_preferences', true ) );
 		$this->assertSame( 'yes', bbp_get_user_notification_preference_choice( $this->user_id, 'mentions' ) );
-		$this->assertSame( 'no', bbp_get_user_notification_preference_choice( $this->user_id, 'subscriptions' ) );
+		$this->assertSame( 'no', bbp_get_user_notification_preference_choice( $this->user_id, $forum_type ) );
 
-		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'default', 'subscriptions' => 'default' );
+		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'default', $forum_type => 'default' );
 		bbp_save_user_notification_preferences( $this->user_id );
 		$this->assertFalse( metadata_exists( 'user', $this->user_id, '_bbp_notification_preferences' ) );
 		$this->assertSame( 'default', bbp_get_user_notification_preference_choice( $this->user_id, 'mentions' ) );
 	}
 
 	public function test_template_part_uses_the_displayed_user_without_loader_arguments() {
+		$forum_type = 'subscriptions:post:' . bbp_get_forum_post_type();
 		$this->set_current_user( $this->user_id );
 		$previous = bbpress()->displayed_user;
 		bbpress()->displayed_user = get_userdata( $this->user_id );
@@ -132,12 +177,12 @@ class BBP_Tests_Users_Functions_Notifications extends BBP_UnitTestCase {
 		}
 
 		$this->assertStringContainsString( 'name="bbp_notification_preferences[mentions]"', $html );
-		$this->assertStringContainsString( 'name="bbp_notification_preferences[subscriptions]"', $html );
+		$this->assertStringContainsString( 'name="bbp_notification_preferences[' . $forum_type . ']"', $html );
 
 		$document = new DOMDocument();
 		$document->loadHTML( $html );
 		$xpath = new DOMXPath( $document );
-		$this->assertSame( 2, $xpath->query( '//div/select[starts-with(@name, "bbp_notification_preferences[")]' )->length );
+		$this->assertSame( count( bbp_get_notification_types() ), $xpath->query( '//div/select[starts-with(@name, "bbp_notification_preferences[")]' )->length );
 		$this->assertSame( 0, $xpath->query( '//p/select[starts-with(@name, "bbp_notification_preferences[")]' )->length );
 		$this->assertSame( 0, $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " bbp-user-notification-preferences ")]' )->length );
 	}

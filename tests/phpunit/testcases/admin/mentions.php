@@ -142,7 +142,7 @@ class BBP_Tests_Admin_Mentions extends BBP_UnitTestCase {
 			$xpath = new DOMXPath( $document );
 			$this->assertSame( 1, $xpath->query( '//h2[text()="Forums"]' )->length );
 			$this->assertSame( 1, $xpath->query( '//h2[text()="Forums"]/following-sibling::table[1]//tr[th="Notifications"]/td//select[@name="bbp_notification_preferences[mentions]"]' )->length );
-			$this->assertSame( 1, $xpath->query( '//select[@name="bbp_notification_preferences[subscriptions]"]' )->length );
+			$this->assertSame( 1, $xpath->query( '//select[@name="bbp_notification_preferences[subscriptions:post:' . bbp_get_forum_post_type() . ']"]' )->length );
 			$this->assertSame( 1, $xpath->query( '//input[@name="_bbp_notification_nonce"]' )->length );
 			$this->assertSame( 1, $xpath->query( '//select[@name="bbp_notification_preferences[mentions]"]/option[@value="no" and @selected]' )->length );
 			$this->assertSame( $show_roles ? 1 : 0, $xpath->query( '//select[@name="bbp-forums-role"]' )->length );

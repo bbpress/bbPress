@@ -242,13 +242,17 @@ class BBP_BuddyPress_Members {
 
 			<tbody>
 				<?php foreach ( $types as $type => $args ) : ?>
-					<?php $choice = bbp_get_user_notification_preference_choice( $user_id, $type ); ?>
+					<?php
+					$choice  = bbp_get_user_notification_preference_choice( $user_id, $type );
+					$default = bbp_get_user_notification_default( $user_id, $type );
+					?>
 					<tr id="bbpress-notification-settings-<?php echo esc_attr( $type ); ?>">
 						<td>&nbsp;</td>
 						<td><?php echo esc_html( $args['label'] ); ?></td>
 						<td class="yes default">
 							<input type="radio" name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>-default" value="default" <?php checked( $choice, 'default' ); ?> />
-							<label for="bbp-notification-<?php echo esc_attr( $type ); ?>-default" class="bp-screen-reader-text"><?php esc_html_e( 'Use the default setting', 'bbpress' ); ?></label>
+							<label for="bbp-notification-<?php echo esc_attr( $type ); ?>-default" class="bp-screen-reader-text"><?php echo esc_html( $default ? __( 'Use the default: emails on', 'bbpress' ) : __( 'Use the default: emails off', 'bbpress' ) ); ?></label>
+							<span aria-hidden="true"><?php echo esc_html( $default ? __( 'On', 'bbpress' ) : __( 'Off', 'bbpress' ) ); ?></span>
 						</td>
 						<td class="yes">
 							<input type="radio" name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>-yes" value="yes" <?php checked( $choice, 'yes' ); ?> />
