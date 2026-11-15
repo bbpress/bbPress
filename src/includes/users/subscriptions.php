@@ -177,6 +177,46 @@ function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
 }
 
 /**
+ * Check whether an object supports subscriptions.
+ *
+ * With no object ID, this function uses the current queried post or term.
+ * An object type is required for non-post objects.
+ *
+ * @since 2.7.0 bbPress (r8370)
+ *
+ * @param int    $object_id   Optional. Object ID. Defaults to the queried object.
+ * @param string $object_type Optional. Registered engagement type name.
+ * @return bool Whether the object supports subscriptions.
+ */
+function bbp_is_subscribable( $object_id = 0, $object_type = '' ) {
+	$object_id   = absint( $object_id );
+	$object_type = is_string( $object_type )
+		? sanitize_key( $object_type )
+		: '';
+
+	// Use the current queried post or term when no object ID was passed
+	if ( empty( $object_id ) ) {
+		$object = get_queried_object();
+
+		if ( ( $object instanceof WP_Post ) && ( empty( $object_type ) || ( 'post' === $object_type ) ) ) {
+			$object_id   = $object->ID;
+			$object_type = 'post';
+		} elseif ( ( $object instanceof WP_Term ) && ( empty( $object_type ) || ( 'term' === $object_type ) ) ) {
+			$object_id   = $object->term_id;
+			$object_type = 'term';
+		}
+	}
+
+	// Posts are the default engagement type when an explicit ID is passed
+	if ( ! empty( $object_id ) && empty( $object_type ) ) {
+		$object_type = 'post';
+	}
+
+	// Return whether this object supports subscriptions
+	return bbp_object_supports_engagement( $object_id, $object_type, 'subscription' );
+}
+
+/**
  * Check if an object (forum or topic) is in user's subscription list or not.
  *
  * @since 2.0.0 bbPress (r2668)

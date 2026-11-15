@@ -115,6 +115,30 @@ function bbp_get_engagement_type( $name = '' ) {
 		: false;
 }
 
+/**
+ * Check whether an object supports an engagement.
+ *
+ * @since 2.7.0 bbPress (r8370)
+ *
+ * @param int                              $object_id   Object ID.
+ * @param string|BBP_User_Engagements_Type $object_type Engagement type name or object.
+ * @param string                           $engagement  Favorite or subscription.
+ * @return bool Whether the object supports the engagement.
+ */
+function bbp_object_supports_engagement( $object_id = 0, $object_type = 'post', $engagement = '' ) {
+	$object_id = absint( $object_id );
+	$type      = ( $object_type instanceof BBP_User_Engagements_Type )
+		? $object_type
+		: bbp_get_engagement_type( $object_type );
+	$retval    = ! empty( $object_id ) && ! empty( $type ) && (bool) $type->supports( $engagement, $object_id );
+
+	// Filter
+	$retval = apply_filters( 'bbp_object_supports_engagement', $retval, $object_id, $type, $engagement );
+
+	// Do not allow filters to make an invalid object or type support engagements
+	return ! empty( $object_id ) && ! empty( $type ) && (bool) $retval;
+}
+
 /** User Relationships ********************************************************/
 
 /**
@@ -634,7 +658,7 @@ function bbp_current_user_can_toggle_engagement( $object_id = 0, $object_type = 
 
 	$type = bbp_get_engagement_type( $object_type );
 
-	if ( empty( $user_id ) || empty( $type ) || ! in_array( $action, array( 'add', 'remove' ), true ) || ! bbp_current_user_can_manage_engagements( $engagement, $user_id ) || ! $type->supports( $engagement, $object_id ) ) {
+	if ( empty( $user_id ) || empty( $type ) || ! in_array( $action, array( 'add', 'remove' ), true ) || ! bbp_current_user_can_manage_engagements( $engagement, $user_id ) || ! bbp_object_supports_engagement( $object_id, $type, $engagement ) ) {
 		return false;
 	}
 

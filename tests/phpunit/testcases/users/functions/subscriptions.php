@@ -10,6 +10,88 @@
 class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 	/**
+	 * @ticket BBP2989
+	 *
+	 * @covers ::bbp_object_supports_engagement
+	 * @covers ::bbp_is_subscribable
+	 * @covers ::bbp_current_user_can_toggle_engagement
+	 */
+	public function test_bbp_is_subscribable() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id )
+			)
+		);
+		$tag_id   = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+		$cat_id   = $this->factory->term->create( array( 'taxonomy' => 'category' ) );
+
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( bbp_is_subscribable( $forum_id ) );
+		$this->assertTrue( bbp_is_subscribable( $topic_id, 'post' ) );
+		$this->assertTrue( bbp_is_subscribable( $tag_id, 'term' ) );
+		$this->assertFalse( bbp_is_subscribable( $cat_id, 'term' ) );
+		$this->assertFalse( bbp_is_subscribable( $tag_id, 'missing' ) );
+		$this->assertTrue( bbp_object_supports_engagement( $forum_id, 'post', 'subscription' ) );
+		$this->assertTrue( bbp_object_supports_engagement( $topic_id, bbp_get_engagement_type( 'post' ), 'favorite' ) );
+		$this->assertFalse( bbp_object_supports_engagement( 0, 'post', 'subscription' ) );
+		$this->assertTrue( bbp_current_user_can_toggle_engagement( $forum_id ) );
+
+		add_filter( 'bbp_object_supports_engagement', '__return_false' );
+		try {
+			$this->assertFalse( bbp_is_subscribable( $forum_id ) );
+			$this->assertFalse( bbp_current_user_can_toggle_engagement( $forum_id ) );
+			$this->assertFalse( bbp_current_user_can_toggle_engagement( $topic_id, 'post', 'favorite' ) );
+		} finally {
+			remove_filter( 'bbp_object_supports_engagement', '__return_false' );
+		}
+
+		add_filter( 'bbp_object_supports_engagement', '__return_true' );
+		try {
+			$this->assertFalse( bbp_object_supports_engagement( 0, 'post', 'subscription' ) );
+			$this->assertFalse( bbp_object_supports_engagement( $forum_id, 'missing', 'subscription' ) );
+		} finally {
+			remove_filter( 'bbp_object_supports_engagement', '__return_true' );
+		}
+	}
+
+	/**
+	 * @ticket BBP2989
+	 *
+	 * @covers ::bbp_is_subscribable
+	 * @covers ::bbp_current_user_can_toggle_engagement
+	 */
+	public function test_bbp_is_subscribable_uses_the_queried_object_only_for_the_convenience_check() {
+		global $wp_query;
+
+		$old_query = $wp_query;
+		$user_id   = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$tag_id    = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+		$page_id   = $this->factory->post->create( array( 'post_type' => 'page' ) );
+
+		$this->set_current_user( $user_id );
+
+		try {
+			$wp_query                 = new WP_Query();
+			$wp_query->queried_object = get_term( $tag_id );
+
+			$this->assertTrue( bbp_is_subscribable() );
+			$this->assertTrue( bbp_is_subscribable( 0, 'term' ) );
+			$this->assertFalse( bbp_current_user_can_toggle_engagement( 0, 'term', 'subscription', 'remove' ) );
+
+			$wp_query->queried_object = get_post( $page_id );
+
+			$this->assertFalse( bbp_is_subscribable() );
+			$this->assertFalse( bbp_is_subscribable( 0, 'term' ) );
+		} finally {
+			$wp_query = $old_query;
+		}
+	}
+
+	/**
 	 * Engagement storage strategies.
 	 *
 	 * @return array

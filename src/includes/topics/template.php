@@ -3939,7 +3939,7 @@ function bbp_get_topic_tag_subscription_link( $args = array() ) {
 		'get_topic_tag_subscribe_link'
 	);
 
-	$retval = bbp_is_subscription_subtype_active( 'term', bbp_get_topic_tag_tax_id() )
+	$retval = bbp_is_subscribable( $r['object_id'], $r['object_type'] )
 		? bbp_get_user_subscribe_link( $r )
 		: false;
 

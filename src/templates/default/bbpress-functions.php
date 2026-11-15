@@ -153,6 +153,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Enqueue the required JavaScript files
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @since 2.7.0 bbPress (r8370) Support topic-tag subscription links.
 	 */
 	public function enqueue_scripts() {
 
@@ -168,8 +169,8 @@ class BBP_Default extends BBP_Theme_Compat {
 			);
 		}
 
-		// Forum-specific scripts
-		if ( bbp_is_single_forum() ) {
+		// Engagement scripts for subscribable objects
+		if ( bbp_is_subscribable() ) {
 			$scripts['bbpress-engagements'] = array(
 				'file'         => 'js/engagements.js',
 				'dependencies' => array( 'jquery' )
@@ -209,16 +210,17 @@ class BBP_Default extends BBP_Theme_Compat {
 	}
 
 	/**
-	 * Load localizations for topic script
+	 * Load engagement script localizations.
 	 *
 	 * These localizations require information that may not be loaded even by init.
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @since 2.7.0 bbPress (r8370) Support topic-tag subscription links.
 	 */
 	public function localize_topic_script() {
 
-		// Single forum or topic
-		if ( bbp_is_single_forum() || bbp_is_single_topic() ) {
+		// Localize when the engagements script is in use
+		if ( wp_script_is( 'bbpress-engagements', 'enqueued' ) ) {
 			wp_localize_script(
 				'bbpress-engagements',
 				'bbpEngagementJS',
