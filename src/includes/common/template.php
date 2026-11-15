@@ -1248,7 +1248,7 @@ function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 	// Any page with bbPress content
 	if ( ! empty( $bbp_classes ) ) {
 		$bbp_classes[] = 'bbpress';
-		$bbp_classes[] = 'no-js';
+		$bbp_classes[] = 'bbp-no-js';
 	}
 
 	/** Clean up **************************************************************/

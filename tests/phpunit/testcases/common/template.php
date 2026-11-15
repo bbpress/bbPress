@@ -896,7 +896,7 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 			}
 			$this->assertContains( 'existing', $classes );
 			$this->assertContains( 'bbpress', $classes );
-			$this->assertContains( 'no-js', $classes );
+			$this->assertContains( 'bbp-no-js', $classes );
 			$this->assertSame( 1, array_count_values( $classes )['bbpress'] );
 		} finally {
 			remove_filter( 'bbp_allow_search', '__return_true' );
