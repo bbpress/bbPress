@@ -2499,6 +2499,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id, $reply_id );
+	$user_ids = bbp_filter_notification_user_ids( $user_ids, 'subscriptions' );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
@@ -2744,6 +2745,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Remove subscribers who cannot read the notification content
 	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id );
+	$user_ids = bbp_filter_notification_user_ids( $user_ids, 'subscriptions' );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {

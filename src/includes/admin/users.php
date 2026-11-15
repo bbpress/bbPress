@@ -165,7 +165,7 @@ class BBP_Users_Admin {
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Notifications', 'bbpress' ); ?></th>
 					<td>
-						<?php bbp_mention_email_settings( $profileuser ); ?>
+						<?php bbp_user_notification_settings( $profileuser ); ?>
 					</td>
 				</tr>
 				<?php endif; ?>

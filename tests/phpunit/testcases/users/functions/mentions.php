@@ -19,7 +19,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->old_search_query = bbpress()->search_query;
 		$this->old_displayed_user = bbpress()->displayed_user;
 		$this->recipient = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'mention-user' ) );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$this->author = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$this->forum = $this->factory->forum->create();
 		bbpress()->mention_notification_queue = array();
@@ -33,7 +33,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		bbpress()->mention_subscription_recipients = array();
 		bbpress()->search_query = $this->old_search_query;
 		bbpress()->displayed_user = $this->old_displayed_user;
-		unset( $_POST['_bbp_mention_nonce'], $_POST['bbp_mention_email'] );
+		unset( $_POST['_bbp_notification_nonce'], $_POST['bbp_notification_preferences'] );
 		$this->set_current_user( 0 );
 		parent::tearDown();
 	}
@@ -58,7 +58,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	}
 
 	public function test_mentions_are_indexed_but_not_emailed_until_the_user_opts_in() {
-		delete_user_meta( $this->recipient, '_bbp_mention_email' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => null ) );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		$topic = $this->topic();
 		$reply = $this->factory->reply->create( array( 'post_parent' => $topic, 'post_author' => $this->author, 'post_content' => '@mention-user', 'reply_meta' => array( 'topic_id' => $topic, 'forum_id' => $this->forum ) ) );
@@ -72,13 +72,13 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 
 		$this->set_current_user( $this->recipient );
 		ob_start();
-		bbp_mention_email_settings( get_userdata( $this->recipient ) );
+		bbp_user_notification_settings( get_userdata( $this->recipient ) );
 		$html = ob_get_clean();
-		$this->assertStringContainsString( 'name="bbp_mention_email"', $html );
-		$this->assertStringNotContainsString( 'checked=', $html );
-		$_POST['_bbp_mention_nonce'] = wp_create_nonce( 'bbp-mention-preferences-' . $this->recipient );
-		$_POST['bbp_mention_email'] = '1';
-		bbp_save_mention_email_preference( $this->recipient );
+		$this->assertStringContainsString( 'name="bbp_notification_preferences[mentions]"', $html );
+		$this->assertMatchesRegularExpression( '/<option value="default"[^>]*selected=/', $html );
+		$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->recipient );
+		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'yes' );
+		bbp_save_user_notification_preferences( $this->recipient );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user already mentioned.' ) );
 		$this->topic();
@@ -86,12 +86,12 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->assertCount( 1, $this->mail );
 	}
 
-	public function test_only_an_explicit_yes_enables_native_mention_email() {
-		foreach ( array( '', 'no', 'invalid', 1, true, array( 'yes' ) ) as $setting ) {
-			update_user_meta( $this->recipient, '_bbp_mention_email', $setting );
+	public function test_only_an_explicit_true_enables_native_mention_email() {
+		foreach ( array( '', 'no', 'invalid', 1, array( 'yes' ) ) as $setting ) {
+			update_user_meta( $this->recipient, '_bbp_notification_preferences', array( 'mentions' => $setting ) );
 			$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		}
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
 	}
 
@@ -152,7 +152,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 			$post = $this->factory->reply->create( array( 'post_parent' => $post, 'post_author' => $this->author, 'post_content' => 'No mentions.', 'reply_meta' => array( 'topic_id' => $post, 'forum_id' => $this->forum ) ) );
 		}
 		$other = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'other-mention-user' ) );
-		update_user_meta( $other, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $other, array( 'mentions' => true ) );
 		bbp_shutdown();
 		$this->assertCount( 0, $this->mail );
 
@@ -186,7 +186,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	public function test_multiple_edits_before_shutdown_preserve_all_new_recipients() {
 		$topic = $this->topic();
 		$other = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'other-mention-user' ) );
-		update_user_meta( $other, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $other, array( 'mentions' => true ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user @other-mention-user' ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user @other-mention-user edited.' ) );
 		bbp_shutdown();
@@ -211,7 +211,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 			add_action( 'wp_after_insert_post', 'bbp_save_post_mentions', 20, 4 );
 		}
 		$other = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'other-mention-user' ) );
-		update_user_meta( $other, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $other, array( 'mentions' => true ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user @other-mention-user' ) );
 		bbp_shutdown();
 		$this->assertCount( 1, $this->mail );
@@ -240,9 +240,9 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$topic = $this->topic();
 		bbp_shutdown();
 		$other = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'other-mention-user' ) );
-		update_user_meta( $other, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $other, array( 'mentions' => true ) );
 		$removed = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'removed-mention-user' ) );
-		update_user_meta( $removed, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $removed, array( 'mentions' => true ) );
 		wp_update_post( array( 'ID' => $topic, 'post_status' => bbp_get_pending_status_id(), 'post_content' => '@mention-user @removed-mention-user' ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user @other-mention-user' ) );
 		bbp_shutdown();
@@ -261,7 +261,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		bbpress()->mention_notification_queue = array();
 		bbpress()->mention_subscription_recipients = array();
 		$other = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'other-mention-user' ) );
-		update_user_meta( $other, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $other, array( 'mentions' => true ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user @other-mention-user' ) );
 		bbp_shutdown();
 		$this->assertCount( 2, $this->mail );
@@ -314,10 +314,10 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	public function test_new_mentions_on_edits_recheck_preferences_and_access_at_delivery() {
 		$topic = $this->topic( array( 'post_content' => 'No mentions.' ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user' ) );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'no' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => false ) );
 		bbp_shutdown();
 		$this->assertCount( 0, $this->mail );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => 'Removed.' ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user restored.' ) );
 		bbp_shutdown();
@@ -385,12 +385,12 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	}
 
 	public function test_opt_out_and_self_mentions_do_not_send_but_remain_indexed() {
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'no' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => false ) );
 		$topic = $this->topic();
 		bbp_send_mention_notifications();
 		$this->assertCount( 0, $this->mail );
 		$this->assertSame( array( $this->recipient ), bbp_get_users_for_object( $topic, '_bbp_mention' ) );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$this->topic( array( 'post_author' => $this->recipient ) );
 		bbp_send_mention_notifications();
 		$this->assertCount( 0, $this->mail );
@@ -403,6 +403,19 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		bbp_send_mention_notifications();
 		$this->assertCount( 1, $this->mail );
 		$this->assertStringNotContainsString( 'You were mentioned', $this->mail[0]['subject'] );
+	}
+
+	/**
+	 * @ticket BBP3792
+	 */
+	public function test_disabled_subscription_email_does_not_suppress_mention_email() {
+		bbp_add_user_subscription( $this->recipient, $this->forum );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'subscriptions' => false ) );
+		$topic = $this->topic();
+		$this->assertFalse( bbp_notify_forum_subscribers( $topic, $this->forum, array(), $this->author ) );
+		bbp_send_mention_notifications();
+		$this->assertCount( 1, $this->mail );
+		$this->assertStringContainsString( 'You were mentioned', $this->mail[0]['subject'] );
 	}
 
 	public function test_subscription_relationship_alone_does_not_suppress_email() {
@@ -463,15 +476,16 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	public function test_preferences_require_both_nonce_and_authorization() {
 		$this->set_current_user( $this->recipient );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
-		bbp_save_mention_email_preference( $this->recipient );
+		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'no' );
+		bbp_save_user_notification_preferences( $this->recipient );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
-		$_POST['_bbp_mention_nonce'] = wp_create_nonce( 'bbp-mention-preferences-' . $this->recipient );
-		bbp_save_mention_email_preference( $this->recipient );
+		$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->recipient );
+		bbp_save_user_notification_preferences( $this->recipient );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		$this->set_current_user( $this->author );
-		$_POST['bbp_mention_email'] = '1';
-		$_POST['_bbp_mention_nonce'] = wp_create_nonce( 'bbp-mention-preferences-' . $this->recipient );
-		bbp_save_mention_email_preference( $this->recipient );
+		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'yes' );
+		$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->recipient );
+		bbp_save_user_notification_preferences( $this->recipient );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 	}
 
@@ -505,15 +519,16 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		do_action( 'show_user_profile', bbpress()->displayed_user );
 		do_action( 'edit_user_profile', bbpress()->displayed_user );
 		$html = ob_get_clean();
-		$this->assertSame( 1, substr_count( $html, 'name="bbp_mention_email"' ) );
-		$this->assertSame( 1, substr_count( $html, 'name="_bbp_mention_nonce"' ) );
+		$this->assertSame( 1, substr_count( $html, 'name="bbp_notification_preferences[mentions]"' ) );
+		$this->assertSame( 1, substr_count( $html, 'name="bbp_notification_preferences[subscriptions]"' ) );
+		$this->assertSame( 1, substr_count( $html, 'name="_bbp_notification_nonce"' ) );
 
 		set_current_screen( 'profile' );
 		try {
 			ob_start();
 			do_action( 'show_user_profile', bbpress()->displayed_user );
 			$html = ob_get_clean();
-			$this->assertSame( 1, substr_count( $html, 'name="bbp_mention_email"' ) );
+			$this->assertSame( 1, substr_count( $html, 'name="bbp_notification_preferences[mentions]"' ) );
 		} finally {
 			set_current_screen( 'front' );
 		}
@@ -532,7 +547,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	}
 
 	public function test_native_mention_email_preference_can_be_filtered() {
-		delete_user_meta( $this->recipient, '_bbp_mention_email' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => null ) );
 		$received = array();
 		$callback = function( $enabled, $user_id, $setting ) use ( &$received ) {
 			$received = array( $enabled, $user_id, $setting );
@@ -541,7 +556,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		add_filter( 'bbp_is_user_mention_email_enabled', $callback, 10, 3 );
 		try {
 			$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
-			$this->assertSame( array( false, $this->recipient, false ), $received );
+			$this->assertSame( array( false, $this->recipient, null ), $received );
 		} finally {
 			remove_filter( 'bbp_is_user_mention_email_enabled', $callback, 10 );
 		}
@@ -572,10 +587,10 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$xpath = new DOMXPath( $document );
 
 		$this->assertSame( 1, $xpath->query( '//form[@id="bbp-your-profile"]/fieldset[@id="bbp-user-notifications"][legend="Notifications"]' )->length );
-		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//input[@name="bbp_mention_email"]' )->length );
-		$this->assertSame( 0, $xpath->query( '//fieldset[legend="Account"]//input[@name="bbp_mention_email"]' )->length );
-		$this->assertSame( 1, $xpath->query( '//input[@name="bbp_mention_email"]' )->length );
-		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//input[@name="_bbp_mention_nonce"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//select[@name="bbp_notification_preferences[mentions]"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//select[@name="bbp_notification_preferences[subscriptions]"]' )->length );
+		$this->assertSame( 0, $xpath->query( '//fieldset[legend="Account"]//select[@name="bbp_notification_preferences[mentions]"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//fieldset[@id="bbp-user-notifications"]//input[@name="_bbp_notification_nonce"]' )->length );
 	}
 
 	public function test_notifications_fieldset_is_hidden_without_email_edit_access() {
@@ -905,7 +920,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 			$this->markTestSkipped( 'Multisite only.' );
 		}
 		$origin = get_current_blog_id();
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$topic = $this->topic( array( 'post_content' => 'No mentions.' ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user' ) );
 		$origin_url = bbp_get_topic_permalink( $topic );
@@ -931,16 +946,16 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	}
 
 	public function test_site_specific_options_cannot_override_the_global_preference() {
-		delete_user_meta( $this->recipient, '_bbp_mention_email' );
-		update_user_option( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => null ) );
+		update_user_option( $this->recipient, '_bbp_notification_preferences', array( 'mentions' => true ) );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 
-		update_user_option( $this->recipient, '_bbp_mention_email', 'no' );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		update_user_option( $this->recipient, '_bbp_notification_preferences', array( 'mentions' => false ) );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
 
-		update_user_option( $this->recipient, '_bbp_mention_email', 'yes' );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'no' );
+		update_user_option( $this->recipient, '_bbp_notification_preferences', array( 'mentions' => true ) );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => false ) );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 	}
 
@@ -953,9 +968,10 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		}
 
 		$this->set_current_user( $this->recipient );
-		$_POST['_bbp_mention_nonce'] = wp_create_nonce( 'bbp-mention-preferences-' . $this->recipient );
-		bbp_save_mention_email_preference( $this->recipient );
-		$this->assertSame( 'no', get_user_meta( $this->recipient, '_bbp_mention_email', true ) );
+		$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->recipient );
+		$_POST['bbp_notification_preferences'] = array( 'mentions' => 'no' );
+		bbp_save_user_notification_preferences( $this->recipient );
+		$this->assertSame( array( 'mentions' => false ), get_user_meta( $this->recipient, '_bbp_notification_preferences', true ) );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 
 		$blog = $this->factory->blog->create();
@@ -965,15 +981,15 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 			bbp_set_user_role( $this->recipient, bbp_get_participant_role() );
 			$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 
-			$_POST['bbp_mention_email'] = '1';
-			$_POST['_bbp_mention_nonce'] = wp_create_nonce( 'bbp-mention-preferences-' . $this->recipient );
-			bbp_save_mention_email_preference( $this->recipient );
+			$_POST['bbp_notification_preferences'] = array( 'mentions' => 'yes' );
+			$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->recipient );
+			bbp_save_user_notification_preferences( $this->recipient );
 			$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		} finally {
 			restore_current_blog();
 		}
 
-		$this->assertSame( 'yes', get_user_meta( $this->recipient, '_bbp_mention_email', true ) );
+		$this->assertSame( array( 'mentions' => true ), get_user_meta( $this->recipient, '_bbp_notification_preferences', true ) );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
 	}
 
@@ -996,8 +1012,9 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 			$this->topic( array( 'post_parent' => $forum ) );
 
 			$this->set_current_user( $this->recipient );
-			$_POST['_bbp_mention_nonce'] = wp_create_nonce( 'bbp-mention-preferences-' . $this->recipient );
-			bbp_save_mention_email_preference( $this->recipient );
+			$_POST['_bbp_notification_nonce'] = wp_create_nonce( 'bbp-notification-preferences-' . $this->recipient );
+			$_POST['bbp_notification_preferences'] = array( 'mentions' => 'no' );
+			bbp_save_user_notification_preferences( $this->recipient );
 			$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		} finally {
 			restore_current_blog();

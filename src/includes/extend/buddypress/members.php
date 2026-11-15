@@ -44,8 +44,8 @@ class BBP_BuddyPress_Members {
 
 		// Allow unsubscribe/unfavorite links to work
 		add_action( 'bp_template_redirect', array( $this, 'set_member_forum_query_vars' ) );
-		add_action( 'bp_notification_settings', array( $this, 'mention_email_settings' ) );
-		add_action( 'bp_core_notification_settings_after_save', array( $this, 'save_mention_email_settings' ) );
+		add_action( 'bp_notification_settings', array( $this, 'notification_settings' ) );
+		add_action( 'bp_core_notification_settings_after_save', array( $this, 'save_notification_settings' ) );
 
 		/** Engagements *******************************************************/
 
@@ -102,7 +102,7 @@ class BBP_BuddyPress_Members {
 		add_filter( 'bbp_pre_get_favorites_permalink',      array( $this, 'get_favorites_permalink'     ) );
 		add_filter( 'bbp_pre_get_subscriptions_permalink',  array( $this, 'get_subscriptions_permalink' ) );
 		add_filter( 'bbp_mention_email_settings_url',       array( $this, 'mention_email_settings_url'  ), 10, 2 );
-		add_filter( 'bbp_is_user_mention_email_enabled',    array( $this, 'is_mention_email_enabled'    ), 10, 3 );
+		add_filter( 'bbp_get_user_notification_inherited_preference', array( $this, 'get_mention_email_preference' ), 10, 3 );
 	}
 
 	/**
@@ -209,37 +209,37 @@ class BBP_BuddyPress_Members {
 	/**
 	 * Display the bbPress preference in BuddyPress notification settings.
 	 *
-	 * @since 2.7.0 bbPress (r8264)
+	 * @since 2.7.0 bbPress (r8363)
 	 */
-	public function mention_email_settings() {
-		bbp_mention_email_settings( get_userdata( bp_displayed_user_id() ) );
+	public function notification_settings() {
+		bbp_user_notification_settings( get_userdata( bp_displayed_user_id() ) );
 	}
 
 	/**
 	 * Save the independently authorized bbPress email preference.
 	 *
-	 * @since 2.7.0 bbPress (r8264)
+	 * @since 2.7.0 bbPress (r8363)
 	 */
-	public function save_mention_email_settings() {
-		bbp_save_mention_email_preference( bp_displayed_user_id() );
+	public function save_notification_settings() {
+		bbp_save_user_notification_preferences( bp_displayed_user_id() );
 	}
 
 	/**
-	 * Respect an explicit BuddyPress opt-in until a bbPress preference is saved.
+	 * Inherit the BuddyPress mention setting when bbPress has no explicit choice.
 	 *
-	 * @since 2.7.0 bbPress (r8264)
+	 * @since 2.7.0 bbPress (r8363)
 	 *
-	 * @param bool         $enabled Whether mention email is enabled.
-	 * @param int          $user_id Recipient ID.
-	 * @param string|false $setting Saved bbPress preference, or false if unset.
-	 * @return bool
+	 * @param bool|null $preference Inherited preference from another integration.
+	 * @param int       $user_id    Recipient ID.
+	 * @param string    $type       Notification type.
+	 * @return bool|null Inherited preference, if available.
 	 */
-	public function is_mention_email_enabled( $enabled, $user_id, $setting ) {
-		if ( false === $setting ) {
-			$enabled = ( 'yes' === bp_get_user_meta( $user_id, 'notification_activity_new_mention', true ) );
+	public function get_mention_email_preference( $preference, $user_id, $type ) {
+		if ( 'mentions' === $type ) {
+			$preference = ( 'yes' === bp_get_user_meta( $user_id, 'notification_activity_new_mention', true ) );
 		}
 
-		return $enabled;
+		return $preference;
 	}
 
 	/**

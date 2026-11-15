@@ -417,6 +417,7 @@ final class bbPress {
 		require $this->includes_dir . 'users/engagements.php';
 		require $this->includes_dir . 'users/favorites.php';
 		require $this->includes_dir . 'users/subscriptions.php';
+		require $this->includes_dir . 'users/notifications.php';
 		require $this->includes_dir . 'users/mentions.php';
 		require $this->includes_dir . 'users/mentions-backfill.php';
 		require $this->includes_dir . 'users/functions.php';

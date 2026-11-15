@@ -14,7 +14,7 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->recipient = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'backfill-reader' ) );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$this->forum = $this->factory->forum->create();
 		delete_option( '_bbp_mention_backfill' );
 		bbpress()->mention_notification_queue = array();
@@ -145,7 +145,7 @@ class BBP_Tests_Users_Functions_Mentions_Backfill extends BBP_UnitTestCase {
 		$this->assertSame( array(), $this->mail );
 
 		$new = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'new-backfill-reader' ) );
-		update_user_meta( $new, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $new, array( 'mentions' => true ) );
 		wp_update_post( array( 'ID' => $topic, 'post_content' => '@backfill-reader @new-backfill-reader' ) );
 		bbp_shutdown();
 		$this->assertCount( 1, $this->mail );

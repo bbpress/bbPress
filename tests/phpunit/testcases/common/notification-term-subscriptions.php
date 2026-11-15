@@ -122,6 +122,49 @@ class BBP_Tests_Common_Notification_Term_Subscriptions extends BBP_UnitTestCase 
 	}
 
 	/**
+	 * @ticket BBP3792
+	 *
+	 * @covers ::bbp_notify_forum_subscribers
+	 */
+	public function test_disabling_subscription_emails_preserves_forum_and_tag_subscriptions() {
+		$content       = $this->create_topic();
+		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$term_id       = $this->factory->term->create( array( 'taxonomy' => bbp_get_topic_tag_tax_id() ) );
+
+		wp_set_object_terms( $content['topic_id'], $term_id, bbp_get_topic_tag_tax_id() );
+		bbp_add_user_forum_subscription( $subscriber_id, $content['forum_id'] );
+		bbp_add_user_subscription( $subscriber_id, $term_id, 'term' );
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions' => false ) );
+
+		$this->assertFalse( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+		$this->assertCount( 0, $this->mail );
+		$this->assertTrue( bbp_is_user_subscribed( $subscriber_id, $content['forum_id'] ) );
+		$this->assertTrue( bbp_is_user_subscribed( $subscriber_id, $term_id, 'term' ) );
+
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions' => null ) );
+		$this->assertTrue( bbp_notify_forum_subscribers( $content['topic_id'], $content['forum_id'], array(), $content['author_id'] ) );
+		$this->assertCount( 1, $this->mail );
+	}
+
+	/**
+	 * @ticket BBP3792
+	 *
+	 * @covers ::bbp_notify_topic_subscribers
+	 */
+	public function test_disabling_subscription_emails_suppresses_reply_delivery() {
+		$content       = $this->create_topic();
+		$reply         = $this->create_reply( $content['topic_id'], $content['forum_id'] );
+		$subscriber_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+
+		bbp_add_user_topic_subscription( $subscriber_id, $content['topic_id'] );
+		bbp_update_user_notification_preferences( $subscriber_id, array( 'subscriptions' => false ) );
+
+		$this->assertFalse( bbp_notify_topic_subscribers( $reply['reply_id'], $content['topic_id'], $content['forum_id'], array(), $reply['author_id'] ) );
+		$this->assertCount( 0, $this->mail );
+		$this->assertTrue( bbp_is_user_subscribed( $subscriber_id, $content['topic_id'] ) );
+	}
+
+	/**
 	 * @ticket BBP2989
 	 *
 	 * @covers ::bbp_get_subscribers_for_topic_terms

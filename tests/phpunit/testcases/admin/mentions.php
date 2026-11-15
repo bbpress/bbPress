@@ -127,7 +127,7 @@ class BBP_Tests_Admin_Mentions extends BBP_UnitTestCase {
 		if ( is_multisite() ) {
 			grant_super_admin( $editor );
 		}
-		update_user_meta( $target, '_bbp_mention_email', 'no' );
+		bbp_update_user_notification_preferences( $target, array( 'mentions' => false ) );
 		$hooks = array_map( function( $hook ) { return clone $hook; }, $GLOBALS['wp_filter'] );
 		$old_screen = get_current_screen();
 		set_current_screen( $screen );
@@ -141,10 +141,10 @@ class BBP_Tests_Admin_Mentions extends BBP_UnitTestCase {
 			$document->loadHTML( $html );
 			$xpath = new DOMXPath( $document );
 			$this->assertSame( 1, $xpath->query( '//h2[text()="Forums"]' )->length );
-			$this->assertSame( 1, $xpath->query( '//h2[text()="Forums"]/following-sibling::table[1]//tr[th="Notifications"]/td//input[@name="bbp_mention_email"]' )->length );
-			$this->assertSame( 1, $xpath->query( '//input[@name="bbp_mention_email"]' )->length );
-			$this->assertSame( 1, $xpath->query( '//input[@name="_bbp_mention_nonce"]' )->length );
-			$this->assertSame( 0, $xpath->query( '//input[@name="bbp_mention_email"]/@checked' )->length );
+			$this->assertSame( 1, $xpath->query( '//h2[text()="Forums"]/following-sibling::table[1]//tr[th="Notifications"]/td//select[@name="bbp_notification_preferences[mentions]"]' )->length );
+			$this->assertSame( 1, $xpath->query( '//select[@name="bbp_notification_preferences[subscriptions]"]' )->length );
+			$this->assertSame( 1, $xpath->query( '//input[@name="_bbp_notification_nonce"]' )->length );
+			$this->assertSame( 1, $xpath->query( '//select[@name="bbp_notification_preferences[mentions]"]/option[@value="no" and @selected]' )->length );
 			$this->assertSame( $show_roles ? 1 : 0, $xpath->query( '//select[@name="bbp-forums-role"]' )->length );
 			$this->assertSame( $show_roles ? 1 : 0, $xpath->query( '//input[@id="bbp-auto-role-exclusion"]' )->length );
 		} finally {
@@ -175,7 +175,7 @@ class BBP_Tests_Admin_Mentions extends BBP_UnitTestCase {
 			ob_start();
 			BBP_Users_Admin::secondary_role_display( get_userdata( $target ) );
 			$html = ob_get_clean();
-			$this->assertStringNotContainsString( 'bbp_mention_email', $html );
+			$this->assertStringNotContainsString( 'bbp_notification_preferences', $html );
 			$this->assertStringNotContainsString( 'Notifications', $html );
 		} finally {
 			remove_filter( 'bbp_current_user_can_edit_user_field', $deny_email, 10 );

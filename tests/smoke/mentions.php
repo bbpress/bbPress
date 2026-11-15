@@ -18,7 +18,7 @@ $recipient = wp_insert_user( array(
 if ( is_wp_error( $recipient ) ) {
 	WP_CLI::error( $recipient );
 }
-update_user_meta( $recipient, '_bbp_mention_email', 'yes' );
+bbp_update_user_notification_preferences( $recipient, array( 'mentions' => true ) );
 
 remove_action( 'wp_after_insert_post', 'bbp_save_post_mentions', 20 );
 $historical = bbp_insert_topic( array(

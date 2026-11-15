@@ -2681,13 +2681,13 @@ function bbp_get_user_mentions_url( $user_id = 0 ) {
 }
 
 /**
- * Display the email preference on front-end and administration profiles.
+ * Display notification preferences on front-end and administration profiles.
  *
- * @since 2.7.0 bbPress (r8264)
+ * @since 2.7.0 bbPress (r8363)
  *
  * @param WP_User|null $user User being edited, or the displayed user.
  */
-function bbp_mention_email_settings( $user = null ) {
+function bbp_user_notification_settings( $user = null ) {
 	// bbPress also invokes the WordPress profile hooks on its front-end form.
 	if ( ! is_admin() && in_array( current_filter(), array( 'show_user_profile', 'edit_user_profile' ), true ) ) {
 		return;
@@ -2698,15 +2698,90 @@ function bbp_mention_email_settings( $user = null ) {
 		return;
 	}
 
+	$template = bbp_locate_template( 'form-user-notification-preferences.php' );
+
+	if ( ! empty( $template ) ) {
+		$displayed_user           = bbpress()->displayed_user;
+		bbpress()->displayed_user = get_userdata( $user_id );
+
+		try {
+			load_template( $template, false );
+		} finally {
+			bbpress()->displayed_user = $displayed_user;
+		}
+	}
+}
+
+/**
+ * Get the saved choice for a notification preference select.
+ *
+ * @since 2.7.0 bbPress (r8363)
+ *
+ * @param int    $user_id User ID.
+ * @param string $type    Notification type.
+ * @return string Default, yes, or no.
+ */
+function bbp_get_user_notification_preference_choice( $user_id = 0, $type = '' ) {
+	$preference = bbp_get_user_notification_preference( $user_id, $type );
+
+	if ( null === $preference ) {
+		return 'default';
+	}
+
+	return $preference ? 'yes' : 'no';
+}
+
+/**
+ * Output a notification preference select for a user.
+ *
+ * @since 2.7.0 bbPress (r8363)
+ *
+ * @param int    $user_id User ID.
+ * @param string $type    Notification type.
+ */
+function bbp_user_notification_preference_field( $user_id = 0, $type = '' ) {
+	$types = bbp_get_notification_types();
+
+	if ( ! is_string( $type ) || ! isset( $types[ $type ] ) || ! is_array( $types[ $type ] ) || empty( $types[ $type ]['label'] ) || ! is_string( $types[ $type ]['label'] ) ) {
+		return;
+	}
+
+	$label  = $types[ $type ]['label'];
+	$choice = bbp_get_user_notification_preference_choice( $user_id, $type );
 	?>
-	<div class="bbp-mention-email-settings">
-		<label>
-			<input name="bbp_mention_email" id="bbp_mention_email" class="checkbox" type="checkbox" value="1" <?php checked( bbp_is_user_mention_email_enabled( $user_id ) ); ?> />
-			<?php esc_html_e( 'Email me when someone mentions me in a forum discussion.', 'bbpress' ); ?>
-		</label>
-		<?php wp_nonce_field( 'bbp-mention-preferences-' . $user_id, '_bbp_mention_nonce', false ); ?>
-	</div>
+
+	<p>
+		<label for="bbp-notification-<?php echo esc_attr( $type ); ?>"><?php echo esc_html( $label ); ?></label>
+		<select name="bbp_notification_preferences[<?php echo esc_attr( $type ); ?>]" id="bbp-notification-<?php echo esc_attr( $type ); ?>">
+			<option value="default" <?php selected( $choice, 'default' ); ?>><?php esc_html_e( 'Default', 'bbpress' ); ?></option>
+			<option value="yes" <?php selected( $choice, 'yes' ); ?>><?php esc_html_e( 'Yes', 'bbpress' ); ?></option>
+			<option value="no" <?php selected( $choice, 'no' ); ?>><?php esc_html_e( 'No', 'bbpress' ); ?></option>
+		</select>
+	</p>
+
 	<?php
+}
+
+/**
+ * Output notification preference fields for the displayed user.
+ *
+ * @since 2.7.0 bbPress (r8363)
+ */
+function bbp_user_notification_preference_fields() {
+	$user_id = bbp_get_displayed_user_id();
+
+	foreach ( array_keys( bbp_get_notification_types() ) as $type ) {
+		bbp_user_notification_preference_field( $user_id, $type );
+	}
+}
+
+/**
+ * Output the displayed user's notification preference nonce.
+ *
+ * @since 2.7.0 bbPress (r8363)
+ */
+function bbp_user_notification_preferences_nonce() {
+	wp_nonce_field( 'bbp-notification-preferences-' . bbp_get_displayed_user_id(), '_bbp_notification_nonce', false );
 }
 
 /** Language ******************************************************************/

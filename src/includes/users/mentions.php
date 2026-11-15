@@ -344,10 +344,8 @@ function bbp_user_can_read_mention( $post_id = 0, $user_id = 0 ) {
  */
 function bbp_is_user_mention_email_enabled( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, true );
-	$setting = metadata_exists( 'user', $user_id, '_bbp_mention_email' )
-		? get_user_meta( $user_id, '_bbp_mention_email', true )
-		: false;
-	$enabled = ( 'yes' === $setting );
+	$setting = bbp_get_user_notification_preference( $user_id, 'mentions' );
+	$enabled = bbp_is_user_notification_enabled( $user_id, 'mentions' );
 
 	return (bool) apply_filters( 'bbp_is_user_mention_email_enabled', $enabled, $user_id, $setting );
 }
@@ -599,19 +597,4 @@ function bbp_delete_post_mentions( $post_id = 0 ) {
 	if ( in_array( get_post_type( $post_id ), array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
 		bbp_remove_object_from_all_users( $post_id, '_bbp_mention' );
 	}
-}
-
-/**
- * Save the global mention email preference from an updated user profile.
- *
- * @since 2.7.0 bbPress (r8264)
- *
- * @param int $user_id Updated user ID.
- */
-function bbp_save_mention_email_preference( $user_id = 0 ) {
-	if ( ! bbp_current_user_can_edit_user_field( 'email', $user_id ) || ! isset( $_POST['_bbp_mention_nonce'] ) || ! is_string( $_POST['_bbp_mention_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_bbp_mention_nonce'] ), 'bbp-mention-preferences-' . $user_id ) ) {
-		return;
-	}
-
-	update_user_meta( $user_id, '_bbp_mention_email', empty( $_POST['bbp_mention_email'] ) ? 'no' : 'yes' );
 }

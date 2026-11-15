@@ -25,7 +25,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		}
 		update_option( '_bbp_db_version', 264 );
 		$this->recipient = $this->factory->user->create( array( 'role' => bbp_get_participant_role(), 'user_nicename' => 'auto-mention-reader' ) );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$forum = $this->factory->forum->create();
 		remove_action( 'wp_after_insert_post', 'bbp_save_post_mentions', 20 );
 		try {

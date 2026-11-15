@@ -52,8 +52,8 @@ add_action( 'before_delete_post',                'bbp_delete_post_mentions'     
 add_action( 'bbp_shutdown',                      'bbp_send_mention_notifications'                    );
 add_action( 'bbp_post_notify_subscribers',       'bbp_record_mention_subscription_recipients', 10, 3 );
 add_action( 'bbp_post_notify_forum_subscribers', 'bbp_record_mention_subscription_recipients', 10, 3 );
-add_action( 'profile_update',                    'bbp_save_mention_email_preference'                 );
-add_action( 'bbp_user_edit_notifications',       'bbp_mention_email_settings'                        );
+add_action( 'profile_update',                    'bbp_save_user_notification_preferences'            );
+add_action( 'bbp_user_edit_notifications',       'bbp_user_notification_settings'                    );
 add_action( 'bbp_template_user_subscriptions',   'bbp_user_term_subscriptions'                       );
 
 add_action( 'user_register',            'bbp_user_register',          10    );

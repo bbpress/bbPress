@@ -100,11 +100,11 @@ class BBP_Tests_Extend_BuddyPress_Mentions extends BBP_UnitTestCase {
 
 	public function test_explicit_bbpress_preference_takes_precedence_over_buddypress() {
 		bp_update_user_meta( $this->recipient, 'notification_activity_new_mention', 'no' );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'yes' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => true ) );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
 
 		bp_update_user_meta( $this->recipient, 'notification_activity_new_mention', 'yes' );
-		update_user_meta( $this->recipient, '_bbp_mention_email', 'no' );
+		bbp_update_user_notification_preferences( $this->recipient, array( 'mentions' => false ) );
 		$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 	}
 
@@ -133,12 +133,12 @@ class BBP_Tests_Extend_BuddyPress_Mentions extends BBP_UnitTestCase {
 	public function test_buddypress_preference_is_supplied_by_a_removable_filter() {
 		bp_update_user_meta( $this->recipient, 'notification_activity_new_mention', 'yes' );
 		$this->assertTrue( bbp_is_user_mention_email_enabled( $this->recipient ) );
-		$callback = array( bbpress()->extend->buddypress->members, 'is_mention_email_enabled' );
-		remove_filter( 'bbp_is_user_mention_email_enabled', $callback, 10 );
+		$callback = array( bbpress()->extend->buddypress->members, 'get_mention_email_preference' );
+		remove_filter( 'bbp_get_user_notification_inherited_preference', $callback, 10 );
 		try {
 			$this->assertFalse( bbp_is_user_mention_email_enabled( $this->recipient ) );
 		} finally {
-			add_filter( 'bbp_is_user_mention_email_enabled', $callback, 10, 3 );
+			add_filter( 'bbp_get_user_notification_inherited_preference', $callback, 10, 3 );
 		}
 	}
 
