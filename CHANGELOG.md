@@ -26,6 +26,8 @@ Development for the next bbPress release is in progress. See the active
 
 - Kept topic and forum restore lists intact when trash or restore was interrupted.
 - Avoided repeated activity scans while trashing or restoring a topic's replies.
+- Avoided repeated activity scans while spamming or unspamming a topic's replies,
+  and retained restore progress if the operation was interrupted.
 - Avoided repeated forum activity scans and recounts while permanently deleting
   a topic or forum.
 - Prevented Block Themes from rendering archive excerpts or original post
