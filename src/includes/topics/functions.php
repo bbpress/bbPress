@@ -3691,9 +3691,9 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 		&& ( false !== has_action( 'deleted_post', 'bbp_deleted_topic' ) )
 		&& ( false !== has_action( 'bbp_deleted_topic', 'bbp_update_topic_walker' ) )
 		&& ( false !== has_action( 'bbp_deleted_reply', 'bbp_update_reply_walker' ) );
-	$previous = bbp_suspend_deleted_reply_walker( $topic_id );
+	$previous = bbp_suspend_reply_walker( $topic_id );
 	if ( $suspend_walker ) {
-		bbp_suspend_deleted_reply_walker( $topic_id, true );
+		bbp_suspend_reply_walker( $topic_id, true );
 	}
 
 	// A standalone topic may survive a failed post delete, so let its last
@@ -3706,7 +3706,7 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 	try {
 		foreach ( $reply_ids as $reply_id ) {
 			if ( $refresh_last && ( $last_reply === $reply_id ) ) {
-				bbp_suspend_deleted_reply_walker( $topic_id, false );
+				bbp_suspend_reply_walker( $topic_id, false );
 			}
 
 			if ( ! wp_delete_post( $reply_id, true ) ) {
@@ -3716,7 +3716,7 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 		$completed = ! $failed;
 	} finally {
 		if ( $suspend_walker ) {
-			bbp_suspend_deleted_reply_walker( $topic_id, $previous );
+			bbp_suspend_reply_walker( $topic_id, $previous );
 
 			// An interrupted deletion leaves the topic in place with fewer replies.
 			if ( ! $previous && ! $completed ) {
@@ -3788,17 +3788,33 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 
 		// Prevent debug notices
 		$pre_trashed_replies = array();
-
-		// Loop through replies, trash them, and add them to array
-		foreach ( $reply_ids as $reply_id ) {
-			wp_trash_post( $reply_id );
-			$pre_trashed_replies[] = $reply_id;
+		$defer               = doing_action( 'wp_trash_post' )
+			&& doing_action( 'bbp_trash_topic' )
+			&& ( false !== has_action( 'bbp_trashed_reply', 'bbp_update_reply_walker' ) );
+		$previous            = bbp_suspend_reply_walker( $topic_id );
+		if ( $defer ) {
+			bbp_suspend_reply_walker( $topic_id, true );
 		}
 
-		// Set a post_meta entry of the replies that were trashed by this action.
-		// This is so we can possibly untrash them, without untrashing replies
-		// that were purposefully trashed before.
-		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
+		try {
+			// Loop through replies, trash them, and add them to array
+			foreach ( $reply_ids as $reply_id ) {
+				wp_trash_post( $reply_id );
+				$pre_trashed_replies[] = $reply_id;
+			}
+
+			// Set a post_meta entry of the replies that were trashed by this action.
+			// This is so we can possibly untrash them, without untrashing replies
+			// that were purposefully trashed before.
+			update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
+		} finally {
+			if ( $defer ) {
+				bbp_suspend_reply_walker( $topic_id, $previous );
+				if ( ! $previous ) {
+					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+				}
+			}
+		}
 	}
 }
 
@@ -3838,15 +3854,31 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 
 	// There are replies to untrash
 	if ( ! empty( $pre_trashed_replies ) ) {
-
-		// Maybe reverse the trashed replies array
-		if ( is_array( $pre_trashed_replies ) ) {
-			$pre_trashed_replies = array_reverse( $pre_trashed_replies );
+		$defer    = doing_action( 'untrash_post' )
+			&& doing_action( 'bbp_untrash_topic' )
+			&& ( false !== has_action( 'bbp_untrashed_reply', 'bbp_update_reply_walker' ) );
+		$previous = bbp_suspend_reply_walker( $topic_id );
+		if ( $defer ) {
+			bbp_suspend_reply_walker( $topic_id, true );
 		}
 
-		// Loop through replies
-		foreach ( (array) $pre_trashed_replies as $reply ) {
-			wp_untrash_post( $reply );
+		try {
+			// Maybe reverse the trashed replies array
+			if ( is_array( $pre_trashed_replies ) ) {
+				$pre_trashed_replies = array_reverse( $pre_trashed_replies );
+			}
+
+			// Loop through replies
+			foreach ( (array) $pre_trashed_replies as $reply ) {
+				wp_untrash_post( $reply );
+			}
+		} finally {
+			if ( $defer ) {
+				bbp_suspend_reply_walker( $topic_id, $previous );
+				if ( ! $previous ) {
+					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+				}
+			}
 		}
 	}
 

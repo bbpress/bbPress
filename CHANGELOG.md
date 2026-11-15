@@ -71,6 +71,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Avoid repeated activity scans while trashing or restoring a topic's replies.
 - Avoid repeated forum activity scans and recounts while permanently deleting
   a topic or forum.
 - Changed subscription notifications to send one email per recipient, and

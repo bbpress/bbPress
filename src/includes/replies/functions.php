@@ -984,18 +984,17 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 }
 
 /**
- * Suspend the core deleted-reply walker for one topic.
+ * Suspend the core reply walker for one topic during a parent operation.
  *
- * The deleted-topic walker refreshes the forum after the replies are removed.
- * Other deleted-reply callbacks continue to run while this walker is suspended.
+ * Other reply callbacks continue to run while this walker is suspended.
  *
- * @since 2.6.22 bbPress (r8369)
+ * @since 2.6.22 bbPress (r8372)
  *
  * @param int       $topic_id Topic ID.
  * @param bool|null $suspend Whether to suspend, or null to read the current state.
- * @return bool Whether the deleted-reply walker is suspended for this topic.
+ * @return bool Whether the reply walker is suspended for this topic.
  */
-function bbp_suspend_deleted_reply_walker( $topic_id = 0, $suspend = null ) {
+function bbp_suspend_reply_walker( $topic_id = 0, $suspend = null ) {
 	static $suspended = array();
 
 	$topic_id = (int) $topic_id;
@@ -1043,8 +1042,8 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 		}
 	}
 
-	// The enclosing topic deletion performs one final forum refresh.
-	if ( ( 'bbp_deleted_reply' === current_filter() ) && bbp_suspend_deleted_reply_walker( $topic_id ) ) {
+	// Enclosing topic changes refresh the topic and forum after their replies.
+	if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'bbp_trashed_reply', 'bbp_untrashed_reply' ), true ) && bbp_suspend_reply_walker( $topic_id ) ) {
 		return;
 	}
 

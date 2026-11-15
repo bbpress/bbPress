@@ -1160,7 +1160,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_delete_topic_replies
-	 * @covers ::bbp_suspend_deleted_reply_walker
+	 * @covers ::bbp_suspend_reply_walker
 	 * @covers ::bbp_update_reply_walker
 	 */
 	public function test_deleting_topic_refreshes_forum_once_after_replies() {
@@ -1207,12 +1207,12 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$this->assertSame( 4, $query_count );
 		$this->assertSame( $remaining_reply_id, bbp_get_forum_last_active_id( $forum_id ) );
 		$this->assertNull( get_post( $topic_id ) );
-		$this->assertFalse( bbp_suspend_deleted_reply_walker( $topic_id ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
 	}
 
 	/**
 	 * @covers ::bbp_delete_topic_replies
-	 * @covers ::bbp_suspend_deleted_reply_walker
+	 * @covers ::bbp_suspend_reply_walker
 	 */
 	public function test_interrupted_topic_deletion_restores_reply_counts_and_activity() {
 		$forum_id = $this->factory->forum->create();
@@ -1248,7 +1248,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, true, true ) );
 		$this->assertSame( $reply_ids[1], bbp_get_topic_last_reply_id( $topic_id ) );
 		$this->assertSame( $reply_ids[1], bbp_get_forum_last_active_id( $forum_id ) );
-		$this->assertFalse( bbp_suspend_deleted_reply_walker( $topic_id ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
 
 		wp_delete_post( $topic_id, true );
 		$this->assertNull( get_post( $topic_id ) );
@@ -1257,7 +1257,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_delete_topic_replies
-	 * @covers ::bbp_suspend_deleted_reply_walker
+	 * @covers ::bbp_suspend_reply_walker
 	 */
 	public function test_failed_topic_row_delete_keeps_forum_activity_current() {
 		global $wpdb;
@@ -1286,7 +1286,7 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$this->assertNotNull( get_post( $topic_id ) );
 		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $forum_id ) );
 		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
-		$this->assertFalse( bbp_suspend_deleted_reply_walker( $topic_id ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
 
 		wp_delete_post( $topic_id, true );
 		$this->assertNull( get_post( $topic_id ) );
@@ -1312,6 +1312,64 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $public ) );
 		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $trashed ) );
 		$this->assertSame( array( $public ), get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_trash_topic_replies
+	 * @covers ::bbp_untrash_topic_replies
+	 * @covers ::bbp_suspend_reply_walker
+	 */
+	public function test_topic_trash_and_restore_defer_reply_walker_without_skipping_hooks() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_ids = $this->factory->reply->create_many( 4, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		wp_trash_post( $reply_ids[0] );
+
+		$activity_queries = 0;
+		$trashed          = array();
+		$restored         = array();
+		$count_query      = function( $query ) use ( &$activity_queries ) {
+			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
+				++$activity_queries;
+			}
+			return $query;
+		};
+		$record_trashed  = function( $reply_id ) use ( &$trashed ) {
+			$trashed[] = $reply_id;
+		};
+		$record_restored = function( $reply_id ) use ( &$restored ) {
+			$restored[] = $reply_id;
+		};
+		add_filter( 'query', $count_query );
+		add_action( 'bbp_trashed_reply', $record_trashed );
+		add_action( 'bbp_untrashed_reply', $record_restored );
+		try {
+			wp_trash_post( $topic_id );
+			$trash_queries    = $activity_queries;
+			$activity_queries = 0;
+			wp_untrash_post( $topic_id );
+			$restore_queries = $activity_queries;
+		} finally {
+			remove_filter( 'query', $count_query );
+			remove_action( 'bbp_trashed_reply', $record_trashed );
+			remove_action( 'bbp_untrashed_reply', $record_restored );
+		}
+
+		$expected = array_slice( $reply_ids, 1 );
+		$this->assertEqualSets( $expected, $trashed );
+		$this->assertEqualSets( $expected, $restored );
+		$this->assertLessThan( 8, $trash_queries );
+		$this->assertLessThan( 8, $restore_queries );
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $reply_ids[0] ) );
+		$this->assertSame( 3, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 3, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertFalse( bbp_suspend_reply_walker( $topic_id ) );
 	}
 
 	/**
