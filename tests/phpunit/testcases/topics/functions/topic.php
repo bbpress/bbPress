@@ -1093,6 +1093,73 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_trash_topic_replies
+	 * @covers ::bbp_untrash_topic_replies
+	 */
+	public function test_interrupted_topic_trash_and_restore_can_retry() {
+		$topic_id  = $this->factory->topic->create();
+		$reply_ids = $this->factory->reply->create_many( 3, array( 'post_parent' => $topic_id ) );
+		$trashed   = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		wp_trash_post( $trashed );
+
+		$calls     = 0;
+		$interrupt = function() use ( &$calls ) {
+			if ( 2 === ++$calls ) {
+				throw new RuntimeException( 'Interrupted child transition.' );
+			}
+		};
+		add_action( 'bbp_trash_reply', $interrupt, 1 );
+		try {
+			wp_trash_post( $topic_id );
+			$this->fail( 'Topic trash should have stopped.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Interrupted child transition.', $exception->getMessage() );
+		} finally {
+			remove_action( 'bbp_trash_reply', $interrupt, 1 );
+		}
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		$this->assertEqualSets( $reply_ids, get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+		wp_trash_post( $topic_id );
+
+		$calls = 0;
+		add_action( 'bbp_untrash_reply', $interrupt, 1 );
+		try {
+			wp_untrash_post( $topic_id );
+			$this->fail( 'Topic restore should have stopped.' );
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'Interrupted child transition.', $exception->getMessage() );
+		} finally {
+			remove_action( 'bbp_untrash_reply', $interrupt, 1 );
+		}
+
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $topic_id ) );
+		$this->assertEqualSets( $reply_ids, get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+		wp_untrash_post( $topic_id );
+		foreach ( $reply_ids as $reply_id ) {
+			$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+		}
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $trashed ) );
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+
+		wp_trash_post( $topic_id );
+		$block = function( $check, $post ) use ( $reply_ids ) {
+			return ( $reply_ids[1] === $post->ID ) ? false : $check;
+		};
+		add_filter( 'pre_untrash_post', $block, 10, 2 );
+		try {
+			wp_untrash_post( $topic_id );
+		} finally {
+			remove_filter( 'pre_untrash_post', $block, 10 );
+		}
+		$this->assertSame( bbp_get_trash_status_id(), get_post_status( $reply_ids[1] ) );
+		$this->assertEqualSets( $reply_ids, get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+		bbp_untrash_topic_replies( $topic_id );
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_ids[1] ) );
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_spam_topic_replies
 	 */
 	public function test_bbp_spam_topic_replies_in_hidden_forum() {

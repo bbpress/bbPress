@@ -3756,8 +3756,10 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 
 	if ( ! empty( $reply_ids ) ) {
 
-		// Prevent debug notices
-		$pre_trashed_replies = array();
+		// Save the restore list before trashing, so an interrupted request can retry.
+		$pre_trashed_replies = wp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+		$pre_trashed_replies = wp_parse_id_list( array_merge( $pre_trashed_replies, $reply_ids ) );
+		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
 		$defer               = doing_action( 'wp_trash_post' )
 			&& doing_action( 'bbp_trash_topic' )
 			&& ( false !== has_action( 'bbp_trashed_reply', 'bbp_update_reply_walker' ) );
@@ -3767,16 +3769,10 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 		}
 
 		try {
-			// Loop through replies, trash them, and add them to array
+			// Loop through replies and trash them.
 			foreach ( $reply_ids as $reply_id ) {
 				wp_trash_post( $reply_id );
-				$pre_trashed_replies[] = $reply_id;
 			}
-
-			// Set a post_meta entry of the replies that were trashed by this action.
-			// This is so we can possibly untrash them, without untrashing replies
-			// that were purposefully trashed before.
-			update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
 		} finally {
 			if ( $defer ) {
 				bbp_suspend_reply_walker( $topic_id, $previous );
@@ -3818,6 +3814,8 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 	// Get the replies that were not previously trashed
 	$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
 
+	$failed = false;
+
 	// There are replies to untrash
 	if ( ! empty( $pre_trashed_replies ) ) {
 		$defer    = doing_action( 'untrash_post' )
@@ -3836,7 +3834,12 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 
 			// Loop through replies
 			foreach ( (array) $pre_trashed_replies as $reply ) {
-				wp_untrash_post( $reply );
+				if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
+					wp_untrash_post( $reply );
+					if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
+						$failed = true;
+					}
+				}
 			}
 		} finally {
 			if ( $defer ) {
@@ -3848,8 +3851,10 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 		}
 	}
 
-	// Clear the trashed reply meta for the topic
-	delete_post_meta( $topic_id, '_bbp_pre_trashed_replies' );
+	// Keep the restore list when a reply remains trashed.
+	if ( ! $failed ) {
+		delete_post_meta( $topic_id, '_bbp_pre_trashed_replies' );
+	}
 }
 
 /** After Delete/Trash/Untrash ************************************************/
