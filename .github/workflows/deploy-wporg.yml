@@ -172,7 +172,8 @@ jobs:
           BBPRESS_SMOKE_DB_PASSWORD: root
         run: |
           set -euo pipefail
-          automation/bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
+          # The helper resolves its smoke fixture relative to its checkout.
+          source/bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
 
       - name: Test the Playground blueprint
         run: |
