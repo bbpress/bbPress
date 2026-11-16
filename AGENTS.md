@@ -64,6 +64,12 @@ Plugin SVN into canonical development history.
   records the deletion. Enabling it or changing its scope, credentials, or
   validation rules requires explicit maintainer approval. Disabling it is
   always allowed as a fail-safe response.
+- Before landing or releasing a change under `.github/` or `bin/`, check the
+  current scheduled mirror scope in `bin/sync-github-mirror.py`. If it blocks
+  the changed path, plan a reviewed manual mirror `push` before expecting
+  GitHub CI. Validate and dry-run the exact pending refs first, then verify
+  the GitHub refs and CI after the approved push. A successful dry-run does not
+  synchronize GitHub.
 - Stop for explicit maintainer approval before an SVN commit, GitHub push, PR
   merge or close, Trac mutation, release, deployment, site publication,
   permission change, or public infrastructure change. One clear approval may

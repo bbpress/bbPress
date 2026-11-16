@@ -1292,6 +1292,21 @@ class ScheduledScopeTests(unittest.TestCase):
         with self.assertRaisesRegex(mirror.MirrorError, "reviewed local manifest"):
             mirror.validate_scheduled_update_scope(commits, logs)
 
+    def test_rejects_deployment_script_on_release_branch(self):
+        commit = self.commit()
+        commit["svn_path"] = "branches/2.6"
+        commits = {"a" * 40: (commit, "branches/2.6")}
+        logs = {101: canonical_entry(101, path="/branches/2.6/bin/prepare-plugin-svn-release.sh")}
+        with self.assertRaisesRegex(mirror.MirrorError, "reviewed local manifest"):
+            mirror.validate_scheduled_update_scope(commits, logs)
+
+    def test_accepts_smoke_script_on_release_branch(self):
+        commit = self.commit()
+        commit["svn_path"] = "branches/2.6"
+        commits = {"a" * 40: (commit, "branches/2.6")}
+        logs = {101: canonical_entry(101, path="/branches/2.6/bin/smoke-test-plugin.sh")}
+        mirror.validate_scheduled_update_scope(commits, logs)
+
     def test_accepts_scheduled_source_update(self):
         commits = {"a" * 40: (self.commit(), "trunk")}
         logs = {101: canonical_entry(101, path="/trunk/src/example.php")}

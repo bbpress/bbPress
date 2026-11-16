@@ -33,6 +33,9 @@ WPORG_GITHUB_LOOKUP = f"{WPORG_PROFILES}/wp-json/wporg-github/v1/lookup"
 HTTP_USER_AGENT = "bbPress GitHub mirror validator/1.0 (+https://github.com/bbpress/bbPress)"
 HTTP_RESPONSE_LIMIT = 1024 * 1024
 SCHEDULED_PROTECTED_PATHS = (".github", "bin")
+# This smoke helper runs only in jobs without protected environment secrets.
+# Workflow changes that could move it into a privileged job remain protected above.
+SCHEDULED_ALLOWED_PATHS = ("bin/smoke-test-plugin.sh",)
 TRAILER_RE = re.compile(
     rf"^git-svn-id: ({re.escape(SVN_ROOT)}/(trunk|branches/[^@\n]+|tags/[^@\n]+))@(\d+) {SVN_UUID}$",
     re.MULTILINE,
@@ -1229,6 +1232,8 @@ def validate_scheduled_update_scope(
             if not path.startswith(prefix):
                 continue
             relative = path.removeprefix(prefix)
+            if relative in SCHEDULED_ALLOWED_PATHS:
+                continue
             if any(
                 relative == protected
                 or relative.startswith(f"{protected}/")
