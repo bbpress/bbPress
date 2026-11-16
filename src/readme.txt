@@ -6,7 +6,7 @@ License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP:      7.2
 Requires at least: 6.0
 Tested up to:      7.1
-Stable tag:        2.6.21
+Stable tag:        2.6.22
 
 bbPress is forum software for WordPress.
 
@@ -86,6 +86,10 @@ The upgrade does not synchronously recount every forum. Sites with known stale m
 Check out the [releases page](https://codex.bbpress.org/releases/)
 
 == Upgrade Notice ==
+
+= 2.6.22 =
+
+Strengthens forum, topic, reply, attachment, and BuddyPress access checks. Improves block theme rendering, topic and forum trash and moderation performance, forum reset error reporting, and importer handling. Imported 32-character hexadecimal Vanilla plaintext passwords may require a reset. WordPress 6.0, PHP 7.2, and database version 264 requirements are unchanged; no database upgrade is required.
 
 = 2.6.21 =
 

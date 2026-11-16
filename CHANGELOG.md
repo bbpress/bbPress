@@ -13,25 +13,47 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+## 2.6.22 - 2026-11-15
+
+### Changed
+
+- Returned consecutive numeric keys from `bbp_get_unique_array_values()` after
+  removing empty and duplicate values.
+- Used BuddyPress 12 group and member URL APIs when available, with
+  compatibility fallbacks for earlier BuddyPress versions.
+
 ### Security
 
 - Required forum read access when creating topics.
-- Prevented WordPress post navigation on bbPress pages.
-- Improved protected-content handling in public WordPress discovery.
-- Matched attachment comment submissions to forum visibility rules.
-- Preserved REST media permissions with compatible attachment controllers.
+- Treated unclassified forum visibility statuses as restricted across forum
+  access checks and public queries.
+- Kept replies to non-public topics and content beneath password-protected
+  forums out of public discovery and aggregate listings.
+- Cleared denied reply queries before later templates could render their content.
+- Kept protected bbPress content out of sitemaps, attachment comment feeds,
+  and embedded shortcodes and blocks without the required access.
+- Matched attachment comment submissions to forum visibility rules and kept
+  bbPress permissions in place for compatible REST media controllers.
 - Required current forum access and destination edit permission for REST media changes.
+- Required current inherited passwords before editing topics or replies.
+- Scoped BuddyPress group moderation permissions to the relevant forum content.
+- Verified imported Vanilla MD5 passwords during first-login conversion.
+  Imported 32-character hexadecimal plaintext passwords may require a reset
+  because legacy metadata cannot distinguish them from MD5 hashes.
 
 ### Fixed
 
+- Reported failed database queries in the forum reset tool.
 - Kept topic and forum restore lists intact when trash or restore was interrupted.
 - Avoided repeated activity scans while trashing or restoring a topic's replies.
 - Avoided repeated activity scans while spamming or unspamming a topic's replies,
   and retained restore progress if the operation was interrupted.
 - Avoided repeated forum activity scans and recounts while permanently deleting
   a topic or forum.
-- Prevented Block Themes from rendering archive excerpts or original post
-  content in place of bbPress theme-compatibility screens.
+- Selected bbPress block templates for theme-compatibility views so generated
+  forum content replaces archive excerpts or underlying post content.
+- Prevented WordPress adjacent-post navigation on bbPress pages.
+- Preserved code markup containing backticks through topic and reply edits.
 - Kept toolbar hover backgrounds square with bbPress admin color schemes on
   WordPress 7.2.
 - Prevented a fatal error when excerpt filters supply only the excerpt, as some
@@ -39,10 +61,12 @@ Development for the next bbPress release is in progress. See the active
 - Avoided PHP 8.6 type-check deprecation notices.
 - Avoided PHP deprecation notices when optional imported BBCode template values
   are absent.
+- Avoided a fatal error when traversing a forum whose parent is missing.
 - Used the configured edit slug for reply edit links in BuddyPress group forums.
 - Preserved topic and reply dates during repeated daylight-saving hours,
   including edit windows, unchanged API dates, and approvals.
-- Styled pending database upgrade counts consistently in the administration menu.
+- Kept pending forum upgrade count bubbles visible in administration menus,
+  including on hover.
 - Linked imported email addresses with one-character local parts during
   automatic URL detection.
 - Ensured configured URL targets override per-tag targets in imported BBCode
@@ -52,9 +76,9 @@ Development for the next bbPress release is in progress. See the active
 - Removed stale BuddyPress group-forum relationships and root settings when
   forums are permanently deleted.
 
-### Security
+[Upgrade notes](https://codex.bbpress.org/releases/bbpress-2-6-22/)
 
-- Required current inherited passwords before editing topics or replies.
+[Release announcement](https://bbpress.org/blog/2026/11/bbpress-2-6-22-is-out/)
 
 ## 2.6.21 - 2026-10-27
 
