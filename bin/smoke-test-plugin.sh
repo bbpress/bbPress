@@ -18,7 +18,7 @@ wp_root="$(cd "$wp_root" && pwd -P)"
 
 wp core download --path="$wp_root"
 printf '%s\n' "${BBPRESS_SMOKE_DB_PASSWORD}" | wp config create --prompt=dbpass --path="$wp_root" --dbname="${BBPRESS_SMOKE_DB_NAME:-wordpress_smoke}" --dbuser="${BBPRESS_SMOKE_DB_USER:-root}" --dbhost="${BBPRESS_SMOKE_DB_HOST:-127.0.0.1}"
-openssl rand -base64 24 | wp core install --prompt=admin_password --path="$wp_root" --url="http://127.0.0.1:$port" --title="bbPress Smoke Test" --admin_user=admin --admin_email=admin@example.com
+openssl rand -base64 24 | wp core install --prompt=admin_password --path="$wp_root" --url="http://127.0.0.1:$port" --title="bbPress Smoke Test" --admin_user=admin --admin_email=admin@example.com >/dev/null
 wp theme install twentytwentyone --path="$wp_root" --activate
 wp plugin install "$candidate_zip" --path="$wp_root" --activate
 wp plugin is-active bbpress --path="$wp_root"
