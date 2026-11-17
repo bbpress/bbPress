@@ -920,13 +920,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Stash the current term in a new var
 		set_query_var( 'bbp_topic_tag', get_query_var( 'term' ) );
+		$new_content = '';
 
 		// Show topics of tag
 		if ( bbp_is_topic_tag() ) {
 			$new_content = $bbp_shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
 
 		// Edit topic tag
-		} else {
+		} elseif ( bbp_is_topic_tag_edit() ) {
 			$new_content = $bbp_shortcodes->display_topic_tag_form();
 		}
 
