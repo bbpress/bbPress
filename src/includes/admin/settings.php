@@ -2517,7 +2517,7 @@ function bbp_admin_settings_help() {
  *
  * @since 2.2.0 bbPress (r4348)
  *
- * @param string $option_key
+ * @param string $option_key Option name to check for a forced value.
  */
 function bbp_maybe_admin_setting_disabled( $option_key = '' ) {
 	disabled( isset( bbpress()->options[ $option_key ] ) );
@@ -2528,9 +2528,9 @@ function bbp_maybe_admin_setting_disabled( $option_key = '' ) {
  *
  * @since 2.0.0 bbPress (r3203)
  *
- * @param string $option
- * @param string $default
- * @param bool $slug
+ * @param string $option  Option name to display.
+ * @param string $default Fallback value for an unset or empty option.
+ * @param bool   $slug    Whether to apply editable slug formatting.
  */
 function bbp_form_option( $option, $default = '', $slug = false ) {
 	echo bbp_get_form_option( $option, $default, $slug );
@@ -2541,9 +2541,9 @@ function bbp_form_option( $option, $default = '', $slug = false ) {
  *
  * @since 2.0.0 bbPress (r3203)
  *
- * @param string $option
- * @param string $default
- * @param bool   $is_slug
+ * @param string $option  Option name to retrieve.
+ * @param string $default Fallback value for an unset or empty option.
+ * @param bool   $is_slug Whether to apply editable slug formatting.
  *
  * @return mixed
  */
@@ -2575,8 +2575,8 @@ function bbp_get_form_option( $option, $default = '', $is_slug = false ) {
  *
  * @since 2.0.0 bbPress (r3306)
  *
- * @param string $slug
- * @param string $default
+ * @param string $slug    Option name for the slug being checked.
+ * @param string $default Default slug value.
  */
 function bbp_form_slug_conflict_check( $slug, $default ) {
 

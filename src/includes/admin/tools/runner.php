@@ -430,6 +430,7 @@ function bbp_admin_repair_tool_save_run_state( $type = '', $tools = array(), $ru
  * @param string $type   Repair tool type.
  * @param array  $tools  Expected ordered repair tool IDs.
  * @param string $run_id Current run ID.
+ * @param string $action Tool action.
  * @return array|false Resumed run state, or false on a mismatch.
  */
 function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $run_id = '', $action = 'run' ) {
@@ -444,6 +445,7 @@ function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $
  * @param string $type   Repair tool type.
  * @param string $run_id Run ID.
  * @param string $status running|paused|discarding|error.
+ * @param string $action Tool action.
  * @return array|false Updated run state, or false on a mismatch.
  */
 function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $status = 'running', $action = 'run' ) {

@@ -79,8 +79,8 @@ class BBP_Users_Admin {
 	 * @since 2.2.0 bbPress (r4301)
 	 * @since 2.6.19 bbPress (r7685) Show only assignable roles.
 	 *
-	 * @param WP_User $profileuser User data
-	 * @return bool Always false
+	 * @param WP_User $profileuser User data.
+	 * @return void
 	 */
 	public static function secondary_role_display( $profileuser ) {
 
@@ -298,8 +298,8 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6502)
 	 *
-	 * @param array   $actions
-	 * @param WP_User $user
+	 * @param array   $actions Existing user row actions.
+	 * @param WP_User $user    User represented by the row.
 	 *
 	 * @return array Actions with 'view' link added to them.
 	 */
@@ -348,9 +348,9 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4338)
 	 *
-	 * @param string $retval
-	 * @param string $column_name
-	 * @param int $user_id
+	 * @param string $retval      Existing column value.
+	 * @param string $column_name Column key being rendered.
+	 * @param int    $user_id     ID of the user in the row.
 	 *
 	 * @return string Displayable bbPress user role.
 	 */
@@ -382,7 +382,9 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6052)
 	 *
-	 * @return array $roles
+	 * @param array   $roles Site roles available to the user.
+	 * @param WP_User $user  User whose roles are listed.
+	 * @return array Filtered site roles.
 	 */
 	public static function user_role_list_filter( $roles, $user ) {
 
