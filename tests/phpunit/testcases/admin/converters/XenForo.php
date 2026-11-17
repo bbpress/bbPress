@@ -43,8 +43,9 @@ class BBP_Tests_Admin_Converters_XenForo extends BBP_UnitTestCase {
 			'XenForo'
 		);
 		$html     = $callback( $source );
+		$decoded  = html_entity_decode( $html, ENT_QUOTES, 'UTF-8' );
 
-		$this->assertStringContainsString( '@' . esc_html( $author ) . ' wrote:', $html );
+		$this->assertStringContainsString( '@' . $author . ' wrote:', $decoded );
 		$this->assertStringContainsString( 'Quoted text', $html );
 		$this->assertStringNotContainsString( '[quote=', strtolower( $html ) );
 		$this->assertStringNotContainsString( '<script>', $html );
