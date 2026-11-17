@@ -533,9 +533,9 @@ function bbp_the_term() {
  *
  * @since 2.0.0 bbPress (r2729)
  *
- * @param int $user_id Optional. User id.
- * @param bool $displayed_user_fallback Fallback on displayed user?
- * @param bool $current_user_fallback Fallback on current user?
+ * @param int  $user_id                 Optional user ID.
+ * @param bool $displayed_user_fallback Whether to use the displayed user.
+ * @param bool $current_user_fallback   Whether to use the current user.
  */
 function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
 	echo bbp_get_user_id( $user_id, $displayed_user_fallback, $current_user_fallback );
@@ -546,9 +546,9 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
  *
  * @since 2.0.0 bbPress (r2729)
  *
- * @param int $user_id Optional. User id.
- * @param bool $displayed_user_fallback Fallback on displayed user?
- * @param bool $current_user_fallback Fallback on current user?
+ * @param int  $user_id                 Optional user ID.
+ * @param bool $displayed_user_fallback Whether to use the displayed user.
+ * @param bool $current_user_fallback   Whether to use the current user.
  * @return int Validated user id.
  */
 function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
@@ -793,8 +793,8 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
  *
  * @since 2.3.0 bbPress (r4672)
  *
- * @param int $user_id User ID whose nicename to get.
- * @param array $args before|after|user_id|force.
+ * @param int   $user_id User ID whose nicename to get.
+ * @param array $args    Before, after, user ID, and forced nicename settings.
  */
 function bbp_user_nicename( $user_id = 0, $args = array() ) {
 	echo bbp_get_user_nicename( $user_id, $args );
@@ -805,9 +805,9 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
  *
  * @since 2.3.0 bbPress (r4672)
  *
- * @param int $user_id User ID whose nicename to get.
- * @param array $args before|after|user_id|force.
- * @return string User nicename, maybe wrapped in before/after strings.
+ * @param int   $user_id User ID whose nicename to get.
+ * @param array $args    Before, after, user ID, and forced nicename settings.
+ * @return string|false User nicename with optional wrapper, or false if no user ID exists.
  */
 function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
 
@@ -859,8 +859,8 @@ function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @param int $user_id Optional. User id.
- * @param string $user_nicename Optional. User nicename.
+ * @param int    $user_id       Optional user ID.
+ * @param string $user_nicename Optional user nicename.
  */
 function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	echo esc_url( bbp_get_user_profile_url( $user_id, $user_nicename ) );
@@ -871,8 +871,8 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @param int $user_id Optional. User id.
- * @param string $user_nicename Optional. User nicename.
+ * @param int    $user_id       Optional user ID.
+ * @param string $user_nicename Optional user nicename.
  * @return string User profile url.
  */
 function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
@@ -971,8 +971,8 @@ function bbp_get_user_profile_edit_link( $user_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @param int $user_id Optional. User id.
- * @param string $user_nicename Optional. User nicename.
+ * @param int    $user_id       Optional user ID.
+ * @param string $user_nicename Optional user nicename.
  */
 function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	echo esc_url( bbp_get_user_profile_edit_url( $user_id, $user_nicename ) );
@@ -983,8 +983,8 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @param int $user_id Optional. User id.
- * @param string $user_nicename Optional. User nicename.
+ * @param int    $user_id       Optional user ID.
+ * @param string $user_nicename Optional user nicename.
  * @return string
  */
 function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
@@ -1085,11 +1085,8 @@ function bbp_admin_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2827)
  *
- * @param array $args Optional. This function supports these arguments:
- *  - text: The text
- *  - before: Before the lnk
- *  - after: After the link
- * @return The link.
+ * @param array|string $args Link text and before/after wrapper settings.
+ * @return string|void Admin link, or no output without moderation capability.
  */
 function bbp_get_admin_link( $args = array() ) {
 
@@ -1421,8 +1418,8 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args See {@link bbp_get_user_favorites_link()}.
- * @param int $user_id Optional. User id.
- * @param bool $wrap Optional. If you want to wrap the link in <span id="favorite-toggle">.
+ * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
+ * @param bool  $wrap    Whether to wrap the link in a span.
  */
 function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) {
 	echo bbp_get_user_favorites_link( $args, $user_id, $wrap );
@@ -1437,17 +1434,10 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @since 2.0.0 bbPress (r2652)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args This function supports these arguments:
- *  - subscribe: Favorite text
- *  - unsubscribe: Unfavorite text
- *  - user_id: User id
- *  - topic_id: Topic id
- *  - before: Before the link
- *  - after: After the link
- * @param int $user_id Optional. User id.
- * @param int $topic_id Optional. Topic id.
- * @param bool $wrap Optional. If you want to wrap the link in <span id="favorite-toggle">. See ajax_favorite().
- * @return string User favorites link.
+ * @param array $args    Favorite labels, object ID/type, user ID, wrapper, and redirect settings.
+ * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
+ * @param bool  $wrap    Whether to wrap the link in a span.
+ * @return string|false Favorites link, or false when unavailable.
  */
 function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) {
 
@@ -1970,8 +1960,8 @@ function bbp_get_term_subscription_toggle_link( $args = array() ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args See {@link bbp_get_user_subscribe_link()}.
- * @param int $user_id Optional. User id.
- * @param bool $wrap Optional. If you want to wrap the link in <span id="subscription-toggle">.
+ * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
+ * @param bool  $wrap    Whether to wrap the link in a span.
  */
 function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
 	echo bbp_get_user_subscribe_link( $args, $user_id, $wrap );
@@ -1985,17 +1975,10 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @since 2.7.0 bbPress (r8323) Scope the nonce to the object type for non-posts.
  * @since 2.7.0 bbPress (r8335) Scope element IDs to the object type for non-posts.
  *
- * @param array $args This function supports these arguments:
- *  - subscribe: Subscribe text
- *  - unsubscribe: Unsubscribe text
- *  - user_id: User id
- *  - topic_id: Topic id
- *  - forum_id: Forum id
- *  - before: Before the link
- *  - after: After the link
- * @param int $user_id Optional. User id.
- * @param bool $wrap Optional. If you want to wrap the link in <span id="subscription-toggle">.
- * @return string Permanent link to topic.
+ * @param array $args    Subscription labels, object ID/type, user ID, wrapper, and redirect settings.
+ * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
+ * @param bool  $wrap    Whether to wrap the link in a span.
+ * @return string|false Subscription link, or false when unavailable.
  */
 function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
 
@@ -3117,6 +3100,7 @@ function bbp_get_author_link( $args = array() ) {
  * @since 2.0.0 bbPress (r3057)
  * @since 2.6.19 bbPress (r7675) Check forum ancestors by default.
  *
+ * @param array $args User ID, forum ID, and ancestor check settings.
  * @return bool
  */
 function bbp_user_can_view_forum( $args = array() ) {
@@ -3269,7 +3253,7 @@ function bbp_current_user_can_publish_replies() {
  *
  * @since 2.0.0 bbPress (r3127)
  *
- * @param array $args
+ * @param array $args Forum query arguments.
  *
  * @return array
  */
@@ -3492,10 +3476,7 @@ function bbp_moderator_list( $forum_id = 0, $args = array() ) {
  * @since 2.6.0 bbPress (r6056)
  *
  * @param int   $object_id Optional. Object id.
- * @param array $args     This function supports these arguments:
- *  - before: Before the tag list
- *  - sep: Tag separator
- *  - after: After the tag list
+ * @param array $args      Before, separator, after, and empty-list markup.
  *
  * @return string Moderator list of the object.
  */

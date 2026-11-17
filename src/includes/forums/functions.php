@@ -701,8 +701,8 @@ function bbp_filter_admin_forum_post_data( $data = array(), $postarr = array() )
  *
  * @since 2.1.0 bbPress (r3679)
  *
- * @param int $forum_id.
- * @return If forum ID is empty.
+ * @param int $forum_id Forum ID whose metadata is being saved.
+ * @return void
  */
 function bbp_save_forum_extras( $forum_id = 0 ) {
 
@@ -1024,8 +1024,9 @@ function bbp_update_forum_visibility_version_on_post_updated( $post_id = 0, $pos
  *
  * @since 2.0.0 bbPress (r2746)
  *
- * @param int $forum_id Optional. Forum id.
- * @return bool False on failure, true on success.
+ * @param int    $forum_id          Forum ID.
+ * @param string $current_visibility Current forum visibility.
+ * @return int Forum ID.
  */
 function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 
@@ -1054,8 +1055,9 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
  *
  * @since 2.0.0 bbPress (r2746)
  *
- * @param int $forum_id Optional. Forum id.
- * @return bool False on failure, true on success.
+ * @param int    $forum_id          Forum ID.
+ * @param string $current_visibility Current forum visibility.
+ * @return int Forum ID.
  */
 function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 
@@ -1086,8 +1088,9 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
  *
  * @since 2.0.0 bbPress (r2996)
  *
- * @param int $forum_id Optional. Forum id.
- * @return bool False on failure, true on success.
+ * @param int    $forum_id          Forum ID.
+ * @param string $current_visibility Current forum visibility.
+ * @return int Forum ID.
  */
 function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 
@@ -1220,16 +1223,16 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
 /** Count Bumpers *************************************************************/
 
 /**
- * Bump the total topic count of a forum.
+ * Bump the topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7467) Use atomic metadata writes and non-negative counts.
  *
- * @param int $forum_id Optional. Forum id.
- * @param int $difference Optional. Default 1
- * @param bool $update_ancestors Optional. Default true
+ * @param int  $forum_id         Forum ID.
+ * @param int  $difference       Count adjustment. Defaults to 1.
+ * @param bool $update_ancestors Whether to update ancestor counts. Defaults to true.
  *
- * @return int Forum topic count
+ * @return int|false Forum topic count. False if there is no count change.
  */
 function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_ancestors = true ) {
 
@@ -1340,16 +1343,16 @@ function bbp_decrease_forum_topic_count( $forum_id = 0 ) {
 }
 
 /**
- * Bump the total topic count of a forum.
+ * Bump the hidden topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7467) Use atomic metadata writes and non-negative counts.
  *
- * @param int $forum_id Optional. Forum id.
- * @param int $difference Optional. Default 1
- * @param bool $update_ancestors Optional. Default true
+ * @param int  $forum_id         Forum ID.
+ * @param int  $difference       Count adjustment. Defaults to 1.
+ * @param bool $update_ancestors Whether to update ancestor counts. Defaults to true.
  *
- * @return int Forum topic count
+ * @return int|false Forum hidden topic count. False if there is no count change.
  */
 function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1, $update_ancestors = true ) {
 
@@ -1460,16 +1463,16 @@ function bbp_decrease_forum_topic_count_hidden( $forum_id = 0 ) {
 }
 
 /**
- * Bump the total topic count of a forum.
+ * Bump the reply count of a forum.
  *
  * @since 2.1.0 bbPress (r3826)
  * @since 2.6.17 bbPress (r7467) Use atomic metadata writes and non-negative counts.
  *
- * @param int $forum_id Optional. Forum id.
- * @param int $difference Optional. Default 1.
- * @param bool $update_ancestors Optional. Default true.
+ * @param int  $forum_id         Forum ID.
+ * @param int  $difference       Count adjustment. Defaults to 1.
+ * @param bool $update_ancestors Whether to update ancestor counts. Defaults to true.
  *
- * @return int Forum topic count
+ * @return int|false Forum reply count. False if there is no count change.
  */
 function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_ancestors = true ) {
 
@@ -1520,16 +1523,16 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 }
 
 /**
- * Bump the total topic count of a forum.
+ * Bump the hidden reply count of a forum.
  *
  * @since 2.6.0 bbPress (r6923)
  * @since 2.6.17 bbPress (r7467) Use atomic metadata writes and non-negative counts.
  *
- * @param int $forum_id Optional. Forum id.
- * @param int $difference Optional. Default 1.
- * @param bool $update_ancestors Optional. Default true.
+ * @param int  $forum_id         Forum ID.
+ * @param int  $difference       Count adjustment. Defaults to 1.
+ * @param bool $update_ancestors Whether to update ancestor counts. Defaults to true.
  *
- * @return int Forum topic count
+ * @return int|false Forum hidden reply count. False if there is no count change.
  */
 function bbp_bump_forum_reply_count_hidden( $forum_id = 0, $difference = 1, $update_ancestors = true ) {
 
@@ -2191,10 +2194,8 @@ function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum
  * @since 2.0.0 bbPress (r2464)
  * @since 2.6.17 bbPress (r7467) Optionally update ancestor forum totals.
  *
- * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
- *                       is a topic or a forum. If it's a topic, its parent,
- *                       i.e. the forum is automatically retrieved.
- * @param bool $update_ancestors Optional. Whether to update ancestor totals.
+ * @param int  $forum_id         Forum or topic ID. Topics resolve to their parent forum.
+ * @param bool $update_ancestors Whether to update ancestor totals.
  * @return int Forum topic count.
  */
 function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false ) {
@@ -2241,11 +2242,11 @@ function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false 
  * @since 2.6.17 bbPress (r7467) Optionally update ancestor forum totals.
  * @since 2.6.20 bbPress (r8016) Use an unfiltered structural topic lookup.
  *
- * @param int $forum_id Optional. Topic id to update.
- * @param int $topic_count Optional. Set the topic count manually.
- * @param bool $update_ancestors Optional. Whether to update ancestor totals.
+ * @param int       $forum_id         Forum or topic ID.
+ * @param int|false $topic_count       Explicit hidden topic count, or false to calculate it.
+ * @param bool      $update_ancestors Whether to update ancestor totals.
  *
- * @return int Topic hidden topic count.
+ * @return int Forum hidden topic count.
  */
 function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = false, $update_ancestors = false ) {
 
@@ -2447,13 +2448,7 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
  * @since 2.0.0 bbPress (r2907)
  * @since 2.6.22 bbPress (r8369) Added the explicit recount argument.
  *
- * @param array $args Supports these arguments:
- *  - forum_id: Forum id
- *  - last_topic_id: Last topic id
- *  - last_reply_id: Last reply id
- *  - last_active_id: Last active post id
- *  - last_active_time: last active time
- *  - recount: Recalculate counts for this forum and its ancestors
+ * @param array $args Forum ID, latest topic/reply/activity values, and recount flag.
  */
 function bbp_update_forum( $args = array() ) {
 
@@ -2938,7 +2933,8 @@ function bbp_forum_query_all_descendant_ids( $forum_ids ) {
  *
  * @since 2.0.0 bbPress (r3085)
  *
- * @param string Optional. The type of value to return (string|array|meta_query).
+ * @param string $type Return format: string, array, or meta_query.
+ * @return string|array Forum exclusions in the requested format.
  */
 function bbp_exclude_forum_ids( $type = 'string' ) {
 
@@ -2996,7 +2992,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  *
  * @global string $pagenow The filename of the current screen.
  *
- * @param WP_Query $posts_query
+ * @param WP_Query|null $posts_query Query being normalized.
  *
  * @return WP_Query
  */
@@ -3682,7 +3678,7 @@ function bbp_check_forum_edit() {
  * @since 2.1.0 bbPress (r3669)
  * @since 2.6.22 bbPress (r8369) Defer forum refresh during permanent deletion.
  *
- * @param int $forum_id
+ * @param int $forum_id Forum ID whose topics are being deleted.
  */
 function bbp_delete_forum_topics( $forum_id = 0 ) {
 
@@ -3743,7 +3739,7 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3669)
  *
- * @param int $forum_id
+ * @param int $forum_id Forum ID whose topics are being trashed.
  */
 function bbp_trash_forum_topics( $forum_id = 0 ) {
 
@@ -3788,7 +3784,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3669)
  *
- * @param int $forum_id
+ * @param int $forum_id Forum ID whose topics are being restored.
  */
 function bbp_untrash_forum_topics( $forum_id = 0 ) {
 
@@ -3839,6 +3835,7 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
  * a forum that is being deleted.
  *
  * @since 2.1.0 bbPress (r3669)
+ * @param int $forum_id Forum ID being deleted.
  */
 function bbp_delete_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3858,6 +3855,7 @@ function bbp_delete_forum( $forum_id = 0 ) {
  * a forum that is being trashed.
  *
  * @since 2.1.0 bbPress (r3669)
+ * @param int $forum_id Forum ID being trashed.
  */
 function bbp_trash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3873,6 +3871,7 @@ function bbp_trash_forum( $forum_id = 0 ) {
  * Called before untrashing a forum.
  *
  * @since 2.1.0 bbPress (r3669)
+ * @param int $forum_id Forum ID being restored.
  */
 function bbp_untrash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3917,6 +3916,7 @@ function bbp_deleted_forum( $forum_id = 0, $forum = false ) {
  * Called after trashing a forum.
  *
  * @since 2.1.0 bbPress (r3669)
+ * @param int $forum_id Forum ID that was trashed.
  */
 function bbp_trashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3932,6 +3932,7 @@ function bbp_trashed_forum( $forum_id = 0 ) {
  * Called after untrashing a forum.
  *
  * @since 2.1.0 bbPress (r3669)
+ * @param int $forum_id Forum ID that was restored.
  */
 function bbp_untrashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );

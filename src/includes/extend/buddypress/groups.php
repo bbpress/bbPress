@@ -299,10 +299,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.20 bbPress (r7833)
 	 *
-	 * @param bool $allow Whether to bypass the spectate gate.
-	 * @param int  $user_id User ID.
-	 * @param int  $post_id Object ID.
-	 * @param string $cap Requested read capability.
+	 * @param bool   $allow   Whether to bypass the spectate gate.
+	 * @param int    $user_id User ID.
+	 * @param int    $post_id Object ID.
+	 * @param string $cap     Requested read capability.
 	 * @return bool Whether this member may read the group content.
 	 */
 	public function allow_group_forum_read_without_role( $allow, $user_id, $post_id, $cap ) {
@@ -639,10 +639,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.3.0 bbPress (r4716)
 	 *
-	 * @param array $caps
-	 * @param string $cap
-	 * @param int $user_id
-	 * @param array $args
+	 * @param array  $caps    Mapped capabilities.
+	 * @param string $cap     Requested capability.
+	 * @param int    $user_id User ID.
+	 * @param array  $args    Capability arguments.
 	 * @return array
 	 */
 	public function map_group_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
@@ -915,7 +915,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 *
-	 * @param object $group (the group to edit if in Group Admin UI)
+	 * @param BP_Groups_Group|false $group Group being edited, if available.
 	 */
 	public function edit_screen( $group = false ) {
 		$forum_id  = 0;
@@ -1126,6 +1126,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Show forums and new forum form when creating a group.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param int $group_id Group being created.
 	 */
 	public function create_screen( $group_id = 0 ) {
 
@@ -1156,6 +1158,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Save the Group Forum data on create.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param int $group_id Group being created.
 	 */
 	public function create_screen_save( $group_id = 0 ) {
 
@@ -1264,9 +1268,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3654)
 	 *
-	 * @param array $forum_args
+	 * @param array $forum_args Forum and group IDs to connect.
 	 *
-	 * @return void if no forum_id is available.
+	 * @return void
 	 */
 	public function new_forum( $forum_args = array() ) {
 
@@ -1290,9 +1294,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3654)
 	 *
-	 * @param array $forum_args
+	 * @param array $forum_args Forum and group IDs to disconnect.
 	 *
-	 * @return void if no forum_id is available.
+	 * @return void
 	 */
 	public function remove_forum( $forum_args = array() ) {
 
@@ -1436,9 +1440,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.3.0 bbPress (r4613)
 	 *
-	 * @param int $group_id The group to toggle.
-	 * @param bool $enabled True for on, false for off.
-	 * @return False if group is not found, otherwise return the group.
+	 * @param int  $group_id Group ID to update.
+	 * @param bool $enabled  Whether to enable the group forum.
+	 * @return BP_Groups_Group|false Updated group, or false if not found.
 	 */
 	public function toggle_group_forum( $group_id = 0, $enabled = false ) {
 
@@ -1478,6 +1482,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 * @since 2.6.20 bbPress (r8026) Match topics with a non-singular slug query.
+	 *
+	 * @param int $offset Forum display offset.
 	 */
 	public function display_forums( $offset = 0 ) {
 
@@ -1750,8 +1756,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.3.0 bbPress (r4809)
 	 *
 	 * @access private
-	 * @param array $args
-	 * @return array $args without the to-front link.
+	 * @param array $args Topic link arguments.
+	 * @return array Arguments without the to-front link.
 	 */
 	public function unset_super_sticky( $args = array() ) {
 		if ( isset( $args['super'] ) ) {
@@ -1766,9 +1772,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.3.0 bbPress (r4809)
 	 *
 	 * @access private
-	 * @param string $retval
-	 * @param array $args
-	 * @return string $retval without the to-front link.
+	 * @param string $retval Topic admin link markup.
+	 * @param array  $args   Topic link arguments.
+	 * @return string Markup without the to-front link.
 	 */
 	public function hide_super_sticky_admin_link( $retval = '', $args = array() ) {
 		if ( strpos( $retval, '(' ) ) {
@@ -1785,8 +1791,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3789)
 	 *
-	 * @param str $redirect_url
-	 * @param str $redirect_to
+	 * @param string $redirect_url Current redirect URL.
+	 * @param string $redirect_to  Unused redirect target.
+	 * @param int    $topic_id     Created topic ID.
 	 */
 	public function new_topic_redirect_to( $redirect_url = '', $redirect_to = '', $topic_id = 0 ) {
 		if ( bp_is_group() && ! bbp_is_topic_pending( $topic_id ) ) {
@@ -1802,6 +1809,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Redirect to the group forum screen.
 	 *
 	 * @since 2.1.0 bbPress (r3799)
+	 *
+	 * @param string $redirect_url Current redirect URL.
+	 * @param string $redirect_to  Unused redirect target.
+	 * @param int    $reply_id     Created reply ID.
 	 */
 	public function new_reply_redirect_to( $redirect_url = '', $redirect_to = '', $reply_id = 0 ) {
 
@@ -1835,6 +1846,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Redirect to the group admin forum edit screen.
 	 *
 	 * @since 2.1.0 bbPress (r3654)
+	 *
+	 * @param string $redirect_url Current redirect URL.
 	 */
 	public function edit_redirect_to( $redirect_url = '' ) {
 
@@ -1914,7 +1927,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.3.0 bbPress (r4609)
 	 *
-	 * @param bool $retval Are we allowed to view the reply form?
+	 * @param bool $retval Whether the reply form is currently allowed.
 	 *
 	 * @return bool
 	 */
@@ -1975,7 +1988,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.14 bbPress (r7316)
 	 *
-	 * @param int $group_id
+	 * @param int|BP_Groups_Group $group_id Group ID or group object.
 	 * @return string
 	 */
 	private function group_url( $group_id = 0 ) {
@@ -2001,8 +2014,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.20 bbPress (r7878)
 	 *
-	 * @param int   $group_id        Group ID.
-	 * @param array $action_variables Group forum route parts.
+	 * @param int|BP_Groups_Group $group_id Group ID or group object.
+	 * @param array               $action_variables Group forum route parts.
 	 * @return string
 	 */
 	private function group_forum_url( $group_id = 0, $action_variables = array() ) {
@@ -2033,7 +2046,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.14 bbPress (r7316)
 	 *
-	 * @param int $group_id
+	 * @param int|BP_Groups_Group $group_id Group ID or group object.
 	 * @return string
 	 */
 	private function group_manage_url( $group_id = 0 ) {
@@ -2059,9 +2072,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param int $post_id
-	 * @return Bail early if not a group forum post.
-	 * @return string
+	 * @param int          $post_id Post ID to map.
+	 * @param string|false $url     Original URL, or false when none is supplied.
+	 * @return string|false Group URL, or the original URL when no mapping exists.
 	 */
 	private function maybe_map_permalink_to_group( $post_id = 0, $url = false ) {
 		$pending_topic_id = 0;
@@ -2140,8 +2153,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 *
-	 * @param string $url
-	 * @param int $forum_id
+	 * @param string $url       Original permalink.
+	 * @param int    $forum_id Forum ID.
 	 * @return string
 	 */
 	public function map_forum_permalink_to_group( $url, $forum_id ) {
@@ -2153,8 +2166,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 *
-	 * @param string $url
-	 * @param int $topic_id
+	 * @param string $url       Original permalink.
+	 * @param int    $topic_id Topic ID.
 	 * @return string
 	 */
 	public function map_topic_permalink_to_group( $url, $topic_id ) {
@@ -2166,8 +2179,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 *
-	 * @param string $url
-	 * @param int $reply_id
+	 * @param string $url       Original permalink.
+	 * @param int    $reply_id Reply ID.
 	 * @return string
 	 */
 	public function map_reply_permalink_to_group( $url, $reply_id ) {
@@ -2208,8 +2221,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param string $url
-	 * @param int $reply_id
+	 * @param string $url       Original permalink.
+	 * @param int    $reply_id Reply ID.
 	 * @return string
 	 */
 	public function map_reply_edit_url_to_group( $url, $reply_id ) {
@@ -2227,9 +2240,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param string $url
-	 * @param obj $post
-	 * @param boolean $leavename
+	 * @param string  $url  Original post URL.
+	 * @param WP_Post $post Post to map.
 	 * @return string
 	 */
 	public function post_link( $url, $post ) {
@@ -2241,9 +2253,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param string $url
-	 * @param int $post_id
-	 * @param $sample
+	 * @param string $url     Original page URL.
+	 * @param int    $post_id Page ID.
 	 * @return string
 	 */
 	public function page_link( $url, $post_id ) {
@@ -2255,10 +2266,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param string $url
-	 * @param obj $post
-	 * @param $leavename
-	 * @param $sample
+	 * @param string  $url  Original post type URL.
+	 * @param WP_Post $post Post to map.
 	 * @return string
 	 */
 	public function post_type_link( $url, $post ) {
@@ -2270,7 +2279,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param array $args
+	 * @param array $args Topic pagination arguments.
 	 * @return array
 	 */
 	public function topic_pagination( $args ) {
@@ -2290,7 +2299,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4395)
 	 *
-	 * @param array $args
+	 * @param array $args Reply pagination arguments.
 	 * @return array
 	 */
 	public function replies_pagination( $args ) {
@@ -2437,7 +2446,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.2.0 bbPress (r4399)
 	 *
-	 * @param array $args Arguments from BBP_BuddyPress_Activity::record_activity()
+	 * @param array $args Arguments from BBP_BuddyPress_Activity::record_activity().
 	 *
 	 * @return array
 	 */

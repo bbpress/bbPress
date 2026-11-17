@@ -901,15 +901,13 @@ function bbp_edit_reply_handler( $action = '' ) {
 /**
  * Handle all the extra meta stuff from posting a new reply or editing a reply.
  *
- * @param int $reply_id Optional. Reply id.
- * @param int $topic_id Optional. Topic id.
- * @param int $forum_id Optional. Forum id.
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
- *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}.
- * @param int $author_id Author id.
- * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
- * @param int $reply_to Optional. Reply to id.
+ * @param int   $reply_id       Reply ID.
+ * @param int   $topic_id       Topic ID.
+ * @param int   $forum_id       Forum ID.
+ * @param array $anonymous_data Sanitized anonymous poster data, if applicable.
+ * @param int   $author_id      Reply author ID.
+ * @param bool  $is_edit        Whether this is an edit. Defaults to false.
+ * @param int   $reply_to       Parent reply ID.
  */
 function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
@@ -1016,12 +1014,11 @@ function bbp_suspend_reply_walker( $topic_id = 0, $suspend = null ) {
  *
  * @since 2.0.0 bbPress (r2895)
  *
- * @param int $reply_id Optional. Reply id.
- * @param string $last_active_time Optional. Last active time.
- * @param int $forum_id Optional. Forum id.
- * @param int $topic_id Optional. Topic id.
- * @param bool $refresh If set to true, unsets all the previous parameters.
- *                       Defaults to true.
+ * @param int    $reply_id         Reply ID.
+ * @param string $last_active_time Optional last active time.
+ * @param int    $forum_id         Optional forum ID.
+ * @param int    $topic_id         Optional topic ID.
+ * @param bool   $refresh          Whether to reset previous values. Defaults to true.
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
 
@@ -1177,7 +1174,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
  *
  * @param int $reply_id Optional. Reply id to update.
  * @param int $topic_id Optional. Topic id.
- * @return bool The topic id of the reply.
+ * @return int Topic ID of the reply.
  */
 function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 
@@ -1213,14 +1210,14 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	return (int) apply_filters( 'bbp_update_reply_topic_id', $retval, $reply_id, $topic_id );
 }
 
-/*
+/**
  * Update the meta data with its parent reply-to id, of a reply.
  *
  * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Reply id to update.
  * @param int $reply_to Optional. Reply to id.
- * @return bool The parent reply id of the reply.
+ * @return int Parent reply ID.
  */
 function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 
@@ -1253,7 +1250,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
  *
  * @since 2.6.0 bbPress (r5390)
  *
- * @param int $reply_id
+ * @param int $reply_id Reply ID whose ancestors are requested.
  * @return array
  */
 function bbp_get_reply_ancestors( $reply_id = 0 ) {
@@ -1301,11 +1298,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2782)
  *
- * @param array $args Supports these args:
- *  - reply_id: reply id
- *  - author_id: Author id
- *  - reason: Reason for editing
- *  - revision_id: Revision id
+ * @param array $args Reply ID, author ID, edit reason, and revision ID.
  * @return mixed False on failure, true on success.
  */
 function bbp_update_reply_revision_log( $args = array() ) {
@@ -1743,7 +1736,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r6133)
  * @access private
  *
- * @param array $args
+ * @param array $args Reply ID, action, and related toggle settings.
  */
 function bbp_toggle_reply( $args = array() ) {
 
@@ -2110,6 +2103,7 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
  * Called before deleting a reply.
  *
  * @since 2.0.0 bbPress (r2895)
+ * @param int $reply_id Reply ID being deleted.
  */
 function bbp_delete_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2125,6 +2119,7 @@ function bbp_delete_reply( $reply_id = 0 ) {
  * Called before trashing a reply.
  *
  * @since 2.0.0 bbPress (r2895)
+ * @param int $reply_id Reply ID being trashed.
  */
 function bbp_trash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2140,6 +2135,7 @@ function bbp_trash_reply( $reply_id = 0 ) {
  * Called before untrashing (restoring) a reply.
  *
  * @since 2.0.0 bbPress (r2895)
+ * @param int $reply_id Reply ID being restored.
  */
 function bbp_untrash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2157,6 +2153,7 @@ function bbp_untrash_reply( $reply_id = 0 ) {
  * Called after deleting a reply.
  *
  * @since 2.0.0 bbPress (r2895)
+ * @param int $reply_id Reply ID that was deleted.
  */
 function bbp_deleted_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2172,6 +2169,7 @@ function bbp_deleted_reply( $reply_id = 0 ) {
  * Called after trashing a reply.
  *
  * @since 2.0.0 bbPress (r2895)
+ * @param int $reply_id Reply ID that was trashed.
  */
 function bbp_trashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2187,6 +2185,7 @@ function bbp_trashed_reply( $reply_id = 0 ) {
  * Called after untrashing (restoring) a reply.
  *
  * @since 2.0.0 bbPress (r2895)
+ * @param int $reply_id Reply ID that was restored.
  */
 function bbp_untrashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2272,8 +2271,8 @@ function bbp_reply_content_autoembed() {
  * @since 2.1.0 bbPress (r4059)
  * @since 2.6.20 bbPress (r8012) Limit the index hint to the outer query.
  *
- * @param string $where
- * @param WP_Query $query
+ * @param string         $where SQL WHERE clause.
+ * @param WP_Query|false $query Replies query, if available.
  * @return string
  */
 function _bbp_has_replies_where( $where = '', $query = false ) {
@@ -2388,7 +2387,7 @@ function bbp_reply_enforce_visibility() {
  *
  * @since 2.0.0 bbPress (r3171)
  *
- * @param array $replies_query
+ * @param array $replies_query Replies query arguments.
  */
 function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
@@ -2547,10 +2546,10 @@ function bbp_check_reply_edit() {
  *
  * @since 2.1.0 bbPress (r3934)
  *
- * @param int $reply_id
- * @param int $reply_position
+ * @param int       $reply_id       Reply ID.
+ * @param int|false $reply_position Explicit position, or false to calculate it.
  *
- * @return mixed
+ * @return int|false Updated position, or false if unchanged or invalid.
  */
 function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
 
@@ -2602,8 +2601,9 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
  *
  * @since 2.1.0 bbPress (r3934)
  *
- * @param int $reply_id
- * @param int $topic_id
+ * @param int $reply_id Reply ID.
+ * @param int $topic_id Topic ID.
+ * @return int Reply position.
  */
 function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 
@@ -2651,8 +2651,6 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
  * @since 2.4.0 bbPress (r4944)
  * @since 2.6.0 bbPress (r6245) Always false on user profile reply pages.
  *
- * @param bool $default Optional. Default value true.
- *
  * @return bool Are replies threaded?
  */
 function bbp_thread_replies() {
@@ -2675,6 +2673,7 @@ function bbp_thread_replies() {
  * List threaded replies.
  *
  * @since 2.4.0 bbPress (r4944)
+ * @param array $args Threaded reply display arguments.
  */
 function bbp_list_replies( $args = array() ) {
 
@@ -2742,10 +2741,10 @@ function bbp_list_replies( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5378)
  *
- * @param int $reply_to
- * @param int $reply_id
+ * @param int $reply_to Parent reply ID to validate.
+ * @param int $reply_id Current reply ID.
  *
- * @return int $reply_to
+ * @return int Validated parent reply ID.
  */
 function bbp_validate_reply_to( $reply_to = 0, $reply_id = 0 ) {
 
