@@ -1452,6 +1452,21 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_check_for_moderation
 	 */
+	public function test_bbp_check_for_moderation_defaults_unsupported_modes() {
+		update_option( 'moderation_keys', 'blocked' );
+
+		foreach ( array( 0, 1, null, array() ) as $mode ) {
+			$this->assertFalse( bbp_check_for_moderation( array(), 0, '', 'A blocked phrase.', $mode ) );
+			$this->assertTrue( bbp_check_for_moderation( array(), 0, '', 'An allowed phrase.', $mode ) );
+		}
+
+		update_option( 'custom_keys', 'custombad' );
+		$this->assertFalse( bbp_check_for_moderation( array(), 0, '', 'A custombad phrase.', 'custom' ) );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
 	public function test_should_return_false_for_user_url_moderation_check() {
 		$u = $this->factory->user->create( array(
 			'user_url'   => 'http://example.net/banned',

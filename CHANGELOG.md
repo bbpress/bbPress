@@ -172,6 +172,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Used standard moderation checks when an unsupported moderation mode is passed.
 - Prevented invalid Bcc chunk limits from interrupting moderation notifications.
 - Prevented warnings when forum feed links are requested without a forum.
 - Fixed term engagements reporting failed term creation as a successful addition.

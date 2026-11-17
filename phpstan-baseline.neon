@@ -235,18 +235,6 @@ parameters:
 			path: src/includes/common/functions.php
 
 		-
-			message: '#^Variable \$hook_name might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/includes/common/functions.php
-
-		-
-			message: '#^Variable \$option_name might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/includes/common/functions.php
-
-		-
 			message: '#^Action callback returns WP_Roles\|null but should not return anything\.$#'
 			identifier: return.void
 			count: 1

@@ -1493,10 +1493,13 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
  * @param string $title The title of the content.
  * @param string $content The content being posted.
  * @param mixed  $strict  False for moderation_keys. True for disallowed_keys.
- *                        String for custom keys.
+ *                        String for custom keys. Other values use moderation_keys.
  * @return bool True if test is passed, false if fail.
  */
 function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $title = '', $content = '', $strict = false ) {
+	if ( ! is_bool( $strict ) && ! is_string( $strict ) ) {
+		$strict = false;
+	}
 
 	// Custom moderation option key
 	if ( is_string( $strict ) ) {
