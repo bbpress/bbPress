@@ -1242,7 +1242,7 @@ function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
  *
  * @since 2.0.0 bbPress (r2720)
  *
- * @param array $args Optional. If it is an integer, it is used as reply id.
+ * @param array|int $args Optional. Arguments or a reply ID.
  */
 function bbp_reply_author_link( $args = array() ) {
 	echo bbp_get_reply_author_link( $args );
@@ -1253,7 +1253,7 @@ function bbp_reply_author_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2720)
  *
- * @param array $args Optional. If an integer, it is used as reply id.
+ * @param array|int $args Optional. Arguments or a reply ID.
  * @return string Author link of reply.
  */
 function bbp_get_reply_author_link( $args = array() ) {

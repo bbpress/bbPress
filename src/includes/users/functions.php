@@ -605,7 +605,7 @@ function bbp_user_edit_after() {
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  * @since 2.6.20 bbPress (r7910) Include pending topics on the current user's profile.
  *
- * @param array $args    Optional. Arguments to pass into bbp_has_topics().
+ * @param array|int $args Optional. Query arguments or a user ID.
  *
  * @return bool True if user has started topics, otherwise false.
  */
@@ -653,7 +653,7 @@ function bbp_get_user_topics_started( $args = array() ) {
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  * @since 2.6.20 bbPress (r7910) Include pending replies on the current user's profile.
  *
- * @param array $args Optional. Arguments to pass into bbp_has_replies().
+ * @param array|int $args Optional. Query arguments or a user ID.
  *
  * @return bool True if user has created replies, otherwise false.
  */

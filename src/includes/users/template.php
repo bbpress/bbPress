@@ -1123,7 +1123,7 @@ function bbp_get_admin_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r3120)
  *
- * @param array $args Optional. If it is an integer, it is used as post id.
+ * @param array|int $args Optional. Arguments or a post ID.
  */
 function bbp_author_ip( $args = array() ) {
 	echo bbp_get_author_ip( $args );
@@ -1134,8 +1134,8 @@ function bbp_author_ip( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r3120)
  *
- * @param array $args Optional. If an integer, it is used as reply id.
- * @return string Author link of reply.
+ * @param array|int $args Optional. Arguments or a post ID.
+ * @return string Author IP address with optional markup, or an empty string when unavailable.
  */
 function bbp_get_author_ip( $args = array() ) {
 
@@ -2974,7 +2974,7 @@ function bbp_user_lost_pass_fields() {
  *
  * @since 2.0.0 bbPress (r2874)
  *
- * @param array $args Optional. If it is an integer, it is used as post id.
+ * @param array|int $args Optional. Arguments or a post ID.
  */
 function bbp_author_link( $args = array() ) {
 	echo bbp_get_author_link( $args );
@@ -2986,8 +2986,8 @@ function bbp_author_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2874)
  * @since 2.6.21 bbPress (r8080) Added the `user_id` argument for non-topic and non-reply posts.
  *
- * @param array $args Optional. If an integer, it is used as reply id.
- * @return string Author link of reply.
+ * @param array|int $args Optional. Arguments or a post ID.
+ * @return string Author link, placeholder, or an empty string.
  */
 function bbp_get_author_link( $args = array() ) {
 

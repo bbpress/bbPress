@@ -393,15 +393,15 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 }
 
 /**
- * Get a user's topic engagements.
+ * Set up a user's engaged topic query.
  *
  * @since 2.6.0 bbPress (r6311)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  * @since 2.7.0 bbPress (r8318) Avoid querying when the registered type cannot limit results.
  *
- * @param array $args Optional. Arguments to pass into bbp_has_replies().
+ * @param array|int $args Optional. Query arguments or a user ID.
  *
- * @return bool True if user has engaged, otherwise false.
+ * @return bool|array Whether engaged topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_engagements( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'engagements', '_bbp_engagement' );
