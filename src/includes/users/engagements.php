@@ -294,11 +294,11 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
  * @since 2.7.0 bbPress (r8318) Prevent unrestricted queries for unsupported types.
  * @since 2.7.0 bbPress (r8335) Pass optional object subtype context to queries.
  *
- * @param array  $args        Default query arguments.
- * @param string $context     Additional context.
- * @param string $rel_key     The relationship key.
- * @param string $rel_type    The relationship type (usually 'post').
- * @param string $rel_subtype Optional. Registered object subtype.
+ * @param array|int $args        Query arguments or a user ID.
+ * @param string    $context     Additional context.
+ * @param string    $rel_key     The relationship key.
+ * @param string    $rel_type    The relationship type (usually 'post').
+ * @param string    $rel_subtype Optional. Registered object subtype.
  *
  * @return array
  */

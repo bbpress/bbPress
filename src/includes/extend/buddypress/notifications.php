@@ -58,6 +58,7 @@ function bbp_filter_notifications_get_registered_components( $component_names = 
  * @param string $component_action_name Canonical notification action.
  * @param string $component_name        Notification component ID.
  * @param int    $id                    Notification ID.
+ * @return string|array Notification markup or BuddyBar data.
  */
 function bbp_format_buddypress_notifications( $content, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id ) {
 

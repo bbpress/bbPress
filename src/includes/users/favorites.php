@@ -30,14 +30,14 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 }
 
 /**
- * Get a user's favorite topics.
+ * Set up a user's favorite topic query.
  *
  * @since 2.0.0 bbPress (r2652)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_topics().
+ * @param array|int $args Optional. Query arguments or a user ID.
  *
- * @return array Array of topics if user has favorites, otherwise empty array.
+ * @return bool|array Whether favorite topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_favorites( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'favorites', '_bbp_favorite' );

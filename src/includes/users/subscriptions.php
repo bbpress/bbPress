@@ -29,14 +29,14 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 }
 
 /**
- * Get a user's subscribed topics.
+ * Set up a user's subscribed topic query.
  *
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_topics().
+ * @param array|int $args Optional. Query arguments or a user ID.
  *
- * @return array Array of topics if user has topic subscriptions, otherwise empty array.
+ * @return bool|array Whether subscribed topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_topic_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'topic_subscriptions', '_bbp_subscription' );
@@ -49,14 +49,14 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
 }
 
 /**
- * Get a user's subscribed forums.
+ * Set up a user's subscribed forum query.
  *
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_forums().
+ * @param array|int $args Optional. Query arguments or a user ID.
  *
- * @return array Array of forums if user has forum subscriptions, otherwise empty array.
+ * @return bool|array Whether subscribed forums are available, or an empty array if no query is built.
  */
 function bbp_get_user_forum_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'forum_subscriptions', '_bbp_subscription' );
@@ -73,8 +73,8 @@ function bbp_get_user_forum_subscriptions( $args = array() ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array $args Optional. Arguments to pass into bbp_has_terms(). The
- *                    taxonomy argument defaults to topic tags.
+ * @param array|int $args Optional. Query arguments or a user ID. The taxonomy
+ *                        argument defaults to topic tags.
  * @return bool Whether the user has subscribed terms in the taxonomy.
  */
 function bbp_get_user_term_subscriptions( $args = array() ) {
@@ -726,7 +726,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array|bool Results if user has subscriptions, otherwise false.
+ * @return bool|array Whether subscribed topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_subscriptions( $user_id = 0 ) {
 	_deprecated_function( __FUNCTION__, '2.5', 'bbp_get_user_topic_subscriptions()' );
