@@ -206,7 +206,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 *
 		 * @param array       $attributes Block attributes.
 		 * @param string|null $content    Optional block content.
-		 * @param WP_Block    $block      Parsed block instance, used to find mapping.
+		 * @param WP_Block|null $block      Parsed block instance, used to find mapping.
 		 *
 		 * @return string Block output or empty string on failure.
 		 */

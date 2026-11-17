@@ -119,7 +119,7 @@ function bbp_exclude_password_protected_sitemap_posts( $query_args = array(), $p
  * @since 2.6.20 bbPress (r8012) Protect public WordPress reply listings.
  *
  * @param string   $where       SQL WHERE clause.
- * @param WP_Query $posts_query Posts query.
+ * @param WP_Query|null $posts_query Posts query.
  * @return string SQL WHERE clause.
  */
 function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
@@ -177,7 +177,7 @@ function bbp_public_topic_replies_where( $where = '', $posts_query = null ) {
  * @since 2.6.22 bbPress (r8317) Apply the same checks to WordPress sitemaps.
  *
  * @param string   $where       SQL WHERE clause.
- * @param WP_Query $posts_query Posts query.
+ * @param WP_Query|null $posts_query Posts query.
  * @return string SQL WHERE clause.
  */
 function bbp_password_protected_search_where( $where = '', $posts_query = null ) {
@@ -1722,7 +1722,7 @@ function bbp_is_moderation_notifications_suspended() {
  * @since 2.7.0 bbPress (r8089)
  *
  * @param int          $post_id     Post ID.
- * @param WP_Post      $post        Post object.
+ * @param WP_Post|false $post        Post object, or false when omitted.
  * @param bool         $update      Whether this is an existing post being updated.
  * @param WP_Post|null $post_before Post object before the update, or null for new posts.
  * @return bool Whether a moderation notification was sent.
@@ -2045,7 +2045,7 @@ function bbp_defer_subscription_notification( $post_id = 0 ) {
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
- * @param WP_Post $post       Post object.
+ * @param WP_Post|false $post Post object, or false when omitted.
  * @return bool True when the deferred publication action ran, false otherwise.
  */
 function bbp_notify_forum_subscribers_on_topic_publication( $new_status = '', $old_status = '', $post = false ) {
@@ -2106,7 +2106,7 @@ function bbp_notify_forum_subscribers_on_topic_publication( $new_status = '', $o
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
- * @param WP_Post $post       Post object.
+ * @param WP_Post|false $post Post object, or false when omitted.
  * @return bool True when the deferred publication action ran, false otherwise.
  */
 function bbp_notify_topic_subscribers_on_reply_publication( $new_status = '', $old_status = '', $post = false ) {
@@ -4352,7 +4352,7 @@ function bbp_set_200() {
  * @since 2.6.0 bbPress (r6554)
  *
  * @param bool     $override Whether to override the default handler.
- * @param WP_Query $wp_query The posts query being referenced.
+ * @param WP_Query|false $wp_query The posts query being referenced.
  *
  * @return bool False to leave alone, true to override.
  */

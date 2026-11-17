@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.0.0 bbPress (r3032)
  *
  * @param string $slug Template slug.
- * @param string $name Optional template name. Defaults to null.
+ * @param string|null $name Optional template name. Defaults to null.
  * @return string The template filename if one is located.
  */
 function bbp_get_template_part( $slug, $name = null ) {
@@ -397,7 +397,7 @@ function bbp_get_template_stack() {
  * @since 2.4.0 bbPress (r5043)
  *
  * @param string $slug Template slug.
- * @param string $name Optional template name. Defaults to null.
+ * @param string|null $name Optional template name. Defaults to null.
  * @param bool   $echo Whether to echo the buffered output. Defaults to true.
  * @return string
  */

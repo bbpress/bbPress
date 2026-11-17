@@ -87,7 +87,7 @@ class BBP_User_Engagements_Type {
 	 *
 	 * @param string $engagement Favorite or subscription.
 	 * @param int    $object_id  Object ID.
-	 * @return bool Whether the object supports the engagement.
+	 * @return bool|null Whether the object supports the engagement, or null for the base implementation.
 	 */
 	public function supports( $engagement = '', $object_id = 0 ) {
 		// Intentionally empty
@@ -101,7 +101,7 @@ class BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8306)
 	 *
 	 * @param int $object_id Object ID.
-	 * @return bool Whether the current user can read the object.
+	 * @return bool|null Whether the current user can read the object, or null for the base implementation.
 	 */
 	public function current_user_can_read( $object_id = 0 ) {
 		// Intentionally empty
@@ -114,7 +114,7 @@ class BBP_User_Engagements_Type {
 	 *
 	 * @since 2.7.0 bbPress (r8318)
 	 *
-	 * @return bool Whether queries for this type support `tax_query`.
+	 * @return bool|null Whether queries for this type support `tax_query`, or null for the base implementation.
 	 */
 	public function supports_tax_query() {
 		// Intentionally empty
@@ -129,7 +129,7 @@ class BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8318)
 	 *
 	 * @param array $object_ids Object IDs.
-	 * @return array Query arguments.
+	 * @return array|null Query arguments, or null for the base implementation.
 	 */
 	public function get_query_args( $object_ids = array() ) {
 		// Intentionally empty
@@ -143,7 +143,7 @@ class BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $object_subtype Registered object subtype.
-	 * @return array Query arguments.
+	 * @return array|null Query arguments, or null for the base implementation.
 	 */
 	public function get_subtype_query_args( $object_subtype = '' ) {
 		// Intentionally empty
@@ -157,7 +157,7 @@ class BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8306)
 	 *
 	 * @param int $object_id Object ID.
-	 * @return string|false Object URL, or false if it has none.
+	 * @return string|false|null Object URL, false if it has none, or null for the base implementation.
 	 */
 	public function get_url( $object_id = 0 ) {
 		// Intentionally empty

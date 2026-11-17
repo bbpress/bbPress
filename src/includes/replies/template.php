@@ -1613,7 +1613,8 @@ function bbp_reply_ancestor_id( $reply_id = 0 ) {
  *
  * @since 2.4.0 bbPress (r4944)
  *
- * @param in $reply_id Reply id.
+ * @param int $reply_id Reply ID.
+ * @return int|false Ancestor reply ID, or false if the reply is invalid.
  */
 function bbp_get_reply_ancestor_id( $reply_id = 0 ) {
 

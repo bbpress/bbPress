@@ -56,7 +56,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_type The relationship type (usually 'post').
 	 * @param bool   $unique    Whether meta key should be unique to the object.
 	 *
-	 * @return bool Returns true on success, false on failure.
+	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
 		// Intentionally empty
@@ -72,7 +72,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key  The relationship key.
 	 * @param string $meta_type The relationship type (usually 'post').
 	 *
-	 * @return bool Returns true on success, false on failure.
+	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty
@@ -87,7 +87,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key  The relationship key.
 	 * @param string $meta_type The relationship type (usually 'post').
 	 *
-	 * @return bool Returns true on success, false on failure.
+	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty
@@ -102,7 +102,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key  The relationship key.
 	 * @param string $meta_type The relationship type (usually 'post').
 	 *
-	 * @return bool Returns true on success, false on failure.
+	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty
@@ -116,7 +116,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key  The relationship key.
 	 * @param string $meta_type The relationship type (usually 'post').
 	 *
-	 * @return bool Returns true on success, false on failure.
+	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty
@@ -131,7 +131,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key  The key used to index this relationship.
 	 * @param string $meta_type The type of meta to look in.
 	 *
-	 * @return array Returns ids of users.
+	 * @return array|null User IDs, or null for the base implementation.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty
@@ -147,7 +147,7 @@ class BBP_User_Engagements_Base {
 	 * @param string    $meta_key    Relationship key.
 	 * @param string    $meta_type   Relationship metadata type.
 	 *
-	 * @return array Query arguments. An empty array means callers must not run a query.
+	 * @return array|null Query arguments, or null for the base implementation. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		// Intentionally empty

@@ -964,7 +964,7 @@ function bbp_update_forum_visibility_options( $forum_id = 0, $visibility = '' ) 
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
- * @param WP_Post $post       Post object.
+ * @param WP_Post|false $post Post object, or false when omitted.
  */
 function bbp_update_forum_visibility_on_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
 
@@ -1005,8 +1005,8 @@ function bbp_update_forum_visibility_version() {
  * @since 2.7.0 bbPress (r8304)
  *
  * @param int     $post_id     Post ID.
- * @param WP_Post $post_after  Post after the update.
- * @param WP_Post $post_before Post before the update.
+ * @param WP_Post|false $post_after  Post after the update.
+ * @param WP_Post|false $post_before Post before the update.
  */
 function bbp_update_forum_visibility_version_on_post_updated( $post_id = 0, $post_after = false, $post_before = false ) {
 	if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post )
@@ -3268,7 +3268,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
  * @since 2.6.15 bbPress (r7415)
  *
  * @param string   $where       SQL WHERE clause.
- * @param WP_Query $posts_query WordPress posts query.
+ * @param WP_Query|null $posts_query WordPress posts query.
  * @return string SQL WHERE clause.
  */
 function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {

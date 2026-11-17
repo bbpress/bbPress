@@ -1472,7 +1472,7 @@ function bbp_get_forum_post_count( $forum_id = 0, $total_count = true, $integer 
  *
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
- * @param boolean $integer Optional. Whether or not to format the result.
+ * @param bool|null $integer Optional. Whether or not to format the result.
  */
 function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 	echo bbp_get_forum_topic_count_hidden( $forum_id, $total_count, $integer );
@@ -1487,7 +1487,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $inte
  *
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
- * @param boolean $integer Optional. Whether or not to format the result.
+ * @param bool|null $integer Optional. Whether or not to format the result.
  * @return int Topic hidden topic count.
  */
 function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {

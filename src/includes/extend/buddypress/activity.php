@@ -1073,8 +1073,8 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.6.21 bbPress (r8113)
 	 *
 	 * @param int     $post_id     Post ID.
-	 * @param WP_Post $post_after  Post object following the update.
-	 * @param WP_Post $post_before Post object before the update.
+	 * @param WP_Post|null $post_after  Post object following the update.
+	 * @param WP_Post|null $post_before Post object before the update.
 	 */
 	public function post_visibility_update( $post_id = 0, $post_after = null, $post_before = null ) {
 		$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );

@@ -1090,7 +1090,7 @@ function bbp_get_topic_revision_count( $topic_id = 0, $integer = false ) {
  * @since 2.0.0 bbPress (r2754)
  *
  * @param int $topic_id Optional. Topic id.
- * @param int $check_super Optional. If set to true and if the topic is not a
+ * @param bool $check_super Optional. If set to true and if the topic is not a
  *                           normal sticky, it is checked if it is a super
  *                           sticky or not. Defaults to true.
  * @return bool True if sticky or super sticky, false if not.

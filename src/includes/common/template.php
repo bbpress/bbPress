@@ -1570,7 +1570,7 @@ function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
  * @deprecated 2.6.0 bbPress (r5561)
  * @see https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
  *
- * @param int $auto_increment Optional. Default true. Set to false to prevent
+ * @param bool $auto_increment Optional. Default true. Set to false to prevent
  *                            increment.
  */
 function bbp_tab_index( $auto_increment = true ) {
@@ -1588,7 +1588,7 @@ function bbp_tab_index( $auto_increment = true ) {
  * @deprecated 2.6.0 bbPress (r5561)
  * @see https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
  *
- * @param int $auto_increment Optional. Default true. Set to false to
+ * @param bool $auto_increment Optional. Default true. Set to false to
  *                            prevent the increment.
  *
  * @return int $bbp->tab_index The global tab index.

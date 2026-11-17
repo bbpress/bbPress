@@ -591,7 +591,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 *
-	 * @param int $group_id ID of the current group. Available only on BP 2.2+.
+	 * @param int|null $group_id ID of the current group. Available only on BP 2.2+.
 	 */
 	public function display( $group_id = null ) {
 

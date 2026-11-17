@@ -130,7 +130,7 @@ function bbp_rest_api_init() {
  *
  * @param string           $method XML-RPC method name.
  * @param array            $args   XML-RPC method arguments.
- * @param wp_xmlrpc_server $server XML-RPC server instance.
+ * @param wp_xmlrpc_server|null $server XML-RPC server instance.
  */
 function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
 	do_action( 'bbp_xmlrpc_call', $method, $args, $server );
@@ -322,7 +322,7 @@ function bbp_login_form_login() {
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
- * @param WP_Post $post       Post object.
+ * @param WP_Post|false $post Post object, or false when omitted.
  */
 function bbp_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
 
