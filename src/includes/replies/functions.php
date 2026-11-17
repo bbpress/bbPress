@@ -1131,7 +1131,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
  *
  * @param int $reply_id Optional. Reply id to update.
  * @param int $forum_id Optional. Forum id.
- * @return bool The forum id of the reply.
+ * @return int Forum ID of the reply.
  */
 function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 

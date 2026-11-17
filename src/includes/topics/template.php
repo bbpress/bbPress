@@ -1372,7 +1372,7 @@ function bbp_topic_author_id( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2590)
  *
  * @param int $topic_id Optional. Topic id.
- * @return string Author of topic.
+ * @return int Author ID of the topic.
  */
 function bbp_get_topic_author_id( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );

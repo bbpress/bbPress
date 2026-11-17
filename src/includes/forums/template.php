@@ -2030,7 +2030,7 @@ function bbp_forum_author_id( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id.
  *
- * @return string Author of forum.
+ * @return int Author ID of the forum.
  */
 function bbp_get_forum_author_id( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );

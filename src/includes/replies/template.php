@@ -1137,7 +1137,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id.
- * @return string Author id of reply.
+ * @return int Author ID of the reply.
  */
 function bbp_get_reply_author_id( $reply_id = 0 ) {
 	$reply_id  = bbp_get_reply_id( $reply_id );

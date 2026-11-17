@@ -288,7 +288,7 @@ class BBP_Akismet {
 	 *
 	 * @param int $post_id Post id.
 	 *
-	 * @return array Array of existing topic terms.
+	 * @return void
 	 */
 	public function submit_post( $post_id = 0 ) {
 		global $current_user, $current_site;

@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.6.0 bbPress (r6341)
  *
  * @param int $post_id ID of the post to check for editing.
- * @return integer False: not locked or locked by current user. Int: user ID of user with lock.
+ * @return int|false User ID of the user with the lock, or false when not locked by another user.
  */
 function bbp_check_post_lock( $post_id = 0 ) {
 

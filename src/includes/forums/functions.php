@@ -1121,7 +1121,7 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
  *
  * @since 2.4.0 bbPress (r5017)
  *
- * @return array An array of the status code and the message.
+ * @return bool True after refreshing the private and hidden forum caches.
  */
 function bbp_repair_forum_visibility() {
 
@@ -2994,7 +2994,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  *
  * @param WP_Query|null $posts_query Query being normalized.
  *
- * @return WP_Query
+ * @return void
  */
 function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 

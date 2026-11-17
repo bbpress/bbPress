@@ -279,9 +279,9 @@ function bbp_get_blog_roles() {
  *
  * @since 2.2.0 bbPress (r4290)
  *
- * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized.
+ * @param WP_Roles|null $wp_roles The array of WP_Role objects that was initialized.
  *
- * @return WP_Roles The main $wp_roles global.
+ * @return WP_Roles|null The main $wp_roles global, or null for invalid input.
  */
 function bbp_add_forums_roles( $wp_roles = null ) {
 

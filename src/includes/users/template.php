@@ -1978,7 +1978,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @param array $args    Subscription labels, object ID/type, user ID, wrapper, and redirect settings.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
- * @return string|false Subscription link, or false when unavailable.
+ * @return string|false|null Subscription link, false when unavailable, or null when subscriptions are inactive.
  */
 function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
 
