@@ -291,6 +291,44 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_forum_query_last_activity_id
 	 */
+	public function test_bbp_forum_query_last_activity_id_uses_dates_across_topics_and_replies() {
+		$db          = bbp_db();
+		$forum_id    = $this->factory->forum->create();
+		$first_topic = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id    = $this->factory->reply->create( array( 'post_parent' => $first_topic ) );
+		$last_topic  = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$dates       = array(
+			$first_topic => '2024-01-01 12:00:00',
+			$reply_id    => '2024-01-04 12:00:00',
+			$last_topic  => '2024-01-03 12:00:00'
+		);
+		foreach ( $dates as $id => $date ) {
+			$db->update( $db->posts, array( 'post_date' => $date ), array( 'ID' => $id ) );
+			clean_post_cache( $id );
+		}
+
+		$this->assertSame( $reply_id, bbp_forum_query_last_activity_id( $forum_id ) );
+
+		$db->update( $db->posts, array( 'post_date' => '2024-01-05 12:00:00' ), array( 'ID' => $first_topic ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-02 12:00:00' ), array( 'ID' => $reply_id ) );
+		clean_post_cache( $first_topic );
+		clean_post_cache( $reply_id );
+		$this->assertSame( $first_topic, bbp_forum_query_last_activity_id( $forum_id ) );
+
+		$filter = static function () use ( $first_topic, $last_topic ) {
+			return array( $first_topic, $last_topic );
+		};
+		add_filter( 'bbp_forum_query_topic_ids', $filter );
+		try {
+			$this->assertSame( $first_topic, bbp_forum_query_last_activity_id( $forum_id ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_topic_ids', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
 	public function test_bbp_forum_query_last_activity_id_preserves_filtered_topic_ids() {
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create(
@@ -360,6 +398,39 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 			$wpdb->suppress_errors( $suppress_errors );
 		}
 
+		$this->assertFalse( $seen );
+	}
+
+	/**
+	 * @covers ::bbp_forum_query_last_activity_id
+	 */
+	public function test_bbp_forum_query_last_activity_id_reports_candidate_date_query_failure() {
+		global $wpdb;
+
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$seen = null;
+		$filter = static function( $activity_id ) use ( &$seen ) {
+			$seen = $activity_id;
+			return $activity_id;
+		};
+		$fail_query = static function( $query ) use ( $wpdb ) {
+			if ( false !== strpos( $query, 'SELECT ID, post_date' ) ) {
+				$query = str_replace( $wpdb->posts, $wpdb->posts . '_missing', $query );
+			}
+			return $query;
+		};
+		$suppress_errors = $wpdb->suppress_errors( true );
+		add_filter( 'query', $fail_query );
+		add_filter( 'bbp_forum_query_last_activity_id', $filter );
+		try {
+			$this->assertFalse( bbp_forum_query_last_activity_id( $forum_id ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_last_activity_id', $filter );
+			remove_filter( 'query', $fail_query );
+			$wpdb->suppress_errors( $suppress_errors );
+		}
 		$this->assertFalse( $seen );
 	}
 }

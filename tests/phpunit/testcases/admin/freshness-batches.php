@@ -998,7 +998,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 			$this->finish();
 			$before = get_post_meta( $parent );
 			$this->assertSame( array( (string) $topic_a ), $before['_bbp_last_topic_id'] );
-			$this->assertSame( array( (string) ( $custom ? $reply_b : $reply_a ) ), $before['_bbp_last_reply_id'] );
+			$this->assertSame( array( (string) $reply_a ), $before['_bbp_last_reply_id'] );
 			bbp_update_forum_last_topic_id( $parent );
 			bbp_update_forum_last_reply_id( $parent );
 			bbp_update_forum_last_active_id( $parent );
@@ -1093,16 +1093,88 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$db->update( $db->posts, array( 'post_date' => '2024-01-02 12:00:00' ), array( 'ID' => $newer ) );
 		$closed = $this->factory->topic->create( array( 'post_parent' => $forum, 'post_status' => bbp_get_closed_status_id() ) );
 		$reply = $this->factory->reply->create( array( 'post_parent' => $closed, 'post_status' => bbp_get_public_status_id() ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-01 12:00:00' ), array( 'ID' => $topic ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-01 12:00:00' ), array( 'ID' => $closed ) );
 		$db->update( $db->posts, array( 'post_date' => '2024-01-04 12:00:00' ), array( 'ID' => $reply ) );
-		foreach ( array( $older, $newer, $reply ) as $id ) {
+		foreach ( array( $topic, $older, $newer, $closed, $reply ) as $id ) {
 			clean_post_cache( $id );
 		}
 		$this->finish();
-		$this->assertSame( (string) $newer, get_post_meta( $topic, '_bbp_last_reply_id', true ) );
+		$this->assertSame( (string) $older, get_post_meta( $topic, '_bbp_last_reply_id', true ) );
+		$this->assertSame( (string) $older, get_post_meta( $topic, '_bbp_last_active_id', true ) );
 		$this->assertSame( '2024-01-03 12:00:00', get_post_meta( $topic, '_bbp_last_active_time', true ) );
 		$this->assertSame( (string) $topic, get_post_meta( $forum, '_bbp_last_topic_id', true ) );
 		$this->assertSame( (string) $reply, get_post_meta( $forum, '_bbp_last_active_id', true ) );
 		$this->assertSame( '2024-01-04 12:00:00', get_post_meta( $forum, '_bbp_last_active_time', true ) );
+	}
+
+	public function test_repair_selects_last_reply_by_date_when_ids_are_out_of_order() {
+		$db     = bbp_db();
+		$forum  = $this->factory->forum->create();
+		$topic  = $this->factory->topic->create( array( 'post_parent' => $forum ) );
+		$later  = $this->factory->reply->create( array( 'post_parent' => $topic ) );
+		$higher = $this->factory->reply->create( array( 'post_parent' => $topic ) );
+		$newer_topic = $this->factory->topic->create( array( 'post_parent' => $forum ) );
+
+		$db->update( $db->posts, array( 'post_date' => '2024-01-01 12:00:00' ), array( 'ID' => $topic ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-04 12:00:00' ), array( 'ID' => $later ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-03 12:00:00' ), array( 'ID' => $higher ) );
+		$db->update( $db->posts, array( 'post_date' => '2024-01-03 12:00:00' ), array( 'ID' => $newer_topic ) );
+		clean_post_cache( $topic );
+		clean_post_cache( $later );
+		clean_post_cache( $higher );
+		clean_post_cache( $newer_topic );
+
+		$this->finish();
+		foreach ( array( $topic, $forum ) as $id ) {
+			$this->assertSame( (string) $later, get_post_meta( $id, '_bbp_last_reply_id', true ) );
+			$this->assertSame( (string) $later, get_post_meta( $id, '_bbp_last_active_id', true ) );
+			$this->assertSame( '2024-01-04 12:00:00', get_post_meta( $id, '_bbp_last_active_time', true ) );
+		}
+
+		$db->update( $db->posts, array( 'post_date' => '2024-01-04 12:00:00' ), array( 'ID' => $higher ) );
+		clean_post_cache( $higher );
+		$this->finish();
+		$this->assertSame( (string) $higher, get_post_meta( $topic, '_bbp_last_reply_id', true ) );
+		$this->assertSame( (string) $higher, get_post_meta( $topic, '_bbp_last_active_id', true ) );
+		$this->assertSame( '2024-01-04 12:00:00', get_post_meta( $topic, '_bbp_last_active_time', true ) );
+	}
+
+	/** @dataProvider child_lists */
+	public function test_repair_selects_parent_activity_by_date_across_children( $custom ) {
+		$db      = bbp_db();
+		$parent  = $this->factory->forum->create();
+		$first   = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$second  = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$topic_a = $this->factory->topic->create( array( 'post_parent' => $first ) );
+		$reply_a = $this->factory->reply->create( array( 'post_parent' => $topic_a ) );
+		$topic_b = $this->factory->topic->create( array( 'post_parent' => $second ) );
+		$reply_b = $this->factory->reply->create( array( 'post_parent' => $topic_b ) );
+		$dates   = array(
+			$topic_a => '2024-01-01 12:00:00',
+			$topic_b => '2024-01-01 12:00:00',
+			$reply_a => '2024-01-04 12:00:00',
+			$reply_b => '2024-01-03 12:00:00'
+		);
+		foreach ( $dates as $id => $date ) {
+			$db->update( $db->posts, array( 'post_date' => $date ), array( 'ID' => $id ) );
+			clean_post_cache( $id );
+		}
+
+		$children = static function ( $ids, $id ) use ( $parent, $first, $second ) {
+			return $parent === $id ? array( $first, $second ) : $ids;
+		};
+		if ( $custom ) {
+			add_filter( 'bbp_forum_query_subforum_ids', $children, 10, 2 );
+		}
+		try {
+			$this->finish();
+			$this->assertSame( (string) $reply_a, get_post_meta( $parent, '_bbp_last_reply_id', true ) );
+			$this->assertSame( (string) $reply_a, get_post_meta( $parent, '_bbp_last_active_id', true ) );
+			$this->assertSame( '2024-01-04 12:00:00', get_post_meta( $parent, '_bbp_last_active_time', true ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $children, 10 );
+		}
 	}
 
 	public function test_auto_draft_forums_retain_only_their_direct_topic_reference() {

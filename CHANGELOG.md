@@ -166,6 +166,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Corrected last reply and activity links when post dates differ from ID order,
+  including parent forums and freshness repair.
 - Fixed member profile and forum section links on child sites when BuddyPress is network active.
 - Kept profile password controls hidden until Generate Password is selected.
 - Make repair and upgrade Dry Runs preview complete operations and estimate batch

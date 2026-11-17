@@ -1913,7 +1913,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Define local variable(s)
-	$children_last_reply = 0;
+	$children_last_reply = array();
 
 	// Do some calculation if not manually set
 	if ( empty( $reply_id ) ) {
@@ -1922,7 +1922,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 		$children = bbp_forum_query_subforum_ids( $forum_id );
 		if ( ! empty( $children ) ) {
 			foreach ( $children as $child ) {
-				$children_last_reply = bbp_update_forum_last_reply_id( $child ); // Recursive
+				$children_last_reply[] = bbp_update_forum_last_reply_id( $child ); // Recursive
 			}
 		}
 
@@ -1931,16 +1931,16 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 		if ( false === $reply_id ) {
 			$reply_id = get_post_meta( $forum_id, '_bbp_last_reply_id', true );
 		}
+		if ( ! empty( $children_last_reply ) ) {
+			$latest = bbp_forum_query_latest_post_id( array_merge( array( $reply_id ), $children_last_reply ) );
+			$reply_id = ( false === $latest )
+				? get_post_meta( $forum_id, '_bbp_last_reply_id', true )
+				: $latest;
+		}
 	}
 
 	// Cast as integer in case of empty or string
-	$reply_id            = (int) $reply_id;
-	$children_last_reply = (int) $children_last_reply;
-
-	// If child forums have higher ID, check for newer reply id
-	if ( ! empty( $children ) && ( $children_last_reply > $reply_id ) ) {
-		$reply_id = $children_last_reply;
-	}
+	$reply_id = (int) $reply_id;
 
 	// Update the last public reply ID
 	update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
@@ -1963,7 +1963,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Define local variable(s)
-	$children_last_active = 0;
+	$children_last_active = array();
 
 	// Do some calculation if not manually set
 	if ( empty( $active_id ) ) {
@@ -1972,7 +1972,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 		$children = bbp_forum_query_subforum_ids( $forum_id );
 		if ( ! empty( $children ) ) {
 			foreach ( $children as $child ) {
-				$children_last_active = bbp_update_forum_last_active_id( $child, $active_id );
+				$children_last_active[] = bbp_update_forum_last_active_id( $child, $active_id );
 			}
 		}
 
@@ -1981,16 +1981,16 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 		if ( false === $active_id ) {
 			$active_id = get_post_meta( $forum_id, '_bbp_last_active_id', true );
 		}
+		if ( ! empty( $children_last_active ) ) {
+			$latest = bbp_forum_query_latest_post_id( array_merge( array( $active_id ), $children_last_active ) );
+			$active_id = ( false === $latest )
+				? get_post_meta( $forum_id, '_bbp_last_active_id', true )
+				: $latest;
+		}
 	}
 
 	// Cast as integer in case of empty or string
-	$active_id            = (int) $active_id;
-	$children_last_active = (int) $children_last_active;
-
-	// If child forums have higher ID, use that instead
-	if ( ! empty( $children ) && ( $children_last_active > $active_id ) ) {
-		$active_id = $children_last_active;
-	}
+	$active_id = (int) $active_id;
 
 	update_post_meta( $forum_id, '_bbp_last_active_id', $active_id );
 
@@ -3473,6 +3473,50 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 }
 
 /**
+ * Return the latest post ID from known activity candidates.
+ *
+ * Candidate IDs are already restricted by their callers. Query them in bounded
+ * groups so filtered topic lists do not produce an unbounded SQL statement.
+ *
+ * @since 2.7.0 bbPress (r8406)
+ *
+ * @param int[] $post_ids Candidate post IDs.
+ * @return int|false Latest post ID, or false on a database error.
+ */
+function bbp_forum_query_latest_post_id( $post_ids ) {
+	$post_ids = wp_parse_id_list( $post_ids );
+	if ( empty( $post_ids ) ) {
+		return 0;
+	}
+	if ( 1 === count( $post_ids ) ) {
+		return (int) reset( $post_ids );
+	}
+
+	$bbp_db      = bbp_db();
+	$latest_id   = 0;
+	$latest_date = '';
+	foreach ( array_chunk( $post_ids, 5000 ) as $batch ) {
+		$placeholders = implode( ', ', array_fill( 0, count( $batch ), '%d' ) );
+		$query        = $bbp_db->prepare( "SELECT ID, post_date FROM {$bbp_db->posts} WHERE ID IN ({$placeholders}) ORDER BY post_date DESC, ID DESC LIMIT 1", $batch );
+		$candidate    = $bbp_db->get_row( $query );
+		if ( ! empty( $bbp_db->last_error ) ) {
+			return false;
+		}
+		if ( ! $candidate ) {
+			continue;
+		}
+
+		$comparison = strcmp( $candidate->post_date, $latest_date );
+		if ( $comparison > 0 || ( 0 === $comparison && $candidate->ID > $latest_id ) ) {
+			$latest_id   = (int) $candidate->ID;
+			$latest_date = $candidate->post_date;
+		}
+	}
+
+	return $latest_id;
+}
+
+/**
  * Returns the forum's last public topic or reply ID.
  *
  * The unfiltered path uses bounded database queries. Filtered topic-ID sets
@@ -3488,10 +3532,10 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 
 	// Preserve extensions that customize the legacy topic ID set
 	if ( has_filter( 'bbp_forum_query_topic_ids' ) || has_filter( 'bbp_get_public_child_ids' ) ) {
-		$topic_ids   = bbp_forum_query_topic_ids( $forum_id );
-		$activity_id = ! empty( $topic_ids )
-			? max( bbp_forum_query_last_reply_id( $forum_id, $topic_ids ), max( $topic_ids ) )
-			: 0;
+		$topic_ids    = bbp_forum_query_topic_ids( $forum_id );
+		$activity_ids = ! empty( $topic_ids )
+			? array_merge( $topic_ids, array( bbp_forum_query_last_reply_id( $forum_id, $topic_ids ) ) )
+			: array();
 
 	// Query only the scalar values needed by the forum updaters
 	} else {
@@ -3519,7 +3563,7 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 					WHERE post_parent = %d
 						AND post_type = %s
 						AND post_status IN ({$placeholders})
-					ORDER BY ID DESC
+					ORDER BY post_date DESC, ID DESC
 					LIMIT 1
 				) AS topic_id";
 			$query        = $bbp_db->prepare(
@@ -3548,8 +3592,13 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
 			$topic_id = $latest->topic_id;
 		}
 
-		$reply_id   = apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
-		$activity_id = max( (int) $reply_id, (int) $topic_id );
+		$reply_id     = apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
+		$activity_ids = array( $reply_id, $topic_id );
+	}
+	$activity_id = bbp_forum_query_latest_post_id( $activity_ids );
+	if ( false === $activity_id ) {
+		$activity_id = apply_filters( 'bbp_forum_query_last_activity_id', false, $forum_id );
+		return ( false === $activity_id ) ? false : (int) $activity_id;
 	}
 
 	// Filter & return

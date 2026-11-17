@@ -667,11 +667,11 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		$complete = count( $rows ) <= $limit;
 		$rows     = array_slice( $rows, 0, $limit );
 		foreach ( $rows as $reply ) {
-			$first_reply                              = empty( $node['values']['_bbp_last_reply_id'] );
-			$node['reply_cursor']                    = (int) $reply->ID;
-			$node['values']['_bbp_last_reply_id']    = (int) $reply->ID;
-			$node['values']['_bbp_last_active_id']   = (int) $reply->ID;
-			if ( $first_reply || strcmp( $reply->post_date, $node['values']['_bbp_last_active_time'] ) > 0 ) {
+			$first_reply           = empty( $node['values']['_bbp_last_reply_id'] );
+			$node['reply_cursor'] = (int) $reply->ID;
+			if ( $first_reply || strcmp( $reply->post_date, $node['values']['_bbp_last_active_time'] ) >= 0 ) {
+				$node['values']['_bbp_last_reply_id']    = (int) $reply->ID;
+				$node['values']['_bbp_last_active_id']   = (int) $reply->ID;
 				$node['values']['_bbp_last_active_time'] = $reply->post_date;
 			}
 		}
@@ -883,9 +883,22 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			$parent_node['values']['_bbp_last_topic_id'] = $topic;
 			$parent_node['topic_time']                   = $time;
 		}
-		// Preserve the updaters' final-child ordering, including custom child lists
-		$parent_node['values']['_bbp_last_reply_id']  = max( $parent_node['direct']['_bbp_last_reply_id'], $child['returns']['reply'] );
-		$parent_node['values']['_bbp_last_active_id'] = max( $parent_node['direct']['_bbp_last_active_id'], $child['returns']['active'] );
+		foreach ( array(
+			'_bbp_last_reply_id'  => 'reply',
+			'_bbp_last_active_id' => 'active',
+		) as $key => $return ) {
+			$current   = (int) $parent_node['values'][ $key ];
+			$candidate = (int) $child['returns'][ $return ];
+			$old_date  = $this->post_date( $current, 'raw' );
+			$new_date  = $this->post_date( $candidate, 'raw' );
+			if ( $this->error ) {
+				return;
+			}
+			$comparison = strcmp( $new_date, $old_date );
+			if ( $comparison > 0 || ( 0 === $comparison && $candidate > $current ) ) {
+				$parent_node['values'][ $key ] = $candidate;
+			}
+		}
 	}
 
 	/**

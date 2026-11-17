@@ -246,6 +246,46 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 	 * @covers ::bbp_update_forum_last_reply_id
 	 * @covers ::bbp_update_forum_last_active_id
 	 */
+	public function test_parent_forum_activity_uses_dates_across_children() {
+		$db        = bbp_db();
+		$parent    = $this->factory->forum->create();
+		$first     = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$second    = $this->factory->forum->create( array( 'post_parent' => $parent ) );
+		$topic_a   = $this->factory->topic->create( array( 'post_parent' => $first ) );
+		$reply_a   = $this->factory->reply->create( array( 'post_parent' => $topic_a ) );
+		$topic_b   = $this->factory->topic->create( array( 'post_parent' => $second ) );
+		$reply_b   = $this->factory->reply->create( array( 'post_parent' => $topic_b ) );
+		$dates     = array(
+			$topic_a => '2024-01-01 12:00:00',
+			$topic_b => '2024-01-01 12:00:00',
+			$reply_a => '2024-01-04 12:00:00',
+			$reply_b => '2024-01-03 12:00:00'
+		);
+		foreach ( $dates as $id => $date ) {
+			$db->update( $db->posts, array( 'post_date' => $date ), array( 'ID' => $id ) );
+			clean_post_cache( $id );
+		}
+
+		$children = static function ( $ids, $id ) use ( $parent, $first, $second ) {
+			return $parent === $id ? array( $first, $second ) : $ids;
+		};
+		add_filter( 'bbp_forum_query_subforum_ids', $children, 10, 2 );
+		try {
+			$this->assertSame( $reply_a, bbp_update_forum_last_reply_id( $parent ) );
+			$this->assertSame( $reply_a, bbp_update_forum_last_active_id( $parent ) );
+			bbp_update_forum_last_active_time( $parent );
+			$this->assertSame( '2024-01-04 12:00:00', get_post_meta( $parent, '_bbp_last_active_time', true ) );
+		} finally {
+			remove_filter( 'bbp_forum_query_subforum_ids', $children, 10 );
+		}
+		$this->assertSame( $reply_a, bbp_update_forum_last_reply_id( $parent ) );
+		$this->assertSame( $reply_a, bbp_update_forum_last_active_id( $parent ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_forum_last_reply_id
+	 * @covers ::bbp_update_forum_last_active_id
+	 */
 	public function test_forum_last_ids_survive_activity_query_failure() {
 		global $wpdb;
 
@@ -264,21 +304,27 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 		update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
 		update_post_meta( $forum_id, '_bbp_last_active_id', $topic_id );
 
-		$fail_query = function( $query ) use ( $wpdb ) {
-			if ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) ) {
-				$query = str_replace( $wpdb->posts, $wpdb->posts . '_missing', $query );
-			}
-
-			return $query;
-		};
 		$suppress_errors = $wpdb->suppress_errors( true );
-		add_filter( 'query', $fail_query );
-
 		try {
-			$this->assertSame( $reply_id, bbp_update_forum_last_reply_id( $forum_id ) );
-			$this->assertSame( $topic_id, bbp_update_forum_last_active_id( $forum_id ) );
+			foreach ( array( 'activity', 'candidate' ) as $failure ) {
+				$fail_query = static function( $query ) use ( $wpdb, $failure ) {
+					$matches = ( 'activity' === $failure )
+						? ( false !== strpos( $query, 'AS reply_id' ) && false !== strpos( $query, 'AS topic_id' ) )
+						: false !== strpos( $query, 'SELECT ID, post_date' );
+					if ( $matches ) {
+						$query = str_replace( $wpdb->posts, $wpdb->posts . '_missing', $query );
+					}
+					return $query;
+				};
+				add_filter( 'query', $fail_query );
+				try {
+					$this->assertSame( $reply_id, bbp_update_forum_last_reply_id( $forum_id ) );
+					$this->assertSame( $topic_id, bbp_update_forum_last_active_id( $forum_id ) );
+				} finally {
+					remove_filter( 'query', $fail_query );
+				}
+			}
 		} finally {
-			remove_filter( 'query', $fail_query );
 			$wpdb->suppress_errors( $suppress_errors );
 		}
 
