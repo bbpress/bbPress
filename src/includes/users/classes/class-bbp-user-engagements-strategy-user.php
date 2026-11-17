@@ -42,11 +42,11 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6876)
 	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
-	 * @param string $meta_key
-	 * @param string $meta_type
-	 * @param int    $object_id
-	 * @param bool   $prefix
-	 * @param string $context_key
+	 * @param string $meta_key    Relationship key.
+	 * @param string $meta_type   Relationship metadata type.
+	 * @param int    $object_id   Object ID used to select a legacy option.
+	 * @param bool   $prefix      Whether to include the database table prefix.
+	 * @param string $context_key Query context used to select a legacy option.
 	 *
 	 * @return string
 	 */
@@ -113,9 +113,9 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.3 bbPress (r6993)
 	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
-	 * @param string $meta_key
-	 * @param string $meta_type
-	 * @param int    $object_id
+	 * @param string $meta_key  Relationship key.
+	 * @param string $meta_type Relationship metadata type.
+	 * @param int    $object_id Object ID.
 	 *
 	 * @return string
 	 */
@@ -172,9 +172,9 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.3 bbPress (r6993)
 	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
-	 * @param string $meta_key
-	 * @param string $meta_type
-	 * @param int    $object_id
+	 * @param string $meta_key  Relationship key.
+	 * @param string $meta_type Relationship metadata type.
+	 * @param int    $object_id Object ID.
 	 *
 	 * @return mixed Results from cache get.
 	 */
@@ -193,10 +193,10 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.3 bbPress (r6993)
 	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
-	 * @param string $meta_key
-	 * @param string $meta_type
-	 * @param int    $object_id
-	 * @param array  $user_ids
+	 * @param string $meta_key  Relationship key.
+	 * @param string $meta_type Relationship metadata type.
+	 * @param int    $object_id Object ID.
+	 * @param array  $user_ids  User IDs to cache.
 	 *
 	 * @return mixed Results from cache set.
 	 */
@@ -216,9 +216,9 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.3 bbPress (r6993)
 	 * @since 2.7.0 bbPress (r8318) Added the `$meta_type` parameter.
 	 *
-	 * @param string $meta_key
-	 * @param string $meta_type
-	 * @param int    $object_id
+	 * @param string $meta_key  Relationship key.
+	 * @param string $meta_type Relationship metadata type.
+	 * @param int    $object_id Object ID.
 	 *
 	 * @return mixed Results from cache delete.
 	 */
@@ -233,7 +233,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6876)
 	 *
-	 * @param string $results
+	 * @param string $results Comma-separated IDs to parse.
 	 * @return array
 	 */
 	private function parse_comma_list( $results = '' ) {
@@ -461,9 +461,10 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6844)
 	 * @since 2.7.0 bbPress (r8318) Use the engagement type's query arguments.
 	 *
-	 * @param array  $args
-	 * @param string $meta_key
-	 * @param string $meta_type
+	 * @param array|int $args        User or query arguments.
+	 * @param string    $context_key Query context key.
+	 * @param string    $meta_key    Relationship key.
+	 * @param string    $meta_type   Relationship metadata type.
 	 *
 	 * @return array Query arguments. An empty array means callers must not run a query.
 	 */

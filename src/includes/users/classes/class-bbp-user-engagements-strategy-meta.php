@@ -86,7 +86,6 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6723)
 	 *
 	 * @param int    $object_id The object id.
-	 * @param int    $user_id   The user id.
 	 * @param string $meta_key  The relationship key.
 	 * @param string $meta_type The relationship type (usually 'post').
 	 *
@@ -136,9 +135,10 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6739)
 	 *
-	 * @param array  $args
-	 * @param string $meta_key
-	 * @param string $meta_type
+	 * @param array|int $args        User or query arguments.
+	 * @param string    $context_key Query context key.
+	 * @param string    $meta_key    Relationship key.
+	 * @param string    $meta_type   Relationship metadata type.
 	 *
 	 * @return array
 	 */

@@ -17,7 +17,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0 bbPress (r6544)
  *
- * @param int $object_id Optional. ID of object (forum, topic, or something else).
+ * @param int    $object_id Optional. ID of object (forum, topic, or something else).
+ * @param string $type Object metadata type. Defaults to post.
  */
 function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );
@@ -120,7 +121,7 @@ function bbp_get_topic_subscription_taxonomies() {
  * @since 2.7.0 bbPress (r8360)
  * @since 2.7.0 bbPress (r8376) Optionally limit contexts to enabled emails.
  *
- * @param int $topic_id Optional. Topic ID.
+ * @param int  $topic_id Optional. Topic ID.
  * @param bool $for_email Optional. Only include enabled email subscriptions.
  * @return array Subscription object data keyed by user ID.
  */
@@ -233,8 +234,9 @@ function bbp_is_subscribable( $object_id = 0, $object_type = '' ) {
  *
  * @since 2.0.0 bbPress (r2668)
  *
- * @param int $user_id Optional. User id.
- * @param int $object_id Optional. Object id.
+ * @param int    $user_id   Optional. User ID.
+ * @param int    $object_id Optional. Object ID.
+ * @param string $type      Object metadata type. Defaults to post.
  *
  * @return bool True if the object (forum or topic) is in user's subscriptions, otherwise false.
  */
@@ -863,6 +865,8 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
  *
  * @since 2.5.0 bbPress (r5156)
  * @deprecated 2.6.0 bbPress (r6543)
+ *
+ * @param string $action Subscription action to handle.
  */
 function bbp_forum_subscriptions_handler( $action = '' ) {
 	return bbp_subscriptions_handler( $action );

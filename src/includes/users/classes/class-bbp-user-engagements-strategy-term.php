@@ -64,8 +64,8 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6739)
 	 *
-	 * @param string $tax_key
-	 * @param string $object_type
+	 * @param string $tax_key     Taxonomy key to register.
+	 * @param string $object_type Object type for the taxonomy.
 	 */
 	private function jit_taxonomy( $tax_key = '', $object_type = 'user' ) {
 
@@ -280,9 +280,10 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6739)
 	 * @since 2.7.0 bbPress (r8318) Use object IDs for types without `tax_query`.
 	 *
-	 * @param array  $args
-	 * @param string $meta_key
-	 * @param string $meta_type
+	 * @param array|int $args        User or query arguments.
+	 * @param string    $context_key Query context key.
+	 * @param string    $meta_key    Relationship key.
+	 * @param string    $meta_type   Relationship metadata type.
 	 *
 	 * @return array Query arguments. An empty array means callers must not run a query.
 	 */

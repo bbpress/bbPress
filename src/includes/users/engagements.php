@@ -216,7 +216,6 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $rel_key = '', $rel_typ
  * @since 2.6.0 bbPress (r6544)
  *
  * @param int    $object_id The object id.
- * @param int    $user_id   The user id.
  * @param string $rel_key   The relationship key.
  * @param string $rel_type  The relationship type (usually 'post').
  *
@@ -692,12 +691,9 @@ function bbp_current_user_can_toggle_engagement( $object_id = 0, $object_type = 
  *
  * @since 2.6.0 bbPress (r6607)
  *
- * @param int    $user_id   The user id.
- * @param string $rel_key   The relationship key.
- * @param string $rel_type  The relationship type (usually 'post').
- * @param array  $args      The arguments to override defaults.
+ * @param array $args User ID, object type, relationship key and type, filter name, and query arguments.
  *
- * @return array|bool Results if user has objects, otherwise null.
+ * @return array Object IDs, or an empty array when none are found.
  */
 function bbp_get_user_object_ids( $args = array() ) {
 	$object_ids = $defaults = array();
