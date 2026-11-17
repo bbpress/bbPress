@@ -164,6 +164,35 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @covers BBP_User_Engagements_Term::add_user_to_object
+	 * @covers ::bbp_add_user_to_object
+	 */
+	public function test_term_strategy_reports_failed_term_creation() {
+		bbpress()->engagements = new BBP_User_Engagements_Term();
+
+		$topic_id = $this->factory->topic->create();
+		$user_id  = $this->factory->user->create();
+		$meta_key = '_bbp_test_failed_term';
+		$taxonomy = "{$meta_key}_post";
+		$reject   = static function ( $term, $term_taxonomy ) use ( $taxonomy ) {
+			return ( $taxonomy === $term_taxonomy )
+				? new WP_Error( 'term_creation_failed' )
+				: $term;
+		};
+
+		add_filter( 'pre_insert_term', $reject, 10, 2 );
+
+		try {
+			$this->assertFalse( bbpress()->engagements->add_user_to_object( $topic_id, $user_id, $meta_key ) );
+			$this->assertFalse( bbp_add_user_to_object( $topic_id, $user_id, $meta_key ) );
+			$this->assertSame( array(), bbp_get_users_for_object( $topic_id, $meta_key ) );
+		} finally {
+			remove_filter( 'pre_insert_term', $reject, 10 );
+		}
+	}
+
+	/**
 	 * @ticket BBP3785
 	 *
 	 * @covers BBP_User_Engagements_User::add_user_to_object

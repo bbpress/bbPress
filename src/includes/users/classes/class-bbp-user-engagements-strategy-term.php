@@ -122,7 +122,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		$tax_key  = $this->get_tax_key( $meta_key, $meta_type );
 		$this->jit_taxonomy( $tax_key );
 
-		return wp_add_object_terms( $object_id, $user_key, $tax_key );
+		return ! is_wp_error( wp_add_object_terms( $object_id, $user_key, $tax_key ) );
 	}
 
 	/**

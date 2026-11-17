@@ -2806,7 +2806,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
  * @since 2.6.0 bbPress (r5885)
  *
  * @param array $args Display options for overhead filter links.
- * @return array
+ * @return string Filter links for repair tool overheads.
  */
 function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
@@ -2905,10 +2905,8 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 				? 'current'
 				: '';
 
-			// Counts to show
-			if ( ! empty( $count ) ) {
-				$overhead_count = $r['count_before'] . $count . $r['count_after'];
-			}
+			// Count to show
+			$overhead_count = $r['count_before'] . $count . $r['count_after'];
 
 			// Build the link
 			$links[] = $r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $current ) . '">' . bbp_admin_repair_tool_translate_overhead( $overhead ) . $overhead_count . '</a>' . $r['link_after'];
@@ -2941,7 +2939,7 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
  * @since 2.6.0 bbPress (r6926)
  *
  * @param array $args Display options for status filter links.
- * @return array
+ * @return string Filter links for repair tool statuses.
  */
 function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 

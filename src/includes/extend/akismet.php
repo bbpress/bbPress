@@ -779,7 +779,7 @@ class BBP_Akismet {
 	 * @param int    $topic_id Topic ID.
 	 * @param int    $reply_id Reply ID.
 	 *
-	 * @return array Array of existing topic terms.
+	 * @return string Comma-separated list of existing topic terms.
 	 */
 	public function filter_post_terms( $terms = '', $topic_id = 0, $reply_id = 0 ) {
 

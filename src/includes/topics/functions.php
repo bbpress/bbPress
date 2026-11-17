@@ -856,7 +856,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 
 	// Forum/Topic meta (early, for use in downstream functions)
 	bbp_update_topic_forum_id( $topic_id, $forum_id );
-	bbp_update_topic_topic_id( $topic_id, $topic_id );
+	bbp_update_topic_topic_id( $topic_id );
 
 	// If anonymous post, store name, email, website and ip in post_meta.
 	if ( ! empty( $anonymous_data ) ) {

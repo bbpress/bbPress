@@ -665,7 +665,7 @@ class BBP_Forums_Admin {
 				break;
 
 			case 'bbp_forum_freshness' :
-				$last_active = bbp_get_forum_last_active_time( $forum_id, false );
+				$last_active = bbp_get_forum_last_active_time( $forum_id );
 				if ( ! empty( $last_active ) ) {
 					echo esc_html( $last_active );
 				} else {

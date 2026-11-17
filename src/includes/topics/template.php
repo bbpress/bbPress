@@ -1120,7 +1120,7 @@ function bbp_is_topic_sticky( $topic_id = 0, $check_super = true ) {
  */
 function bbp_is_topic_super_sticky( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$stickies = bbp_get_super_stickies( $topic_id );
+	$stickies = bbp_get_super_stickies();
 	$retval   = in_array( $topic_id, $stickies, true );
 
 	// Filter & return

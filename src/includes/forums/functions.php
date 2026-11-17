@@ -861,7 +861,7 @@ function bbp_open_forum( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id.
- * @return bool False on failure, true on success.
+ * @return int Forum ID.
  */
 function bbp_categorize_forum( $forum_id = 0 ) {
 
@@ -882,7 +882,7 @@ function bbp_categorize_forum( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id.
- * @return bool False on failure, true on success.
+ * @return int Forum ID.
  */
 function bbp_normalize_forum( $forum_id = 0 ) {
 
@@ -3830,7 +3830,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 
 		// Loop through topics and trash them.
 		foreach ( $topic_ids as $topic_id ) {
-			wp_trash_post( $topic_id, true );
+			wp_trash_post( $topic_id );
 		}
 	}
 }

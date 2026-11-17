@@ -91,9 +91,9 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	 *
 	 * @since 2.6.0 bbPress (r6036)
 	 *
-	 * @param int $reply_id               The reply id.
-	 * @param int $reply_meta['topic_id'] The reply topic meta.
-	 * @param int $reply_meta['forum_id'] The reply forum meta.
+	 * @param int $reply_id The reply ID.
+	 * @param int $topic_id The reply topic ID.
+	 * @param int $forum_id The reply forum ID.
 	 */
 	do_action( 'bbp_insert_reply', (int) $reply_id, (int) $reply_meta['topic_id'], (int) $reply_meta['forum_id'] );
 
@@ -2578,7 +2578,7 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
 	// Toggle revisions off as we are not altering content
 	if ( has_filter( 'clean_post_cache', 'bbp_clean_post_cache' ) ) {
 		$removed = true;
-		remove_filter( 'clean_post_cache', 'bbp_clean_post_cache', 10, 2 );
+		remove_filter( 'clean_post_cache', 'bbp_clean_post_cache', 10 );
 	}
 
 	// Update the replies' 'menu_order' with the reply position

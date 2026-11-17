@@ -1105,7 +1105,7 @@ class BBP_Topics_Admin {
 
 			// Freshness
 			case 'bbp_topic_freshness' :
-				$last_active = bbp_get_topic_last_active_time( $topic_id, false );
+				$last_active = bbp_get_topic_last_active_time( $topic_id );
 				if ( ! empty( $last_active ) ) {
 					echo esc_html( $last_active );
 				} else {

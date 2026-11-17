@@ -157,12 +157,6 @@ parameters:
 			path: src/includes/admin/forums.php
 
 		-
-			message: '#^Function bbp_get_forum_last_active_time invoked with 2 parameters, 0\-1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/includes/admin/forums.php
-
-		-
 			message: '#^Array has 2 duplicate keys with value '';\-D'' \('';\-D'', '';\-D''\)\.$#'
 			identifier: array.duplicateKey
 			count: 1
@@ -223,18 +217,6 @@ parameters:
 			path: src/includes/admin/slug-translations.php
 
 		-
-			message: '#^Parameter \#1 \(array\) of echo cannot be converted to string\.$#'
-			identifier: echo.nonString
-			count: 2
-			path: src/includes/admin/tools/common.php
-
-		-
-			message: '#^Variable \$overhead_count might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/includes/admin/tools/common.php
-
-		-
 			message: '#^Default value of the parameter \#2 \$callback \(''''\) of function bbp_admin_repair_tool_run_automatically\(\) is incompatible with type callable\(\)\: mixed\.$#'
 			identifier: parameter.defaultValue
 			count: 1
@@ -285,12 +267,6 @@ parameters:
 		-
 			message: '#^Filter callback return statement is missing\.$#'
 			identifier: return.missing
-			count: 1
-			path: src/includes/admin/topics.php
-
-		-
-			message: '#^Function bbp_get_topic_last_active_time invoked with 2 parameters, 0\-1 required\.$#'
-			identifier: arguments.count
 			count: 1
 			path: src/includes/admin/topics.php
 
@@ -757,12 +733,6 @@ parameters:
 			path: src/includes/extend/akismet.php
 
 		-
-			message: '#^Method BBP_Akismet\:\:filter_post_terms\(\) should return array but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: src/includes/extend/akismet.php
-
-		-
 			message: '#^Variable \$post_data in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
@@ -811,32 +781,14 @@ parameters:
 			path: src/includes/forums/functions.php
 
 		-
-			message: '#^Function bbp_categorize_forum\(\) should return bool but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: src/includes/forums/functions.php
-
-		-
 			message: '#^Function bbp_deleted_forum\(\) should return false\|null but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
 			path: src/includes/forums/functions.php
 
 		-
-			message: '#^Function bbp_normalize_forum\(\) should return bool but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: src/includes/forums/functions.php
-
-		-
 			message: '#^Function bbp_update_forum_walker\(\) should return false\|null but return statement is missing\.$#'
 			identifier: return.missing
-			count: 1
-			path: src/includes/forums/functions.php
-
-		-
-			message: '#^Function wp_trash_post invoked with 2 parameters, 0\-1 required\.$#'
-			identifier: arguments.count
 			count: 1
 			path: src/includes/forums/functions.php
 
@@ -951,18 +903,6 @@ parameters:
 		-
 			message: '#^Function bbp_unspam_reply\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
 			identifier: return.type
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Function remove_filter invoked with 4 parameters, 2\-3 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^One or more @param tags has an invalid name or invalid syntax\.$#'
-			identifier: phpDoc.parseError
 			count: 1
 			path: src/includes/replies/functions.php
 
@@ -1141,12 +1081,6 @@ parameters:
 			path: src/includes/topics/functions.php
 
 		-
-			message: '#^Function bbp_update_topic_topic_id invoked with 2 parameters, 0\-1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/includes/topics/functions.php
-
-		-
 			message: '#^Function bbp_update_topic_voice_count\(\) should return int\|null but empty return statement found\.$#'
 			identifier: return.empty
 			count: 1
@@ -1191,12 +1125,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property WP_Query\:\:\$posts_per_page\.$#'
 			identifier: property.notFound
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_super_stickies invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
 			count: 1
 			path: src/includes/topics/template.php
 
@@ -1307,12 +1235,6 @@ parameters:
 			identifier: return.missing
 			count: 1
 			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Term\:\:add_user_to_object\(\) should return bool but returns array\|WP_Error\.$#'
-			identifier: return.type
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-term.php
 
 		-
 			message: '#^Method BBP_User_Engagements_Type\:\:current_user_can_read\(\) should return bool\|null but return statement is missing\.$#'

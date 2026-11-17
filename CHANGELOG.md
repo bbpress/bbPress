@@ -172,6 +172,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Fixed term engagements reporting failed term creation as a successful addition.
 - Fixed XenForo imports losing post text while converting attributed quotes.
 - Corrected last reply and activity links when post dates differ from ID order,
   including parent forums and freshness repair.
