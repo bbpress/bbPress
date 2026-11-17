@@ -2013,6 +2013,8 @@ function bbp_admin_settings() {
 		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forums Settings', 'bbpress' ); ?></h1>
 		<hr class="wp-header-end">
 
+		<?php bbp_admin_slug_translation_panel(); ?>
+
 		<form action="options.php" method="post">
 
 			<?php settings_fields( 'bbpress' ); ?>
@@ -2499,8 +2501,9 @@ function bbp_admin_settings_help() {
 								'<li>' . esc_html__( '"Archive Slugs" are used as the "root" for your forums and topics. If you combine these values with existing page slugs, bbPress will attempt to output the most correct title and content.', 'bbpress' ) . '</li>' .
 								'<li>' . esc_html__( '"Single Slugs" are used as a prefix when viewing an individual forum, topic, reply, user, or view.',                                                                                          'bbpress' ) . '</li>' .
 								'<li>' . esc_html__( 'In the event of a slug collision with WordPress or BuddyPress, a warning will appear next to the problem slug(s).', 'bbpress' ) . '</li>' .
+								'<li>' . esc_html__( 'When the site language has translated defaults, bbPress can suggest new URL slugs. URLs change only if you apply the suggestions.', 'bbpress' ) . '</li>' .
 							'</ul>' .
-						'<p>'
+						bbp_admin_slug_translation_help_link()
 		)
 	);
 

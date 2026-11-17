@@ -860,3 +860,90 @@ td.bbp-tool-title p {
 .dashboard_page_bbp-credits .wp-person img {
 	border-radius: 20px;
 }
+
+/* Forum slug translation review */
+
+.bbp-slug-translation-dialog {
+	box-sizing: border-box;
+	width: 720px;
+	max-width: calc(100% - 32px);
+	height: 780px;
+	max-height: calc(100vh - 64px);
+	padding: 0;
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 3px 30px rgb(0 0 0 / 20%);
+	color: #1d2327;
+	background: #fff;
+}
+
+.bbp-slug-translation-dialog:not([open]) {
+	display: none;
+}
+
+.bbp-slug-translation-dialog[open] {
+	display: flex;
+	flex-direction: column;
+}
+
+.bbp-slug-translation-dialog.bbp-slug-translation-fallback {
+	position: static;
+	height: auto;
+	max-height: none;
+	margin: 0 0 20px;
+}
+
+body.no-js .bbp-slug-translation-dialog:not([open]) {
+	display: flex;
+	position: static;
+	width: 100%;
+	height: auto;
+	max-height: none;
+	margin: 0;
+}
+
+body.no-js .bbp-slug-translation-table {
+	overflow: visible;
+}
+
+body.no-js .bbp-slug-translation-cancel {
+	display: none;
+}
+
+.bbp-slug-translation-dialog::backdrop {
+	background: rgb(0 0 0 / 60%);
+}
+
+.bbp-slug-translation-dialog h2 {
+	margin: 24px 24px 0;
+}
+
+.bbp-slug-translation-dialog > p {
+	margin: 12px 24px 20px;
+}
+
+.bbp-slug-translation-dialog form {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	flex: 1;
+}
+
+.bbp-slug-translation-table {
+	min-height: 0;
+	padding: 0 24px;
+	overflow: auto;
+}
+
+.bbp-slug-translation-table .description {
+	margin-left: 4px;
+}
+
+.bbp-slug-translation-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 8px;
+	margin: 0;
+	padding: 16px 24px;
+	border-top: 1px solid #c3c4c7;
+}

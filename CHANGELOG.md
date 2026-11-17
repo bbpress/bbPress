@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added optional suggestions for translated forum URL slugs in Settings after
+  the site language changes. Existing URLs remain unchanged until an
+  administrator applies the suggestions.
 - Added separate user email preferences for subscriptions to forums, topics,
   topic tags, and other registered subscription types.
 - Added signed unsubscribe links, a configurable confirmation page, and

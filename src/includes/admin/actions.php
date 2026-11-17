@@ -93,9 +93,16 @@ add_action( 'bbp_admin_load_tools_repair_upgrade', 'bbp_admin_repair_handler'   
 add_action( 'bbp_admin_load_tools_repair_upgrade', 'bbp_admin_tools_repair_upgrade_notices', 20 );
 
 // Contextual help for other admin pages
-add_action( 'load-settings_page_bbpress',    'bbp_admin_settings_help'        );
-add_action( 'load-tools_page_bbp-converter', 'bbp_admin_tools_converter_help' );
-add_action( 'load-tools_page_bbp-reset',     'bbp_admin_tools_reset_help'     );
+add_action( 'load-settings_page_bbpress',       'bbp_admin_settings_help'         );
+add_action( 'load-settings_page_bbpress-slugs', 'bbp_admin_slug_translation_help' );
+add_action( 'load-tools_page_bbp-converter',    'bbp_admin_tools_converter_help'  );
+add_action( 'load-tools_page_bbp-reset',        'bbp_admin_tools_reset_help'      );
+
+// Optional translated slug review and decisions
+add_action( 'admin_menu',                          'bbp_admin_slug_translation_menu', 99 );
+add_action( 'admin_notices',                       'bbp_admin_slug_translation_notice'         );
+add_action( 'admin_post_bbp_slug_translation',     'bbp_admin_slug_translation_handler'        );
+add_action( 'wp_ajax_bbp_slug_translation_cancel', 'bbp_admin_slug_translation_cancel_ajax'    );
 
 // Handle Reset Forums submissions
 add_action( 'load-tools_page_bbp-reset', 'bbp_admin_reset_handler' );

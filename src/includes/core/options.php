@@ -208,6 +208,7 @@ function bbp_delete_options() {
 	delete_option( '_bbp_tools_dry_run_upgrade' );
 	delete_option( '_bbp_pending_upgrades_lock' );
 	delete_option( '_bbp_mention_backfill' );
+	delete_option( '_bbp_slug_translation_prompt' );
 
 	// Delete batch checkpoints and scratch data without loading admin tools
 	bbp_delete_options_with_prefix( '_bbp_tool_batch_' );

@@ -195,6 +195,7 @@ class BBP_Admin {
 
 		// Components
 		require $this->admin_dir . 'settings.php';
+		require $this->admin_dir . 'slug-translations.php';
 		require $this->admin_dir . 'common.php';
 		require $this->admin_dir . 'metaboxes.php';
 		require $this->admin_dir . 'forums.php';
@@ -1004,6 +1005,10 @@ class BBP_Admin {
 		// Enqueue the badge JS
 		} elseif ( in_array( $current_screen->id, array( 'dashboard_page_bbp-about', 'dashboard_page_bbp-credits' ), true ) ) {
 			wp_enqueue_script( 'bbp-admin-badge-js' );
+
+		// Forum settings slug review
+		} elseif ( in_array( $current_screen->id, array( 'settings_page_bbpress', 'settings_page_bbpress-slugs' ), true ) ) {
+			wp_enqueue_script( 'bbp-admin-slug-translations-js' );
 		}
 	}
 
@@ -1122,6 +1127,7 @@ class BBP_Admin {
 		wp_register_script( 'bbp-admin-blocks',     $this->js_url . 'blocks' . $suffix . '.js', $block_js_dependencies, $version, true );
 		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge'  . $suffix . '.js', array(),                $version, true );
 		wp_register_script( 'bbp-admin-tools-js',   $this->js_url . 'tools'  . $suffix . '.js', array( 'jquery' ),      $version, true );
+		wp_register_script( 'bbp-admin-slug-translations-js', $this->js_url . 'slug-translations' . $suffix . '.js', array(), $version, true );
 	}
 
 	/**
