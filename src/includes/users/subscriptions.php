@@ -577,6 +577,7 @@ function bbp_update_reply_subscription( $reply_id = 0, $topic_id = 0, $forum_id 
  * @since 2.7.0 bbPress (r8323) Require a type-scoped nonce for non-posts.
  *
  * @param string $action The requested action to compare this function to.
+ * @return bool Whether the subscription was added or removed.
  */
 function bbp_subscriptions_handler( $action = '' ) {
 
@@ -868,6 +869,7 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
  * @deprecated 2.6.0 bbPress (r6543)
  *
  * @param string $action Subscription action to handle.
+ * @return bool Whether the subscription was added or removed.
  */
 function bbp_forum_subscriptions_handler( $action = '' ) {
 	return bbp_subscriptions_handler( $action );

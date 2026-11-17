@@ -1804,6 +1804,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param string $redirect_url Current redirect URL.
 	 * @param string $redirect_to  Unused redirect target.
 	 * @param int    $topic_id     Created topic ID.
+	 * @return string Redirect URL for the created topic.
 	 */
 	public function new_topic_redirect_to( $redirect_url = '', $redirect_to = '', $topic_id = 0 ) {
 		if ( bp_is_group() && ! bbp_is_topic_pending( $topic_id ) ) {
@@ -1821,6 +1822,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param string $redirect_url Current redirect URL.
 	 * @param string $redirect_to  Unused redirect target.
 	 * @param int    $reply_id     Created reply ID.
+	 * @return string Redirect URL for the created reply.
 	 */
 	public function new_reply_redirect_to( $redirect_url = '', $redirect_to = '', $reply_id = 0 ) {
 
@@ -1873,6 +1875,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.1.0 bbPress (r3654)
 	 *
 	 * @param string $redirect_url Current redirect URL.
+	 * @return string Redirect URL for the group forum settings.
 	 */
 	public function edit_redirect_to( $redirect_url = '' ) {
 

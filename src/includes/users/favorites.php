@@ -146,6 +146,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * @since 2.6.20 bbPress (r8024) Use the displayed user on favorites views.
  *
  * @param string $action The requested action to compare this function to.
+ * @return bool Whether the favorite was added or removed.
  */
 function bbp_favorites_handler( $action = '' ) {
 

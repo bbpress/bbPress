@@ -596,6 +596,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  * @param string $new_status      New status to use when untrashing. Default: 'draft'.
  * @param int    $post_id         Post ID.
  * @param string $previous_status Previous post status from '_wp_trash_meta_status' meta key. Default: 'pending'.
+ * @return string Status to use when restoring the post.
  */
 function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $previous_status = 'pending' ) {
 
@@ -620,6 +621,7 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
  * @param WP_Post $post       Post object.
+ * @return bool|null Short-circuit result, or null when updates run normally.
  */
 function bbp_update_counts_on_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
 
@@ -1662,6 +1664,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
  * @param int    $author_id      Topic or reply author ID.
  * @param string $title          Content title.
  * @param string $content        Content being posted.
+ * @return bool Whether the content passes the moderation check.
  */
 function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
 	return bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
@@ -3869,6 +3872,7 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  *
  * @param string $action Action nonce.
  * @param string $query_arg where to look for nonce in $_REQUEST.
+ * @return int|false 1 or 2 for a valid nonce, false on failure.
  */
 function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 
@@ -3929,8 +3933,8 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	 *
 	 * @since 2.1.0 bbPress (r4023)
 	 *
-	 * @param string $action Action nonce.
-	 * @param bool   $result Boolean result of nonce verification.
+	 * @param string    $action Action nonce.
+	 * @param int|false $result Nonce verification result, or false on failure.
 	 */
 	do_action( 'bbp_verify_nonce_request', $action, $result );
 

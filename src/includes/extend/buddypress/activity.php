@@ -859,6 +859,7 @@ class BBP_BuddyPress_Activity {
 	 * Delete the activity stream entry when a topic is spammed, trashed, or deleted.
 	 *
 	 * @param int $topic_id Topic ID whose activity should be deleted.
+	 * @return bool Whether an activity entry was deleted.
 	 */
 	public function topic_delete( $topic_id = 0 ) {
 
@@ -1012,6 +1013,7 @@ class BBP_BuddyPress_Activity {
 	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted.
 	 *
 	 * @param int $reply_id Reply ID whose activity should be deleted.
+	 * @return bool Whether an activity entry was deleted.
 	 */
 	public function reply_delete( $reply_id ) {
 

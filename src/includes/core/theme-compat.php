@@ -562,6 +562,7 @@ function bbp_get_theme_compat_page_content( $page ) {
  * @since 2.6.17 bbPress (r7424) Added support for Block Themes
  *
  * @param string $template Original template file.
+ * @return string Template file to include.
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 

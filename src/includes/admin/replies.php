@@ -278,6 +278,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @param array $bulk_messages Arrays of messages, each keyed by the corresponding post type.
 	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
+	 * @return array Bulk action messages with reply results.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
 		/* translators: %s: Number of replies */
