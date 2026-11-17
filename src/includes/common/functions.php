@@ -1561,8 +1561,20 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 			$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
 
 			// Allow for bumping the max to include the user's URL
-			if ( ! empty( $_post['url'] ) ) {
-				$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'], $content );
+			$author_url = '';
+			if ( ! empty( $anonymous_data ) ) {
+				if ( ! empty( $anonymous_data['bbp_anonymous_website'] ) ) {
+					$author_url = $anonymous_data['bbp_anonymous_website'];
+				}
+			} elseif ( ! empty( $author_id ) ) {
+				$link_user = get_userdata( $author_id );
+				if ( ! empty( $link_user ) ) {
+					$author_url = $link_user->user_url;
+				}
+			}
+
+			if ( ! empty( $author_url ) ) {
+				$num_links = apply_filters( 'comment_max_links_url', $num_links, $author_url, $content );
 			}
 
 			// Das ist zu viele links!

@@ -173,6 +173,8 @@ Development for the next bbPress release is in progress. See the active
 ### Fixed
 
 - Used standard moderation checks when an unsupported moderation mode is passed.
+- Passed author website URLs to the WordPress comment link-limit filter during
+  bbPress moderation.
 - Prevented invalid Bcc chunk limits from interrupting moderation notifications.
 - Prevented warnings when forum feed links are requested without a forum.
 - Fixed term engagements reporting failed term creation as a successful addition.

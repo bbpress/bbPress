@@ -223,12 +223,6 @@ parameters:
 			path: src/includes/common/functions.php
 
 		-
-			message: '#^Offset ''url'' does not exist on array\{\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: src/includes/common/functions.php
-
-		-
 			message: '#^Action callback returns WP_Roles\|null but should not return anything\.$#'
 			identifier: return.void
 			count: 1

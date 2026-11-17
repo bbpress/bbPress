@@ -1602,6 +1602,46 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_link_limit_filter_receives_author_website() {
+		$urls   = array();
+		$filter = function( $count, $url ) use ( &$urls ) {
+			$urls[] = $url;
+			return $count + 1;
+		};
+
+		delete_option( '_bbp_moderation_links' );
+		update_option( '_bbp_allow_moderation_links', 1 );
+		update_option( 'comment_max_links', 2 );
+		update_option( 'moderation_keys', '' );
+		add_filter( 'comment_max_links_url', $filter, 10, 2 );
+
+		try {
+			$anonymous_data = array(
+				'bbp_anonymous_name'    => 'Guest',
+				'bbp_anonymous_email'   => 'guest@example.org',
+				'bbp_anonymous_website' => 'https://guest.example.org',
+			);
+			$this->assertFalse( bbp_check_for_moderation( $anonymous_data, 0, '', 'https://example.org/topic' ) );
+
+			$author_id = $this->factory->user->create(
+				array(
+					'role'     => 'subscriber',
+					'user_url' => 'https://member.example.org',
+				)
+			);
+			$this->assertFalse( bbp_check_for_moderation( array(), $author_id, '', 'https://example.org/topic' ) );
+			$this->assertSame( array( 'https://guest.example.org', 'https://member.example.org' ), $urls );
+
+			$this->assertTrue( bbp_check_for_moderation( array( 'bbp_anonymous_name' => 'Guest' ), 0, '', 'https://example.org/topic' ) );
+			$this->assertSame( array( 'https://guest.example.org', 'https://member.example.org' ), $urls );
+		} finally {
+			remove_filter( 'comment_max_links_url', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @ticket BBP3352
 	 * @covers ::bbp_check_for_moderation
 	 */
