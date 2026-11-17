@@ -712,6 +712,7 @@ class phpBB extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
@@ -793,6 +794,7 @@ class phpBB extends BBP_Converter_Base {
 	 * @param string $password Plaintext password.
 	 * @param string $setting Hash setting.
 	 * @param string $itoa64 Hash character set.
+	 * @return string Hash, or '*' for invalid settings.
 	 */
 	private function hash_crypt_private( $password, $setting, &$itoa64 ) {
 		$output = '*';
@@ -847,6 +849,7 @@ class phpBB extends BBP_Converter_Base {
 	 * @param string $input Binary hash input.
 	 * @param int    $count Number of bytes to encode.
 	 * @param string $itoa64 Hash character set.
+	 * @return string Encoded hash bytes.
 	 */
 	private function hash_encode64( $input, $count, &$itoa64 ) {
 		$output = '';
@@ -886,7 +889,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Translate the forum type from phpBB v3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress forum type.
 	 */
 	public function callback_forum_type( $status = 1 ) {
 		switch ( $status ) {
@@ -906,7 +909,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Translate the forum status from phpBB v3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric forum status.
-	 * @return string WordPress safe
+	 * @return string bbPress forum status.
 	 */
 	public function callback_forum_status( $status = 0 ) {
 		switch ( $status ) {
@@ -926,7 +929,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Translate the topic status from phpBB v3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -946,7 +949,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from phpBB 3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB 3.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {
@@ -985,6 +988,7 @@ class phpBB extends BBP_Converter_Base {
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
 	 *
 	 * @param string $field Source content to convert.
+	 * @return string Converted HTML.
 	 */
 	protected function callback_html( $field ) {
 

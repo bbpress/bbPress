@@ -659,6 +659,7 @@ class SMF extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -675,6 +676,7 @@ class SMF extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		if ( ! is_string( $serialized_pass ) ) {
@@ -700,7 +702,7 @@ class SMF extends BBP_Converter_Base {
 	 * Translate the post status from SMF v2.0.4 numerics to WordPress's strings.
 	 *
 	 * @param int $status SMF v2.0.4 numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -720,7 +722,7 @@ class SMF extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from SMF v2.0.4 numerics to WordPress's strings.
 	 *
 	 * @param int $status SMF v2.0.4 numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {
@@ -751,6 +753,7 @@ class SMF extends BBP_Converter_Base {
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
 	 *
 	 * @param string $field HTML field.
+	 * @return string Converted HTML.
 	 */
 	protected function callback_html( $field ) {
 

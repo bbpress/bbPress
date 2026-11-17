@@ -506,6 +506,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -557,6 +558,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -582,7 +584,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 * Translate the forum type from PHPFox v3.5.x numerics to WordPress's strings.
 	 *
 	 * @param int $status PHPFox v3.5.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress forum type.
 	 */
 	public function callback_forum_type( $status = 0 ) {
 		switch ( $status ) {
@@ -602,7 +604,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 * Translate the forum status from PHPFox v3.5.x numerics to WordPress's strings.
 	 *
 	 * @param int $status PHPFox v3.5.x numeric forum status.
-	 * @return string WordPress safe
+	 * @return string bbPress forum status.
 	 */
 	public function callback_forum_status( $status = 0 ) {
 		switch ( $status ) {
@@ -622,7 +624,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 * Translate the post status from PHPFox v3.5.x numerics to WordPress's strings.
 	 *
 	 * @param int $status PHPFox v3.5.x numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -642,7 +644,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from PHPFox v3.5.x numerics to WordPress's strings.
 	 *
 	 * @param int $status PHPFox v3.5.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {

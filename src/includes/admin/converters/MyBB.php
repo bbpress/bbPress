@@ -516,6 +516,7 @@ class MyBB extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -532,6 +533,7 @@ class MyBB extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -554,7 +556,7 @@ class MyBB extends BBP_Converter_Base {
 	 * Translate the post status from MyBB v1.6.10 numerics to WordPress's strings.
 	 *
 	 * @param int $status MyBB v1.6.10 numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -574,7 +576,7 @@ class MyBB extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from MyBB v1.6.10 numerics to WordPress's strings.
 	 *
 	 * @param int $status MyBB v1.6.10 numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {

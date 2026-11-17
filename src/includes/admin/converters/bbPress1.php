@@ -626,7 +626,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * strings.
 	 *
 	 * @param int $status bbPress 1.x numeric post status.
-	 * @return string WordPress safe
+	 * @return string bbPress post status.
 	 */
 	public function callback_status( $status = 0 ) {
 		switch ( $status ) {
@@ -650,7 +650,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * Translate the forum type from bbPress 1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status bbPress 1.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress forum type.
 	 */
 	public function callback_forum_type( $status = 0 ) {
 		if ( 1 === (int) $status ) {
@@ -666,7 +666,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * strings.
 	 *
 	 * @param int $topic_status bbPress 1.x numeric status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $topic_status = 1 ) {
 		switch ( $topic_status ) {
@@ -686,7 +686,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from bbPress 1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status bbPress 1.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {
@@ -724,6 +724,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return bool Always false.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return false;
@@ -735,6 +736,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;

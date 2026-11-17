@@ -420,6 +420,7 @@ class Mingle extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return bool Always false.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return false;
@@ -431,6 +432,7 @@ class Mingle extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
@@ -440,7 +442,7 @@ class Mingle extends BBP_Converter_Base {
 	 * Translate the topic status from Mingle numerics to WordPress's strings.
 	 *
 	 * @param int $status Mingle v1.x numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -460,7 +462,7 @@ class Mingle extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from Mingle numerics to WordPress's strings.
 	 *
 	 * @param int $status Mingle numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {

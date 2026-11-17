@@ -633,6 +633,7 @@ class FluxBB extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -649,6 +650,7 @@ class FluxBB extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -689,7 +691,7 @@ class FluxBB extends BBP_Converter_Base {
 	 * Translate the post status from FluxBB v1.5.3 numerics to WordPress's strings.
 	 *
 	 * @param int $status FluxBB v1.5.3 numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -709,7 +711,7 @@ class FluxBB extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from FluxBB v1.5.3 numerics to WordPress's strings.
 	 *
 	 * @param int $status FluxBB v1.5.3 numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {

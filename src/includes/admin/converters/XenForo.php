@@ -730,7 +730,7 @@ class XenForo extends BBP_Converter_Base {
 	 * Translate the forum type from XenForo Capitalised case to WordPress's non-capatilise case strings.
 	 *
 	 * @param int $status XenForo numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress forum type.
 	 */
 	public function callback_forum_type( $status = 1 ) {
 		switch ( $status ) {
@@ -750,7 +750,7 @@ class XenForo extends BBP_Converter_Base {
 	 * Translate the forum status from XenForo numerics to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric forum status.
-	 * @return string WordPress safe
+	 * @return string bbPress forum status.
 	 */
 	public function callback_forum_status( $status = 1 ) {
 		switch ( $status ) {
@@ -770,7 +770,7 @@ class XenForo extends BBP_Converter_Base {
 	 * Translate the post status from XenForo to WordPress' strings.
 	 *
 	 * @param int $status XenForo post status.
-	 * @return string WordPress safe
+	 * @return string bbPress post status.
 	 */
 	public function callback_status( $status = 1 ) {
 		switch ( $status ) {
@@ -790,7 +790,7 @@ class XenForo extends BBP_Converter_Base {
 	 * Translate the topic status from XenForo numerics to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 1 ) {
 		switch ( $status ) {
@@ -810,7 +810,7 @@ class XenForo extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from XenForo numerics to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {
@@ -841,6 +841,7 @@ class XenForo extends BBP_Converter_Base {
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
 	 *
 	 * @param string $field Source content to convert.
+	 * @return string Converted HTML.
 	 */
 	protected function callback_html( $field ) {
 

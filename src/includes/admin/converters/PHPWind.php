@@ -490,6 +490,7 @@ class PHPWind extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -506,6 +507,7 @@ class PHPWind extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		if ( ! is_string( $password ) || ! is_string( $serialized_pass ) ) {
@@ -649,7 +651,7 @@ class PHPWind extends BBP_Converter_Base {
 	 * Translate the forum type from PHPWind v9.x Capitalised case to WordPress's non-capatilise case strings.
 	 *
 	 * @param int $status PHPWind v9.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress forum type.
 	 */
 	public function callback_forum_type( $status = 1 ) {
 		switch ( $status ) {

@@ -536,7 +536,7 @@ class Vanilla extends BBP_Converter_Base {
 	 * Translate the topic status from Vanilla v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Vanilla v2.x numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
 		switch ( $status ) {
@@ -556,7 +556,7 @@ class Vanilla extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from Vanilla v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Vanilla v2.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {

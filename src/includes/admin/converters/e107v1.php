@@ -473,6 +473,7 @@ class e107v1 extends BBP_Converter_Base {
 	 *
 	 * @param mixed $field Source password value.
 	 * @param array $row Source user row.
+	 * @return array Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );
@@ -484,6 +485,7 @@ class e107v1 extends BBP_Converter_Base {
 	 *
 	 * @param string $password Plaintext password.
 	 * @param string $serialized_pass Stored password data.
+	 * @return bool True if authentication succeeds, false otherwise.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -524,7 +526,7 @@ class e107v1 extends BBP_Converter_Base {
 	 * Translate the forum type from e107 v1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status e107 v1.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress forum type.
 	 */
 	public function callback_forum_type( $status = 0 ) {
 		if ( empty( $status ) ) {
@@ -539,7 +541,7 @@ class e107v1 extends BBP_Converter_Base {
 	 * Translate the post status from e107 v1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status e107 v1.x numeric topic status.
-	 * @return string WordPress safe
+	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = 1 ) {
 		switch ( $status ) {
@@ -559,7 +561,7 @@ class e107v1 extends BBP_Converter_Base {
 	 * Translate the topic sticky status type from e107 v1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status e107 v1.x numeric forum type.
-	 * @return string WordPress safe
+	 * @return string bbPress topic stickiness.
 	 */
 	public function callback_sticky_status( $status = 0 ) {
 		switch ( $status ) {
@@ -629,6 +631,7 @@ class e107v1 extends BBP_Converter_Base {
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
 	 *
 	 * @param string $field Source content to convert.
+	 * @return string Converted HTML.
 	 */
 	protected function callback_html( $field ) {
 
