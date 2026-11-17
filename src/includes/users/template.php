@@ -2391,7 +2391,7 @@ function bbp_filter_user_edit_password_fields( $show, $profile_user ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @return string User contact methods.
+ * @return array User contact methods.
  */
 function bbp_edit_user_contact_methods() {
 
@@ -2408,7 +2408,7 @@ function bbp_edit_user_contact_methods() {
  * @since 2.6.0 bbPress (r6489)
  *
  * @param array $args See wp_dropdown_languages().
- * @return string
+ * @return void
  */
 function bbp_edit_user_language( $args = array() ) {
 

@@ -855,7 +855,7 @@ function bbp_topic_pagination( $args = array() ) {
  *  - topic_id: Topic id
  *  - before: Before the links
  *  - after: After the links.
- * @return string Pagination links.
+ * @return string|null Pagination links, or null when replies are threaded.
  */
 function bbp_get_topic_pagination( $args = array() ) {
 
@@ -935,7 +935,7 @@ function bbp_get_topic_pagination( $args = array() ) {
  *
  * @param string $content Optional. Content to which we need to append the revisions to.
  * @param int    $topic_id Optional. Topic id.
- * @return string Content with the revisions appended.
+ * @return string|null Content with revisions appended, or null in admin and feeds.
  */
 function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
 
@@ -2554,7 +2554,7 @@ function bbp_topic_edit_link( $args = array() ) {
  *  - link_before: Before the link
  *  - link_after: After the link
  *  - edit_text: Edit text.
- * @return string Topic edit link.
+ * @return string|null Topic edit link, or null when unavailable.
  */
 function bbp_get_topic_edit_link( $args = array() ) {
 
@@ -2616,7 +2616,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2753)
  *
  * @param int $topic_id Optional. Topic id.
- * @return string Topic edit url.
+ * @return string|null Topic edit URL, or null when unavailable.
  */
 function bbp_get_topic_edit_url( $topic_id = 0 ) {
 
@@ -2676,7 +2676,7 @@ function bbp_topic_trash_link( $args = array() ) {
  *  - trash_text: Trash text
  *  - restore_text: Restore text
  *  - delete_text: Delete text.
- * @return string Topic trash link.
+ * @return string|null Topic trash link, or null when unavailable.
  */
 function bbp_get_topic_trash_link( $args = array() ) {
 
@@ -2775,7 +2775,7 @@ function bbp_topic_close_link( $args = array() ) {
  *  - link_after: After the link
  *  - close_text: Close text
  *  - open_text: Open text.
- * @return string Topic close link.
+ * @return string|null Topic close link, or null when unavailable.
  */
 function bbp_get_topic_close_link( $args = array() ) {
 
@@ -2838,7 +2838,7 @@ function bbp_topic_approve_link( $args = array() ) {
  *  - sep: Separator between links
  *  - approve_text: Approve text
  *  - unapprove_text: Unapprove text.
- * @return string Topic approve link.
+ * @return string|null Topic approve link, or null when unavailable.
  */
 function bbp_get_topic_approve_link( $args = array() ) {
 
@@ -2902,7 +2902,7 @@ function bbp_topic_stick_link( $args = array() ) {
  *  - unstick_text: Unstick text
  *  - super_text: Stick to front text.
  *
- * @return string Topic stick link.
+ * @return string|null Topic stick link, or null when unavailable.
  */
 function bbp_get_topic_stick_link( $args = array() ) {
 
@@ -2992,7 +2992,7 @@ function bbp_topic_merge_link( $args = array() ) {
  *  - link_after: After the link
  *  - merge_text: Merge text.
  *
- * @return string Topic merge link.
+ * @return string|null Topic merge link, or null when unavailable.
  */
 function bbp_get_topic_merge_link( $args = array() ) {
 
@@ -3047,7 +3047,7 @@ function bbp_topic_spam_link( $args = array() ) {
  *  - spam_text: Spam text
  *  - unspam_text: Unspam text.
  *
- * @return string Topic spam link.
+ * @return string|null Topic spam link, or null when unavailable.
  */
 function bbp_get_topic_spam_link( $args = array() ) {
 
@@ -3107,7 +3107,7 @@ function bbp_topic_reply_link( $args = array() ) {
  *
  * @param array $args Arguments.
  *
- * @return string Link for a reply to a topic.
+ * @return string|null Link for a reply to a topic, or null when unavailable.
  */
 function bbp_get_topic_reply_link( $args = array() ) {
 

@@ -2431,7 +2431,7 @@ function bbp_send_subscription_emails( $email_addresses = array(), $subject = ''
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $reply_author ID of the reply author.
- * @return bool True on success, false on failure.
+ * @return bool|null True on success, false on failure, or null when a filter suppresses the message.
  */
 function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 
@@ -2686,7 +2686,7 @@ Post Link: %3$s
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $topic_author ID of the topic author.
- * @return bool True on success, false on failure.
+ * @return bool|null True on success, false on failure, or null when a filter suppresses the message.
  */
 function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author = 0 ) {
 

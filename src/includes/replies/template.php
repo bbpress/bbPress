@@ -1691,7 +1691,7 @@ function bbp_reply_to_link( $args = array() ) {
  * @since 2.4.0 bbPress (r4944)
  *
  * @param array $args Arguments.
- * @return string Link for a reply to a reply.
+ * @return string|null Link for a reply to a reply, or null when unavailable.
  */
 function bbp_get_reply_to_link( $args = array() ) {
 
@@ -1770,7 +1770,7 @@ function bbp_cancel_reply_to_link( $text = '' ) {
  * @since 2.4.0 bbPress (r4944)
  *
  * @param string $text The cancel text.
- * @return string The cancellation link.
+ * @return string|null The cancellation link, or null when unavailable.
  */
 function bbp_get_cancel_reply_to_link( $text = '' ) {
 
@@ -1884,7 +1884,7 @@ function bbp_reply_admin_links( $args = array() ) {
  *  - sep: Separator. Defaults to ' | '
  *  - links: Array of the links to display. By default, edit, trash,
  *            spam, reply move, and topic split links are displayed.
- * @return string Reply admin links.
+ * @return string|null Reply admin links, or null when unavailable.
  */
 function bbp_get_reply_admin_links( $args = array() ) {
 
@@ -1972,7 +1972,7 @@ function bbp_reply_edit_link( $args = array() ) {
  *  - link_before: HTML before the link
  *  - link_after: HTML after the link
  *  - edit_text: Edit text. Defaults to 'Edit'.
- * @return string Reply edit link.
+ * @return string|null Reply edit link, or null when unavailable.
  */
 function bbp_get_reply_edit_link( $args = array() ) {
 
@@ -2034,7 +2034,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2753)
  *
  * @param int $reply_id Optional. Reply id.
- * @return string Reply edit url.
+ * @return string|null Reply edit URL, or null when unavailable.
  */
 function bbp_get_reply_edit_url( $reply_id = 0 ) {
 
@@ -2094,7 +2094,7 @@ function bbp_reply_trash_link( $args = array() ) {
  *  - trash_text: Trash text
  *  - restore_text: Restore text
  *  - delete_text: Delete text.
- * @return string Reply trash link.
+ * @return string|null Reply trash link, or null when unavailable.
  */
 function bbp_get_reply_trash_link( $args = array() ) {
 
@@ -2182,7 +2182,7 @@ function bbp_reply_spam_link( $args = array() ) {
  *  - link_after: HTML after the link
  *  - spam_text: Spam text
  *  - unspam_text: Unspam text.
- * @return string Reply spam link.
+ * @return string|null Reply spam link, or null when unavailable.
  */
 function bbp_get_reply_spam_link( $args = array() ) {
 
@@ -2250,7 +2250,7 @@ function bbp_reply_move_link( $args = array() ) {
  *  - link_after: HTML after the link
  *  - move_text: Move text
  *  - move_title: Move title attribute.
- * @return string Reply move link.
+ * @return string|null Reply move link, or null when unavailable.
  */
 function bbp_get_reply_move_link( $args = array() ) {
 
@@ -2316,7 +2316,7 @@ function bbp_topic_split_link( $args = array() ) {
  *  - link_after: HTML after the link
  *  - split_text: Split text
  *  - split_title: Split title attribute.
- * @return string Topic split link.
+ * @return string|null Topic split link, or null when unavailable.
  */
 function bbp_get_topic_split_link( $args = array() ) {
 
@@ -2379,7 +2379,7 @@ function bbp_reply_approve_link( $args = array() ) {
  *  - sep: Separator between links
  *  - approve_text: Approve text
  *  - unapprove_text: Unapprove text.
- * @return string Reply approve link.
+ * @return string|null Reply approve link, or null when unavailable.
  */
 function bbp_get_reply_approve_link( $args = array() ) {
 

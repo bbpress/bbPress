@@ -2964,7 +2964,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id to update.
  *
- * @return int Voice count.
+ * @return int|null Voice count, or null without a topic ID.
  */
 function bbp_update_topic_voice_count( $topic_id = 0 ) {
 
