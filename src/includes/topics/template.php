@@ -2204,7 +2204,7 @@ function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
  *
  * @param int     $topic_id Optional. Topic id.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Reply count.
+ * @return int|string Topic reply count, formatted by default.
  */
 function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -2235,7 +2235,7 @@ function bbp_topic_post_count( $topic_id = 0, $integer = false ) {
  *
  * @param int     $topic_id Optional. Topic id.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Post count.
+ * @return int|string Topic post count, formatted by default.
  */
 function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -2268,7 +2268,7 @@ function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
  *
  * @param int     $topic_id Optional. Topic id.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Topic hidden reply count.
+ * @return int|string Topic hidden reply count, formatted by default.
  */
 function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -2299,7 +2299,7 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
  *
  * @param int  $topic_id Optional. Topic ID.
  * @param bool $integer  Whether to return an integer.
- * @return int Voice count of the topic.
+ * @return int|string Topic voice count, formatted by default.
  */
 function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -2312,7 +2312,7 @@ function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 }
 
 /**
- * Output a the tags of a topic.
+ * Output the tags of a topic.
  *
  * @since 2.0.0 bbPress (r2583)
  *

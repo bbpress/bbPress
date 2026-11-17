@@ -208,7 +208,7 @@ function bbp_update_user_reply_count( $user_id = 0, $count = false, $difference 
 }
 
 /**
- * Output a users topic count.
+ * Output a user's topic count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
@@ -222,7 +222,7 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 }
 
 /**
- * Return a users reply count.
+ * Return a user's topic count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
@@ -249,7 +249,7 @@ function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
 }
 
 /**
- * Output a users reply count.
+ * Output a user's reply count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
@@ -263,7 +263,7 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 }
 
 /**
- * Return a users reply count.
+ * Return a user's reply count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
@@ -289,7 +289,7 @@ function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
 }
 
 /**
- * Output a users total post count.
+ * Output a user's total post count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
@@ -303,7 +303,7 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
 }
 
 /**
- * Return a users total post count.
+ * Return a user's total post count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
@@ -333,7 +333,7 @@ function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 /** Last Posted ***************************************************************/
 
 /**
- * Update a users last posted time, for use with post throttling.
+ * Update a user's last posted time, for use with post throttling.
  *
  * @since 2.1.0 bbPress (r3911)
  *

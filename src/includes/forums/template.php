@@ -512,7 +512,7 @@ function bbp_forum_row_actions() {
 }
 
 /**
- * Output the forums last active ID.
+ * Output the forum's last active ID.
  *
  * @since 2.0.0 bbPress (r2876)
  *
@@ -523,7 +523,7 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
 }
 
 /**
- * Return the forums last active ID.
+ * Return the forum's last active ID.
  *
  * @since 2.0.0 bbPress (r2876)
  *
@@ -540,7 +540,7 @@ function bbp_get_forum_last_active_id( $forum_id = 0 ) {
 }
 
 /**
- * Output the forums last update date/time (aka freshness).
+ * Output the forum's last update date/time (aka freshness).
  *
  * @since 2.0.0 bbPress (r2876)
  *
@@ -551,7 +551,7 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
 }
 
 /**
- * Return the forums last update date/time (aka freshness).
+ * Return the forum's last update date/time (aka freshness).
  *
  * @since 2.0.0 bbPress (r2876)
  *
@@ -1104,7 +1104,7 @@ function bbp_get_forum_last_topic_author_link( $forum_id = 0 ) {
 /** Forum Last Reply **********************************************************/
 
 /**
- * Output the forums last reply id.
+ * Output the forum's last reply id.
  *
  * @since 2.0.0 bbPress (r2627)
  *
@@ -1115,7 +1115,7 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 }
 
 /**
- * Return the forums last reply id.
+ * Return the forum's last reply id.
  *
  * @since 2.0.0 bbPress (r2627)
  *
@@ -1352,7 +1352,7 @@ function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
  *
  * @param int     $forum_id Optional. Forum id.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Forum's subforum count.
+ * @return int|string Subforum count, formatted by default.
  */
 function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
 	$forum_id    = bbp_get_forum_id( $forum_id );
@@ -1385,7 +1385,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts. Defaults to total.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Forum topic count.
+ * @return int|string Forum topic count, formatted by default.
  */
 function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1412,14 +1412,14 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
 }
 
 /**
- * Return total post count of a forum.
+ * Return total reply count of a forum.
  *
  * @since 2.0.0 bbPress (r2615)
  *
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Forum reply count.
+ * @return int|string Forum reply count, formatted by default.
  */
 function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1453,7 +1453,7 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Forum post count.
+ * @return int|string Forum post count, formatted by default.
  */
 function bbp_get_forum_post_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1492,7 +1492,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $inte
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param bool|null $integer Optional. Whether or not to format the result.
- * @return int Topic hidden topic count.
+ * @return int|string Forum hidden topic count, formatted by default.
  */
 function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1513,7 +1513,7 @@ function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $
  *
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
- * @param boolean $integer Optional. Whether or not to format the result.
+ * @param bool    $integer Optional. Whether to use the integer count filter.
  */
 function bbp_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $integer = false ) {
 	echo bbp_get_forum_reply_count_hidden( $forum_id, $total_count, $integer );
@@ -1527,8 +1527,8 @@ function bbp_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $inte
  *
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
- * @param boolean $integer Optional. Whether or not to format the result.
- * @return int Forum reply count.
+ * @param bool    $integer Optional. Whether to use the integer count filter.
+ * @return int Forum hidden reply count.
  */
 function bbp_get_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );

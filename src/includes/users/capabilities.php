@@ -1157,7 +1157,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 }
 
 /**
- * Mark a users topics and replies as spam when the user is marked as spam.
+ * Mark a user's topics and replies as spam when the user is marked as spam.
  *
  * @since 2.0.0 bbPress (r3410)
  *
@@ -1244,7 +1244,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 }
 
 /**
- * Mark a users topics and replies as spam when the user is marked as spam.
+ * Mark a user's topics and replies as spam when the user is marked as spam.
  *
  * @since 2.0.0 bbPress (r3410)
  *

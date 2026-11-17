@@ -1793,7 +1793,7 @@ function bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id = 0 )
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $topic_id Optional. Topic id.
- * @return int Id of the forums most recent topic.
+ * @return int ID of the forum's most recent topic.
  */
 function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1907,7 +1907,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $reply_id Optional. Reply id.
- * @return int Id of the forums most recent reply.
+ * @return int ID of the forum's most recent reply.
  */
 function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1956,7 +1956,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $active_id Optional. Active post id.
- * @return int Id of the forums last active post.
+ * @return int ID of the forum's last active post.
  */
 function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 
@@ -1999,7 +1999,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 }
 
 /**
- * Update the forums last active date/time (aka freshness).
+ * Update the forum's last active date/time (aka freshness).
  *
  * @since 2.0.0 bbPress (r2870)
  *

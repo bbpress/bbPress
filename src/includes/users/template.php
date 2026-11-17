@@ -789,7 +789,7 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
 }
 
 /**
- * Output a users nicename to the screen.
+ * Output a user's nicename.
  *
  * @since 2.3.0 bbPress (r4672)
  *
@@ -801,7 +801,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 }
 
 /**
- * Return a users nicename to the screen.
+ * Return a user's nicename.
  *
  * @since 2.3.0 bbPress (r4672)
  *
