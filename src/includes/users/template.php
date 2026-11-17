@@ -428,7 +428,7 @@ class BBP_Taxonomy_Query {
  * @since 2.6.0 bbPress (r6332)
  *
  * @param array $args All the arguments supported by {@link WP_User_Query}.
- * @return object Multidimensional array of user information.
+ * @return bool Whether users are available.
  */
 function bbp_has_users( $args = array() ) {
 
@@ -458,7 +458,7 @@ function bbp_has_users( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6332)
  *
- * @return object User information.
+ * @return bool Whether another user is available.
  */
 function bbp_users() {
 	return bbpress()->user_query->have_users();

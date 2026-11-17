@@ -133,7 +133,7 @@ function bbp_get_forum_post_type_supports() {
  *
  * @param array $args Arguments supported by {@link WP_Query}.
  *
- * @return object Multidimensional array of forum information.
+ * @return bool Whether forums are available.
  */
 function bbp_has_forums( $args = array() ) {
 
@@ -194,7 +194,7 @@ function bbp_has_forums( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2464)
  *
- * @return object Forum information.
+ * @return bool Whether another forum is available.
  */
 function bbp_forums() {
 
@@ -287,7 +287,7 @@ function bbp_get_forum_id( $forum_id = 0 ) {
  * @param string     $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
  * @param string     $filter Optional Sanitation filter. See {@link sanitize_post()}.
  *
- * @return mixed Null if error or forum (in specified form) if success.
+ * @return WP_Post|array|null Forum in the requested format, or null if unavailable.
  */
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 

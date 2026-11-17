@@ -817,7 +817,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id forum id.
- * @return mixed False or {@link WP_Error} on failure, forum id on success.
+ * @return int Forum ID.
  */
 function bbp_close_forum( $forum_id = 0 ) {
 
@@ -838,7 +838,7 @@ function bbp_close_forum( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id forum id.
- * @return mixed False or {@link WP_Error} on failure, forum id on success.
+ * @return int Forum ID.
  */
 function bbp_open_forum( $forum_id = 0 ) {
 

@@ -130,7 +130,7 @@ function bbp_get_reply_post_type_supports() {
  * @since 2.0.0 bbPress (r2553)
  *
  * @param array $args All the arguments supported by {@link WP_Query}.
- * @return object Multidimensional array of reply information.
+ * @return bool Whether replies are available.
  */
 function bbp_has_replies( $args = array() ) {
 
@@ -291,7 +291,7 @@ function bbp_has_replies( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @return object Replies information.
+ * @return bool Whether another reply is available.
  */
 function bbp_replies() {
 
@@ -377,7 +377,7 @@ function bbp_get_reply_id( $reply_id = 0 ) {
  * @param int|object $reply reply id or reply object.
  * @param string     $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
  * @param string     $filter Optional Sanitation filter. See {@link sanitize_post()}.
- * @return mixed Null if error or reply (in specified form) if success.
+ * @return WP_Post|array|null Reply in the requested format, or null if unavailable.
  */
 function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 

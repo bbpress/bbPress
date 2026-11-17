@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.3.0 bbPress (r4579)
  *
  * @param array $args All the arguments supported by {@link WP_Query}.
- * @return object Multidimensional array of search information.
+ * @return bool Whether search results are available.
  */
 function bbp_has_search_results( $args = array() ) {
 
@@ -120,7 +120,7 @@ function bbp_has_search_results( $args = array() ) {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @return object Search information.
+ * @return bool Whether another search result is available.
  */
 function bbp_search_results() {
 

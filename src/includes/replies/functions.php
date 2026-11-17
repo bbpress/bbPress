@@ -1299,7 +1299,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param array $args Reply ID, author ID, edit reason, and revision ID.
- * @return mixed False on failure, true on success.
+ * @return array Updated revision log.
  */
 function bbp_update_reply_revision_log( $args = array() ) {
 
@@ -1921,7 +1921,7 @@ function bbp_get_non_public_reply_statuses() {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id.
- * @return mixed False or {@link WP_Error} on failure, reply id on success.
+ * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_spam_reply( $reply_id = 0 ) {
 
@@ -1964,7 +1964,7 @@ function bbp_spam_reply( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id.
- * @return mixed False or {@link WP_Error} on failure, reply id on success.
+ * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_unspam_reply( $reply_id = 0 ) {
 
@@ -2012,7 +2012,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id.
- * @return mixed False or {@link WP_Error} on failure, reply id on success.
+ * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_approve_reply( $reply_id = 0 ) {
 
@@ -2060,7 +2060,7 @@ function bbp_approve_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id.
- * @return mixed False or {@link WP_Error} on failure, reply id on success.
+ * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_unapprove_reply( $reply_id = 0 ) {
 

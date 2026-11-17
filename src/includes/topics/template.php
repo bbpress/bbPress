@@ -151,7 +151,7 @@ function bbp_show_lead_topic( $show_lead = false ) {
  * @since 2.0.0 bbPress (r2485)
  *
  * @param array $args All the arguments supported by {@link WP_Query}.
- * @return object Multidimensional array of topic information.
+ * @return bool Whether topics are available.
  */
 function bbp_has_topics( $args = array() ) {
 
@@ -307,7 +307,7 @@ function bbp_has_topics( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @return object Topic information.
+ * @return bool Whether another topic is available.
  */
 function bbp_topics() {
 
@@ -553,7 +553,7 @@ function bbp_get_topic_id( $topic_id = 0 ) {
  * @param int|WP_Post $topic Topic ID or post object.
  * @param string      $output Output type. Defaults to OBJECT.
  * @param string      $filter Post filter. Defaults to raw.
- * @return mixed Null if error or topic (in specified form) if success.
+ * @return WP_Post|array|null Topic in the requested format, or null if unavailable.
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 
