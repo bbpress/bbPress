@@ -687,6 +687,9 @@ class Example extends BBP_Converter_Base {
 	 * This method is to save the salt and password together.  That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -700,6 +703,9 @@ class Example extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 

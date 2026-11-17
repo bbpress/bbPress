@@ -461,6 +461,9 @@ class Kunena2 extends BBP_Converter_Base {
 	 * This method is to save the salt and password together.  That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );
@@ -469,6 +472,9 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -494,7 +500,7 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from Kunena v2.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Kunena v2.x numeric forum type
+	 * @param int $status Kunena v2.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
@@ -509,7 +515,7 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * Translate the forum status from Kunena v2.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Kunena v2.x numeric forum status
+	 * @param int $status Kunena v2.x numeric forum status.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_status( $status = 0 ) {
@@ -529,7 +535,7 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from Kunena v2.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Kunena v2.x numeric topic status
+	 * @param int $status Kunena v2.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 0 ) {
@@ -549,7 +555,7 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * Verify the topic/reply count.
 	 *
-	 * @param int $count Kunena v2.x topic/reply counts
+	 * @param int $count Kunena v2.x topic/reply counts.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {

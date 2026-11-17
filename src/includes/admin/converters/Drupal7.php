@@ -558,6 +558,9 @@ class Drupal7 extends BBP_Converter_Base {
 	 * Store the Drupal password hash in a serialized array.
 	 *
 	 * Array values are automatically serialized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );
@@ -615,6 +618,9 @@ class Drupal7 extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -770,7 +776,7 @@ class Drupal7 extends BBP_Converter_Base {
 	 * Translate the post status from Drupal v7.x numerics to WordPress's
 	 * strings.
 	 *
-	 * @param int $status Drupal v7.x numeric post status
+	 * @param int $status Drupal v7.x numeric post status.
 	 * @return string WordPress safe
 	 */
 	public function callback_status( $status = 1 ) {
@@ -790,7 +796,7 @@ class Drupal7 extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from Drupal v7.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Drupal v7.x numeric topic status
+	 * @param int $status Drupal v7.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 2 ) {
@@ -810,7 +816,7 @@ class Drupal7 extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from Drupal v7.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Drupal v7.x numeric forum type
+	 * @param int $status Drupal v7.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -830,7 +836,7 @@ class Drupal7 extends BBP_Converter_Base {
 	/**
 	 * Verify the topic/reply count.
 	 *
-	 * @param int $count Drupal v7.x topic/reply counts
+	 * @param int $count Drupal v7.x topic/reply counts.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {

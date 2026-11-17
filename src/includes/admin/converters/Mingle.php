@@ -417,6 +417,9 @@ class Mingle extends BBP_Converter_Base {
 	 * This method is to save the salt and password together. That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return false;
@@ -425,6 +428,9 @@ class Mingle extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
@@ -433,7 +439,7 @@ class Mingle extends BBP_Converter_Base {
 	/**
 	 * Translate the topic status from Mingle numerics to WordPress's strings.
 	 *
-	 * @param int $status Mingle v1.x numeric topic status
+	 * @param int $status Mingle v1.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 0 ) {
@@ -453,7 +459,7 @@ class Mingle extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from Mingle numerics to WordPress's strings.
 	 *
-	 * @param int $status Mingle numeric forum type
+	 * @param int $status Mingle numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {

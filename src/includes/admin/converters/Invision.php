@@ -470,7 +470,7 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from Invision numerics to WordPress's strings.
 	 *
-	 * @param int $status Invision numeric forum type
+	 * @param int $status Invision numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
@@ -485,7 +485,7 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from Invision numerics to WordPress's strings.
 	 *
-	 * @param int $status Invision numeric forum type
+	 * @param int $status Invision numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -505,7 +505,7 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count Invision reply count
+	 * @param int $count Invision reply count.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -516,6 +516,9 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * Save the salt and password together. Pre-slash the salt because WordPress
 	 * removes one layer of slashes when storing user metadata.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
@@ -527,6 +530,9 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -596,6 +602,8 @@ class Invision extends BBP_Converter_Base {
 
 	/**
 	 * This callback processes any custom BBCodes with parser.php
+	 *
+	 * @param string $field Source content to convert.
 	 */
 	protected function callback_html( $field ) {
 

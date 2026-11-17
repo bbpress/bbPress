@@ -470,6 +470,9 @@ class e107v1 extends BBP_Converter_Base {
 	/**
 	 * Store the old password hash as an array. Array values are auto
 	 * sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );
@@ -478,6 +481,9 @@ class e107v1 extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -517,7 +523,7 @@ class e107v1 extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from e107 v1.x numerics to WordPress's strings.
 	 *
-	 * @param int $status e107 v1.x numeric forum type
+	 * @param int $status e107 v1.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
@@ -532,7 +538,7 @@ class e107v1 extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from e107 v1.x numerics to WordPress's strings.
 	 *
-	 * @param int $status e107 v1.x numeric topic status
+	 * @param int $status e107 v1.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 1 ) {
@@ -552,7 +558,7 @@ class e107v1 extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from e107 v1.x numerics to WordPress's strings.
 	 *
-	 * @param int $status e107 v1.x numeric forum type
+	 * @param int $status e107 v1.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -576,7 +582,7 @@ class e107v1 extends BBP_Converter_Base {
 	/**
 	 * Verify the topic/reply count.
 	 *
-	 * @param int $count e107 v1.x topic/reply counts
+	 * @param int $count e107 v1.x topic/reply counts.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -589,7 +595,7 @@ class e107v1 extends BBP_Converter_Base {
 	 *
 	 * A mini cache system to reduce database calls to user ID's
 	 *
-	 * @param string $field
+	 * @param string $field Source user ID field.
 	 * @return string
 	 */
 	protected function callback_e107v1_userid( $field ) {
@@ -621,6 +627,8 @@ class e107v1 extends BBP_Converter_Base {
 
 	/**
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
+	 *
+	 * @param string $field Source content to convert.
 	 */
 	protected function callback_html( $field ) {
 

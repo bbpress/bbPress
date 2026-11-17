@@ -627,6 +627,9 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Save the salt and password together. Pre-slash the salt because WordPress
 	 * removes one layer of slashes when storing user metadata.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -640,6 +643,9 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -679,7 +685,7 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from FluxBB v1.5.3 numerics to WordPress's strings.
 	 *
-	 * @param int $status FluxBB v1.5.3 numeric topic status
+	 * @param int $status FluxBB v1.5.3 numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 0 ) {
@@ -699,7 +705,7 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from FluxBB v1.5.3 numerics to WordPress's strings.
 	 *
-	 * @param int $status FluxBB v1.5.3 numeric forum type
+	 * @param int $status FluxBB v1.5.3 numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -738,7 +744,7 @@ class FluxBB extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count FluxBB v1.5.3 topic/reply counts
+	 * @param int $count FluxBB v1.5.3 topic/reply counts.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {

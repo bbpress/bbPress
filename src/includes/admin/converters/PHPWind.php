@@ -487,6 +487,9 @@ class PHPWind extends BBP_Converter_Base {
 	 * Save the salt and password together so both values are available during
 	 * authentication. Pre-slash the salt because WordPress removes one layer of
 	 * slashes when storing user metadata.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -500,6 +503,9 @@ class PHPWind extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		if ( ! is_string( $password ) || ! is_string( $serialized_pass ) ) {
@@ -642,7 +648,7 @@ class PHPWind extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from PHPWind v9.x Capitalised case to WordPress's non-capatilise case strings.
 	 *
-	 * @param int $status PHPWind v9.x numeric forum type
+	 * @param int $status PHPWind v9.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 1 ) {
@@ -670,7 +676,7 @@ class PHPWind extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from PHPWind v9.x numerics to WordPress's strings.
 	 *
-	 * @param int $status PHPWind v9.x numeric topic status
+	 * @param int $status PHPWind v9.x numeric topic status.
 	 * @return string WordPress topic status.
 	 */
 	public function callback_topic_status( $status = 0 ) {
@@ -683,7 +689,7 @@ class PHPWind extends BBP_Converter_Base {
 	/**
 	 * Verify the topic/reply count.
 	 *
-	 * @param int $count PHPWind v9.x topic/reply counts
+	 * @param int $count PHPWind v9.x topic/reply counts.
 	 * @return int Non-negative reply count.
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {

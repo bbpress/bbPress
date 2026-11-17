@@ -631,6 +631,9 @@ class vBulletin extends BBP_Converter_Base {
 	 * as one value during authentication. WordPress unslashes metadata values,
 	 * so the salt is pre-slashed to preserve vBulletin's printable ASCII salts.
 	 * Password hashes are hexadecimal and do not require slashing.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -645,6 +648,8 @@ class vBulletin extends BBP_Converter_Base {
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
 	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -666,7 +671,7 @@ class vBulletin extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from vBulletin v4.x numerics to WordPress's strings.
 	 *
-	 * @param int $status vBulletin v4.x numeric forum type
+	 * @param int $status vBulletin v4.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
@@ -681,7 +686,7 @@ class vBulletin extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from vBulletin v4.x numerics to WordPress's strings.
 	 *
-	 * @param int $status vBulletin v4.x numeric forum type
+	 * @param int $status vBulletin v4.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -705,7 +710,7 @@ class vBulletin extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count vBulletin v4.x reply count
+	 * @param int $count vBulletin v4.x reply count.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -716,7 +721,7 @@ class vBulletin extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from vBulletin numerics to WordPress's strings.
 	 *
-	 * @param int $status vBulletin v4.x numeric topic status
+	 * @param int $status vBulletin v4.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 1 ) {
@@ -735,6 +740,8 @@ class vBulletin extends BBP_Converter_Base {
 
 	/**
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
+	 *
+	 * @param string $field Source content to convert.
 	 */
 	protected function callback_html( $field ) {
 

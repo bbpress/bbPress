@@ -709,6 +709,9 @@ class phpBB extends BBP_Converter_Base {
 	 * This method is to save the salt and password together.  That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
@@ -720,8 +723,8 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Check for correct password
 	 *
-	 * @param string $password The password in plain text
-	 * @param string $serialized_pass The stored password hash
+	 * @param string $password The password in plain text.
+	 * @param string $serialized_pass The stored password hash.
 	 *
 	 * @link Original source for password functions http://openwall.com/phpass/
 	 * @link phpass is now included in WP Core https://core.trac.wordpress.org/browser/trunk/wp-includes/class-phpass.php
@@ -786,6 +789,10 @@ class phpBB extends BBP_Converter_Base {
 
 	/**
 	 * The crypt function/replacement
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $setting Hash setting.
+	 * @param string $itoa64 Hash character set.
 	 */
 	private function hash_crypt_private( $password, $setting, &$itoa64 ) {
 		$output = '*';
@@ -836,6 +843,10 @@ class phpBB extends BBP_Converter_Base {
 
 	/**
 	 * Encode hash
+	 *
+	 * @param string $input Binary hash input.
+	 * @param int    $count Number of bytes to encode.
+	 * @param string $itoa64 Hash character set.
 	 */
 	private function hash_encode64( $input, $count, &$itoa64 ) {
 		$output = '';
@@ -874,7 +885,7 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from phpBB v3.x numerics to WordPress's strings.
 	 *
-	 * @param int $status phpBB v3.x numeric forum type
+	 * @param int $status phpBB v3.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 1 ) {
@@ -894,7 +905,7 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Translate the forum status from phpBB v3.x numerics to WordPress's strings.
 	 *
-	 * @param int $status phpBB v3.x numeric forum status
+	 * @param int $status phpBB v3.x numeric forum status.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_status( $status = 0 ) {
@@ -914,7 +925,7 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Translate the topic status from phpBB v3.x numerics to WordPress's strings.
 	 *
-	 * @param int $status phpBB v3.x numeric topic status
+	 * @param int $status phpBB v3.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 0 ) {
@@ -934,7 +945,7 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from phpBB 3.x numerics to WordPress's strings.
 	 *
-	 * @param int $status phpBB 3.x numeric forum type
+	 * @param int $status phpBB 3.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -962,7 +973,7 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count phpBB v3.x reply count
+	 * @param int $count phpBB v3.x reply count.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -972,6 +983,8 @@ class phpBB extends BBP_Converter_Base {
 
 	/**
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
+	 *
+	 * @param string $field Source content to convert.
 	 */
 	protected function callback_html( $field ) {
 

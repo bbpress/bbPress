@@ -535,7 +535,7 @@ class Vanilla extends BBP_Converter_Base {
 	/**
 	 * Translate the topic status from Vanilla v2.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Vanilla v2.x numeric topic status
+	 * @param int $status Vanilla v2.x numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = 0 ) {
@@ -555,7 +555,7 @@ class Vanilla extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from Vanilla v2.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Vanilla v2.x numeric forum type
+	 * @param int $status Vanilla v2.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -590,7 +590,7 @@ class Vanilla extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count Vanilla v2.x reply count
+	 * @param int $count Vanilla v2.x reply count.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {

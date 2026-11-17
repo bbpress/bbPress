@@ -611,6 +611,9 @@ class XMB extends BBP_Converter_Base {
 	/**
 	 * Store the old password hash as an array. Array values are auto
 	 * sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );
@@ -619,6 +622,9 @@ class XMB extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 
@@ -636,7 +642,7 @@ class XMB extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from XMB v1.9.11.13 Capitalised case to WordPress's non-capatilise case strings.
 	 *
-	 * @param int $status XMB v1.9.11.13 numeric forum type
+	 * @param int $status XMB v1.9.11.13 numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 1 ) {
@@ -660,7 +666,7 @@ class XMB extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from XMB v1.9.11.13 numerics to WordPress's strings.
 	 *
-	 * @param int $status XMB v1.9.11.13 numeric topic status
+	 * @param int $status XMB v1.9.11.13 numeric topic status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $status = '' ) {
@@ -680,7 +686,7 @@ class XMB extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from XMB v1.9.11.13 numerics to WordPress's strings.
 	 *
-	 * @param int $status XMB v1.9.11.13 numeric forum type
+	 * @param int $status XMB v1.9.11.13 numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -700,7 +706,7 @@ class XMB extends BBP_Converter_Base {
 	/**
 	 * Verify the topic/reply count.
 	 *
-	 * @param int $count XMB v1.9.11.13 topic/reply counts
+	 * @param int $count XMB v1.9.11.13 topic/reply counts.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {

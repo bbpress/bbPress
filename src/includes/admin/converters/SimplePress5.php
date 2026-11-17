@@ -504,6 +504,9 @@ class SimplePress5 extends BBP_Converter_Base {
 	 * This method is to save the salt and password together. That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return false;
@@ -512,6 +515,9 @@ class SimplePress5 extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
@@ -520,7 +526,7 @@ class SimplePress5 extends BBP_Converter_Base {
 	/**
 	 * Translate the post status from Simple:Press v5.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Simple:Press numeric status
+	 * @param int $status Simple:Press numeric status.
 	 * @return string WordPress safe
 	 */
 	public function callback_status( $status = 0 ) {
@@ -540,7 +546,7 @@ class SimplePress5 extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from Simple:Press v5.x numerics to WordPress's strings.
 	 *
-	 * @param int $status Simple:Press v5.x numeric forum type
+	 * @param int $status Simple:Press v5.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -560,7 +566,7 @@ class SimplePress5 extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count Simple:Press v5.x reply count
+	 * @param int $count Simple:Press v5.x reply count.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -570,6 +576,8 @@ class SimplePress5 extends BBP_Converter_Base {
 
 	/**
 	 * This callback processes any custom parser.php attributes and custom HTML code with preg_replace
+	 *
+	 * @param string $field Source content to convert.
 	 */
 	protected function callback_html( $field ) {
 

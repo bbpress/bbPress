@@ -625,7 +625,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * Translate the post status from bbPress 1's numerics to WordPress's
 	 * strings.
 	 *
-	 * @param int $status bbPress 1.x numeric post status
+	 * @param int $status bbPress 1.x numeric post status.
 	 * @return string WordPress safe
 	 */
 	public function callback_status( $status = 0 ) {
@@ -649,7 +649,7 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * Translate the forum type from bbPress 1.x numerics to WordPress's strings.
 	 *
-	 * @param int $status bbPress 1.x numeric forum type
+	 * @param int $status bbPress 1.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
@@ -665,7 +665,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * Translate the topic status from bbPress 1's numerics to WordPress's
 	 * strings.
 	 *
-	 * @param int $topic_status bbPress 1.x numeric status
+	 * @param int $topic_status bbPress 1.x numeric status.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_status( $topic_status = 1 ) {
@@ -685,7 +685,7 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * Translate the topic sticky status type from bbPress 1.x numerics to WordPress's strings.
 	 *
-	 * @param int $status bbPress 1.x numeric forum type
+	 * @param int $status bbPress 1.x numeric forum type.
 	 * @return string WordPress safe
 	 */
 	public function callback_sticky_status( $status = 0 ) {
@@ -709,7 +709,7 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count bbPress 1.x topic and reply counts
+	 * @param int $count bbPress 1.x topic and reply counts.
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -721,6 +721,9 @@ class bbPress1 extends BBP_Converter_Base {
 	 * This method is to save the salt and password together. That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
+	 *
+	 * @param mixed $field Source password value.
+	 * @param array $row Source user row.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return false;
@@ -729,6 +732,9 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
+	 *
+	 * @param string $password Plaintext password.
+	 * @param string $serialized_pass Stored password data.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
@@ -739,7 +745,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 *
 	 * @since 2.6.0 bbPress (r5572)
 	 *
-	 * @param string $field Topic ID
+	 * @param string $field Topic ID.
 	 * @return integer WordPress safe
 	 */
 	protected function callback_topic_subscriptions( $field ) {
