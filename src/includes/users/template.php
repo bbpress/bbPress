@@ -105,7 +105,7 @@ class BBP_User_Query extends WP_User_Query {
 			 *
 			 * @since 2.6.0 bbPress (r6332)
 			 *
-			 * @param WP_Query &$this The WP_Query instance (passed by reference).
+			 * @param BBP_User_Query $query User query instance (passed by reference).
 			 */
 			do_action_ref_array( 'loop_start', array( &$this ) );
 		}
@@ -133,7 +133,7 @@ class BBP_User_Query extends WP_User_Query {
 			 *
 			 * @since 2.6.0 bbPress (r6332)
 			 *
-			 * @param WP_Query &$this The WP_Query instance (passed by reference).
+			 * @param BBP_User_Query $query User query instance (passed by reference).
 			 */
 			do_action_ref_array( 'loop_end', array( &$this ) );
 
@@ -469,7 +469,7 @@ function bbp_users() {
  *
  * @since 2.6.0 bbPress (r6332)
  *
- * @return object User information.
+ * @return null Sets up the current user and returns null.
  */
 function bbp_the_user() {
 	return bbpress()->user_query->the_user();

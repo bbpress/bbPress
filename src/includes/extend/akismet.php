@@ -889,7 +889,7 @@ class BBP_Akismet {
 	 *
 	 * @param int $user_id User id.
 	 *
-	 * @return boolean
+	 * @return string|false Comma-separated roles, or false if the user is unavailable.
 	 */
 	private function get_user_roles( $user_id = 0 ) {
 

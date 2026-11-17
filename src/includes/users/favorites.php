@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array|bool Results if the topic has any favoriters, otherwise false.
+ * @return array Users who favorited the topic, or an empty array.
  */
 function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );

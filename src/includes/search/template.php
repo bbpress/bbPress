@@ -140,7 +140,7 @@ function bbp_search_results() {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @return object Search information.
+ * @return null Sets up the current search result and returns null.
  */
 function bbp_the_search_result() {
 	$search_result = bbpress()->search_query->the_post();

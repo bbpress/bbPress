@@ -311,7 +311,7 @@ function bbp_replies() {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @return object Reply information.
+ * @return null Sets up the current reply and returns null.
  */
 function bbp_the_reply() {
 	return bbpress()->reply_query->the_post();
@@ -871,7 +871,7 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id.
- * @return string Raw revision log of the reply.
+ * @return array Raw revision log of the reply, or an empty array.
  */
 function bbp_get_reply_raw_revision_log( $reply_id = 0 ) {
 	$reply_id     = bbp_get_reply_id( $reply_id );
@@ -890,7 +890,7 @@ function bbp_get_reply_raw_revision_log( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id.
- * @return WP_Post[]|int[] reply revisions.
+ * @return WP_Post[] Reply revisions, keyed by revision ID.
  */
 function bbp_get_reply_revisions( $reply_id = 0 ) {
 	$reply_id  = bbp_get_reply_id( $reply_id );
@@ -907,7 +907,7 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
  *
  * @param int     $reply_id Optional. Reply id.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return string reply revision count.
+ * @return string|int Formatted revision count, or integer when $integer is true.
  */
 function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
 	$reply_id = bbp_get_reply_id( $reply_id );

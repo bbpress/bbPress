@@ -214,7 +214,7 @@ function bbp_forums() {
  *
  * @since 2.0.0 bbPress (r2464)
  *
- * @return object Forum information.
+ * @return null Sets up the current forum and returns null.
  */
 function bbp_the_forum() {
 	return bbpress()->forum_query->the_post();

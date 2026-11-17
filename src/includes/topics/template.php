@@ -327,7 +327,7 @@ function bbp_topics() {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @return object Topic information.
+ * @return null Sets up the current topic and returns null.
  */
 function bbp_the_topic() {
 	return bbpress()->topic_query->the_post();
@@ -1035,7 +1035,7 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $topic_id Optional. Topic id.
- * @return string Raw revision log of the topic.
+ * @return array Raw revision log of the topic, or an empty array.
  */
 function bbp_get_topic_raw_revision_log( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -1055,7 +1055,7 @@ function bbp_get_topic_raw_revision_log( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $topic_id Optional. Topic id.
- * @return WP_Post[]|int[] Topic revisions.
+ * @return WP_Post[] Topic revisions, keyed by revision ID.
  */
 function bbp_get_topic_revisions( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );
@@ -1072,7 +1072,7 @@ function bbp_get_topic_revisions( $topic_id = 0 ) {
  *
  * @param int  $topic_id Optional. Topic ID.
  * @param bool $integer  Whether to return an integer.
- * @return string Topic revision count.
+ * @return string|int Formatted revision count, or integer when $integer is true.
  */
 function bbp_get_topic_revision_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );

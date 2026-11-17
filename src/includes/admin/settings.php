@@ -2548,7 +2548,7 @@ function bbp_form_option( $option, $default = '', $slug = false ) {
  * @param string $default Fallback value for an unset or empty option.
  * @param bool   $is_slug Whether to apply editable slug formatting.
  *
- * @return mixed
+ * @return string Escaped option value or its default.
  */
 function bbp_get_form_option( $option, $default = '', $is_slug = false ) {
 

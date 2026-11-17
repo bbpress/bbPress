@@ -134,7 +134,7 @@ function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
  * @param int       $user_id    User ID.
  * @param mixed     $count      New topic count.
  * @param int|false $difference Optional. Difference from the previous count.
- * @return boolean
+ * @return int|bool User option ID when added, true when updated, false on failure or no change.
  */
 function bbp_update_user_topic_count( $user_id = 0, $count = false, $difference = false ) {
 
@@ -175,7 +175,7 @@ function bbp_update_user_topic_count( $user_id = 0, $count = false, $difference 
  * @param int       $user_id    User ID.
  * @param mixed     $count      New reply count.
  * @param int|false $difference Optional. Difference from the previous count.
- * @return boolean
+ * @return int|bool User option ID when added, true when updated, false on failure or no change.
  */
 function bbp_update_user_reply_count( $user_id = 0, $count = false, $difference = false ) {
 

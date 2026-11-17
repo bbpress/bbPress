@@ -332,7 +332,7 @@ function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array|bool Results if the topic has any engagements, otherwise false.
+ * @return array Users engaged in the topic, or an empty array.
  */
 function bbp_get_topic_engagements( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );

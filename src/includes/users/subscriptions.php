@@ -742,7 +742,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
  *
  * @param int $forum_id Optional. forum id.
  *
- * @return array|bool Results if the forum has any subscribers, otherwise false.
+ * @return array Forum subscribers, or an empty array.
  */
 function bbp_get_forum_subscribers( $forum_id = 0 ) {
 	$users = bbp_get_users_for_object( $forum_id, '_bbp_subscription' );
@@ -759,7 +759,7 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array|bool Results if the topic has any subscribers, otherwise false.
+ * @return array Topic subscribers, or an empty array.
  */
 function bbp_get_topic_subscribers( $topic_id = 0 ) {
 	$users = bbp_get_users_for_object( $topic_id, '_bbp_subscription' );
