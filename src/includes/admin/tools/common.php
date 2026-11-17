@@ -189,7 +189,7 @@ function bbp_get_admin_repair_tool_callbacks( $tool = array() ) {
  *
  * @param array  $tool   Repair tool registration.
  * @param string $action Repair tool action.
- * @return callable|false
+ * @return callable|false Callback for the action, or false if unavailable.
  */
 function bbp_get_admin_repair_tool_callback( $tool = array(), $action = 'run' ) {
 	$callbacks = bbp_get_admin_repair_tool_callbacks( $tool );
@@ -1128,7 +1128,7 @@ function bbp_admin_repair_get_option( $option_name, $option_default = false, $fi
  *
  * @param string $option Option name.
  * @param mixed  $value  Expected value, or null when no row should remain.
- * @return bool
+ * @return bool Whether the stored option matches the expected value.
  */
 function bbp_admin_repair_option_matches( $option, $value ) {
 	$db     = bbp_db();
@@ -1149,7 +1149,7 @@ function bbp_admin_repair_option_matches( $option, $value ) {
  *
  * @param string $option Option name.
  * @param mixed  $value  Expected value.
- * @return bool
+ * @return bool Whether the expected option value was saved.
  */
 function bbp_admin_repair_update_option( $option, $value ) {
 	wp_cache_delete_multiple( array( $option, 'alloptions', 'notoptions' ), 'options' );
@@ -1167,7 +1167,7 @@ function bbp_admin_repair_update_option( $option, $value ) {
  * @since 2.7.0 bbPress (r8253)
  *
  * @param string $tool_id Repair or upgrade tool ID.
- * @return string
+ * @return string Option name for the tool and current execution context.
  */
 function bbp_admin_repair_tool_batch_option_name( $tool_id = '' ) {
 	$option  = '_bbp_tool_batch_' . md5( sanitize_key( $tool_id ) );
@@ -1516,7 +1516,7 @@ function bbp_admin_repair_tool_execution_context( $action = null, $run_id = '', 
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
- * @return bool
+ * @return bool Whether this request starts a new browser Run.
  */
 function bbp_admin_repair_tool_is_new_browser_run() {
 	$context = bbp_admin_repair_tool_execution_context();
@@ -1530,7 +1530,7 @@ function bbp_admin_repair_tool_is_new_browser_run() {
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
- * @return bool
+ * @return bool Whether this request is a browser Dry Run.
  */
 function bbp_admin_repair_tool_is_async_dry_run() {
 	$context = bbp_admin_repair_tool_execution_context();
@@ -1566,7 +1566,7 @@ function bbp_admin_repair_tool_batch_status( $fields = array() ) {
  *
  * @param array  $batch  Current worker result.
  * @param string $reason Semantic failure reason.
- * @return false
+ * @return false Always false after recording the failure.
  */
 function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
 	$error = isset( $batch['error'] ) ? $batch['error'] : '';
@@ -1637,7 +1637,7 @@ function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete
  *
  * @param array $batch   Current worker result.
  * @param bool  $dry_run Whether this is a read-only preview.
- * @return bool
+ * @return bool Whether another simulated Dry Run batch may run.
  */
 function bbp_admin_repair_tool_batch_continue( $batch, $dry_run = false ) {
 	return $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() && empty( $batch['code'] ) && empty( $batch['complete'] );
@@ -1796,7 +1796,7 @@ function bbp_admin_repair_tool_is_valid_preview_state( $state, $integer_fields =
  *
  * @param mixed $state  Saved checkpoint.
  * @param array $fields Expected identity fields, without changing their layout.
- * @return bool
+ * @return bool Whether the checkpoint matches the expected identity fields.
  */
 function bbp_admin_repair_tool_is_matching_checkpoint( $state, $fields ) {
 	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) ) {
@@ -1817,7 +1817,7 @@ function bbp_admin_repair_tool_is_matching_checkpoint( $state, $fields ) {
  *
  * @param mixed $state        Saved checkpoint.
  * @param array $extra_fields Additional nonnegative integer fields to check.
- * @return bool
+ * @return bool Whether the checkpoint fields and bounds are valid.
  */
 function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = array() ) {
 	if ( ! is_array( $state ) ) {
@@ -2126,7 +2126,7 @@ function bbp_admin_repair_tool_cleanup_options( $prefix, $limit, $dry_run, &$cre
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string|WP_Error $message Repair tool result message.
- * @return string
+ * @return string Plain text result message.
  */
 function bbp_admin_repair_tool_result_message( $message = '' ) {
 	if ( is_wp_error( $message ) ) {
@@ -2142,7 +2142,7 @@ function bbp_admin_repair_tool_result_message( $message = '' ) {
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string|WP_Error $message Repair tool result message.
- * @return string
+ * @return string Plain text result detail without the tool label.
  */
 function bbp_admin_repair_tool_result_detail( $message = '' ) {
 	$message = bbp_admin_repair_tool_result_message( $message );
@@ -2165,7 +2165,7 @@ function bbp_admin_repair_tool_result_detail( $message = '' ) {
  * @param bool   $success Whether the dry run succeeded.
  * @param int    $batches Estimated batches for a full Run.
  * @param bool   $complete Whether the dry run is complete.
- * @return string
+ * @return string Dry Run status and optional detail.
  */
 function bbp_admin_repair_tool_dry_run_message( $message = '', $success = true, $batches = 0, $complete = true ) {
 	if ( ! $success ) {
@@ -2197,7 +2197,7 @@ function bbp_admin_repair_tool_dry_run_message( $message = '', $success = true, 
  * @param string $statement Tool result statement containing a %s placeholder.
  * @param bool   $restarted Whether invalid saved progress requires a restart.
  * @param bool   $dry_run   Whether only the restart is being previewed.
- * @return string
+ * @return string Result statement with an optional restart explanation.
  */
 function bbp_admin_repair_tool_restart_statement( $statement, $restarted = false, $dry_run = false ) {
 	if ( ! $restarted ) {
@@ -2218,7 +2218,7 @@ function bbp_admin_repair_tool_restart_statement( $statement, $restarted = false
  *
  * @param array           $tool    Repair tool registration.
  * @param string|WP_Error $message Repair tool result message.
- * @return string
+ * @return string Formatted HTML notice.
  */
 function bbp_admin_repair_tool_notice_message( $tool = array(), $message = '' ) {
 	$title   = isset( $tool['title'] )

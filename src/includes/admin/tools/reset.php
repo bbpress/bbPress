@@ -108,7 +108,7 @@ function bbp_admin_reset_handler() {
  *
  * @param array $args Array of query, message, and possible responses.
  *
- * @return string
+ * @return string Formatted reset query feedback.
  */
 function bbp_admin_reset_query_feedback( $args = array() ) {
 	static $defaults = null;

@@ -393,7 +393,7 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
  * @since 2.7.0 bbPress (r8347) Validate shared source and preview state.
  *
  * @param mixed $state Saved checkpoint.
- * @return bool
+ * @return bool Whether the saved upgrade checkpoint is valid.
  */
 function bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state ) {
 	return bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state )

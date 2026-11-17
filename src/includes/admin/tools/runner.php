@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.7.0 bbPress (r8252)
  *
  * @param array $tool Repair tool registration.
- * @return bool
+ * @return bool Whether the tool should flush caches after running.
  */
 function bbp_admin_repair_tool_flushes_cache( $tool = array() ) {
 	return ! array_key_exists( 'flush_cache', $tool ) || ! empty( $tool['flush_cache'] );
@@ -126,7 +126,7 @@ function bbp_admin_repair_tool_lock_run_state( $type = '', $action = 'run' ) {
  *
  * @param string $type   Repair tool type.
  * @param string $action Tool action.
- * @return string
+ * @return string Option name, or an empty string for an invalid type or action.
  */
 function bbp_admin_repair_tool_run_state_option_name( $type = '', $action = 'run' ) {
 	$type   = sanitize_key( $type );
@@ -207,7 +207,7 @@ function bbp_admin_repair_tool_get_run_state( $type = '', $action = 'run' ) {
  * @param array|false $state   Normalized run state.
  * @param string      $run_id  Expected owner.
  * @param string      $tool_id Optional expected first tool.
- * @return bool
+ * @return bool Whether the run matches the owner and optional first tool.
  */
 function bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id = '' ) {
 	return ! empty( $state ) && ! empty( $run_id ) && hash_equals( $state['id'], $run_id )
@@ -221,7 +221,7 @@ function bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id = '' ) {
  * @access private
  *
  * @param array|false $state Normalized run state.
- * @return bool
+ * @return bool Whether the run was recently active.
  */
 function bbp_admin_repair_tool_run_is_active( $state ) {
 	return ! empty( $state ) && 'running' === $state['status']
@@ -234,7 +234,7 @@ function bbp_admin_repair_tool_run_is_active( $state ) {
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @return array
+ * @return array Error code and message for an outdated run.
  */
 function bbp_admin_repair_tool_stale_run_error() {
 	return array(
@@ -255,7 +255,7 @@ function bbp_admin_repair_tool_stale_run_error() {
  * @param array  $tools  Ordered repair tool IDs.
  * @param string $run_id Run owner.
  * @param string $action Tool action.
- * @return string
+ * @return string Unescaped continuation URL for the selected tools.
  */
 function bbp_admin_repair_tool_continue_url( $type, $tools, $run_id, $action = 'run' ) {
 	return bbp_get_admin_repair_tool_page_url(
@@ -460,7 +460,7 @@ function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $sta
  * @param string $type   Repair tool type.
  * @param string $run_id Optional run ID ownership check.
  * @param string $action Tool action.
- * @return bool
+ * @return bool Whether the owned run state was deleted.
  */
 function bbp_admin_repair_tool_delete_run_state( $type = '', $run_id = '', $action = 'run' ) {
 	$action = sanitize_key( $action );

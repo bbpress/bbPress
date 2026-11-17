@@ -1317,7 +1317,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r6638)
 	 *
 	 * @param string $query The literal MySQL query.
-	 * @return bool
+	 * @return bool Whether the saved query option was updated.
 	 */
 	private function update_query( $query = '' ) {
 		return update_option( '_bbp_converter_query', $query );
@@ -1332,7 +1332,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $query       The literal MySQL results query.
 	 * @param string $count_query The literal MySQL count query.
 	 * @param int    $start       Current conversion offset.
-	 * @return array
+	 * @return array Rows returned for this conversion batch.
 	 */
 	private function count_rows_by_results( $query = '', $count_query = '', $start = 0 ) {
 		$results      = $this->get_results( $query );
@@ -1353,7 +1353,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r6681)
 	 *
 	 * @param string $table_name The literal MySQL query.
-	 * @return bool
+	 * @return bool Whether the saved row count was updated.
 	 */
 	private function count_rows_by_table( $table_name = '' ) {
 		$count = (int) $this->opdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
@@ -1446,6 +1446,7 @@ abstract class BBP_Converter_Base {
 	 * @param string      $username    User login.
 	 * @param string      $password    Password from the source platform.
 	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 * @return void
 	 */
 	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
 
@@ -1499,7 +1500,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls to forum ID's.
 	 *
 	 * @param string $field Source forum ID to map.
-	 * @return string
+	 * @return int|string Mapped forum ID, or 0 when absent.
 	 */
 	private function callback_forumid( $field ) {
 		if ( ! isset( $this->map_forumid[ $field ] ) ) {
@@ -1519,7 +1520,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls to topic ID's.
 	 *
 	 * @param string $field Source topic ID to map.
-	 * @return string
+	 * @return int|string Mapped topic ID, or 0 when absent.
 	 */
 	private function callback_topicid( $field ) {
 		if ( ! isset( $this->map_topicid[ $field ] ) ) {
@@ -1541,7 +1542,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.4.0 bbPress (r5093)
 	 *
 	 * @param string $field Source reply ID to map.
-	 * @return string
+	 * @return int|string Mapped reply ID, or 0 when absent.
 	 */
 	private function callback_reply_to( $field ) {
 		if ( ! isset( $this->map_reply_to[ $field ] ) ) {
@@ -1561,7 +1562,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls to user ID's.
 	 *
 	 * @param string $field Source user ID to map.
-	 * @return string
+	 * @return int|string Mapped or source user ID, or 0 when unavailable.
 	 */
 	private function callback_userid( $field ) {
 		// Source IDs must never resolve to unrelated network users.
@@ -1592,7 +1593,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r5544)
 	 *
 	 * @param  string $field Source author ID to check.
-	 * @return string
+	 * @return string The literal 'true' or 'false'.
 	 */
 	private function callback_check_anonymous( $field ) {
 		$field = ! $this->callback_userid( $field )
@@ -1606,7 +1607,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls map topics ID's to forum ID's.
 	 *
 	 * @param string $field Source topic ID whose forum is needed.
-	 * @return string
+	 * @return int|string Mapped forum ID, or 0 when absent.
 	 */
 	private function callback_topicid_to_forumid( $field ) {
 		$topicid = $this->callback_topicid( $field );
