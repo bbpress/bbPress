@@ -689,8 +689,8 @@ function bbp_update_pending_upgrade( $upgrade_id, $action = 'add' ) {
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @param string   $tool_id  Upgrade ID.
- * @param callable $callback Optional automatic callback, empty for manual work.
+ * @param string          $tool_id  Upgrade ID.
+ * @param callable|string $callback Optional automatic callback, or empty string for manual work.
  * @return bool Whether a database-version bump can safely acknowledge this tool.
  */
 function bbp_run_required_upgrade( $tool_id, $callback = '' ) {

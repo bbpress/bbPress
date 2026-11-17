@@ -10,6 +10,16 @@ parameters:
         - bbPress
     paths:
         - src
+    # WordPress defines these constants during bootstrap or in wp-config.php.
+    scanFiles:
+        - tests/phpstan/runtime-constants.php
+    dynamicConstantNames:
+        - DB_HOST
+        - DB_NAME
+        - DB_PASSWORD
+        - DB_USER
+        - COOKIEHASH
+        - COOKIEPATH
     # These optional integrations need separate symbols, and the conditional
     # Gutenberg bridge currently triggers an internal PHPStan discovery error.
     excludePaths:

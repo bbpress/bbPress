@@ -1427,8 +1427,8 @@ function bbp_admin_repair_tool_automatic_deadline( $deadline = null ) {
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param string   $tool_id  Repair tool ID.
- * @param callable $callback Repair tool callback.
+ * @param string          $tool_id  Repair tool ID.
+ * @param callable|string $callback Repair tool callback, or empty string when unavailable.
  * @return bool True when the tool completed, false when manual work remains.
  */
 function bbp_admin_repair_tool_run_automatically( $tool_id = '', $callback = '' ) {
@@ -1441,9 +1441,9 @@ function bbp_admin_repair_tool_run_automatically( $tool_id = '', $callback = '' 
 	 *
 	 * @since 2.7.0 bbPress (r8252)
 	 *
-	 * @param int      $batch_limit Maximum number of batches.
-	 * @param string   $tool_id     Repair tool ID.
-	 * @param callable $callback    Repair tool callback.
+	 * @param int             $batch_limit Maximum number of batches.
+	 * @param string          $tool_id     Repair tool ID.
+	 * @param callable|string $callback Repair tool callback, or empty string.
 	 */
 	$batch_limit = (int) apply_filters( 'bbp_admin_repair_tool_automatic_batch_limit', 1000, $tool_id, $callback );
 
@@ -1455,9 +1455,9 @@ function bbp_admin_repair_tool_run_automatically( $tool_id = '', $callback = '' 
 	 *
 	 * @since 2.7.0 bbPress (r8252)
 	 *
-	 * @param float    $seconds  Maximum elapsed seconds.
-	 * @param string   $tool_id  Repair tool ID.
-	 * @param callable $callback Repair tool callback.
+	 * @param float           $seconds  Maximum elapsed seconds.
+	 * @param string          $tool_id  Repair tool ID.
+	 * @param callable|string $callback Repair tool callback, or empty string.
 	 */
 	$time_limit = (float) apply_filters( 'bbp_admin_repair_tool_automatic_time_limit', 20, $tool_id, $callback );
 	$tool_deadline = $time_limit > 0 ? $started + $time_limit : 0;
