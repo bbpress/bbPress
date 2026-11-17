@@ -40,6 +40,8 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * The main bbPress (Default) Loader
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 *
+	 * @param array $properties Theme compatibility properties.
 	 */
 	public function __construct( $properties = array() ) {
 

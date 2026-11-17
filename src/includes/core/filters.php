@@ -469,7 +469,7 @@ add_filter( 'bbp_plugin_locale', '_bbp_filter_locale', 10, 2 );
  *
  * @since 2.1.0 bbPress (r3961)
  *
- * @param array $args
+ * @param array $args Parsed forum query arguments.
  * @return array
  */
 function _bbp_has_forums_query( $args = array() ) {
@@ -484,7 +484,7 @@ add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
  *
  * @since 2.1.0 bbPress (r3961)
  *
- * @param array $args
+ * @param array $args Parsed topic query arguments.
  * @return array
  */
 function _bbp_has_topics_query( $args = array() ) {
@@ -499,7 +499,7 @@ add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
  *
  * @since 2.1.0 bbPress (r3961)
  *
- * @param array $args
+ * @param array $args Parsed reply query arguments.
  * @return array
  */
 function _bbp_has_replies_query( $args = array() ) {

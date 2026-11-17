@@ -344,7 +344,7 @@ function bbp_filter_user_roles_option() {
  *
  * @internal Used by bbPress to reinitialize dynamic roles on blog switch.
  *
- * @param array $roles
+ * @param array $roles Existing roles keyed by role ID.
  * @return array Combined array of database roles and dynamic bbPress roles.
  */
 function _bbp_reinit_dynamic_roles( $roles = array() ) {
@@ -393,7 +393,7 @@ function bbp_get_dynamic_roles() {
  * @since 2.3.0 bbPress (r4793)
  * @since 2.6.0 bbPress (r6118) Use bbp_translate_user_role()
  *
- * @param string $role_id
+ * @param string $role_id Role identifier.
  * @return string Translated role name.
  */
 function bbp_get_dynamic_role_name( $role_id = '' ) {

@@ -307,10 +307,10 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  * @since 2.2.0 bbPress (r4244)
  * @since 2.6.19 bbPress (r7741) Keep term IDs separate from post moderation.
  *
- * @param array $caps Capabilities for meta capability.
+ * @param array  $caps Capabilities for meta capability.
  * @param string $cap Capability name.
- * @param int $user_id User id.
- * @param array $args Arguments.
+ * @param int    $user_id User id.
+ * @param array  $args Arguments.
  *
  * @return array Actual capabilities for meta capability.
  */

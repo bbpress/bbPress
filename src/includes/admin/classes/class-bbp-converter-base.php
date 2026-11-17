@@ -276,6 +276,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Forums.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_forums( $start = 1 ) {
 		return $this->convert_table( 'forum', $start );
@@ -283,6 +285,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Topics / Threads.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_topics( $start = 1 ) {
 		return $this->convert_table( 'topic', $start );
@@ -290,6 +294,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Posts.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_replies( $start = 1 ) {
 		return $this->convert_table( 'reply', $start );
@@ -297,6 +303,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Users.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_users( $start = 1 ) {
 		return $this->convert_table( 'user', $start );
@@ -304,6 +312,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Topic Tags.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_tags( $start = 1 ) {
 		return $this->convert_table( 'tags', $start );
@@ -311,6 +321,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Forum Subscriptions.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_forum_subscriptions( $start = 1 ) {
 		return $this->convert_table( 'forum_subscriptions', $start );
@@ -318,6 +330,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Topic Subscriptions.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_topic_subscriptions( $start = 1 ) {
 		return $this->convert_table( 'topic_subscriptions', $start );
@@ -325,6 +339,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Convert Favorites.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_favorites( $start = 1 ) {
 		return $this->convert_table( 'favorites', $start );
@@ -335,8 +351,8 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @since 2.1.0 bbPress (r3816) Connects to the source database when conversion begins.
 	 *
-	 * @param string $to_type The destination type
-	 * @param int $start Start row
+	 * @param string $to_type Destination object type.
+	 * @param int    $start   Starting row offset.
 	 */
 	public function convert_table( $to_type, $start ) {
 		// Without account import, do not create users or user engagements.
@@ -760,6 +776,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * This method converts old forum hierarchy to new bbPress hierarchy.
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_forum_parents( $start = 1 ) {
 		$has_update = false;
@@ -783,6 +801,8 @@ abstract class BBP_Converter_Base {
 	 * This method converts old topic stickies to new bbPress stickies.
 	 *
 	 * @since 2.5.0 bbPress (r5170)
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_topic_stickies( $start = 1 ) {
 		$has_update = false;
@@ -805,6 +825,8 @@ abstract class BBP_Converter_Base {
 	 * This method converts old topic super stickies to new bbPress super stickies.
 	 *
 	 * @since 2.5.0 bbPress (r5170)
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_topic_super_stickies( $start = 1 ) {
 		$has_update = false;
@@ -828,6 +850,8 @@ abstract class BBP_Converter_Base {
 	 * This method converts old closed topics to bbPress closed topics.
 	 *
 	 * @since 2.6.0 bbPress (r5425)
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_topic_closed_topics( $start = 1 ) {
 		$has_update = false;
@@ -850,6 +874,8 @@ abstract class BBP_Converter_Base {
 	 * This method converts old reply_to post id to new bbPress reply_to post id.
 	 *
 	 * @since 2.4.0 bbPress (r5093)
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_reply_to_parents( $start = 1 ) {
 		$has_update = false;
@@ -873,6 +899,8 @@ abstract class BBP_Converter_Base {
 	 * This method converts anonymous topics.
 	 *
 	 * @since 2.6.0 bbPress (r5538)
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_anonymous_topic_authors( $start = 1 ) {
 
@@ -946,6 +974,8 @@ abstract class BBP_Converter_Base {
 	 * This method converts anonymous replies.
 	 *
 	 * @since 2.6.0 bbPress (r5538)
+	 *
+	 * @param int $start Starting row offset for this conversion batch.
 	 */
 	public function convert_anonymous_reply_authors( $start = 1 ) {
 
@@ -1177,7 +1207,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query option and return results.
 	 *
-	 * @param string $query
+	 * @param string $query SQL query to run.
 	 */
 	private function get_row( $query = '' ) {
 		$this->update_query( $query );
@@ -1188,8 +1218,8 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query option and return results.
 	 *
-	 * @param string $query
-	 * @param string $output
+	 * @param string $query SQL query to run.
+	 * @param string $output Result format. Defaults to OBJECT.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
 		$this->update_query( $query );
@@ -1200,7 +1230,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query option and do a general query.
 	 *
-	 * @param string $query
+	 * @param string $query SQL query to run.
 	 */
 	private function query( $query = '' ) {
 		$this->update_query( $query );
@@ -1354,8 +1384,8 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @since 2.1.0 bbPress (r3866) Added the `$wp_password` parameter.
 	 *
-	 * @param string $username
-	 * @param string      $password
+	 * @param string      $username    User login.
+	 * @param string      $password    Password from the source platform.
 	 * @param string|null $wp_password Optional slashed password for WordPress.
 	 */
 	public function callback_pass( $username = '', $password = '', $wp_password = null ) {
@@ -1409,7 +1439,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * A mini cache system to reduce database calls to forum ID's.
 	 *
-	 * @param string $field
+	 * @param string $field Source forum ID to map.
 	 * @return string
 	 */
 	private function callback_forumid( $field ) {
@@ -1429,7 +1459,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * A mini cache system to reduce database calls to topic ID's.
 	 *
-	 * @param string $field
+	 * @param string $field Source topic ID to map.
 	 * @return string
 	 */
 	private function callback_topicid( $field ) {
@@ -1451,7 +1481,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @since 2.4.0 bbPress (r5093)
 	 *
-	 * @param string $field
+	 * @param string $field Source reply ID to map.
 	 * @return string
 	 */
 	private function callback_reply_to( $field ) {
@@ -1471,7 +1501,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * A mini cache system to reduce database calls to user ID's.
 	 *
-	 * @param string $field
+	 * @param string $field Source user ID to map.
 	 * @return string
 	 */
 	private function callback_userid( $field ) {
@@ -1502,7 +1532,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @since 2.6.0 bbPress (r5544)
 	 *
-	 * @param  string $field
+	 * @param  string $field Source author ID to check.
 	 * @return string
 	 */
 	private function callback_check_anonymous( $field ) {
@@ -1516,7 +1546,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * A mini cache system to reduce database calls map topics ID's to forum ID's.
 	 *
-	 * @param string $field
+	 * @param string $field Source topic ID whose forum is needed.
 	 * @return string
 	 */
 	private function callback_topicid_to_forumid( $field ) {
@@ -1534,16 +1564,34 @@ abstract class BBP_Converter_Base {
 		return $this->map_topicid_to_forumid[ $topicid ];
 	}
 
+	/**
+	 * Sanitize a source slug.
+	 *
+	 * @param string $field Source slug.
+	 * @return string Sanitized slug.
+	 */
 	protected function callback_slug( $field ) {
 		return sanitize_title( $field );
 	}
 
+	/**
+	 * Replace a negative source value with zero.
+	 *
+	 * @param int|float|string $field Source numeric value.
+	 * @return int|float|string Nonnegative value.
+	 */
 	protected function callback_negative( $field ) {
 		return ( $field < 0 )
 			? 0
 			: $field;
 	}
 
+	/**
+	 * Convert source BBCode to HTML.
+	 *
+	 * @param string $field Source BBCode.
+	 * @return string Converted HTML.
+	 */
 	protected function callback_html( $field ) {
 		require_once bbp_admin()->admin_dir . 'parser.php';
 
@@ -1558,12 +1606,24 @@ abstract class BBP_Converter_Base {
 		return $bbcode->Parse( $field );
 	}
 
+	/**
+	 * Replace a null source value with an empty string.
+	 *
+	 * @param mixed $field Source value.
+	 * @return mixed Original value, or an empty string for null.
+	 */
 	protected function callback_null( $field ) {
 		return is_null( $field )
 			? ''
 			: $field;
 	}
 
+	/**
+	 * Format a source date for WordPress.
+	 *
+	 * @param int|string $field Source timestamp or date.
+	 * @return string Formatted date and time.
+	 */
 	protected function callback_datetime( $field ) {
 		// phpcs:disable WordPress.DateTime.RestrictedFunctions.date_date
 		return is_numeric( $field )

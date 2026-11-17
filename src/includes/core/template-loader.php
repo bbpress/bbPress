@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @param string $template
+ * @param string $template Current template path.
  *
  * @return string The path to the template file that is being used.
  */

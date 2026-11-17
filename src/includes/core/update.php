@@ -708,7 +708,7 @@ function bbp_run_required_upgrade( $tool_id, $callback = '' ) {
  *
  * @since 2.6.0 bbPress (r6896)
  *
- * @param string $upgrade_id
+ * @param string $upgrade_id Upgrade identifier to add.
  * @return bool True if the pending upgrades option changed, false otherwise.
  */
 function bbp_add_pending_upgrade( $upgrade_id = '' ) {
@@ -721,7 +721,7 @@ function bbp_add_pending_upgrade( $upgrade_id = '' ) {
  *
  * @since 2.6.0 bbPress (r6896)
  *
- * @param string $upgrade_id
+ * @param string $upgrade_id Upgrade identifier to remove.
  * @return bool True if the pending upgrades option changed, false otherwise.
  */
 function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
