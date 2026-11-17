@@ -645,8 +645,9 @@ class SMF extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method allows us to indicates what is or is not converted for each
-	 * converter.
+	 * Return an empty converter information string.
+	 *
+	 * @return string Empty string.
 	 */
 	public function info() {
 		return '';

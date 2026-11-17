@@ -8,7 +8,7 @@
  */
 
 /**
- * Example converter base impoprter template for bbPress
+ * Example converter template for bbPress.
  *
  * @since 2.4.0 bbPress (r5014)
  *
@@ -676,8 +676,9 @@ class Example extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This method allows us to indicates what is or is not converted for each
-	 * converter.
+	 * Return an empty converter information string.
+	 *
+	 * @return string Empty string.
 	 */
 	public function info() {
 		return '';
