@@ -1589,7 +1589,7 @@ function bbp_forum_visibility( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2998)
  *
  * @param int $forum_id Optional. Forum id.
- * @return string Status of forum.
+ * @return string Visibility status of forum.
  */
 function bbp_get_forum_visibility( $forum_id = 0 ) {
 	$forum_id   = bbp_get_forum_id( $forum_id );
@@ -1634,7 +1634,7 @@ function bbp_forum_type( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3563)
  *
  * @param int $forum_id Optional. Forum id.
- * @return bool Whether the forum is a category or not.
+ * @return string Forum type slug.
  */
 function bbp_get_forum_type( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -2480,7 +2480,7 @@ function bbp_form_forum_moderators() {
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @return string Value of forum mods field.
+ * @return string Value of forum moderators field.
  */
 function bbp_get_form_forum_moderators() {
 
@@ -2531,7 +2531,7 @@ function bbp_form_forum_parent() {
  *
  * @since 2.1.0 bbPress (r3551)
  *
- * @return string Value of topic content field.
+ * @return int Forum parent ID, or 0 when none is selected.
  */
 function bbp_get_form_forum_parent() {
 
@@ -2566,7 +2566,7 @@ function bbp_form_forum_type() {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @return string Value of topic content field.
+ * @return string Selected forum type.
  */
 function bbp_get_form_forum_type() {
 
@@ -2601,7 +2601,7 @@ function bbp_form_forum_visibility() {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @return string Value of topic content field.
+ * @return string Selected forum visibility.
  */
 function bbp_get_form_forum_visibility() {
 

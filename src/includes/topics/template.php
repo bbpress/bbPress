@@ -4253,7 +4253,7 @@ function bbp_form_topic_forum() {
  *
  * @since 2.0.0 bbPress (r2976)
  *
- * @return string Value of topic content field.
+ * @return int Forum ID for the topic, or 0 when none is selected.
  */
 function bbp_get_form_topic_forum() {
 

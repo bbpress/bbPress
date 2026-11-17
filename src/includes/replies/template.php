@@ -2703,7 +2703,7 @@ function bbp_form_reply_to() {
  *
  * @since 2.4.0 bbPress (r4944)
  *
- * @return string Value of reply to field.
+ * @return int Parent reply ID, or 0 when none is selected.
  */
 function bbp_get_form_reply_to() {
 
