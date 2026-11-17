@@ -594,7 +594,7 @@ class MyBB extends BBP_Converter_Base {
 	 * Verify the topic/reply count.
 	 *
 	 * @param int $count MyBB v1.6.10 topic/reply counts.
-	 * @return string WordPress safe
+	 * @return int Nonnegative reply count.
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );

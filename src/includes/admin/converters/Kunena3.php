@@ -803,7 +803,7 @@ class Kunena3 extends BBP_Converter_Base {
 	 * Verify the topic/reply count.
 	 *
 	 * @param int $count Kunena v3.x topic/reply counts.
-	 * @return string WordPress safe
+	 * @return int Nonnegative reply count.
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );

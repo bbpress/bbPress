@@ -575,8 +575,8 @@ class Vanilla extends BBP_Converter_Base {
 	/**
 	 * Clean Root Parent ID -1 to 0
 	 *
-	 * @param int $parent Vanilla v2.x Parent ID
-	 * @return int
+	 * @param int|string $parent Vanilla parent ID, or -1 for root.
+	 * @return int|string Parent ID, or 0 for root.
 	 */
 	// phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.parentFound -- Preserve the public parameter name for PHP 8 named arguments.
 	public function callback_forum_parent( $parent = 0 ) {
@@ -591,7 +591,7 @@ class Vanilla extends BBP_Converter_Base {
 	 * Verify the topic reply count.
 	 *
 	 * @param int $count Vanilla v2.x reply count.
-	 * @return string WordPress safe
+	 * @return int Nonnegative reply count.
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );

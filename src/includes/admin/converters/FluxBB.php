@@ -748,7 +748,7 @@ class FluxBB extends BBP_Converter_Base {
 	 * Verify the topic reply count.
 	 *
 	 * @param int $count FluxBB v1.5.3 topic/reply counts.
-	 * @return string WordPress safe
+	 * @return int Nonnegative reply count.
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
 		return max( 0, (int) $count );
