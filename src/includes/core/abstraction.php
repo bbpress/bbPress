@@ -120,7 +120,7 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
  *
  * @since 2.6.0 bbPress (r6583)
  *
- * @return WP_Roles
+ * @return WP_Query|null The query object, or null if it is unavailable.
  */
 function bbp_get_wp_query() {
 	return bbp_get_global_object( 'wp_query', 'WP_Query' );

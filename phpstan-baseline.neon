@@ -391,12 +391,6 @@ parameters:
 			path: src/includes/extend/akismet.php
 
 		-
-			message: '#^Call to an undefined method WP_Roles\:\:get\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: src/includes/forums/functions.php
-
-		-
 			message: '#^Default value of the parameter \#2 \$forum \(false\) of function bbp_reparent_forum_subforums\(\) is incompatible with type WP_Post\.$#'
 			identifier: parameter.defaultValue
 			count: 1
@@ -437,60 +431,6 @@ parameters:
 			identifier: empty.variable
 			count: 1
 			path: src/includes/forums/template.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$found_posts\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$is_embed\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$is_feed\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$max_num_pages\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$post\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$post_count\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$posts\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$queried_object\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Access to an undefined property WP_Roles\:\:\$queried_object_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/functions.php
 
 		-
 			message: '#^Function bbp_approve_reply\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
