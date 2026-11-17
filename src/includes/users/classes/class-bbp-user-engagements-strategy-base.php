@@ -59,7 +59,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
@@ -75,7 +75,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
@@ -90,7 +90,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
@@ -105,7 +105,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
@@ -119,7 +119,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool|null True on success, false on failure, or null for the base implementation.
 	 */
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
@@ -134,7 +134,7 @@ class BBP_User_Engagements_Base {
 	 * @return array|null User IDs, or null for the base implementation.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
@@ -150,6 +150,6 @@ class BBP_User_Engagements_Base {
 	 * @return array|null Query arguments, or null for the base implementation. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
-		// Intentionally empty
+		return null;
 	}
 }

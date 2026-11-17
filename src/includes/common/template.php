@@ -2419,7 +2419,7 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 	// Turn off breadcrumbs
 	if ( apply_filters( 'bbp_no_breadcrumb', is_front_page() ) ) {
-		return;
+		return null;
 	}
 
 	// Define variables

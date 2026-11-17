@@ -81,7 +81,7 @@ class BBP_User_Engagements_Type {
 	/**
 	 * Check whether an object supports an engagement.
 	 *
-	 * Default denies by returning nothing.
+	 * Default denies by returning null.
 	 *
 	 * @since 2.7.0 bbPress (r8306)
 	 *
@@ -90,13 +90,13 @@ class BBP_User_Engagements_Type {
 	 * @return bool|null Whether the object supports the engagement, or null for the base implementation.
 	 */
 	public function supports( $engagement = '', $object_id = 0 ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
 	 * Check whether the current user can read an object.
 	 *
-	 * Default denies by returning nothing.
+	 * Default denies by returning null.
 	 *
 	 * @since 2.7.0 bbPress (r8306)
 	 *
@@ -104,26 +104,26 @@ class BBP_User_Engagements_Type {
 	 * @return bool|null Whether the current user can read the object, or null for the base implementation.
 	 */
 	public function current_user_can_read( $object_id = 0 ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
 	 * Check whether queries for this type support `tax_query`.
 	 *
-	 * Default does not, by returning nothing.
+	 * Default does not, by returning null.
 	 *
 	 * @since 2.7.0 bbPress (r8318)
 	 *
 	 * @return bool|null Whether queries for this type support `tax_query`, or null for the base implementation.
 	 */
 	public function supports_tax_query() {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
 	 * Get query arguments that limit results to specific objects.
 	 *
-	 * Default has no query arguments and returns nothing. Queryable types must
+	 * Default has no query arguments and returns null. Queryable types must
 	 * return arguments that limit results to the supplied object IDs.
 	 *
 	 * @since 2.7.0 bbPress (r8318)
@@ -132,13 +132,13 @@ class BBP_User_Engagements_Type {
 	 * @return array|null Query arguments, or null for the base implementation.
 	 */
 	public function get_query_args( $object_ids = array() ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
 	 * Get query arguments that limit results to an object subtype.
 	 *
-	 * Default has no query arguments and returns nothing.
+	 * Default has no query arguments and returns null.
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
@@ -146,13 +146,13 @@ class BBP_User_Engagements_Type {
 	 * @return array|null Query arguments, or null for the base implementation.
 	 */
 	public function get_subtype_query_args( $object_subtype = '' ) {
-		// Intentionally empty
+		return null;
 	}
 
 	/**
 	 * Get the URL of an object.
 	 *
-	 * Default has no URL and returns nothing.
+	 * Default has no URL and returns null.
 	 *
 	 * @since 2.7.0 bbPress (r8306)
 	 *
@@ -160,6 +160,6 @@ class BBP_User_Engagements_Type {
 	 * @return string|false|null Object URL, false if it has none, or null for the base implementation.
 	 */
 	public function get_url( $object_id = 0 ) {
-		// Intentionally empty
+		return null;
 	}
 }

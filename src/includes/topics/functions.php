@@ -2975,7 +2975,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 
 	// Bail if no topic ID
 	if ( empty( $topic_id ) ) {
-		return;
+		return null;
 	}
 
 	// Count the engagements

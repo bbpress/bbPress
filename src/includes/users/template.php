@@ -1092,7 +1092,7 @@ function bbp_get_admin_link( $args = array() ) {
 
 	// Bail if user cannot globally moderate
 	if ( ! current_user_can( 'moderate' ) ) {
-		return;
+		return null;
 	}
 
 	if ( ! empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) ) {
@@ -1984,7 +1984,7 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 
 	// Bail if subscriptions are inactive
 	if ( ! bbp_is_subscriptions_active() ) {
-		return;
+		return null;
 	}
 
 	// Parse arguments against default values

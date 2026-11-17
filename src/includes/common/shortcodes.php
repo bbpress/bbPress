@@ -665,7 +665,7 @@ class BBP_Shortcodes {
 
 		// Bail if search is disabled
 		if ( ! bbp_allow_search() ) {
-			return;
+			return null;
 		}
 
 		// Start output buffer
@@ -697,7 +697,7 @@ class BBP_Shortcodes {
 
 		// Bail if search is disabled
 		if ( ! bbp_allow_search() ) {
-			return;
+			return null;
 		}
 
 		// Trim search attribute if it's set

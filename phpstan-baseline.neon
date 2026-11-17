@@ -337,24 +337,6 @@ parameters:
 			path: src/includes/common/functions.php
 
 		-
-			message: '#^Function bbp_notify_forum_subscribers\(\) should return bool\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 2
-			path: src/includes/common/functions.php
-
-		-
-			message: '#^Function bbp_notify_topic_subscribers\(\) should return bool\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 2
-			path: src/includes/common/functions.php
-
-		-
-			message: '#^Function bbp_update_counts_on_transition_post_status\(\) should return bool\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/common/functions.php
-
-		-
 			message: '#^Function bbp_update_counts_on_transition_post_status\(\) should return bool\|null but return statement is missing\.$#'
 			identifier: return.missing
 			count: 3
@@ -383,24 +365,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: src/includes/common/functions.php
-
-		-
-			message: '#^Method BBP_Shortcodes\:\:display_search\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/common/shortcodes.php
-
-		-
-			message: '#^Method BBP_Shortcodes\:\:display_search_form\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/common/shortcodes.php
-
-		-
-			message: '#^Function bbp_get_breadcrumb\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/common/template.php
 
 		-
 			message: '#^Method BBP_Forums_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
@@ -479,12 +443,6 @@ parameters:
 			identifier: return.void
 			count: 17
 			path: src/includes/core/actions.php
-
-		-
-			message: '#^Function bbp_add_forums_roles\(\) should return WP_Roles\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/core/capabilities.php
 
 		-
 			message: '#^Function buddypress not found\.$#'
@@ -961,66 +919,6 @@ parameters:
 			path: src/includes/replies/template.php
 
 		-
-			message: '#^Function bbp_get_cancel_reply_to_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_admin_links\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 2
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_approve_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_edit_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 3
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_edit_url\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_move_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_spam_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_to_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_reply_trash_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Function bbp_get_topic_split_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
 			message: '#^Variable \$parent_id in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
@@ -1081,12 +979,6 @@ parameters:
 			path: src/includes/topics/functions.php
 
 		-
-			message: '#^Function bbp_update_topic_voice_count\(\) should return int\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/functions.php
-
-		-
 			message: '#^Variable \$old_forum_ancestors in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
@@ -1127,150 +1019,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_approve_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_close_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_edit_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 3
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_edit_url\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_merge_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_pagination\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_reply_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_spam_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_stick_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 2
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_get_topic_trash_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Function bbp_topic_content_append_revisions\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/topics/template.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:add_user_to_object\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:get_query\(\) should return array\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:get_users_for_object\(\) should return array\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:remove_all_users_from_all_objects\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:remove_object_from_all_users\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:remove_user_from_all_objects\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Base\:\:remove_user_from_object\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Type\:\:current_user_can_read\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-type.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Type\:\:get_query_args\(\) should return array\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-type.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Type\:\:get_subtype_query_args\(\) should return array\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-type.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Type\:\:get_url\(\) should return string\|false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-type.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Type\:\:supports\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-type.php
-
-		-
-			message: '#^Method BBP_User_Engagements_Type\:\:supports_tax_query\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/users/classes/class-bbp-user-engagements-type.php
 
 		-
 			message: '#^Cannot call method add_user_to_object\(\) on string\.$#'
@@ -1366,18 +1114,6 @@ parameters:
 			message: '#^Access to an undefined property BBP_User_Query\:\:\$results\.$#'
 			identifier: property.notFound
 			count: 3
-			path: src/includes/users/template.php
-
-		-
-			message: '#^Function bbp_get_admin_link\(\) should return string\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: src/includes/users/template.php
-
-		-
-			message: '#^Function bbp_get_user_subscribe_link\(\) should return string\|false\|null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
 			path: src/includes/users/template.php
 
 		-

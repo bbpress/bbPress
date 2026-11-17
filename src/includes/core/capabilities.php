@@ -292,7 +292,7 @@ function bbp_add_forums_roles( $wp_roles = null ) {
 
 	// Bail if unexpected param type
 	if ( ! ( $wp_roles instanceof WP_Roles ) ) {
-		return;
+		return null;
 	}
 
 	// Get the dynamic roles

@@ -861,7 +861,7 @@ function bbp_get_topic_pagination( $args = array() ) {
 
 	// Bail if threading replies
 	if ( bbp_thread_replies() ) {
-		return;
+		return null;
 	}
 
 	// Parse arguments against default values
@@ -941,7 +941,7 @@ function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
 
 	// Bail if in admin or feed
 	if ( is_admin() || is_feed() ) {
-		return;
+		return null;
 	}
 
 	// Validate the ID
@@ -2576,7 +2576,7 @@ function bbp_get_topic_edit_link( $args = array() ) {
 	// Get the topic
 	$topic = bbp_get_topic( $r['id'] );
 	if ( empty( $topic ) ) {
-		return;
+		return null;
 	}
 
 	// Bypass check if user has caps
@@ -2584,7 +2584,7 @@ function bbp_get_topic_edit_link( $args = array() ) {
 
 		// User cannot edit or it is past the lock time
 		if ( ! current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) ) {
-			return;
+			return null;
 		}
 	}
 
@@ -2593,7 +2593,7 @@ function bbp_get_topic_edit_link( $args = array() ) {
 
 	// Bail if no uri
 	if ( empty( $uri ) ) {
-		return;
+		return null;
 	}
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-edit-link">' . $r['edit_text'] . '</a>' . $r['link_after'];
@@ -2625,7 +2625,7 @@ function bbp_get_topic_edit_url( $topic_id = 0 ) {
 
 	$topic = bbp_get_topic( $topic_id );
 	if ( empty( $topic ) ) {
-		return;
+		return null;
 	}
 
 	// Remove view=all link from edit
@@ -2703,7 +2703,7 @@ function bbp_get_topic_trash_link( $args = array() ) {
 
 	// Bail if no topic or current user cannot delete
 	if ( empty( $topic ) || ! current_user_can( 'delete_topic', $topic->ID ) ) {
-		return;
+		return null;
 	}
 
 	$actions    = array();
@@ -2801,7 +2801,7 @@ function bbp_get_topic_close_link( $args = array() ) {
 
 	// Bail if no topic or current user cannot moderate
 	if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
-		return;
+		return null;
 	}
 
 	$display = bbp_is_topic_open( $topic->ID ) ? $r['close_text'] : $r['open_text'];
@@ -2864,7 +2864,7 @@ function bbp_get_topic_approve_link( $args = array() ) {
 
 	// Bail if no topic or current user cannot moderate
 	if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
-		return;
+		return null;
 	}
 
 	$display = bbp_is_topic_pending( $topic->ID ) ? $r['approve_text'] : $r['unapprove_text'];
@@ -2928,12 +2928,12 @@ function bbp_get_topic_stick_link( $args = array() ) {
 
 	// Bail if no topic or current user cannot moderate
 	if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
-		return;
+		return null;
 	}
 
 	// Per-forum moderators cannot unstick a topic from every forum
 	if ( bbp_is_topic_super_sticky( $topic->ID ) && ! current_user_can( 'moderate' ) ) {
-		return;
+		return null;
 	}
 
 	$is_sticky = bbp_is_topic_sticky( $topic->ID );
@@ -3016,7 +3016,7 @@ function bbp_get_topic_merge_link( $args = array() ) {
 
 	// Bail if no topic or current user cannot moderate and edit it
 	if ( empty( $topic ) || ! bbp_current_user_can_access_topic_moderation( $topic->ID ) ) {
-		return;
+		return null;
 	}
 
 	$query  = array( 'action' => 'bbp-merge-topic' );
@@ -3071,7 +3071,7 @@ function bbp_get_topic_spam_link( $args = array() ) {
 	$topic = bbp_get_topic( $r['id'] );
 
 	if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
-		return;
+		return null;
 	}
 
 	$display = bbp_is_topic_spam( $topic->ID )
@@ -3133,7 +3133,7 @@ function bbp_get_topic_reply_link( $args = array() ) {
 
 	// Bail if no topic or user cannot reply
 	if ( empty( $topic ) || bbp_is_single_reply() || ! bbp_current_user_can_access_create_reply_form() ) {
-		return;
+		return null;
 	}
 
 	// Only add onclick if replies are threaded

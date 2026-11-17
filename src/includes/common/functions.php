@@ -646,7 +646,7 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 
 	// Bail if the status did not change
 	if ( $new_status === $old_status ) {
-		return;
+		return null;
 	}
 
 	$is_new = ( 'new' === $old_status );
@@ -2589,7 +2589,7 @@ Post Link: %3$s
 		bbp_restore_all_filters( 'bbp_get_reply_content' );
 		bbp_restore_all_filters( 'bbp_get_topic_title'   );
 		bbp_restore_all_filters( 'the_title'             );
-		return;
+		return null;
 	}
 
 	// For plugins to filter titles per reply/topic/user
@@ -2598,7 +2598,7 @@ Post Link: %3$s
 		bbp_restore_all_filters( 'bbp_get_reply_content' );
 		bbp_restore_all_filters( 'bbp_get_topic_title'   );
 		bbp_restore_all_filters( 'the_title'             );
-		return;
+		return null;
 	}
 
 	/** Headers ***************************************************************/
@@ -2843,7 +2843,7 @@ Topic Link: %3$s
 		bbp_restore_all_filters( 'bbp_get_topic_content' );
 		bbp_restore_all_filters( 'bbp_get_topic_title'   );
 		bbp_restore_all_filters( 'the_title'             );
-		return;
+		return null;
 	}
 
 	// For plugins to filter titles per reply/topic/user
@@ -2852,7 +2852,7 @@ Topic Link: %3$s
 		bbp_restore_all_filters( 'bbp_get_topic_content' );
 		bbp_restore_all_filters( 'bbp_get_topic_title'   );
 		bbp_restore_all_filters( 'the_title'             );
-		return;
+		return null;
 	}
 
 	/** Headers ***************************************************************/

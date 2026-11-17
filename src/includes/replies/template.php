@@ -1717,7 +1717,7 @@ function bbp_get_reply_to_link( $args = array() ) {
 
 	// Bail if no reply or user cannot reply
 	if ( empty( $reply ) || empty( $topic_id ) || bbp_is_single_reply() || ! bbp_current_user_can_access_create_reply_form() ) {
-		return;
+		return null;
 	}
 
 	// Build the URI and return value
@@ -1777,7 +1777,7 @@ function bbp_get_cancel_reply_to_link( $text = '' ) {
 
 	// Bail if not hierarchical or editing a reply
 	if ( ! bbp_thread_replies() || bbp_is_reply_edit() ) {
-		return;
+		return null;
 	}
 
 	// Set default text
@@ -1911,12 +1911,12 @@ function bbp_get_reply_admin_links( $args = array() ) {
 
 	// If post is not a reply, return
 	if ( ! bbp_is_reply( $r['id'] ) ) {
-		return;
+		return null;
 	}
 
 	// If topic is trashed, do not show admin links
 	if ( bbp_is_topic_trash( bbp_get_reply_topic_id( $r['id'] ) ) ) {
-		return;
+		return null;
 	}
 
 	// If no links were passed, default to the standard
@@ -1992,7 +1992,7 @@ function bbp_get_reply_edit_link( $args = array() ) {
 	// Get reply
 	$reply = bbp_get_reply( $r['id'] );
 	if ( empty( $reply ) ) {
-		return;
+		return null;
 	}
 
 	// Bypass check if user has caps
@@ -2000,7 +2000,7 @@ function bbp_get_reply_edit_link( $args = array() ) {
 
 		// User cannot edit or it is past the lock time
 		if ( ! current_user_can( 'edit_reply', $reply->ID ) || bbp_past_edit_lock( $reply->post_date_gmt ) ) {
-			return;
+			return null;
 		}
 	}
 
@@ -2009,7 +2009,7 @@ function bbp_get_reply_edit_link( $args = array() ) {
 
 	// Bail if no uri
 	if ( empty( $uri ) ) {
-		return;
+		return null;
 	}
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-edit-link">' . $r['edit_text'] . '</a>' . $r['link_after'];
@@ -2042,7 +2042,7 @@ function bbp_get_reply_edit_url( $reply_id = 0 ) {
 	// Bail if no reply
 	$reply = bbp_get_reply( $reply_id );
 	if ( empty( $reply ) ) {
-		return;
+		return null;
 	}
 
 	$reply_link = bbp_remove_view_all( bbp_get_reply_permalink( $reply_id ) );
@@ -2119,7 +2119,7 @@ function bbp_get_reply_trash_link( $args = array() ) {
 
 	// Bail if no reply or current user cannot delete
 	if ( empty( $reply ) || ! current_user_can( 'delete_reply', $reply->ID ) ) {
-		return;
+		return null;
 	}
 
 	$actions    = array();
@@ -2205,7 +2205,7 @@ function bbp_get_reply_spam_link( $args = array() ) {
 
 	// Bail if no reply or current user cannot moderate
 	if ( empty( $reply ) || ! current_user_can( 'moderate', $reply->ID ) ) {
-		return;
+		return null;
 	}
 
 	$display = bbp_is_reply_spam( $reply->ID )
@@ -2274,7 +2274,7 @@ function bbp_get_reply_move_link( $args = array() ) {
 
 	// Bail if no reply ID or user cannot moderate and edit its topic
 	if ( empty( $reply_id ) || ! bbp_current_user_can_access_topic_moderation( $topic_id ) ) {
-		return;
+		return null;
 	}
 
 	$uri = add_query_arg(
@@ -2340,7 +2340,7 @@ function bbp_get_topic_split_link( $args = array() ) {
 
 	// Bail if no reply/topic ID, or user cannot moderate and edit the topic
 	if ( empty( $reply_id ) || empty( $topic_id ) || ! bbp_current_user_can_access_topic_moderation( $topic_id ) ) {
-		return;
+		return null;
 	}
 
 	$uri = add_query_arg(
@@ -2403,7 +2403,7 @@ function bbp_get_reply_approve_link( $args = array() ) {
 
 	// Bail if no reply or current user cannot moderate
 	if ( empty( $reply ) || ! current_user_can( 'moderate', $reply->ID ) ) {
-		return;
+		return null;
 	}
 
 	$display = bbp_is_reply_pending( $reply->ID )
