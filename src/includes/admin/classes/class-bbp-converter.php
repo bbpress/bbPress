@@ -75,9 +75,11 @@ class BBP_Converter {
 	public $total_percentage = 0;
 
 	/**
+	 * Whether the conversion is complete.
+	 *
 	 * @since 2.6.20 bbPress (r7920)
 	 *
-	 * @var bool Whether the conversion is complete
+	 * @var bool
 	 */
 	private $finished = false;
 

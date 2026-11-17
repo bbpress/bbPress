@@ -23,7 +23,9 @@ class BBP_Forums_Admin {
 	/** Variables *************************************************************/
 
 	/**
-	 * @var string The post type of this admin component.
+	 * The post type of this admin component.
+	 *
+	 * @var string
 	 */
 	private $post_type = '';
 

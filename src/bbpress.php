@@ -57,42 +57,58 @@ final class bbPress {
 	/** Not Magic *************************************************************/
 
 	/**
-	 * @var WP_User|false Current user object after setup; false before setup.
+	 * Current user after setup, or false before setup.
+	 *
+	 * @var WP_User|false
 	 */
 	public $current_user = false;
 
 	/**
-	 * @var stdClass Add-ons append to this (Akismet, BuddyPress, etc...)
+	 * Instances attached by integrations such as Akismet and BuddyPress.
+	 *
+	 * @var stdClass
 	 */
 	public $extend;
 
 	/**
-	 * @var array Topic views.
+	 * Topic views.
+	 *
+	 * @var array
 	 */
 	public $views = array();
 
 	/**
-	 * @var array Registered engagement types.
+	 * Registered engagement types.
+	 *
+	 * @var array
 	 */
 	public $engagement_types = array();
 
 	/**
-	 * @var array Overloads get_option().
+	 * Option overrides used by get_option().
+	 *
+	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var array Storage of options not in the database.
+	 * Options unavailable from the database.
+	 *
+	 * @var array
 	 */
 	public $not_options = array();
 
 	/**
-	 * @var array Overloads get_user_meta().
+	 * User metadata overrides used by get_user_meta().
+	 *
+	 * @var array
 	 */
 	public $user_options = array();
 
 	/**
-	 * @var array Dynamically initialized user roles.
+	 * Dynamically initialized user roles.
+	 *
+	 * @var array
 	 */
 	public $roles = array();
 

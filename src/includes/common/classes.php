@@ -27,28 +27,38 @@ if ( ! class_exists( 'BBP_Component' ) ) :
 class BBP_Component {
 
 	/**
-	 * @var string Unique name (for internal identification).
+	 * Unique name (for internal identification).
+	 *
+	 * @var string
 	 * @internal
 	 */
 	public $name;
 
 	/**
-	 * @var Unique ID (normally for custom post type).
+	 * Unique component ID, usually a post type.
+	 *
+	 * @var string
 	 */
 	public $id;
 
 	/**
-	 * @var string Unique slug (used in query string and permalinks).
+	 * Unique slug (used in query string and permalinks).
+	 *
+	 * @var string
 	 */
 	public $slug;
 
 	/**
-	 * @var WP_Query The loop for this component.
+	 * The loop for this component.
+	 *
+	 * @var WP_Query
 	 */
 	public $query;
 
 	/**
-	 * @var string The current ID of the queried object.
+	 * The current ID of the queried object.
+	 *
+	 * @var string
 	 */
 	public $current_id;
 
@@ -167,6 +177,8 @@ if ( class_exists( 'Walker' ) ) :
 class BBP_Walker_Dropdown extends Walker {
 
 	/**
+	 * Post type handled by the forum dropdown walker.
+	 *
 	 * @see Walker::$tree_type
 	 *
 	 * @since 2.0.0 bbPress (r2746)
@@ -176,6 +188,8 @@ class BBP_Walker_Dropdown extends Walker {
 	public $tree_type = 'forum';
 
 	/**
+	 * Fields used to identify a post and its parent.
+	 *
 	 * @see Walker::$db_fields
 	 *
 	 * @since 2.0.0 bbPress (r2746)
@@ -199,6 +213,8 @@ class BBP_Walker_Dropdown extends Walker {
 	}
 
 	/**
+	 * Render one option in the forum dropdown.
+	 *
 	 * @see Walker::start_el()
 	 *
 	 * @since 2.0.0 bbPress (r2746)
@@ -252,6 +268,8 @@ class BBP_Walker_Dropdown extends Walker {
 class BBP_Walker_Reply extends Walker {
 
 	/**
+	 * Reply post type handled by the reply walker.
+	 *
 	 * @see Walker::$tree_type
 	 *
 	 * @since 2.4.0 bbPress (r4944)
@@ -261,6 +279,8 @@ class BBP_Walker_Reply extends Walker {
 	public $tree_type = 'reply';
 
 	/**
+	 * Fields used to identify a reply and its parent.
+	 *
 	 * @see Walker::$db_fields
 	 *
 	 * @since 2.4.0 bbPress (r4944)
@@ -282,6 +302,8 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
+	 * Open a nested reply list.
+	 *
 	 * @see Walker::start_lvl()
 	 *
 	 * @since 2.4.0 bbPress (r4944)
@@ -307,6 +329,8 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
+	 * Close a nested reply list.
+	 *
 	 * @see Walker::end_lvl()
 	 *
 	 * @since 2.4.0 bbPress (r4944)
@@ -367,6 +391,8 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
+	 * Render one reply in the tree.
+	 *
 	 * @see Walker::start_el()
 	 *
 	 * @since 2.4.0 bbPress (r4944)
@@ -443,6 +469,8 @@ class BBP_Walker_Reply extends Walker {
 class BBP_Walker_Reply_Dropdown extends Walker {
 
 	/**
+	 * Reply post type handled by the reply dropdown walker.
+	 *
 	 * @see Walker::$tree_type
 	 *
 	 * @since 2.6.0 bbPress (r5389)
@@ -452,6 +480,8 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	public $tree_type = 'reply';
 
 	/**
+	 * Fields used to identify a reply and its parent.
+	 *
 	 * @see Walker::$db_fields
 	 *
 	 * @since 2.6.0 bbPress (r5389)
@@ -475,6 +505,8 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	}
 
 	/**
+	 * Render one option in the reply dropdown.
+	 *
 	 * @see Walker::start_el()
 	 *
 	 * @since 2.6.0 bbPress (r5389)

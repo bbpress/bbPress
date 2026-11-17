@@ -23,82 +23,114 @@ if ( ! class_exists( 'BBP_Converter_Base' ) ) :
 abstract class BBP_Converter_Base {
 
 	/**
-	 * @var array() This is the field mapping array to process.
+	 * Field mapping used during conversion.
+	 *
+	 * @var array
 	 */
 	protected $field_map = array();
 
 	/**
-	 * @var object This is the connection to the WordPress database.
+	 * Connection to the WordPress database.
+	 *
+	 * @var object
 	 */
 	protected $wpdb;
 
 	/**
-	 * @var object This is the connection to the other platforms database.
+	 * Connection to the source database.
+	 *
+	 * @var object
 	 */
 	protected $opdb;
 
 	/**
-	 * @var int Halt on error. Default 0.
+	 * Whether to stop conversion on error.
+	 *
+	 * @var bool
 	 */
 	protected $halt = 0;
 
 	/**
-	 * @var int Maximum number of rows to convert at 1 time. Default 100.
+	 * Maximum rows converted per batch. Defaults to 100.
+	 *
+	 * @var int
 	 */
 	protected $max_rows = 100;
 
 	/**
-	 * @var array() Map of topic to forum.  It is for optimization.
+	 * Cached topic to forum ID mappings.
+	 *
+	 * @var array
 	 */
 	protected $map_topicid_to_forumid = array();
 
 	/**
-	 * @var array() Map of from old forum ids to new forum ids.  It is for optimization.
+	 * Cached source to destination forum ID mappings.
+	 *
+	 * @var array
 	 */
 	protected $map_forumid = array();
 
 	/**
-	 * @var array() Map of from old topic ids to new topic ids.  It is for optimization.
+	 * Cached source to destination topic ID mappings.
+	 *
+	 * @var array
 	 */
 	protected $map_topicid = array();
 
 	/**
-	 * @var array() Map of from old reply_to ids to new reply_to ids.  It is for optimization.
+	 * Cached source to destination reply ID mappings.
+	 *
+	 * @var array
 	 */
 	protected $map_reply_to = array();
 
 	/**
-	 * @var array() Map of from old user ids to new user ids.  It is for optimization.
+	 * Cached source to destination user ID mappings.
+	 *
+	 * @var array
 	 */
 	protected $map_userid = array();
 
 	/**
-	 * @var string This is the charset for your wp database.
+	 * Character set of the WordPress database.
+	 *
+	 * @var string
 	 */
 	public $charset = '';
 
 	/**
-	 * @var boolean Sync table available.
+	 * Whether the converter mapping table exists.
+	 *
+	 * @var boolean
 	 */
 	public $sync_table = false;
 
 	/**
-	 * @var string Sync table name.
+	 * Converter mapping table name.
+	 *
+	 * @var string
 	 */
 	public $sync_table_name = '';
 
 	/**
-	 * @var bool Whether users should be converted or not. Default false.
+	 * Whether to convert users. Defaults to false.
+	 *
+	 * @var bool
 	 */
 	public $convert_users = false;
 
 	/**
-	 * @var bool Whether to clean up any old converter data. Default false.
+	 * Whether to remove old converter data. Defaults to false.
+	 *
+	 * @var bool
 	 */
 	public $clean = false;
 
 	/**
-	 * @var array Custom BBCode class properties in a key => value format
+	 * BBCode parser property overrides.
+	 *
+	 * @var array
 	 */
 	public $bbcode_parser_properties = array();
 

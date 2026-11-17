@@ -23,10 +23,17 @@ class BBP_Replies_Admin {
 	/** Variables *************************************************************/
 
 	/**
-	 * @var The post type of this admin component.
+	 * Post type for this admin component.
+	 *
+	 * @var string
 	 */
 	private $post_type = '';
 
+	/**
+	 * Accepted reply moves keyed by reply ID.
+	 *
+	 * @var array
+	 */
 	private $accepted_topic_moves = array();
 
 	/** Functions *************************************************************/

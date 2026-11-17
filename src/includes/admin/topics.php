@@ -23,10 +23,17 @@ class BBP_Topics_Admin {
 	/** Variables *************************************************************/
 
 	/**
-	 * @var The post type of this admin component.
+	 * Post type for this admin component.
+	 *
+	 * @var string
 	 */
 	private $post_type = '';
 
+	/**
+	 * Accepted topic moves keyed by topic ID.
+	 *
+	 * @var array
+	 */
 	private $accepted_forum_moves = array();
 
 	/** Functions *************************************************************/

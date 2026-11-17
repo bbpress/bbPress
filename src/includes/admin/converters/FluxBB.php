@@ -17,8 +17,11 @@
 class FluxBB extends BBP_Converter_Base {
 
 	/**
-	 * @var bool Whether source-dependent fields have been set up.
+	 * Whether source-dependent fields have been set up.
+	 *
 	 * @since 2.6.18 bbPress (r7589)
+	 *
+	 * @var bool
 	 */
 	private $source_fields_setup = false;
 

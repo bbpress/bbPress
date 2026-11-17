@@ -34,12 +34,16 @@ defined( 'ABSPATH' ) || exit;
 class BBP_Skip_Children {
 
 	/**
-	 * @var int Post ID being updated.
+	 * Post ID being updated.
+	 *
+	 * @var int
 	 */
 	private $updating_post = 0;
 
 	/**
-	 * @var bool The original value of $_wp_suspend_cache_invalidation global.
+	 * Original cache invalidation state.
+	 *
+	 * @var bool
 	 */
 	private $original_cache_invalidation = false;
 
