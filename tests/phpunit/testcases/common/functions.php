@@ -3511,6 +3511,43 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_chunk_emails
+	 */
+	public function test_bbp_chunk_emails_ignores_invalid_chunk_limits() {
+		$args = array(
+			'to'          => 'forum@example.org',
+			'subject'     => 'New reply',
+			'message'     => 'A reply was posted.',
+			'headers'     => array(
+				'Bcc: first@example.org',
+				'Bcc: second@example.org',
+			),
+			'attachments' => array(),
+		);
+		$limit = 0;
+		$filter = function() use ( &$limit ) {
+			return $limit;
+		};
+		$sent = array();
+		$capture = function( $return, $atts ) use ( &$sent ) {
+			$sent[] = $atts;
+			return true;
+		};
+		add_filter( 'bbp_get_bcc_chunk_limit', $filter );
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+
+		try {
+			foreach ( array( 0, -1, 'invalid' ) as $limit ) {
+				$this->assertSame( $args, bbp_chunk_emails( $args ) );
+			}
+			$this->assertSame( array(), $sent );
+		} finally {
+			remove_filter( 'bbp_get_bcc_chunk_limit', $filter );
+			remove_filter( 'pre_wp_mail', $capture, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_email_header
 	 */
 	public function test_bbp_get_email_header_includes_version_and_applies_filter() {

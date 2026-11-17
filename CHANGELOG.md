@@ -172,6 +172,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented invalid Bcc chunk limits from interrupting moderation notifications.
 - Prevented warnings when forum feed links are requested without a forum.
 - Fixed term engagements reporting failed term creation as a successful addition.
 - Show the pagination count for searches with no results.

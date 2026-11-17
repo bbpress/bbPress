@@ -2993,15 +2993,13 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 }
 
 /**
- * Automatically splits bbPress emails with many Bcc recipients into chunks.
+ * Split bbPress emails with many Bcc recipients into chunks.
  *
- * This middleware is useful because topics and forums with many subscribers
- * run into problems with Bcc limits, and many hosting companies & third-party
- * services limit the size of a Bcc audience to prevent spamming.
+ * Moderation notifications still use Bcc headers. Subscription notifications
+ * send individual messages with unsubscribe links.
  *
- * The default "chunk" size is 40 users per iteration, and can be filtered if
- * desired. A future version of bbPress will introduce a setting to more easily
- * tune this.
+ * The default chunk size is 40 recipients. A nonpositive filtered limit leaves
+ * the original email unchanged.
  *
  * @since 2.6.0 bbPress (r6919)
  *
@@ -3011,7 +3009,10 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 function bbp_chunk_emails( $args = array() ) {
 
 	// Get the maximum number of Bcc's per chunk
-	$max_num = apply_filters( 'bbp_get_bcc_chunk_limit', 40, $args );
+	$max_num = (int) apply_filters( 'bbp_get_bcc_chunk_limit', 40, $args );
+	if ( $max_num < 1 ) {
+		return $args;
+	}
 
 	// Look for "bcc: " in a case-insensitive way, and split into 2 sets
 	$match       = '/^bcc: (\w+)/i';
@@ -3028,6 +3029,7 @@ function bbp_chunk_emails( $args = array() ) {
 	$bcc_headers = array_values( $bcc_headers );
 
 	// Break the Bcc emails into chunks
+	$first_chunk = $bcc_headers;
 	foreach ( array_chunk( $bcc_headers, $max_num ) as $i => $chunk ) {
 
 		// Skip the first chunk (it will get used in the original wp_mail() call)

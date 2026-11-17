@@ -235,12 +235,6 @@ parameters:
 			path: src/includes/common/functions.php
 
 		-
-			message: '#^Variable \$first_chunk might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/includes/common/functions.php
-
-		-
 			message: '#^Variable \$hook_name might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
