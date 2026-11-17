@@ -167,7 +167,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function form( $instance = array() ) {
 
@@ -197,7 +197,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -319,7 +319,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function form( $instance = array() ) {
 
@@ -340,7 +340,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -395,6 +395,9 @@ class BBP_Search_Widget extends WP_Widget {
 	 * Displays the output, the search form.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param array $args     Widget display arguments.
+	 * @param array $instance Widget settings.
 	 */
 	public function widget( $args, $instance ) {
 
@@ -443,7 +446,7 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function form( $instance ) {
 
@@ -464,7 +467,7 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -616,7 +619,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function form( $instance ) {
 
@@ -647,7 +650,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -704,8 +707,8 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $args
-	 * @param array $instance
+	 * @param array $args     Widget display arguments.
+	 * @param array $instance Widget settings.
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -917,7 +920,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function form( $instance = array() ) {
 
@@ -957,7 +960,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1065,7 +1068,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4510)
 	 *
-	 * @param $instance
+	 * @param array $instance Widget settings.
 	 *
 	 * @return string|void
 	 */
@@ -1088,7 +1091,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1144,8 +1147,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $args
-	 * @param array $instance
+	 * @param array $args     Widget display arguments.
+	 * @param array $instance Widget settings.
 	 */
 	public function widget( $args, $instance ) {
 
@@ -1294,7 +1297,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function form( $instance = array() ) {
 
@@ -1314,7 +1317,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param $instance Instance.
+	 * @param array $instance Widget settings.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(

@@ -128,9 +128,9 @@ function bbp_rest_api_init() {
  *
  * @since 2.7.0 bbPress (r7485)
  *
- * @param string            $method XML-RPC method name.
- * @param array             $args   XML-RPC method arguments.
- * @param wp_xmlrpc_server  $server XML-RPC server instance.
+ * @param string           $method XML-RPC method name.
+ * @param array            $args   XML-RPC method arguments.
+ * @param wp_xmlrpc_server $server XML-RPC server instance.
  */
 function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
 	do_action( 'bbp_xmlrpc_call', $method, $args, $server );
@@ -367,8 +367,8 @@ function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = fal
  *
  * @since 2.2.0 bbPress (r4305)
  *
- * @param int $user_id ID of user being edited.
- * @param array $old_user_data The old, unmodified user data
+ * @param int           $user_id       ID of user being edited.
+ * @param WP_User|array $old_user_data Old, unmodified user data.
  */
 function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
 	do_action( 'bbp_profile_update', $user_id, $old_user_data );
@@ -505,8 +505,8 @@ function bbp_get_request() {
  *
  * @since 2.2.0 bbPress (r4214)
  *
- * @param string $locale
- * @param string $domain
+ * @param string $locale Locale to filter.
+ * @param string $domain Text domain.
  */
 function bbp_plugin_locale( $locale = '', $domain = '' ) {
 
@@ -519,7 +519,7 @@ function bbp_plugin_locale( $locale = '', $domain = '' ) {
  *
  * @since 2.1.0 bbPress (r3759)
  *
- * @param array $query_vars
+ * @param array $query_vars Request query variables.
  * @return array
  */
 function bbp_request( $query_vars = array() ) {
@@ -534,7 +534,7 @@ function bbp_request( $query_vars = array() ) {
  *
  * @since 2.0.0 bbPress (r3032)
  *
- * @param string $template
+ * @param string $template Template file to filter.
  * @return string Template file to use.
  */
 function bbp_template_include( $template = '' ) {
@@ -550,7 +550,7 @@ function bbp_template_include( $template = '' ) {
  *
  * @deprecated 2.4.0 bbPress (r4918)
  *
- * @param WP_Rewrite $wp_rewrite
+ * @param WP_Rewrite $wp_rewrite WordPress rewrite rules object.
  */
 function bbp_generate_rewrite_rules( $wp_rewrite ) {
 	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
@@ -561,7 +561,7 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  *
  * @since 2.0.0 bbPress (r2944)
  *
- * @param array $themes
+ * @param array $themes Allowed themes.
  *
  * @return array Array of allowed themes.
  */
@@ -576,10 +576,10 @@ function bbp_allowed_themes( $themes ) {
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @param array $caps Capabilities for meta capability.
- * @param string $cap Capability name.
- * @param int $user_id User id.
- * @param array $args Arguments.
+ * @param array  $caps    Capabilities for meta capability.
+ * @param string $cap     Capability name.
+ * @param int    $user_id User ID.
+ * @param array  $args    Arguments.
  *
  * @return array Array of capabilities.
  */

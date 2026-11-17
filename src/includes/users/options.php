@@ -36,6 +36,8 @@ function bbp_get_default_user_options() {
  * This is destructive, so existing bbPress user options will be overridden.
  *
  * @since 2.1.0 bbPress (r3911)
+ *
+ * @param int $user_id User ID. Defaults to the user in the current bbPress context.
  */
 function bbp_add_user_options( $user_id = 0 ) {
 
@@ -61,6 +63,8 @@ function bbp_add_user_options( $user_id = 0 ) {
  * This is destructive, so existing bbPress user options will be destroyed.
  *
  * @since 2.1.0 bbPress (r3911)
+ *
+ * @param int $user_id User ID. Defaults to the user in the current bbPress context.
  */
 function bbp_delete_user_options( $user_id = 0 ) {
 
@@ -102,8 +106,10 @@ function bbp_setup_user_option_filters() {
  *
  * @since 2.1.0 bbPress (r3911)
  *
- * @param bool $value Optional. Default value false.
- * @return mixed false if not overloaded, mixed if set.
+ * @param mixed   $value  Current option value. Defaults to false.
+ * @param string  $option Option name.
+ * @param WP_User $user   User whose option is being retrieved.
+ * @return mixed False if not overloaded, option value if set.
  */
 function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
 	$bbp = bbpress();
@@ -206,10 +212,10 @@ function bbp_update_user_reply_count( $user_id = 0, $count = false, $difference 
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id User id.
+ * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
- * @return string
+ * @return void
  */
 function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 	echo esc_html( bbp_get_user_topic_count( $user_id, $integer ) );
@@ -220,7 +226,7 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id User id.
+ * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
  * @return string
@@ -247,10 +253,10 @@ function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id User id.
+ * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
- * @return string
+ * @return void
  */
 function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 	echo esc_html( bbp_get_user_reply_count( $user_id, $integer ) );
@@ -261,7 +267,7 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id User id.
+ * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
  * @return string
@@ -287,10 +293,10 @@ function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id User id.
- * @param boolean $integer Optional. Whether or not to format the result
+ * @param int     $user_id User ID.
+ * @param boolean $integer Optional. Whether or not to format the result.
  *
- * @return string
+ * @return void
  */
 function bbp_user_post_count( $user_id = 0, $integer = false ) {
 	echo esc_html( bbp_get_user_post_count( $user_id, $integer ) );
@@ -301,7 +307,7 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id User id.
+ * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
  * @return string

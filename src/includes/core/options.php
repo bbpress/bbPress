@@ -306,8 +306,10 @@ function bbp_filter_pre_get_option( $value = false, $option = '' ) {
  * @since 2.6.0 bbPress (r6544)
  * @access private
  *
- * @param bool $value Optional. Default value false.
- * @return mixed false if not overloaded, mixed if set.
+ * @param mixed  $default        Default option value.
+ * @param string $option         Option name.
+ * @param bool   $passed_default Whether the default was explicitly passed.
+ * @return mixed Default or configured option value.
  */
 function bbp_filter_default_option( $default = false, $option = '', $passed_default = false ) {
 	$options = bbp_get_default_options();
@@ -1209,8 +1211,7 @@ function bbp_show_on_root( $default = 'forums' ) {
  *
  * @since 2.1.0 bbPress (r3760)
  *
- * @param string $default Optional. Default value 'forums'.
- * @return string
+ * @return string Root slug when included, or an empty string.
  */
 function bbp_maybe_get_root_slug() {
 	$slug   = bbp_get_root_slug();

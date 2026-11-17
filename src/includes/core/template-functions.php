@@ -19,8 +19,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3032)
  *
- * @param string $slug
- * @param string $name Optional. Default null.
+ * @param string $slug Template slug.
+ * @param string $name Optional template name. Defaults to null.
  * @return string The template filename if one is located.
  */
 function bbp_get_template_part( $slug, $name = null ) {
@@ -52,9 +52,9 @@ function bbp_get_template_part( $slug, $name = null ) {
  * @since 2.1.0 bbPress (r3623)
  *
  * @param string|array $template_names Template file(s) to search for, in order.
- * @param bool $load If true the template file will be loaded if it is found.
- * @param bool $require_once Whether to require_once or require. Default true.
- *                            Has no effect if $load is false.
+ * @param bool         $load           Whether to load the template file if found.
+ * @param bool         $require_once   Whether to require_once or require. Defaults to true.
+ *                                      Has no effect if $load is false.
  * @return string The template filename if one is located.
  */
 function bbp_locate_template( $template_names, $load = false, $require_once = true ) {
@@ -121,7 +121,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *
  * @since 2.6.0 bbPress (r6862)
  *
- * @param string $file
+ * @param string $file File path to locate.
  *
  * @return boolean
  */
@@ -169,7 +169,7 @@ function bbp_locate_enqueueable( $file = '' ) {
  * Convert an enqueueable file path to a URL.
  *
  * @since 2.6.0 bbPress (r6862)
- * @param string $file
+ * @param string $file File path to locate.
  *
  * @return string
  */
@@ -289,8 +289,8 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
  *
  * @since 2.2.0 bbPress (r4324)
  *
- * @param string $location_callback Callback function that returns the
- * @param int $priority
+ * @param callable|string $location_callback Callback that returns a template location.
+ * @param int             $priority          Filter priority.
  */
 function bbp_register_template_stack( $location_callback = '', $priority = 10 ) {
 
@@ -308,8 +308,8 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
  *
  * @since 2.3.0 bbPress (r4653)
  *
- * @param string $location_callback Callback function that returns the.
- * @param int $priority
+ * @param callable|string $location_callback Callback that returns a template location.
+ * @param int             $priority          Filter priority.
  * @return bool Whether stack was removed.
  */
 function bbp_deregister_template_stack( $location_callback = '', $priority = 10 ) {
@@ -396,9 +396,9 @@ function bbp_get_template_stack() {
  *
  * @since 2.4.0 bbPress (r5043)
  *
- * @param string $slug
- * @param string $name
- * @param bool $echo Whether to echo the buffered output. Default true.
+ * @param string $slug Template slug.
+ * @param string $name Optional template name. Defaults to null.
+ * @param bool   $echo Whether to echo the buffered output. Defaults to true.
  * @return string
  */
 // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.echoFound -- Preserve the public parameter name for PHP 8 named arguments.
@@ -431,7 +431,7 @@ function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
  * @since 2.1.0 bbPress (r3629)
  *
  * @param string $type Filename without extension.
- * @param array $templates An optional list of template candidates.
+ * @param array  $templates An optional list of template candidates.
  * @return string Full path to file.
  */
 function bbp_get_query_template( $type, $templates = array() ) {
@@ -482,8 +482,8 @@ function bbp_get_template_locations( $templates = array() ) {
  *
  * @since 2.3.0 bbPress (r4762)
  *
- * @param array $stacks
- * @return array()
+ * @param array $stacks Template stack paths.
+ * @return array Template locations.
  */
 function bbp_add_template_stack_locations( $stacks = array() ) {
 	$retval = array();
@@ -528,7 +528,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  *
  * @since 2.1.0 bbPress (r3646)
  *
- * @param WP_Query $posts_query
+ * @param WP_Query $posts_query Current query.
  */
 function bbp_parse_query( $posts_query ) {
 

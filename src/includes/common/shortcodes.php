@@ -149,7 +149,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3344)
 	 *
-	 * @param string $query_name
+	 * @param string $query_name Optional query name to set before buffering.
 	 */
 	private function start( $query_name = '' ) {
 
@@ -222,8 +222,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 * @return string
 	 */
 	public function display_forum( $attr, $content = '' ) {
@@ -311,8 +311,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 * @return string
 	 */
 	public function display_topic( $attr, $content = '' ) {
@@ -381,8 +381,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3042)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 * @return string
 	 */
 	public function display_topic_form( $attr = array(), $content = '' ) {
@@ -435,8 +435,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.1.0 bbPress (r3634)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 * @return string
 	 */
 	public function display_reply( $attr, $content = '' ) {
@@ -552,8 +552,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3132)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 * @return string
 	 */
 	public function display_topics_of_tag( $attr, $content = '' ) {
@@ -615,8 +615,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3167)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 * @return string
 	 */
 	public function display_view( $attr, $content = '' ) {
@@ -679,8 +679,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param array $attr
-	 * @param string $content
+	 * @param array  $attr    Shortcode attributes.
+	 * @param string $content Shortcode content.
 	 */
 	public function display_search( $attr, $content = '' ) {
 
@@ -856,7 +856,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.1.0 bbPress (r3637)
 	 *
-	 * @param array $args
+	 * @param array $args Query arguments.
 	 * @return array
 	 */
 	public function display_topic_index_query( $args = array() ) {
@@ -871,7 +871,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.1.0 bbPress (r3637)
 	 *
-	 * @param array $args
+	 * @param array $args Query arguments.
 	 * @return array
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
