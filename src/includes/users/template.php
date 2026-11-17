@@ -755,7 +755,7 @@ function bbp_user_profile_link( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @param int $user_id Optional. User id.
- * @return string User profile link.
+ * @return string|false User profile link, or false when unavailable.
  */
 function bbp_get_user_profile_link( $user_id = 0 ) {
 
@@ -873,7 +873,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
  *
  * @param int    $user_id       Optional user ID.
  * @param string $user_nicename Optional user nicename.
- * @return string User profile url.
+ * @return string|false User profile URL, or false when unavailable.
  */
 function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
@@ -933,7 +933,7 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @param int $user_id Optional. User id.
- * @return string User profile edit link.
+ * @return string|false User profile edit link, or false when unavailable.
  */
 function bbp_get_user_profile_edit_link( $user_id = 0 ) {
 
@@ -985,7 +985,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
  *
  * @param int    $user_id       Optional user ID.
  * @param string $user_nicename Optional user nicename.
- * @return string
+ * @return string|false User profile edit URL, or false when unavailable.
  */
 function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
@@ -1355,7 +1355,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id.
- * @return string Permanent link to user profile page.
+ * @return string|false URL for the user favorites page, or false when unavailable.
  */
 function bbp_get_favorites_permalink( $user_id = 0 ) {
 
@@ -1545,7 +1545,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id.
- * @return string Permanent link to user subscriptions page.
+ * @return string|false URL for the user subscriptions page, or false when unavailable.
  */
 function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 
@@ -2482,7 +2482,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
- * @return string Permanent link to user profile page.
+ * @return string|false URL for the user topics page, or false when unavailable.
  */
 function bbp_get_user_topics_created_url( $user_id = 0 ) {
 
@@ -2539,7 +2539,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
- * @return string Permanent link to user profile page.
+ * @return string|false URL for the user replies page, or false when unavailable.
  */
 function bbp_get_user_replies_created_url( $user_id = 0 ) {
 
@@ -2596,7 +2596,7 @@ function bbp_user_engagements_url( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id.
- * @return string Permanent link to user profile page.
+ * @return string|false URL for the user engagements page, or false when unavailable.
  */
 function bbp_get_user_engagements_url( $user_id = 0 ) {
 

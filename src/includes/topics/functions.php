@@ -2550,7 +2550,7 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1.
  *
- * @return int Topic reply count.
+ * @return int|false Topic reply count, or false when no count change is requested.
  */
 function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 
@@ -2641,7 +2641,7 @@ function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1.
  *
- * @return int Topic hidden reply count.
+ * @return int|false Hidden topic reply count, or false when no count change is requested.
  */
 function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 

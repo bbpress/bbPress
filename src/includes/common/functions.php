@@ -3217,7 +3217,7 @@ function bbp_query_post_parent__in( $where, $query = '' ) {
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @return int The last active post_id.
+ * @return int|false Last active child post ID, or false without a parent.
  */
 function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 
@@ -3450,7 +3450,7 @@ function bbp_filter_child_counts_list( $parent_id = 0, $types = array( 'post' ),
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @return int The number of children.
+ * @return int|false Child count, or false when the post type is missing.
  */
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
@@ -3496,7 +3496,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @return int The number of children.
+ * @return int|false Child count, or false when required arguments are missing.
  */
 function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 

@@ -468,7 +468,7 @@ function bbp_search_pagination_links() {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @return string Search pagination links.
+ * @return string|false Search pagination links, or false when unavailable.
  */
 function bbp_get_search_pagination_links() {
 	$bbp = bbpress();

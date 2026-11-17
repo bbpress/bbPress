@@ -794,7 +794,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id.
- * @return string Revision log of the reply.
+ * @return string|false Reply revision log, or false when no revisions are available.
  */
 function bbp_get_reply_revision_log( $reply_id = 0 ) {
 
@@ -2635,7 +2635,7 @@ function bbp_topic_pagination_links() {
  *
  * @since 2.0.0 bbPress (r2519)
  *
- * @return string Topic pagination links.
+ * @return string|false Topic pagination links, or false when unavailable.
  */
 function bbp_get_topic_pagination_links() {
 	$bbp = bbpress();

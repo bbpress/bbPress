@@ -229,7 +229,7 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
  * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
- * @return string
+ * @return int|string|false User topic count, or false when unavailable.
  */
 function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
 
@@ -270,7 +270,7 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
  * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
- * @return string
+ * @return int|string|false User reply count, or false when unavailable.
  */
 function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
 
@@ -310,7 +310,7 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
  * @param int     $user_id User ID.
  * @param boolean $integer Optional. Whether or not to format the result.
  *
- * @return string
+ * @return int|string|false User post count, or false when unavailable.
  */
 function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 
