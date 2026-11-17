@@ -103,6 +103,7 @@ function bbp_get_db_version_raw() {
  *
  * @param int $post_id  The post to update.
  * @param int $forum_id The forum id.
+ * @return int Filtered forum ID passed to the post meta update.
  */
 function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 
@@ -122,6 +123,7 @@ function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
  *
  * @param int $post_id  The post to update.
  * @param int $topic_id The topic id.
+ * @return int Filtered topic ID passed to the post meta update.
  */
 function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
 
@@ -141,6 +143,7 @@ function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
  *
  * @param int $post_id  The post to update.
  * @param int $reply_id The reply id.
+ * @return int Filtered reply ID passed to the post meta update.
  */
 function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 
@@ -160,6 +163,7 @@ function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
  *
  * @param int $post_id  The post to update.
  * @param int $reply_id The reply id.
+ * @return int Filtered reply-to ID passed to the post meta update.
  */
 function bbp_update_reply_to_id( $post_id = 0, $reply_id = 0 ) {
 
@@ -328,6 +332,7 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
  * @since 2.0.0 bbPress (r3382)
  *
  * @see WP_Error()
+ * @return bool Whether errors are queued.
  */
 function bbp_has_errors() {
 	$has_errors = bbpress()->errors->get_error_codes()

@@ -1284,7 +1284,7 @@ function bbp_get_forum_last_reply_author_link( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2889)
  *
- * @param int $forum_id Optional. Topic id.
+ * @param int $forum_id Optional. Forum ID.
  */
 function bbp_forum_topics_link( $forum_id = 0 ) {
 	echo bbp_get_forum_topics_link( $forum_id );
@@ -1295,7 +1295,8 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2889)
  *
- * @param int $forum_id Optional. Topic id.
+ * @param int $forum_id Optional. Forum ID.
+ * @return string Topic count as a link or plain text.
  */
 function bbp_get_forum_topics_link( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );

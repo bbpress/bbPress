@@ -19,6 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param int    $object_id Optional. ID of object (forum, topic, or something else).
  * @param string $type Object metadata type. Defaults to post.
+ * @return array Subscriber user IDs, or an empty array.
  */
 function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );

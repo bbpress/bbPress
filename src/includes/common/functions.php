@@ -1211,7 +1211,7 @@ function bbp_save_initial_post_revision( $post_id = 0 ) {
  * @since 2.0.0 bbPress (r2734)
  *
  * @param array $args Optional. If no args are there, then $_POST values are.
- * @return bool|array False on errors, values in an array on success.
+ * @return array Filtered anonymous author data.
  */
 function bbp_filter_anonymous_post_data( $args = array() ) {
 
@@ -3280,6 +3280,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * @since 2.6.21 bbPress (r8055) Use indexed post relationships for forums and topics.
  *
  * @param int $parent_id Parent forum or topic ID.
+ * @return array Child counts grouped by post type and status.
  */
 function bbp_get_child_counts( $parent_id = 0 ) {
 

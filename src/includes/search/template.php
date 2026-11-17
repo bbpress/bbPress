@@ -166,6 +166,8 @@ function bbp_search_title() {
  * Get the search page title.
  *
  * @since 2.3.0 bbPress (r4579)
+ *
+ * @return string Search page title.
  */
 function bbp_get_search_title() {
 

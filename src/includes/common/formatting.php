@@ -757,6 +757,7 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
  * @since 2.6.0 bbPress (r6302)
  *
  * @param int|float|string $number Number to clamp to zero or greater.
+ * @return int Nonnegative number.
  */
 function bbp_number_not_negative( $number = 0 ) {
 

@@ -29,6 +29,7 @@ function bbp_forums_url( $path = '/' ) {
  * @since 2.1.0 bbPress (r3979)
  *
  * @param string $path Additional path with leading slash.
+ * @return string URL to the forums archive.
  */
 function bbp_get_forums_url( $path = '/' ) {
 	return home_url( bbp_get_root_slug() . $path );
@@ -1447,6 +1448,7 @@ function bbp_wp_login_action( $args = array() ) {
  * @since 2.6.0 bbPress (r5685)
  *
  * @param array $args Login action, context, and URL settings.
+ * @return string Login form action URL.
  */
 function bbp_get_wp_login_action( $args = array() ) {
 

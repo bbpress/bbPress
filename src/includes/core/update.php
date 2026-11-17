@@ -222,6 +222,7 @@ function bbp_setup_new_site( $site_id = 0 ) {
  * @since 2.1.0 bbPress (r3768)
  *
  * @param array $args Array of arguments to override default values.
+ * @return array Forum, topic, and reply insertion results keyed by type.
  */
 function bbp_create_initial_content( $args = array() ) {
 

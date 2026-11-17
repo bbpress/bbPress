@@ -2678,6 +2678,8 @@ function bbp_get_countable_forum_statuses() {
  * Only hidden forum ids are returned. Public and private ids are not.
  *
  * @since 2.0.0 bbPress (r3008)
+ *
+ * @return int[] Hidden forum IDs, or an empty array.
  */
 function bbp_get_hidden_forum_ids() {
 	$forum_ids = get_option( '_bbp_hidden_forums', array() );
@@ -2695,6 +2697,8 @@ function bbp_get_hidden_forum_ids() {
  * Only private forum ids are returned. Public and hidden ids are not.
  *
  * @since 2.0.0 bbPress (r3008)
+ *
+ * @return int[] Private forum IDs, or an empty array.
  */
 function bbp_get_private_forum_ids() {
 	$forum_ids = get_option( '_bbp_private_forums', array() );
@@ -3373,6 +3377,7 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $forum_id Forum id.
+ * @return int[] Public topic IDs, or an empty array.
  */
 function bbp_forum_query_topic_ids( $forum_id ) {
 	$topic_ids = bbp_get_public_child_ids( $forum_id, bbp_get_topic_post_type() );
@@ -3391,6 +3396,7 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  *               bbp_get_all_child_ids().
  *
  * @param int $forum_id Forum id.
+ * @return int[] Countable subforum IDs, or an empty array.
  */
 function bbp_forum_query_subforum_ids( $forum_id ) {
 	$forum_id     = bbp_get_forum_id( $forum_id );
@@ -3431,7 +3437,8 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects.
  *
  * @param int $forum_id Forum id.
- * @param int $topic_ids Optional. Topic ids.
+ * @param int[]|int $topic_ids Optional. Topic IDs, or 0 to query them.
+ * @return int Last public reply ID, or 0 if none is found.
  */
 function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 

@@ -2149,6 +2149,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return string Reply count as a link or plain text.
  */
 function bbp_get_topic_replies_link( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -3397,6 +3398,7 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option.
+ * @return string Topic type dropdown markup, or an empty string when unavailable.
  */
 function bbp_get_form_topic_type_dropdown( $args = array() ) {
 
@@ -3496,6 +3498,7 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option.
+ * @return string Topic status dropdown markup.
  */
 function bbp_get_form_topic_status_dropdown( $args = array() ) {
 

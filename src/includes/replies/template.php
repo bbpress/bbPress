@@ -2909,6 +2909,7 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - reply_id: Reply id
  *  - selected: Override the selected option.
+ * @return string Reply status dropdown markup.
  */
 function bbp_get_form_reply_status_dropdown( $args = array() ) {
 
