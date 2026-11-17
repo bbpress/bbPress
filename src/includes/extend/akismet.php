@@ -810,7 +810,7 @@ class BBP_Akismet {
 	 * @param string $request The request we are sending.
 	 * @param string $host The host to send our request to.
 	 * @param string $path The path from the host.
-	 * @param string $port The port to use.
+	 * @param int|string $port Legacy port argument, currently unused.
 	 * @param string $ip Optional Override $host with an IP address.
 	 * @return mixed WP_Error on error, array on success, empty on failure.
 	 */

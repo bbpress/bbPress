@@ -100,9 +100,9 @@ function bbp_user_add_role_to_signup_meta( $meta = array() ) {
  *
  * @since 2.6.0 bbPress (r6675)
  *
- * @param int    $user_id     The invited user's ID.
- * @param array  $role        The role of invited user.
- * @param string $newuser_key The key of the invitation.
+ * @param int|string $user_id     The invited user's ID, or an empty string.
+ * @param string     $role        The role of the invited user.
+ * @param string     $newuser_key The key of the invitation.
  *
  * @return void
  */
@@ -144,7 +144,7 @@ function bbp_user_add_role_on_invite( $user_id = '', $role = '', $newuser_key = 
  *
  * @since 2.6.0 bbPress (r6675)
  *
-* @param int $user_id The user ID.
+ * @param int|string $user_id The user ID, or an empty string.
  *
  * @return void
  */

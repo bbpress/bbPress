@@ -2798,8 +2798,8 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @param int $topic_id Optional. Topic id to update.
- * @param int $reply_count Optional. Set the reply count manually.
+ * @param int       $topic_id Optional. Topic id to update.
+ * @param int|false $reply_count Optional. Set the reply count manually.
  *
  * @return int Topic reply count.
  */
@@ -2827,8 +2827,8 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = false ) {
  *
  * @since 2.0.0 bbPress (r3349)
  *
- * @param int $topic_id Optional. Topic id to update.
- * @param int $reply_count Optional. Set the reply count manually.
+ * @param int       $topic_id Optional. Topic id to update.
+ * @param int|false $reply_count Optional. Set the reply count manually.
  *
  * @return int Topic hidden reply count.
  */

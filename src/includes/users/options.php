@@ -106,9 +106,9 @@ function bbp_setup_user_option_filters() {
  *
  * @since 2.1.0 bbPress (r3911)
  *
- * @param mixed   $value  Current option value. Defaults to false.
- * @param string  $option Option name.
- * @param WP_User $user   User whose option is being retrieved.
+ * @param mixed       $value  Current option value. Defaults to false.
+ * @param string      $option Option name.
+ * @param WP_User|int $user   User whose option is being retrieved.
  * @return mixed False if not overloaded, option value if set.
  */
 function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {

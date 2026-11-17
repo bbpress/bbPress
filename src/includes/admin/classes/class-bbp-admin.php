@@ -380,7 +380,7 @@ class BBP_Admin {
 	 * @since 2.6.0 bbPress (r6771)
 	 *
 	 * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}.
-	 * @param string          $class          Optional. A class to be added to the message div.
+	 * @param string|false    $class          Optional. A class to be added to the message div.
 	 * @param bool            $is_dismissible Optional. True to dismiss, false to persist.
 	 *
 	 * @return false|null False on failure, or null after adding the notice.

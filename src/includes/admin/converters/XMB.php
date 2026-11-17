@@ -666,9 +666,9 @@ class XMB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from XMB v1.9.11.13 numerics to WordPress's strings.
+	 * Translate the post status from XMB v1.9.11.13 to WordPress's strings.
 	 *
-	 * @param int $status XMB v1.9.11.13 numeric topic status.
+	 * @param string $status XMB v1.9.11.13 topic status.
 	 * @return string bbPress topic status.
 	 */
 	public function callback_topic_status( $status = '' ) {

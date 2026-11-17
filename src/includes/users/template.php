@@ -209,7 +209,7 @@ class BBP_Term_Query extends WP_Term_Query {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param string|array $query Optional. Term query variables.
+	 * @param string|array|null $query Optional. Term query variables.
 	 */
 	public function __construct( $query = null ) {
 		$this->terms = array();

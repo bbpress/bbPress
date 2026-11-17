@@ -3169,8 +3169,8 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
  *
  * @global WP $wp Current WordPress environment instance.
  *
- * @param string   $where Existing SQL WHERE clause.
- * @param WP_Query $query Query with parent arguments.
+ * @param string          $where Existing SQL WHERE clause.
+ * @param WP_Query|string $query Query with parent arguments, or an empty string.
  * @return string
  */
 function bbp_query_post_parent__in( $where, $query = '' ) {

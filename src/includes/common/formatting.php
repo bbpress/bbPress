@@ -809,8 +809,8 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
  *
  * @since 2.1.0 bbPress (r3858)
  *
- * @param string $number Number to format.
- * @param string $decimals Optional. Display decimals.
+ * @param int|float|string $number Number to format.
+ * @param int|false        $decimals Optional. Display decimals.
  *
  * @return string Formatted string.
  */
@@ -850,10 +850,10 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  *
  * @since 2.0.0 bbPress (r2544)
  *
- * @param string $older_date Unix timestamp from which the difference begins.
- * @param string $newer_date Optional. Unix timestamp from which the
- *                            difference ends. False for current time.
- * @param bool   $gmt Optional. Whether to use GMT timezone. Defaults to false.
+ * @param string|int       $older_date Unix timestamp from which the difference begins.
+ * @param string|int|false $newer_date Optional. Unix timestamp from which the
+ *                                     difference ends. False for current time.
+ * @param bool             $gmt Optional. Whether to use GMT timezone. Defaults to false.
  */
 function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	echo bbp_get_time_since( $older_date, $newer_date, $gmt );
@@ -864,10 +864,10 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
  *
  * @since 2.0.0 bbPress (r2544)
  *
- * @param string $older_date Unix timestamp from which the difference begins.
- * @param string $newer_date Optional. Unix timestamp from which the
- *                            difference ends. False for current time.
- * @param bool   $gmt Optional. Whether to use GMT timezone. Defaults to false.
+ * @param string|int       $older_date Unix timestamp from which the difference begins.
+ * @param string|int|false $newer_date Optional. Unix timestamp from which the
+ *                                     difference ends. False for current time.
+ * @param bool             $gmt Optional. Whether to use GMT timezone. Defaults to false.
  *
  * @return string Formatted time
  */
