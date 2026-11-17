@@ -31,6 +31,12 @@ defined( 'ABSPATH' ) || exit;
  * for future Template Packs to use. @link bbp_setup_theme_compat().
  *
  * @since 2.0.0 bbPress (r3507)
+ *
+ * @property string $id      Template pack ID.
+ * @property string $name    Template pack name.
+ * @property string $version Asset version.
+ * @property string $dir     Template directory.
+ * @property string $url     Template URL.
  */
 class BBP_Theme_Compat {
 
