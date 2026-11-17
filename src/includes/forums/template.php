@@ -2996,11 +2996,12 @@ function bbp_get_forum_topics_feed_link( $forum_id = 0 ) {
 	// Validate forum id
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Define local variables for the feed link filter
+	$link = '';
+	$url  = '';
+
 	// Forum is valid
 	if ( ! empty( $forum_id ) ) {
-
-		// Define local variable(s)
-		$link = '';
 
 		// Pretty permalinks
 		if ( get_option( 'permalink_structure' ) ) {
@@ -3053,11 +3054,12 @@ function bbp_get_forum_replies_feed_link( $forum_id = 0 ) {
 	// Validate forum id
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Define local variables for the feed link filter
+	$link = '';
+	$url  = '';
+
 	// Forum is valid
 	if ( ! empty( $forum_id ) ) {
-
-		// Define local variable(s)
-		$link = '';
 
 		// Pretty permalinks
 		if ( get_option( 'permalink_structure' ) ) {

@@ -673,21 +673,9 @@ parameters:
 			path: src/includes/forums/template.php
 
 		-
-			message: '#^Variable \$link might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/includes/forums/template.php
-
-		-
 			message: '#^Variable \$links in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
-			path: src/includes/forums/template.php
-
-		-
-			message: '#^Variable \$url might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
 			path: src/includes/forums/template.php
 
 		-
