@@ -926,7 +926,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			$new_content = $bbp_shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
 
 		// Edit topic tag
-		} elseif ( bbp_is_topic_tag_edit() ) {
+		} else {
 			$new_content = $bbp_shortcodes->display_topic_tag_form();
 		}
 

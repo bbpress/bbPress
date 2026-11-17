@@ -319,12 +319,6 @@ parameters:
 			path: src/includes/core/theme-compat.php
 
 		-
-			message: '#^Variable \$new_content might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/includes/core/theme-compat.php
-
-		-
 			message: '#^Filter callback return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
@@ -417,12 +411,6 @@ parameters:
 		-
 			message: '#^Variable \$ancestors in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Variable \$move_option might not be defined\.$#'
-			identifier: variable.undefined
 			count: 1
 			path: src/includes/replies/functions.php
 

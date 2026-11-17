@@ -1393,6 +1393,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	}
 
 	// How to move
+	$move_option = '';
 	if ( ! empty( $_POST['bbp_reply_move_option'] ) ) {
 		$move_option = (string) trim( $_POST['bbp_reply_move_option'] );
 	}
