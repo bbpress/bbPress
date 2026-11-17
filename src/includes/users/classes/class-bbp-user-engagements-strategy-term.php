@@ -82,6 +82,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 				'labels'                => array(),
 				'description'           => '',
 				'public'                => false,
+				'bbp_engagement_storage' => true,
 				'publicly_queryable'    => false,
 				'hierarchical'          => false,
 				'show_ui'               => false,

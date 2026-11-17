@@ -18,6 +18,46 @@ defined( 'ABSPATH' ) || exit;
 class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 
 	/**
+	 * Clean up subscriptions when an opted-in post is deleted.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 */
+	public function register_cleanup() {
+		add_action( 'before_delete_post', array( $this, 'cleanup_deleted_post' ) );
+	}
+
+	/**
+	 * Stop cleaning up posts when this type is replaced or deregistered.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 */
+	public function unregister_cleanup() {
+		remove_action( 'before_delete_post', array( $this, 'cleanup_deleted_post' ) );
+	}
+
+	/**
+	 * Remove subscriptions to an opted-in post before it is deleted.
+	 *
+	 * Forums and topics already use their established deletion actions.
+	 * Other post types are cleaned only while they are opted in, avoiding a
+	 * subscriber lookup for every ordinary post deletion.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function cleanup_deleted_post( $post_id = 0 ) {
+		$post_type = get_post_type( $post_id );
+		$type      = get_post_type_object( $post_type );
+
+		if ( ( $type instanceof WP_Post_Type )
+			&& ! empty( $type->bbp_subscriptions )
+			&& ! in_array( $post_type, array( bbp_get_forum_post_type(), bbp_get_topic_post_type() ), true ) ) {
+			bbp_remove_object_from_all_users( $post_id, '_bbp_subscription', 'post' );
+		}
+	}
+
+	/**
 	 * Check whether a post supports an engagement.
 	 *
 	 * Topics in a forum may be favorited. Registered post types may be

@@ -18,6 +18,47 @@ defined( 'ABSPATH' ) || exit;
 class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 
 	/**
+	 * Clean up subscriptions after a term is deleted.
+	 *
+	 * Cleanup also applies when a taxonomy is no longer opted in, because it
+	 * may still have subscriptions stored from when it was.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 */
+	public function register_cleanup() {
+		add_action( 'delete_term', array( $this, 'cleanup_deleted_term' ), 10, 3 );
+	}
+
+	/**
+	 * Stop cleaning up terms when this type is replaced or deregistered.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 */
+	public function unregister_cleanup() {
+		remove_action( 'delete_term', array( $this, 'cleanup_deleted_term' ) );
+	}
+
+	/**
+	 * Remove subscriptions to a deleted term.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 *
+	 * @param int    $term_id  Term ID.
+	 * @param int    $tt_id    Term taxonomy ID.
+	 * @param string $taxonomy Taxonomy name.
+	 */
+	public function cleanup_deleted_term( $term_id = 0, $tt_id = 0, $taxonomy = '' ) {
+		$tax = get_taxonomy( $taxonomy );
+
+		// Storage terms are not subscribed objects
+		if ( ( $tax instanceof WP_Taxonomy ) && ! empty( $tax->bbp_engagement_storage ) ) {
+			return;
+		}
+
+		bbp_remove_object_from_all_users( $term_id, '_bbp_subscription', 'term' );
+	}
+
+	/**
 	 * Check whether a term supports an engagement.
 	 *
 	 * Terms may only be subscribed to when their taxonomy opts in with the

@@ -69,6 +69,7 @@ Development for the next bbPress release is in progress. See the active
   type of object being engaged with whether it supports an engagement and
   whether it can be read, instead of assuming every object is a forum or topic.
   Taxonomies can opt into term subscriptions, with topic tags enabled by default.
+  Deleting a subscribed term or opted-in custom post removes its subscribers.
 - Added contributor, security, support, governance, and repository guidance.
 
 ### Changed

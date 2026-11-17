@@ -64,10 +64,16 @@ function bbp_register_engagement_type( $name = '', $args = array() ) {
 		return false;
 	}
 
-	// Build and register the type
+	// Build and register the type and its cleanup callbacks
+	$bbp  = bbpress();
 	$type = new $r['class']( $name, $r );
 
-	bbpress()->engagement_types[ $name ] = $type;
+	if ( isset( $bbp->engagement_types[ $name ] ) && ( $bbp->engagement_types[ $name ] instanceof BBP_User_Engagements_Type ) ) {
+		$bbp->engagement_types[ $name ]->unregister_cleanup();
+	}
+
+	$bbp->engagement_types[ $name ] = $type;
+	$type->register_cleanup();
 
 	return $type;
 }
@@ -87,6 +93,9 @@ function bbp_deregister_engagement_type( $name = '' ) {
 		return false;
 	}
 
+	if ( $bbp->engagement_types[ $name ] instanceof BBP_User_Engagements_Type ) {
+		$bbp->engagement_types[ $name ]->unregister_cleanup();
+	}
 	unset( $bbp->engagement_types[ $name ] );
 
 	return true;

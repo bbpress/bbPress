@@ -58,6 +58,27 @@ class BBP_User_Engagements_Type {
 	}
 
 	/**
+	 * Register callbacks that clean up relationships when an object is deleted.
+	 *
+	 * The default type does not register any callbacks. Types that do should
+	 * remove the same callbacks in unregister_cleanup().
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 */
+	public function register_cleanup() {
+		// Intentionally empty
+	}
+
+	/**
+	 * Remove callbacks registered by this type.
+	 *
+	 * @since 2.7.0 bbPress (r8390)
+	 */
+	public function unregister_cleanup() {
+		// Intentionally empty
+	}
+
+	/**
 	 * Check whether an object supports an engagement.
 	 *
 	 * Default denies by returning nothing.
