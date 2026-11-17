@@ -15,6 +15,7 @@ parameters:
         - tests/phpstan/runtime-constants.php
     stubFiles:
         - tests/phpstan/wp-query.stub
+        - tests/phpstan/wpdb.stub
     dynamicConstantNames:
         - DB_HOST
         - DB_NAME

@@ -31,12 +31,6 @@ parameters:
 			path: src/includes/admin/classes/class-bbp-admin.php
 
 		-
-			message: '#^Access to an undefined property BBP_Converter_DB\:\:\$use_mysqli\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/admin/classes/class-bbp-converter-db.php
-
-		-
 			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_reply_content\(\) is incompatible with type WP_Post\.$#'
 			identifier: parameter.defaultValue
 			count: 1

@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * WordPress exposes its private MySQL driver flag through wpdb::__set().
+ * The bbPress converter sets it because it skips the wpdb constructor.
+ *
+ * @property-write bool $use_mysqli
+ */
+class wpdb {}
