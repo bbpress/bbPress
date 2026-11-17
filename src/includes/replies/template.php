@@ -323,7 +323,7 @@ function bbp_the_reply() {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @param $reply_id Optional. Used to check emptiness.
+ * @param int $reply_id Optional. Reply ID.
  */
 function bbp_reply_id( $reply_id = 0 ) {
 	echo bbp_get_reply_id( $reply_id );
@@ -334,7 +334,7 @@ function bbp_reply_id( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @param $reply_id Optional. Used to check emptiness.
+ * @param int $reply_id Optional. Reply ID.
  * @return int The reply id.
  */
 function bbp_get_reply_id( $reply_id = 0 ) {
@@ -376,8 +376,8 @@ function bbp_get_reply_id( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2787)
  *
  * @param int|object $reply reply id or reply object.
- * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
- * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}.
+ * @param string     $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
+ * @param string     $filter Optional Sanitation filter. See {@link sanitize_post()}.
  * @return mixed Null if error or reply (in specified form) if success.
  */
 function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
@@ -457,7 +457,7 @@ function bbp_reply_url( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2680)
  *
- * @param int $reply_id Optional. Reply id.
+ * @param int    $reply_id Optional. Reply id.
  * @param string $redirect_to Optional. Pass a redirect value for use with
  *                              shortcodes and other fun things.
  * @return string Link to reply relative to paginated topic.
@@ -567,7 +567,7 @@ function bbp_get_reply_title( $reply_id = 0 ) {
  * @since 2.5.0 bbPress (r5177)
  *
  * @param string $post_title Required. Reply Title.
- * @param int $post_id Required. Reply ID.
+ * @param int    $post_id Required. Reply ID.
  * @return string Title of reply.
  */
 function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
@@ -709,9 +709,9 @@ function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
  * @since 2.2.0 bbPress (r4156)
  * @since 2.6.20 bbPress (r7972) Added the `$date_format` parameter.
  *
- * @param int $reply_id Optional. Reply id.
- * @param bool $humanize Optional. Humanize output using time_since.
- * @param bool $gmt Optional. Use GMT.
+ * @param int    $reply_id Optional. Reply id.
+ * @param bool   $humanize Optional. Humanize output using time_since.
+ * @param bool   $gmt Optional. Use GMT.
  * @param string $date_format Optional. PHP date format. Defaults to the WordPress date format.
  *                            Ignored when `$humanize` is true.
  */
@@ -725,9 +725,9 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false, $d
  * @since 2.2.0 bbPress (r4156)
  * @since 2.6.20 bbPress (r7972) Added the `$date_format` parameter.
  *
- * @param int $reply_id Optional. Reply id.
- * @param bool $humanize Optional. Humanize output using time_since.
- * @param bool $gmt Optional. Use GMT.
+ * @param int    $reply_id Optional. Reply id.
+ * @param bool   $humanize Optional. Humanize output using time_since.
+ * @param bool   $gmt Optional. Use GMT.
  * @param string $date_format Optional. PHP date format. Defaults to the WordPress date format.
  *                            Ignored when `$humanize` is true.
  * @return string
@@ -761,7 +761,7 @@ function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false
  * @since 2.0.0 bbPress (r2782)
  *
  * @param string $content Optional. Content to which we need to append the revisions to.
- * @param int $reply_id Optional. Reply id.
+ * @param int    $reply_id Optional. Reply id.
  * @return string Content with the revisions appended.
  */
 function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
@@ -906,7 +906,7 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2782)
  *
- * @param int $reply_id Optional. Reply id.
+ * @param int     $reply_id Optional. Reply id.
  * @param boolean $integer Optional. Whether or not to format the result.
  * @return string reply revision count.
  */
@@ -1215,7 +1215,7 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
  *
  * @since 2.0.0 bbPress (r2667)
  *
- * @param int $reply_id Optional. Reply id
+ * @param int $reply_id Optional. Reply ID.
  * @param int $size Optional. Size of the avatar. Defaults to 40.
  * @return string Avatar of author of the reply.
  */
@@ -1680,7 +1680,7 @@ function bbp_get_reply_to( $reply_id = 0 ) {
  *
  * @since 2.4.0 bbPress (r4944)
  *
- * @param array $args
+ * @param array $args Reply link arguments.
  */
 function bbp_reply_to_link( $args = array() ) {
 	echo bbp_get_reply_to_link( $args );
@@ -1758,6 +1758,8 @@ function bbp_get_reply_to_link( $args = array() ) {
  * Output the reply to a reply cancellation link.
  *
  * @since 2.4.0 bbPress (r4944)
+ *
+ * @param string $text Cancellation link text.
  */
 function bbp_cancel_reply_to_link( $text = '' ) {
 	echo bbp_get_cancel_reply_to_link( $text );
@@ -1864,7 +1866,7 @@ function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2667)
  *
- * @param array $args See {@link bbp_get_reply_admin_links()}
+ * @param array $args See {@link bbp_get_reply_admin_links()}.
  */
 function bbp_reply_admin_links( $args = array() ) {
 	echo bbp_get_reply_admin_links( $args );
@@ -1875,14 +1877,14 @@ function bbp_reply_admin_links( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2667)
  *
- * @param array $args This function supports these arguments:
+ * @param array $args Supported arguments.
  *  - id: Optional. Reply id
  *  - before: HTML before the links. Defaults to
  *             '<span class="bbp-admin-links">'
  *  - after: HTML after the links. Defaults to '</span>'
  *  - sep: Separator. Defaults to ' | '
  *  - links: Array of the links to display. By default, edit, trash,
- *            spam, reply move, and topic split links are displayed
+ *            spam, reply move, and topic split links are displayed.
  * @return string Reply admin links.
  */
 function bbp_get_reply_admin_links( $args = array() ) {
@@ -1966,11 +1968,11 @@ function bbp_reply_edit_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2740)
  *
- * @param array $args This function supports these arguments:
+ * @param array $args Supported arguments.
  *  - id: Reply id
  *  - link_before: HTML before the link
  *  - link_after: HTML after the link
- *  - edit_text: Edit text. Defaults to 'Edit'
+ *  - edit_text: Edit text. Defaults to 'Edit'.
  * @return string Reply edit link.
  */
 function bbp_get_reply_edit_link( $args = array() ) {
@@ -2085,14 +2087,14 @@ function bbp_reply_trash_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2740)
  *
- * @param array $args This function supports these arguments:
+ * @param array $args Supported arguments.
  *  - id: Reply id
  *  - link_before: HTML before the link
  *  - link_after: HTML after the link
  *  - sep: Separator
  *  - trash_text: Trash text
  *  - restore_text: Restore text
- *  - delete_text: Delete text
+ *  - delete_text: Delete text.
  * @return string Reply trash link.
  */
 function bbp_get_reply_trash_link( $args = array() ) {
@@ -2175,12 +2177,12 @@ function bbp_reply_spam_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2740)
  *
- * @param array $args This function supports these arguments:
+ * @param array $args Supported arguments.
  *  - id: Reply id
  *  - link_before: HTML before the link
  *  - link_after: HTML after the link
  *  - spam_text: Spam text
- *  - unspam_text: Unspam text
+ *  - unspam_text: Unspam text.
  * @return string Reply spam link.
  */
 function bbp_get_reply_spam_link( $args = array() ) {
@@ -2243,12 +2245,12 @@ function bbp_reply_move_link( $args = array() ) {
  *
  * @since 2.3.0 bbPress (r4522)
  *
- * @param array $args This function supports these arguments:
+ * @param array $args Supported arguments.
  *  - id: Reply id
  *  - link_before: HTML before the link
  *  - link_after: HTML after the link
  *  - move_text: Move text
- *  - move_title: Move title attribute
+ *  - move_title: Move title attribute.
  * @return string Reply move link.
  */
 function bbp_get_reply_move_link( $args = array() ) {
@@ -2309,12 +2311,12 @@ function bbp_topic_split_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @param array $args This function supports these arguments:
+ * @param array $args Supported arguments.
  *  - id: Reply id
  *  - link_before: HTML before the link
  *  - link_after: HTML after the link
  *  - split_text: Split text
- *  - split_title: Split title attribute
+ *  - split_title: Split title attribute.
  * @return string Topic split link.
  */
 function bbp_get_topic_split_link( $args = array() ) {
@@ -2371,13 +2373,13 @@ function bbp_reply_approve_link( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5507)
  *
- * @param array $args This function supports these args:
+ * @param array $args Supported arguments.
  *  - id: Optional. Reply id
  *  - link_before: Before the link
  *  - link_after: After the link
  *  - sep: Separator between links
  *  - approve_text: Approve text
- *  - unapprove_text: Unapprove text
+ *  - unapprove_text: Unapprove text.
  * @return string Reply approve link.
  */
 function bbp_get_reply_approve_link( $args = array() ) {
@@ -2426,8 +2428,8 @@ function bbp_get_reply_approve_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2678)
  *
- * @param int $reply_id Optional. Reply ID.
- * @param array Extra classes you can pass when calling this function.
+ * @param int   $reply_id Optional. Reply ID.
+ * @param array $classes  Extra classes for the reply.
  */
 function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 	echo bbp_get_reply_class( $reply_id, $classes );
@@ -2438,8 +2440,8 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
  *
  * @since 2.0.0 bbPress (r2678)
  *
- * @param int $reply_id Optional. Reply ID.
- * @param array Extra classes you can pass when calling this function.
+ * @param int   $reply_id Optional. Reply ID.
+ * @param array $classes  Extra classes for the reply.
  * @return string Row class of the reply.
  */
 function bbp_get_reply_class( $reply_id = 0, $classes = array() ) {
@@ -2884,11 +2886,11 @@ function bbp_get_form_reply_edit_reason() {
  *
  * @since 2.6.0 bbPress (r5399)
  *
- * @param $args This function supports these arguments:
+ * @param array $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_reply_status
  *  - tab: Deprecated. Tabindex
  *  - reply_id: Reply id
- *  - selected: Override the selected option
+ *  - selected: Override the selected option.
  */
 function bbp_form_reply_status_dropdown( $args = array() ) {
 	echo bbp_get_form_reply_status_dropdown( $args );
@@ -2903,11 +2905,11 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5399)
  *
- * @param $args This function supports these arguments:
+ * @param array $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_reply_status
  *  - tab: Deprecated. Tabindex
  *  - reply_id: Reply id
- *  - selected: Override the selected option
+ *  - selected: Override the selected option.
  */
 function bbp_get_form_reply_status_dropdown( $args = array() ) {
 
