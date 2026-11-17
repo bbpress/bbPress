@@ -902,6 +902,7 @@ function bbp_list_forums( $args = array() ) {
 	// Echo or return the forums list
 	if ( ! empty( $r['echo'] ) ) {
 		echo $the_list;
+		return null;
 	} else {
 		return $the_list;
 	}

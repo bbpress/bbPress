@@ -438,6 +438,8 @@ class BBP_Admin {
 
 		// Add notice to notices array
 		$this->notices[] = $message;
+
+		return null;
 	}
 
 	/**
@@ -817,6 +819,8 @@ class BBP_Admin {
 				register_setting( $page, $field_id, $field['sanitize_callback'] );
 			}
 		}
+
+		return null;
 	}
 
 	/**

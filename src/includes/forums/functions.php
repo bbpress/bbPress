@@ -2531,6 +2531,8 @@ function bbp_update_forum_walker( $args = array() ) {
 	$args['post_parent'] = get_post_field( 'post_parent', $args['forum_id'] );
 
 	bbp_update_forum( $args );
+
+	return null;
 }
 
 /** Helpers *******************************************************************/
@@ -3966,6 +3968,8 @@ function bbp_deleted_forum( $forum_id = 0, $forum = false ) {
 	}
 
 	do_action( 'bbp_deleted_forum', $forum_id, $forum );
+
+	return null;
 }
 
 /**

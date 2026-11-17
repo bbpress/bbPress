@@ -739,6 +739,8 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 			}
 		}
 	}
+
+	return null;
 }
 
 /**

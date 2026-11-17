@@ -31,18 +31,6 @@ parameters:
 			path: src/includes/admin/classes/class-bbp-admin.php
 
 		-
-			message: '#^Method BBP_Admin\:\:add_notice\(\) should return false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/admin/classes/class-bbp-admin.php
-
-		-
-			message: '#^Method BBP_Admin\:\:register_admin_settings\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/admin/classes/class-bbp-admin.php
-
-		-
 			message: '#^Constant DB_HOST not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -280,12 +268,6 @@ parameters:
 			message: '#^Default value of the parameter \#3 \$post \(false\) of function bbp_update_counts_on_transition_post_status\(\) is incompatible with type WP_Post\.$#'
 			identifier: parameter.defaultValue
 			count: 1
-			path: src/includes/common/functions.php
-
-		-
-			message: '#^Function bbp_update_counts_on_transition_post_status\(\) should return bool\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 3
 			path: src/includes/common/functions.php
 
 		-
@@ -643,18 +625,6 @@ parameters:
 			path: src/includes/forums/functions.php
 
 		-
-			message: '#^Function bbp_deleted_forum\(\) should return false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/forums/functions.php
-
-		-
-			message: '#^Function bbp_update_forum_walker\(\) should return false\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/forums/functions.php
-
-		-
 			message: '#^Variable \$forum_id in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
@@ -665,12 +635,6 @@ parameters:
 			identifier: empty.variable
 			count: 1
 			path: src/includes/forums/functions.php
-
-		-
-			message: '#^Function bbp_list_forums\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/forums/template.php
 
 		-
 			message: '#^Variable \$links in empty\(\) always exists and is not falsy\.$#'
