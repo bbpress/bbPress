@@ -659,7 +659,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.3.0 bbPress (r4586)
 	 *
-	 * @return string|void Search form markup, or no output when search is disabled.
+	 * @return string|null Search form markup, or null when search is disabled.
 	 */
 	public function display_search_form() {
 
@@ -686,7 +686,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string|void Search results or supplied content, or no output when search is disabled.
+	 * @return string|null Search results or supplied content, or null when search is disabled.
 	 */
 	public function display_search( $attr, $content = '' ) {
 

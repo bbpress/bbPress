@@ -1086,7 +1086,7 @@ function bbp_admin_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2827)
  *
  * @param array|string $args Link text and before/after wrapper settings.
- * @return string|void Admin link, or no output without moderation capability.
+ * @return string|null Admin link, or null without moderation capability.
  */
 function bbp_get_admin_link( $args = array() ) {
 

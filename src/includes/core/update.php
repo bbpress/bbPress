@@ -494,7 +494,7 @@ function bbp_version_updater() {
  *
  * @internal Used internally to redirect bbPress to the about page on activation.
  *
- * @return If network admin or bulk activation.
+ * @return void
  */
 function bbp_add_activation_redirect() {
 
@@ -514,7 +514,7 @@ function bbp_add_activation_redirect() {
  *
  * @internal Used internally to redirect bbPress to the about page on activation.
  *
- * @return If no transient, or in network admin, or is bulk activation.
+ * @return void
  */
 function bbp_do_activation_redirect() {
 
@@ -549,7 +549,7 @@ function bbp_do_activation_redirect() {
  *
  * @internal Used to internally make the current user a keymaster on activation.
  *
- * @return If user can't activate plugins or is already a keymaster.
+ * @return void
  */
 function bbp_make_current_user_keymaster() {
 

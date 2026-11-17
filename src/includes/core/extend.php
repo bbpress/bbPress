@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3278)
  *
- * @return If bbPress is not active.
+ * @return void
  */
 function bbp_setup_akismet() {
 
@@ -45,7 +45,7 @@ function bbp_setup_akismet() {
  *
  * @since 2.0.0 bbPress (r3395)
  *
- * @return If BuddyPress is not active.
+ * @return void
  */
 function bbp_setup_buddypress() {
 
@@ -58,7 +58,7 @@ function bbp_setup_buddypress() {
 		 *
 		 * @global BuddyPress $bp BuddyPress instance.
 		 *
-		 * @return BuddyPress
+		 * @return BuddyPress|false BuddyPress instance, or false if unavailable.
 		 */
 		function buddypress() {
 			return isset( $GLOBALS['bp'] ) ? $GLOBALS['bp'] : false;

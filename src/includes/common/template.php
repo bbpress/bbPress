@@ -52,7 +52,7 @@ function bbp_topics_url( $path = '/' ) {
  *
  * @param string $path Additional path with leading slash.
  *
- * @return The URL to the topics archive.
+ * @return string URL to the topics archive.
  */
 function bbp_get_topics_url( $path = '/' ) {
 	return home_url( bbp_get_topic_archive_slug() . $path );
@@ -2411,7 +2411,7 @@ function bbp_breadcrumb( $args = array() ) {
  *
  * @param array $args Breadcrumb settings.
  *
- * @return string|void Breadcrumb markup, or no output when breadcrumbs are disabled.
+ * @return string|null Breadcrumb markup, or null when breadcrumbs are disabled.
  */
 function bbp_get_breadcrumb( $args = array() ) {
 

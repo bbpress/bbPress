@@ -72,7 +72,7 @@ function bbp_is_ajax() {
  *
  * @param string $action Sanitized action from bbp_post_request/bbp_get_request.
  *
- * @return If not a bbPress AJAX request.
+ * @return void
  */
 function bbp_do_ajax( $action = '' ) {
 

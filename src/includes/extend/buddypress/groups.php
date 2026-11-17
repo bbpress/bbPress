@@ -616,7 +616,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.3.0 bbPress (r4553)
 	 *
-	 * @return If not viewing a single group.
+	 * @return void
 	 */
 	public function maybe_unset_forum_menu() {
 

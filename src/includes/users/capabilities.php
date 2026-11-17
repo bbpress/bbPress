@@ -1007,7 +1007,7 @@ function bbp_is_valid_role( $role = '' ) {
  *
  * @since 2.2.0 bbPress (r4185)
  *
- * @return If not logged in, already assigned a forum role, or inactive.
+ * @return void
  */
 function bbp_set_current_user_default_role() {
 

@@ -383,7 +383,7 @@ class BBP_Admin {
 	 * @param string          $class          Optional. A class to be added to the message div.
 	 * @param bool            $is_dismissible Optional. True to dismiss, false to persist.
 	 *
-	 * @return bool|void False on failure, void otherwise.
+	 * @return false|null False on failure, or null after adding the notice.
 	 */
 	public function add_notice( $message, $class = false, $is_dismissible = true ) {
 

@@ -1070,7 +1070,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @param array $instance Widget settings.
 	 *
-	 * @return string|void
+	 * @return void
 	 */
 	public function form( $instance ) {
 
