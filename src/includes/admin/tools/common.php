@@ -84,6 +84,7 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  * @since 2.6.0 bbPress (r5885)
  *
  * @param array $component Repair tool registration.
+ * @return string URL to run the repair tool.
  */
 function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 	return bbp_get_admin_repair_tool_action_url( $component, 'run' );

@@ -507,6 +507,7 @@ function bbp_get_request() {
  *
  * @param string $locale Locale to filter.
  * @param string $domain Text domain.
+ * @return string Filtered plugin locale.
  */
 function bbp_plugin_locale( $locale = '', $domain = '' ) {
 

@@ -152,6 +152,8 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @param array $new_instance The new instance options.
 	 * @param array $old_instance The old instance options.
+	 *
+	 * @return array Updated widget settings.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance             = $old_instance;
@@ -198,6 +200,8 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -306,6 +310,8 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @param array $new_instance The new instance options.
 	 * @param array $old_instance The old instance options.
+	 *
+	 * @return array Updated widget settings.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance          = $old_instance;
@@ -341,6 +347,8 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -433,6 +441,8 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @param array $new_instance The new instance options.
 	 * @param array $old_instance The old instance options.
+	 *
+	 * @return array Updated widget settings.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = $old_instance;
@@ -468,6 +478,8 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -600,6 +612,8 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @param array $new_instance The new instance options.
 	 * @param array $old_instance The old instance options.
+	 *
+	 * @return array Updated widget settings.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance                 = $old_instance;
@@ -651,6 +665,8 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -889,6 +905,8 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @param array $new_instance The new instance options.
 	 * @param array $old_instance The old instance options.
+	 *
+	 * @return array Updated widget settings.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance                 = $old_instance;
@@ -961,6 +979,8 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1092,6 +1112,8 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1273,6 +1295,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @param array $new_instance The new instance options.
 	 * @param array $old_instance The old instance options.
+	 *
+	 * @return array Updated widget settings.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance              = $old_instance;
@@ -1318,6 +1342,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4806)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return array Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(

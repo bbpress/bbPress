@@ -641,6 +641,7 @@ function bbp_is_forum_activity_public( $post_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return string Link to the forum's latest activity, or fallback text.
  */
 function bbp_get_forum_freshness_link( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
@@ -809,6 +810,7 @@ function bbp_forum_get_subforums( $args = array() ) {
  *  - forum_id: Forum ID. Defaults to the current forum
  *  - show_topic_count: Whether to show topic counts. Defaults to true
  *  - show_reply_count: Whether to show reply counts. Defaults to true.
+ * @return string|null Forum list markup when returned, or null when echoed.
  */
 function bbp_list_forums( $args = array() ) {
 
@@ -928,6 +930,7 @@ function bbp_forum_subscription_link( $args = array() ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args Subscription link arguments.
+ * @return string|false|null Subscription link, false when unavailable, or null when subscriptions are inactive.
  */
 function bbp_get_forum_subscription_link( $args = array() ) {
 

@@ -268,6 +268,7 @@ function bbp_set_theme_compat_active( $set = true ) {
  *
  * @since 2.0.0 bbPress (r3311)
  * @param array $templates Candidate template files.
+ * @return array Candidate template files.
  */
 function bbp_set_theme_compat_templates( $templates = array() ) {
 	bbpress()->theme_compat->templates = $templates;
@@ -283,6 +284,7 @@ function bbp_set_theme_compat_templates( $templates = array() ) {
  *
  * @since 2.0.0 bbPress (r3311)
  * @param string $template Selected template file.
+ * @return string Selected template file.
  */
 function bbp_set_theme_compat_template( $template = '' ) {
 	bbpress()->theme_compat->template = $template;
@@ -298,6 +300,7 @@ function bbp_set_theme_compat_template( $template = '' ) {
  *
  * @since 2.1.0 bbPress (r3927)
  * @param string $template Original template file.
+ * @return string Original template file.
  */
 function bbp_set_theme_compat_original_template( $template = '' ) {
 	bbpress()->theme_compat->original_template = $template;

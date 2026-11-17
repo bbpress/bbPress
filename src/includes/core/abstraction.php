@@ -24,6 +24,8 @@ defined( 'ABSPATH' ) || exit;
  * forum platform.
  *
  * @since 2.6.0 bbPress (r6601)
+ *
+ * @return object Admin instance.
  */
 function bbp_setup_admin() {
 	$bbp = bbpress();
@@ -52,6 +54,8 @@ function bbp_setup_admin() {
  * forum platform.
  *
  * @since 2.6.0 bbPress (r6601)
+ *
+ * @return object Converter instance.
  */
 function bbp_setup_converter() {
 	$bbp_admin = bbp_setup_admin();

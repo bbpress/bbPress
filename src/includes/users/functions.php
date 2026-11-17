@@ -17,7 +17,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $url The url.
  * @param string $raw_url Raw url.
- * @param object $user User object.
+ * @param object|string $user User object or empty string.
+ * @return string Login redirect URL.
  */
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 

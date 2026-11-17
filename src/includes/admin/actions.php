@@ -138,6 +138,8 @@ add_action( 'user_new_form', 'bbp_add_user_form_role_field', 10, 1 );
  *
  * @since 2.0.0 bbPress (r2515)
  * @since 2.6.0 bbPress (r6601) Moved to actions.php
+ *
+ * @return object Admin instance.
  */
 function bbp_admin() {
 	return bbp_setup_admin();

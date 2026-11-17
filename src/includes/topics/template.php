@@ -1880,6 +1880,7 @@ function bbp_topic_subscription_link( $args = array() ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args Subscription link arguments.
+ * @return string|false|null Subscription link, false when unavailable, or null when subscriptions are inactive.
  */
 function bbp_get_topic_subscription_link( $args = array() ) {
 
@@ -1938,6 +1939,7 @@ function bbp_topic_favorite_link( $args = array() ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args Favorite link arguments.
+ * @return string|false Favorite link, or false when unavailable.
  */
 function bbp_get_topic_favorite_link( $args = array() ) {
 
@@ -4472,6 +4474,7 @@ function bbp_topic_lock_description( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6344)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return string Topic lock description.
  */
 function bbp_get_topic_lock_description( $topic_id = 0 ) {
 
