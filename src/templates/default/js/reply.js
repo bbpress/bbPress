@@ -1,3 +1,9 @@
+/**
+ * Move and restore the threaded reply form.
+ *
+ * @package bbPress
+ */
+
 var addReply = {
 
 	/**

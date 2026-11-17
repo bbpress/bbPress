@@ -16,7 +16,6 @@ defined( 'ABSPATH' ) || exit;
  * Return the unique id of the custom post type for replies.
  *
  * @since 2.0.0 bbPress (r2858)
- *
  */
 function bbp_reply_post_type() {
 	echo bbp_get_reply_post_type();
@@ -2544,7 +2543,6 @@ function bbp_get_replies_pagination_base( $topic_id = 0 ) {
  * the 'bbp_get_topic_pagination_count' filter.
  *
  * @since 2.0.0 bbPress (r2519)
- *
  */
 function bbp_topic_pagination_count() {
 	echo bbp_get_topic_pagination_count();

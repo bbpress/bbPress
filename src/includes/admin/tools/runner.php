@@ -1047,7 +1047,6 @@ function bbp_admin_repair_tool_start_browser_run( $type, $action, $selected_tool
  * Handle the processing and feedback of the admin tools page.
  *
  * @since 2.1.0 bbPress (r3884)
- *
  */
 function bbp_admin_repair_handler() {
 

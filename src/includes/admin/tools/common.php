@@ -2828,7 +2828,8 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	);
 
 	/**
-	 * Necessary for backwards compatibility
+	 * Necessary for backwards compatibility.
+	 *
 	 * @see https://bbpress.trac.wordpress.org/ticket/2900
 	 */
 	if ( ! empty( $r['separator'] ) ) {
@@ -2962,7 +2963,8 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 	);
 
 	/**
-	 * Necessary for backwards compatibility
+	 * Necessary for backwards compatibility.
+	 *
 	 * @see https://bbpress.trac.wordpress.org/ticket/2900
 	 */
 	if ( ! empty( $r['separator'] ) ) {

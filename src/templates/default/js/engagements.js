@@ -1,3 +1,9 @@
+/**
+ * Update favorite and subscription links with AJAX.
+ *
+ * @package bbPress
+ */
+
 jQuery( document ).ready( function ( $ ) {
 
 	function bbp_ajax_call( action, object, type, nonce, update_selector ) {

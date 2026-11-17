@@ -836,7 +836,8 @@ function bbp_list_forums( $args = array() ) {
 	);
 
 	/**
-	 * Necessary for backwards compatibility
+	 * Necessary for backwards compatibility.
+	 *
 	 * @see https://bbpress.trac.wordpress.org/ticket/2900
 	 */
 	if ( ! empty( $r['separator'] ) ) {

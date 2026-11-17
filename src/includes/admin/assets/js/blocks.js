@@ -1,3 +1,9 @@
+/**
+ * Register bbPress blocks in the block editor.
+ *
+ * @package bbPress
+ */
+
 (function() {
 	if ( typeof wp === 'undefined' || !wp.blocks || !bbpBlocksJS ) {
 		return;

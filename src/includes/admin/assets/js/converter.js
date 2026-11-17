@@ -1,3 +1,9 @@
+/**
+ * Control the converter admin interface and progress display.
+ *
+ * @package bbPress
+ */
+
 jQuery( document ).ready( function ( $ ) {
 	'use strict';
 

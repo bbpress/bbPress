@@ -1,3 +1,9 @@
+/**
+ * Run admin tools in batches and recover interrupted runs.
+ *
+ * @package bbPress
+ */
+
 jQuery( function( $ ) {
 	var settings      = window.bbpToolsRunner,
 		recovery      = window.bbpToolsRecovery,

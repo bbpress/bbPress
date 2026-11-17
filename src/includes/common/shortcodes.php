@@ -33,7 +33,6 @@ class BBP_Shortcodes {
 	 * Add the register_shortcodes action to bbp_init
 	 *
 	 * @since 2.0.0 bbPress (r3143)
-	 *
 	 */
 	public function __construct() {
 		$this->setup_globals();

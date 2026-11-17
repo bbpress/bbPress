@@ -1,3 +1,9 @@
+/**
+ * Suggest users in the admin author field.
+ *
+ * @package bbPress
+ */
+
 jQuery( document ).ready( function() {
 
 	var bbp_author_id = jQuery( '#bbp_author_id' );

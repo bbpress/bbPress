@@ -1,3 +1,9 @@
+/**
+ * Keep forum, topic, and parent fields in sync while editing replies.
+ *
+ * @package bbPress
+ */
+
 jQuery( document ).ready(function() {
 
 	jQuery( '#misc-publishing-actions' ).find( '.misc-pub-section' ).first().remove();

@@ -44,6 +44,7 @@ class BBP_Theme_Compat {
 	 *     'dir'     => Path to theme
 	 *     'url'     => URL to theme
 	 * );
+	 *
 	 * @var array
 	 */
 	private $_data = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore

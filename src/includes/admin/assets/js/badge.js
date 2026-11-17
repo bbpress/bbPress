@@ -1,3 +1,9 @@
+/**
+ * Animate the bbPress admin badge when motion is allowed.
+ *
+ * @package bbPress
+ */
+
 (function () {
 	window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
