@@ -14,7 +14,7 @@
  *
  * @since 2.6.0 bbPress (r5269)
  *
- * @param array $elements
+ * @param array $elements Optional. The existing "at a glance" dashboard items.
  * @return array
  */
 function bbp_filter_dashboard_glance_items( $elements = array() ) {
@@ -335,6 +335,8 @@ function bbp_dashboard_widget_right_now() {
  * The meta-box that holds all of the additional forum information.
  *
  * @since 2.0.0 bbPress (r2746)
+ *
+ * @param WP_Post $post The current forum post object.
  */
 function bbp_forum_metabox( $post ) {
 
@@ -430,6 +432,8 @@ function bbp_forum_metabox( $post ) {
  * The meta-box that holds all of the additional topic information.
  *
  * @since 2.0.0 bbPress (r2464)
+ *
+ * @param WP_Post $post The current topic post object.
  */
 function bbp_topic_metabox( $post ) {
 
@@ -509,6 +513,8 @@ function bbp_topic_metabox( $post ) {
  * The meta-box that holds all of the additional reply information.
  *
  * @since 2.0.0 bbPress (r2614)
+ *
+ * @param WP_Post $post The current reply post object.
  */
 function bbp_reply_metabox( $post ) {
 
@@ -598,7 +604,7 @@ function bbp_reply_metabox( $post ) {
  *
  * @since 2.6.0 bbPress (r5886)
  *
- * @param object $topic
+ * @param WP_Post|bool $topic Optional. The current topic post object.
  *
  * @return void
  */
@@ -689,6 +695,8 @@ function bbp_author_metabox( $post ) {
  * Moderator assignment meta-box.
  *
  * @since 2.6.0 bbPress (r6056)
+ *
+ * @param WP_Post $post The current forum post object.
  */
 function bbp_moderator_assignment_metabox( $post ) {
 
@@ -712,6 +720,8 @@ function bbp_moderator_assignment_metabox( $post ) {
  * See who engaged with a topic.
  *
  * @since 2.6.0 bbPress (r6334)
+ *
+ * @param WP_Post $post The current topic post object.
  */
 function bbp_topic_engagements_metabox( $post ) {
 
@@ -780,6 +790,8 @@ function bbp_mentions_metabox( $post ) {
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
+ *
+ * @param WP_Post $post The current topic post object.
  */
 function bbp_topic_favorites_metabox( $post ) {
 
@@ -813,6 +825,8 @@ function bbp_topic_favorites_metabox( $post ) {
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
+ *
+ * @param WP_Post $post The current topic post object.
  */
 function bbp_topic_subscriptions_metabox( $post ) {
 
@@ -846,6 +860,8 @@ function bbp_topic_subscriptions_metabox( $post ) {
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
+ *
+ * @param WP_Post $post The current forum post object.
  */
 function bbp_forum_subscriptions_metabox( $post ) {
 

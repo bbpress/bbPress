@@ -1246,7 +1246,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @param array $actions
+	 * @param array $actions Optional. Row actions to sort.
 	 *
 	 * @return array
 	 */
@@ -1353,7 +1353,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @global int $post_ID ID of the post being edited.
 	 *
-	 * @param array $messages
+	 * @param array $messages Existing post update messages.
 	 *
 	 * @return array
 	 */
