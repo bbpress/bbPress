@@ -856,7 +856,7 @@ class BBP_Replies_Admin {
 	 * @since 2.4.0 bbPress (r4991)
 	 *
 	 * @param string $column Column.
-	 * @param int $reply_id Reply id.
+	 * @param int    $reply_id Reply id.
 	 */
 	public function column_data( $column, $reply_id ) {
 
@@ -1065,7 +1065,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3095)
 	 *
-	 * @return bool False. If post type is not topic or reply.
+	 * @return void
 	 */
 	public function filter_dropdown() {
 

@@ -1039,7 +1039,7 @@ class BBP_Topics_Admin {
 	 * @since 2.4.0 bbPress (r4991)
 	 *
 	 * @param string $column Column.
-	 * @param int $topic_id Topic id.
+	 * @param int    $topic_id Topic id.
 	 */
 	public function column_data( $column, $topic_id ) {
 
@@ -1275,7 +1275,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3095)
 	 *
-	 * @return bool False. If post type is not topic or reply.
+	 * @return void
 	 */
 	public function filter_dropdown() {
 

@@ -31,6 +31,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * The main constructor method.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @param array $args Optional list table arguments.
 	 */
 	public function __construct( $args = array() ) {
 
@@ -54,7 +56,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @see WP_List_Table::::single_row_columns()
+	 * @see WP_List_Table::single_row_columns()
 	 *
 	 * @return array An associative array containing column information
 	 */
@@ -107,6 +109,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Output the check-box column for bulk actions (if we implement them).
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @param WP_Post $item Reply post represented by the row.
 	 */
 	public function column_cb( $item = '' ) {
 		return sprintf(
@@ -120,6 +124,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Output the contents of the `bbp_topic_reply_author` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @param WP_Post $item Reply post represented by the row.
 	 */
 	public function column_bbp_topic_reply_author( $item = '' ) {
 		bbp_reply_author_avatar( $item->ID, 50 );
@@ -134,6 +140,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Output the contents of the `bbp_reply_created` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @param WP_Post $item Reply post represented by the row.
 	 */
 	public function column_bbp_reply_created( $item = '' ) {
 		return sprintf( '%1$s <br /> %2$s',
@@ -146,6 +154,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Output the contents of the `bbp_reply_content` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @param WP_Post $item Reply post represented by the row.
 	 */
 	public function column_bbp_reply_content( $item = '' ) {
 
@@ -188,6 +198,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Prepare the list-table items for display.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @param int $topic_id Topic whose replies are listed.
 	 */
 	public function prepare_items( $topic_id = 0 ) {
 
@@ -305,7 +317,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5930)
 	 *
-	 * @param string $which
+	 * @param string $which Whether to display top or bottom navigation.
 	 */
 	protected function display_tablenav( $which = '' ) {
 		?>

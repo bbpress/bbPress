@@ -142,12 +142,12 @@ function bbp_admin() {
  *
  * @since 2.0.0 bbPress (r3284)
  *
- * @param int $blog_id
- * @param int $user_id
- * @param string $domain
- * @param string $path
- * @param int $site_id
- * @param array() $meta
+ * @param int    $blog_id New site ID.
+ * @param int    $user_id ID of the user who created the site.
+ * @param string $domain  Domain of the new site.
+ * @param string $path    Path of the new site.
+ * @param int    $site_id ID of the network.
+ * @param array  $meta    Metadata for the new site.
  */
 function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 
@@ -228,8 +228,8 @@ function bbp_filter_column_headers( $columns = array() ) {
  *
  * @param string $post_link Custom post type permalink.
  * @param object $_post Post data object.
- * @param bool $leavename Optional, defaults to false. Whether to keep post name or page name.
- * @param bool $sample Optional, defaults to false. Is it a sample permalink.
+ * @param bool   $leavename Optional, defaults to false. Whether to keep post name or page name.
+ * @param bool   $sample Optional, defaults to false. Is it a sample permalink.
  *
  * @return string The custom post type permalink.
  */
@@ -355,7 +355,7 @@ function bbp_admin_tool_box() {
  *
  * @since 2.6.0 bbPress (r6186)
  *
- * @param WP_Screen $current_screen
+ * @param WP_Screen|string $current_screen Current admin screen, or an empty string when omitted.
  */
 function bbp_current_screen( $current_screen = '' ) {
 	do_action( 'bbp_current_screen', $current_screen );

@@ -265,11 +265,11 @@ class BBP_Converter {
 	}
 
 	/**
-	 * Wrap the converter output in HTML, so styling can be applied
+	 * Wrap the converter output in HTML so styling can be applied.
 	 *
 	 * @since 2.6.0 bbPress (r6601)
 	 *
-	 * @param string $output
+	 * @param string $output Converter status text to display.
 	 */
 	private function converter_response( $output = '' ) {
 
@@ -962,9 +962,11 @@ class BBP_Converter {
 	/** Helper Table **********************************************************/
 
 	/**
-	 * Create Tables for fast syncing
+	 * Create the conversion sync table.
 	 *
 	 * @since 2.1.0 bbPress (r3816)
+	 *
+	 * @param bool $drop Whether to drop the existing table first.
 	 */
 	public static function sync_table( $drop = false ) {
 

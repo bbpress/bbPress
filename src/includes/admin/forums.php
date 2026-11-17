@@ -629,7 +629,7 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r3097)
 	 *
 	 * @param string $column Column.
-	 * @param int $forum_id Forum id.
+	 * @param int    $forum_id Forum id.
 	 */
 	public function column_data( $column, $forum_id ) {
 

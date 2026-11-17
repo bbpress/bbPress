@@ -24,10 +24,10 @@ class BBP_Converter_DB extends wpdb {
 	 *
 	 * @since 2.6.0 bbPress (r6785)
 	 *
-	 * @param string $dbuser     MySQL database user
-	 * @param string $dbpassword MySQL database password
-	 * @param string $dbname     MySQL database name
-	 * @param string $dbhost     MySQL database host
+	 * @param string $dbuser     MySQL database user.
+	 * @param string $dbpassword MySQL database password.
+	 * @param string $dbname     MySQL database name.
+	 * @param string $dbhost     MySQL database host.
 	 */
 	public function __construct( $dbuser, $dbpassword, $dbname, $dbhost ) {
 

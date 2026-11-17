@@ -820,10 +820,10 @@ class BBP_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4244)
 	 *
-	 * @param array $caps Capabilities for meta capability.
+	 * @param array  $caps Capabilities for meta capability.
 	 * @param string $cap Capability name.
-	 * @param int $user_id User id.
-	 * @param array $args Arguments.
+	 * @param int    $user_id User id.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array Actual capabilities for meta capability.
 	 */
@@ -939,7 +939,7 @@ class BBP_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4159)
 	 *
-	 * @param array $links Links array in which we would prepend our link.
+	 * @param array  $links Links array in which we would prepend our link.
 	 * @param string $file Current plugin basename.
 	 * @return array Processed links.
 	 */
@@ -1146,10 +1146,10 @@ class BBP_Admin {
 	 *
 	 * @since 2.7.0 bbPress (r7278)
 	 *
-	 * @param array       $post_states
-	 * @param int|WP_Post $post
+	 * @param array       $post_states Existing post state labels.
+	 * @param int|WP_Post $post        Post being displayed.
 	 *
-	 * @return array
+	 * @return array Post state labels.
 	 */
 	public function display_post_states( $post_states = array(), $post = 0 ) {
 

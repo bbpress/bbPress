@@ -4173,7 +4173,7 @@ function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id,
  * @access private
  *
  * @param array $state Validated scan bounds and phase.
- * @param int $size Maximum source rows to read.
+ * @param int   $size Maximum source rows to read.
  * @param array $ranks Native source prefixes shared with the position helper.
  * @param array $preview Source rows, positions, and cache IDs for this window.
  * @return void

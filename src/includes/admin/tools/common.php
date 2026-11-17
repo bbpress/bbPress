@@ -50,7 +50,7 @@ function bbp_get_admin_repair_tool_page_id() {
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @param array $args
+ * @param array $args Query arguments for the repair tool page URL.
  *
  * @return string
  */
@@ -72,7 +72,7 @@ function bbp_get_admin_repair_tool_page_url( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param string $component
+ * @param array $component Repair tool registration.
  */
 function bbp_admin_repair_tool_run_url( $component = array() ) {
 	echo esc_url( bbp_get_admin_repair_tool_run_url( $component ) );
@@ -83,7 +83,7 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param string $component
+ * @param array $component Repair tool registration.
  */
 function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 	return bbp_get_admin_repair_tool_action_url( $component, 'run' );
@@ -348,11 +348,11 @@ function bbp_admin_repair_tool_row_actions( $tool = array() ) {
  *
  * @since 2.1.0 bbPress (r3884)
  *
- * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}
- * @param string          $class          Optional. A class to be added to the message div
- * @param bool            $is_dismissible Optional. True to dismiss, false to persist
+ * @param string|WP_Error $message        Message to display, or a WP_Error object.
+ * @param string|false    $class          Optional notice class, or false for the default.
+ * @param bool            $is_dismissible Whether the notice can be dismissed.
  *
- * @return string The message HTML
+ * @return string The message HTML.
  */
 function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = true ) {
 	return bbp_admin()->add_notice( $message, $class, $is_dismissible );
@@ -644,9 +644,9 @@ function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $rep
  * @since 2.7.0 bbPress (r8299)
  * @since 2.7.0 bbPress (r8303) Verify serialized values and bounded deletions.
  *
- * @param string               $meta_type Metadata type: 'post' or 'user'.
- * @param object               $row       Source metadata row.
- * @param string               $key       Canonical metadata key.
+ * @param string                $meta_type Metadata type: 'post' or 'user'.
+ * @param object                $row       Source metadata row.
+ * @param string                $key       Canonical metadata key.
  * @param int|string|array|null $value     Repaired value, or null to remove the row.
  * @return int Zero on success, or a read, delete, or update error code.
  */
@@ -874,13 +874,13 @@ function bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value ) {
  * @since 2.7.0 bbPress (r8303) Support serialized lists and verify inserted rows.
  * @since 2.7.0 bbPress (r8331) Share bounded mutation planning with full Dry Runs.
  *
- * @param string               $meta_type Metadata type: 'post' or 'user'.
- * @param int                  $object_id Object ID.
- * @param string               $key       Metadata key.
+ * @param string                $meta_type Metadata type: 'post' or 'user'.
+ * @param int                   $object_id Object ID.
+ * @param string                $key       Metadata key.
  * @param int|string|array|null $value     Expected value, or null when no row should remain.
- * @param int                  $limit     Maximum metadata writes to plan or perform.
- * @param bool                 $dry_run   Whether to preview without writes.
- * @param array|null           $preview   Request-local Dry Run progress for this field.
+ * @param int                   $limit     Maximum metadata writes to plan or perform.
+ * @param bool                  $dry_run   Whether to preview without writes.
+ * @param array|null            $preview   Request-local Dry Run progress for this field.
  * @return array Status code, work used, changed flag, and completion flag.
  */
 function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false, &$preview = null ) {
@@ -1009,9 +1009,9 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  *
  * @since 2.7.0 bbPress (r8281)
  *
- * @param array  $rows    Selected metadata rows, including is_source flags.
- * @param string $source Prepared source relationship query.
- * @param bool   $dry_run Whether to preview without writes or cache invalidation.
+ * @param array         $rows    Selected metadata rows, including is_source flags.
+ * @param string        $source Prepared source relationship query.
+ * @param bool          $dry_run Whether to preview without writes or cache invalidation.
  * @param array         $planned Relationships already counted by a synchronous preview.
  * @param callable|null $claim   Optional bounded cross-request relationship claim.
  * @return array Status, failure reason, additions, removals, changed topic IDs, and cursor.
@@ -2446,7 +2446,7 @@ function bbp_admin_repair_list_versions_filter() {
  *
  * @since 2.6.0 bbPress (r6176)
  *
- * @param string $overhead
+ * @param string $overhead Overhead key to translate.
  * @return string
  */
 function bbp_admin_repair_tool_translate_overhead( $overhead = '' ) {
@@ -2475,7 +2475,7 @@ function bbp_admin_repair_tool_translate_overhead( $overhead = '' ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param string $component
+ * @param string $component Component key to translate.
  * @return string
  */
 function bbp_admin_repair_tool_translate_component( $component = '' ) {
@@ -2518,11 +2518,11 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 }
 
 /**
- * Maybe translate a repair tool overhead name.
+ * Maybe translate a repair tool version.
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @param string $version
+ * @param string $version Version label to translate.
  * @return string
  */
 function bbp_admin_repair_tool_translate_version( $version = '' ) {
@@ -2555,6 +2555,7 @@ function bbp_admin_repair_tool_translate_version( $version = '' ) {
  *
  * @since 2.1.0 bbPress (r3884)
  *
+ * @param string $type Repair tool type to list.
  * @return array Repair list of options.
  */
 function bbp_admin_repair_list( $type = 'repair' ) {
@@ -2679,7 +2680,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $item
+ * @param array $item Repair tool entry containing components.
  * @return array
  */
 function bbp_get_admin_repair_tool_components( $item = array() ) {
@@ -2716,7 +2717,7 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @param array $item
+ * @param array $item Repair tool entry containing versions.
  * @return array
  */
 function bbp_get_admin_repair_tool_version( $item = array() ) {
@@ -2753,7 +2754,7 @@ function bbp_get_admin_repair_tool_version( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r6176)
  *
- * @param array $item
+ * @param array $item Repair tool entry containing overhead values.
  * @return array
  */
 function bbp_get_admin_repair_tool_overhead( $item = array() ) {
@@ -2792,7 +2793,7 @@ function bbp_get_admin_repair_tool_overhead( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $args
+ * @param array $args Display options for overhead filter links.
  */
 function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 	echo bbp_get_admin_repair_tool_overhead_filters( $args );
@@ -2803,7 +2804,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $args
+ * @param array $args Display options for overhead filter links.
  * @return array
  */
 function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
@@ -2926,7 +2927,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6926)
  *
- * @param array $args
+ * @param array $args Display options for status filter links.
  */
 function bbp_admin_repair_tool_status_filters( $args = array() ) {
 	echo bbp_get_admin_repair_tool_status_filters( $args );
@@ -2937,7 +2938,7 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6926)
  *
- * @param array $args
+ * @param array $args Display options for status filter links.
  * @return array
  */
 function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
