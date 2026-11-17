@@ -68,6 +68,8 @@ class BBP_Forums_Component extends BP_Component {
 
 	/**
 	 * Include BuddyPress classes and functions.
+	 *
+	 * @param array $includes Additional files to include.
 	 */
 	public function includes( $includes = array() ) {
 
@@ -116,6 +118,8 @@ class BBP_Forums_Component extends BP_Component {
 	 * backwards compatibility.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param array $args Component arguments replaced with bbPress defaults.
 	 */
 	public function setup_globals( $args = array() ) {
 		$bp = buddypress();
@@ -198,6 +202,9 @@ class BBP_Forums_Component extends BP_Component {
 	 * Setup BuddyBar navigation.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param array $main_nav Main navigation items.
+	 * @param array $sub_nav  Secondary navigation items.
 	 */
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
@@ -311,6 +318,8 @@ class BBP_Forums_Component extends BP_Component {
 	 * Set up the admin bar.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param array $wp_admin_nav Admin bar navigation items.
 	 */
 	public function setup_admin_bar( $wp_admin_nav = array() ) {
 

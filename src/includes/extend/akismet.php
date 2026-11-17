@@ -98,7 +98,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3278)
 	 *
-	 * @param array $post_data
+	 * @param array $post_data Topic or reply data to check.
 	 *
 	 * @return array Array of post data.
 	 */
@@ -215,7 +215,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.6.0 bbPress (r6874)
 	 *
-	 * @param array $post_data
+	 * @param array $post_data Checked post data and Akismet response.
 	 *
 	 * @return array
 	 */
@@ -450,9 +450,9 @@ class BBP_Akismet {
 	 * @global string $akismet_api_host Akismet API host.
 	 * @global string $akismet_api_port Akismet API port.
 	 *
-	 * @param array $post_data
-	 * @param string $check Accepts check|submit.
-	 * @param string $spam Accepts spam|ham.
+	 * @param array  $post_data Post data to check or submit.
+	 * @param string $check     Operation: check or submit.
+	 * @param string $spam      Submission type: spam or ham.
 	 *
 	 * @return array Array of post data.
 	 */
@@ -560,8 +560,8 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
-	 * @param int $post_id Post id.
-	 * @param object $_post
+	 * @param int           $post_id Post ID.
+	 * @param WP_Post|false $_post Post object, or false to load it by ID.
 	 */
 	public function update_post_meta( $post_id = 0, $_post = false ) {
 
@@ -721,9 +721,9 @@ class BBP_Akismet {
 	 * @since 2.0.0 bbPress (r3308)
 	 * @since 2.7.0 bbPress (r7356) Changed from private to public.
 	 *
-	 * @param int $post_id
-	 * @param string $message
-	 * @param string $event
+	 * @param int         $post_id Post ID.
+	 * @param string|null $message History message.
+	 * @param string|null $event   History event name.
 	 */
 	public function update_post_history( $post_id = 0, $message = null, $event = null ) {
 
@@ -755,7 +755,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
-	 * @param int $post_id
+	 * @param int $post_id Post ID whose Akismet history is requested.
 	 *
 	 * @return array Array of Akismet history.
 	 */
@@ -775,9 +775,9 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
-	 * @param string $terms Comma-separated list of terms.
-	 * @param int $topic_id
-	 * @param int $reply_id
+	 * @param string $terms    Comma-separated list of terms.
+	 * @param int    $topic_id Topic ID.
+	 * @param int    $reply_id Reply ID.
 	 *
 	 * @return array Array of existing topic terms.
 	 */

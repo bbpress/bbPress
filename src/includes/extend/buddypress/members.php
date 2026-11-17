@@ -123,8 +123,8 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804)
 	 * @since 2.6.0 bbPress (r6320) Add engagements support
 	 *
-	 * @param int $user_id
-	 * @return string
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_user_profile_url( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id );
@@ -136,8 +136,8 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804)
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
-	 * @param int $user_id
-	 * @return string
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_topics_created_url( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_topic_archive_slug() );
@@ -149,8 +149,8 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804)
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
-	 * @param int $user_id
-	 * @return string
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_replies_created_url( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_reply_archive_slug() );
@@ -162,8 +162,8 @@ class BBP_BuddyPress_Members {
 	 * @since 2.2.0 bbPress (r4397)
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
-	 * @param int $user_id
-	 * @return string
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_favorites_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_favorites_slug() );
@@ -175,8 +175,8 @@ class BBP_BuddyPress_Members {
 	 * @since 2.2.0 bbPress (r4397)
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
-	 * @param int $user_id
-	 * @return string
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_subscriptions_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_subscriptions_slug() );
@@ -187,8 +187,8 @@ class BBP_BuddyPress_Members {
 	 *
 	 * @since 2.6.0 bbPress (r6321)
 	 *
-	 * @param int $user_id
-	 * @return string
+	 * @param int $user_id Profile owner ID.
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_engagements_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_engagements_slug() );
@@ -200,7 +200,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.7.0 bbPress (r8264)
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	public function get_mentions_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_mentions_slug() );
@@ -376,10 +376,10 @@ class BBP_BuddyPress_Members {
 	 *
 	 * @since 2.6.0 bbPress (r6804)
 	 *
-	 * @param int    $user_id
-	 * @param string $slug
+	 * @param int    $user_id Profile owner ID.
+	 * @param string $slug    Optional profile section slug.
 	 *
-	 * @return string
+	 * @return string|false Profile URL, or false if unavailable.
 	 */
 	private function get_profile_url( $user_id = 0, $slug = '' ) {
 

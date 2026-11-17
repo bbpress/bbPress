@@ -651,7 +651,7 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @param  array $args Array of arguments for bp_activity_add().
 	 *
-	 * @return int   Activity ID if successful, false if not.
+	 * @return void
 	 */
 	public function delete_activity( $args = array() ) {
 
@@ -676,7 +676,7 @@ class BBP_BuddyPress_Activity {
 	 * Check for an existing activity stream entry for a given post_id.
 	 *
 	 * @param int $post_id ID of the topic or reply.
-	 * @return int if an activity id is verified, false if not.
+	 * @return int|null Verified activity ID, or null if no matching activity exists.
 	 */
 	private static function get_activity_id( $post_id = 0 ) {
 
@@ -705,7 +705,7 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @global BP_Activity_Template $activities_template BuddyPress activity loop template.
 	 *
-	 * @param boolean $can_comment
+	 * @param boolean $can_comment Whether comments are currently allowed.
 	 * @return boolean
 	 */
 	public function activity_can_comment( $can_comment = true ) {
@@ -742,8 +742,8 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @since 2.2.0 bbPress (r4394)
 	 *
-	 * @param string $link
-	 * @param mixed $activity_object
+	 * @param string $link            Activity permalink.
+	 * @param mixed  $activity_object Activity object, if available.
 	 * @return string The link to the activity stream item.
 	 */
 	public function activity_get_permalink( $link = '', $activity_object = false ) {
@@ -769,11 +769,11 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @since 2.2.0 bbPress (r4394)
 	 *
-	 * @param int $topic_id
-	 * @param int $forum_id
-	 * @param array $anonymous_data
-	 * @param int $topic_author_id
-	 * @return Bail early if topic is by anonymous user.
+	 * @param int   $topic_id        Topic ID.
+	 * @param int   $forum_id        Forum ID.
+	 * @param array $anonymous_data Anonymous poster data, if applicable.
+	 * @param int   $topic_author_id Topic author ID.
+	 * @return void
 	 */
 	public function topic_create( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author_id = 0 ) {
 
@@ -858,7 +858,7 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Delete the activity stream entry when a topic is spammed, trashed, or deleted.
 	 *
-	 * @param int $topic_id
+	 * @param int $topic_id Topic ID whose activity should be deleted.
 	 */
 	public function topic_delete( $topic_id = 0 ) {
 
@@ -874,9 +874,9 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Update the activity stream entry when a topic status changes.
 	 *
-	 * @param int $topic_id
-	 * @param obj $post
-	 * @return Bail early if not a topic, or topic is by anonymous user.
+	 * @param int          $topic_id Topic ID.
+	 * @param WP_Post|null $post     Updated topic post, if available.
+	 * @return void
 	 */
 	public function topic_update( $topic_id = 0, $post = null ) {
 
@@ -917,11 +917,12 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @since 2.2.0 bbPress (r4394)
 	 *
-	 * @param int $topic_id
-	 * @param int $forum_id
-	 * @param array $anonymous_data
-	 * @param int $topic_author_id
-	 * @return Bail early if topic is by anonymous user.
+	 * @param int   $reply_id         Reply ID.
+	 * @param int   $topic_id         Topic ID.
+	 * @param int   $forum_id         Forum ID.
+	 * @param array $anonymous_data   Anonymous poster data, if applicable.
+	 * @param int   $reply_author_id Reply author ID.
+	 * @return void
 	 */
 	public function reply_create( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author_id = 0 ) {
 
@@ -1010,7 +1011,7 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted.
 	 *
-	 * @param int $reply_id
+	 * @param int $reply_id Reply ID whose activity should be deleted.
 	 */
 	public function reply_delete( $reply_id ) {
 
@@ -1026,9 +1027,9 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Update the activity stream entry when a reply status changes.
 	 *
-	 * @param int $reply_id
-	 * @param obj $post
-	 * @return Bail early if not a reply, or reply is by anonymous user.
+	 * @param int     $reply_id Reply ID.
+	 * @param WP_Post $post     Updated reply post.
+	 * @return void
 	 */
 	public function reply_update( $reply_id, $post ) {
 

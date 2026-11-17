@@ -110,9 +110,9 @@ function bbp_get_component_name() {
  *
  * @since 2.1.0 bbPress (r3552)
  *
- * @param int $user_id
- * @param bool $displayed_user_fallback
- * @param bool $current_user_fallback
+ * @param int  $user_id                 User ID to preserve when set.
+ * @param bool $displayed_user_fallback Whether to use the displayed BuddyPress user.
+ * @param bool $current_user_fallback   Whether to use the logged-in BuddyPress user.
  *
  * @return int User ID
  */
@@ -180,8 +180,8 @@ function bbp_filter_is_user_home( $is = false ) {
  * @since 2.6.20 bbPress (r8026) Match group topics with a non-singular slug query.
  *
  * @param string $new_title The title to filter.
- * @param string $old_title (Not used).
- * @param string $sep The separator to u.se
+ * @param string $old_title Unused previous title.
+ * @param string $sep       Title separator.
  * @return string The possibly modified title.
  */
 function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = '' ) {

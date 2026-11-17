@@ -25,7 +25,7 @@ add_action( 'bbp_get_request', 'bbp_buddypress_mark_notifications', 1 );
  * @since 2.6.0 bbPress (r5232)
  *
  * @see BP_Notifications_Notification::get()
- * @param array $component_names
+ * @param array $component_names Registered notification component names.
  * @return array
  */
 function bbp_filter_notifications_get_registered_components( $component_names = array() ) {
@@ -149,13 +149,13 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
  *
  * @since 2.5.0 bbPress (r5155)
  *
- * @param int $reply_id
- * @param int $topic_id
- * @param int $forum_id (not used)
- * @param array $anonymous_data (not used)
- * @param int $author_id
- * @param bool $is_edit Used to bail if this gets hooked to an edit action
- * @param int $reply_to
+ * @param int   $reply_id       Reply ID.
+ * @param int   $topic_id       Topic ID.
+ * @param int   $forum_id       Unused forum ID.
+ * @param array $anonymous_data Unused anonymous poster data.
+ * @param int   $author_id      Reply author ID.
+ * @param bool  $is_edit        Whether this is an edit action.
+ * @param int   $reply_to       Parent reply ID.
  */
 function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
@@ -208,7 +208,8 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
  *
  * @since 2.5.0 bbPress (r5155)
  *
- * @return If not trying to mark a notification as read.
+ * @param string $action Requested notification action.
+ * @return void
  */
 function bbp_buddypress_mark_notifications( $action = '' ) {
 
