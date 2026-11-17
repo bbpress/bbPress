@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * bbPress query flags assigned while routing WordPress requests.
+ *
+ * @property bool $bbp_is_404
+ * @property bool $bbp_is_edit
+ * @property bool $bbp_is_forum_edit
+ * @property bool $bbp_is_reply_edit
+ * @property bool $bbp_is_search
+ * @property bool $bbp_is_single_user
+ * @property bool $bbp_is_single_user_edit
+ * @property bool $bbp_is_single_user_engagements
+ * @property bool $bbp_is_single_user_favs
+ * @property bool $bbp_is_single_user_home
+ * @property bool $bbp_is_single_user_mentions
+ * @property bool $bbp_is_single_user_profile
+ * @property bool $bbp_is_single_user_replies
+ * @property bool $bbp_is_single_user_subs
+ * @property bool $bbp_is_single_user_topics
+ * @property bool $bbp_is_subscription_unsubscribe
+ * @property bool $bbp_is_topic_edit
+ * @property bool $bbp_is_topic_tag_edit
+ * @property bool $bbp_is_view
+ * @property string $bbp_search_terms
+ * @property bool $bbp_show_topics_on_root
+ */
+class WP_Query {}

@@ -13,6 +13,8 @@ parameters:
     # WordPress defines these constants during bootstrap or in wp-config.php.
     scanFiles:
         - tests/phpstan/runtime-constants.php
+    stubFiles:
+        - tests/phpstan/wp-query.stub
     dynamicConstantNames:
         - DB_HOST
         - DB_NAME
