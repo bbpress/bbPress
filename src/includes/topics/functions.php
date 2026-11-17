@@ -820,13 +820,11 @@ function bbp_edit_topic_handler( $action = '' ) {
 /**
  * Handle all the extra meta stuff from posting a new topic.
  *
- * @param int $topic_id Optional. Topic id.
- * @param int $forum_id Optional. Forum id.
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
- *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @param int $author_id Author id.
- * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
+ * @param int   $topic_id       Optional topic ID.
+ * @param int   $forum_id       Optional forum ID.
+ * @param array $anonymous_data Sanitized anonymous poster data, if applicable.
+ * @param int   $author_id      Author ID for a registered user.
+ * @param bool  $is_edit        Whether the topic is being edited. Defaults to false.
  */
 function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false ) {
 
@@ -969,11 +967,11 @@ function bbp_suspend_deleted_topic_walker( $forum_id = 0, $suspend = null ) {
  *
  * @since 2.0.0 bbPress (r2895)
  *
- * @param int $topic_id Topic id.
- * @param string $last_active_time Optional. Last active time.
- * @param int $forum_id Optional. Forum id.
- * @param int $reply_id Optional. Reply id.
- * @param bool $refresh Reset all the previous parameters? Defaults to true.
+ * @param int    $topic_id         Topic ID.
+ * @param string $last_active_time Optional last active time.
+ * @param int    $forum_id         Optional forum ID.
+ * @param int    $reply_id         Optional reply ID.
+ * @param bool   $refresh          Whether to reset the previous values. Defaults to true.
  */
 function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id = 0, $reply_id = 0, $refresh = true ) {
 
@@ -2334,7 +2332,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
  * @since 2.6.0  bbPress (r6142)
  * @access private
  *
- * @param array $args
+ * @param array $args Topic ID, action, and related toggle settings.
  */
 function bbp_toggle_topic( $args = array() ) {
 
@@ -2755,7 +2753,7 @@ function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2858)
  *
  * @param int $topic_id Optional. Topic id to update.
- * @param int $forum_id Optional. Forum id
+ * @param int $forum_id Optional forum ID.
  *
  * @return int Forum id.
  */
@@ -3022,11 +3020,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2782)
  *
- * @param array $args Supports these args:
- *  - topic_id: Topic id
- *  - author_id: Author id
- *  - reason: Reason for editing
- *  - revision_id: Revision id
+ * @param array $args Topic ID, author ID, edit reason, and revision ID.
  *
  * @return mixed False on failure, true on success.
  */
@@ -3472,8 +3466,8 @@ function bbp_unspam_topic_tags( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2754)
  *
- * @param int $topic_id Optional. Topic id.
- * @param int $super Should we make the topic a super sticky?
+ * @param int  $topic_id Optional topic ID.
+ * @param bool $super Whether to make the topic super sticky.
  *
  * @return bool True on success, false on failure
  */
@@ -4009,7 +4003,7 @@ function bbp_get_topics_per_page( $default = 15 ) {
  *
  * @since 2.1.0 bbPress (r3572)
  *
- * @param int $default Default replies per page (25)
+ * @param int $default Default replies per page (25).
  *
  * @return int Number of topics per RSS page.
  */
@@ -4196,7 +4190,7 @@ function bbp_topic_content_autoembed() {
  *
  * @since 2.0.0 bbPress (r3171)
  *
- * @param array $topics_query
+ * @param array $topics_query Topics query arguments.
  */
 function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 

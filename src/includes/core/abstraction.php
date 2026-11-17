@@ -82,9 +82,9 @@ function bbp_setup_converter() {
  *
  * @since 2.6.0 bbPress (r5826)
  *
- * @param  string  $name     Name of global variable.
- * @param  string  $type     Type of variable to check with `is_a()`.
- * @param  mixed   $default  Default value to return if no global found.
+ * @param string $name    Name of global variable.
+ * @param string $type    Type of variable to check with `is_a()`.
+ * @param mixed  $default Default value to return if no global found.
  *
  * @return mixed   Verified object if valid, Default or null if invalid.
  */
@@ -522,7 +522,7 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
  *
  * @since 2.6.0 bbPress (r6680)
  *
- * @param array $args
+ * @param array $args Pagination arguments.
  *
  * @return string
  */
@@ -674,7 +674,7 @@ function bbp_get_total_forum_users() {
  *
  * @since 2.6.0 bbPress (r6734)
  *
- * @param int $site_id
+ * @param int $site_id Site ID to switch to.
  */
 function bbp_switch_to_site( $site_id = 0 ) {
 
@@ -739,7 +739,8 @@ function bbp_default_intercept() {
  *
  * @since 2.6.0 bbPress (r6751)
  *
- * @param bool $value
+ * @param mixed $value Value to compare with the default intercept value.
+ * @return bool Whether the value was intercepted.
  */
 function bbp_is_intercepted( $value = '' ) {
 	return ( bbp_default_intercept() !== $value );

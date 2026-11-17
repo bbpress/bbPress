@@ -58,7 +58,7 @@ function bbp_is_anonymous() {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param string $key Which value to echo?
+ * @param string $key Anonymous poster data key to echo.
  */
 function bbp_current_anonymous_user_data( $key = '' ) {
 	echo esc_attr( bbp_get_current_anonymous_user_data( $key ) );
@@ -400,7 +400,7 @@ function bbp_edit_user_handler( $action = '' ) {
  *
  * @since 2.6.0 bbPress (r5663)
  *
- * @param string $action
+ * @param string $action Requested user action.
  */
 function bbp_user_email_change_handler( $action = '' ) {
 
@@ -501,6 +501,9 @@ function bbp_user_email_change_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r5663)
  *
  * @see send_confirmation_on_profile_email()
+ *
+ * @param int   $user_id ID of the user requesting an email change.
+ * @param array $args    Notification arguments.
  */
 function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) {
 
@@ -704,7 +707,7 @@ function bbp_get_user_replies_created( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @param mixed $user_nicenames
+ * @param mixed $user_nicenames User nicenames to resolve.
  * @return array
  */
 function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
@@ -1234,9 +1237,9 @@ function bbp_forum_enforce_blocked() {
  *
  * @since 2.6.0 bbPress (r5369)
  *
- * @param string $value
- * @param string $field
- * @param string $context
+ * @param string $value   User field value.
+ * @param string $field   User field name.
+ * @param string $context Sanitization context.
  * @return string
  */
 function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context = 'display' ) {

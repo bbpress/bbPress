@@ -60,12 +60,7 @@ class BBP_Component {
 	 *
 	 * @since 2.1.0 bbPress (r3829)
 	 *
-	 * @param array $args Required. Supports these args:
-	 *  - name: Unique name (for internal identification)
-	 *  - id: Unique ID (normally for custom post type)
-	 *  - slug: Unique slug (used in query string and permalinks)
-	 *  - query: The loop for this component (WP_Query)
-	 *  - current_id: The current ID of the queried object
+	 * @param array $args Component name, ID, and slug.
 	 */
 	public function __construct( $args = array() ) {
 		if ( empty( $args ) ) {
@@ -83,6 +78,8 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @param array $args Component name, ID, and slug.
 	 */
 	private function setup_globals( $args = array() ) {
 		$this->name = $args['name'];
@@ -149,6 +146,8 @@ class BBP_Component {
 	 * Generate any additional rewrite rules.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
+	 *
+	 * @param WP_Rewrite $wp_rewrite WordPress rewrite rules object.
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
 		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', array( &$wp_rewrite ) );
@@ -211,7 +210,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 *                       for padding.
 	 * @param array  $args   Uses 'selected' argument for selected post to set
 	 *                       selected HTML attribute for option element.
-	 * @param int    $current_object_id
+	 * @param int    $current_object_id ID of the current object.
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 		$pad     = str_repeat( '&nbsp;', (int) $depth * 3 );
@@ -288,8 +287,8 @@ class BBP_Walker_Reply extends Walker {
 	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
-	 * @param int $depth Depth of reply.
-	 * @param array $args Uses 'style' argument for type of HTML list.
+	 * @param int    $depth  Depth of reply.
+	 * @param array  $args   Uses 'style' argument for type of HTML list.
 	 */
 	public function start_lvl( &$output = '', $depth = 0, $args = array() ) {
 		bbpress()->reply_query->reply_depth = (int) $depth + 1;
@@ -313,8 +312,8 @@ class BBP_Walker_Reply extends Walker {
 	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
-	 * @param int $depth Depth of reply.
-	 * @param array $args Will only append content if style argument value is 'ol' or 'ul'.
+	 * @param int    $depth  Depth of reply.
+	 * @param array  $args   Will only append content if style argument value is 'ol' or 'ul'.
 	 */
 	public function end_lvl( &$output = '', $depth = 0, $args = array() ) {
 		bbpress()->reply_query->reply_depth = (int) $depth + 1;
@@ -333,7 +332,16 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
+	 * Display a reply and its child replies.
+	 *
 	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param WP_Post|false $element           Reply to display.
+	 * @param array         $children_elements Child replies, passed by reference.
+	 * @param int           $max_depth         Maximum walker depth.
+	 * @param int           $depth             Current walker depth.
+	 * @param array         $args              Walker arguments.
+	 * @param string        $output            Output markup, passed by reference.
 	 */
 	public function display_element( $element = false, &$children_elements = array(), $max_depth = 0, $depth = 0, $args = array(), &$output = '' ) {
 
@@ -359,9 +367,15 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
-	 * @see Walker:start_el()
+	 * @see Walker::start_el()
 	 *
 	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param string  $output            Output markup, passed by reference.
+	 * @param WP_Post $object            Reply to display.
+	 * @param int     $depth             Current walker depth.
+	 * @param array   $args              Walker arguments.
+	 * @param int     $current_object_id ID of the current object.
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
@@ -390,7 +404,14 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
+	 * Close a reply element.
+	 *
 	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param string        $output Output markup, passed by reference.
+	 * @param WP_Post|false $object Reply being closed.
+	 * @param int           $depth  Current walker depth.
+	 * @param array         $args   Walker arguments.
 	 */
 	public function end_el( &$output = '', $object = false, $depth = 0, $args = array() ) {
 

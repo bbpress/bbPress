@@ -194,11 +194,11 @@ function bbp_get_views() {
  *
  * @param string $view View name.
  * @param string $title View title.
- * @param mixed $query_args {@link bbp_has_topics()} arguments.
- * @param bool $feed Have a feed for the view? Defaults to true.
+ * @param mixed  $query_args {@link bbp_has_topics()} arguments.
+ * @param bool   $feed Have a feed for the view? Defaults to true.
  * @param string $capability Capability that the current user must have.
  *
- * @return array The just registered (but processed) view.
+ * @return array|false Registered view, or false if registration fails.
  */
 function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capability = '' ) {
 
@@ -259,7 +259,7 @@ function bbp_deregister_view( $view ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string $view Optional. View id.
- * @param mixed $new_args New arguments. See {@link bbp_has_topics()}
+ * @param mixed  $new_args New arguments. See {@link bbp_has_topics()}.
  *
  * @return bool False if the view doesn't exist, otherwise if topics are there.
  */
@@ -386,7 +386,8 @@ function bbp_find_mentions( $content = '' ) {
  * @since 2.2.0 bbPress (r4323)
  * @deprecated 2.6.0 bbp_make_clickable()
  *
- * @return string $content Content filtered for mentions.
+ * @param string $content Content to link mentions in.
+ * @return string Content filtered for mentions.
  */
 function bbp_mention_filter( $content = '' ) {
 

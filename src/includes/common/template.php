@@ -85,7 +85,7 @@ function bbp_footer() {
  *
  * @since 2.0.0 bbPress (r3398)
  *
- * @param int $site_id
+ * @param int $site_id Site ID to check. Defaults to the current site.
  *
  * @return bool True if site is public, false if private.
  */
@@ -1133,10 +1133,10 @@ function bbp_is_edit() {
  *
  * @since 2.0.0 bbPress (r2926)
  *
- * @param array $wp_classes
- * @param array $custom_classes
+ * @param array      $wp_classes     WordPress body classes.
+ * @param array|bool $custom_classes Custom classes passed to the body class filters.
  *
- * @return array Body Classes
+ * @return array Body classes.
  */
 function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 
@@ -1301,7 +1301,7 @@ function bbp_swap_no_js_body_class() {
  *
  * @since 2.6.0 bbPress (r6440)
  *
- * @param string $text
+ * @param string $text Content to check for a bbPress shortcode.
  *
  * @return bool
  */
@@ -1435,9 +1435,7 @@ function is_bbpress() {
  *
  * @since 2.0.0 bbPress (r2815)
  *
- * @param array $args This function supports these arguments:
- *                    - action: The action being taken
- *                    - context: The context the action is being taken from
+ * @param array $args Login action, context, and URL settings.
  */
 function bbp_wp_login_action( $args = array() ) {
 	echo esc_url( bbp_get_wp_login_action( $args ) );
@@ -1448,9 +1446,7 @@ function bbp_wp_login_action( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5685)
  *
- * @param array $args This function supports these arguments:
- *                    - action: The action being taken
- *                    - context: The context the action is being taken from
+ * @param array $args Login action, context, and URL settings.
  */
 function bbp_get_wp_login_action( $args = array() ) {
 
@@ -1513,9 +1509,8 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
  *
  * @since 2.0.0 bbPress (r2815)
  *
- * @param string $request    Name of $_REQUEST to look for
- * @param string $input_type Type of input. Default: text. Accepts:
- *                           textarea|password|select|radio|checkbox
+ * @param string $request    Name of the request value to sanitize.
+ * @param string $input_type Input type: text, textarea, password, select, radio, or checkbox.
  */
 function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo bbp_get_sanitize_val( $request, $input_type );
@@ -1529,11 +1524,10 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
  *
  * @since 2.0.0 bbPress (r2815)
  *
- * @param string $request    Name of $_REQUEST to look for
- * @param string $input_type Type of input. Default: text. Accepts:
- *                           textarea|password|select|radio|checkbox
+ * @param string $request    Name of the request value to sanitize.
+ * @param string $input_type Input type: text, textarea, password, select, radio, or checkbox.
  *
- * @return string Sanitized value ready for screen display.
+ * @return string|false Sanitized value, or false if the request value is empty.
  */
 function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
 
@@ -1670,28 +1664,11 @@ function bbp_dropdown( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2746)
  *
- * @param array $args The function supports these args:
- *                    - post_type: Post type, defaults to bbp_get_forum_post_type() ( bbp_forum)
- *                    - selected: Selected ID, to not have any value as selected, pass
- *                    anything smaller than 0 (due to the nature of select
- *                    box, the first value would of course be selected -
- *                    though you can have that as none (pass 'show_none' arg) )
- *                    - orderby: Defaults to 'menu_order title'
- *                    - post_parent: Post parent. Defaults to 0
- *                    - post_status: Which all post_statuses to find in? Can be an array
- *                    or CSV of publish, category, closed, private, spam,
- *                    trash (based on post type ) - if not set, these are
- *                    automatically determined based on the post_type
- *                    - posts_per_page: Retrieve all forums/topics. Defaults to -1 to get
- *                    all posts
- *                    - walker: Which walker to use? Defaults to
- *                    {@link BBP_Walker_Dropdown}
- *                    - select_id: ID of the select box. Defaults to 'bbp_forum_id'
- *                    - tab: Deprecated. Tabindex value. False or integer
- *                    - options_only: Show only <options>? No <select>?
- *                    - show_none: Boolean or String __( '&mdash; No Forum &mdash;', 'bbpress' )
- *                    - disable_categories: Disable forum categories and closed forums?
- *                    Defaults to true. Only for forums and when
+ * @param array $args Dropdown query and display settings. Supports post_type,
+ *                    post_parent, post_status, selected, include, exclude,
+ *                    numberposts, orderby, order, posts, walker, select_id,
+ *                    select_class, tab, options_only, show_none,
+ *                    disable_categories, and disabled.
  *
  * @return string The dropdown
  */
@@ -2019,7 +1996,7 @@ function bbp_move_reply_form_fields() {
  *
  * @since 2.1.0 bbPress (r3586)
  *
- * @param array $args
+ * @param array $args Editor settings.
  */
 function bbp_the_content( $args = array() ) {
 	echo bbp_get_the_content( $args );
@@ -2030,7 +2007,7 @@ function bbp_the_content( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3586)
  *
- * @param array $args
+ * @param array $args Editor settings.
  *
  * @return string HTML from output buffer
  */
@@ -2137,7 +2114,7 @@ function bbp_get_the_content( $args = array() ) {
  *
  * @since 2.3.0 bbPress (r4576)
  *
- * @param array $plugins
+ * @param array $plugins TinyMCE plugins.
  *
  * @see tiny_mce_plugins, teeny_mce_plugins
  *
@@ -2165,7 +2142,7 @@ function bbp_get_tiny_mce_plugins( $plugins = array() ) {
  *
  * @since 2.3.0 bbPress (r4606)
  *
- * @param array $buttons
+ * @param array $buttons TeenyMCE buttons.
  *
  * @see teeny_mce_buttons
  *
@@ -2196,7 +2173,7 @@ function bbp_get_teeny_mce_buttons( $buttons = array() ) {
  *
  * @since 2.3.0 bbPress (r4607)
  *
- * @param array $settings
+ * @param array $settings Quicktags settings.
  *
  * @see quicktags_settings
  *
@@ -2364,6 +2341,8 @@ function bbp_get_view_url( $view = false ) {
  *
  * @since 2.0.0 bbPress (r2980)
  *
+ * @param string $name Query name to compare.
+ *
  * @return bool True if match, false if not.
  */
 function bbp_is_query_name( $name = '' ) {
@@ -2407,6 +2386,8 @@ function bbp_reset_query_name() {
  * Output the page title as a breadcrumb.
  *
  * @since 2.0.0 bbPress (r2583)
+ *
+ * @param array $args Breadcrumb settings.
  */
 function bbp_title_breadcrumb( $args = array() ) {
 	echo bbp_get_breadcrumb( $args );
@@ -2416,6 +2397,8 @@ function bbp_title_breadcrumb( $args = array() ) {
  * Output a breadcrumb.
  *
  * @since 2.0.0 bbPress (r2589)
+ *
+ * @param array $args Breadcrumb settings.
  */
 function bbp_breadcrumb( $args = array() ) {
 	echo bbp_get_breadcrumb( $args );
@@ -2426,11 +2409,9 @@ function bbp_breadcrumb( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2589)
  *
- * @param string $sep Separator. Defaults to '&larr;'.
- * @param bool $current_page Include the current item.
- * @param bool $root Include the root page if one exists.
+ * @param array $args Breadcrumb settings.
  *
- * @return string Breadcrumbs.
+ * @return string|void Breadcrumb markup, or no output when breadcrumbs are disabled.
  */
 function bbp_get_breadcrumb( $args = array() ) {
 

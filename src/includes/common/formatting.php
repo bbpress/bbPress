@@ -406,7 +406,7 @@ function bbp_encode_bad( $content = '' ) {
  *
  * @since 2.3.0 bbPress (r4642)
  *
- * @param array $matches
+ * @param array $matches Matched inline or block code.
  * @return string
  */
 function bbp_encode_callback( $matches = array() ) {
@@ -443,7 +443,7 @@ function bbp_encode_callback( $matches = array() ) {
  * @since 2.3.0 bbPress (r4642)
  * @since 2.6.22 bbPress (r8322) Preserve code containing backticks.
  *
- * @param array $matches
+ * @param array $matches Matched encoded code.
  * @todo Experiment with _wp_specialchars()
  * @return string
  */
@@ -482,9 +482,9 @@ function bbp_decode_callback( $matches = array() ) {
  * @since 2.3.0 bbPress (r4642)
  *
  * @internal Used by bbp_encode_bad()
- * @param string $content
- * @param string $key Not used
- * @param string $preg
+ * @param string $content Content being encoded, passed by reference.
+ * @param string $key     Unused callback key.
+ * @param string $preg    Pattern for tags to replace.
  */
 function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
@@ -499,9 +499,9 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
  *
  * @internal Used by bbp_encode_bad()
  *
- * @param string $content
- * @param string $key
- * @param string $preg
+ * @param string $content Content being encoded, passed by reference.
+ * @param string $key     Unused callback key.
+ * @param string $preg    Pattern for tags to replace.
  */
 function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
@@ -529,7 +529,7 @@ function bbp_rel_nofollow( $text = '' ) {
  * @since 2.4.0 bbPress (r4866)
  * @since 2.6.17 bbPress (r7491) Use the WordPress link relationship callback.
  *
- * @param array $matches
+ * @param array $matches Matched link markup.
  * @return string $text Link with rel=nofollow added.
  */
 function bbp_rel_nofollow_callback( $matches = array() ) {
@@ -553,7 +553,7 @@ function bbp_rel_ugc( $text = '' ) {
  *
  * @since 2.6.21 bbPress (r8112)
  *
- * @param array $matches
+ * @param array $matches Matched link markup.
  * @return string Link with the ugc relationship.
  */
 function bbp_rel_ugc_callback( $matches = array() ) {
@@ -621,7 +621,7 @@ function bbp_make_clickable( $text = '' ) {
  *
  * @since 2.6.0 bbPress (r6014)
  *
- * @param  string $text
+ * @param  string $text Text to link.
  * @return string
  */
 function bbp_make_urls_clickable( $text = '' ) {
@@ -651,7 +651,7 @@ function bbp_make_urls_clickable( $text = '' ) {
  *
  * @see make_clickable()
  *
- * @param  string $text
+ * @param  string $text Text to link.
  * @return string
  */
 function bbp_make_ftps_clickable( $text = '' ) {
@@ -665,7 +665,7 @@ function bbp_make_ftps_clickable( $text = '' ) {
  *
  * @see make_clickable()
  *
- * @param  string $text
+ * @param  string $text Text to link.
  * @return string
  */
 function bbp_make_emails_clickable( $text = '' ) {
@@ -681,7 +681,7 @@ function bbp_make_emails_clickable( $text = '' ) {
  *
  * @see make_clickable()
  *
- * @param  string $text
+ * @param  string $text Text to link.
  * @return string
  */
 function bbp_make_mentions_clickable( $text = '' ) {
@@ -756,7 +756,7 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
  *
  * @since 2.6.0 bbPress (r6302)
  *
- * @param int $number
+ * @param int|float|string $number Number to clamp to zero or greater.
  */
 function bbp_number_not_negative( $number = 0 ) {
 
@@ -786,8 +786,10 @@ function bbp_number_not_negative( $number = 0 ) {
  *
  * @since 2.0.0 bbPress (r2486)
  *
- * @param string $number Number to format.
- * @param string $decimals Optional. Display decimals.
+ * @param int|float|string $number        Number to format.
+ * @param int|bool         $decimals      Number of decimal places.
+ * @param string           $dec_point     Decimal point character.
+ * @param string           $thousands_sep Thousands separator.
  *
  * @return string Formatted string.
  */
@@ -830,10 +832,9 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
  *
  * @since 2.0.0 bbPress (r2722)
  *
- * @param string $time Time to convert
- * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
- *                             format
- * @param bool $translate Optional. Default is false. Whether to translate the
+ * @param string $time      Time to convert.
+ * @param string $d         Date format. Defaults to 'U'.
+ * @param bool   $translate Whether to translate the date. Defaults to false.
  *
  * @return string Returns timestamp.
  */
@@ -852,7 +853,7 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  * @param string $older_date Unix timestamp from which the difference begins.
  * @param string $newer_date Optional. Unix timestamp from which the
  *                            difference ends. False for current time.
- * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
+ * @param bool   $gmt Optional. Whether to use GMT timezone. Defaults to false.
  */
 function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	echo bbp_get_time_since( $older_date, $newer_date, $gmt );
@@ -866,7 +867,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
  * @param string $older_date Unix timestamp from which the difference begins.
  * @param string $newer_date Optional. Unix timestamp from which the
  *                            difference ends. False for current time.
- * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
+ * @param bool   $gmt Optional. Whether to use GMT timezone. Defaults to false.
  *
  * @return string Formatted time
  */
