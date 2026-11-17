@@ -106,11 +106,12 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the check-box column for bulk actions (if we implement them).
+	 * Return the checkbox column for bulk actions.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @param WP_Post $item Reply post represented by the row.
+	 * @return string Bulk action checkbox HTML.
 	 */
 	public function column_cb( $item = '' ) {
 		return sprintf(
@@ -137,11 +138,12 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the contents of the `bbp_reply_created` column.
+	 * Return the contents of the `bbp_reply_created` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @param WP_Post $item Reply post represented by the row.
+	 * @return string Reply creation date and time HTML.
 	 */
 	public function column_bbp_reply_created( $item = '' ) {
 		return sprintf( '%1$s <br /> %2$s',
@@ -151,11 +153,12 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the contents of the `bbp_reply_content` column.
+	 * Return the contents of the `bbp_reply_content` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @param WP_Post $item Reply post represented by the row.
+	 * @return string Reply content and action links.
 	 */
 	public function column_bbp_reply_content( $item = '' ) {
 

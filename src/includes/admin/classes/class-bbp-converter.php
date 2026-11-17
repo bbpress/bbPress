@@ -571,6 +571,8 @@ class BBP_Converter {
 	 * Do the converter step
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return mixed Step result, or null when no step remains.
 	 */
 	private function do_steps() {
 

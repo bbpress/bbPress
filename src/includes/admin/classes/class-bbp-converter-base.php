@@ -310,6 +310,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Forums.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_forums( $start = 1 ) {
 		return $this->convert_table( 'forum', $start );
@@ -319,6 +320,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Topics / Threads.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_topics( $start = 1 ) {
 		return $this->convert_table( 'topic', $start );
@@ -328,6 +330,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Posts.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_replies( $start = 1 ) {
 		return $this->convert_table( 'reply', $start );
@@ -337,6 +340,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Users.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_users( $start = 1 ) {
 		return $this->convert_table( 'user', $start );
@@ -346,6 +350,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Topic Tags.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_tags( $start = 1 ) {
 		return $this->convert_table( 'tags', $start );
@@ -355,6 +360,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Forum Subscriptions.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_forum_subscriptions( $start = 1 ) {
 		return $this->convert_table( 'forum_subscriptions', $start );
@@ -364,6 +370,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Topic Subscriptions.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_topic_subscriptions( $start = 1 ) {
 		return $this->convert_table( 'topic_subscriptions', $start );
@@ -373,6 +380,7 @@ abstract class BBP_Converter_Base {
 	 * Convert Favorites.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_favorites( $start = 1 ) {
 		return $this->convert_table( 'favorites', $start );
@@ -385,6 +393,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param string $to_type Destination object type.
 	 * @param int    $start   Starting row offset.
+	 * @return bool True when no source rows were processed in this batch.
 	 */
 	public function convert_table( $to_type, $start ) {
 		// Without account import, do not create users or user engagements.
@@ -810,6 +819,7 @@ abstract class BBP_Converter_Base {
 	 * This method converts old forum hierarchy to new bbPress hierarchy.
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_forum_parents( $start = 1 ) {
 		$has_update = false;
@@ -835,6 +845,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.5.0 bbPress (r5170)
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_topic_stickies( $start = 1 ) {
 		$has_update = false;
@@ -859,6 +870,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.5.0 bbPress (r5170)
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_topic_super_stickies( $start = 1 ) {
 		$has_update = false;
@@ -884,6 +896,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r5425)
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_topic_closed_topics( $start = 1 ) {
 		$has_update = false;
@@ -908,6 +921,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.4.0 bbPress (r5093)
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_reply_to_parents( $start = 1 ) {
 		$has_update = false;
@@ -933,6 +947,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r5538)
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_anonymous_topic_authors( $start = 1 ) {
 
@@ -1008,6 +1023,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r5538)
 	 *
 	 * @param int $start Starting row offset for this conversion batch.
+	 * @return bool True when no rows were processed in this batch.
 	 */
 	public function convert_anonymous_reply_authors( $start = 1 ) {
 
@@ -1081,6 +1097,8 @@ abstract class BBP_Converter_Base {
 	 * This method deletes data from the wp database.
 	 *
 	 * @since 2.1.0 bbPress (r3816)
+	 *
+	 * @return bool True when no imported records were deleted.
 	 */
 	public function clean() {
 
@@ -1154,6 +1172,7 @@ abstract class BBP_Converter_Base {
 	 * This method deletes passwords from the wp database.
 	 *
 	 * @param int $start Current cleanup offset. Zero starts a new pass.
+	 * @return bool True when no password rows were processed.
 	 */
 	public function clean_passwords( $start = 0 ) {
 		$has_delete = false;
@@ -1194,11 +1213,14 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param string $password Password.
 	 * @param string $hash Password hash.
+	 * @return bool True if legacy authentication succeeds, false otherwise.
 	 */
 	abstract protected function authenticate_pass( $password, $hash );
 
 	/**
 	 * Info
+	 *
+	 * @return string Converter information.
 	 */
 	abstract protected function info();
 
@@ -1206,6 +1228,7 @@ abstract class BBP_Converter_Base {
 	 * This method grabs appropriate fields from the table specified.
 	 *
 	 * @param string $tablename The table name to grab fields from.
+	 * @return string[] Destination table field names.
 	 */
 	private function get_fields( $tablename = '' ) {
 		$retval      = array();
@@ -1240,6 +1263,7 @@ abstract class BBP_Converter_Base {
 	 * Update the last query option and return results.
 	 *
 	 * @param string $query SQL query to run.
+	 * @return object|null Matching row, if found.
 	 */
 	private function get_row( $query = '' ) {
 		$this->update_query( $query );
@@ -1252,6 +1276,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param string $query SQL query to run.
 	 * @param string $output Result format. Defaults to OBJECT.
+	 * @return array Query rows.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
 		$this->update_query( $query );
@@ -1263,6 +1288,7 @@ abstract class BBP_Converter_Base {
 	 * Update the last query option and do a general query.
 	 *
 	 * @param string $query SQL query to run.
+	 * @return int|bool Number of rows, or false on error.
 	 */
 	private function query( $query = '' ) {
 		$this->update_query( $query );
@@ -1277,6 +1303,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param int    $user_id  User ID.
 	 * @param string $password Password hash or an empty string.
+	 * @return int|bool Number of rows, or false on error.
 	 */
 	private function update_password( $user_id, $password ) {
 		$query = $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $password, $user_id );

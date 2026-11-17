@@ -761,6 +761,8 @@ class BBP_Admin {
 	 * @since 2.0.0 bbPress (r2737)
 	 *
 	 * @todo Put fields into multidimensional array.
+	 *
+	 * @return bool|null False if no settings sections exist, otherwise null.
 	 */
 	public static function register_admin_settings() {
 
