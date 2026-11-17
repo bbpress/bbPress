@@ -865,7 +865,7 @@ function bbp_admin_sanitize_theme_package_id( $package ) {
  *
  * @param string $section_id ID of the section to get fields for.
  * @staticvar array $fields All of the available fields.
- * @return mixed False if section is invalid, array of fields otherwise.
+ * @return array|false Section fields, or false if the section ID is empty.
  */
 function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 	static $fields = array();

@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $slug Template slug.
  * @param string|null $name Optional template name. Defaults to null.
- * @return string The template filename if one is located.
+ * @return string|false The template filename if located, false otherwise.
  */
 function bbp_get_template_part( $slug, $name = null ) {
 
@@ -55,7 +55,7 @@ function bbp_get_template_part( $slug, $name = null ) {
  * @param bool         $load           Whether to load the template file if found.
  * @param bool         $require_once   Whether to require_once or require. Defaults to true.
  *                                      Has no effect if $load is false.
- * @return string The template filename if one is located.
+ * @return string|false The template filename if located, false otherwise.
  */
 function bbp_locate_template( $template_names, $load = false, $require_once = true ) {
 
@@ -114,7 +114,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  * If SCRIPT_DEBUG is set and the file includes a .min suffix, this function
  * will automatically attempt to locate a non-minified version of that file.
  *
- * If SCRIPT_DEBUG is not set and the file exclude a .min suffix, this function
+ * If SCRIPT_DEBUG is not set and the file does not include a .min suffix, this function
  * will automatically attempt to locate a minified version of that file.
  *
  * See: https://bbpress.trac.wordpress.org/ticket/3218
@@ -123,7 +123,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *
  * @param string $file File path to locate.
  *
- * @return boolean
+ * @return string|false The file path if located, false otherwise.
  */
 function bbp_locate_enqueueable( $file = '' ) {
 
@@ -191,7 +191,7 @@ function bbp_urlize_enqueueable( $file = '' ) {
 }
 
 /**
- * Enqueue a script from the highest priority location in the template stack.
+ * Enqueue a style from the highest priority location in the template stack.
  *
  * Registers the style if file provided (does NOT overwrite) and enqueues.
  *
@@ -207,7 +207,7 @@ function bbp_urlize_enqueueable( $file = '' ) {
  *                            Default 'all'. Accepts 'all', 'aural', 'braille', 'handheld', 'projection', 'print',
  *                            'screen', 'tty', or 'tv'.
  *
- * @return mixed The style filename if one is located. False if not.
+ * @return string|false The style URL if located, false otherwise.
  */
 function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = false, $media = 'all' ) {
 
@@ -238,7 +238,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
 /**
  * Enqueue a script from the highest priority location in the template stack.
  *
- * Registers the style if file provided (does NOT overwrite) and enqueues.
+ * Registers the script if a file is provided (does NOT overwrite) and enqueues.
  *
  * @since 2.5.0 bbPress (r5181)
  *
@@ -251,7 +251,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  * @param bool        $in_footer Optional. Whether to enqueue the script before </head> or before </body>.
  *                               Default 'false'. Accepts 'false' or 'true'.
  *
- * @return mixed The script filename if one is located. False if not.
+ * @return string|false The script URL if located, false otherwise.
  */
 function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = false ) {
 

@@ -83,7 +83,7 @@ function bbp_is_valid_converter_prefix( $prefix ) {
  *
  * @param string $platform Name of valid platform class.
  *
- * @return mixed Object if converter exists, null if not
+ * @return object|null Converter object if available, null otherwise.
  */
 function bbp_new_converter( $platform = '' ) {
 

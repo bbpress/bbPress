@@ -102,7 +102,7 @@ function bbp_get_search_type_ids() {
  *
  * @param string $query_arg s|fs|ts|rs.
  *
- * @return mixed
+ * @return string|false Sanitized search terms, or false when no valid terms were supplied.
  */
 function bbp_sanitize_search_request( $query_arg = 's' ) {
 

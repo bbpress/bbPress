@@ -1008,7 +1008,7 @@ class BBP_Akismet {
 		/**
 		 * Determines how many rows will be deleted in each batch.
 		 *
-		 * @param int The number of rows. Default 1000.
+		 * @param int $limit The number of rows. Default 1000.
 		 */
 		$delete_limit = (int) apply_filters( $filter, 1000 );
 
@@ -1035,7 +1035,7 @@ class BBP_Akismet {
 		 * Determines how many days a piece of spam will be left in the Spam
 		 * queue before being deleted.
 		 *
-		 * @param int The number of days. Default 15.
+		 * @param int $interval The number of days. Default 15.
 		 */
 		$delete_interval = (int) apply_filters( $filter, 15 );
 
@@ -1083,8 +1083,8 @@ class BBP_Akismet {
 				 * Maybe we should run the bbp_delete_topic or bbp_delete_reply
 				 * actions here, too?
 				 *
-				 * @param string The current function.
-				 * @param int    The current topic/reply ID.
+				 * @param string            $function The current function.
+				 * @param int|string|object $item     Topic/reply ID or spam meta row.
 				 */
 				do_action( '_bbp_akismet_batch_delete', __FUNCTION__, $spam_id );
 			}
@@ -1108,8 +1108,8 @@ class BBP_Akismet {
 			 * Single action that encompasses all topic/reply IDs after the
 			 * delete queries have been run.
 			 *
-			 * @param int   Count of topic/reply IDs
-			 * @param array Array of topic/reply IDs
+			 * @param int   $count    Count of topic/reply IDs.
+			 * @param array $spam_ids Topic/reply IDs.
 			 */
 			do_action( '_bbp_akismet_delete_spam_count', count( $spam_ids ), $spam_ids );
 		}
@@ -1117,7 +1117,8 @@ class BBP_Akismet {
 		/**
 		 * Determines whether tables should be optimized.
 		 *
-		 * @param int Random number between 1 and 5000.
+		 * @param int   $random Random number between 1 and 5000.
+		 * @param array $tables Database tables to optimize.
 		 */
 		$optimize = (int) apply_filters( '_bbp_akismet_optimize_tables', wp_rand( 1, 5000 ), array( $wpdb->posts, $wpdb->postmeta ) );
 
@@ -1168,8 +1169,8 @@ class BBP_Akismet {
 				 * Perform a single action on the single topic/reply ID for
 				 * simpler batch processing.
 				 *
-				 * @param string The current function.
-				 * @param int    The current topic/reply ID.
+				 * @param string            $function The current function.
+				 * @param int|string|object $item     Topic/reply ID or spam meta row.
 				 */
 				do_action( '_bbp_akismet_batch_delete', __FUNCTION__, $spam_id );
 			}
@@ -1178,8 +1179,8 @@ class BBP_Akismet {
 			 * Single action that encompasses all topic/reply IDs after the
 			 * delete queries have been run.
 			 *
-			 * @param int   Count of topic/reply IDs
-			 * @param array Array of topic/reply IDs
+			 * @param int   $count    Count of topic/reply IDs.
+			 * @param array $spam_ids Topic/reply IDs.
 			 */
 			do_action( '_bbp_akismet_delete_spam_meta_count', count( $spam_ids ), $spam_ids );
 		}
@@ -1251,11 +1252,10 @@ class BBP_Akismet {
 				delete_post_meta( $spam_meta->post_id, $spam_meta->meta_key );
 
 				/**
-				 * Perform a single action on the single topic/reply ID for
-				 * simpler batch processing.
+				 * Perform a single action for the current spam meta row.
 				 *
-				 * @param string The current function.
-				 * @param int    The current topic/reply ID.
+				 * @param string            $function The current function.
+				 * @param int|string|object $item     Topic/reply ID or spam meta row.
 				 */
 				do_action( '_bbp_akismet_batch_delete', __FUNCTION__, $spam_meta );
 
@@ -1267,8 +1267,8 @@ class BBP_Akismet {
 			 * Single action that encompasses all topic/reply IDs after the
 			 * delete queries have been run.
 			 *
-			 * @param int   Count of spam meta IDs
-			 * @param array Array of spam meta IDs
+			 * @param int   $count         Count of spam meta IDs.
+			 * @param array $spam_meta_ids Spam meta IDs.
 			 */
 			do_action( '_bbp_akismet_delete_spam_meta_count', count( $spam_meta_deleted ), $spam_meta_deleted );
 
@@ -1295,7 +1295,8 @@ class BBP_Akismet {
 		/**
 		 * Determines whether tables should be optimized.
 		 *
-		 * @param int Random number between 1 and 5000.
+		 * @param int    $random Random number between 1 and 5000.
+		 * @param string $table  Database table to optimize.
 		 */
 		$optimize = (int) apply_filters( '_bbp_akismet_optimize_table', wp_rand( 1, 5000 ), $wpdb->postmeta );
 

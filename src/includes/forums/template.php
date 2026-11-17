@@ -751,8 +751,8 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2914)
  *
- * @param array $args All the arguments supported by {@link WP_Query}.
- * @return mixed false if none, array of subs if yes.
+ * @param array|int|string $args Query arguments or a parent forum ID.
+ * @return array Subforum posts, or an empty array when none are found.
  */
 function bbp_forum_get_subforums( $args = array() ) {
 

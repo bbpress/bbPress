@@ -160,7 +160,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
  * @param int    $user_id  User id.
  * @param string $new_role Forum role to assign.
  *
- * @return mixed False if no change. String of new role if changed.
+ * @return string|false Filtered role value, or false.
  */
 function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 

@@ -4238,7 +4238,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
  * @since 2.0.0 bbPress (r3304)
  *
  * @param string $path Page path to resolve.
- * @return mixed False if no page, Page object if true.
+ * @return WP_Post|false Page object, or false if no public page exists.
  */
 function bbp_get_page_by_path( $path = '' ) {
 
