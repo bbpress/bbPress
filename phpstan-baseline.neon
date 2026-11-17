@@ -648,9 +648,3 @@ parameters:
 			count: 1
 			path: src/includes/users/mentions.php
 
-		-
-			message: '#^Access to an undefined property BBP_User_Query\:\:\$results\.$#'
-			identifier: property.notFound
-			count: 3
-			path: src/includes/users/template.php
-

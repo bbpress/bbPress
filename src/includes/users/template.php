@@ -66,7 +66,7 @@ class BBP_User_Query extends WP_User_Query {
 	public function __construct( $query = null ) {
 		if ( ! empty( $query ) ) {
 			parent::__construct( $query );
-			$this->user_count = count( $this->results );
+			$this->user_count = count( $this->get_results() );
 		}
 	}
 
@@ -80,7 +80,7 @@ class BBP_User_Query extends WP_User_Query {
 	 */
 	public function next_user() {
 		++$this->current_user;
-		$this->user = $this->results[ $this->current_user ];
+		$this->user = $this->get_results()[ $this->current_user ];
 
 		return $this->user;
 	}
@@ -156,7 +156,7 @@ class BBP_User_Query extends WP_User_Query {
 		$this->current_user = -1;
 
 		if ( $this->user_count > 0 ) {
-			$this->user = $this->results[0];
+			$this->user = $this->get_results()[0];
 		}
 	}
 }
