@@ -69,6 +69,63 @@ class BBP_Tests_Extend_BuddyPress_Members extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::BBP_BuddyPress_Members::get_user_profile_url
+	 * @covers ::BBP_BuddyPress_Members::get_topics_created_url
+	 */
+	public function test_non_root_blog_uses_bbpress_profile_urls() {
+		$user = $this->factory->user->create_and_get();
+		$buddy_profile_url = function_exists( 'bp_members_get_user_url' )
+			? bp_members_get_user_url( $user->ID )
+			: bp_core_get_user_domain( $user->ID );
+
+		$this->assertTrue( bp_is_root_blog() );
+		$this->assertSame( 10, has_filter( 'bbp_pre_get_user_profile_url', array( bbpress()->extend->buddypress->members, 'get_user_profile_url' ) ) );
+		$this->assertSame( trailingslashit( $buddy_profile_url ), bbp_get_user_profile_url( $user->ID ) );
+
+		$blog = is_multisite() ? $this->factory->blog->create() : 0;
+		$filtered_user_id = null;
+		$observe_user_id = function( $user_id ) use ( &$filtered_user_id ) {
+			$filtered_user_id = $user_id;
+			return $user_id;
+		};
+		$settings_was_active = isset( buddypress()->active_components['settings'] );
+		$settings_value      = $settings_was_active ? buddypress()->active_components['settings'] : null;
+		buddypress()->active_components['settings'] = 1;
+
+		if ( $blog ) {
+			switch_to_blog( $blog );
+		} else {
+			add_filter( 'bp_is_root_blog', '__return_false' );
+		}
+		add_filter( 'bbp_pre_get_user_profile_url', $observe_user_id, 11 );
+
+		try {
+			$this->set_permalink_structure( '/%postname%/' );
+			$profile_url = home_url( '/forums/users/' . $user->user_nicename . '/' );
+			$settings_url = home_url( '/forums/settings/' );
+
+			$this->assertFalse( bp_is_root_blog() );
+			$this->assertTrue( bp_is_active( 'settings' ) );
+			$this->assertSame( $profile_url, bbp_get_user_profile_url( $user->ID ) );
+			$this->assertSame( $user->ID, $filtered_user_id );
+			$this->assertSame( $profile_url . 'topics/', bbp_get_user_topics_created_url( $user->ID ) );
+			$this->assertSame( $settings_url, $this->members->mention_email_settings_url( $settings_url, $user->ID ) );
+		} finally {
+			if ( $settings_was_active ) {
+				buddypress()->active_components['settings'] = $settings_value;
+			} else {
+				unset( buddypress()->active_components['settings'] );
+			}
+			remove_filter( 'bbp_pre_get_user_profile_url', $observe_user_id, 11 );
+			if ( $blog ) {
+				restore_current_blog();
+			} else {
+				remove_filter( 'bp_is_root_blog', '__return_false' );
+			}
+		}
+	}
+
+	/**
 	 * @dataProvider profile_sections
 	 * @covers ::BBP_BuddyPress_Members::set_member_forum_query_vars
 	 */

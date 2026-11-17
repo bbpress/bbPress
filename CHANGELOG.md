@@ -162,6 +162,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Fixed member profile and forum section links on child sites when BuddyPress is network active.
 - Kept profile password controls hidden until Generate Password is selected.
 - Make repair and upgrade Dry Runs preview complete operations and estimate batch
   counts without changing data or saved Run progress.

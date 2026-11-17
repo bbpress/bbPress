@@ -124,7 +124,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6320) Add engagements support
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_user_profile_url( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id );
@@ -137,7 +137,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_topics_created_url( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_topic_archive_slug() );
@@ -150,7 +150,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_replies_created_url( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_reply_archive_slug() );
@@ -163,7 +163,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_favorites_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_favorites_slug() );
@@ -176,7 +176,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6804) Use private method
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_subscriptions_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_subscriptions_slug() );
@@ -188,7 +188,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6321)
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_engagements_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_engagements_slug() );
@@ -200,7 +200,7 @@ class BBP_BuddyPress_Members {
 	 * @since 2.7.0 bbPress (r8264)
 	 *
 	 * @param int $user_id Profile owner ID.
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	public function get_mentions_permalink( $user_id = 0 ) {
 		return $this->get_profile_url( $user_id, bbp_get_user_mentions_slug() );
@@ -310,7 +310,7 @@ class BBP_BuddyPress_Members {
 	 */
 	public function mention_email_settings_url( $url, $user_id ) {
 		$profile = $this->get_profile_url( $user_id );
-		if ( $profile && bp_is_active( 'settings' ) ) {
+		if ( bp_is_root_blog() && $profile && bp_is_active( 'settings' ) ) {
 			$url = trailingslashit( $profile ) . bp_get_settings_slug() . '/notifications/';
 		}
 
@@ -379,13 +379,17 @@ class BBP_BuddyPress_Members {
 	 * @param int    $user_id Profile owner ID.
 	 * @param string $slug    Optional profile section slug.
 	 *
-	 * @return string|false Profile URL, or false if unavailable.
+	 * @return string|int|false Profile URL, unchanged user ID, or false if unavailable.
 	 */
 	private function get_profile_url( $user_id = 0, $slug = '' ) {
 
-		// Do not filter if not on BuddyPress root blog
-		if ( empty( $user_id ) || ! bp_is_root_blog() ) {
+		if ( empty( $user_id ) ) {
 			return false;
+		}
+
+		// Return the unchanged value when BuddyPress should not override the URL
+		if ( ! bp_is_root_blog() ) {
+			return $user_id;
 		}
 
 		// Default URL value
