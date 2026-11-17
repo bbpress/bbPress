@@ -500,9 +500,9 @@ function bbp_use_pretty_urls() {
  *
  * @since 2.6.0 bbPress (r6680)
  *
- * @param string $pagination_links The HTML links used for pagination.
+ * @param string|null $pagination_links The HTML links used for pagination, or null when absent.
  *
- * @return string
+ * @return string|null Canonical pagination links, or null when no links were supplied.
  */
 function bbp_make_first_page_canonical( $pagination_links = '' ) {
 
@@ -528,7 +528,7 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
  *
  * @param array $args Pagination arguments.
  *
- * @return string
+ * @return string|null Pagination links, or null when there is only one page.
  */
 function bbp_paginate_links( $args = array() ) {
 
