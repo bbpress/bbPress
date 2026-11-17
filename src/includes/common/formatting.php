@@ -488,7 +488,7 @@ function bbp_decode_callback( $matches = array() ) {
  */
 function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
-		$content = preg_replace( "|&lt;({$preg})\s*?/*?&gt;|i", '<$1 />', $content );
+		$content = preg_replace( "|&lt;({$preg})\s*?/*?&gt;|i", '<$1 />', $content ) ?? $content;
 	}
 }
 
@@ -505,7 +505,7 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
  */
 function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
-		$content = preg_replace( "|&lt;(/?{$preg})&gt;|i", '<$1>', $content );
+		$content = preg_replace( "|&lt;(/?{$preg})&gt;|i", '<$1>', $content ) ?? $content;
 	}
 }
 
@@ -974,11 +974,6 @@ function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 					$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
 					$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 				}
-			}
-
-			// Empty counts, so fallback to right now
-			if ( empty( $count ) && empty( $count2 ) ) {
-				$output = $right_now_text;
 			}
 		}
 	}

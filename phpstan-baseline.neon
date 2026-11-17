@@ -199,24 +199,6 @@ parameters:
 			path: src/includes/common/classes.php
 
 		-
-			message: '#^Parameter &\$content by\-ref type of function bbp_encode_empty_callback\(\) expects string, string\|null given\.$#'
-			identifier: parameterByRef.type
-			count: 1
-			path: src/includes/common/formatting.php
-
-		-
-			message: '#^Parameter &\$content by\-ref type of function bbp_encode_normal_callback\(\) expects string, string\|null given\.$#'
-			identifier: parameterByRef.type
-			count: 1
-			path: src/includes/common/formatting.php
-
-		-
-			message: '#^Variable \$count in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/common/formatting.php
-
-		-
 			message: '#^Default value of the parameter \#3 \$post \(false\) of function bbp_update_counts_on_transition_post_status\(\) is incompatible with type WP_Post\.$#'
 			identifier: parameter.defaultValue
 			count: 1
