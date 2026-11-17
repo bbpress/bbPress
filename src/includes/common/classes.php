@@ -194,7 +194,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 *
-	 * @var array
+	 * @var array<string, string>
 	 */
 	public $db_fields = array(
 		'parent' => 'post_parent',
@@ -285,7 +285,7 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @since 2.4.0 bbPress (r4944)
 	 *
-	 * @var array
+	 * @var array<string, string>
 	 */
 	public $db_fields = array(
 		'parent' => 'reply_to',
@@ -486,7 +486,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	 *
 	 * @since 2.6.0 bbPress (r5389)
 	 *
-	 * @var array
+	 * @var array<string, string>
 	 */
 	public $db_fields = array(
 		'parent' => 'reply_to',

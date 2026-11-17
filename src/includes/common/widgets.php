@@ -170,6 +170,8 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return null
 	 */
 	public function form( $instance = array() ) {
 
@@ -192,6 +194,8 @@ class BBP_Login_Widget extends WP_Widget {
 		</p>
 
 		<?php
+
+		return null;
 	}
 
 	/**
@@ -326,6 +330,8 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r3020)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return null
 	 */
 	public function form( $instance = array() ) {
 
@@ -339,6 +345,8 @@ class BBP_Views_Widget extends WP_Widget {
 		</p>
 
 		<?php
+
+		return null;
 	}
 
 	/**
@@ -457,6 +465,8 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return null
 	 */
 	public function form( $instance ) {
 
@@ -470,6 +480,8 @@ class BBP_Search_Widget extends WP_Widget {
 		</p>
 
 		<?php
+
+		return null;
 	}
 
 	/**
@@ -634,6 +646,8 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return null
 	 */
 	public function form( $instance ) {
 
@@ -657,6 +671,8 @@ class BBP_Forums_Widget extends WP_Widget {
 		</p>
 
 		<?php
+
+		return null;
 	}
 
 	/**
@@ -939,6 +955,8 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return null
 	 */
 	public function form( $instance = array() ) {
 
@@ -971,6 +989,8 @@ class BBP_Topics_Widget extends WP_Widget {
 		</p>
 
 		<?php
+
+		return null;
 	}
 
 	/**
@@ -1090,7 +1110,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @param array $instance Widget settings.
 	 *
-	 * @return void
+	 * @return null
 	 */
 	public function form( $instance ) {
 
@@ -1104,6 +1124,8 @@ class BBP_Stats_Widget extends WP_Widget {
 		</p>
 
 	<?php
+
+		return null;
 	}
 
 	/**
@@ -1322,6 +1344,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $instance Widget settings.
+	 *
+	 * @return null
 	 */
 	public function form( $instance = array() ) {
 
@@ -1334,6 +1358,8 @@ class BBP_Replies_Widget extends WP_Widget {
 		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php esc_html_e( 'Show reply author:',       'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( true, $settings['show_user'] ); ?> value="1" /></label></p>
 
 		<?php
+
+		return null;
 	}
 
 	/**

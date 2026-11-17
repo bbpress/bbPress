@@ -565,7 +565,7 @@ The %4$s Team
 	 * %5$s - The URL to the site
 	 *
 	 * @param string $email_text Text in the email.
-	 * @param string $r          New user email that the current user has changed to.
+	 * @param array  $r          New user email data, including the newemail address.
 	 */
 	$content = apply_filters( 'bbp_user_email_update_content', $email_text, $r );
 

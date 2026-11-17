@@ -63,14 +63,14 @@ class BBP_Converter {
 	/**
 	 * Percent complete of current step.
 	 *
-	 * @var int
+	 * @var int|float
 	 */
 	public $step_percentage = 0;
 
 	/**
-	 * Percent complete of all step.
+	 * Percent complete of all steps.
 	 *
-	 * @var int
+	 * @var int|float
 	 */
 	public $total_percentage = 0;
 
@@ -86,7 +86,7 @@ class BBP_Converter {
 	/**
 	 * Name of source forum platform.
 	 *
-	 * @var int
+	 * @var string|false
 	 */
 	public $platform = '';
 

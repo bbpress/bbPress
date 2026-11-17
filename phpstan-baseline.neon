@@ -37,20 +37,8 @@ parameters:
 			path: src/includes/admin/classes/class-bbp-admin.php
 
 		-
-			message: '#^Method BBP_Admin\:\:option_page_capability_bbpress\(\) should return string but returns bool\.$#'
-			identifier: return.type
-			count: 1
-			path: src/includes/admin/classes/class-bbp-admin.php
-
-		-
 			message: '#^Method BBP_Admin\:\:register_admin_settings\(\) should return bool\|null but return statement is missing\.$#'
 			identifier: return.missing
-			count: 1
-			path: src/includes/admin/classes/class-bbp-admin.php
-
-		-
-			message: '#^Property BBP_Admin\:\:\$minimum_capability \(bool\) does not accept default value of type string\.$#'
-			identifier: property.defaultValue
 			count: 1
 			path: src/includes/admin/classes/class-bbp-admin.php
 
@@ -85,34 +73,10 @@ parameters:
 			path: src/includes/admin/classes/class-bbp-converter-base.php
 
 		-
-			message: '#^Property BBP_Converter_Base\:\:\$halt \(bool\) does not accept default value of type int\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: src/includes/admin/classes/class-bbp-converter-base.php
-
-		-
 			message: '#^Access to an undefined property BBP_Converter_DB\:\:\$use_mysqli\.$#'
 			identifier: property.notFound
 			count: 1
 			path: src/includes/admin/classes/class-bbp-converter-db.php
-
-		-
-			message: '#^Property BBP_Converter\:\:\$platform \(int\) does not accept default value of type string\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: src/includes/admin/classes/class-bbp-converter.php
-
-		-
-			message: '#^Property BBP_Converter\:\:\$step_percentage \(int\) does not accept float\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/includes/admin/classes/class-bbp-converter.php
-
-		-
-			message: '#^Property BBP_Converter\:\:\$total_percentage \(int\) does not accept float\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/includes/admin/classes/class-bbp-converter.php
 
 		-
 			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_reply_content\(\) is incompatible with type WP_Post\.$#'
@@ -295,24 +259,6 @@ parameters:
 			path: src/includes/common/classes.php
 
 		-
-			message: '#^PHPDoc type array of property BBP_Walker_Dropdown\:\:\$db_fields is not covariant with PHPDoc type array\<string\> of overridden property Walker\:\:\$db_fields\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: src/includes/common/classes.php
-
-		-
-			message: '#^PHPDoc type array of property BBP_Walker_Reply\:\:\$db_fields is not covariant with PHPDoc type array\<string\> of overridden property Walker\:\:\$db_fields\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: src/includes/common/classes.php
-
-		-
-			message: '#^PHPDoc type array of property BBP_Walker_Reply_Dropdown\:\:\$db_fields is not covariant with PHPDoc type array\<string\> of overridden property Walker\:\:\$db_fields\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: src/includes/common/classes.php
-
-		-
 			message: '#^Parameter &\$content by\-ref type of function bbp_encode_empty_callback\(\) expects string, string\|null given\.$#'
 			identifier: parameterByRef.type
 			count: 1
@@ -365,48 +311,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: src/includes/common/functions.php
-
-		-
-			message: '#^Method BBP_Forums_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/common/widgets.php
-
-		-
-			message: '#^Method BBP_Login_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/common/widgets.php
-
-		-
-			message: '#^Method BBP_Replies_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/common/widgets.php
-
-		-
-			message: '#^Method BBP_Search_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/common/widgets.php
-
-		-
-			message: '#^Method BBP_Topics_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/common/widgets.php
-
-		-
-			message: '#^Method BBP_Views_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/common/widgets.php
-
-		-
-			message: '#^Return type \(void\) of method BBP_Stats_Widget\:\:form\(\) should be compatible with return type \(string\|null\) of method WP_Widget\<array\<string, mixed\>\>\:\:form\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: src/includes/common/widgets.php
 
 		-
 			message: '#^Action callback returns WP_Roles\|null but should not return anything\.$#'
@@ -1055,12 +959,6 @@ parameters:
 			identifier: method.nonObject
 			count: 1
 			path: src/includes/users/engagements.php
-
-		-
-			message: '#^@param string \$r does not accept actual type of parameter\: array\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: src/includes/users/functions.php
 
 		-
 			message: '#^Constant COOKIEHASH not found\.$#'

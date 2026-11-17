@@ -71,7 +71,7 @@ class BBP_Admin {
 	/**
 	 * Minimum capability to access Tools and Settings.
 	 *
-	 * @var bool
+	 * @var string
 	 */
 	public $minimum_capability = 'keep_gate';
 

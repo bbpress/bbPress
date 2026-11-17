@@ -46,7 +46,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Whether to stop conversion on error.
 	 *
-	 * @var bool
+	 * @var bool|int
 	 */
 	protected $halt = 0;
 
