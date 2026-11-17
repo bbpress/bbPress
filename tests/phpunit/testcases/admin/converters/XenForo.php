@@ -30,6 +30,35 @@ class BBP_Tests_Admin_Converters_XenForo extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers XenForo::callback_html
+	 * @dataProvider data_attributed_quotes
+	 * @ticket BBP3794
+	 */
+	public function test_callback_html_preserves_attributed_quote_content( $source, $author ) {
+		$callback = Closure::bind(
+			function ( $source ) {
+				return $this->callback_html( $source );
+			},
+			$this->converter,
+			'XenForo'
+		);
+		$html     = $callback( $source );
+
+		$this->assertStringContainsString( '@' . esc_html( $author ) . ' wrote:', $html );
+		$this->assertStringContainsString( 'Quoted text', $html );
+		$this->assertStringNotContainsString( '[quote=', strtolower( $html ) );
+		$this->assertStringNotContainsString( '<script>', $html );
+	}
+
+	public function data_attributed_quotes() {
+		return array(
+			'uppercase with HTML entities' => array( '[QUOTE=&quot;Example User, post: 12, member: 34&quot;]Quoted text[/QUOTE]', 'Example User' ),
+			'lowercase' => array( '[quote="Example User, post: 12, member: 34"]Quoted text[/quote]', 'Example User' ),
+			'escaped author' => array( '[quote="&lt;script&gt;, post: 12, member: 34"]Quoted text[/quote]', '&lt;script&gt;' ),
+		);
+	}
+
+	/**
 	 * @covers XenForo::setup_globals
 	 * @ticket BBP3684
 	 */

@@ -145,12 +145,6 @@ parameters:
 			path: src/includes/admin/converters/Vanilla.php
 
 		-
-			message: '#^Regex pattern is invalid\: Compilation failed\: unrecognized character follows \\ at offset 38 in pattern\: /\\\[quote\=\\"\(\.\*\?\)\\,\\spost\\\:\\s\(\.\*\?\)\\,\\s\\member\\\:\\s\(\.\*\?\)\\"\\\]\(\.\*\?\)\\\[\\/quote\\\]/$#'
-			identifier: regexp.pattern
-			count: 1
-			path: src/includes/admin/converters/XenForo.php
-
-		-
 			message: '#^Action callback returns int but should not return anything\.$#'
 			identifier: return.void
 			count: 1

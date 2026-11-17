@@ -854,8 +854,14 @@ class XenForo extends BBP_Converter_Base {
 		$xenforo_markup = preg_replace( '/\[QUOTE\]/', '<blockquote>', $xenforo_markup );
 		// Replace '[/QUOTE]' with '</blockquote>'
 		$xenforo_markup = preg_replace( '/\[\/QUOTE\]/', '</blockquote>', $xenforo_markup );
-		// Replace '[QUOTE=User Name($1)]' with '<em>@$1 wrote:</em><blockquote>"
-		$xenforo_markup = preg_replace( '/\[quote=\"(.*?)\,\spost\:\s(.*?)\,\s\member\:\s(.*?)\"\](.*?)\[\/quote\]/', '<em>@$1 wrote:</em><blockquote>', $xenforo_markup );
+		// Replace '[QUOTE="User Name, post: 1, member: 2"]' with '<em>@User Name wrote:</em><blockquote>'
+		$xenforo_markup = preg_replace_callback(
+			'/\[quote="([^"]+),\s*post:\s*[^,"]+,\s*member:\s*[^"]+"\]/i',
+			function ( $matches ) {
+				return '<em>@' . esc_html( $matches[1] ) . ' wrote:</em><blockquote>';
+			},
+			$xenforo_markup
+		);
 		// Replace '[/quote]' with '</blockquote>'
 		$xenforo_markup = preg_replace( '/\[\/quote\]/', '</blockquote>', $xenforo_markup );
 
