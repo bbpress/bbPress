@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added BuddyPress group forum support for child forums. Forum parentage now
+  determines group routes and member access to private or hidden children, and
+  activity from those forums appears in the parent group's stream.
 - Added optional suggestions for translated forum URL slugs in Settings after
   the site language changes. Existing URLs remain unchanged until an
   administrator applies the suggestions.

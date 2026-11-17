@@ -33,6 +33,260 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $template_parts = array();
 
 	/**
+	 * @ticket BBP2191
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 * @covers ::BBP_Forums_Group_Extension::map_topic_permalink_to_group
+	 * @covers ::bbp_get_group_forum_route_forum_id
+	 */
+	public function test_child_topic_uses_its_own_forum_inside_the_group_route() {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$parent_id  = $this->factory->forum->create();
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id   = $this->factory->topic->create( array(
+			'post_parent' => $child_id,
+			'post_title'  => 'Inherited group child topic',
+			'topic_meta'  => array( 'forum_id' => $child_id ),
+		) );
+
+		$this->attach_forum_to_group( $parent_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		buddypress()->is_single_item   = true;
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $topic_id ) );
+		$_GET['bbp_group_forum_id']    = (string) $child_id;
+
+		$this->assertSame( $child_id, bbp_get_group_forum_route_forum_id() );
+		$this->assertTrue( bbp_is_forum_group_forum( $child_id ) );
+		$this->assertStringContainsString( 'bbp_group_forum_id=' . $child_id, html_entity_decode( bbp_get_forum_permalink( $child_id ) ) );
+		$this->assertStringContainsString( 'bbp_group_forum_id=' . $child_id, html_entity_decode( bbp_get_topic_permalink( $topic_id ) ) );
+		bbpress()->current_forum_id = $child_id;
+		bbp_set_query_name( 'bbp_single_forum' );
+		$forum_pagination = $this->group_extension->topic_pagination( array() );
+		$this->assertStringContainsString( '%#%', $forum_pagination['base'] );
+		$forum_page_url = wp_parse_url( str_replace( '%#%', '2', html_entity_decode( $forum_pagination['base'] ) ) );
+		parse_str( $forum_page_url['query'], $forum_page_query );
+		$this->assertSame( (string) $child_id, $forum_page_query['bbp_group_forum_id'] );
+		$topic_filter = function() use ( $topic_id ) {
+			return $topic_id;
+		};
+		add_filter( 'bbp_get_topic_id', $topic_filter );
+		$reply_pagination = $this->group_extension->replies_pagination( array() );
+		remove_filter( 'bbp_get_topic_id', $topic_filter );
+		$this->assertStringContainsString( '%#%', $reply_pagination['base'] );
+		$reply_page_url = wp_parse_url( str_replace( '%#%', '2', html_entity_decode( $reply_pagination['base'] ) ) );
+		parse_str( $reply_page_url['query'], $reply_page_query );
+		$this->assertSame( (string) $child_id, $reply_page_query['bbp_group_forum_id'] );
+
+		ob_start();
+		$this->group_extension->display_forums();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'Inherited group child topic', $html );
+		$this->assertSame( array( $topic_id ), wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
+
+		$_GET['bbp_group_forum_id'] = (string) $parent_id;
+		$this->assertSame( $parent_id, bbp_get_group_forum_route_forum_id() );
+		ob_start();
+		$this->group_extension->display_forums();
+		ob_end_clean();
+		$this->assertSame( 0, bbpress()->topic_query->post_count );
+
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_title'  => 'Inherited group child reply',
+			'reply_meta'  => array( 'forum_id' => $child_id ),
+		) );
+		buddypress()->action_variables = array( $this->group_extension->reply_slug, get_post_field( 'post_name', $reply_id ) );
+		ob_start();
+		$this->group_extension->display_forums();
+		$wrong_forum_html = ob_get_clean();
+		$this->assertStringNotContainsString( 'Inherited group child reply', $wrong_forum_html );
+
+		$_GET['bbp_group_forum_id'] = (string) $child_id;
+		ob_start();
+		$this->group_extension->display_forums();
+		$child_forum_html = ob_get_clean();
+		$this->assertStringContainsString( 'Inherited group child reply', $child_forum_html );
+	}
+
+	/**
+	 * @ticket BBP2191
+	 * @covers ::BBP_Forums_Group_Extension::map_reply_url_to_group
+	 * @covers ::BBP_Forums_Group_Extension::map_topic_edit_url_to_group
+	 * @covers ::BBP_Forums_Group_Extension::map_reply_edit_url_to_group
+	 * @covers ::BBP_Forums_Group_Extension::topic_loop_pagination
+	 */
+	public function test_child_topic_edit_and_reply_page_urls_keep_group_route() {
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$parent_id  = $this->factory->forum->create();
+		$child_id   = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id   = $this->factory->topic->create( array(
+			'post_parent' => $child_id,
+			'topic_meta'  => array( 'forum_id' => $child_id ),
+		) );
+		$this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $child_id, 'topic_id' => $topic_id ),
+		) );
+		$reply_id   = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $child_id, 'topic_id' => $topic_id ),
+		) );
+
+		$this->attach_forum_to_group( $parent_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+
+		$one_reply = function() {
+			return 1;
+		};
+		$topic_filter = function() use ( $topic_id ) {
+			return $topic_id;
+		};
+		add_filter( 'bbp_get_replies_per_page', $one_reply );
+		add_filter( 'bbp_get_topic_id', $topic_filter );
+		add_filter( 'bbp_pretty_urls', '__return_true' );
+
+		$topic_edit = html_entity_decode( bbp_get_topic_edit_url( $topic_id ) );
+		$reply_edit = html_entity_decode( bbp_get_reply_edit_url( $reply_id ) );
+		$reply_url  = html_entity_decode( bbp_get_reply_url( $reply_id ) );
+		$pages      = html_entity_decode( bbp_get_topic_pagination( array( 'topic_id' => $topic_id ) ) );
+
+		remove_filter( 'bbp_pretty_urls', '__return_true' );
+		remove_filter( 'bbp_get_topic_id', $topic_filter );
+		remove_filter( 'bbp_get_replies_per_page', $one_reply );
+
+		foreach ( array( $topic_edit, $reply_edit, $reply_url ) as $url ) {
+			$parts = wp_parse_url( $url );
+			parse_str( $parts['query'], $query );
+			$this->assertSame( (string) $child_id, $query['bbp_group_forum_id'] );
+		}
+
+		$route = function( $url ) {
+			$parts = wp_parse_url( $url );
+			parse_str( $parts['query'], $query );
+			return isset( $query['bp_group_action_variables'] )
+				? '/' . $query['bp_group_action'] . '/' . implode( '/', $query['bp_group_action_variables'] ) . '/'
+				: $parts['path'];
+		};
+		$this->assertStringEndsWith( '/edit/', $route( $topic_edit ) );
+		$this->assertStringEndsWith( '/edit/', $route( $reply_edit ) );
+		$reply_page = (int) ceil( bbp_get_reply_position( $reply_id, $topic_id ) );
+		$this->assertGreaterThan( 1, $reply_page );
+		$this->assertStringEndsWith( '/page/' . $reply_page . '/', $route( $reply_url ) );
+
+		$this->assertNotEmpty( preg_match_all( '/href="([^"]+)"/', $pages, $page_matches ) );
+		$found_page_two = false;
+		foreach ( $page_matches[1] as $page_url ) {
+			$page_url   = html_entity_decode( $page_url );
+			$page_parts = wp_parse_url( $page_url );
+			parse_str( $page_parts['query'], $page_query );
+			if ( preg_match( '~/page/2/$~', $route( $page_url ) ) ) {
+				$this->assertSame( (string) $child_id, $page_query['bbp_group_forum_id'] );
+				$found_page_two = true;
+			}
+		}
+		$this->assertTrue( $found_page_two );
+	}
+
+	/**
+	 * @ticket BBP2191
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 * @covers ::BBP_Forums_Group_Extension::topic_parent
+	 */
+	public function test_group_with_claimed_child_does_not_display_another_forum() {
+		$creator_id = $this->factory->user->create();
+		$parent_group_id = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$child_group_id  = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$parent_id       = $this->factory->forum->create();
+		$child_id        = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+
+		$this->attach_forum_to_group( $parent_id, $parent_group_id );
+		$this->attach_forum_to_group( $child_id, $child_group_id );
+		$this->set_group_context( $child_group_id, $creator_id );
+		unset( $_GET['bbp_group_forum_id'] );
+
+		$this->assertSame( 0, bbp_get_group_forum_route_forum_id() );
+		ob_start();
+		$this->group_extension->display_forums();
+		$html = ob_get_clean();
+		$this->assertStringContainsString( 'does not currently have a forum', $html );
+		$this->assertStringNotContainsString( get_post_field( 'post_title', $child_id ), $html );
+
+		ob_start();
+		$this->group_extension->topic_parent();
+		$dropdown = ob_get_clean();
+		$this->assertStringNotContainsString( '<select', $dropdown );
+	}
+
+	/**
+	 * @ticket BBP2191
+	 * @covers ::BBP_Forums_Group_Extension::validate_new_post
+	 * @covers ::BBP_Forums_Group_Extension::map_activity_to_group
+	 */
+	public function test_child_forum_inherits_group_membership_and_activity() {
+		$creator_id         = $this->factory->user->create();
+		$member_id          = $this->factory->user->create();
+		$roleless_member_id = $this->factory->user->create();
+		$other_id           = $this->factory->user->create();
+		$group_id           = $this->bp_factory->group->create( array( 'creator_id' => $creator_id, 'status' => 'private' ) );
+		$other_group_id     = $this->bp_factory->group->create( array( 'creator_id' => $other_id ) );
+		$parent_id          = $this->factory->forum->create();
+		$child_id           = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id           = $this->factory->topic->create( array( 'post_parent' => $child_id, 'topic_meta' => array( 'forum_id' => $child_id ) ) );
+
+		foreach ( array( $creator_id, $member_id, $other_id ) as $user_id ) {
+			bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		}
+		bbp_remove_user_role( $roleless_member_id );
+		groups_join_group( $group_id, $member_id );
+		groups_join_group( $group_id, $roleless_member_id );
+		$this->attach_forum_to_group( $parent_id, $group_id );
+		$this->attach_forum_to_group( $child_id, $other_group_id );
+		bbp_privatize_forum( $parent_id );
+		$this->set_group_context( $group_id, $member_id );
+
+		$this->assertSame( array( $group_id ), bbp_get_forum_inherited_group_ids( $child_id ) );
+		$this->assertTrue( user_can( $member_id, 'read_forum', $child_id ) );
+		$this->assertEmpty( bbp_get_user_role( $roleless_member_id ) );
+		$this->assertTrue( user_can( $roleless_member_id, 'read_forum', $child_id ) );
+		$this->assertFalse( user_can( $other_id, 'read_forum', $child_id ) );
+		bbp_hide_forum( $child_id );
+		$this->assertTrue( user_can( $member_id, 'read_forum', $child_id ) );
+		ob_start();
+		$this->group_extension->topic_parent();
+		$dropdown = ob_get_clean();
+		$this->assertStringContainsString( get_post_field( 'post_title', $child_id ), $dropdown );
+		bbpress()->errors = new WP_Error();
+		$this->group_extension->validate_new_post( $child_id );
+		$this->assertNotContains( 'bbp_group_forum_permission', bbpress()->errors->get_error_codes() );
+
+		$this->set_current_user( $other_id );
+		bbpress()->errors = new WP_Error();
+		$this->group_extension->validate_new_post( $child_id );
+		$this->assertContains( 'bbp_group_forum_permission', bbpress()->errors->get_error_codes() );
+
+		unset( buddypress()->groups->current_group );
+		$activity = $this->group_extension->map_activity_to_group( array(
+			'item_id'           => $topic_id,
+			'secondary_item_id' => $child_id,
+			'hide_sitewide'     => false,
+		) );
+		$this->assertSame( buddypress()->groups->id, $activity['component'] );
+		$this->assertSame( $group_id, $activity['item_id'] );
+		$this->assertSame( $topic_id, $activity['secondary_item_id'] );
+		$this->assertTrue( $activity['hide_sitewide'] );
+
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'reply_meta' => array( 'forum_id' => $child_id ) ) );
+		$reply_activity = $this->group_extension->map_activity_to_group( array(
+			'item_id'           => $reply_id,
+			'secondary_item_id' => $topic_id,
+		) );
+		$this->assertSame( $group_id, $reply_activity['item_id'] );
+		$this->assertSame( $reply_id, $reply_activity['secondary_item_id'] );
+	}
+
+	/**
 	 * @covers ::BBP_Forums_Group_Extension::remove_forum
 	 * @covers ::BBP_Forums_Group_Extension::disconnect_forum_from_group
 	 */

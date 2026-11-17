@@ -14,6 +14,48 @@ class BBP_Tests_Extend_BuddyPress_Functions extends BBP_UnitTestCase {
 	private $displayed_user;
 	private $old_user;
 
+	/**
+	 * @ticket BBP2191
+	 * @covers ::bbp_get_forum_inherited_group_ids
+	 * @covers ::bbp_is_forum_in_group
+	 * @covers ::bbp_get_group_forum_ids_with_descendants
+	 */
+	public function test_group_forum_descendants_follow_parentage() {
+		$group_ids   = $this->bp_factory->group->create_many( 2 );
+		$parent_id   = $this->factory->forum->create();
+		$child_id    = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$grandchild  = $this->factory->forum->create( array( 'post_parent' => $child_id ) );
+		$unrelated   = $this->factory->forum->create();
+
+		bbp_add_forum_id_to_group( $group_ids[0], $parent_id );
+		bbp_add_group_id_to_forum( $parent_id, $group_ids[0] );
+
+		$this->assertSame( array(), bbp_get_forum_group_ids( $child_id ) );
+		$this->assertSame( array( $group_ids[0] ), bbp_get_forum_inherited_group_ids( $child_id ) );
+		$this->assertTrue( bbp_is_forum_in_group( $child_id, $group_ids[0] ) );
+		$this->assertFalse( bbp_is_forum_in_group( $child_id, $group_ids[1] ) );
+		$this->assertFalse( bbp_is_forum_in_group( 0, $group_ids[0] ) );
+		$this->assertSame( array( $group_ids[0] ), bbp_get_forum_inherited_group_ids( $grandchild ) );
+		$this->assertSame( array(), bbp_get_forum_inherited_group_ids( $unrelated ) );
+		$this->assertSame( array( $parent_id, $child_id, $grandchild ), bbp_get_group_forum_ids_with_descendants( $group_ids[0] ) );
+		$queries = get_num_queries();
+		$this->assertSame( array( $parent_id, $child_id, $grandchild ), bbp_get_group_forum_ids_with_descendants( $group_ids[0] ) );
+		$this->assertSame( $queries, get_num_queries() );
+
+		bbp_add_forum_id_to_group( $group_ids[1], $child_id );
+		bbp_add_group_id_to_forum( $child_id, $group_ids[1] );
+		$this->assertSame( array( $group_ids[0] ), bbp_get_forum_inherited_group_ids( $child_id ) );
+		$this->assertFalse( bbp_is_forum_in_group( $child_id, $group_ids[1] ) );
+		$this->assertSame( array( $group_ids[0] ), bbp_get_forum_inherited_group_ids( $grandchild ) );
+		$this->assertSame( array( $parent_id, $child_id, $grandchild ), bbp_get_group_forum_ids_with_descendants( $group_ids[0] ) );
+		$this->assertSame( array(), bbp_get_group_forum_ids_with_descendants( $group_ids[1] ) );
+		$this->assertSame( 0, bbp_get_group_forum_route_forum_id( $group_ids[1] ) );
+
+		wp_update_post( array( 'ID' => $grandchild, 'post_parent' => $unrelated ) );
+		$this->assertSame( array(), bbp_get_forum_inherited_group_ids( $grandchild ) );
+		$this->assertFalse( bbp_is_forum_in_group( $grandchild, $group_ids[0] ) );
+	}
+
 	public function setUp(): void {
 		parent::setUp();
 

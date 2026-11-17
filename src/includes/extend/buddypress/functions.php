@@ -59,7 +59,7 @@ function bbp_filter_group_moderation_notification_recipient_type_user_ids( $user
 		return $user_ids;
 	}
 
-	foreach ( bbp_get_forum_group_ids( $forum_id ) as $group_id ) {
+	foreach ( bbp_get_forum_inherited_group_ids( $forum_id ) as $group_id ) {
 		$admins   = wp_list_pluck( groups_get_group_admins( $group_id ), 'user_id' );
 		$mods     = wp_list_pluck( groups_get_group_mods( $group_id ), 'user_id' );
 		$staff    = array_filter(
@@ -195,15 +195,15 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 				return $new_title;
 			}
 
-			$forum_ids = bbp_get_group_forum_ids();
+			$forum_id = bbp_get_group_forum_route_forum_id();
 
-			if ( empty( $forum_ids ) ) {
+			if ( empty( $forum_id ) ) {
 				return $new_title;
 			}
 
 			$topic_args = array(
 				'post_name__in'   => array( bp_action_variable( 1 ) ),
-				'post_parent__in' => $forum_ids,
+				'post_parent'     => $forum_id,
 				'post_status'     => array_keys( bbp_get_topic_statuses() ),
 				'post_type'       => bbp_get_topic_post_type(),
 				'numberposts'     => 1
@@ -550,6 +550,124 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 }
 
 /**
+ * Get the group IDs inherited through forum parentage.
+ *
+ * A group-linked ancestor takes precedence over a different direct group
+ * relationship on a child. Moving a forum changes the inherited relationship.
+ *
+ * @since 2.7.0 bbPress (r8409)
+ *
+ * @param int $forum_id Forum ID.
+ * @return int[] Group IDs.
+ */
+function bbp_get_forum_inherited_group_ids( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( ! bbp_is_forum( $forum_id ) ) {
+		return array();
+	}
+
+	foreach ( array_reverse( bbp_get_forum_ancestors( $forum_id ) ) as $candidate_id ) {
+		$group_ids = bbp_get_forum_group_ids( $candidate_id );
+
+		if ( ! empty( $group_ids ) ) {
+			return $group_ids;
+		}
+	}
+
+	return bbp_get_forum_group_ids( $forum_id );
+}
+
+/**
+ * Check whether a forum belongs to a group through its parentage.
+ *
+ * @since 2.7.0 bbPress (r8409)
+ *
+ * @param int $forum_id Forum ID.
+ * @param int $group_id Group ID. Defaults to the current group.
+ * @return bool Whether the forum belongs to the group.
+ */
+function bbp_is_forum_in_group( $forum_id = 0, $group_id = 0 ) {
+	if ( empty( $forum_id ) ) {
+		return false;
+	}
+
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$group_id = empty( $group_id ) ? bp_get_current_group_id() : absint( $group_id );
+
+	return ! empty( $group_id )
+		&& in_array( $group_id, bbp_get_forum_inherited_group_ids( $forum_id ), true );
+}
+
+/**
+ * Get directly attached group forums and their inherited descendants.
+ *
+ * @since 2.7.0 bbPress (r8409)
+ *
+ * @param int $group_id Group ID.
+ * @return int[] Forum IDs.
+ */
+function bbp_get_group_forum_ids_with_descendants( $group_id = 0 ) {
+	$group_id  = empty( $group_id ) ? bp_get_current_group_id() : $group_id;
+	$forum_ids = bbp_get_group_forum_ids( $group_id );
+
+	if ( empty( $forum_ids ) ) {
+		return array();
+	}
+
+	$descendants = bbp_forum_query_all_descendant_ids( $forum_ids );
+	$matched     = array();
+
+	// Prime posts and group metadata before checking each forum's ancestors.
+	foreach ( array_chunk( $descendants, 500 ) as $batch ) {
+		_prime_post_caches( $batch, false, true );
+		update_meta_cache( 'post', $batch );
+	}
+
+	foreach ( $descendants as $forum_id ) {
+		if ( bbp_is_forum_in_group( $forum_id, $group_id ) ) {
+			$matched[] = $forum_id;
+		}
+	}
+
+	return $matched;
+}
+
+/**
+ * Return the forum selected by a BuddyPress group forum URL.
+ *
+ * A route without a forum ID continues to select the group's first forum.
+ * A child ID must belong to the group through its forum parentage.
+ *
+ * @since 2.7.0 bbPress (r8409)
+ *
+ * @param int $group_id Group ID.
+ * @return int Forum ID, or 0 for an invalid route.
+ */
+function bbp_get_group_forum_route_forum_id( $group_id = 0 ) {
+	$group_id  = empty( $group_id ) ? bp_get_current_group_id() : $group_id;
+	$forum_ids = bbp_get_group_forum_ids( $group_id );
+	$root_id   = 0;
+
+	foreach ( $forum_ids as $candidate_id ) {
+		if ( bbp_is_forum_in_group( $candidate_id, $group_id ) ) {
+			$root_id = $candidate_id;
+			break;
+		}
+	}
+
+	if ( ! isset( $_GET['bbp_group_forum_id'] ) ) {
+		return $root_id;
+	}
+
+	$forum_id = absint( wp_unslash( $_GET['bbp_group_forum_id'] ) );
+
+	return bbp_is_forum_in_group( $forum_id, $group_id )
+		? $forum_id
+		: 0;
+}
+
+/**
  * Update forum IDs for a group.
  *
  * @since 2.1.0 bbPress (r3654)
@@ -770,7 +888,7 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
 
 	// Check for group ID's
-	$group_ids = bbp_get_forum_group_ids( $forum_id );
+	$group_ids = bbp_get_forum_inherited_group_ids( $forum_id );
 
 	// Check if the forum has groups
 	$retval    = (bool) ! empty( $group_ids );
@@ -812,11 +930,11 @@ function bbp_get_group_pending_topic_id() {
 
 	$topic_id  = absint( wp_unslash( $_GET['bbp_topic_id'] ) );
 	$forum_id  = bbp_get_topic_forum_id( $topic_id );
-	$forum_ids = bbp_get_group_forum_ids( bp_get_current_group_id() );
+	$route_id  = bbp_get_group_forum_route_forum_id();
 
 	// Topic must be pending, belong to this group, and be readable.
 	if ( ! bbp_is_topic_pending( $topic_id )
-		|| ! in_array( $forum_id, $forum_ids, true )
+		|| ( $forum_id !== $route_id )
 		|| ! current_user_can( 'read_forum', $forum_id )
 		|| ! current_user_can( 'read_topic', $topic_id )
 	) {
