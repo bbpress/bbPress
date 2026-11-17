@@ -198,6 +198,7 @@ Run quality checks appropriate to the changed files:
 
 ```sh
 composer lint
+composer phpstan
 npx grunt eslint:grunt eslint:core
 npx grunt stylelint
 npx grunt checktextdomain

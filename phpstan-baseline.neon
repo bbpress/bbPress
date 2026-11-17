@@ -1,0 +1,1471 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Action callback returns bbPress but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/bbpress.php
+
+		-
+			message: '#^Action callback returns array but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/admin/actions.php
+
+		-
+			message: '#^Action callback returns object but should not return anything\.$#'
+			identifier: return.void
+			count: 3
+			path: src/includes/admin/actions.php
+
+		-
+			message: '#^Action callback returns bool\|null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/admin/classes/class-bbp-admin.php
+
+		-
+			message: '#^Function bp_is_root_blog not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-admin.php
+
+		-
+			message: '#^Method BBP_Admin\:\:add_notice\(\) should return false\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/admin/classes/class-bbp-admin.php
+
+		-
+			message: '#^Method BBP_Admin\:\:option_page_capability_bbpress\(\) should return string but returns bool\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/admin/classes/class-bbp-admin.php
+
+		-
+			message: '#^Method BBP_Admin\:\:register_admin_settings\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/admin/classes/class-bbp-admin.php
+
+		-
+			message: '#^Property BBP_Admin\:\:\$minimum_capability \(bool\) does not accept default value of type string\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-admin.php
+
+		-
+			message: '#^Constant DB_HOST not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-base.php
+
+		-
+			message: '#^Constant DB_NAME not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-base.php
+
+		-
+			message: '#^Constant DB_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-base.php
+
+		-
+			message: '#^Constant DB_USER not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-base.php
+
+		-
+			message: '#^Constant WPINC not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-base.php
+
+		-
+			message: '#^Property BBP_Converter_Base\:\:\$halt \(bool\) does not accept default value of type int\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-base.php
+
+		-
+			message: '#^Access to an undefined property BBP_Converter_DB\:\:\$use_mysqli\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter-db.php
+
+		-
+			message: '#^Property BBP_Converter\:\:\$platform \(int\) does not accept default value of type string\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter.php
+
+		-
+			message: '#^Property BBP_Converter\:\:\$step_percentage \(int\) does not accept float\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter.php
+
+		-
+			message: '#^Property BBP_Converter\:\:\$total_percentage \(int\) does not accept float\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/includes/admin/classes/class-bbp-converter.php
+
+		-
+			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_reply_content\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
+
+		-
+			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_reply_created\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
+
+		-
+			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_topic_reply_author\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
+
+		-
+			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_cb\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
+
+		-
+			message: '#^Constant WPINC not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/admin/converters/Vanilla.php
+
+		-
+			message: '#^Regex pattern is invalid\: Compilation failed\: unrecognized character follows \\ at offset 38 in pattern\: /\\\[quote\=\\"\(\.\*\?\)\\,\\spost\\\:\\s\(\.\*\?\)\\,\\s\\member\\\:\\s\(\.\*\?\)\\"\\\]\(\.\*\?\)\\\[\\/quote\\\]/$#'
+			identifier: regexp.pattern
+			count: 1
+			path: src/includes/admin/converters/XenForo.php
+
+		-
+			message: '#^Action callback returns int but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/admin/forums.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$forum \(false\) of method BBP_Forums_Admin\:\:row_actions\(\) is incompatible with type object\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/forums.php
+
+		-
+			message: '#^Function bbp_get_forum_last_active_time invoked with 2 parameters, 0\-1 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/admin/forums.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value '';\-D'' \('';\-D'', '';\-D''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/includes/admin/parser.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value '';D'' \('';D'', '';D''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/includes/admin/parser.php
+
+		-
+			message: '#^Variable \$elem might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: src/includes/admin/parser.php
+
+		-
+			message: '#^Variable \$key might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: src/includes/admin/parser.php
+
+		-
+			message: '#^Variable \$type might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/admin/parser.php
+
+		-
+			message: '#^Action callback returns int but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/admin/replies.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$reply \(false\) of method BBP_Replies_Admin\:\:row_actions\(\) is incompatible with type object\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/replies.php
+
+		-
+			message: '#^Filter callback return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/admin/replies.php
+
+		-
+			message: '#^Function buddypress not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/includes/admin/settings.php
+
+		-
+			message: '#^Function buddypress not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/includes/admin/slug-translations.php
+
+		-
+			message: '#^Parameter \#1 \(array\) of echo cannot be converted to string\.$#'
+			identifier: echo.nonString
+			count: 2
+			path: src/includes/admin/tools/common.php
+
+		-
+			message: '#^Variable \$overhead_count might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/admin/tools/common.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$callback \(''''\) of function bbp_admin_repair_tool_run_automatically\(\) is incompatible with type callable\(\)\: mixed\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/tools/runner.php
+
+		-
+			message: '#^Variable \$added might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/admin/tools/upgrade.php
+
+		-
+			message: '#^Variable \$failures might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/admin/tools/upgrade.php
+
+		-
+			message: '#^Variable \$none might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/admin/tools/upgrade.php
+
+		-
+			message: '#^Variable \$result might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/includes/admin/tools/upgrade.php
+
+		-
+			message: '#^Variable \$statement might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/admin/tools/upgrade.php
+
+		-
+			message: '#^Action callback returns int but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/admin/topics.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$topic \(false\) of method BBP_Topics_Admin\:\:row_actions\(\) is incompatible with type object\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/topics.php
+
+		-
+			message: '#^Filter callback return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/admin/topics.php
+
+		-
+			message: '#^Function bbp_get_topic_last_active_time invoked with 2 parameters, 0\-1 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/admin/topics.php
+
+		-
+			message: '#^Action callback returns array but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/admin/users.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$user \(false\) of method BBP_Users_Admin\:\:user_row_actions\(\) is incompatible with type WP_User\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/admin/users.php
+
+		-
+			message: '#^Callback expects 0 parameters, \$accepted_args is set to 2\.$#'
+			identifier: arguments.count
+			count: 3
+			path: src/includes/common/classes.php
+
+		-
+			message: '#^Callback expects 1 parameter, \$accepted_args is set to 2\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/common/classes.php
+
+		-
+			message: '#^PHPDoc type array of property BBP_Walker_Dropdown\:\:\$db_fields is not covariant with PHPDoc type array\<string\> of overridden property Walker\:\:\$db_fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/includes/common/classes.php
+
+		-
+			message: '#^PHPDoc type array of property BBP_Walker_Reply\:\:\$db_fields is not covariant with PHPDoc type array\<string\> of overridden property Walker\:\:\$db_fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/includes/common/classes.php
+
+		-
+			message: '#^PHPDoc type array of property BBP_Walker_Reply_Dropdown\:\:\$db_fields is not covariant with PHPDoc type array\<string\> of overridden property Walker\:\:\$db_fields\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/includes/common/classes.php
+
+		-
+			message: '#^Parameter &\$content by\-ref type of function bbp_encode_empty_callback\(\) expects string, string\|null given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/includes/common/formatting.php
+
+		-
+			message: '#^Parameter &\$content by\-ref type of function bbp_encode_normal_callback\(\) expects string, string\|null given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/includes/common/formatting.php
+
+		-
+			message: '#^Variable \$count in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/common/formatting.php
+
+		-
+			message: '#^Default value of the parameter \#3 \$post \(false\) of function bbp_update_counts_on_transition_post_status\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Function bbp_notify_forum_subscribers\(\) should return bool\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 2
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Function bbp_notify_topic_subscribers\(\) should return bool\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 2
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Function bbp_update_counts_on_transition_post_status\(\) should return bool\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Function bbp_update_counts_on_transition_post_status\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 3
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Offset ''url'' does not exist on array\{\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Variable \$first_chunk might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Variable \$hook_name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Variable \$option_name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/common/functions.php
+
+		-
+			message: '#^Method BBP_Shortcodes\:\:display_search\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/common/shortcodes.php
+
+		-
+			message: '#^Method BBP_Shortcodes\:\:display_search_form\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/common/shortcodes.php
+
+		-
+			message: '#^Function bbp_get_breadcrumb\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/common/template.php
+
+		-
+			message: '#^Method BBP_Forums_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Method BBP_Login_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Method BBP_Replies_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Method BBP_Search_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Method BBP_Topics_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Method BBP_Views_Widget\:\:form\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Return type \(void\) of method BBP_Stats_Widget\:\:form\(\) should be compatible with return type \(string\|null\) of method WP_Widget\<array\<string, mixed\>\>\:\:form\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: src/includes/common/widgets.php
+
+		-
+			message: '#^Action callback returns WP_Roles\|null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Action callback returns bool but should not return anything\.$#'
+			identifier: return.void
+			count: 33
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Action callback returns bool\|null but should not return anything\.$#'
+			identifier: return.void
+			count: 5
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Action callback returns false\|null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Action callback returns int\|false but should not return anything\.$#'
+			identifier: return.void
+			count: 2
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Action callback returns int\|null but should not return anything\.$#'
+			identifier: return.void
+			count: 17
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Function bbp_add_forums_roles\(\) should return WP_Roles\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/core/capabilities.php
+
+		-
+			message: '#^Function buddypress not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/includes/core/extend.php
+
+		-
+			message: '#^Function buddypress\(\) has invalid return type BuddyPress\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/includes/core/extend.php
+
+		-
+			message: '#^Inner named functions are not supported by PHPStan\. Consider refactoring to an anonymous function, class method, or a top\-level\-defined function\. See issue \#165 \(https\://github\.com/phpstan/phpstan/issues/165\) for more details\.$#'
+			identifier: function.inner
+			count: 1
+			path: src/includes/core/extend.php
+
+		-
+			message: '#^Action callback returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/core/filters.php
+
+		-
+			message: '#^Callback expects 0\-1 parameters, \$accepted_args is set to 2\.$#'
+			identifier: arguments.count
+			count: 4
+			path: src/includes/core/filters.php
+
+		-
+			message: '#^Callback expects 0\-1 parameters, \$accepted_args is set to 3\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/core/filters.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$post_after \(false\) of function bbp_post_updated\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/core/sub-actions.php
+
+		-
+			message: '#^Default value of the parameter \#3 \$post_before \(false\) of function bbp_post_updated\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/core/sub-actions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_404\.$#'
+			identifier: property.notFound
+			count: 12
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_edit\.$#'
+			identifier: property.notFound
+			count: 5
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_forum_edit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_reply_edit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_search\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_edit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_engagements\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_favs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_home\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_mentions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_profile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_replies\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_subs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_single_user_topics\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_subscription_unsubscribe\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_topic_edit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_topic_tag_edit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_is_view\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_search_terms\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$bbp_show_topics_on_root\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Found usage of constant WP_USE_THEMES\. Use wp_using_themes\(\) instead\.$#'
+			identifier: phpstanWP.wpConstant.fetch
+			count: 1
+			path: src/includes/core/template-functions.php
+
+		-
+			message: '#^Constant WPINC not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/includes/core/template-loader.php
+
+		-
+			message: '#^Access to an undefined property BBP_Theme_Compat\:\:\$dir\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Access to an undefined property BBP_Theme_Compat\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Access to an undefined property BBP_Theme_Compat\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Access to an undefined property BBP_Theme_Compat\:\:\$url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Access to an undefined property BBP_Theme_Compat\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Method BBP_Theme_Compat\:\:__set\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Variable \$new_content might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/core/theme-compat.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$callback \(''''\) of function bbp_run_required_upgrade\(\) is incompatible with type callable\(\)\: mixed\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/core/update.php
+
+		-
+			message: '#^Variable \$callback in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 2
+			path: src/includes/core/update.php
+
+		-
+			message: '#^Filter callback return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/extend/akismet.php
+
+		-
+			message: '#^Method BBP_Akismet\:\:filter_post_terms\(\) should return array but returns string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/extend/akismet.php
+
+		-
+			message: '#^Variable \$post_data in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/extend/akismet.php
+
+		-
+			message: '#^Variable \$spam_ids in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 2
+			path: src/includes/extend/akismet.php
+
+		-
+			message: '#^Variable \$spam_meta_results in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/extend/akismet.php
+
+		-
+			message: '#^Call to an undefined method WP_Roles\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$forum \(false\) of function bbp_reparent_forum_subforums\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$forum_after \(false\) of function bbp_update_forum_subforum_counts_on_post_updated\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Default value of the parameter \#3 \$forum \(false\) of function bbp_update_forum_subforum_count_on_transition_post_status\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Default value of the parameter \#3 \$forum_before \(false\) of function bbp_update_forum_subforum_counts_on_post_updated\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Function bbp_categorize_forum\(\) should return bool but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Function bbp_deleted_forum\(\) should return false\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Function bbp_normalize_forum\(\) should return bool but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Function bbp_update_forum_walker\(\) should return false\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Function wp_trash_post invoked with 2 parameters, 0\-1 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Variable \$forum_id in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Variable \$forum_parent_id in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/forums/functions.php
+
+		-
+			message: '#^Function bbp_list_forums\(\) should return string\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/forums/template.php
+
+		-
+			message: '#^Variable \$link might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/includes/forums/template.php
+
+		-
+			message: '#^Variable \$links in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/forums/template.php
+
+		-
+			message: '#^Variable \$url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/includes/forums/template.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$found_posts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$is_embed\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$is_feed\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$max_num_pages\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$post\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$post_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$posts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$queried_object\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Roles\:\:\$queried_object_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Function bbp_approve_reply\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Function bbp_spam_reply\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Function bbp_unapprove_reply\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Function bbp_unspam_reply\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Function remove_filter invoked with 4 parameters, 2\-3 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^One or more @param tags has an invalid name or invalid syntax\.$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Variable \$ancestors in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Variable \$move_option might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Variable \$new_where in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Variable \$reply_id in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/replies/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Post\:\:\$reply_to\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$paged\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$pagination_links\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$posts_per_page\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Cannot access property \$reply_to on int\|WP_Post\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_cancel_reply_to_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_admin_links\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 2
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_approve_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_edit_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 3
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_edit_url\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_move_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_spam_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_to_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_reply_trash_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_topic_split_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Variable \$parent_id in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/replies/template.php
+
+		-
+			message: '#^Function bbp_get_search_pagination_count\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/search/template.php
+
+		-
+			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Cannot access property \$tax_input on array\|WP_Post\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_approve_topic\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_close_topic\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_open_topic\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_spam_topic\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_unapprove_topic\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_unspam_topic\(\) should return int\|false\|null but returns array\{\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_update_topic_topic_id invoked with 2 parameters, 0\-1 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Function bbp_update_topic_voice_count\(\) should return int\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Variable \$old_forum_ancestors in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Variable \$replies in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Variable \$source_topic_slugs in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Variable \$topic_id in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/topics/functions.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$paged\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$pagination_links\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Access to an undefined property WP_Query\:\:\$posts_per_page\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_super_stickies invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_approve_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_close_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_edit_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 3
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_edit_url\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_merge_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_pagination\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_reply_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_spam_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_stick_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 2
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_get_topic_trash_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Function bbp_topic_content_append_revisions\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/topics/template.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:add_user_to_object\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:get_query\(\) should return array\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:get_users_for_object\(\) should return array\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:remove_all_users_from_all_objects\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:remove_object_from_all_users\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:remove_user_from_all_objects\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Base\:\:remove_user_from_object\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-base.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Term\:\:add_user_to_object\(\) should return bool but returns array\|WP_Error\.$#'
+			identifier: return.type
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-strategy-term.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Type\:\:current_user_can_read\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-type.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Type\:\:get_query_args\(\) should return array\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-type.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Type\:\:get_subtype_query_args\(\) should return array\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-type.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Type\:\:get_url\(\) should return string\|false\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-type.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Type\:\:supports\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-type.php
+
+		-
+			message: '#^Method BBP_User_Engagements_Type\:\:supports_tax_query\(\) should return bool\|null but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/includes/users/classes/class-bbp-user-engagements-type.php
+
+		-
+			message: '#^Cannot call method add_user_to_object\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^Cannot call method get_query\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^Cannot call method get_users_for_object\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^Cannot call method remove_all_users_from_all_objects\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^Cannot call method remove_object_from_all_users\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^Cannot call method remove_user_from_all_objects\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^Cannot call method remove_user_from_object\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/includes/users/engagements.php
+
+		-
+			message: '#^@param string \$r does not accept actual type of parameter\: array\.$#'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Constant COOKIEHASH not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Constant COOKIEPATH not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$post_after \(false\) of function bbp_recalculate_engagements_on_post_author_change\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$post_after \(false\) of function bbp_update_counts_on_post_author_change\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Default value of the parameter \#3 \$post_before \(false\) of function bbp_recalculate_engagements_on_post_author_change\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Default value of the parameter \#3 \$post_before \(false\) of function bbp_update_counts_on_post_author_change\(\) is incompatible with type WP_Post\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/includes/users/functions.php
+
+		-
+			message: '#^Variable \$forum_ids in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/includes/users/mentions.php
+
+		-
+			message: '#^Access to an undefined property BBP_User_Query\:\:\$results\.$#'
+			identifier: property.notFound
+			count: 3
+			path: src/includes/users/template.php
+
+		-
+			message: '#^Function bbp_get_admin_link\(\) should return string\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/users/template.php
+
+		-
+			message: '#^Function bbp_get_user_subscribe_link\(\) should return string\|false\|null but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: src/includes/users/template.php
+
+		-
+			message: '#^Access to an undefined property BBP_Default\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/templates/default/bbpress-functions.php

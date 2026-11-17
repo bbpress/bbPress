@@ -1,0 +1,20 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 3
+    phpVersion: 70400
+    # bbPress stores runtime properties through __get() and __set().
+    universalObjectCratesClasses:
+        - bbPress
+    paths:
+        - src
+    # These optional integrations need separate symbols, and the conditional
+    # Gutenberg bridge currently triggers an internal PHPStan discovery error.
+    excludePaths:
+        analyse:
+            - src/includes/common/attachments.php
+            - src/includes/extend/buddypress
+            - src/includes/admin/classes/class-bbp-tools-cli-command.php
+    tmpDir: build/phpstan/cache

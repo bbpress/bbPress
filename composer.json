@@ -8,7 +8,9 @@
 		"wp-coding-standards/wpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"phpunit/phpunit": "^9",
-		"yoast/phpunit-polyfills": "^4.0"
+		"yoast/phpunit-polyfills": "^4.0",
+		"phpstan/phpstan": "^2.0",
+		"szepeviktor/phpstan-wordpress": "^2.0"
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
@@ -18,6 +20,9 @@
 		],
 		"lint": [
 			"@php ./vendor/squizlabs/php_codesniffer/bin/phpcs"
+		],
+		"phpstan": [
+			"@php ./vendor/bin/phpstan analyse --no-progress --memory-limit=1G"
 		],
 		"test": [
 			"@php ./vendor/bin/phpunit -c phpunit.xml.dist"
