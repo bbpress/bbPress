@@ -209,6 +209,47 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3058
+	 * @covers ::bbp_admin_repair_tool_process_batch
+	 */
+	public function test_shared_batch_processor_runs_without_ajax_and_resumes_dry_run() {
+		$this->add_registration_action();
+		update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-batch-one' ) );
+		$run = bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-one' ) );
+
+		$first = bbp_admin_repair_tool_process_batch( 'upgrade', 'run', 'bbp-test-batch-one', $run['id'] );
+		$this->assertTrue( $first['success'] );
+		$this->assertFalse( $first['data']['complete'] );
+		$this->assertSame( 'First tool needs another batch.', $first['data']['message'] );
+		$this->assertSame( array( 'bbp-test-batch-one' ), bbp_get_pending_upgrades() );
+
+		$this->assertNotFalse( bbp_admin_repair_tool_update_run_status( 'upgrade', $run['id'], 'paused' ) );
+		$resumed = bbp_admin_repair_tool_rotate_run_state( 'upgrade', array( 'bbp-test-batch-one' ), $run['id'] );
+		$this->assertNotSame( $run['id'], $resumed['id'] );
+		$this->assertTrue( bbp_admin_repair_tool_process_batch( 'upgrade', 'run', 'bbp-test-batch-one', $resumed['id'] )['success'] );
+		$final = bbp_admin_repair_tool_process_batch( 'upgrade', 'run', 'bbp-test-batch-one', $resumed['id'] );
+		$this->assertTrue( $final['success'] );
+		$this->assertTrue( $final['data']['complete'] );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade' ) );
+		$this->assertNotContains( 'bbp-test-batch-one', bbp_get_pending_upgrades() );
+
+		$this->calls = array();
+		$preview     = bbp_admin_repair_tool_save_run_state( 'upgrade', array( 'bbp-test-batch-one' ), '', 'running', false, 'dry-run' );
+		$first       = bbp_admin_repair_tool_process_batch( 'upgrade', 'dry-run', 'bbp-test-batch-one', $preview['id'] );
+		$this->assertTrue( $first['success'] );
+		$this->assertFalse( $first['data']['complete'] );
+		$this->assertStringContainsString( 'Dry run in progress.', $first['data']['message'] );
+
+		$this->assertNotFalse( bbp_admin_repair_tool_update_run_status( 'upgrade', $preview['id'], 'paused', 'dry-run' ) );
+		$resumed = bbp_admin_repair_tool_rotate_run_state( 'upgrade', array( 'bbp-test-batch-one' ), $preview['id'], 'dry-run' );
+		$this->assertTrue( bbp_admin_repair_tool_process_batch( 'upgrade', 'dry-run', 'bbp-test-batch-one', $resumed['id'] )['success'] );
+		$final = bbp_admin_repair_tool_process_batch( 'upgrade', 'dry-run', 'bbp-test-batch-one', $resumed['id'] );
+		$this->assertTrue( $final['success'] );
+		$this->assertTrue( $final['data']['complete'] );
+		$this->assertFalse( bbp_admin_repair_tool_get_run_state( 'upgrade', 'dry-run' ) );
+	}
+
+	/**
 	 * @ticket 3777
 	 * @covers ::bbp_register_repair_tools
 	 */

@@ -460,7 +460,7 @@ function bbp_version_updater() {
 
 		// Backfill small sites automatically; leave larger or unfinished scans pending.
 		if ( $raw_db_version < 270 ) {
-			$mentions = bbp_get_mention_backfill_status();
+			$mentions = get_option( '_bbp_mention_backfill', array() );
 			if ( empty( $mentions['complete'] ) ) {
 				if ( bbp_is_large_install() ) {
 					$safe_to_bump = bbp_run_required_upgrade( 'bbp-user-mentions' ) && $safe_to_bump;

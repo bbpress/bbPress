@@ -435,7 +435,6 @@ final class bbPress {
 		require $this->includes_dir . 'users/subscriptions.php';
 		require $this->includes_dir . 'users/notifications.php';
 		require $this->includes_dir . 'users/mentions.php';
-		require $this->includes_dir . 'users/mentions-backfill.php';
 		require $this->includes_dir . 'users/functions.php';
 		require $this->includes_dir . 'users/template.php';
 		require $this->includes_dir . 'users/options.php';
@@ -457,7 +456,7 @@ final class bbPress {
 
 		// Command-line tools
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			require $this->includes_dir . 'users/classes/class-bbp-mentions-cli-command.php';
+			require $this->includes_dir . 'admin/classes/class-bbp-tools-cli-command.php';
 		}
 	}
 

@@ -1480,14 +1480,14 @@ function bbp_admin_repair_tool_restart_scratch( &$state, &$batch, $reset ) {
  * Get or set the current repair-tool execution context.
  *
  * Direct callback calls retain the historical synchronous behavior. The
- * browser runner sets a run owner so Dry Run checkpoints use an isolated
+ * shared runner sets a run owner so Dry Run checkpoints use an isolated
  * namespace across its bounded requests.
  *
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
  * @param string|null $action  Tool action, or null to read the context.
- * @param string      $run_id  Browser-run owner.
+ * @param string      $run_id  Saved-run owner.
  * @param bool        $started Whether the current tool has processed a batch.
  * @return array Current action, run owner, and tool state.
  */
@@ -1511,7 +1511,7 @@ function bbp_admin_repair_tool_execution_context( $action = null, $run_id = '', 
 }
 
 /**
- * Return whether this callback belongs to a newly started browser Run.
+ * Return whether this callback belongs to a newly started saved Run.
  *
  * @since 2.7.0 bbPress (r8331)
  * @access private
@@ -1525,7 +1525,7 @@ function bbp_admin_repair_tool_is_new_browser_run() {
 }
 
 /**
- * Return whether this request is one bounded browser Dry Run batch.
+ * Return whether this request is one bounded saved Dry Run batch.
  *
  * @since 2.7.0 bbPress (r8331)
  * @access private

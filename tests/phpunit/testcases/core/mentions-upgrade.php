@@ -17,9 +17,11 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		require_once bbpress()->includes_dir . 'admin/actions.php';
+		bbp_setup_admin();
 		$this->user = get_current_user_id();
 		$this->set_current_user( 0 );
-		foreach ( array( '_bbp_db_version', '_bbp_db_pending_upgrades', '_bbp_mention_backfill' ) as $name ) {
+		foreach ( array( '_bbp_db_version', '_bbp_db_pending_upgrades', '_bbp_mention_backfill', bbp_admin_repair_tool_batch_option_name( 'bbp-user-mentions' ) ) as $name ) {
 			$this->options[ $name ] = get_option( $name, null );
 			delete_option( $name );
 		}
@@ -78,8 +80,23 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		return true;
 	}
 
+	private function status() {
+		list( $read, $checkpoint ) = bbp_admin_repair_tool_get_checkpoint( 'bbp-user-mentions' );
+		$this->assertTrue( $read );
+		if ( $checkpoint ) {
+			return array(
+				'cursor'    => $checkpoint['cursor'],
+				'upper'     => $checkpoint['upper_id'],
+				'processed' => $checkpoint['processed'],
+				'complete'  => false
+			);
+		}
+		$completed = get_option( '_bbp_mention_backfill', array() );
+		return is_array( $completed ) ? $completed : array();
+	}
+
 	private function assert_completed_without_email() {
-		$state = bbp_get_mention_backfill_status();
+		$state = $this->status();
 		$this->assertTrue( $state['complete'] );
 		$this->assertSame( 3, $state['processed'] );
 		$this->assertNotContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
@@ -101,6 +118,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 			$result = bbp_admin_upgrade_user_mentions();
 			$this->assertSame( 0, $result[0] );
 			if ( $result['complete'] ) {
+				$this->assertTrue( bbp_admin_repair_tool_run_automatically( 'bbp-user-mentions', 'bbp_admin_upgrade_user_mentions_automatically' ) );
 				return;
 			}
 		}
@@ -113,12 +131,12 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		$this->assertSame( 270, (int) bbp_get_db_version_raw() );
 		$this->assert_completed_without_email();
 		$this->scans = array();
-		$state = bbp_get_mention_backfill_status();
+		$state = $this->status();
 		bbp_version_updater();
 		$result = bbp_admin_upgrade_user_mentions_automatically();
 		$this->assertTrue( $result['complete'] );
 		$this->assertSame( array(), $this->scans );
-		$this->assertSame( $state, bbp_get_mention_backfill_status() );
+		$this->assertSame( $state, $this->status() );
 	}
 
 	/**
@@ -132,7 +150,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		} finally {
 			remove_filter( $hook, $callback );
 		}
-		$state = bbp_get_mention_backfill_status();
+		$state = $this->status();
 		$this->assertCount( 1, $this->scans );
 		$this->assertFalse( $state['complete'] );
 		$this->assertGreaterThan( 0, $state['cursor'] );
@@ -164,7 +182,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		} finally {
 			remove_filter( 'add_post_metadata', $fail, 10 );
 		}
-		$state = bbp_get_mention_backfill_status();
+		$state = $this->status();
 		$this->assertFalse( $state['complete'] );
 		$this->assertCount( 1, $this->scans );
 		$this->assertLessThan( $this->posts[0], $state['cursor'] );
@@ -180,7 +198,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		$state = array( 'cursor' => 0, 'upper' => max( $this->posts ), 'processed' => 0, 'complete' => false, 'token' => 'other-worker', 'expires' => time() + 300 );
 		update_option( '_bbp_mention_backfill', $state, false );
 		bbp_version_updater();
-		$this->assertSame( $state, bbp_get_mention_backfill_status() );
+		$this->assertSame( $state, $this->status() );
 		$this->assertSame( array(), $this->scans );
 		$this->assertContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
 		$this->assertSame( 270, (int) bbp_get_db_version_raw() );

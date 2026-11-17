@@ -1008,7 +1008,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertStringNotContainsString( bbp_db()->posts, implode( "\n", $queries ) );
 		$this->assertStringNotContainsString( bbp_db()->users, implode( "\n", $queries ) );
 		if ( ! $complete ) {
-			$this->assertSame( array(), bbp_get_mention_backfill_status() );
+			$this->assertSame( array(), get_option( '_bbp_mention_backfill', array() ) );
 		}
 		bbp_version_updater();
 		$this->assertSame( $pending ? 1 : 0, count( bbp_get_pending_upgrades() ) );

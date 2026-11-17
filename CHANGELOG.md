@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added `wp bbp tool` commands to list, run, preview, and resume registered
+  forum repair and upgrade tools from WP-CLI.
 - Added BuddyPress group forum support for child forums. Forum parentage now
   determines group routes and member access to private or hidden children, and
   activity from those forums appears in the parent group's stream.
@@ -36,11 +38,11 @@ Development for the next bbPress release is in progress. See the active
   edits, once per person per post, with a new global per-user email preference
   that defaults to off for backward compatibility, and a private profile history
   of topics and replies where a user is mentioned.
-- Added resumable mention backfilling through the forum upgrade and repair tools
-  and `wp bbp mentions backfill`, without emailing historical mentions. Small
+- Added resumable mention backfilling through the forum upgrade tool, available
+  in admin and with `wp bbp tool run`, without emailing historical mentions. Small
   sites backfill automatically during the bbPress 2.7 upgrade; larger sites and
-  scans that reach the shared runner's limits remain pending. Both admin tools
-  offer a Dry Run preview of the complete operation without changing saved progress.
+  scans that reach the shared runner's limits remain pending. The upgrade tool
+  offers a Dry Run preview of the complete operation without changing saved progress.
   Admin runs advance automatically while the page is open and can be paused
   and resumed without restarting the scan.
 - Added shared support for resumable batches in repair and upgrade tools, including

@@ -50,8 +50,8 @@ class BBP_Tests_Admin_Full_Previews extends BBP_UnitTestCase {
 		wp_cache_set( $post, $cached_post, 'posts' );
 		wp_cache_set( $post, $cached_meta, 'post_meta' );
 		$before = $this->snapshot();
-		$result = bbp_admin_repair_user_mentions_process( 1, false, true );
-		$this->assertSame( 0, $result[0] );
+		$result = bbp_admin_upgrade_user_mentions_batch( true );
+		$this->assertSame( 0, $result['code'] );
 		$this->assertTrue( $result['complete'] );
 		$this->assertEquals( $cached_post, wp_cache_get( $post, 'posts' ) );
 		$this->assertSame( $cached_meta, wp_cache_get( $post, 'post_meta' ) );
@@ -190,7 +190,6 @@ class BBP_Tests_Admin_Full_Previews extends BBP_UnitTestCase {
 			$covered,
 			array(
 				'bbp-sync-closed-topics',
-				'bbp-mentions',
 				'bbp-user-mentions',
 				'bbp-group-forums',
 			)

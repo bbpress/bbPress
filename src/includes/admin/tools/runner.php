@@ -1193,20 +1193,50 @@ function bbp_admin_repair_ajax_handler() {
 		wp_send_json_error( array( 'message' => esc_html__( 'Invalid tool action.', 'bbpress' ) ), 400 );
 	}
 
+	$response = bbp_admin_repair_tool_process_batch( $type, $action, $tool_id, $run_id );
+	if ( ! $response['success'] ) {
+		wp_send_json_error( $response['data'], $response['status'] );
+	}
+
+	wp_send_json_success( $response['data'] );
+}
+
+/**
+ * Process one registered tool batch for the browser or WP-CLI.
+ *
+ * The caller checks its own request and capability before reaching this shared
+ * runner. The run-state owner, callback lock, worker checkpoint, and result
+ * contract are the same for both transports.
+ *
+ * @since 2.7.0 bbPress (r8411)
+ * @access private
+ *
+ * @param string $type    Tool type.
+ * @param string $action  Run or Dry Run.
+ * @param string $tool_id Registered tool ID.
+ * @param string $run_id  Current run-state owner.
+ * @return array Success flag, response data, and error status.
+ */
+function bbp_admin_repair_tool_process_batch( $type, $action, $tool_id, $run_id ) {
 	bbp_register_repair_tools();
 	$registered_tools = bbp_get_admin_repair_tools( $type );
 
 	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, false, $action );
 	if ( ! $read || ! bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id ) ) {
-		wp_send_json_error(
-			bbp_admin_repair_tool_stale_run_error(),
-			409
+		return array(
+			'success' => false,
+			'data'    => bbp_admin_repair_tool_stale_run_error(),
+			'status'  => 409
 		);
 	}
 
 	if ( ! isset( $registered_tools[ $tool_id ] ) ) {
 		bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
-		wp_send_json_error( array( 'message' => esc_html__( 'The requested tool is not available.', 'bbpress' ) ), 404 );
+		return array(
+			'success' => false,
+			'data'    => array( 'message' => esc_html__( 'The requested tool is not available.', 'bbpress' ) ),
+			'status'  => 404
+		);
 	}
 
 	$tool              = $registered_tools[ $tool_id ];
@@ -1219,17 +1249,22 @@ function bbp_admin_repair_ajax_handler() {
 
 	if ( ! is_callable( $callback ) ) {
 		bbp_admin_repair_tool_update_run_status( $type, $run_id, 'error', $action );
-		wp_send_json_error( array( 'message' => esc_html__( 'The requested tool cannot be run.', 'bbpress' ) ), 400 );
+		return array(
+			'success' => false,
+			'data'    => array( 'message' => esc_html__( 'The requested tool cannot be run.', 'bbpress' ) ),
+			'status'  => 400
+		);
 	}
 
 	$lock = bbp_admin_repair_tool_lock( $tool_id );
 	if ( false === $lock ) {
-		wp_send_json_error(
-			array(
+		return array(
+			'success' => false,
+			'data'    => array(
 				'code'    => 'locked',
 				'message' => esc_html__( 'This tool is temporarily unavailable. Waiting to try again.', 'bbpress' )
 			),
-			409
+			'status'  => 409
 		);
 	}
 
@@ -1252,7 +1287,11 @@ function bbp_admin_repair_ajax_handler() {
 
 	if ( false !== $error ) {
 		bbp_admin_repair_tool_unlock( $lock );
-		wp_send_json_error( $error, 409 );
+		return array(
+			'success' => false,
+			'data'    => $error,
+			'status'  => 409
+		);
 	}
 
 	$previous_lock = bbp_admin_repair_tool_active_lock();
@@ -1336,17 +1375,23 @@ function bbp_admin_repair_ajax_handler() {
 	}
 
 	if ( false !== $error ) {
-		wp_send_json_error( $error, $error_status );
+		return array(
+			'success' => false,
+			'data'    => $error,
+			'status'  => $error_status
+		);
 	}
 
-	wp_send_json_success(
-		array(
+	return array(
+		'success' => true,
+		'data'    => array(
 			'complete' => $normalized['complete'],
 			'batches'  => $normalized['batches'],
 			'title'    => $title,
 			'message'  => $message,
 			'tool'     => $tool_id
-		)
+		),
+		'status'  => 200
 	);
 }
 

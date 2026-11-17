@@ -176,32 +176,33 @@ class BBP_Admin {
 	private function includes() {
 
 		// Classes
-		require $this->admin_dir . 'classes/class-bbp-admin-batch-worker.php';
-		require $this->admin_dir . 'classes/class-bbp-admin-group-forum-upgrade.php';
-		require $this->admin_dir . 'classes/class-bbp-admin-forum-repair.php';
-		require $this->admin_dir . 'classes/class-bbp-admin-forum-counts.php';
-		require $this->admin_dir . 'classes/class-bbp-admin-forum-freshness.php';
+		require_once $this->admin_dir . 'classes/class-bbp-admin-batch-worker.php';
+		require_once $this->admin_dir . 'classes/class-bbp-admin-group-forum-upgrade.php';
+		require_once $this->admin_dir . 'classes/class-bbp-admin-forum-repair.php';
+		require_once $this->admin_dir . 'classes/class-bbp-admin-forum-counts.php';
+		require_once $this->admin_dir . 'classes/class-bbp-admin-forum-freshness.php';
 
 		// Tools
-		require $this->admin_dir . 'tools.php';
-		require $this->admin_dir . 'tools/common.php';
-		require $this->admin_dir . 'tools/runner.php';
-		require $this->admin_dir . 'tools/screens.php';
-		require $this->admin_dir . 'tools/converter.php';
-		require $this->admin_dir . 'tools/repair.php';
-		require $this->admin_dir . 'tools/upgrade.php';
-		require $this->admin_dir . 'tools/reset.php';
-		require $this->admin_dir . 'tools/help.php';
+		// Older WP-CLI commands may preload individual tool files.
+		require_once $this->admin_dir . 'tools.php';
+		require_once $this->admin_dir . 'tools/common.php';
+		require_once $this->admin_dir . 'tools/runner.php';
+		require_once $this->admin_dir . 'tools/screens.php';
+		require_once $this->admin_dir . 'tools/converter.php';
+		require_once $this->admin_dir . 'tools/repair.php';
+		require_once $this->admin_dir . 'tools/upgrade.php';
+		require_once $this->admin_dir . 'tools/reset.php';
+		require_once $this->admin_dir . 'tools/help.php';
 
 		// Components
-		require $this->admin_dir . 'settings.php';
-		require $this->admin_dir . 'slug-translations.php';
-		require $this->admin_dir . 'common.php';
-		require $this->admin_dir . 'metaboxes.php';
-		require $this->admin_dir . 'forums.php';
-		require $this->admin_dir . 'topics.php';
-		require $this->admin_dir . 'replies.php';
-		require $this->admin_dir . 'users.php';
+		require_once $this->admin_dir . 'settings.php';
+		require_once $this->admin_dir . 'slug-translations.php';
+		require_once $this->admin_dir . 'common.php';
+		require_once $this->admin_dir . 'metaboxes.php';
+		require_once $this->admin_dir . 'forums.php';
+		require_once $this->admin_dir . 'topics.php';
+		require_once $this->admin_dir . 'replies.php';
+		require_once $this->admin_dir . 'users.php';
 	}
 
 	/**

@@ -27,34 +27,489 @@ function bbp_admin_upgrade_page() {
  * @return array Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions() {
-	return bbp_admin_repair_user_mentions( 'upgrade' );
+	return bbp_admin_upgrade_user_mentions_process();
 }
 
 /**
- * Resume one mention batch during an authorized small-site version update.
- *
- * Automatic calls must not restart a scan that another worker has completed.
- * The shared automatic runner controls locking and request safety limits.
+ * Resume the historical mention upgrade during a small-site version update.
  *
  * @since 2.7.0 bbPress (r8264)
  *
  * @return array Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions_automatically() {
-	$size = bbp_admin_repair_tool_batch_size( 'bbp-user-mentions' );
+	$completed = get_option( '_bbp_mention_backfill', false );
+	if ( is_array( $completed ) && ! empty( $completed['complete'] ) ) {
+		return array(
+			0,
+			'',
+			'complete' => true
+		);
+	}
 
-	return bbp_admin_repair_user_mentions_process( $size );
+	return bbp_admin_upgrade_user_mentions_process( false, true );
 }
 
 /**
- * Preview the complete mention upgrade without changing saved progress.
+ * Preview the historical mention upgrade without changing saved progress.
  *
  * @since 2.7.0 bbPress (r8264)
  *
- * @return array Status and feedback for the tools handler.
+ * @return array Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions_dry_run() {
-	return bbp_admin_repair_user_mentions( 'upgrade', true );
+	return bbp_admin_upgrade_user_mentions_process( true );
+}
+
+/**
+ * Format one mention upgrade batch for the shared tools runner.
+ *
+ * @since 2.7.0 bbPress (r8411)
+ *
+ * @param bool $dry_run   Preview without changing mention data.
+ * @param bool $automatic Called by the authorized version updater.
+ * @return array Upgrade status, feedback, and completion state.
+ */
+function bbp_admin_upgrade_user_mentions_process( $dry_run = false, $automatic = false ) {
+	if ( ! $automatic && ! current_user_can( 'bbp_tools_upgrade_page' ) ) {
+		return array(
+			BBP_Admin_Batch_Worker::RESULT_FAILED,
+			new WP_Error( 'bbp_mention_backfill_permission', __( 'You do not have permission to upgrade forums.', 'bbpress' ) ),
+			'success'  => false,
+			'complete' => false
+		);
+	}
+
+	$batch = bbp_admin_upgrade_user_mentions_batch( $dry_run );
+	if ( $batch['code'] ) {
+		$message = $batch['message'] ? $batch['message'] : new WP_Error( 'bbp_mention_backfill_checkpoint', __( 'Could not save mention backfill progress. Run the tool again to resume.', 'bbpress' ) );
+		return array(
+			$batch['code'],
+			$message,
+			'success'  => false,
+			'complete' => false,
+			'batches'  => $batch['batches'],
+			'error'    => $batch['error']
+		);
+	}
+
+	if ( $dry_run ) {
+		$lines = array(
+			sprintf(
+				/* translators: %s: Number of topics and replies checked */
+				_n( '%s topic or reply checked.', '%s topics and replies checked.', $batch['posts'], 'bbpress' ),
+				number_format_i18n( $batch['posts'] )
+			),
+			sprintf(
+				/* translators: %s: Number of mentions to add */
+				_n( '%s mention added.', '%s mentions added.', $batch['added'], 'bbpress' ),
+				number_format_i18n( $batch['added'] )
+			),
+			sprintf(
+				/* translators: %s: Number of mentions to remove */
+				_n( '%s mention removed.', '%s mentions removed.', $batch['removed'], 'bbpress' ),
+				number_format_i18n( $batch['removed'] )
+			),
+			sprintf(
+				/* translators: %s: Number of posts whose email history needs updating */
+				_n( '%s post email history updated to prevent zombie notifications.', '%s post email histories updated to prevent zombie notifications.', $batch['baselines'], 'bbpress' ),
+				number_format_i18n( $batch['baselines'] )
+			)
+		);
+		return array(
+			0,
+			esc_html( implode( "\n", $lines ) ),
+			'complete' => (bool) $batch['complete'],
+			'batches'  => $batch['batches']
+		);
+	}
+
+	$message = $batch['complete']
+		/* translators: %s: Number of topics and replies processed */
+		? __( 'Mention scan complete: %s topics and replies processed. No historical mention emails were sent.', 'bbpress' )
+		/* translators: %s: Number of topics and replies processed */
+		: __( 'Mention scan in progress: %s topics and replies processed. No historical mention emails are sent.', 'bbpress' );
+
+	return array(
+		0,
+		esc_html( sprintf( $message, number_format_i18n( $batch['processed'] ) ) ),
+		'complete' => (bool) $batch['complete']
+	);
+}
+
+/**
+ * Plan one historical post's mention relationships and notification baseline.
+ *
+ * Run and Dry Run share this planner. Only Run applies and verifies its plan.
+ *
+ * @since 2.7.0 bbPress (r8331)
+ *
+ * @param int $post_id Topic or reply ID.
+ * @return array|WP_Error Planned changes, or an invalid notification record.
+ */
+function bbp_get_mention_backfill_plan( $post_id = 0 ) {
+	$changes = bbp_get_post_mention_changes( $post_id );
+	$plan    = array(
+		'changes'  => $changes,
+		'handled'  => array(),
+		'baseline' => false
+	);
+	if ( ! $changes['post'] ) {
+		return $plan;
+	}
+
+	$handled = wp_parse_id_list( array_merge( $changes['current'], $changes['expected'] ) );
+	if ( empty( $handled ) ) {
+		return $plan;
+	}
+
+	$exists = metadata_exists( 'post', $post_id, '_bbp_mention_notification' );
+	$record = $exists ? get_post_meta( $post_id, '_bbp_mention_notification', true ) : false;
+	if ( $exists && ( ! is_array( $record ) || ! isset( $record['handled'] ) || ! is_array( $record['handled'] ) ) ) {
+		/* translators: %d: Post ID */
+		return new WP_Error( 'bbp_mention_backfill_post', sprintf( __( 'The mention notification record for post %d is invalid.', 'bbpress' ), $post_id ) );
+	}
+
+	// Existing unpublished records must retain their approval-time recipients.
+	$statuses = ( bbp_get_reply_post_type() === $changes['post']->post_type ) ? bbp_get_public_reply_statuses() : bbp_get_public_topic_statuses();
+	if ( $exists && ! in_array( $changes['post']->post_status, $statuses, true ) ) {
+		$handled = array();
+	}
+	$plan['handled']  = $handled;
+	$plan['baseline'] = ! $exists || ! empty( array_diff( $handled, wp_parse_id_list( $record['handled'] ) ) );
+
+	return $plan;
+}
+
+/**
+ * Index one historical post and consume its existing mention recipients.
+ *
+ * This does not save the post, run publication hooks, or touch the mail queue.
+ * Retrying is safe after a partial write. Verify relationships and the durable
+ * notification baseline before allowing the batch to advance past this post.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param int $post_id Topic or reply ID.
+ * @return bool Whether indexing and the silent baseline were saved.
+ */
+function bbp_backfill_post_mentions( $post_id = 0 ) {
+
+	// Long-running commands must not reuse content cached by an earlier batch.
+	wp_cache_delete( $post_id, 'posts' );
+	wp_cache_delete( $post_id, 'post_meta' );
+	$plan = bbp_get_mention_backfill_plan( $post_id );
+	if ( is_wp_error( $plan ) ) {
+		return false;
+	}
+	$post = $plan['changes']['post'];
+	if ( ! $post ) {
+		return true;
+	}
+
+	$user_ids = bbp_apply_post_mention_changes( $post_id, $plan['changes'] );
+	$indexed  = bbp_get_users_for_object( $post_id, '_bbp_mention' );
+	if ( array_diff( $user_ids, $indexed ) || array_diff( $indexed, $user_ids ) ) {
+		return false;
+	}
+
+	if ( $plan['changes']['current'] || $user_ids ) {
+		bbp_claim_mention_notification_recipients( $post_id, $plan['handled'], $plan['handled'] );
+		wp_cache_delete( $post_id, 'post_meta' );
+		$state = get_post_meta( $post_id, '_bbp_mention_notification', true );
+		if ( ! is_array( $state ) || ! isset( $state['handled'] ) || ! is_array( $state['handled'] ) || array_diff( $plan['handled'], $state['handled'] ) ) {
+			return false;
+		}
+	}
+
+	// An edit during indexing needs another pass through this post.
+	wp_cache_delete( $post_id, 'posts' );
+	$current = get_post( $post_id );
+
+	return ! $current || ( $post->post_content === $current->post_content );
+}
+
+/**
+ * Validate the shared checkpoint for the historical mention upgrade.
+ *
+ * @since 2.7.0 bbPress (r8411)
+ *
+ * @param mixed $state Saved checkpoint.
+ * @return bool Whether the checkpoint can be resumed.
+ */
+function bbp_admin_upgrade_user_mentions_is_valid_checkpoint( $state ) {
+	return bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'processed' ) )
+		&& bbp_admin_repair_tool_is_valid_preview_state( $state, array( 'posts', 'scanned', 'added', 'removed', 'baselines', 'batches' ) );
+}
+
+/**
+ * Process one resumable batch of historical mentions.
+ *
+ * The shared tools runner owns the request lock and checkpoint. Save after
+ * each post so a failed write retries that post. The old backfill option is
+ * only a completion marker after this worker finishes.
+ *
+ * @since 2.7.0 bbPress (r8411)
+ *
+ * @param bool $dry_run Preview without changing mention data.
+ * @return array Shared batch status and mention counts.
+ */
+function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
+	$tool_id = 'bbp-user-mentions';
+	$batch   = bbp_admin_repair_tool_batch_status(
+		array(
+			'processed' => 0,
+			'posts'     => 0,
+			'scanned'   => 0,
+			'added'     => 0,
+			'removed'   => 0,
+			'baselines' => 0,
+			'message'   => false,
+		)
+	);
+	$state = false;
+	if ( ! bbp_admin_repair_tool_batch_start( $tool_id, $state, $batch, 'bbp_admin_upgrade_user_mentions_is_valid_checkpoint', array(), $dry_run ) ) {
+		return $batch;
+	}
+	$context   = bbp_admin_repair_tool_execution_context();
+	$completed = get_option( '_bbp_mention_backfill', false );
+	if ( false === $state && ! $dry_run && ! empty( $context['run_id'] ) && ! empty( $context['started'] )
+		&& is_array( $completed ) && ! empty( $completed['complete'] ) ) {
+		$batch['processed'] = isset( $completed['processed'] ) ? (int) $completed['processed'] : 0;
+		$batch['complete']  = true;
+		return $batch;
+	}
+
+	$db = bbp_db();
+	if ( false === $state ) {
+		$upper = $db->get_var( "SELECT MAX(ID) FROM {$db->posts}" );
+		if ( ! empty( $db->last_error ) ) {
+			$batch['message'] = new WP_Error( 'bbp_mention_backfill_query', __( 'Could not read posts for the mention backfill.', 'bbpress' ) );
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+			return $batch;
+		}
+		$state = array(
+			'cursor'    => 0,
+			'upper_id'  => (int) $upper,
+			'processed' => 0,
+		);
+
+		// Continue a checkpoint written by the earlier Mentions worker.
+		$legacy = $dry_run ? false : get_option( '_bbp_mention_backfill', false );
+		if ( is_array( $legacy ) && empty( $legacy['complete'] )
+			&& isset( $legacy['cursor'], $legacy['upper'], $legacy['processed'] )
+			&& is_int( $legacy['cursor'] ) && is_int( $legacy['upper'] ) && is_int( $legacy['processed'] )
+			&& $legacy['cursor'] >= 0 && $legacy['cursor'] <= $legacy['upper'] && $legacy['processed'] >= 0 ) {
+			if ( ! empty( $legacy['expires'] ) && $legacy['expires'] > time() ) {
+				bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+				return $batch;
+			}
+			$state['cursor']    = $legacy['cursor'];
+			$state['upper_id']  = $legacy['upper'];
+			$state['processed'] = $legacy['processed'];
+		}
+
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, false, $dry_run ) ) {
+			return $batch;
+		}
+	}
+
+	$size = bbp_admin_repair_tool_batch_size( $tool_id );
+	if ( $dry_run ) {
+		$fields = array( 'posts', 'scanned', 'added', 'removed', 'baselines', 'batches' );
+		bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
+		do {
+			$preview = bbp_preview_mention_backfill(
+				array(
+					'cursor'   => $state['cursor'],
+					'upper'    => $state['upper_id'],
+					'complete' => false
+				),
+				$size
+			);
+			if ( is_wp_error( $preview ) ) {
+				$batch['message'] = $preview;
+				$reason = ( 'bbp_mention_backfill_post' === $preview->get_error_code() ) ? 'source-invalid' : 'source-read';
+				bbp_admin_repair_tool_batch_fail( $batch, $reason );
+				return $batch;
+			}
+			$state['cursor'] = $preview['cursor'];
+			foreach ( array( 'posts', 'scanned', 'added', 'removed', 'baselines' ) as $field ) {
+				$batch[ $field ] += $preview[ $field ];
+			}
+			++$batch['batches'];
+			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, ! $preview['more'], true, $fields ) ) {
+				return $batch;
+			}
+		} while ( bbp_admin_repair_tool_batch_continue( $batch, true ) );
+
+		return $batch;
+	}
+
+	$batch['processed'] = $state['processed'];
+	$posts = bbp_get_mention_backfill_posts(
+		array(
+			'cursor' => $state['cursor'],
+			'upper'  => $state['upper_id']
+		),
+		$size
+	);
+	if ( is_wp_error( $posts ) ) {
+		$batch['message'] = $posts;
+		bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+		return $batch;
+	}
+
+	$started   = microtime( true );
+	$exhausted = true;
+	foreach ( $posts as $post ) {
+		$next = $state;
+		if ( in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+			if ( ! bbp_backfill_post_mentions( (int) $post->ID ) ) {
+				/* translators: %d: Post ID */
+				$batch['message'] = new WP_Error( 'bbp_mention_backfill_post', sprintf( __( 'Could not finish indexing mentions in post %d. Run the tool again to retry this post.', 'bbpress' ), $post->ID ) );
+				bbp_admin_repair_tool_batch_fail( $batch, 'verify' );
+				return $batch;
+			}
+			++$next['processed'];
+		}
+
+		$next['cursor'] = (int) $post->ID;
+		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $next, $batch, false ) ) {
+			return $batch;
+		}
+		$state = $next;
+		$batch['processed'] = $state['processed'];
+
+		if ( ( microtime( true ) - $started ) >= 5 ) {
+			$exhausted = false;
+			break;
+		}
+	}
+
+	$complete = $exhausted && ( count( $posts ) < $size || $state['cursor'] >= $state['upper_id'] );
+	++$batch['batches'];
+	if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete ) ) {
+		return $batch;
+	}
+	if ( $complete && ! bbp_admin_repair_tool_save_option(
+		'_bbp_mention_backfill',
+		array(
+			'cursor'    => $state['upper_id'],
+			'upper'     => $state['upper_id'],
+			'processed' => $state['processed'],
+			'complete'  => true
+		)
+	) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+	}
+
+	return $batch;
+}
+
+/**
+ * Read the same bounded post-ID range for Run and Dry Run.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param array $state      Validated backfill progress.
+ * @param int   $batch_size Maximum post rows to examine.
+ * @return array|WP_Error Post IDs and types, or a query error.
+ */
+function bbp_get_mention_backfill_posts( $state, $batch_size ) {
+	$bbp_db = bbp_db();
+	$posts  = $bbp_db->get_results( $bbp_db->prepare( "SELECT ID, post_type FROM {$bbp_db->posts} WHERE ID > %d AND ID <= %d ORDER BY ID ASC LIMIT %d", $state['cursor'], $state['upper'], $batch_size ) );
+
+	if ( $bbp_db->last_error ) {
+		return new WP_Error( 'bbp_mention_backfill_query', __( 'Could not read posts for the mention backfill.', 'bbpress' ) );
+	}
+
+	return $posts;
+}
+
+/**
+ * Preview one batch without claiming a lease or changing saved progress.
+ *
+ * Counts describe this batch only, not the entire site. Content and mention
+ * relationships may change before Run, so this is a preview, not a saved plan.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ *
+ * @param array $state      Validated backfill progress.
+ * @param int   $batch_size Maximum post rows to examine.
+ * @return array|WP_Error Batch preview or an error.
+ */
+function bbp_preview_mention_backfill( $state, $batch_size ) {
+	$preview = array(
+		'start'     => (int) $state['cursor'],
+		'cursor'    => (int) $state['cursor'],
+		'upper'     => (int) $state['upper'],
+		'scanned'   => 0,
+		'posts'     => 0,
+		'added'     => 0,
+		'removed'   => 0,
+		'baselines' => 0,
+		'more'      => false
+	);
+	$posts = $state['complete'] ? array() : bbp_get_mention_backfill_posts( $state, $batch_size );
+	if ( is_wp_error( $posts ) ) {
+		return $posts;
+	}
+
+	$types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$ids   = array();
+	foreach ( $posts as $row ) {
+		if ( in_array( $row->post_type, $types, true ) ) {
+			$ids[] = (int) $row->ID;
+		}
+	}
+	wp_cache_delete_multiple( $ids, 'posts' );
+	wp_cache_delete_multiple( $ids, 'post_meta' );
+	try {
+		_prime_post_caches( $ids, false, true );
+		if ( ! empty( bbp_db()->last_error ) ) {
+			return new WP_Error( 'bbp_mention_backfill_query', __( 'Could not read posts for the mention backfill.', 'bbpress' ) );
+		}
+		$started = microtime( true );
+		foreach ( $posts as $row ) {
+			$post_id = (int) $row->ID;
+			++$preview['scanned'];
+			$preview['cursor'] = $post_id;
+
+			if ( in_array( $row->post_type, $types, true ) ) {
+				$plan = bbp_get_mention_backfill_plan( $post_id );
+				if ( is_wp_error( $plan ) ) {
+					return $plan;
+				}
+				if ( $plan['changes']['post'] ) {
+					++$preview['posts'];
+					$preview['added']     += count( $plan['changes']['added'] );
+					$preview['removed']   += count( $plan['changes']['removed'] );
+					$preview['baselines'] += (int) $plan['baseline'];
+				}
+			}
+
+			// Leave time for the repair page to render on slower installations.
+			if ( ( microtime( true ) - $started ) >= 5 ) {
+				break;
+			}
+		}
+	} finally {
+		// Release only the posts inspected by this preview window.
+		wp_cache_delete_multiple( $ids, 'posts' );
+		wp_cache_delete_multiple( $ids, 'post_meta' );
+	}
+
+	// Check for another row without counting or loading the remaining history.
+	if ( ! $state['complete'] && ( $preview['cursor'] < $preview['upper'] ) ) {
+		$remaining = bbp_get_mention_backfill_posts( $preview, 1 );
+		if ( is_wp_error( $remaining ) ) {
+			return $remaining;
+		}
+		$preview['more'] = ! empty( $remaining );
+	}
+
+	return $preview;
 }
 
 /**
