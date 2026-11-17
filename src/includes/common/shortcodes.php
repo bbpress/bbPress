@@ -199,7 +199,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @return string
+	 * @return string Forum index markup.
 	 */
 	public function display_forum_index() {
 
@@ -223,7 +223,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string
+	 * @return string Forum markup or supplied content.
 	 */
 	public function display_forum( $attr, $content = '' ) {
 
@@ -261,6 +261,8 @@ class BBP_Shortcodes {
 	 * post/page contents are displayed first.
 	 *
 	 * @since 2.1.0 bbPress (r3566)
+	 *
+	 * @return string Forum form markup.
 	 */
 	public function display_forum_form() {
 
@@ -282,7 +284,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @return string
+	 * @return string Topic index markup.
 	 */
 	public function display_topic_index() {
 
@@ -312,7 +314,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string
+	 * @return string Topic markup or supplied content.
 	 */
 	public function display_topic( $attr, $content = '' ) {
 
@@ -382,7 +384,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string
+	 * @return string Topic form markup.
 	 */
 	public function display_topic_form( $attr = array(), $content = '' ) {
 
@@ -436,7 +438,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string
+	 * @return string Reply markup or supplied content.
 	 */
 	public function display_reply( $attr, $content = '' ) {
 
@@ -500,6 +502,8 @@ class BBP_Shortcodes {
 	 * post/page contents are displayed first.
 	 *
 	 * @since 2.0.0 bbPress (r3042)
+	 *
+	 * @return string Reply form markup.
 	 */
 	public function display_reply_form() {
 
@@ -521,7 +525,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3132)
 	 *
-	 * @return string
+	 * @return string Topic tag cloud markup.
 	 */
 	public function display_topic_tags() {
 
@@ -553,7 +557,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string
+	 * @return string Topic tag listing markup or supplied content.
 	 */
 	public function display_topics_of_tag( $attr, $content = '' ) {
 
@@ -589,7 +593,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3348)
 	 *
-	 * @return string
+	 * @return string Topic tag form markup.
 	 */
 	public function display_topic_tag_form() {
 
@@ -616,7 +620,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
-	 * @return string
+	 * @return string View markup or supplied content.
 	 */
 	public function display_view( $attr, $content = '' ) {
 
@@ -654,6 +658,8 @@ class BBP_Shortcodes {
 	 * post/page contents are displayed first.
 	 *
 	 * @since 2.3.0 bbPress (r4586)
+	 *
+	 * @return string|void Search form markup, or no output when search is disabled.
 	 */
 	public function display_search_form() {
 
@@ -680,6 +686,7 @@ class BBP_Shortcodes {
 	 *
 	 * @param array  $attr    Shortcode attributes.
 	 * @param string $content Shortcode content.
+	 * @return string|void Search results or supplied content, or no output when search is disabled.
 	 */
 	public function display_search( $attr, $content = '' ) {
 
@@ -729,7 +736,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3302)
 	 *
-	 * @return string
+	 * @return string Login form markup.
 	 */
 	public function display_login() {
 
@@ -755,7 +762,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3302)
 	 *
-	 * @return string
+	 * @return string Registration form markup.
 	 */
 	public function display_register() {
 
@@ -781,7 +788,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3302)
 	 *
-	 * @return string
+	 * @return string Lost password form markup.
 	 */
 	public function display_lost_pass() {
 
@@ -809,7 +816,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.3.0 bbPress (r4510)
 	 *
-	 * @return string
+	 * @return string Forum statistics markup.
 	 */
 	public function display_stats() {
 
@@ -831,7 +838,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3302)
 	 *
-	 * @return string
+	 * @return string Breadcrumb markup.
 	 */
 	public function display_breadcrumb() {
 
@@ -856,7 +863,7 @@ class BBP_Shortcodes {
 	 * @since 2.1.0 bbPress (r3637)
 	 *
 	 * @param array $args Query arguments.
-	 * @return array
+	 * @return array Topic index query arguments.
 	 */
 	public function display_topic_index_query( $args = array() ) {
 		$args['author']        = 0;
@@ -871,7 +878,7 @@ class BBP_Shortcodes {
 	 * @since 2.1.0 bbPress (r3637)
 	 *
 	 * @param array $args Query arguments.
-	 * @return array
+	 * @return array Topic tag query arguments.
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
 		$args['tax_query'] = array(

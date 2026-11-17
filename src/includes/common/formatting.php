@@ -407,7 +407,7 @@ function bbp_encode_bad( $content = '' ) {
  * @since 2.3.0 bbPress (r4642)
  *
  * @param array $matches Matched inline or block code.
- * @return string
+ * @return string Encoded code markup.
  */
 function bbp_encode_callback( $matches = array() ) {
 
@@ -445,7 +445,7 @@ function bbp_encode_callback( $matches = array() ) {
  *
  * @param array $matches Matched encoded code.
  * @todo Experiment with _wp_specialchars()
- * @return string
+ * @return string Decoded code markup.
  */
 function bbp_decode_callback( $matches = array() ) {
 
@@ -622,7 +622,7 @@ function bbp_make_clickable( $text = '' ) {
  * @since 2.6.0 bbPress (r6014)
  *
  * @param  string $text Text to link.
- * @return string
+ * @return string Content with URLs linked.
  */
 function bbp_make_urls_clickable( $text = '' ) {
 	$url_clickable = '~
@@ -652,7 +652,7 @@ function bbp_make_urls_clickable( $text = '' ) {
  * @see make_clickable()
  *
  * @param  string $text Text to link.
- * @return string
+ * @return string Content with FTP URLs linked.
  */
 function bbp_make_ftps_clickable( $text = '' ) {
 	return preg_replace_callback( '#([\s>])((www|ftp)\.[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]+)#is', '_make_web_ftp_clickable_cb', $text );
@@ -666,7 +666,7 @@ function bbp_make_ftps_clickable( $text = '' ) {
  * @see make_clickable()
  *
  * @param  string $text Text to link.
- * @return string
+ * @return string Content with email addresses linked.
  */
 function bbp_make_emails_clickable( $text = '' ) {
 	return preg_replace_callback( '#([\s>])([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})#i', '_make_email_clickable_cb', $text );
@@ -682,7 +682,7 @@ function bbp_make_emails_clickable( $text = '' ) {
  * @see make_clickable()
  *
  * @param  string $text Text to link.
- * @return string
+ * @return string Content with mentions linked.
  */
 function bbp_make_mentions_clickable( $text = '' ) {
 	return preg_replace_callback(
@@ -1040,7 +1040,7 @@ function bbp_format_revision_reason( $reason = '' ) {
  * @since 2.6.14 bbPress (r7335)
  *
  * @param string $display_name The author display.
- * @return string
+ * @return string Display name with valid UTF-8.
  */
 function bbp_format_user_display_name( $display_name = '' ) {
 

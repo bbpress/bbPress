@@ -29,7 +29,7 @@ function bbp_ajax_url() {
  *
  * @global WP $wp Current WordPress environment instance.
  *
- * @return string
+ * @return string URL for bbPress AJAX requests in themes.
  */
 function bbp_get_ajax_url() {
 	global $wp;

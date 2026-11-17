@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.21 bbPress (r8158)
  *
- * @return bool
+ * @return bool Whether WordPress supports registered SVG admin icons.
  */
 function bbp_use_svg_admin_icons() {
 	global $wp_version;
@@ -33,7 +33,7 @@ function bbp_use_svg_admin_icons() {
  * @since 2.6.21 bbPress (r8158)
  *
  * @param string $classes Admin body classes.
- * @return string
+ * @return string Admin body classes, including the SVG icon class when supported.
  */
 function bbp_admin_icon_body_class( $classes ) {
 	return bbp_use_svg_admin_icons() ? $classes . ' bbp-svg-icons' : $classes;
