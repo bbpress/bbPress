@@ -575,7 +575,7 @@ function bbp_paginate_links( $args = array() ) {
  *
  * @global string $wp_version The WordPress version string.
  *
- * @return string $wp_version
+ * @return float WordPress version number as a float.
  */
 function bbp_get_major_wp_version() {
 	global $wp_version;

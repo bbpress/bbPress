@@ -322,7 +322,7 @@ class BBP_Users_Admin {
 	 * @since 2.2.0 bbPress (r4338)
 	 *
 	 * @param array $columns Users table columns.
-	 * @return array $columns
+	 * @return array User table columns.
 	 */
 	public static function user_role_column( $columns = array() ) {
 

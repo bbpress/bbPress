@@ -1593,7 +1593,7 @@ function bbp_tab_index( $auto_increment = true ) {
  * @param bool $auto_increment Optional. Default true. Set to false to
  *                            prevent the increment.
  *
- * @return int $bbp->tab_index The global tab index.
+ * @return int The global tab index.
  */
 function bbp_get_tab_index( $auto_increment = true ) {
 	$bbp = bbpress();

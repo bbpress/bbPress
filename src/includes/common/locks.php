@@ -57,9 +57,8 @@ function bbp_check_post_lock( $post_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6341)
  *
- * @param int $post_id ID of the post to being edited.
- * @return bool|array Returns false if the post doesn't exist of there is no current user, or
- *                     an array of the lock time and the user ID.
+ * @param int $post_id Post ID to lock.
+ * @return array|false Lock time and user ID, or false if the post or current user is unavailable.
  */
 function bbp_set_post_lock( $post_id = 0 ) {
 

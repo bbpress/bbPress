@@ -1023,7 +1023,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @param array $columns The columns.
 	 *
-	 * @return array $columns bbPress topic columns.
+	 * @return array bbPress topic columns.
 	 */
 	public function column_headers( $columns ) {
 		$columns = array(
@@ -1132,7 +1132,7 @@ class BBP_Topics_Admin {
 	 * @param array  $actions Actions.
 	 * @param object $topic   Topic object.
 	 *
-	 * @return array $actions Actions.
+	 * @return array Updated topic row actions.
 	 */
 	public function row_actions( $actions = array(), $topic = false ) {
 

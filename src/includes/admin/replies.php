@@ -836,7 +836,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @param array $columns The columns.
 	 *
-	 * @return array $columns bbPress reply columns.
+	 * @return array bbPress reply columns.
 	 */
 	public function column_headers( $columns ) {
 		$columns = array(
@@ -955,7 +955,7 @@ class BBP_Replies_Admin {
 	 * @param array  $actions Actions.
 	 * @param object $reply   Reply object.
 	 *
-	 * @return array $actions Actions.
+	 * @return array Updated reply row actions.
 	 */
 	public function row_actions( $actions = array(), $reply = false ) {
 

@@ -369,7 +369,7 @@ function bbp_find_mentions_pattern() {
  *
  * @param string $content The content.
  *
- * @return bool|array $usernames Existing usernames. False if no matches.
+ * @return array|false Usernames found, or false when there are no matches.
  */
 function bbp_find_mentions( $content = '' ) {
 	$pattern   = bbp_find_mentions_pattern();

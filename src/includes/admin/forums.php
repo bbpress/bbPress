@@ -594,7 +594,7 @@ class BBP_Forums_Admin {
 	 *
 	 * @param array $columns The columns.
 	 *
-	 * @return array $columns bbPress forum columns.
+	 * @return array bbPress forum columns.
 	 */
 	public function column_headers( $columns ) {
 
@@ -691,7 +691,7 @@ class BBP_Forums_Admin {
 	 * @param array  $actions Actions.
 	 * @param object $forum   Forum object.
 	 *
-	 * @return array $actions Actions.
+	 * @return array Updated forum row actions.
 	 */
 	public function row_actions( $actions = array(), $forum = false ) {
 

@@ -517,7 +517,7 @@ function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
  * @since 2.4.0 bbPress (r4866)
  *
  * @param string $text Post text.
- * @return string $text Text with rel=nofollow added to any links.
+ * @return string Text with rel=nofollow added to any links.
  */
 function bbp_rel_nofollow( $text = '' ) {
 	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_nofollow_callback', $text );
@@ -530,7 +530,7 @@ function bbp_rel_nofollow( $text = '' ) {
  * @since 2.6.17 bbPress (r7491) Use the WordPress link relationship callback.
  *
  * @param array $matches Matched link markup.
- * @return string $text Link with rel=nofollow added.
+ * @return string Link with rel=nofollow added.
  */
 function bbp_rel_nofollow_callback( $matches = array() ) {
 	return wp_rel_callback( $matches, 'nofollow' );
