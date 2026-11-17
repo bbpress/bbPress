@@ -74,6 +74,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Changed
 
+- Show when a topic is spammed or trashed in its single-topic description.
 - Changed subscription notifications to send one email per recipient, and
   deprecated `bbp_subscription_to_email` in favor of `bbp_subscription_email`.
 - Keep unfinished automatic upgrades durably pending, and retry storage failures

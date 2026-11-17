@@ -566,6 +566,34 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_single_topic_description
+	 * @ticket 3432
+	 */
+	public function test_bbp_get_single_topic_description_for_spam_topic() {
+		$topic_id = $this->factory->topic->create();
+		$args     = array( 'topic_id' => $topic_id, 'before' => '<p>', 'after' => '</p>' );
+
+		bbp_spam_topic( $topic_id );
+
+		$this->assertSame( bbp_get_spam_status_id(), bbp_get_topic_status( $topic_id ) );
+		$this->assertSame( '<p>This topic is marked as spam.</p>', bbp_get_single_topic_description( $args ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_single_topic_description
+	 * @ticket 3432
+	 */
+	public function test_bbp_get_single_topic_description_for_trashed_topic() {
+		$topic_id = $this->factory->topic->create();
+		$args     = array( 'topic_id' => $topic_id, 'before' => '<p>', 'after' => '</p>' );
+
+		wp_trash_post( $topic_id );
+
+		$this->assertSame( bbp_get_trash_status_id(), bbp_get_topic_status( $topic_id ) );
+		$this->assertSame( '<p>This topic is in the trash.</p>', bbp_get_single_topic_description( $args ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_single_topic_description
 	 */
 	public function test_bbp_get_single_topic_description_can_be_disabled() {
 		$args                     = array( 'topic_id' => 123 );

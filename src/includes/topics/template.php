@@ -3620,9 +3620,19 @@ function bbp_get_single_topic_description( $args = array() ) {
 	/* translators: %s: Number of voices/participants */
 	$voice_count = sprintf( _n( '%s voice', '%s voices', $vc_int, 'bbpress' ), $voice_count );
 
-	// Topic has activity (could be from reply or topic author)
+	// Last active ID (could be from reply or topic author)
 	$last_active = bbp_get_topic_last_active_id( $topic_id );
-	if ( ! empty( $last_active ) ) {
+
+	// Topic is in the trash
+	if ( bbp_get_topic_status( $topic_id ) === bbp_get_trash_status_id() ) {
+		$retstr = esc_html__( 'This topic is in the trash.', 'bbpress' );
+
+	// Topic is spam
+	} elseif ( bbp_get_topic_status( $topic_id ) === bbp_get_spam_status_id() ) {
+		$retstr = esc_html__( 'This topic is marked as spam.', 'bbpress' );
+
+	// Topic has activity
+	} elseif ( ! empty( $last_active ) ) {
 
 		// Last-updated-by should always exist if last-active does
 		$last_updated_by = bbp_get_author_link(
