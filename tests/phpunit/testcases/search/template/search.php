@@ -254,6 +254,23 @@ class BBP_Tests_Search_Template_Search extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_search_pagination_count
+	 * @covers ::bbp_get_search_pagination_count
+	 */
+	public function test_bbp_get_search_pagination_count_no_results() {
+		bbp_has_search_results( array(
+			's'         => 'NoMatchingSearchPageNeedle',
+			'post_type' => bbp_get_topic_post_type(),
+		) );
+		$count = bbp_get_search_pagination_count();
+
+		$this->assertIsString( $count );
+		$this->assertStringContainsString( 'Viewing 0 results', $count );
+		$this->expectOutputString( $count );
+		bbp_search_pagination_count();
+	}
+
+	/**
 	 * @covers ::bbp_search_pagination_links
 	 * @covers ::bbp_get_search_pagination_links
 	 */

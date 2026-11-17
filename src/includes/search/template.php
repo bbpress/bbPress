@@ -451,9 +451,10 @@ function bbp_get_search_pagination_count() {
 			$total_num
 		);
 
-		// Filter & return
-		return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 }
 
 /**

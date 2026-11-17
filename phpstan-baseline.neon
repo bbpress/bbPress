@@ -925,12 +925,6 @@ parameters:
 			path: src/includes/replies/template.php
 
 		-
-			message: '#^Function bbp_get_search_pagination_count\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/search/template.php
-
-		-
 			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 1
