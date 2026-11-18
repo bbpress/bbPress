@@ -3174,7 +3174,7 @@ function bbp_admin_repair_closed_topics_batch( $dry_run = false ) {
 			return $batch;
 		}
 		$complete      = count( $closed_topics ) <= $size;
-		$closed_topics = array_slice( $closed_topics, 0, $size );
+		$closed_topics = array_map( 'intval', array_slice( $closed_topics, 0, $size ) );
 		$batch['processed'] += count( $closed_topics );
 
 		// Ensure Run and Dry Run inspect current database values.

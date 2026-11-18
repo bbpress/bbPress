@@ -1215,6 +1215,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 			// Loop through posts and spam them
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $post_id ) {
+					$post_id = (int) $post_id;
 
 					// The routines for topics and replies are different, so use the
 					// correct one based on the post type
@@ -1302,6 +1303,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 			// Loop through posts and unspam them
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $post_id ) {
+					$post_id = (int) $post_id;
 
 					// The routines for topics and replies are different, so use the
 					// correct one based on the post type

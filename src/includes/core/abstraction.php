@@ -142,11 +142,11 @@ function bbp_get_wp_roles() {
  *
  * This function is abstracted to avoid global touches to the primary database
  * class. bbPress supports WordPress's `$wpdb` global by default, and can be
- * filtered to support other configurations if needed.
+ * filtered to support other wpdb-compatible configurations if needed.
  *
  * @since 2.6.0 bbPress (r5826)
  *
- * @return object
+ * @return wpdb Database object.
  */
 function bbp_db() {
 	return bbp_get_global_object( 'wpdb', 'WPDB' );

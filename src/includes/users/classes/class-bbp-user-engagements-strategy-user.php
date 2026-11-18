@@ -412,7 +412,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Loop through users and remove their user options
 			foreach ( $user_ids as $user_id ) {
-				if ( $this->remove_user_from_all_objects( $user_id, $meta_key, $meta_type ) ) {
+				if ( $this->remove_user_from_all_objects( (int) $user_id, $meta_key, $meta_type ) ) {
 					++$r_count;
 				}
 			}

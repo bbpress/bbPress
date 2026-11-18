@@ -13,8 +13,9 @@ parameters:
         - bbPress
     paths:
         - src
-    # WordPress defines these constants during bootstrap or in wp-config.php.
+    # External symbols used by bbPress are supplied by WordPress and Akismet.
     scanFiles:
+        - tests/phpstan/akismet-functions.php
         - tests/phpstan/runtime-constants.php
     stubFiles:
         - tests/phpstan/wp-html-processor.stub
