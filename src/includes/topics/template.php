@@ -1187,12 +1187,16 @@ function bbp_is_topic_open( $topic_id = 0 ) {
 /**
  * Is the topic publicly viewable?
  *
+ * The topic status and filters can change between calls.
+ *
  * See bbp_get_public_topic_statuses() for public statuses.
  *
  * @since 2.6.0 bbPress (r6384)
  *
  * @param int $topic_id Optional. Topic id.
  * @return bool True if public, false if not.
+ *
+ * @phpstan-impure
  */
 function bbp_is_topic_public( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );

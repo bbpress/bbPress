@@ -329,10 +329,14 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
 /**
  * Check if error messages exist in queue.
  *
+ * The error queue and filters can change between calls.
+ *
  * @since 2.0.0 bbPress (r3382)
  *
  * @see WP_Error()
  * @return bool Whether errors are queued.
+ *
+ * @phpstan-impure
  */
 function bbp_has_errors() {
 	$has_errors = bbpress()->errors->get_error_codes()
