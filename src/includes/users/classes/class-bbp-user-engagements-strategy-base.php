@@ -131,7 +131,7 @@ class BBP_User_Engagements_Base {
 	 * @param string $meta_key  The key used to index this relationship.
 	 * @param string $meta_type The type of meta to look in.
 	 *
-	 * @return array|null User IDs, or null for the base implementation.
+	 * @return array<int, int>|null User IDs, or null for the base implementation.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		return null;
@@ -142,12 +142,12 @@ class BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6739)
 	 *
-	 * @param array|int $args        User or query arguments.
+	 * @param array<string, mixed>|int|string $args        User or query arguments.
 	 * @param string    $context_key Query context key.
 	 * @param string    $meta_key    Relationship key.
 	 * @param string    $meta_type   Relationship metadata type.
 	 *
-	 * @return array|null Query arguments, or null for the base implementation. An empty array means callers must not run a query.
+	 * @return array<string, mixed>|null Query arguments, or null for the base implementation. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		return null;

@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.7.0 bbPress (r8363)
  *
- * @return array Notification types, labels, and default values.
+ * @return array<string, array{label:string, default:bool}> Notification types, labels, and default values.
  */
 function bbp_get_notification_types() {
 	$types = array(
@@ -133,7 +133,7 @@ function bbp_is_user_notification_enabled( $user_id = 0, $type = '' ) {
  * @since 2.7.0 bbPress (r8363)
  *
  * @param int   $user_id User ID.
- * @param array $changes Preferences keyed by notification type.
+ * @param array<array-key, mixed> $changes Preferences keyed by notification type.
  * @return bool Whether the preferences were accepted.
  */
 function bbp_update_user_notification_preferences( $user_id = 0, $changes = array() ) {
@@ -172,9 +172,9 @@ function bbp_update_user_notification_preferences( $user_id = 0, $changes = arra
  *
  * @since 2.7.0 bbPress (r8363)
  *
- * @param array  $user_ids User IDs.
+ * @param array<array-key, int|string>  $user_ids User IDs.
  * @param string $type     Registered notification type.
- * @return array User IDs with email enabled.
+ * @return array<array-key, int|string> User IDs with email enabled.
  */
 function bbp_filter_notification_user_ids( $user_ids = array(), $type = '' ) {
 	$types = bbp_get_notification_types();
@@ -204,6 +204,7 @@ function bbp_filter_notification_user_ids( $user_ids = array(), $type = '' ) {
  * @since 2.7.0 bbPress (r8363)
  *
  * @param int $user_id Updated user ID.
+ * @return void
  */
 function bbp_save_user_notification_preferences( $user_id = 0 ) {
 	if ( ! bbp_current_user_can_edit_user_field( 'email', $user_id ) || ! isset( $_POST['_bbp_notification_nonce'] ) || ! is_string( $_POST['_bbp_notification_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_bbp_notification_nonce'] ), 'bbp-notification-preferences-' . $user_id ) ) {

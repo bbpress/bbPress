@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array Users who favorited the topic, or an empty array.
+ * @return array<int, int> Users who favorited the topic, or an empty array.
  */
 function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -35,9 +35,9 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2652)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
- * @param array|int $args Optional. Query arguments or a user ID.
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID.
  *
- * @return bool|array Whether favorite topics are available, or an empty array if no query is built.
+ * @return bool|array<array-key, mixed> Whether favorite topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_favorites( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'favorites', '_bbp_favorite' );
@@ -247,7 +247,7 @@ function bbp_favorites_handler( $action = '' ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array Return array of favorite topic ids, or empty array.
+ * @return array<int, int|WP_Post> Return array of favorite topic ids, or empty array.
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(

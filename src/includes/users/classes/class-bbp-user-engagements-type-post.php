@@ -21,6 +21,7 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	 * Clean up subscriptions when an opted-in post is deleted.
 	 *
 	 * @since 2.7.0 bbPress (r8390)
+	 * @return void
 	 */
 	public function register_cleanup() {
 		add_action( 'before_delete_post', array( $this, 'cleanup_deleted_post' ) );
@@ -30,6 +31,7 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	 * Stop cleaning up posts when this type is replaced or deregistered.
 	 *
 	 * @since 2.7.0 bbPress (r8390)
+	 * @return void
 	 */
 	public function unregister_cleanup() {
 		remove_action( 'before_delete_post', array( $this, 'cleanup_deleted_post' ) );
@@ -45,6 +47,7 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8390)
 	 *
 	 * @param int $post_id Post ID.
+	 * @return void
 	 */
 	public function cleanup_deleted_post( $post_id = 0 ) {
 		$post_type = get_post_type( $post_id );
@@ -149,8 +152,8 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	 *
 	 * @since 2.7.0 bbPress (r8318)
 	 *
-	 * @param array $object_ids Post IDs.
-	 * @return array Query arguments.
+	 * @param array<int, int> $object_ids Post IDs.
+	 * @return array<string, mixed> Query arguments.
 	 */
 	public function get_query_args( $object_ids = array() ) {
 		return array(
@@ -164,7 +167,7 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $object_subtype Post type name.
-	 * @return array Query arguments.
+	 * @return array<string, mixed> Query arguments.
 	 */
 	public function get_subtype_query_args( $object_subtype = '' ) {
 		$object_subtype = is_string( $object_subtype )

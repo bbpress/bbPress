@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * Output the forum-role field when adding a new user.
  *
  * @since 2.6.0 bbPress (r6675)
+ * @return void
  */
 function bbp_add_user_form_role_field() {
 
@@ -64,9 +65,9 @@ function bbp_add_user_form_role_field() {
  *
  * @since 2.6.0 bbPress (r6675)
  *
- * @param array $meta The signup meta.
+ * @param array<string, mixed> $meta The signup meta.
  *
- * @return array
+ * @return array<string, mixed>
  */
 function bbp_user_add_role_to_signup_meta( $meta = array() ) {
 
@@ -176,7 +177,7 @@ function bbp_user_add_role_on_register( $user_id = '' ) {
  *
  * @param int    $user_id  User ID.
  * @param string $password User password.
- * @param array  $meta     Array of metadata.
+ * @param array<string, mixed>  $meta     Array of metadata.
  *
  * @return void
  */

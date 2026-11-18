@@ -24,6 +24,7 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	 * may still have subscriptions stored from when it was.
 	 *
 	 * @since 2.7.0 bbPress (r8390)
+	 * @return void
 	 */
 	public function register_cleanup() {
 		add_action( 'delete_term', array( $this, 'cleanup_deleted_term' ), 10, 3 );
@@ -33,6 +34,7 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	 * Stop cleaning up terms when this type is replaced or deregistered.
 	 *
 	 * @since 2.7.0 bbPress (r8390)
+	 * @return void
 	 */
 	public function unregister_cleanup() {
 		remove_action( 'delete_term', array( $this, 'cleanup_deleted_term' ) );
@@ -46,6 +48,7 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	 * @param int    $term_id  Term ID.
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy name.
+	 * @return void
 	 */
 	public function cleanup_deleted_term( $term_id = 0, $tt_id = 0, $taxonomy = '' ) {
 		$tax = get_taxonomy( $taxonomy );
@@ -121,8 +124,8 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	 *
 	 * @since 2.7.0 bbPress (r8323)
 	 *
-	 * @param array $object_ids Term IDs.
-	 * @return array Query arguments.
+	 * @param array<int, int> $object_ids Term IDs.
+	 * @return array<string, mixed> Query arguments.
 	 */
 	public function get_query_args( $object_ids = array() ) {
 		return array(
@@ -136,7 +139,7 @@ class BBP_User_Engagements_Type_Term extends BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $object_subtype Taxonomy name.
-	 * @return array Query arguments.
+	 * @return array<string, mixed> Query arguments.
 	 */
 	public function get_subtype_query_args( $object_subtype = '' ) {
 		$object_subtype = is_string( $object_subtype )

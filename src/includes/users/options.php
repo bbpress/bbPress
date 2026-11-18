@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.1.0 bbPress (r3911)
  *
- * @return array Filtered user option names and values.
+ * @return array<string, mixed> Filtered user option names and values.
  */
 function bbp_get_default_user_options() {
 
@@ -38,6 +38,7 @@ function bbp_get_default_user_options() {
  * @since 2.1.0 bbPress (r3911)
  *
  * @param int $user_id User ID. Defaults to the user in the current bbPress context.
+ * @return void
  */
 function bbp_add_user_options( $user_id = 0 ) {
 
@@ -65,6 +66,7 @@ function bbp_add_user_options( $user_id = 0 ) {
  * @since 2.1.0 bbPress (r3911)
  *
  * @param int $user_id User ID. Defaults to the user in the current bbPress context.
+ * @return void
  */
 function bbp_delete_user_options( $user_id = 0 ) {
 
@@ -88,6 +90,7 @@ function bbp_delete_user_options( $user_id = 0 ) {
  * inside the $bbp->options array.
  *
  * @since 2.1.0 bbPress (r3911)
+ * @return void
  */
 function bbp_setup_user_option_filters() {
 
@@ -363,6 +366,7 @@ function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
  * @since 2.1.0 bbPress (r3911)
  *
  * @param int $user_id User ID to retrieve value for.
+ * @return void
  */
 function bbp_user_last_posted( $user_id = 0 ) {
 	echo esc_html( bbp_get_user_last_posted( $user_id ) );

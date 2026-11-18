@@ -196,7 +196,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @param string $meta_key  Relationship key.
 	 * @param string $meta_type Relationship metadata type.
 	 * @param int    $object_id Object ID.
-	 * @param array  $user_ids  User IDs to cache.
+	 * @param array<array-key, int|string>  $user_ids  User IDs to cache.
 	 *
 	 * @return mixed Results from cache set.
 	 */
@@ -233,8 +233,8 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6876)
 	 *
-	 * @param array|string $results IDs as an array or comma-separated string.
-	 * @return array
+	 * @param array<array-key, int|string>|string $results IDs as an array or comma-separated string.
+	 * @return array<int, int>
 	 */
 	private function parse_comma_list( $results = '' ) {
 		return array_filter( wp_parse_id_list( $results ) );
@@ -434,7 +434,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @param string $meta_key  The key used to index this relationship.
 	 * @param string $meta_type The type of meta to look in.
 	 *
-	 * @return array Returns ids of users.
+	 * @return array<int, int> Returns ids of users.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 
@@ -461,12 +461,12 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6844)
 	 * @since 2.7.0 bbPress (r8318) Use the engagement type's query arguments.
 	 *
-	 * @param array|int $args        User or query arguments.
+	 * @param array<string, mixed>|int|string $args        User or query arguments.
 	 * @param string    $context_key Query context key.
 	 * @param string    $meta_key    Relationship key.
 	 * @param string    $meta_type   Relationship metadata type.
 	 *
-	 * @return array Query arguments. An empty array means callers must not run a query.
+	 * @return array<string, mixed> Query arguments. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		$user_id    = bbp_get_user_id( $args, true, true );

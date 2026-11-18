@@ -122,7 +122,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 * @param string $meta_key  The key used to index this relationship.
 	 * @param string $meta_type The type of meta to look in.
 	 *
-	 * @return array Returns ids of users.
+	 * @return array<int, int> Returns ids of users.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
@@ -135,12 +135,12 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6739)
 	 *
-	 * @param array|int $args        User or query arguments.
+	 * @param array<string, mixed>|int|string $args        User or query arguments.
 	 * @param string    $context_key Query context key.
 	 * @param string    $meta_key    Relationship key.
 	 * @param string    $meta_type   Relationship metadata type.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );

@@ -40,7 +40,7 @@ class BBP_User_Engagements_Type {
 	 *
 	 * @since 2.7.0 bbPress (r8306)
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	public $args = array();
 
@@ -50,7 +50,7 @@ class BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8306)
 	 *
 	 * @param string $name Engagement type name.
-	 * @param array  $args Arguments the type was registered with.
+	 * @param array<string, mixed> $args Arguments the type was registered with.
 	 */
 	public function __construct( $name = '', $args = array() ) {
 		$this->name = $name;
@@ -64,6 +64,7 @@ class BBP_User_Engagements_Type {
 	 * remove the same callbacks in unregister_cleanup().
 	 *
 	 * @since 2.7.0 bbPress (r8390)
+	 * @return void
 	 */
 	public function register_cleanup() {
 		// Intentionally empty
@@ -73,6 +74,7 @@ class BBP_User_Engagements_Type {
 	 * Remove callbacks registered by this type.
 	 *
 	 * @since 2.7.0 bbPress (r8390)
+	 * @return void
 	 */
 	public function unregister_cleanup() {
 		// Intentionally empty
@@ -128,8 +130,8 @@ class BBP_User_Engagements_Type {
 	 *
 	 * @since 2.7.0 bbPress (r8318)
 	 *
-	 * @param array $object_ids Object IDs.
-	 * @return array|null Query arguments, or null for the base implementation.
+	 * @param array<int, int> $object_ids Object IDs.
+	 * @return array<string, mixed>|null Query arguments, or null for the base implementation.
 	 */
 	public function get_query_args( $object_ids = array() ) {
 		return null;
@@ -143,7 +145,7 @@ class BBP_User_Engagements_Type {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $object_subtype Registered object subtype.
-	 * @return array|null Query arguments, or null for the base implementation.
+	 * @return array<string, mixed>|null Query arguments, or null for the base implementation.
 	 */
 	public function get_subtype_query_args( $object_subtype = '' ) {
 		return null;

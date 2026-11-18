@@ -66,6 +66,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 *
 	 * @param string $tax_key     Taxonomy key to register.
 	 * @param string $object_type Object type for the taxonomy.
+	 * @return void
 	 */
 	private function jit_taxonomy( $tax_key = '', $object_type = 'user' ) {
 
@@ -241,7 +242,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * @param string $meta_key  The key used to index this relationship.
 	 * @param string $meta_type The type of meta to look in.
 	 *
-	 * @return array Returns ids of users.
+	 * @return array<int, int> Returns ids of users.
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$user_key = $this->get_user_key( $meta_key, $meta_type );
@@ -277,12 +278,12 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6739)
 	 * @since 2.7.0 bbPress (r8318) Use object IDs for types without `tax_query`.
 	 *
-	 * @param array|int $args        User or query arguments.
+	 * @param array<string, mixed>|int|string $args        User or query arguments.
 	 * @param string    $context_key Query context key.
 	 * @param string    $meta_key    Relationship key.
 	 * @param string    $meta_type   Relationship metadata type.
 	 *
-	 * @return array Query arguments. An empty array means callers must not run a query.
+	 * @return array<string, mixed> Query arguments. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
 		$tax_key  = $this->get_tax_key( $meta_key, $meta_type );
@@ -330,13 +331,13 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.7.0 bbPress (r8318)
 	 *
-	 * @param array|int                 $args        Query arguments, or a user ID.
+	 * @param array<string, mixed>|int|string                 $args        Query arguments, or a user ID.
 	 * @param string                    $context_key Context for parsing arguments.
 	 * @param string                    $tax_key     Relationship taxonomy.
 	 * @param string                    $user_key    User term slug prefix.
 	 * @param BBP_User_Engagements_Type $type        Engagement type.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	private function get_object_ids_query( $args = array(), $context_key = '', $tax_key = '', $user_key = '', $type = null ) {
 
