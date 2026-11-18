@@ -18,9 +18,9 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0 bbPress (r6814)
  *
- * @param array $args Array of arguments to pass into `get_post_types()`.
+ * @param array<string, mixed> $args Array of arguments to pass into `get_post_types()`.
  *
- * @return array
+ * @return array<string, string> Post type names keyed by post type.
  */
 function bbp_get_post_types( $args = array() ) {
 
@@ -45,9 +45,9 @@ function bbp_get_post_types( $args = array() ) {
  *
  * @since 2.6.19 bbPress (r7709)
  *
- * @param array                $args    User query arguments.
+ * @param array<string, mixed> $args    User query arguments.
  * @param WP_REST_Request|null $request Optional REST request.
- * @return array Filtered user query arguments.
+ * @return array<string, mixed> Filtered user query arguments.
  */
 function bbp_exclude_forum_posts_from_user_query( $args, $request = null ) {
 	if ( $request instanceof WP_REST_Request && current_user_can( 'list_users' ) ) {
@@ -73,8 +73,8 @@ function bbp_exclude_forum_posts_from_user_query( $args, $request = null ) {
  *
  * @since 2.6.22 bbPress (r8276)
  *
- * @param array $query_args Query arguments.
- * @return array Query arguments.
+ * @param array<string, mixed> $query_args Query arguments.
+ * @return array<string, mixed> Query arguments.
  */
 function bbp_exclude_replies_from_non_public_topics( $query_args = array() ) {
 	$post_types = bbp_get_string_array_values( isset( $query_args['post_type'] ) ? $query_args['post_type'] : array() );
@@ -94,9 +94,9 @@ function bbp_exclude_replies_from_non_public_topics( $query_args = array() ) {
  *
  * @since 2.6.22 bbPress (r8317)
  *
- * @param array  $query_args Query arguments.
+ * @param array<string, mixed> $query_args Query arguments.
  * @param string $post_type  Sitemap post type.
- * @return array Query arguments.
+ * @return array<string, mixed> Query arguments.
  */
 function bbp_exclude_password_protected_sitemap_posts( $query_args = array(), $post_type = '' ) {
 	if ( ! in_array( $post_type, array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
@@ -396,9 +396,9 @@ function bbp_filter_use_block_editor_for_post_type( $using = false, $post_type =
  * @since 2.6.0 bbPress (r6481)
  * @since 2.6.22 bbPress (r8341) Return values with consecutive numeric keys.
  *
- * @param array $array Array to get values of.
+ * @param array<array-key, mixed> $array Array to get values of.
  *
- * @return array
+ * @return list<mixed> Unique non-empty values.
  */
 // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.arrayFound -- Preserve the public parameter name for PHP 8 named arguments.
 function bbp_get_unique_array_values( $array = array() ) {
@@ -412,7 +412,7 @@ function bbp_get_unique_array_values( $array = array() ) {
  *
  * @param mixed $arr Value or array to get string values of.
  *
- * @return array
+ * @return list<string> Non-empty string values.
  */
 function bbp_get_string_array_values( $arr = array() ) {
 	$retval = array();
@@ -434,8 +434,8 @@ function bbp_get_string_array_values( $arr = array() ) {
  *
  * @since 2.7.0 bbPress (r8156)
  *
- * @param array $data Post data.
- * @return array Filtered post data.
+ * @param array<string, mixed> $data Post data.
+ * @return array<string, mixed> Filtered post data.
  */
 function bbp_filter_post_title_data( $data = array() ) {
 	$post_types = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
@@ -486,11 +486,11 @@ function bbp_filter_post_title( $title = '', $post_id = 0 ) {
  *
  * @see https://core.trac.wordpress.org/ticket/34435
  *
- * @param array $data                Processed post data.
- * @param array $postarr             Sanitized post data.
- * @param array $unsanitized_postarr Original post data.
+ * @param array<string, mixed> $data                Processed post data.
+ * @param array<string, mixed> $postarr             Sanitized post data.
+ * @param array<string, mixed> $unsanitized_postarr Original post data.
  * @param bool  $update              Whether this is an existing post.
- * @return array Filtered post data.
+ * @return array<string, mixed> Filtered post data.
  */
 function bbp_fix_new_post_date_pairs( $data = array(), $postarr = array(), $unsanitized_postarr = array(), $update = true ) {
 	$zero_date = '0000-00-00 00:00:00';
@@ -528,8 +528,8 @@ function bbp_fix_new_post_date_pairs( $data = array(), $postarr = array(), $unsa
  *
  * @since 2.6.21 bbPress (r8036)
  *
- * @param array $data Post data.
- * @return array Filtered post data.
+ * @param array<string, mixed> $data Post data.
+ * @return array<string, mixed> Filtered post data.
  */
 function bbp_set_pending_post_date_gmt( $data = array() ) {
 	if (
@@ -553,9 +553,9 @@ function bbp_set_pending_post_date_gmt( $data = array() ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $data Post data.
- * @param array $postarr Original post array (includes post id).
- * @return array Data.
+ * @param array<string, mixed> $data Post data.
+ * @param array<string, mixed> $postarr Original post array (includes post id).
+ * @return array<string, mixed> Data.
  */
 function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 
@@ -851,7 +851,7 @@ function bbp_get_trash_days( $context = 'forum' ) {
  *                                `count_hidden_topics`
  *                                `count_hidden_replies`
  *
- * @param array $args Optional. The function supports these arguments (all
+ * @param array<string, mixed> $args Optional. The function supports these arguments (all
  *                    default to true):
  *
  *  - count_users:           Count users?
@@ -884,7 +884,7 @@ function bbp_get_trash_days( $context = 'forum' ) {
  *                           not counted
  *  - count_empty_tags:      Whether to count empty tags.
  *
- * @return array Array of statistics
+ * @return array<string, mixed> Array of statistics.
  */
 function bbp_get_statistics( $args = array() ) {
 
@@ -1132,8 +1132,8 @@ function bbp_get_statistics( $args = array() ) {
  *
  * @since 2.6.21 bbPress (r8078)
  *
- * @param array $data Post data.
- * @return array Post data.
+ * @param array<string, mixed> $data Post data.
+ * @return array<string, mixed> Post data.
  */
 function bbp_filter_revision_post_author( $data = array() ) {
 	if ( isset( $data['post_type'], $data['post_parent'] ) && ( 'revision' === $data['post_type'] ) && ! empty( $data['post_parent'] ) ) {
@@ -1218,8 +1218,8 @@ function bbp_save_initial_post_revision( $post_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $args Optional. If no args are there, then $_POST values are.
- * @return array Filtered anonymous author data.
+ * @param array<string, mixed> $args Optional. If no args are there, then $_POST values are.
+ * @return array<string, mixed> Filtered anonymous author data.
  */
 function bbp_filter_anonymous_post_data( $args = array() ) {
 
@@ -1261,8 +1261,8 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6400)
  *
- * @param array $anonymous_data Anonymous author data to sanitize.
- * @return array
+ * @param array<string, mixed> $anonymous_data Anonymous author data to sanitize.
+ * @return array<string, mixed> Sanitized anonymous author data.
  */
 function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
 
@@ -1301,8 +1301,9 @@ function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
  * @since 2.6.0 bbPress (r6400)
  *
  * @param int    $post_id        Post ID.
- * @param array  $anonymous_data Anonymous author data.
+ * @param array<string, mixed> $anonymous_data Anonymous author data.
  * @param string $post_type      Post type.
+ * @return void
  */
 function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array(), $post_type = '' ) {
 
@@ -1348,7 +1349,7 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
  *
  * @since 2.0.0 bbPress (r2763)
  *
- * @param array $post_data Contains information about the comment.
+ * @param array<string, mixed> $post_data Contains information about the comment.
  * @return bool True if it is not a duplicate, false if it is.
  */
 function bbp_check_for_duplicate( $post_data = array() ) {
@@ -1442,7 +1443,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ * @param array<string, mixed> $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $author_id Optional. Supply if it's a post by a logged in user.
@@ -1490,7 +1491,7 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3581)
  *
- * @param array  $anonymous_data Optional - if it's an anonymous post. Do not
+ * @param array<string, mixed> $anonymous_data Optional - if it's an anonymous post. Do not
  *                               supply if supplying $author_id. Should be
  *                               sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int    $author_id Topic or reply author ID.
@@ -1681,7 +1682,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
  * @since 2.6.0 bbPress (r6854)
  * @deprecated 2.6.0 Use bbp_check_for_moderation() with strict flag set
  *
- * @param array  $anonymous_data Optional anonymous author data.
+ * @param array<string, mixed> $anonymous_data Optional anonymous author data.
  * @param int    $author_id      Topic or reply author ID.
  * @param string $title          Content title.
  * @param string $content        Content being posted.
@@ -1766,7 +1767,7 @@ function bbp_notify_moderation_recipients_on_post_pending( $post_id = 0, $post =
  *
  * @param int $post_id  Pending topic or reply ID.
  * @param int $forum_id Forum ID.
- * @return array User IDs.
+ * @return list<int> User IDs.
  */
 function bbp_get_moderation_notification_user_ids( $post_id = 0, $forum_id = 0 ) {
 	$post_id         = absint( $post_id );
@@ -2005,7 +2006,7 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
  * @since 2.6.20 bbPress (r7899)
  * @since 2.7.0 bbPress (r8335) Include active topic taxonomy subscriptions.
  *
- * @return array Post statuses that defer subscription notifications.
+ * @return array<array-key, string> Post statuses that defer subscription notifications.
  */
 function bbp_get_deferred_subscription_statuses() {
 	$statuses = array(
@@ -2230,11 +2231,11 @@ function bbp_get_do_not_reply_address() {
  * @since 2.6.17 bbPress (r7493)
  * @since 2.7.0 bbPress (r8353) Prime user caches in chunks.
  *
- * @param array $user_ids Subscriber user IDs.
+ * @param array<array-key, int|string> $user_ids Subscriber user IDs.
  * @param int   $forum_id Forum ID.
  * @param int   $topic_id Topic ID.
  * @param int   $reply_id Reply ID.
- * @return array User IDs that can read the notification content.
+ * @return array<array-key, int|string> User IDs that can read the notification content.
  */
 function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $topic_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -2451,7 +2452,7 @@ function bbp_send_subscription_emails( $email_addresses = array(), $subject = ''
  * @param int   $reply_id ID of the newly made reply.
  * @param int   $topic_id ID of the topic of the reply.
  * @param int   $forum_id ID of the forum of the reply.
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ * @param array<string, mixed> $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $reply_author ID of the reply author.
@@ -2706,7 +2707,7 @@ Post Link: %3$s
  *
  * @param int   $topic_id ID of the newly made topic.
  * @param int   $forum_id ID of the forum for the topic.
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ * @param array<string, mixed> $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $topic_author ID of the topic author.
@@ -2959,7 +2960,7 @@ Topic Link: %3$s
  * @param int   $reply_id ID of the newly made reply.
  * @param int   $topic_id ID of the topic of the reply.
  * @param int   $forum_id ID of the forum of the reply.
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ * @param array<string, mixed> $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $reply_author ID of the reply author.
@@ -2976,8 +2977,8 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
  * @since 2.6.0 bbPress (r6725)
  * @since 2.7.0 bbPress (r8358) Prime user caches in chunks.
  *
- * @param array $user_ids User IDs to look up.
- * @return array
+ * @param array<array-key, int|string> $user_ids User IDs to look up.
+ * @return array<array-key, string> User email addresses.
  */
 function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 
@@ -3151,10 +3152,10 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  *
  * @since 2.1.0 bbPress (r3840)
  *
- * @param string|array|object $args Value to merge with $defaults.
- * @param array|string        $defaults Array of defaults, or an empty string for none.
+ * @param string|array<array-key, mixed>|object $args Value to merge with $defaults.
+ * @param array<array-key, mixed>|string       $defaults Array of defaults, or an empty string for none.
  * @param string              $filter_key String to key the filters from.
- * @return array Merged user defined values with defaults.
+ * @return array<array-key, mixed> Merged user defined values with defaults.
  */
 function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 
@@ -3306,7 +3307,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * @since 2.6.21 bbPress (r8055) Use indexed post relationships for forums and topics.
  *
  * @param int $parent_id Parent forum or topic ID.
- * @return array Child counts grouped by post type and status.
+ * @return array<string, array<string, int>> Child counts grouped by post type and status.
  */
 function bbp_get_child_counts( $parent_id = 0 ) {
 
@@ -3435,10 +3436,10 @@ function bbp_get_child_counts( $parent_id = 0 ) {
  * @since 2.6.0 bbPress (r6827)
  *
  * @param int          $parent_id ID of post to get child counts from.
- * @param array|string $types     Optional. Post types to filter by.
- * @param array|string $statuses  Optional. Post statuses to filter by.
+ * @param array<array-key, string>|string $types     Optional. Post types to filter by.
+ * @param array<array-key, string>|string $statuses  Optional. Post statuses to filter by.
  *
- * @return array A list of objects or object fields.
+ * @return array<string, array<string, int>> Child counts grouped by post type and status.
  */
 function bbp_filter_child_counts_list( $parent_id = 0, $types = array( 'post' ), $statuses = array() ) {
 
@@ -3577,8 +3578,8 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int          $parent_id   Parent ID.
  * @param string       $post_type   Post type.
- * @param string|array $post_status Post status or statuses.
- * @return array Child post IDs.
+ * @param string|array<array-key, string> $post_status Post status or statuses.
+ * @return list<int> Child post IDs.
  */
 function bbp_get_child_ids_by_status( $parent_id = 0, $post_type = 'post', $post_status = array() ) {
 	$parent_id   = absint( $parent_id );
@@ -3610,7 +3611,7 @@ function bbp_get_child_ids_by_status( $parent_id = 0, $post_type = 'post', $post
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
  *
- * @return array The array of children.
+ * @return array<array-key, int> Child post IDs.
  */
 function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
@@ -3679,7 +3680,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
  * @param int    $parent_id  Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
  *
- * @return array The array of children.
+ * @return array<array-key, int> Child post IDs.
  */
 function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
@@ -3744,7 +3745,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * @since 2.6.0 bbPress (r6700)
  *
- * @param array $objects Array of objects, fresh from a query.
+ * @param array<array-key, WP_Post|int> $objects Posts or post IDs, fresh from a query.
  *
  * @return bool True if some IDs were cached.
  */
@@ -3817,7 +3818,7 @@ function bbp_update_post_family_caches( $objects = array() ) {
  *
  * @since 2.6.0 bbPress (r6700)
  *
- * @param array $objects Array of objects, fresh from a query.
+ * @param array<array-key, WP_Post|int> $objects Posts or post IDs, fresh from a query.
  *
  * @return bool True if some IDs were cached.
  */
@@ -3975,8 +3976,8 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
  *
  * @since 2.6.21 bbPress (r8084)
  *
- * @param array $query_vars Query variables for the request.
- * @return array Query variables for the request.
+ * @param array<string, mixed> $query_vars Query variables for the request.
+ * @return array<string, mixed> Query variables for the request.
  */
 function bbp_request_remove_empty_query_vars( $query_vars = array() ) {
 	$bbp_query_vars = array(
@@ -4020,8 +4021,8 @@ function bbp_escape_feed_cdata( $content = '' ) {
  *
  * @since 2.0.0 bbPress (r3171)
  *
- * @param array $query_vars Query variables for the request.
- * @return array
+ * @param array<string, mixed> $query_vars Query variables for the request.
+ * @return array<string, mixed> Query variables for the request.
  */
 function bbp_request_feed_trap( $query_vars = array() ) {
 
@@ -4366,6 +4367,8 @@ function bbp_set_404( $query = null ) {
  * Sets the 200 status header.
  *
  * @since 2.6.0 bbPress (r6583)
+ *
+ * @return void
  */
 function bbp_set_200() {
 	status_header( 200 );

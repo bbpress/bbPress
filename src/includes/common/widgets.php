@@ -45,6 +45,8 @@ class BBP_Login_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3391)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Login_Widget' );
@@ -55,8 +57,9 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param array $args Arguments.
-	 * @param array $instance Instance.
+	 * @param array<string, mixed> $args Arguments.
+	 * @param array<string, mixed> $instance Instance.
+	 * @return void
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -150,10 +153,10 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array Updated widget settings.
+	 * @return array<string, mixed> Updated widget settings.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance             = $old_instance;
@@ -169,7 +172,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -203,9 +206,9 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -253,6 +256,8 @@ class BBP_Views_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3391)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Views_Widget' );
@@ -263,8 +268,9 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param array $args Arguments.
-	 * @param array $instance Instance.
+	 * @param array<string, mixed> $args Arguments.
+	 * @param array<string, mixed> $instance Instance.
+	 * @return void
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -312,10 +318,10 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array Updated widget settings.
+	 * @return array<string, mixed> Updated widget settings.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance          = $old_instance;
@@ -329,7 +335,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -354,9 +360,9 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -402,6 +408,8 @@ class BBP_Search_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Search_Widget' );
@@ -412,8 +420,9 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param array $args     Widget display arguments.
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $args     Widget display arguments.
+	 * @param array<string, mixed> $instance Widget settings.
+	 * @return void
 	 */
 	public function widget( $args, $instance ) {
 
@@ -447,10 +456,10 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array Updated widget settings.
+	 * @return array<string, mixed> Updated widget settings.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = $old_instance;
@@ -464,7 +473,7 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -489,9 +498,9 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -537,6 +546,8 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3391)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Forums_Widget' );
@@ -547,8 +558,9 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $args Arguments.
-	 * @param array $instance Instance.
+	 * @param array<string, mixed> $args Arguments.
+	 * @param array<string, mixed> $instance Instance.
+	 * @return void
 	 */
 	public function widget( $args, $instance ) {
 
@@ -622,10 +634,10 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array Updated widget settings.
+	 * @return array<string, mixed> Updated widget settings.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance                 = $old_instance;
@@ -645,7 +657,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -680,9 +692,9 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -729,6 +741,8 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3391)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Topics_Widget' );
@@ -739,8 +753,9 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $args     Widget display arguments.
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $args     Widget display arguments.
+	 * @param array<string, mixed> $instance Widget settings.
+	 * @return void
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -919,10 +934,10 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array Updated widget settings.
+	 * @return array<string, mixed> Updated widget settings.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance                 = $old_instance;
@@ -954,7 +969,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -998,9 +1013,9 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1051,6 +1066,8 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.3.0 bbPress (r4510)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Stats_Widget' );
@@ -1061,8 +1078,9 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4510)
 	 *
-	 * @param array $args     Arguments.
-	 * @param array $instance Instance.
+	 * @param array<string, mixed> $args     Arguments.
+	 * @param array<string, mixed> $instance Instance.
+	 * @return void
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -1091,10 +1109,10 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4510)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = $old_instance;
@@ -1108,7 +1126,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4510)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -1133,9 +1151,9 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1181,6 +1199,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3391)
+	 *
+	 * @return void
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Replies_Widget' );
@@ -1191,8 +1211,9 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $args     Widget display arguments.
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $args     Widget display arguments.
+	 * @param array<string, mixed> $instance Widget settings.
+	 * @return void
 	 */
 	public function widget( $args, $instance ) {
 
@@ -1315,10 +1336,10 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $new_instance The new instance options.
-	 * @param array $old_instance The old instance options.
+	 * @param array<string, mixed> $new_instance The new instance options.
+	 * @param array<string, mixed> $old_instance The old instance options.
 	 *
-	 * @return array Updated widget settings.
+	 * @return array<string, mixed> Updated widget settings.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance              = $old_instance;
@@ -1343,7 +1364,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
 	 * @return null
 	 */
@@ -1367,9 +1388,9 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4806)
 	 *
-	 * @param array $instance Widget settings.
+	 * @param array<string, mixed> $instance Widget settings.
 	 *
-	 * @return array Widget settings merged with defaults.
+	 * @return array<string, mixed> Widget settings merged with defaults.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
