@@ -1,0 +1,51 @@
+<?php
+
+// PHPStan requires referenced classes in the stub file itself.
+class WP_Error {}
+class WP_Post {}
+
+/**
+ * WordPress accepts escaped post arrays and unescaped post objects. bbPress
+ * passes false for post_name to have WordPress generate a slug.
+ *
+ * @phpstan-param array{
+ *     ID?: int,
+ *     post_author?: int,
+ *     post_date?: string,
+ *     post_date_gmt?: string,
+ *     post_content?: string,
+ *     post_content_filtered?: string,
+ *     post_title?: string,
+ *     post_excerpt?: string,
+ *     post_status?: string,
+ *     post_type?: string,
+ *     comment_status?: string,
+ *     ping_status?: string,
+ *     post_password?: string,
+ *     post_name?: string|false,
+ *     to_ping?: string,
+ *     pinged?: string,
+ *     post_parent?: int,
+ *     menu_order?: int,
+ *     post_mime_type?: string,
+ *     guid?: string,
+ *     import_id?: int,
+ *     post_category?: int[],
+ *     tags_input?: array<mixed>,
+ *     tax_input?: array<mixed>,
+ *     meta_input?: array<mixed>,
+ *     page_template?: string,
+ * }|object $postarr
+ * @param bool $wp_error
+ * @param bool $fire_after_hooks
+ * @phpstan-return ($wp_error is false ? int<0, max> : int<0, max>|WP_Error)
+ */
+function wp_update_post( $postarr = array(), $wp_error = false, $fire_after_hooks = true ) {}
+
+/**
+ * WordPress passes these arguments to WP_Query, which accepts custom query vars.
+ *
+ * @phpstan-param array<string, mixed>|string|null $args
+ * @phpstan-return ($args is array{fields: 'id=>parent'|'ids', ...} ? array<int, int> : array<int, WP_Post>)
+ */
+function get_posts( $args = null ) {}

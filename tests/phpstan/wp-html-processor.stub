@@ -1,0 +1,10 @@
+<?php
+
+class WP_HTML_Processor {
+	/**
+	 * WordPress also accepts a tag name string as a breadcrumbs query.
+	 *
+	 * @phpstan-param array{tag_name?: string|null, tag_closers?: string, match_offset?: int|null, class_name?: string|null, breadcrumbs?: array<string>}|string|null $query
+	 */
+	public function next_tag( $query = null ): bool {}
+}

@@ -17,6 +17,8 @@ parameters:
     scanFiles:
         - tests/phpstan/runtime-constants.php
     stubFiles:
+        - tests/phpstan/wp-html-processor.stub
+        - tests/phpstan/wp-post.stub
         - tests/phpstan/wp-query.stub
         - tests/phpstan/wpdb.stub
     dynamicConstantNames:
