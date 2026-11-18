@@ -526,7 +526,7 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
  *
  * @since 2.6.0 bbPress (r6680)
  *
- * @param array $args Pagination arguments.
+ * @param array<string, mixed> $args Pagination arguments.
  *
  * @return string|null Pagination links, or null when there is only one page.
  */
@@ -679,6 +679,7 @@ function bbp_get_total_forum_users() {
  * @since 2.6.0 bbPress (r6734)
  *
  * @param int $site_id Site ID to switch to.
+ * @return void
  */
 function bbp_switch_to_site( $site_id = 0 ) {
 
@@ -694,6 +695,8 @@ function bbp_switch_to_site( $site_id = 0 ) {
  * If not a multisite installation, no switching will occur.
  *
  * @since 2.6.0 bbPress (r6734)
+ *
+ * @return void
  */
 function bbp_restore_current_site() {
 
@@ -755,8 +758,8 @@ function bbp_is_intercepted( $value = '' ) {
  *
  * @since 2.6.0 bbPress (r6751)
  *
- * @param string $action Typically the name of the caller function.
- * @param array  $args   Typically the results of caller function func_get_args().
+ * @param string                  $action Typically the name of the caller function.
+ * @param array<array-key, mixed> $args   Typically the results of caller function func_get_args().
  *
  * @return mixed         Intercept results. Default bbp_default_intercept().
  */

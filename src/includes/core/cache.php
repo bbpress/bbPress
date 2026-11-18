@@ -68,6 +68,7 @@ class BBP_Skip_Children {
 	 * @since 2.1.0 bbPress (r4011)
 	 *
 	 * @param int $post_id The post ID being updated.
+	 * @return void
 	 */
 	public function pre_post_update( $post_id = 0 ) {
 
@@ -95,6 +96,7 @@ class BBP_Skip_Children {
 	 * @global bool $_wp_suspend_cache_invalidation Whether cache invalidation is suspended.
 	 *
 	 * @param int $post_id The post ID of the cache being invalidated.
+	 * @return void
 	 */
 	public function skip_related_posts( $post_id = 0 ) {
 
@@ -120,6 +122,8 @@ class BBP_Skip_Children {
 	 * Restore the cache invalidation to its previous value.
 	 *
 	 * @since 2.1.0 bbPress (r4011)
+	 *
+	 * @return void
 	 */
 	public function restore_cache_invalidation() {
 		wp_suspend_cache_invalidation( $this->original_cache_invalidation );
@@ -182,6 +186,8 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
  * Invalidate cached forum-user counts across sites sharing the users table.
  *
  * @since 2.7.0 bbPress (r7447)
+ *
+ * @return void
  */
 function bbp_clean_user_count_cache() {
 	wp_cache_set( 'bbp_forum_users_last_changed', microtime(), 'users' );
@@ -192,9 +198,10 @@ function bbp_clean_user_count_cache() {
  *
  * @since 2.7.0 bbPress (r7447)
  *
- * @param int|array $meta_id  Metadata ID or IDs.
- * @param int       $user_id User ID.
- * @param string    $key     Metadata key.
+ * @param int|array<array-key, mixed> $meta_id Metadata ID or IDs.
+ * @param int                         $user_id User ID.
+ * @param string                      $key     Metadata key.
+ * @return void
  */
 function bbp_clean_user_count_cache_on_meta_change( $meta_id, $user_id, $key ) {
 	// Table prefixes do not need to end in an underscore.

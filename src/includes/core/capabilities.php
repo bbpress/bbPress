@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $role Optional. Defaults to The role to load caps for.
  *
- * @return array Capabilities for $role.
+ * @return array<string, bool> Capabilities for $role.
  */
 function bbp_get_caps_for_role( $role = '' ) {
 
@@ -214,6 +214,8 @@ function bbp_get_caps_for_role( $role = '' ) {
  * Adds capabilities to WordPress user roles.
  *
  * @since 2.0.0 bbPress (r2608)
+ *
+ * @return void
  */
 function bbp_add_caps() {
 
@@ -231,6 +233,8 @@ function bbp_add_caps() {
  * Removes capabilities from WordPress user roles.
  *
  * @since 2.0.0 bbPress (r2608)
+ *
+ * @return void
  */
 function bbp_remove_caps() {
 
@@ -249,7 +253,7 @@ function bbp_remove_caps() {
  *
  * @since 2.4.0 bbPress (r5064)
  *
- * @return array
+ * @return array<string, array<string, mixed>>|false
  */
 function bbp_get_blog_roles() {
 
@@ -316,6 +320,8 @@ function bbp_add_forums_roles( $wp_roles = null ) {
  * @deprecated 2.6.0 bbPress (r6105)
  *
  * @see _bbp_reinit_dynamic_roles()
+ *
+ * @return void
  */
 function bbp_filter_user_roles_option() {
 	$role_key = bbp_db()->prefix . 'user_roles';
@@ -344,8 +350,8 @@ function bbp_filter_user_roles_option() {
  *
  * @internal Used by bbPress to reinitialize dynamic roles on blog switch.
  *
- * @param array $roles Existing roles keyed by role ID.
- * @return array Combined array of database roles and dynamic bbPress roles.
+ * @param array<string, array<string, mixed>> $roles Existing roles keyed by role ID.
+ * @return array<string, array<string, mixed>> Combined database and dynamic bbPress roles.
  */
 function _bbp_reinit_dynamic_roles( $roles = array() ) {
 	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
@@ -370,7 +376,7 @@ function _bbp_reinit_dynamic_roles( $roles = array() ) {
  * @since 2.2.0 bbPress (r4352)
  * @since 2.6.0 bbPress (r6118) Use bbpress()->roles
  *
- * @return array
+ * @return array<string, array{name: string, capabilities: array<string, bool>}>
  */
 function bbp_get_dynamic_roles() {
 
@@ -414,8 +420,8 @@ function bbp_get_dynamic_role_name( $role_id = '' ) {
  *
  * @since 2.2.0 bbPress (r4304)
  *
- * @param array $all_roles All registered roles.
- * @return array
+ * @param array<string, array<string, mixed>> $all_roles All registered roles.
+ * @return array<string, array<string, mixed>>
  */
 function bbp_filter_blog_editable_roles( $all_roles = array() ) {
 
@@ -506,6 +512,8 @@ function bbp_get_blocked_role() {
  * @since 2.0.0 bbPress (r2741)
  *
  * @deprecated 2.2.0 bbPress (r4164)
+ *
+ * @return void
  */
 function bbp_add_roles() {
 	_doing_it_wrong( 'bbp_add_roles', esc_html__( 'Editable forum roles no longer exist.', 'bbpress' ), '2.2' );
@@ -521,6 +529,8 @@ function bbp_add_roles() {
  * @see bbp_version_updater()
  *
  * @since 2.0.0 bbPress (r2741)
+ *
+ * @return void
  */
 function bbp_remove_roles() {
 
