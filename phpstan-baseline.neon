@@ -145,12 +145,6 @@ parameters:
 			path: src/includes/core/theme-compat.php
 
 		-
-			message: '#^Variable \$forum_id in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/forums/functions.php
-
-		-
 			message: '#^Variable \$forum_parent_id in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
@@ -161,24 +155,6 @@ parameters:
 			identifier: empty.variable
 			count: 1
 			path: src/includes/forums/template.php
-
-		-
-			message: '#^Variable \$ancestors in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Variable \$new_where in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/replies/functions.php
-
-		-
-			message: '#^Variable \$reply_id in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/replies/functions.php
 
 		-
 			message: '#^Access to an undefined property WP_Post\:\:\$reply_to\.$#'
@@ -199,25 +175,7 @@ parameters:
 			path: src/includes/replies/template.php
 
 		-
-			message: '#^Variable \$old_forum_ancestors in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/topics/functions.php
-
-		-
 			message: '#^Variable \$replies in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/topics/functions.php
-
-		-
-			message: '#^Variable \$source_topic_slugs in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/topics/functions.php
-
-		-
-			message: '#^Variable \$topic_id in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
 			path: src/includes/topics/functions.php

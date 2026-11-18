@@ -967,7 +967,7 @@ function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			// Step two: the second chunk
 			if ( $i + 2 < $j ) {
 				$seconds2 = $chunks[ $i + 1 ][0];
-				$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
+				$count2   = floor( ( $since - ( $chunks[ $i ][0] * $count ) ) / $seconds2 );
 
 				// Add to output var
 				if ( ! empty( $count2 ) ) {

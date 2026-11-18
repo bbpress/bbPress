@@ -188,27 +188,23 @@ function bbp_admin_reset_database() {
 
 		/** Post Meta *********************************************************/
 
-		if ( ! empty( $sql_posts ) ) {
-			$messages[] = bbp_admin_reset_query_feedback(
-				array(
-					'query'   => "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')",
-					/* translators: %s: Status of the meta deletion process */
-					'message' => esc_html__( 'Removing Forum, Topic, and Reply Meta Data&hellip; %s', 'bbpress' )
-				)
-			);
-		}
+		$messages[] = bbp_admin_reset_query_feedback(
+			array(
+				'query'   => "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')",
+				/* translators: %s: Status of the meta deletion process */
+				'message' => esc_html__( 'Removing Forum, Topic, and Reply Meta Data&hellip; %s', 'bbpress' )
+			)
+		);
 
 		/** Post Revisions ****************************************************/
 
-		if ( ! empty( $sql_posts ) ) {
-			$messages[] = bbp_admin_reset_query_feedback(
-				array(
-					'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'",
-					/* translators: %s: Status of the revision deletion process */
-					'message' => esc_html__( 'Removing Revision Data&hellip; %s', 'bbpress' )
-				)
-			);
-		}
+		$messages[] = bbp_admin_reset_query_feedback(
+			array(
+				'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'",
+				/* translators: %s: Status of the revision deletion process */
+				'message' => esc_html__( 'Removing Revision Data&hellip; %s', 'bbpress' )
+			)
+		);
 	}
 
 	// Topic Tags

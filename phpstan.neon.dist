@@ -5,6 +5,9 @@ includes:
 parameters:
     level: 3
     phpVersion: 70400
+    # Public helpers validate values supplied by themes and other plugins.
+    # PHPDoc describes intended types, not guaranteed runtime values.
+    treatPhpDocTypesAsCertain: false
     # bbPress stores runtime properties through __get() and __set().
     universalObjectCratesClasses:
         - bbPress
