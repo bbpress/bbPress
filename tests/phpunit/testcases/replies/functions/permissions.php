@@ -588,6 +588,46 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_move_reply_handler
 	 */
+	public function test_move_does_not_change_reply_meta_when_conversion_fails() {
+		$moderator_id    = $this->factory->user->create();
+		$author_id       = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id        = $this->factory->forum->create();
+		$source_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_author' => $author_id ) );
+		$reply_id        = $this->factory->reply->create( array(
+			'post_parent' => $source_topic_id,
+			'post_author' => $author_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $source_topic_id ),
+		) );
+		$reject_update = function ( $maybe_empty, $postarr ) use ( $reply_id ) {
+			if ( $postarr['ID'] === $reply_id ) {
+				bbp_add_error( 'bbp_test_conversion_filter', 'Conversion filter error.' );
+				return true;
+			}
+
+			return $maybe_empty;
+		};
+
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		$this->set_current_user( $moderator_id );
+		bbpress()->errors = new WP_Error();
+		add_filter( 'wp_insert_post_empty_content', $reject_update, 10, 2 );
+
+		try {
+			$did_redirect = $this->submit_reply_move( $reply_id, 'topic', 0, 'Failed move' );
+			$this->assertFalse( $did_redirect );
+			$this->assertContains( 'bbp_move_reply_destination_reply', bbpress()->errors->get_error_codes() );
+			$this->assertContains( 'bbp_test_conversion_filter', bbpress()->errors->get_error_codes() );
+			$this->assertSame( bbp_get_reply_post_type(), get_post_type( $reply_id ) );
+			$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
+			$this->assertSame( $source_topic_id, (int) get_post_meta( $reply_id, '_bbp_topic_id', true ) );
+		} finally {
+			remove_filter( 'wp_insert_post_empty_content', $reject_update, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
+	 */
 	public function test_moderator_cannot_convert_reply_to_topic_with_long_title() {
 		$user_id         = $this->factory->user->create();
 		$forum_id        = $this->factory->forum->create();

@@ -1494,18 +1494,21 @@ function bbp_move_reply_handler( $action = '' ) {
 							'post_type'   => bbp_get_topic_post_type(),
 							'post_parent' => $source_topic->post_parent,
 							'guid'        => ''
-						)
+						),
+						true
 					);
 
-					// Get the topic
-					$destination_topic = bbp_get_topic( $destination_topic_id );
+					// Get the topic if conversion succeeded
+					if ( ! is_wp_error( $destination_topic_id ) ) {
+						$destination_topic = bbp_get_topic( $destination_topic_id );
+					}
 
-					// Make sure the new topic knows its a topic
-					bbp_update_topic_topic_id( $move_reply->ID );
-
-					// Shouldn't happen
-					if ( false === $destination_topic_id || is_wp_error( $destination_topic_id ) || empty( $destination_topic ) ) {
+					// Report a failed conversion
+					if ( empty( $destination_topic ) ) {
 						bbp_add_error( 'bbp_move_reply_destination_reply', __( '<strong>Error</strong>: There was a problem converting the reply into the topic. Please try again.', 'bbpress' ) );
+					} else {
+						// Make sure the new topic knows its a topic
+						bbp_update_topic_topic_id( $move_reply->ID );
 					}
 
 				// User cannot publish posts
