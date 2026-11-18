@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * Admin repair page.
  *
  * @since 2.6.0 bbPress (r6279)
+ * @return void
  */
 function bbp_admin_upgrade_page() {
 	bbp_admin_tools_repair_upgrade_page( 'upgrade' );
@@ -24,7 +25,7 @@ function bbp_admin_upgrade_page() {
  *
  * @since 2.7.0 bbPress (r8264)
  *
- * @return array Upgrade status, feedback, and completion state.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions() {
 	return bbp_admin_upgrade_user_mentions_process();
@@ -35,7 +36,7 @@ function bbp_admin_upgrade_user_mentions() {
  *
  * @since 2.7.0 bbPress (r8264)
  *
- * @return array Upgrade status, feedback, and completion state.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions_automatically() {
 	$completed = get_option( '_bbp_mention_backfill', false );
@@ -55,7 +56,7 @@ function bbp_admin_upgrade_user_mentions_automatically() {
  *
  * @since 2.7.0 bbPress (r8264)
  *
- * @return array Upgrade status, feedback, and completion state.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions_dry_run() {
 	return bbp_admin_upgrade_user_mentions_process( true );
@@ -68,7 +69,7 @@ function bbp_admin_upgrade_user_mentions_dry_run() {
  *
  * @param bool $dry_run   Preview without changing mention data.
  * @param bool $automatic Called by the authorized version updater.
- * @return array Upgrade status, feedback, and completion state.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Upgrade status, feedback, and completion state.
  */
 function bbp_admin_upgrade_user_mentions_process( $dry_run = false, $automatic = false ) {
 	if ( ! $automatic && ! current_user_can( 'bbp_tools_upgrade_page' ) ) {
@@ -145,7 +146,7 @@ function bbp_admin_upgrade_user_mentions_process( $dry_run = false, $automatic =
  * @since 2.7.0 bbPress (r8331)
  *
  * @param int $post_id Topic or reply ID.
- * @return array|WP_Error Planned changes, or an invalid notification record.
+ * @return array{changes:array<string, mixed>, handled:list<int>, baseline:bool}|WP_Error Planned changes, or an invalid notification record.
  */
 function bbp_get_mention_backfill_plan( $post_id = 0 ) {
 	$changes = bbp_get_post_mention_changes( $post_id );
@@ -252,7 +253,7 @@ function bbp_admin_upgrade_user_mentions_is_valid_checkpoint( $state ) {
  * @since 2.7.0 bbPress (r8411)
  *
  * @param bool $dry_run Preview without changing mention data.
- * @return array Shared batch status and mention counts.
+ * @return array<string, mixed> Shared batch status and mention counts.
  */
 function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
 	$tool_id = 'bbp-user-mentions';
@@ -412,9 +413,9 @@ function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
  *
  * @since 2.7.0 bbPress (r8264)
  *
- * @param array $state      Validated backfill progress.
+ * @param array{cursor:int, upper:int, complete?:bool} $state      Validated backfill progress.
  * @param int   $batch_size Maximum post rows to examine.
- * @return array|WP_Error Post IDs and types, or a query error.
+ * @return list<object>|WP_Error Post IDs and types, or a query error.
  */
 function bbp_get_mention_backfill_posts( $state, $batch_size ) {
 	$bbp_db = bbp_db();
@@ -435,9 +436,9 @@ function bbp_get_mention_backfill_posts( $state, $batch_size ) {
  *
  * @since 2.7.0 bbPress (r8264)
  *
- * @param array $state      Validated backfill progress.
+ * @param array{cursor:int, upper:int, complete:bool} $state      Validated backfill progress.
  * @param int   $batch_size Maximum post rows to examine.
- * @return array|WP_Error Batch preview or an error.
+ * @return array{start:int, cursor:int, upper:int, scanned:int, posts:int, added:int, removed:int, baselines:int, more:bool}|WP_Error Batch preview or an error.
  */
 function bbp_preview_mention_backfill( $state, $batch_size ) {
 	$preview = array(
@@ -519,7 +520,7 @@ function bbp_preview_mention_backfill( $state, $batch_size ) {
  * @since 2.7.0 bbPress (r8230) Added Dry Run support.
  * @since 2.7.0 bbPress (r8259) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_engagements() {
 	return bbp_admin_upgrade_user_engagements_process();
@@ -530,7 +531,7 @@ function bbp_admin_upgrade_user_engagements() {
  *
  * @since 2.7.0 bbPress (r8230)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_engagements_dry_run() {
 	return bbp_admin_upgrade_user_engagements_process( true );
@@ -563,7 +564,7 @@ function bbp_admin_upgrade_user_engagements_is_valid_checkpoint( $state ) {
  * @since 2.7.0 bbPress (r8259)
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Batch status, additions, removals, and completion flag.
+ * @return array<string, mixed> Batch status, additions, removals, and completion flag.
  */
 function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 	$bbp_db  = bbp_db();
@@ -678,7 +679,7 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8230)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
@@ -721,7 +722,7 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8237) Added Dry Run support.
  * @since 2.7.0 bbPress (r8315) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_group_forum_relationships() {
 	return bbp_admin_upgrade_group_forum_relationships_process();
@@ -733,7 +734,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
  * @since 2.7.0 bbPress (r8237)
  * @since 2.7.0 bbPress (r8315) Added resumable batching.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_group_forum_relationships_dry_run() {
 	return bbp_admin_upgrade_group_forum_relationships_process( true );
@@ -746,7 +747,7 @@ function bbp_admin_upgrade_group_forum_relationships_dry_run() {
  * @since 2.7.0 bbPress (r8315) Stage a bounded preflight before updating relationships.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false ) {
 	$worker = new BBP_Admin_Group_Forum_Upgrade( $dry_run );
@@ -759,9 +760,9 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
  *
  * @since 2.7.0 bbPress (r8315)
  *
- * @param array $batch   Batch result.
+ * @param array<string, mixed> $batch   Batch result.
  * @param bool  $dry_run Whether this was a preview.
- * @return array Status, message, success and completion.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status, message, success and completion.
  */
 function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run = false ) {
 	$groups       = $batch['groups'];
@@ -874,7 +875,7 @@ function bbp_admin_upgrade_user_meta_is_valid_checkpoint( $state ) {
  * @param string $old_key Legacy user-meta key.
  * @param string $new_key Destination post-meta key.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Batch status, additions, failures, and completion flag.
+ * @return array<string, mixed> Batch status, additions, failures, and completion flag.
  */
 function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_run = false ) {
 	$bbp_db = bbp_db();
@@ -1072,7 +1073,7 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Tool status, impact text and completion.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool status, impact text and completion.
  */
 function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 	$config = bbp_admin_get_user_relationship_config( $type );
@@ -1205,7 +1206,7 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
  * @since 2.7.0 bbPress (r8231) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_favorites() {
 	return bbp_admin_upgrade_user_favorites_process();
@@ -1216,7 +1217,7 @@ function bbp_admin_upgrade_user_favorites() {
  *
  * @since 2.7.0 bbPress (r8231)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_favorites_dry_run() {
 	return bbp_admin_upgrade_user_favorites_process( true );
@@ -1228,7 +1229,7 @@ function bbp_admin_upgrade_user_favorites_dry_run() {
  * @since 2.7.0 bbPress (r8231)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
 	return bbp_admin_upgrade_user_meta_process( 'favorites', $dry_run );
@@ -1241,7 +1242,7 @@ function bbp_admin_upgrade_user_favorites_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8232) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_topic_subscriptions() {
 	return bbp_admin_upgrade_user_topic_subscriptions_process();
@@ -1252,7 +1253,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
  *
  * @since 2.7.0 bbPress (r8232)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_topic_subscriptions_dry_run() {
 	return bbp_admin_upgrade_user_topic_subscriptions_process( true );
@@ -1264,7 +1265,7 @@ function bbp_admin_upgrade_user_topic_subscriptions_dry_run() {
  * @since 2.7.0 bbPress (r8232)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) {
 	return bbp_admin_upgrade_user_meta_process( 'topic-subscriptions', $dry_run );
@@ -1277,7 +1278,7 @@ function bbp_admin_upgrade_user_topic_subscriptions_process( $dry_run = false ) 
  * @since 2.7.0 bbPress (r8233) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_forum_subscriptions() {
 	return bbp_admin_upgrade_user_forum_subscriptions_process();
@@ -1288,7 +1289,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
  *
  * @since 2.7.0 bbPress (r8233)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_forum_subscriptions_dry_run() {
 	return bbp_admin_upgrade_user_forum_subscriptions_process( true );
@@ -1300,7 +1301,7 @@ function bbp_admin_upgrade_user_forum_subscriptions_dry_run() {
  * @since 2.7.0 bbPress (r8233)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_forum_subscriptions_process( $dry_run = false ) {
 	return bbp_admin_upgrade_user_meta_process( 'forum-subscriptions', $dry_run );
@@ -1363,7 +1364,7 @@ function bbp_admin_upgrade_user_meta_cleanup( $tool_id, $callback, $dry_run = fa
  * @access private
  *
  * @param mixed $state   Saved checkpoint.
- * @param array $context Current legacy user-meta key.
+ * @param array{key:string} $context Current legacy user-meta key.
  * @return bool Whether the cleanup checkpoint can be resumed.
  */
 function bbp_admin_upgrade_remove_user_meta_is_valid_checkpoint( $state, $context ) {
@@ -1383,7 +1384,7 @@ function bbp_admin_upgrade_remove_user_meta_is_valid_checkpoint( $state, $contex
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Status code, removed rows, and progress flags.
+ * @return array<string, mixed> Status code, removed rows, and progress flags.
  */
 function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run = false ) {
 	$db     = bbp_db();
@@ -1466,7 +1467,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_run = false ) {
 	$batch = bbp_admin_upgrade_remove_user_meta_batch( $type, $dry_run );
@@ -1535,7 +1536,7 @@ function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_r
  * @since 2.7.0 bbPress (r8253) Preserve source data for unfinished migrations.
  * @since 2.7.0 bbPress (r8286) Process one resumable cleanup batch per call.
  *
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 	return bbp_admin_upgrade_remove_favorites_from_usermeta_process();
@@ -1546,7 +1547,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
  *
  * @since 2.7.0 bbPress (r8234)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run() {
 	return bbp_admin_upgrade_remove_favorites_from_usermeta_process( true );
@@ -1558,7 +1559,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_dry_run() {
  * @since 2.7.0 bbPress (r8234)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = false ) {
 	return bbp_admin_upgrade_remove_user_meta_process( 'favorites', $dry_run );
@@ -1572,7 +1573,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta_process( $dry_run = fa
  * @since 2.7.0 bbPress (r8253) Preserve source data for unfinished migrations.
  * @since 2.7.0 bbPress (r8286) Process one resumable cleanup batch per call.
  *
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 	return bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process();
@@ -1583,7 +1584,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
  *
  * @since 2.7.0 bbPress (r8235)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run() {
 	return bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( true );
@@ -1595,7 +1596,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_dry_run() {
  * @since 2.7.0 bbPress (r8235)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dry_run = false ) {
 	return bbp_admin_upgrade_remove_user_meta_process( 'topic-subscriptions', $dry_run );
@@ -1609,7 +1610,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta_process( $dr
  * @since 2.7.0 bbPress (r8253) Preserve source data for unfinished migrations.
  * @since 2.7.0 bbPress (r8286) Process one resumable cleanup batch per call.
  *
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 	return bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process();
@@ -1620,7 +1621,7 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
  *
  * @since 2.7.0 bbPress (r8236)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run() {
 	return bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process( true );
@@ -1632,7 +1633,7 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_dry_run() {
  * @since 2.7.0 bbPress (r8236)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta_process( $dry_run = false ) {
 	return bbp_admin_upgrade_remove_user_meta_process( 'forum-subscriptions', $dry_run );
