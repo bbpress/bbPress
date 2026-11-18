@@ -111,7 +111,7 @@ function bbp_is_site_public( $site_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2549)
  *
- * @param int $post_id Possible post_id to check.
+ * @param int|WP_Post $post_id Possible post ID or object to check.
  *
  * @return bool True if it's a forum page, false if not.
  */
@@ -219,7 +219,7 @@ function bbp_is_forum_edit() {
  *
  * @since 2.0.0 bbPress (r2549)
  *
- * @param int $post_id Possible post_id to check.
+ * @param int|WP_Post $post_id Possible post ID or object to check.
  *
  * @return bool True if it's a topic page, false if not.
  */
@@ -528,7 +528,7 @@ function bbp_is_password_protected( $object_id = 0, $object_type = 'post' ) {
  *
  * @since 2.6.19 bbPress (r7669)
  *
- * @param int $object_id Optional. Object ID. Defaults to the current post.
+ * @param int|WP_Post $object_id Optional. Post ID or object. Defaults to the current post.
  * @return int Protected post ID, or zero if all passwords are satisfied.
  */
 function bbp_get_password_required_id( $object_id = 0 ) {
@@ -614,7 +614,7 @@ function bbp_filter_post_password_required( $required, $post = null ) {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @param int $post_id Possible post_id to check.
+ * @param int|WP_Post $post_id Possible post ID or object to check.
  *
  * @return bool True if it's a reply page, false if not.
  */

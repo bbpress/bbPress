@@ -38,7 +38,7 @@ class BBP_Login_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Login Widget', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Login Widget', 'bbpress' ), $widget_ops );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class BBP_Login_Widget extends WP_Widget {
 		<?php else : ?>
 
 			<div class="bbp-logged-in">
-				<a href="<?php bbp_user_profile_url( bbp_get_current_user_id() ); ?>" class="submit user-submit"><?php echo get_avatar( bbp_get_current_user_id(), '40' ); ?></a>
+				<a href="<?php bbp_user_profile_url( bbp_get_current_user_id() ); ?>" class="submit user-submit"><?php echo get_avatar( bbp_get_current_user_id(), 40 ); ?></a>
 				<h4><?php bbp_user_profile_link( bbp_get_current_user_id() ); ?></h4>
 
 				<?php bbp_logout_link( '', array( 'logout-link' ) ); ?>
@@ -246,7 +246,7 @@ class BBP_Views_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Topic Views List', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Topic Views List', 'bbpress' ), $widget_ops );
 	}
 
 	/**
@@ -395,7 +395,7 @@ class BBP_Search_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Forum Search Form', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Forum Search Form', 'bbpress' ), $widget_ops );
 	}
 
 	/**
@@ -530,7 +530,7 @@ class BBP_Forums_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Forums List', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Forums List', 'bbpress' ), $widget_ops );
 	}
 
 	/**
@@ -722,7 +722,7 @@ class BBP_Topics_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Recent Topics', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Recent Topics', 'bbpress' ), $widget_ops );
 	}
 
 	/**
@@ -1044,7 +1044,7 @@ class BBP_Stats_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Statistics', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Statistics', 'bbpress' ), $widget_ops );
 	}
 
 	/**
@@ -1174,7 +1174,7 @@ class BBP_Replies_Widget extends WP_Widget {
 			)
 		);
 
-		parent::__construct( false, esc_html__( '(bbPress) Recent Replies', 'bbpress' ), $widget_ops );
+		parent::__construct( '', esc_html__( '(bbPress) Recent Replies', 'bbpress' ), $widget_ops );
 	}
 
 	/**

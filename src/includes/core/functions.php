@@ -320,7 +320,7 @@ function bbp_get_view_query_args( $view = '' ) {
  *
  * @param string $code Unique code for the error message.
  * @param string $message Translated error message.
- * @param string $data Any additional data passed with the error message.
+ * @param mixed  $data Any additional data passed with the error message.
  */
 function bbp_add_error( $code = '', $message = '', $data = '' ) {
 	bbpress()->errors->add( $code, $message, $data );

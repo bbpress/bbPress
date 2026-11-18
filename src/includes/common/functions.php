@@ -1088,7 +1088,7 @@ function bbp_get_statistics( $args = array() ) {
 
 		// Empty tags
 		if ( ! empty( $r['count_empty_tags'] ) && ! empty( $caps['edit_topic_tags'] ) ) {
-			$empty_topic_tag_count = wp_count_terms( $tt_id ) - $topic_tag_count;
+			$empty_topic_tag_count = wp_count_terms( array( 'taxonomy' => $tt_id ) ) - $topic_tag_count;
 		}
 	}
 
@@ -3152,7 +3152,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  * @since 2.1.0 bbPress (r3840)
  *
  * @param string|array|object $args Value to merge with $defaults.
- * @param array               $defaults Array that serves as the defaults.
+ * @param array|string        $defaults Array of defaults, or an empty string for none.
  * @param string              $filter_key String to key the filters from.
  * @return array Merged user defined values with defaults.
  */
@@ -3434,9 +3434,9 @@ function bbp_get_child_counts( $parent_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6827)
  *
- * @param int   $parent_id  ID of post to get child counts from.
- * @param array $types      Optional. An array of post types to filter by.
- * @param array $statuses   Optional. An array of post statuses to filter by.
+ * @param int          $parent_id ID of post to get child counts from.
+ * @param array|string $types     Optional. Post types to filter by.
+ * @param array|string $statuses  Optional. Post statuses to filter by.
  *
  * @return array A list of objects or object fields.
  */

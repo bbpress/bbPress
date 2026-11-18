@@ -839,8 +839,8 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r5309)
  * @since 2.6.17 bbPress (r7449) Rebuild the count when the user option is missing.
  *
- * @param int $user_id    User id.
- * @param int $difference Optional. Default 1. Number to bump.
+ * @param int|string $user_id    User ID.
+ * @param int        $difference Optional. Default 1. Number to bump.
  */
 function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 
@@ -880,8 +880,8 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  * @since 2.6.0 bbPress (r5309)
  * @since 2.6.17 bbPress (r7449) Rebuild the count when the user option is missing.
  *
- * @param int $user_id    User id.
- * @param int $difference Optional. Default 1. Number to bump.
+ * @param int|string $user_id    User ID.
+ * @param int        $difference Optional. Default 1. Number to bump.
  */
 function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 
