@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
  */
 add_filter( 'request',                 'bbp_request',            10    );
 add_filter( 'template_include',        'bbp_template_include',   10    );
-add_filter( 'wp_mail',                 'bbp_mail',               10, 3 );
+add_filter( 'wp_mail',                 'bbp_mail',               10, 1 );
 add_filter( 'wp_title',                'bbp_title',              10, 3 );
 add_filter( 'body_class',              'bbp_body_class',         10, 2 );
 add_filter( 'map_meta_cap',            'bbp_map_meta_caps',      10, 4 );
@@ -150,7 +150,7 @@ add_filter( 'bbp_request', 'bbp_request_feed_trap' );
  * bbp_template_include() works and do something similar. :)
  */
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
-add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
+add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 1 );
 add_filter( 'get_the_excerpt',     'bbp_get_theme_compat_excerpt',        9, 2 );
 
 /**
@@ -160,9 +160,9 @@ add_filter( 'get_the_excerpt',     'bbp_get_theme_compat_excerpt',        9, 2 )
  * works for a number of reasons, and they are individually hooked to a
  * dedicated sub-action to make them easier to customize.
  */
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_edits',                      10, 2 );
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_paginations',                10, 2 );
-add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_subscription_unsubscribes',  10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_edits',                      10, 1 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_paginations',                10, 1 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_subscription_unsubscribes',  10, 1 );
 add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_restricted_posts',           10, 2 );
 add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_restricted_attachments',     10, 2 );
 add_filter( 'old_slug_redirect_post_id', 'bbp_filter_old_slug_redirect_post_id' );

@@ -85,18 +85,6 @@ parameters:
 			path: src/includes/admin/topics.php
 
 		-
-			message: '#^Callback expects 0 parameters, \$accepted_args is set to 2\.$#'
-			identifier: arguments.count
-			count: 3
-			path: src/includes/common/classes.php
-
-		-
-			message: '#^Callback expects 1 parameter, \$accepted_args is set to 2\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/includes/common/classes.php
-
-		-
 			message: '#^Action callback returns WP_Roles\|null but should not return anything\.$#'
 			identifier: return.void
 			count: 1
@@ -149,18 +137,6 @@ parameters:
 			identifier: function.inner
 			count: 1
 			path: src/includes/core/extend.php
-
-		-
-			message: '#^Callback expects 0\-1 parameters, \$accepted_args is set to 2\.$#'
-			identifier: arguments.count
-			count: 4
-			path: src/includes/core/filters.php
-
-		-
-			message: '#^Callback expects 0\-1 parameters, \$accepted_args is set to 3\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/includes/core/filters.php
 
 		-
 			message: '#^Found usage of constant WP_USE_THEMES\. Use wp_using_themes\(\) instead\.$#'

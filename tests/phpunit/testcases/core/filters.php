@@ -43,7 +43,7 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 		$this->assert_filters( array(
 			array( 'request',            'bbp_request',            10, 1 ),
 			array( 'template_include',   'bbp_template_include',   10, 1 ),
-			array( 'wp_mail',            'bbp_mail',               10, 3 ),
+			array( 'wp_mail',            'bbp_mail',               10, 1 ),
 			array( 'wp_title',           'bbp_title',              10, 3 ),
 			array( 'body_class',         'bbp_body_class',         10, 2 ),
 			array( 'map_meta_cap',       'bbp_map_meta_caps',      10, 4 ),
@@ -71,7 +71,7 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 	public function test_template_filters_run_in_selection_order() {
 		$this->assert_filters( array(
 			array( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 ),
-			array( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 ),
+			array( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 1 ),
 		) );
 	}
 
@@ -175,7 +175,9 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 			array( 'wp_insert_post_data',       'bbp_fix_post_author',                     30, 2 ),
 			array( 'the_title',                 'bbp_filter_post_title',                    1, 2 ),
 			array( 'wp_untrash_post_status',    'bbp_fix_untrash_post_status',             10, 3 ),
-			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_subscription_unsubscribes', 10, 2 ),
+			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_edits',                      10, 1 ),
+			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_paginations',                10, 1 ),
+			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_subscription_unsubscribes', 10, 1 ),
 			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_restricted_posts',    10, 2 ),
 			array( 'bbp_redirect_canonical',    'bbp_do_not_redirect_restricted_attachments', 10, 2 ),
 			array( 'oembed_request_post_id',    'bbp_filter_oembed_request_attachment_id', 10, 1 ),
