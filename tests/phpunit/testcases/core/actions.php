@@ -66,6 +66,19 @@ class BBP_Tests_Core_Actions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Post update callbacks should tolerate their default false post arguments.
+	 */
+	public function test_post_update_callbacks_ignore_missing_post_objects() {
+		$this->assertNull( bbp_post_updated() );
+		$this->assertNull( bbp_update_counts_on_transition_post_status( 'publish', 'draft' ) );
+		$this->assertNull( bbp_reparent_forum_subforums() );
+		$this->assertFalse( bbp_update_forum_subforum_count_on_transition_post_status() );
+		$this->assertFalse( bbp_update_forum_subforum_counts_on_post_updated() );
+		$this->assertNull( bbp_update_counts_on_post_author_change() );
+		$this->assertNull( bbp_recalculate_engagements_on_post_author_change() );
+	}
+
+	/**
 	 * Verify the documented bbPress loader order.
 	 */
 	public function test_bbp_loader_actions_run_at_expected_priorities() {

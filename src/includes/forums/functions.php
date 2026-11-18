@@ -2073,9 +2073,14 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = false ) {
  * @since 2.6.17 bbPress (r7453)
  *
  * @param int     $forum_id Deleted forum ID.
- * @param WP_Post $forum    Deleted forum post object.
+ * @param WP_Post|false $forum Deleted forum post object.
  */
 function bbp_reparent_forum_subforums( $forum_id = 0, $forum = false ) {
+	// Bail if there is no deleted forum object
+	if ( ! ( $forum instanceof WP_Post ) ) {
+		return;
+	}
+
 	$bbp_db    = bbp_db();
 	$post_type = bbp_get_forum_post_type();
 	$meta_key  = '_bbp_forum_id';
@@ -2123,13 +2128,13 @@ function bbp_update_parent_forum_subforum_count( $forum_id = 0, $forum = false )
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
- * @param WP_Post $forum      Forum post object.
+ * @param WP_Post|false $forum Forum post object.
  * @return int|false Updated subforum count, or false when no update is needed.
  */
 function bbp_update_forum_subforum_count_on_transition_post_status( $new_status = '', $old_status = '', $forum = false ) {
 
 	// Bail if this is not a child forum
-	if ( ( bbp_get_forum_post_type() !== $forum->post_type ) || empty( $forum->post_parent ) ) {
+	if ( ! ( $forum instanceof WP_Post ) || ( bbp_get_forum_post_type() !== $forum->post_type ) || empty( $forum->post_parent ) ) {
 		return false;
 	}
 
@@ -2151,10 +2156,15 @@ function bbp_update_forum_subforum_count_on_transition_post_status( $new_status 
  * @since 2.6.17 bbPress (r7453)
  *
  * @param int     $forum_id     Forum ID.
- * @param WP_Post $forum_after  Forum object following the update.
- * @param WP_Post $forum_before Forum object before the update.
+ * @param WP_Post|false $forum_after  Forum object following the update.
+ * @param WP_Post|false $forum_before Forum object before the update.
  */
 function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum_after = false, $forum_before = false ) {
+	// Bail if the forum update has no complete object pair
+	if ( ! ( $forum_after instanceof WP_Post ) || ! ( $forum_before instanceof WP_Post ) ) {
+		return false;
+	}
+
 	$post_type    = bbp_get_forum_post_type();
 	$parent_moved = ( $forum_after->post_parent !== $forum_before->post_parent );
 

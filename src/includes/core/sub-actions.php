@@ -345,10 +345,15 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
  * @since 2.6.17 bbPress (r7453)
  *
  * @param int     $post_id     Post ID.
- * @param WP_Post $post_after  Post object following the update.
- * @param WP_Post $post_before Post object before the update.
+ * @param WP_Post|false $post_after  Post object following the update.
+ * @param WP_Post|false $post_before Post object before the update.
  */
 function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = false ) {
+	// Bail if the post update has no complete object pair
+	if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post ) ) {
+		return;
+	}
+
 	$post_types = bbp_get_post_types();
 
 	// Bail if neither version is a bbPress post type

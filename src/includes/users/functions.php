@@ -921,10 +921,14 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
  * @since 2.6.17 bbPress (r7467)
  *
  * @param int     $post_id     Post ID.
- * @param WP_Post $post_after  Post object following the update.
- * @param WP_Post $post_before Post object before the update.
+ * @param WP_Post|false $post_after  Post object following the update.
+ * @param WP_Post|false $post_before Post object before the update.
  */
 function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = false, $post_before = false ) {
+	// Bail if the post update has no complete object pair
+	if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post ) ) {
+		return;
+	}
 
 	// Bail if the author or post type did not change as expected
 	if ( ( $post_after->post_author === $post_before->post_author ) || ( $post_after->post_type !== $post_before->post_type ) ) {
@@ -983,10 +987,14 @@ function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = fa
  * @since 2.6.17 bbPress (r7467)
  *
  * @param int     $post_id     Post ID.
- * @param WP_Post $post_after  Post object following the update.
- * @param WP_Post $post_before Post object before the update.
+ * @param WP_Post|false $post_after  Post object following the update.
+ * @param WP_Post|false $post_before Post object before the update.
  */
 function bbp_recalculate_engagements_on_post_author_change( $post_id = 0, $post_after = false, $post_before = false ) {
+	// Bail if the post update has no complete object pair
+	if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post ) ) {
+		return;
+	}
 
 	// Bail if the author did not change
 	if ( $post_after->post_author === $post_before->post_author ) {

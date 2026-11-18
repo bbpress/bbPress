@@ -620,10 +620,14 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
- * @param WP_Post $post       Post object.
+ * @param WP_Post|false $post Post object.
  * @return bool|null Short-circuit result, or null when updates run normally.
  */
 function bbp_update_counts_on_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
+	// Bail if there is no post to update
+	if ( ! ( $post instanceof WP_Post ) ) {
+		return null;
+	}
 
 	/**
 	 * Short-circuits count updates for a persisted post-status transition.
