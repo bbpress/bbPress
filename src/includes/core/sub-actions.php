@@ -26,6 +26,8 @@
  * Runs on bbPress activation.
  *
  * @since 2.0.0 bbPress (r2464)
+ *
+ * @return void
  */
 function bbp_activation() {
 	do_action( 'bbp_activation' );
@@ -35,6 +37,8 @@ function bbp_activation() {
  * Runs on bbPress deactivation.
  *
  * @since 2.0.0 bbPress (r2464)
+ *
+ * @return void
  */
 function bbp_deactivation() {
 	do_action( 'bbp_deactivation' );
@@ -44,6 +48,8 @@ function bbp_deactivation() {
  * Runs when uninstalling bbPress.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_uninstall() {
 	do_action( 'bbp_uninstall' );
@@ -55,6 +61,8 @@ function bbp_uninstall() {
  * Main action responsible for constants, globals, and includes.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_loaded() {
 	do_action( 'bbp_loaded' );
@@ -64,6 +72,8 @@ function bbp_loaded() {
  * Setup constants.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_constants() {
 	do_action( 'bbp_constants' );
@@ -73,6 +83,8 @@ function bbp_constants() {
  * Setup globals BEFORE includes.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_boot_strap_globals() {
 	do_action( 'bbp_boot_strap_globals' );
@@ -82,6 +94,8 @@ function bbp_boot_strap_globals() {
  * Include files.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_includes() {
 	do_action( 'bbp_includes' );
@@ -91,6 +105,8 @@ function bbp_includes() {
  * Setup globals AFTER includes.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_setup_globals() {
 	do_action( 'bbp_setup_globals' );
@@ -100,6 +116,8 @@ function bbp_setup_globals() {
  * Register any objects before anything is initialized.
  *
  * @since 2.2.0 bbPress (r4181)
+ *
+ * @return void
  */
 function bbp_register() {
 	do_action( 'bbp_register' );
@@ -109,6 +127,8 @@ function bbp_register() {
  * Initialize any code after everything has been loaded.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_init() {
 	do_action( 'bbp_init' );
@@ -118,6 +138,8 @@ function bbp_init() {
  * Initialize the bbPress REST API.
  *
  * @since 2.7.0 bbPress (r7481)
+ *
+ * @return void
  */
 function bbp_rest_api_init() {
 	do_action( 'bbp_rest_api_init' );
@@ -129,8 +151,10 @@ function bbp_rest_api_init() {
  * @since 2.7.0 bbPress (r7485)
  *
  * @param string           $method XML-RPC method name.
- * @param array            $args   XML-RPC method arguments.
+ * @param array<array-key, mixed> $args XML-RPC method arguments.
  * @param wp_xmlrpc_server|null $server XML-RPC server instance.
+ *
+ * @return void
  */
 function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
 	do_action( 'bbp_xmlrpc_call', $method, $args, $server );
@@ -142,6 +166,8 @@ function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
  * @since 2.6.0 bbPress (r6106)
  *
  * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized.
+ *
+ * @return void
  */
 function bbp_roles_init( $wp_roles ) {
 	do_action( 'bbp_roles_init', $wp_roles );
@@ -151,6 +177,8 @@ function bbp_roles_init( $wp_roles ) {
  * Initialize widgets.
  *
  * @since 2.0.0 bbPress (r3391)
+ *
+ * @return void
  */
 function bbp_widgets_init() {
 	do_action( 'bbp_widgets_init' );
@@ -163,6 +191,8 @@ function bbp_widgets_init() {
  * @link https://core.trac.wordpress.org/ticket/24169
  *
  * @since 2.0.0 bbPress (r2697)
+ *
+ * @return void
  */
 function bbp_setup_current_user() {
 	do_action( 'bbp_setup_current_user' );
@@ -172,6 +202,8 @@ function bbp_setup_current_user() {
  * Setup the user engagements strategy.
  *
  * @since 2.6.0 bbPress (r6876)
+ *
+ * @return void
  */
 function bbp_setup_engagements() {
 	do_action( 'bbp_setup_engagements' );
@@ -181,6 +213,8 @@ function bbp_setup_engagements() {
  * Run bbPress actions before PHP shuts down.
  *
  * @since 2.7.0 bbPress (r8264)
+ *
+ * @return void
  */
 function bbp_shutdown() {
 	do_action( 'bbp_shutdown' );
@@ -192,6 +226,8 @@ function bbp_shutdown() {
  * Load translations for current language.
  *
  * @since 2.0.0 bbPress (r3344)
+ *
+ * @return void
  */
 function bbp_load_textdomain() {
 	do_action( 'bbp_load_textdomain' );
@@ -201,6 +237,8 @@ function bbp_load_textdomain() {
  * Setup the post types.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_register_post_types() {
 	do_action( 'bbp_register_post_types' );
@@ -210,6 +248,8 @@ function bbp_register_post_types() {
  * Setup the post statuses.
  *
  * @since 2.0.0 bbPress (r2727)
+ *
+ * @return void
  */
 function bbp_register_post_statuses() {
 	do_action( 'bbp_register_post_statuses' );
@@ -219,6 +259,8 @@ function bbp_register_post_statuses() {
  * Register the built in bbPress taxonomies.
  *
  * @since 2.0.0 bbPress (r2599)
+ *
+ * @return void
  */
 function bbp_register_taxonomies() {
 	do_action( 'bbp_register_taxonomies' );
@@ -228,6 +270,8 @@ function bbp_register_taxonomies() {
  * Register the default bbPress views.
  *
  * @since 2.0.0 bbPress (r2789)
+ *
+ * @return void
  */
 function bbp_register_views() {
 	do_action( 'bbp_register_views' );
@@ -238,6 +282,8 @@ function bbp_register_views() {
  * default engagement types.
  *
  * @since 2.7.0 bbPress (r8306)
+ *
+ * @return void
  */
 function bbp_register_engagements() {
 	do_action( 'bbp_register_engagements' );
@@ -247,6 +293,8 @@ function bbp_register_engagements() {
  * Register the default bbPress shortcodes.
  *
  * @since 2.0.0 bbPress (r3032)
+ *
+ * @return void
  */
 function bbp_register_shortcodes() {
 	do_action( 'bbp_register_shortcodes' );
@@ -256,6 +304,8 @@ function bbp_register_shortcodes() {
  * Register the default bbPress blocks.
  *
  * @since 2.7.0 bbPress (r7383)
+ *
+ * @return void
  */
 function bbp_register_blocks() {
 	do_action( 'bbp_register_blocks' );
@@ -265,6 +315,8 @@ function bbp_register_blocks() {
  * Register the default bbPress meta-data.
  *
  * @since 2.6.0 bbPress (r6302)
+ *
+ * @return void
  */
 function bbp_register_meta() {
 	do_action( 'bbp_register_meta' );
@@ -274,6 +326,8 @@ function bbp_register_meta() {
  * Enqueue bbPress specific CSS and JS.
  *
  * @since 2.0.0 bbPress (r3374)
+ *
+ * @return void
  */
 function bbp_enqueue_scripts() {
 	do_action( 'bbp_enqueue_scripts' );
@@ -283,6 +337,8 @@ function bbp_enqueue_scripts() {
  * Add the bbPress-specific rewrite tags.
  *
  * @since 2.0.0 bbPress (r2753)
+ *
+ * @return void
  */
 function bbp_add_rewrite_tags() {
 	do_action( 'bbp_add_rewrite_tags' );
@@ -292,6 +348,8 @@ function bbp_add_rewrite_tags() {
  * Add the bbPress-specific rewrite rules.
  *
  * @since 2.4.0 bbPress (r4918)
+ *
+ * @return void
  */
 function bbp_add_rewrite_rules() {
 	do_action( 'bbp_add_rewrite_rules' );
@@ -301,6 +359,8 @@ function bbp_add_rewrite_rules() {
  * Add the bbPress-specific permalink structures.
  *
  * @since 2.4.0 bbPress (r4918)
+ *
+ * @return void
  */
 function bbp_add_permastructs() {
 	do_action( 'bbp_add_permastructs' );
@@ -310,6 +370,8 @@ function bbp_add_permastructs() {
  * Add the bbPress-specific login forum action.
  *
  * @since 2.1.0 bbPress (r4072)
+ *
+ * @return void
  */
 function bbp_login_form_login() {
 	do_action( 'bbp_login_form_login' );
@@ -323,6 +385,8 @@ function bbp_login_form_login() {
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
  * @param WP_Post|false $post Post object, or false when omitted.
+ *
+ * @return void
  */
 function bbp_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
 
@@ -347,6 +411,8 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
  * @param int     $post_id     Post ID.
  * @param WP_Post|false $post_after  Post object following the update.
  * @param WP_Post|false $post_before Post object before the update.
+ *
+ * @return void
  */
 function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = false ) {
 	// Bail if the post update has no complete object pair
@@ -373,7 +439,9 @@ function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = fal
  * @since 2.2.0 bbPress (r4305)
  *
  * @param int           $user_id       ID of user being edited.
- * @param WP_User|array $old_user_data Old, unmodified user data.
+ * @param WP_User|array<string, mixed> $old_user_data Old, unmodified user data.
+ *
+ * @return void
  */
 function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
 	do_action( 'bbp_profile_update', $user_id, $old_user_data );
@@ -385,6 +453,8 @@ function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
  * @since 2.2.0 bbPress (r4305)
  *
  * @param int $user_id ID of user being edited.
+ *
+ * @return void
  */
 function bbp_user_register( $user_id = 0 ) {
 	do_action( 'bbp_user_register', $user_id );
@@ -396,6 +466,8 @@ function bbp_user_register( $user_id = 0 ) {
  * bbPress has loaded and initialized everything, and is okay to go.
  *
  * @since 2.0.0 bbPress (r2618)
+ *
+ * @return void
  */
 function bbp_ready() {
 	do_action( 'bbp_ready' );
@@ -408,6 +480,8 @@ function bbp_ready() {
  * permitted by the current_user.
  *
  * @since 2.1.0 bbPress (r3607)
+ *
+ * @return void
  */
 function bbp_template_redirect() {
 	do_action( 'bbp_template_redirect' );
@@ -419,6 +493,8 @@ function bbp_template_redirect() {
  * The main action used for executing code before the theme has been setup.
  *
  * @since 2.1.0 bbPress (r3830)
+ *
+ * @return void
  */
 function bbp_register_theme_packages() {
 	do_action( 'bbp_register_theme_packages' );
@@ -428,6 +504,8 @@ function bbp_register_theme_packages() {
  * The main action used for executing code before the theme has been setup.
  *
  * @since 2.1.0 bbPress (r3754)
+ *
+ * @return void
  */
 function bbp_setup_theme() {
 	do_action( 'bbp_setup_theme' );
@@ -437,6 +515,8 @@ function bbp_setup_theme() {
  * The main action used for executing code after the theme has been setup.
  *
  * @since 2.1.0 bbPress (r3733)
+ *
+ * @return void
  */
 function bbp_after_setup_theme() {
 	do_action( 'bbp_after_setup_theme' );
@@ -446,6 +526,8 @@ function bbp_after_setup_theme() {
  * The main action used for handling theme-side POST requests.
  *
  * @since 2.3.0 bbPress (r4551)
+ *
+ * @return void
  */
 function bbp_post_request() {
 
@@ -474,6 +556,8 @@ function bbp_post_request() {
  * The main action used for handling theme-side GET requests.
  *
  * @since 2.3.0 bbPress (r4551)
+ *
+ * @return void
  */
 function bbp_get_request() {
 
@@ -525,8 +609,8 @@ function bbp_plugin_locale( $locale = '', $domain = '' ) {
  *
  * @since 2.1.0 bbPress (r3759)
  *
- * @param array $query_vars Request query variables.
- * @return array
+ * @param array<string, mixed> $query_vars Request query variables.
+ * @return array<string, mixed> Filtered query variables.
  */
 function bbp_request( $query_vars = array() ) {
 
@@ -557,6 +641,8 @@ function bbp_template_include( $template = '' ) {
  * @deprecated 2.4.0 bbPress (r4918)
  *
  * @param WP_Rewrite $wp_rewrite WordPress rewrite rules object.
+ *
+ * @return void
  */
 function bbp_generate_rewrite_rules( $wp_rewrite ) {
 	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
@@ -567,9 +653,9 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  *
  * @since 2.0.0 bbPress (r2944)
  *
- * @param array $themes Allowed themes.
+ * @param array<array-key, mixed> $themes Allowed themes.
  *
- * @return array Array of allowed themes.
+ * @return array<array-key, mixed> Array of allowed themes.
  */
 function bbp_allowed_themes( $themes ) {
 
@@ -582,12 +668,12 @@ function bbp_allowed_themes( $themes ) {
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @param array  $caps    Capabilities for meta capability.
+ * @param array<array-key, mixed> $caps Capabilities for meta capability.
  * @param string $cap     Capability name.
  * @param int    $user_id User ID.
- * @param array  $args    Arguments.
+ * @param array<array-key, mixed> $args Arguments.
  *
- * @return array Array of capabilities.
+ * @return array<array-key, mixed> Array of capabilities.
  */
 function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -600,10 +686,10 @@ function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = ar
  *
  * @since 2.6.0 bbPress (r6919)
  *
- * @param array $args A compacted array of wp_mail() arguments, including the "to" email,
- *                    subject, message, headers, and attachments values.
+ * @param array<string, mixed> $args A compacted array of wp_mail() arguments, including the "to" email,
+ *                                   subject, message, headers, and attachments values.
  *
- * @return array Array of capabilities.
+ * @return array<string, mixed> Filtered mail arguments.
  */
 function bbp_mail( $args = array() ) {
 

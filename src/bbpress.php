@@ -50,7 +50,7 @@ final class bbPress {
 	 * This is a precautionary measure, to avoid potential errors produced by
 	 * unanticipated direct manipulation of critical run-time data.
 	 *
-	 * @var array All run-time data
+	 * @var array<string, mixed> All run-time data.
 	 */
 	private $data = array();
 
@@ -73,42 +73,42 @@ final class bbPress {
 	/**
 	 * Topic views.
 	 *
-	 * @var array
+	 * @var array<string, array{title: string, query: array<string, mixed>, feed: bool}>
 	 */
 	public $views = array();
 
 	/**
 	 * Registered engagement types.
 	 *
-	 * @var array
+	 * @var array<string, BBP_User_Engagements_Type>
 	 */
 	public $engagement_types = array();
 
 	/**
 	 * Option overrides used by get_option().
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	public $options = array();
 
 	/**
 	 * Options unavailable from the database.
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	public $not_options = array();
 
 	/**
 	 * User metadata overrides used by get_user_meta().
 	 *
-	 * @var array
+	 * @var array<int, array<string, mixed>>
 	 */
 	public $user_options = array();
 
 	/**
 	 * Dynamically initialized user roles.
 	 *
-	 * @var array
+	 * @var array<string, WP_Role>
 	 */
 	public $roles = array();
 
@@ -237,7 +237,7 @@ final class bbPress {
 	 * @since 2.2.0 bbPress (r4253)
 	 *
 	 * @param string $name Name of the inaccessible method.
-	 * @param array  $args Arguments passed to the method.
+	 * @param array<int, mixed> $args Arguments passed to the method.
 	 * @return null
 	 */
 	public function __call( $name = '', $args = array() ) {
@@ -254,6 +254,8 @@ final class bbPress {
 	 * @since 2.6.0 bbPress (r6331)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_environment() {
 
@@ -290,6 +292,8 @@ final class bbPress {
 	 * Smart defaults to many bbPress specific class variables.
 	 *
 	 * @since 2.6.0 bbPress (r6331)
+	 *
+	 * @return void
 	 */
 	private function setup_variables() {
 
@@ -369,6 +373,8 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r3334)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function includes() {
 
@@ -466,6 +472,8 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r3334)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -518,6 +526,8 @@ final class bbPress {
 	 * later date we need to automate this, and API will need to be built.
 	 *
 	 * @since 2.1.0 bbPress (r3830)
+	 *
+	 * @return void
 	 */
 	public function register_theme_packages() {
 
@@ -541,6 +551,8 @@ final class bbPress {
 	 * Setup the default bbPress theme compatibility location.
 	 *
 	 * @since 2.1.0 bbPress (r3779)
+	 *
+	 * @return void
 	 */
 	public function setup_theme() {
 		bbp_setup_theme_compat( bbp_get_theme_package_id() );
@@ -556,6 +568,8 @@ final class bbPress {
 	 * translation files, please use the global language folder.
 	 *
 	 * @since 2.0.0 bbPress (r3333)
+	 *
+	 * @return void
 	 */
 	public function load_textdomain() {
 
@@ -582,6 +596,8 @@ final class bbPress {
 	 * Setup the post types for forums, topics and replies.
 	 *
 	 * @since 2.0.0 bbPress (r2597)
+	 *
+	 * @return void
 	 */
 	public static function register_post_types() {
 		// Keep Dashicons on WordPress versions without SVG admin menu support.
@@ -698,6 +714,8 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r2727)
 	 *
 	 * @global stdClass[] $wp_post_statuses Registered post status objects, keyed by status name.
+	 *
+	 * @return void
 	 */
 	public static function register_post_statuses() {
 
@@ -800,6 +818,8 @@ final class bbPress {
 	 * Register the topic tag taxonomy.
 	 *
 	 * @since 2.0.0 bbPress (r2753) Added bbp_get_topic_tag_tax_id() taxonomy
+	 *
+	 * @return void
 	 */
 	public static function register_taxonomies() {
 
@@ -834,6 +854,8 @@ final class bbPress {
 	 *
 	 * @since 2.7.0 bbPress (r8306)
 	 * @since 2.7.0 bbPress (r8323) Register terms.
+	 *
+	 * @return void
 	 */
 	public static function register_engagements() {
 		bbp_register_engagement_type(
@@ -855,6 +877,8 @@ final class bbPress {
 	 * Register the bbPress views.
 	 *
 	 * @since 2.0.0 bbPress (r2789)
+	 *
+	 * @return void
 	 */
 	public static function register_views() {
 
@@ -896,6 +920,8 @@ final class bbPress {
 	 * Register the bbPress shortcodes.
 	 *
 	 * @since 2.2.0 bbPress (r4212)
+	 *
+	 * @return void
 	 */
 	public function register_shortcodes() {
 		$this->shortcodes = new BBP_Shortcodes();
@@ -905,6 +931,8 @@ final class bbPress {
 	 * Register the bbPress blocks.
 	 *
 	 * @since 2.7.0 bbPress (r7383)
+	 *
+	 * @return void
 	 */
 	public function register_blocks() {
 		$this->blocks = new BBP_Blocks();
@@ -916,6 +944,8 @@ final class bbPress {
 	 * Counts added in 2.6.0 to avoid negative values.
 	 *
 	 * @since 2.6.0 bbPress (r6302)
+	 *
+	 * @return void
 	 */
 	public function register_meta() {
 
@@ -992,6 +1022,8 @@ final class bbPress {
 	 * Setup the currently logged-in user.
 	 *
 	 * @since 2.0.0 bbPress (r2697)
+	 *
+	 * @return void
 	 */
 	public function setup_current_user() {
 		$this->current_user = wp_get_current_user();
@@ -1001,6 +1033,8 @@ final class bbPress {
 	 * Setup the user engagements strategy.
 	 *
 	 * @since 2.6.0 bbPress (r6876)
+	 *
+	 * @return void
 	 */
 	public function setup_engagements() {
 
@@ -1016,6 +1050,8 @@ final class bbPress {
 	 * Initialize forum-specific roles.
 	 *
 	 * @since 2.6.0 bbPress (r6118)
+	 *
+	 * @return void
 	 */
 	public function roles_init() {
 
@@ -1042,6 +1078,8 @@ final class bbPress {
 	 * Add the bbPress-specific rewrite tags.
 	 *
 	 * @since 2.0.0 bbPress (r2753)
+	 *
+	 * @return void
 	 */
 	public static function add_rewrite_tags() {
 		add_rewrite_tag( '%' . bbp_get_view_rewrite_id()               . '%', '([^/]+)'   ); // View Page tag
@@ -1067,6 +1105,8 @@ final class bbPress {
 	 * @since 2.4.0 bbPress (r4930)
 	 *
 	 * @todo Extract into an API
+	 *
+	 * @return void
 	 */
 	public static function add_rewrite_rules() {
 
@@ -1182,6 +1222,8 @@ final class bbPress {
 	 * - Search
 	 *
 	 * @since 2.4.0 bbPress (r4930)
+	 *
+	 * @return void
 	 */
 	public static function add_permastructs() {
 
