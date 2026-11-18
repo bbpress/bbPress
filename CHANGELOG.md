@@ -15,6 +15,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added `bbp_remove_all_moderators()` to clear an object's moderator
+  assignments.
 - Added `wp bbp tool` commands to list, run, preview, and resume registered
   forum repair and upgrade tools from WP-CLI.
 - Added BuddyPress group forum support for child forums. Forum parentage now

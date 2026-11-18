@@ -1497,6 +1497,20 @@ function bbp_remove_moderator( $object_id = 0, $user_id = 0, $object_type = 'pos
 }
 
 /**
+ * Remove all moderators from an object.
+ *
+ * @since 2.6.23 bbPress (r8481)
+ *
+ * @param int    $object_id   Traditionally a post ID.
+ * @param string $object_type Type of meta (post,term,user,comment).
+ *
+ * @return bool
+ */
+function bbp_remove_all_moderators( $object_id = 0, $object_type = 'post' ) {
+	return bbp_remove_object_from_all_users( $object_id, '_bbp_moderator_id', $object_type );
+}
+
+/**
  * Get user IDs of moderators for an object.
  *
  * @since 2.6.0 bbPress (r6056)
