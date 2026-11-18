@@ -58,7 +58,7 @@ function bbp_check_post_lock( $post_id = 0 ) {
  * @since 2.6.0 bbPress (r6341)
  *
  * @param int $post_id Post ID to lock.
- * @return array|false Lock time and user ID, or false if the post or current user is unavailable.
+ * @return array{int, int}|false Lock time and user ID, or false if the post or current user is unavailable.
  */
 function bbp_set_post_lock( $post_id = 0 ) {
 

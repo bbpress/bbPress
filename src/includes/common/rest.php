@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.6.19 bbPress (r7709)
  *
  * @param mixed           $response Current REST response.
- * @param array           $handler  Matched route handler.
+ * @param array<string, mixed> $handler  Matched route handler.
  * @param WP_REST_Request $request  REST request.
  * @return mixed REST response or error.
  */
@@ -62,7 +62,7 @@ function bbp_filter_rest_user_discovery( $response, $handler, $request ) {
  * @since 2.6.22 bbPress (r8279)
  *
  * @param mixed           $response Current REST response.
- * @param array           $handler  Matched route handler.
+ * @param array<string, mixed> $handler  Matched route handler.
  * @param WP_REST_Request $request  REST request.
  * @return mixed REST response or error.
  */
@@ -129,9 +129,9 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 *
 	 * @since 2.6.22 bbPress (r8276)
 	 *
-	 * @param array                $prepared_args Optional. Prepared WP_Query arguments.
+	 * @param array<string, mixed> $prepared_args Optional. Prepared WP_Query arguments.
 	 * @param WP_REST_Request|null $request       Optional. Full details about the request.
-	 * @return array Query arguments.
+	 * @return array<string, mixed> Query arguments.
 	 */
 	protected function prepare_items_query( $prepared_args = array(), $request = null ) {
 		$query_args = parent::prepare_items_query( $prepared_args, $request );

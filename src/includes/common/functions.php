@@ -2287,9 +2287,9 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
  *
  * @since 2.7.0 bbPress (r8358)
  *
- * @param array $contexts        Subscription object data keyed by user ID.
- * @param array $email_addresses Recipient email addresses.
- * @return array Subscription object data keyed by user ID.
+ * @param array<int, array<string, mixed>> $contexts        Subscription object data keyed by user ID.
+ * @param array<int, string>               $email_addresses Recipient email addresses.
+ * @return array<int, array<string, mixed>> Subscription object data keyed by user ID.
  */
 function bbp_get_subscription_email_contexts( $contexts = array(), $email_addresses = array() ) {
 
@@ -2355,11 +2355,11 @@ function bbp_get_subscription_email_receipt( $user_id = 0, $object_id = 0, $obje
  *
  * @since 2.7.0 bbPress (r8349)
  *
- * @param array  $email_addresses Email addresses.
- * @param string $subject         Email subject.
- * @param string $message         Email message.
- * @param array  $headers         Email headers.
- * @param array  $subscriptions   Subscription object data keyed by user ID.
+ * @param array<int, string>               $email_addresses Email addresses.
+ * @param string                           $subject         Email subject.
+ * @param string                           $message         Email message.
+ * @param array<int, string>               $headers         Email headers.
+ * @param array<int, array<string, mixed>> $subscriptions   Subscription object data keyed by user ID.
  * @return bool Whether any email was sent.
  */
 function bbp_send_subscription_emails( $email_addresses = array(), $subject = '', $message = '', $headers = array(), $subscriptions = array() ) {
@@ -3023,8 +3023,8 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
  *
  * @since 2.6.0 bbPress (r6919)
  *
- * @param array $args Original arguments passed to wp_mail().
- * @return array
+ * @param array<string, mixed> $args Original arguments passed to wp_mail().
+ * @return array<string, mixed> Filtered arguments for wp_mail().
  */
 function bbp_chunk_emails( $args = array() ) {
 

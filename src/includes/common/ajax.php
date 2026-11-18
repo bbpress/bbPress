@@ -17,6 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * Output the URL to use for theme-side bbPress AJAX requests.
  *
  * @since 2.3.0 bbPress (r4548)
+ *
+ * @return void
  */
 function bbp_ajax_url() {
 	echo esc_url( bbp_get_ajax_url() );
@@ -119,6 +121,8 @@ function bbp_do_ajax( $action = '' ) {
  * implementations.
  *
  * @since 2.6.0 bbPress (r6758)
+ *
+ * @return void
  */
 function bbp_ajax_headers() {
 
@@ -141,7 +145,8 @@ function bbp_ajax_headers() {
  * @param bool   $success Whether the request succeeded.
  * @param string $content Response content.
  * @param int    $status  Response status code. Defaults to -1.
- * @param array  $extras  Additional response fields.
+ * @param array<string, mixed> $extras Additional response fields.
+ * @return void
  */
 function bbp_ajax_response( $success = false, $content = '', $status = -1, $extras = array() ) {
 
