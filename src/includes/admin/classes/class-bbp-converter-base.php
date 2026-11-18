@@ -1595,7 +1595,7 @@ abstract class BBP_Converter_Base {
 	 * @param  string $field Source author ID to check.
 	 * @return string The literal 'true' or 'false'.
 	 */
-	private function callback_check_anonymous( $field ) {
+	protected function callback_check_anonymous( $field ) {
 		$field = ! $this->callback_userid( $field )
 			? 'true'
 			: 'false';
@@ -1609,7 +1609,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $field Source topic ID whose forum is needed.
 	 * @return int|string Mapped forum ID, or 0 when absent.
 	 */
-	private function callback_topicid_to_forumid( $field ) {
+	protected function callback_topicid_to_forumid( $field ) {
 		$topicid = $this->callback_topicid( $field );
 		if ( empty( $topicid ) ) {
 			$this->map_topicid_to_forumid[ $topicid ] = 0;

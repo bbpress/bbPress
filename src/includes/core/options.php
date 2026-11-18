@@ -1507,7 +1507,7 @@ function bbp_acquire_option_lock( $name ) {
 	$now   = time();
 	$value = $now . '|' . wp_generate_uuid4();
 
-	for ( $attempt = 0; $attempt < 2; $attempt++ ) {
+	foreach ( array( 0, 1 ) as $attempt ) {
 		/*
 		 * Match WordPress Core locks. Transients cannot atomically claim a key
 		 * and may use a non-database object-cache backend between requests.

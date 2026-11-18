@@ -808,6 +808,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @param string      $target     Expected forum status.
 	 * @param string|null $visibility Current forum status, passed by reference.
 	 * @return bool Whether all visibility state matches the target.
+	 * @phpstan-impure
 	 */
 	private function visibility_matches( $id, $target, &$visibility = null ) {
 		$visibility = $this->db->get_var( $this->db->prepare( "SELECT post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->forum_post_type ) );
