@@ -494,7 +494,7 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @param int $topic_id Optional. Topic ID.
+ * @param int|string $topic_id Optional. Topic ID.
  */
 function bbp_topic_id( $topic_id = 0 ) {
 	echo bbp_get_topic_id( $topic_id );
@@ -505,7 +505,7 @@ function bbp_topic_id( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @param int $topic_id Optional. Topic ID.
+ * @param int|string $topic_id Optional. Topic ID.
  * @return int The topic id.
  */
 function bbp_get_topic_id( $topic_id = 0 ) {

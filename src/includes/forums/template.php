@@ -227,7 +227,7 @@ function bbp_the_forum() {
  *
  * @since 2.0.0 bbPress (r2464)
  *
- * @param int $forum_id Optional. Forum ID.
+ * @param int|string $forum_id Optional. Forum ID.
  */
 function bbp_forum_id( $forum_id = 0 ) {
 	echo bbp_get_forum_id( $forum_id );
@@ -238,7 +238,7 @@ function bbp_forum_id( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2464)
  *
- * @param int $forum_id Optional. Forum ID.
+ * @param int|string $forum_id Optional. Forum ID.
  * @return int The forum id.
  */
 function bbp_get_forum_id( $forum_id = 0 ) {

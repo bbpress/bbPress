@@ -322,7 +322,7 @@ function bbp_the_reply() {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @param int $reply_id Optional. Reply ID.
+ * @param int|string $reply_id Optional. Reply ID.
  */
 function bbp_reply_id( $reply_id = 0 ) {
 	echo bbp_get_reply_id( $reply_id );
@@ -333,7 +333,7 @@ function bbp_reply_id( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2553)
  *
- * @param int $reply_id Optional. Reply ID.
+ * @param int|string $reply_id Optional. Reply ID.
  * @return int The reply id.
  */
 function bbp_get_reply_id( $reply_id = 0 ) {
