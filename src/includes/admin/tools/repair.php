@@ -3832,8 +3832,8 @@ function bbp_admin_repair_reply_menu_order_dry_run() {
  * @since 2.7.0 bbPress (r8305)
  *
  * @param object     $reply   Current reply row.
- * @param array      $ranks   Ranks shared within this batch, keyed by topic ID.
- * @param array|null $preview Read-only window context, or null for Run.
+ * @param array<int, array<string, mixed>> $ranks Ranks shared within this batch, keyed by topic ID.
+ * @param array<string, mixed>|null $preview Read-only window context, or null for Run.
  * @param string     $error   Optional semantic failure reason, passed by reference.
  * @return int|false Position, or false after a read failure.
  */
@@ -3938,9 +3938,9 @@ function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id,
  *
  * @param array<string, mixed> $state Validated scan bounds and phase.
  * @param int   $size Maximum source rows to read.
- * @param array $ranks Native source prefixes shared with the position helper.
- * @param array|null $preview Source rows, positions, and cache IDs for this window.
- * @param-out array $preview Source rows, positions, and cache IDs for this window.
+ * @param array<int, array<string, mixed>> $ranks Native source prefixes shared with the position helper.
+ * @param array<string, mixed>|null $preview Source rows, positions, and cache IDs for this window.
+ * @param-out array<string, mixed> $preview Source rows, positions, and cache IDs for this window.
  * @return void
  */
 function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$ranks, &$preview ) {

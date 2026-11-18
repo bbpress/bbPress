@@ -634,8 +634,8 @@ class vBulletin3 extends BBP_Converter_Base {
 	 * Password hashes are hexadecimal and do not require slashing.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(

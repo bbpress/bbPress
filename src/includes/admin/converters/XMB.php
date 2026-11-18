@@ -614,8 +614,8 @@ class XMB extends BBP_Converter_Base {
 	 * sanitized by WordPress.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );

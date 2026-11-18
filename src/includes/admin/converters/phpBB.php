@@ -712,8 +712,8 @@ class phpBB extends BBP_Converter_Base {
 	 * as one value.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
@@ -778,7 +778,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Check a phpBB combined phpass and bcrypt password hash.
 	 *
 	 * @param string $password The password in plain text.
-	 * @param array  $matches  Parsed components of the combined hash.
+	 * @param list<string>  $matches  Parsed components of the combined hash.
 	 * @return bool True if the password is correct, false if not.
 	 */
 	private function authenticate_combined_pass( $password, $matches ) {

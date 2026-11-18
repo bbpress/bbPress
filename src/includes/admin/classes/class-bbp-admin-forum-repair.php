@@ -1052,7 +1052,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @param array  $node   Traversal node, passed by reference.
+	 * @param array<string, mixed>  $node   Traversal node, passed by reference.
 	 * @param string $key    Completed metadata key.
 	 * @param array<string, mixed> $result Shared metadata result.
 	 * @return bool Whether processing may continue.
@@ -1084,7 +1084,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 * @since 2.7.0 bbPress (r8315) Revalidate source identity before writes.
 	 *
-	 * @param array $node Traversal node, passed by reference.
+	 * @param array<string, mixed> $node Traversal node, passed by reference.
 	 * @return bool Whether the node remains safe to write.
 	 */
 	protected function before_write( &$node ) {
@@ -1105,7 +1105,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $parent_node Parent traversal node, passed by reference.
+	 * @param array<string, mixed> $parent_node Parent traversal node, passed by reference.
 	 * @param array<string, mixed> $child Completed child traversal node.
 	 * @param int   $edge        Child post ID used by the parent edge.
 	 * @return bool Whether the child was ready and merged.
@@ -1131,7 +1131,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Completed traversal node, passed by reference.
+	 * @param array<string, mixed> $node Completed traversal node, passed by reference.
 	 * @return void
 	 */
 	protected function completed_node( &$node ) {}
@@ -1172,7 +1172,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $data Preview simulation data, passed by reference.
+	 * @param array<string, mixed> $data Preview simulation data, passed by reference.
 	 * @return void
 	 */
 	protected function save_preview_state( &$data ) {}
@@ -1214,8 +1214,8 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $parent_node Parent traversal node, passed by reference.
-	 * @param array $child       Completed child traversal node.
+	 * @param array<string, mixed> $parent_node Parent traversal node, passed by reference.
+	 * @param array<string, mixed> $child       Completed child traversal node.
 	 * @param int   $edge        Child post ID used by the parent edge.
 	 * @return void
 	 */

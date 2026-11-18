@@ -75,7 +75,7 @@ function bbp_admin_tools_box() {
  * registered tool. Other synchronous tools-page actions pass the same action
  * array to their registered callback.
  *
- * @param array $args Repair tool arguments. The callbacks value maps action
+ * @param array<string, mixed> $args Repair tool arguments. The callbacks value maps action
  *                    names to callables. The legacy callback value is used for
  *                    the Run action when callbacks[run] is not provided.
  * @return void
@@ -158,6 +158,7 @@ function bbp_register_repair_tool( $args = array() ) {
  * for both normal tools page requests and AJAX continuation requests.
  *
  * @since 2.7.0 bbPress (r8252)
+ * @return void
  */
 function bbp_register_repair_tools() {
 	/**
@@ -179,7 +180,7 @@ function bbp_register_repair_tools() {
  * @access private
  *
  * @param string $type Favorites, topic-subscriptions, or forum-subscriptions.
- * @return array|false Fixed tool IDs and storage keys, or false for an unknown type.
+ * @return array<string, string>|false Fixed tool IDs and storage keys, or false for an unknown type.
  */
 function bbp_admin_get_user_relationship_config( $type ) {
 	$configs = array(
@@ -218,6 +219,7 @@ function bbp_admin_get_user_relationship_config( $type ) {
  * Register the default repair tools.
  *
  * @since 2.6.0 bbPress (r5885)
+ * @return void
  */
 function bbp_register_default_repair_tools() {
 
@@ -758,6 +760,7 @@ function bbp_register_default_repair_tools() {
  * @since 2.1.0 bbPress (r3872)
  *
  * @param string $active_tab Name of the tab that is active.
+ * @return void
  */
 function bbp_tools_admin_tabs( $active_tab = '' ) {
 	echo bbp_get_tools_admin_tabs( $active_tab );
@@ -808,7 +811,7 @@ function bbp_get_tools_admin_tabs( $active_tab = '' ) {
  *
  * @since 2.6.0 bbPress (r6274)
  *
- * @return array
+ * @return list<array<string, mixed>>
  */
 function bbp_get_tools_admin_pages() {
 

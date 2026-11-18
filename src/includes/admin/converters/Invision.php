@@ -519,8 +519,8 @@ class Invision extends BBP_Converter_Base {
 	 * removes one layer of slashes when storing user metadata.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(

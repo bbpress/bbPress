@@ -690,8 +690,8 @@ class Example extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(

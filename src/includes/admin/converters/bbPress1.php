@@ -724,7 +724,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
+	 * @param array<string, mixed> $row Source user row.
 	 * @return bool Always false.
 	 */
 	public function callback_savepass( $field, $row ) {

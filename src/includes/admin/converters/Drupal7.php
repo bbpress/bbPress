@@ -561,8 +561,8 @@ class Drupal7 extends BBP_Converter_Base {
 	 * Array values are automatically serialized by WordPress.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array( 'hash' => $field );
@@ -602,6 +602,7 @@ class Drupal7 extends BBP_Converter_Base {
 	 * @param WP_User     $user        WordPress user.
 	 * @param string      $password    Unslashed password for Drupal.
 	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 * @return void
 	 */
 	public function callback_user_pass( $user, $password, $wp_password = null ) {
 		$wp_password = is_null( $wp_password ) ? $password : $wp_password;
@@ -768,6 +769,7 @@ class Drupal7 extends BBP_Converter_Base {
 	 *
 	 * @param int    $user_id  WordPress user ID.
 	 * @param string $password Password to hash for WordPress.
+	 * @return void
 	 */
 	private function upgrade_user_pass( $user_id, $password ) {
 		wp_set_password( $password, $user_id );

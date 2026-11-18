@@ -606,8 +606,8 @@ class Vanilla extends BBP_Converter_Base {
 	 * to preserve legacy plaintext passwords containing quotes or backslashes.
 	 *
 	 * @param string $field Password hash or legacy plaintext password.
-	 * @param array  $row   Source database row.
-	 * @return array|bool Password metadata, or false if invalid.
+	 * @param array<string, mixed>  $row   Source database row.
+	 * @return array<string, mixed>|bool Password metadata, or false if invalid.
 	 */
 	public function callback_savepass( $field, $row ) {
 		if ( ! is_string( $field ) ) {

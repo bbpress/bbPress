@@ -204,7 +204,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node Traversal node, passed by reference.
+	 * @param array<string, mixed> $node Traversal node, passed by reference.
 	 * @return bool Whether the node remains safe to write.
 	 */
 	protected function before_write( &$node ) {

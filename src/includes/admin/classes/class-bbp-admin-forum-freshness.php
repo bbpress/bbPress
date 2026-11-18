@@ -530,7 +530,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @param array $node           Traversal node, passed by reference.
+	 * @param array<string, mixed> $node           Traversal node, passed by reference.
 	 * @param array<string, string> $current Current raw metadata values.
 	 * @param bool  $prefer_current Whether every current value is newer than the snapshot.
 	 * @param array<string, string> $expected Expected raw metadata after this repair's own write.
@@ -607,7 +607,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @param array $node Traversal node, passed by reference.
+	 * @param array<string, mixed> $node Traversal node, passed by reference.
 	 * @return bool Whether the node remains safe to write.
 	 */
 	protected function before_write( &$node ) {
@@ -694,7 +694,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @param array  $node   Traversal node, passed by reference.
+	 * @param array<string, mixed>  $node   Traversal node, passed by reference.
 	 * @param string $key    Completed metadata key.
 	 * @param array<string, mixed> $result Shared metadata result.
 	 * @return bool Whether processing may continue.
@@ -871,7 +871,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $parent_node Parent traversal node, passed by reference.
+	 * @param array<string, mixed> $parent_node Parent traversal node, passed by reference.
 	 * @param array<string, mixed> $child Completed child traversal node.
 	 * @param int   $edge        Child forum ID used by the parent edge.
 	 */
@@ -948,7 +948,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node  Completed traversal node, passed by reference.
+	 * @param array<string, mixed> $node  Completed traversal node, passed by reference.
 	 * @param bool  $count Whether to add this completion to synchronous totals.
 	 * @return void
 	 */
@@ -1030,7 +1030,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $data Preview simulation data, passed by reference.
+	 * @param array<string, mixed> $data Preview simulation data, passed by reference.
 	 */
 	protected function save_preview_state( &$data ) {
 		$data['totals'] = $this->totals;

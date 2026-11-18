@@ -633,8 +633,8 @@ class FluxBB extends BBP_Converter_Base {
 	 * removes one layer of slashes when storing user metadata.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -736,7 +736,7 @@ class FluxBB extends BBP_Converter_Base {
 	 * @since 2.6.20 bbPress (r7937)
 	 *
 	 * @param int   $count Forum post count.
-	 * @param array $row   Source forum row.
+	 * @param array<string, mixed> $row   Source forum row.
 	 * @return int Forum reply count.
 	 */
 	public function callback_forum_reply_count( $count = 0, $row = array() ) {

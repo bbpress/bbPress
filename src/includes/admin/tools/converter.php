@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0 bbPress (r6448)
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_converters() {
 	static $files = array();

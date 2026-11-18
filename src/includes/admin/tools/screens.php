@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.7.0 bbPress (r8315)
  *
  * @param string $type Repair tool type: repair or upgrade.
+ * @return void
  */
 function bbp_admin_tools_repair_upgrade_page( $type = 'repair' ) {
 	if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) ) {

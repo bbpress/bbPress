@@ -43,6 +43,7 @@ function bbp_admin_icon_body_class( $classes ) {
  * Register bbPress icons for WordPress admin menus that support the Icons API.
  *
  * @since 2.6.21 bbPress (r8158)
+ * @return void
  */
 function bbp_register_admin_icons() {
 	if ( ! bbp_use_svg_admin_icons() ) {

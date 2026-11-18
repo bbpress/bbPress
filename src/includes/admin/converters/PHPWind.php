@@ -490,8 +490,8 @@ class PHPWind extends BBP_Converter_Base {
 	 * slashes when storing user metadata.
 	 *
 	 * @param mixed $field Source password value.
-	 * @param array $row Source user row.
-	 * @return array Password hash and optional source metadata.
+	 * @param array<string, mixed> $row Source user row.
+	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
@@ -571,6 +571,7 @@ class PHPWind extends BBP_Converter_Base {
 	 * @param WP_User     $user        WordPress user.
 	 * @param string      $password    Unslashed password for PHPWind.
 	 * @param string|null $wp_password Optional slashed password for WordPress.
+	 * @return void
 	 */
 	public function callback_user_pass( $user, $password, $wp_password = null ) {
 		if ( ! ( $user instanceof WP_User ) || ! is_string( $password ) || ! preg_match( '/^[a-f0-9]{32}$/i', $user->user_pass ) ) {
@@ -641,6 +642,7 @@ class PHPWind extends BBP_Converter_Base {
 	 *
 	 * @param int    $user_id  WordPress user ID.
 	 * @param string $password Password to hash for WordPress.
+	 * @return void
 	 */
 	private function upgrade_user_pass( $user_id, $password ) {
 		wp_set_password( $password, $user_id );
