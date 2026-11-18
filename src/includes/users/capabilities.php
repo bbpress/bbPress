@@ -1527,7 +1527,7 @@ function bbp_get_moderators( $object_id = 0, $object_type = 'post' ) {
 	if ( empty( $object_id ) ) {
 		$users = get_users(
 			array(
-				'role__in' => bbp_get_moderator_role(),
+				'role__in' => array( bbp_get_moderator_role() ),
 			)
 		);
 

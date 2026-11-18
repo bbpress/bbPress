@@ -233,7 +233,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.6.0 bbPress (r6876)
 	 *
-	 * @param string $results Comma-separated IDs to parse.
+	 * @param array|string $results IDs as an array or comma-separated string.
 	 * @return array
 	 */
 	private function parse_comma_list( $results = '' ) {

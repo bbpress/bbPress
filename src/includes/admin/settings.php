@@ -1079,7 +1079,7 @@ function bbp_admin_setting_callback_moderation_links() {
 			printf(
 				/* translators: %s: WordPress comment moderation link limit */
 				esc_html__( 'Leave the number empty to use the WordPress Discussion setting, currently %s.', 'bbpress' ),
-				esc_html( $default_limit )
+				esc_html( (string) $default_limit )
 			);
 		} else {
 			esc_html_e( 'Leave the number empty to use the WordPress Discussion setting, which currently has no link limit.', 'bbpress' );
@@ -1339,7 +1339,7 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 		<select name="_bbp_thread_replies_depth" id="_bbp_thread_replies_depth" <?php bbp_maybe_admin_setting_disabled( '_bbp_thread_replies_depth' ); ?>>
 		<?php for ( $i = 2; $i <= $max_depth; $i++ ) : ?>
 
-			<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $i, $current_depth ); ?>><?php echo esc_html( $i ); ?></option>
+			<option value="<?php echo esc_attr( (string) $i ); ?>" <?php selected( $i, $current_depth ); ?>><?php echo esc_html( (string) $i ); ?></option>
 
 		<?php endfor; ?>
 		</select>

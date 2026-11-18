@@ -2603,8 +2603,8 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 
 	// Order
 	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
-		? strtolower( $_GET['order'] )
-		: 'asc';
+		? strtoupper( $_GET['order'] )
+		: 'ASC';
 
 	// Overhead filter
 	if ( ! empty( $overhead ) ) {

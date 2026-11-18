@@ -86,11 +86,11 @@ function bbp_setup_converter() {
  *
  * @since 2.6.0 bbPress (r5826)
  *
- * @param string $name    Name of global variable.
- * @param string $type    Type of variable to check with `is_a()`.
- * @param mixed  $default Default value to return if no global found.
+ * @param string       $name    Name of global variable.
+ * @param string|false $type    Type of variable to check with `is_a()`, or false to skip the check.
+ * @param mixed        $default Default value to return if no global found.
  *
- * @return mixed   Verified object if valid, Default or null if invalid.
+ * @return mixed Global value, fallback, or null.
  */
 function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 

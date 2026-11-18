@@ -820,7 +820,7 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
 		return false;
 	}
 
-	$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '" class="bbp-reply-revision-log">' . "\n\n";
+	$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . esc_attr( (string) $reply_id ) . '" class="bbp-reply-revision-log">' . "\n\n";
 
 	// Loop through revisions
 	foreach ( (array) $revisions as $revision ) {
@@ -847,7 +847,7 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
 			)
 		);
 
-		$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";
+		$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( (string) $reply_id ) . '-item-' . esc_attr( (string) $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";
 		if ( ! empty( $reason ) ) {
 			/* translators: 1: Time since modification, 2: Author linked display name, 3: Modification reason */
 			$r .= "\t\t" . sprintf( esc_html__( 'This reply was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";

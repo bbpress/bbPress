@@ -77,7 +77,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
 
-		return delete_metadata( $meta_type, null, $storage_key, $user_id, true );
+		return delete_metadata( $meta_type, 0, $storage_key, $user_id, true );
 	}
 
 	/**
@@ -110,7 +110,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
 
-		return delete_metadata( $meta_type, null, $storage_key, null, true );
+		return delete_metadata( $meta_type, 0, $storage_key, null, true );
 	}
 
 	/**

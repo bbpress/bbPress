@@ -985,7 +985,7 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
 		return false;
 	}
 
-	$retval = "\n\n" . '<ul id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '" class="bbp-topic-revision-log">' . "\n\n";
+	$retval = "\n\n" . '<ul id="bbp-topic-revision-log-' . esc_attr( (string) $topic_id ) . '" class="bbp-topic-revision-log">' . "\n\n";
 
 	// Loop through revisions
 	foreach ( (array) $revisions as $revision ) {
@@ -1012,7 +1012,7 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
 			)
 		);
 
-		$retval .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
+		$retval .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( (string) $topic_id ) . '-item-' . esc_attr( (string) $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
 		if ( ! empty( $reason ) ) {
 			/* translators: 1: Time since modification, 2: Author link, 3: Modification reason */
 			$retval .= "\t\t" . sprintf( esc_html__( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";

@@ -556,7 +556,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		// Start an output buffer to make late escaping easier
 		ob_start(); ?>
 
-		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $reply_id, $ancestors, true ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
+		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( (string) $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $reply_id, $ancestors, true ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
 
 		<?php
 
