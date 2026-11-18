@@ -885,7 +885,7 @@ function bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value ) {
  * @param int|string|array<int|string, mixed>|null $value Expected value, or null when no row should remain.
  * @param int                   $limit     Maximum metadata writes to plan or perform.
  * @param bool                  $dry_run   Whether to preview without writes.
- * @param array|null            $preview   Request-local Dry Run progress for this field.
+ * @param array<string, mixed>|null $preview Request-local Dry Run progress for this field.
  * @return array{code:int, work:int, operations:int, changed:bool, complete:bool} Status code, work used, changed flag, and completion flag.
  */
 function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false, &$preview = null ) {
@@ -1017,7 +1017,7 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  * @param array<int, object> $rows Selected metadata rows, including is_source flags.
  * @param string        $source Prepared source relationship query.
  * @param bool          $dry_run Whether to preview without writes or cache invalidation.
- * @param array         $planned Relationships already counted by a synchronous preview.
+ * @param array<array<bool>> $planned Relationships already counted by a synchronous preview.
  * @param callable|null $claim   Optional bounded cross-request relationship claim.
  * @return array{code:int, error:string, added:int, removed:int, topics:array<int, bool>, cursor:int} Status, failure reason, additions, removals, changed topic IDs, and cursor.
  */
@@ -1463,8 +1463,8 @@ function bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, $f
  * @since 2.7.0 bbPress (r8359)
  * @access private
  *
- * @param array $state Saved worker checkpoint, passed by reference.
- * @param array $batch Batch status, passed by reference.
+ * @param array<string, mixed> $state Saved worker checkpoint, passed by reference.
+ * @param array<string, mixed> $batch Batch status, passed by reference.
  * @param array<string, mixed> $reset Worker fields to reset for the current source row.
  * @return bool Whether the collection was restarted.
  */
@@ -1569,7 +1569,7 @@ function bbp_admin_repair_tool_batch_status( $fields = array() ) {
  * @since 2.7.0 bbPress (r8339)
  * @access private
  *
- * @param array  $batch  Current worker result.
+ * @param array<string, mixed> $batch  Current worker result.
  * @param string $reason Semantic failure reason.
  * @return false Always false after recording the failure.
  */
@@ -1588,8 +1588,8 @@ function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
  * @access private
  *
  * @param string      $tool_id   Repair or upgrade tool ID.
- * @param array|false $state     Loaded checkpoint, or false for a new operation.
- * @param array       $batch     Current worker result.
+ * @param array<string, mixed>|false $state Loaded checkpoint, or false for a new operation.
+ * @param array<string, mixed> $batch Current worker result.
  * @param callable    $validator Checkpoint validator.
  * @param mixed       $context   Validator context.
  * @param bool        $dry_run   Whether this is a read-only preview.
@@ -1611,8 +1611,8 @@ function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validat
  * @access private
  *
  * @param string $tool_id Repair or upgrade tool ID.
- * @param array  $state   Current worker checkpoint.
- * @param array  $batch   Current worker result.
+ * @param array<string, mixed> $state Current worker checkpoint.
+ * @param array<string, mixed> $batch Current worker result.
  * @param bool   $complete Whether this operation completed.
  * @param bool   $dry_run Whether this is a read-only preview.
  * @param list<string> $fields Aggregate result fields to save.
@@ -1655,7 +1655,7 @@ function bbp_admin_repair_tool_batch_continue( $batch, $dry_run = false ) {
  * @access private
  *
  * @param array<string, mixed> $state Saved worker checkpoint.
- * @param array $batch  Current worker result.
+ * @param array<string, mixed> $batch Current worker result.
  * @param list<string> $fields Aggregate result fields to restore.
  * @return array<string, mixed> Worker-local simulation data.
  */
@@ -1683,7 +1683,7 @@ function bbp_admin_repair_tool_restore_preview( $state, &$batch, $fields = array
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
- * @param array $state  Worker checkpoint to update.
+ * @param array<string, mixed> $state Worker checkpoint to update.
  * @param array<string, mixed> $batch Current worker result.
  * @param list<string> $fields Aggregate result fields to save.
  * @param array<string, mixed> $data Worker-local simulation data.
@@ -1987,7 +1987,7 @@ function bbp_admin_repair_user_meta_row_hash( $row, $include_key = false ) {
  * @access private
  *
  * @param string $key   Legacy user-meta key.
- * @param array  $batch Current worker result.
+ * @param array<string, mixed> $batch Current worker result.
  * @return int|false Upper metadata ID, or false on a read failure.
  */
 function bbp_admin_repair_user_meta_upper_id( $key, &$batch ) {
@@ -2014,7 +2014,7 @@ function bbp_admin_repair_user_meta_upper_id( $key, &$batch ) {
  * @param string $key      Legacy user-meta key.
  * @param int    $cursor   Inclusive metadata ID cursor.
  * @param int    $upper_id Inclusive fixed upper metadata ID.
- * @param array  $batch    Current worker result.
+ * @param array<string, mixed> $batch Current worker result.
  * @return object|null|false Source row, no row, or a read failure.
  */
 function bbp_admin_repair_user_meta_row( $key, $cursor, $upper_id, &$batch ) {
@@ -2090,8 +2090,8 @@ function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
  * @param string $prefix   Exact temporary-option namespace.
  * @param int    $limit    Maximum deletions.
  * @param bool   $dry_run  Whether to preview without writes.
- * @param array  $created  Names created by this preview.
- * @param array  $cleaned  Names already removed by this preview.
+ * @param array<string, bool> $created Names created by this preview.
+ * @param array<string, bool> $cleaned Names already removed by this preview.
  * @return array{bool, int, bool} Success, work performed, and completion.
  */
 function bbp_admin_repair_tool_cleanup_options( $prefix, $limit, $dry_run, &$created, &$cleaned ) {

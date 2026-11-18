@@ -56,7 +56,7 @@ abstract class BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 * @since 2.7.0 bbPress (r8338) Moved to the shared batch worker.
 	 *
-	 * @var array|false
+	 * @var array<string, mixed>|false
 	 */
 	protected $state;
 
@@ -119,7 +119,7 @@ abstract class BBP_Admin_Batch_Worker {
 	 *
 	 * @param string $error    Semantic failure reason.
 	 * @param bool   $complete Whether the operation completed.
-	 * @return array Normalized result fields.
+	 * @return array{code:int, error:string, complete:bool} Normalized result fields.
 	 */
 	public static function result_fields( $error = '', $complete = false ) {
 		$error = (string) $error;
@@ -149,9 +149,9 @@ abstract class BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8338)
 	 *
-	 * @param array $result   Worker-specific result fields.
+	 * @param array<string, mixed> $result Worker-specific result fields.
 	 * @param bool  $complete Whether the operation completed.
-	 * @return array Worker result with normalized status fields.
+	 * @return array<string, mixed> Worker result with normalized status fields.
 	 */
 	protected function result( $result, $complete ) {
 		return array_merge(
@@ -179,7 +179,7 @@ abstract class BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8338)
 	 *
-	 * @return array|false New checkpoint, or false after a failure.
+	 * @return array<string, mixed>|false New checkpoint, or false after a failure.
 	 */
 	abstract protected function new_state();
 }
