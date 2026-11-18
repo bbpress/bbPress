@@ -118,6 +118,8 @@ class BBP_Converter {
 	 * Admin globals
 	 *
 	 * @since 2.6.0 bbPress (r6601)
+	 *
+	 * @return void
 	 */
 	public function setup_globals() {
 		$this->converters_dir = bbp_setup_admin()->admin_dir . 'converters/';
@@ -127,6 +129,8 @@ class BBP_Converter {
 	 * Setup the default actions
 	 *
 	 * @since 2.1.0 bbPress (r3816)
+	 *
+	 * @return void
 	 */
 	public function setup_actions() {
 
@@ -147,6 +151,8 @@ class BBP_Converter {
 	 *
 	 * @since 2.1.0 bbPress (r3816)
 	 * @since 2.6.19 bbPress (r7739) Stop autoloading the saved source password.
+	 *
+	 * @return void
 	 */
 	public function admin_head() {
 		// WordPress 6.4+ can stop autoloading an existing option without changing it.
@@ -211,6 +217,8 @@ class BBP_Converter {
 	 * Callback processor
 	 *
 	 * @since 2.1.0 bbPress (r3816)
+	 *
+	 * @return void
 	 */
 	public function process_callback() {
 
@@ -247,6 +255,8 @@ class BBP_Converter {
 	 * @since 2.6.0 bbPress (r6601)
 	 *
 	 * @param string $output Converter status text to display.
+	 *
+	 * @return void
 	 */
 	private function converter_response( $output = '' ) {
 
@@ -289,6 +299,8 @@ class BBP_Converter {
 	 * Attempt to increase memory and set other system settings
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function maybe_set_memory() {
 
@@ -322,6 +334,8 @@ class BBP_Converter {
 	 * Maybe restart the converter
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function maybe_restart() {
 
@@ -343,6 +357,8 @@ class BBP_Converter {
 	 *
 	 * @since 2.6.0 bbPress (r6514)
 	 * @since 2.6.19 bbPress (r7739) Keep or explicitly clear a saved source password.
+	 *
+	 * @return void
 	 */
 	private function maybe_update_options() {
 
@@ -423,6 +439,8 @@ class BBP_Converter {
 	 * Setup converter options
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function setup_options() {
 
@@ -461,6 +479,8 @@ class BBP_Converter {
 	 * Check that user can access the converter
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function check_access() {
 
@@ -477,6 +497,8 @@ class BBP_Converter {
 	 * Reset the converter
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function reset() {
 		update_option( '_bbp_converter_step',         0  );
@@ -489,6 +511,8 @@ class BBP_Converter {
 	 * Bump the step and reset the start
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function bump_step() {
 
@@ -515,6 +539,8 @@ class BBP_Converter {
 	 * Bump the start within the current step
 	 *
 	 * @since 2.6.0 bbPress (r6460)
+	 *
+	 * @return void
 	 */
 	private function bump_start() {
 
@@ -935,6 +961,8 @@ class BBP_Converter {
 	 * Done!
 	 *
 	 * @since 2.6.0 bbPress (r6514)
+	 *
+	 * @return void
 	 */
 	private function step_done() {
 		if ( ! $this->finished ) {
@@ -949,6 +977,8 @@ class BBP_Converter {
 	 * Complete the conversion and flush stale cached objects.
 	 *
 	 * @since 2.6.20 bbPress (r7920)
+	 *
+	 * @return void
 	 */
 	private function complete() {
 		$this->step_percentage  = 100;
@@ -967,6 +997,8 @@ class BBP_Converter {
 	 * @since 2.1.0 bbPress (r3816)
 	 *
 	 * @param bool $drop Whether to drop the existing table first.
+	 *
+	 * @return void
 	 */
 	public static function sync_table( $drop = false ) {
 

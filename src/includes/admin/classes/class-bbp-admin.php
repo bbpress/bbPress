@@ -89,7 +89,7 @@ class BBP_Admin {
 	/**
 	 * Array of available repair tools.
 	 *
-	 * @var array
+	 * @var array<string, array<string, mixed>>
 	 */
 	public $tools = array();
 
@@ -98,7 +98,7 @@ class BBP_Admin {
 	/**
 	 * Array of notices to output to the current user.
 	 *
-	 * @var array
+	 * @var list<string>
 	 */
 	public $notices = array();
 
@@ -151,6 +151,8 @@ class BBP_Admin {
 	 * @since 2.0.0 bbPress (r3338)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_globals() {
 		$bbp              = bbpress();
@@ -172,6 +174,8 @@ class BBP_Admin {
 	 * @since 2.0.0 bbPress (r3338)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function includes() {
 
@@ -211,6 +215,8 @@ class BBP_Admin {
 	 * @since 2.0.0 bbPress (r3338)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -277,6 +283,8 @@ class BBP_Admin {
 	 * Setup general admin area notices.
 	 *
 	 * @since 2.6.0 bbPress (r6705)
+	 *
+	 * @return void
 	 */
 	public function setup_notices() {
 
@@ -319,6 +327,8 @@ class BBP_Admin {
 	 * Handle hiding of general admin area notices.
 	 *
 	 * @since 2.6.0 bbPress (r6705)
+	 *
+	 * @return void
 	 */
 	public function hide_notices() {
 
@@ -354,6 +364,8 @@ class BBP_Admin {
 	 * Output all admin area notices.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
+	 *
+	 * @return void
 	 */
 	public function output_notices() {
 
@@ -475,6 +487,8 @@ class BBP_Admin {
 	 * @since 2.6.0 bbPress (r6897)
 	 *
 	 * @global array $menu WordPress admin menu entries.
+	 *
+	 * @return void
 	 */
 	public function add_upgrade_count() {
 		global $menu;
@@ -504,6 +518,8 @@ class BBP_Admin {
 	 *
 	 * @global array $menu WordPress admin menu entries.
 	 * @global wpdb  $wpdb WordPress database abstraction object.
+	 *
+	 * @return void
 	 */
 	public function add_pending_counts() {
 		global $menu, $wpdb;
@@ -642,6 +658,8 @@ class BBP_Admin {
 	 * Add the admin menus.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
+	 *
+	 * @return void
 	 */
 	public function admin_menus() {
 
@@ -740,6 +758,8 @@ class BBP_Admin {
 	 * Add the network admin menus.
 	 *
 	 * @since 2.1.0 bbPress (r3731)
+	 *
+	 * @return void
 	 */
 	public function network_admin_menus() {
 
@@ -828,12 +848,12 @@ class BBP_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4244)
 	 *
-	 * @param array  $caps Capabilities for meta capability.
+	 * @param list<string>  $caps Capabilities for meta capability.
 	 * @param string $cap Capability name.
 	 * @param int    $user_id User id.
-	 * @param array  $args Arguments.
+	 * @param array<int, mixed>  $args Arguments.
 	 *
-	 * @return array Actual capabilities for meta capability.
+	 * @return list<string> Actual capabilities for meta capability.
 	 */
 	public static function map_settings_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -912,6 +932,8 @@ class BBP_Admin {
 	 * Register the importers.
 	 *
 	 * @since 2.0.0 bbPress (r3194)
+	 *
+	 * @return void
 	 */
 	public function register_importers() {
 
@@ -947,9 +969,9 @@ class BBP_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4159)
 	 *
-	 * @param array  $links Links array in which we would prepend our link.
+	 * @param array<int|string, string>  $links Links array in which we would prepend our link.
 	 * @param string $file Current plugin basename.
-	 * @return array Processed links.
+	 * @return array<int|string, string> Processed links.
 	 */
 	public static function modify_plugin_action_links( $links, $file ) {
 
@@ -979,6 +1001,8 @@ class BBP_Admin {
 	 * Enqueue any admin scripts we might need.
 	 *
 	 * @since 2.2.0 bbPress (r4261)
+	 *
+	 * @return void
 	 */
 	public function enqueue_scripts() {
 
@@ -1023,6 +1047,8 @@ class BBP_Admin {
 	 * Enqueue any admin scripts we might need.
 	 *
 	 * @since 2.6.0 bbPress (r5225)
+	 *
+	 * @return void
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( 'bbp-admin-css' );
@@ -1033,6 +1059,8 @@ class BBP_Admin {
 	 * They are grouped together by h2 tabs.
 	 *
 	 * @since 2.0.0 bbPress (r2464)
+	 *
+	 * @return void
 	 */
 	public function admin_head() {
 
@@ -1053,6 +1081,8 @@ class BBP_Admin {
 	 * way to be certain what the relative path of admin images is.
 	 *
 	 * @since 2.6.0 bbPress (r6913)
+	 *
+	 * @return void
 	 */
 	public function register_admin_styles() {
 
@@ -1103,6 +1133,8 @@ class BBP_Admin {
 	 * Registers the bbPress admin scripts.
 	 *
 	 * @since 2.6.0 bbPress (r6913)
+	 *
+	 * @return void
 	 */
 	public function register_admin_scripts() {
 
@@ -1159,10 +1191,10 @@ class BBP_Admin {
 	 *
 	 * @since 2.7.0 bbPress (r7278)
 	 *
-	 * @param array       $post_states Existing post state labels.
+	 * @param array<int|string, string>       $post_states Existing post state labels.
 	 * @param int|WP_Post $post        Post being displayed.
 	 *
-	 * @return array Post state labels.
+	 * @return array<int|string, string> Post state labels.
 	 */
 	public function display_post_states( $post_states = array(), $post = 0 ) {
 
@@ -1228,6 +1260,8 @@ class BBP_Admin {
 	 * Ajax action for facilitating the forum auto-suggest.
 	 *
 	 * @since 2.2.0 bbPress (r4261)
+	 *
+	 * @return void
 	 */
 	public function suggest_topic() {
 
@@ -1283,6 +1317,8 @@ class BBP_Admin {
 	 * Ajax action for facilitating the topic and reply author auto-suggest.
 	 *
 	 * @since 2.4.0 bbPress (r5015)
+	 *
+	 * @return void
 	 */
 	public function suggest_user() {
 
@@ -1374,6 +1410,8 @@ class BBP_Admin {
 	 * Contains title, subtitle, and badge area.
 	 *
 	 * @since 2.6.0 bbPress (r6604)
+	 *
+	 * @return void
 	 */
 	private function screen_header() {
 		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
@@ -1404,6 +1442,8 @@ class BBP_Admin {
 	 * @since 2.2.0 bbPress (r4159)
 	 *
 	 * @todo Host this remotely.
+	 *
+	 * @return void
 	 */
 	public function about_screen() {
 		?>
@@ -1478,6 +1518,8 @@ class BBP_Admin {
 	 * @since 2.2.0 bbPress (r4159)
 	 *
 	 * @todo Host this remotely.
+	 *
+	 * @return void
 	 */
 	public function credits_screen() {
 		?>
@@ -1622,6 +1664,8 @@ class BBP_Admin {
 	 * Update all bbPress forums across all sites.
 	 *
 	 * @since 2.1.0 bbPress (r3731)
+	 *
+	 * @return void
 	 */
 	public static function update_screen() {
 
@@ -1667,6 +1711,8 @@ class BBP_Admin {
 	 * Update all bbPress forums across all sites.
 	 *
 	 * @since 2.1.0 bbPress (r3731)
+	 *
+	 * @return void
 	 */
 	public static function network_update_screen() {
 		$bbp_db = bbp_db();
