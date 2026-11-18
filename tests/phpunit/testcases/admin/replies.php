@@ -277,6 +277,51 @@ class BBP_Tests_Admin_Replies extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @covers BBP_Replies_Admin::toggle_reply
+	 * @ticket 3794
+	 */
+	public function test_toggle_reply_reports_failed_post_update() {
+		$admin    = $this->get_admin_without_hooks();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$redirect = null;
+		$this->create_keymaster();
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_URI']    = '/wp-admin/edit.php?post_type=reply';
+		$_GET = array(
+			'action'   => 'bbp_toggle_reply_approve',
+			'reply_id' => $reply_id,
+			'_wpnonce' => wp_create_nonce( 'approve-reply_' . $reply_id ),
+		);
+		$_REQUEST = $_GET;
+
+		$reject_update = function ( $maybe_empty, $postarr ) use ( $reply_id ) {
+			return ( $postarr['ID'] === $reply_id ) ? true : $maybe_empty;
+		};
+		$stop_redirect = function ( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			throw new BBP_Tests_Admin_Replies_Redirect_Exception( 'Redirect intercepted.' );
+		};
+		add_filter( 'wp_insert_post_empty_content', $reject_update, 10, 2 );
+		add_filter( 'wp_redirect', $stop_redirect );
+
+		try {
+			try {
+				$admin->toggle_reply();
+				$this->fail( 'The reply toggle should redirect.' );
+			} catch ( BBP_Tests_Admin_Replies_Redirect_Exception $error ) {
+				$this->assertSame( 'Redirect intercepted.', $error->getMessage() );
+			}
+			$this->assertStringContainsString( 'failed=1', $redirect );
+			$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+		} finally {
+			remove_filter( 'wp_insert_post_empty_content', $reject_update, 10 );
+			remove_filter( 'wp_redirect', $stop_redirect );
+		}
+	}
+
 	/** @covers BBP_Replies_Admin::toggle_reply @ticket 3706 */
 	public function test_toggle_reply_rejects_invalid_requests_permissions_and_nonces() {
 		$admin = $this->get_admin_without_hooks();

@@ -549,6 +549,50 @@ class BBP_Tests_Admin_Topics extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Topics_Admin::toggle_topic
+	 * @ticket 3794
+	 */
+	public function test_toggle_topic_reports_failed_post_update() {
+		$admin    = $this->get_admin_without_hooks();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$redirect = null;
+		$this->create_keymaster();
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_URI']    = '/wp-admin/edit.php?post_type=topic';
+		$_GET = array(
+			'action'   => 'bbp_toggle_topic_approve',
+			'topic_id' => $topic_id,
+			'_wpnonce' => wp_create_nonce( 'approve-topic_' . $topic_id ),
+		);
+		$_REQUEST = $_GET;
+
+		$reject_update = function ( $maybe_empty, $postarr ) use ( $topic_id ) {
+			return ( $postarr['ID'] === $topic_id ) ? true : $maybe_empty;
+		};
+		$stop_redirect = function ( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			throw new BBP_Tests_Admin_Topics_Redirect_Exception( 'Redirect intercepted.' );
+		};
+		add_filter( 'wp_insert_post_empty_content', $reject_update, 10, 2 );
+		add_filter( 'wp_redirect', $stop_redirect );
+
+		try {
+			try {
+				$admin->toggle_topic();
+				$this->fail( 'The topic toggle should redirect.' );
+			} catch ( BBP_Tests_Admin_Topics_Redirect_Exception $error ) {
+				$this->assertSame( 'Redirect intercepted.', $error->getMessage() );
+			}
+			$this->assertStringContainsString( 'failed=1', $redirect );
+			$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		} finally {
+			remove_filter( 'wp_insert_post_empty_content', $reject_update, 10 );
+			remove_filter( 'wp_redirect', $stop_redirect );
+		}
+	}
+
+	/**
+	 * @covers BBP_Topics_Admin::toggle_topic
 	 * @ticket 3706
 	 */
 	public function test_toggle_topic_rejects_invalid_requests_permissions_and_nonces() {

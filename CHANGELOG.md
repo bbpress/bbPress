@@ -172,6 +172,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Marked failed topic and reply admin status changes as failures instead of
+  showing success notices.
 - Kept replies in their original topics if conversion to a new topic fails
   during a split or move.
 - Restored the `forum-mod` CSS class for forums, topics, and replies authored
