@@ -462,8 +462,8 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 		}
 	}
 
-	// Bail if no sticky topics empty or not an array
-	if ( empty( $sticky_topics ) || ! is_array( $sticky_topics ) ) {
+	// Bail if there are no sticky topics
+	if ( empty( $sticky_topics ) ) {
 		return;
 	}
 

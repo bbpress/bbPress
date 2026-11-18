@@ -131,7 +131,7 @@ function bbp_get_wp_query() {
  *
  * @since 2.2.0 bbPress (r4293)
  *
- * @return WP_Roles
+ * @return WP_Roles|null The roles object, or null if it is unavailable.
  */
 function bbp_get_wp_roles() {
 	return bbp_get_global_object( 'wp_roles', 'WP_Roles' );

@@ -1385,7 +1385,7 @@ function bbp_user_maybe_convert_pass() {
 		$converter->callback_user_pass( $user, $pass, $wp_pass );
 
 	// Try to call the password conversion callback method
-	} elseif ( ( $converter instanceof BBP_Converter_Base ) && method_exists( $converter, 'callback_pass' ) ) {
+	} elseif ( $converter instanceof BBP_Converter_Base ) {
 		$converter->callback_pass( $user->user_login, $pass, $wp_pass );
 	}
 }
