@@ -1076,7 +1076,7 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
  */
 function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 	$config = bbp_admin_get_user_relationship_config( $type );
-	if ( false === $config ) {
+	if ( false === $config || ! in_array( $type, array( 'favorites', 'topic-subscriptions', 'forum-subscriptions' ), true ) ) {
 		return array(
 			1,
 			esc_html__( 'Failed!', 'bbpress' ),
@@ -1131,6 +1131,8 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 		);
 	}
 
+	$added    = '';
+	$failures = '';
 	switch ( $type ) {
 		case 'favorites':
 			if ( $dry_run ) {
