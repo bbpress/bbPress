@@ -172,6 +172,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Fixed forum moderator replacement and clearing with term or user engagement
+  storage.
 - Marked failed topic and reply admin status changes as failures instead of
   showing success notices.
 - Kept replies in their original topics if conversion to a new topic fails
