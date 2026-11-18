@@ -73,12 +73,6 @@ parameters:
 			path: src/includes/admin/replies.php
 
 		-
-			message: '#^Filter callback return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/admin/replies.php
-
-		-
 			message: '#^Function buddypress not found\.$#'
 			identifier: function.notFound
 			count: 1
@@ -123,12 +117,6 @@ parameters:
 		-
 			message: '#^Action callback returns int but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: src/includes/admin/topics.php
-
-		-
-			message: '#^Filter callback return statement is missing\.$#'
-			identifier: return.missing
 			count: 1
 			path: src/includes/admin/topics.php
 

@@ -127,9 +127,9 @@ class BBP_Tests_Admin_Replies extends BBP_UnitTestCase {
 		remove_filter( 'wp_insert_post_data', array( $admin, 'filter_post_data' ), 20 );
 		remove_action( 'load-edit.php', array( $admin, 'toggle_reply' ) );
 		remove_action( 'load-edit.php', array( $admin, 'toggle_reply_notice' ) );
-		remove_filter( 'restrict_manage_posts', array( $admin, 'filter_dropdown' ) );
+		remove_action( 'restrict_manage_posts', array( $admin, 'filter_dropdown' ) );
 		remove_filter( 'bbp_request', array( $admin, 'filter_post_rows' ) );
-		remove_filter( 'manage_posts_extra_tablenav', array( $admin, 'filter_empty_spam' ) );
+		remove_action( 'manage_posts_extra_tablenav', array( $admin, 'filter_empty_spam' ) );
 		remove_action( 'load-edit.php', array( $admin, 'edit_help' ) );
 		remove_action( 'load-post.php', array( $admin, 'new_help' ) );
 		remove_action( 'load-post-new.php', array( $admin, 'new_help' ) );

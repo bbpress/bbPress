@@ -88,11 +88,11 @@ class BBP_Replies_Admin {
 		add_action( 'load-edit.php', array( $this, 'toggle_reply_notice' ) );
 
 		// Add ability to filter topics and replies per forum
-		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
+		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'bbp_request',           array( $this, 'filter_post_rows' ) );
 
 		// Empty spam
-		add_filter( 'manage_posts_extra_tablenav', array( $this, 'filter_empty_spam' ) );
+		add_action( 'manage_posts_extra_tablenav', array( $this, 'filter_empty_spam' ) );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );

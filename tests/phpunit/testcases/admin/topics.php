@@ -144,9 +144,9 @@ class BBP_Tests_Admin_Topics extends BBP_UnitTestCase {
 		remove_filter( 'wp_insert_post_data', array( $admin, 'filter_post_data' ), 20 );
 		remove_action( 'load-edit.php', array( $admin, 'toggle_topic' ) );
 		remove_action( 'load-edit.php', array( $admin, 'toggle_topic_notice' ) );
-		remove_filter( 'restrict_manage_posts', array( $admin, 'filter_dropdown' ) );
+		remove_action( 'restrict_manage_posts', array( $admin, 'filter_dropdown' ) );
 		remove_filter( 'bbp_request', array( $admin, 'filter_post_rows' ) );
-		remove_filter( 'manage_posts_extra_tablenav', array( $admin, 'filter_empty_spam' ) );
+		remove_action( 'manage_posts_extra_tablenav', array( $admin, 'filter_empty_spam' ) );
 		remove_action( 'load-edit.php', array( $admin, 'edit_help' ) );
 		remove_action( 'load-post.php', array( $admin, 'new_help' ) );
 		remove_action( 'load-post-new.php', array( $admin, 'new_help' ) );
@@ -217,9 +217,9 @@ class BBP_Tests_Admin_Topics extends BBP_UnitTestCase {
 			$this->assertSame( 10, has_action( 'save_post', array( $admin, 'save_meta_boxes' ) ) );
 			$this->assertSame( 10, has_action( 'load-edit.php', array( $admin, 'toggle_topic' ) ) );
 			$this->assertSame( 10, has_action( 'load-edit.php', array( $admin, 'toggle_topic_notice' ) ) );
-			$this->assertSame( 10, has_filter( 'restrict_manage_posts', array( $admin, 'filter_dropdown' ) ) );
+			$this->assertSame( 10, has_action( 'restrict_manage_posts', array( $admin, 'filter_dropdown' ) ) );
 			$this->assertSame( 10, has_filter( 'bbp_request', array( $admin, 'filter_post_rows' ) ) );
-			$this->assertSame( 10, has_filter( 'manage_posts_extra_tablenav', array( $admin, 'filter_empty_spam' ) ) );
+			$this->assertSame( 10, has_action( 'manage_posts_extra_tablenav', array( $admin, 'filter_empty_spam' ) ) );
 		} finally {
 			remove_action( 'bbp_admin_topics_loaded', $observe );
 			$this->remove_admin_hooks( $admin );
