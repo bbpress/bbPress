@@ -31,36 +31,6 @@ parameters:
 			path: src/includes/admin/forums.php
 
 		-
-			message: '#^Array has 2 duplicate keys with value '';\-D'' \('';\-D'', '';\-D''\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: src/includes/admin/parser.php
-
-		-
-			message: '#^Array has 2 duplicate keys with value '';D'' \('';D'', '';D''\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: src/includes/admin/parser.php
-
-		-
-			message: '#^Variable \$elem might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: src/includes/admin/parser.php
-
-		-
-			message: '#^Variable \$key might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: src/includes/admin/parser.php
-
-		-
-			message: '#^Variable \$type might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/includes/admin/parser.php
-
-		-
 			message: '#^Action callback returns int but should not return anything\.$#'
 			identifier: return.void
 			count: 1
