@@ -110,10 +110,14 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @param WP_Post $item Reply post represented by the row.
+	 * @param WP_Post|string $item Reply post, or an empty string when omitted.
 	 * @return string Bulk action checkbox HTML.
 	 */
 	public function column_cb( $item = '' ) {
+		if ( ! ( $item instanceof WP_Post ) ) {
+			return '';
+		}
+
 		return sprintf(
 			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
 			$this->_args['singular'],
@@ -126,9 +130,13 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @param WP_Post $item Reply post represented by the row.
+	 * @param WP_Post|string $item Reply post, or an empty string when omitted.
 	 */
 	public function column_bbp_topic_reply_author( $item = '' ) {
+		if ( ! ( $item instanceof WP_Post ) ) {
+			return;
+		}
+
 		bbp_reply_author_avatar( $item->ID, 50 );
 		echo esc_html( bbp_get_reply_author_display_name( $item->ID ) );
 		echo '<br>';
@@ -142,10 +150,14 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @param WP_Post $item Reply post represented by the row.
+	 * @param WP_Post|string $item Reply post, or an empty string when omitted.
 	 * @return string Reply creation date and time HTML.
 	 */
 	public function column_bbp_reply_created( $item = '' ) {
+		if ( ! ( $item instanceof WP_Post ) ) {
+			return '';
+		}
+
 		return sprintf( '%1$s <br /> %2$s',
 			esc_attr( get_the_date( '', $item ) ),
 			esc_attr( get_the_time( '', $item ) )
@@ -157,10 +169,13 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @param WP_Post $item Reply post represented by the row.
+	 * @param WP_Post|string $item Reply post, or an empty string when omitted.
 	 * @return string Reply content and action links.
 	 */
 	public function column_bbp_reply_content( $item = '' ) {
+		if ( ! ( $item instanceof WP_Post ) ) {
+			return '';
+		}
 
 		// Define actions array
 		$actions = array(

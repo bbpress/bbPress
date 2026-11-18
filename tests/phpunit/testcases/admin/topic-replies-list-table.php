@@ -65,6 +65,30 @@ class BBP_Tests_Admin_Topic_Replies_List_Table extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Topic_Replies_List_Table::column_cb
+	 * @covers BBP_Topic_Replies_List_Table::column_bbp_topic_reply_author
+	 * @covers BBP_Topic_Replies_List_Table::column_bbp_reply_created
+	 * @covers BBP_Topic_Replies_List_Table::column_bbp_reply_content
+	 */
+	public function test_columns_without_reply_item_return_empty_output() {
+		$list_table = new BBP_Topic_Replies_List_Table();
+
+		$this->assertSame( '', $list_table->column_cb() );
+		$this->assertSame( '', $list_table->column_bbp_reply_created() );
+		$this->assertSame( '', $list_table->column_bbp_reply_content() );
+
+		ob_start();
+		try {
+			$this->assertNull( $list_table->column_bbp_topic_reply_author() );
+			$output = ob_get_contents();
+		} finally {
+			ob_end_clean();
+		}
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
 	 * @covers BBP_Topic_Replies_List_Table::column_bbp_topic_reply_author
 	 */
 	public function test_author_name_and_email_are_escaped() {

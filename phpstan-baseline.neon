@@ -31,30 +31,6 @@ parameters:
 			path: src/includes/admin/classes/class-bbp-admin.php
 
 		-
-			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_reply_content\(\) is incompatible with type WP_Post\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
-
-		-
-			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_reply_created\(\) is incompatible with type WP_Post\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
-
-		-
-			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_bbp_topic_reply_author\(\) is incompatible with type WP_Post\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
-
-		-
-			message: '#^Default value of the parameter \#1 \$item \(string\) of method BBP_Topic_Replies_List_Table\:\:column_cb\(\) is incompatible with type WP_Post\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: src/includes/admin/classes/class-bbp-topic-replies-list-table.php
-
-		-
 			message: '#^Action callback returns int but should not return anything\.$#'
 			identifier: return.void
 			count: 1
