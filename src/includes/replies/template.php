@@ -2462,7 +2462,7 @@ function bbp_get_reply_class( $reply_id = 0, $classes = array() ) {
 		: 'odd';
 
 	// Forum moderator replied to topic
-	$forum_moderator = ( bbp_is_user_forum_moderator( $author_id, $forum_id ) === $author_id )
+	$forum_moderator = ( ! empty( $author_id ) && ! empty( $forum_id ) && bbp_is_user_forum_moderator( $author_id, $forum_id ) )
 		? 'forum-mod'
 		: '';
 

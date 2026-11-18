@@ -2207,7 +2207,7 @@ function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
 		: 'odd';
 
 	// User is moderator of forum
-	$forum_moderator = ( bbp_is_user_forum_moderator( $author_id, $forum_id ) === $author_id )
+	$forum_moderator = ( ! empty( $author_id ) && ! empty( $forum_id ) && bbp_is_user_forum_moderator( $author_id, $forum_id ) )
 		? 'forum-mod'
 		: '';
 

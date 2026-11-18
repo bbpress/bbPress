@@ -654,6 +654,29 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_forum_class
+	 */
+	public function test_bbp_get_forum_class_marks_moderators_without_marking_anonymous_authors() {
+		$author_id      = $this->factory->user->create();
+		$forum_id       = $this->factory->forum->create( array( 'post_author' => $author_id ) );
+		$anonymous_id   = $this->factory->forum->create( array( 'post_author' => 0 ) );
+		$original_user  = get_current_user_id();
+
+		bbp_set_user_role( $author_id, bbp_get_participant_role() );
+		$this->assertStringNotContainsString( 'forum-mod', bbp_get_forum_class( $forum_id ) );
+		bbp_add_moderator( $forum_id, $author_id );
+		bbp_add_moderator( $anonymous_id, $author_id );
+
+		try {
+			$this->set_current_user( $author_id );
+			$this->assertStringContainsString( 'forum-mod', bbp_get_forum_class( $forum_id ) );
+			$this->assertStringNotContainsString( 'forum-mod', bbp_get_forum_class( $anonymous_id ) );
+		} finally {
+			$this->set_current_user( $original_user );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_single_forum_description
 	 * @covers ::bbp_get_single_forum_description
 	 */

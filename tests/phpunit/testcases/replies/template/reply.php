@@ -694,6 +694,30 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_reply_class
+	 */
+	public function test_bbp_get_reply_class_marks_moderators_without_marking_anonymous_authors() {
+		$author_id     = $this->factory->user->create();
+		$forum_id      = $this->factory->forum->create();
+		$topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id      = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $author_id ) );
+		$anonymous_id  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => 0 ) );
+		$original_user = get_current_user_id();
+
+		bbp_set_user_role( $author_id, bbp_get_participant_role() );
+		$this->assertStringNotContainsString( 'forum-mod', bbp_get_reply_class( $reply_id ) );
+		bbp_add_moderator( $forum_id, $author_id );
+
+		try {
+			$this->set_current_user( $author_id );
+			$this->assertStringContainsString( 'forum-mod', bbp_get_reply_class( $reply_id ) );
+			$this->assertStringNotContainsString( 'forum-mod', bbp_get_reply_class( $anonymous_id ) );
+		} finally {
+			$this->set_current_user( $original_user );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_topic_pagination_count
 	 * @covers ::bbp_get_topic_pagination_count
 	 */
