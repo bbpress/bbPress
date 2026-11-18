@@ -50,7 +50,7 @@ function bbp_get_admin_repair_tool_page_id() {
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @param array $args Query arguments for the repair tool page URL.
+ * @param array<string, mixed> $args Query arguments for the repair tool page URL.
  *
  * @return string
  */
@@ -72,7 +72,8 @@ function bbp_get_admin_repair_tool_page_url( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $component Repair tool registration.
+ * @param array<string, mixed> $component Repair tool registration.
+ * @return void
  */
 function bbp_admin_repair_tool_run_url( $component = array() ) {
 	echo esc_url( bbp_get_admin_repair_tool_run_url( $component ) );
@@ -83,7 +84,7 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $component Repair tool registration.
+ * @param array<string, mixed> $component Repair tool registration.
  * @return string URL to run the repair tool.
  */
 function bbp_get_admin_repair_tool_run_url( $component = array() ) {
@@ -95,7 +96,7 @@ function bbp_get_admin_repair_tool_run_url( $component = array() ) {
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @param array  $component Repair tool registration.
+ * @param array<string, mixed> $component Repair tool registration.
  * @param string $action    Repair tool action.
  * @return string
  */
@@ -143,8 +144,8 @@ function bbp_get_admin_repair_tool_action_url( $component = array(), $action = '
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @param array $tool Repair tool registration.
- * @return array
+ * @param array<string, mixed> $tool Repair tool registration.
+ * @return array<string, mixed> Action-keyed callbacks.
  */
 function bbp_get_admin_repair_tool_callbacks( $tool = array() ) {
 	$callbacks = ! empty( $tool['callbacks'] )
@@ -188,7 +189,7 @@ function bbp_get_admin_repair_tool_callbacks( $tool = array() ) {
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @param array  $tool   Repair tool registration.
+ * @param array<string, mixed> $tool Repair tool registration.
  * @param string $action Repair tool action.
  * @return callable|false Callback for the action, or false if unavailable.
  */
@@ -212,7 +213,7 @@ function bbp_get_admin_repair_tool_callback( $tool = array(), $action = 'run' ) 
  *
  * @param callable $callback Repair tool callback.
  * @param string   $action   Repair tool action.
- * @param array    $tool     Complete repair tool registration.
+ * @param array<string, mixed> $tool Complete repair tool registration.
  * @return mixed Callback result.
  */
 function bbp_admin_repair_tool_invoke_callback( $callback, $action, $tool ) {
@@ -234,8 +235,8 @@ function bbp_admin_repair_tool_invoke_callback( $callback, $action, $tool ) {
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @param array $tools Repair tool registrations.
- * @return array
+ * @param array<int|string, array<string, mixed>> $tools Repair tool registrations.
+ * @return list<string> Registered action names.
  */
 function bbp_get_admin_repair_tool_actions( $tools = array() ) {
 	$actions = array();
@@ -286,7 +287,8 @@ function bbp_admin_repair_tool_action_label( $action = '' ) {
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @param array $tools Repair tool registrations.
+ * @param array<int|string, array<string, mixed>> $tools Repair tool registrations.
+ * @return void
  */
 function bbp_admin_repair_tool_bulk_actions( $tools = array() ) {
 	foreach ( bbp_get_admin_repair_tool_actions( $tools ) as $action ) {
@@ -303,7 +305,8 @@ function bbp_admin_repair_tool_bulk_actions( $tools = array() ) {
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @param array $tool Repair tool registration.
+ * @param array<string, mixed> $tool Repair tool registration.
+ * @return void
  */
 function bbp_admin_repair_tool_row_actions( $tool = array() ) {
 	$links = array();
@@ -371,7 +374,7 @@ function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = t
  * @since 2.7.0 bbPress (r8252)
  *
  * @param mixed $result Repair tool callback result.
- * @return array|false Normalized result, or false for an invalid result.
+ * @return array{success:bool, complete:bool, message:string|WP_Error, batches:int}|false Normalized result, or false for an invalid result.
  */
 function bbp_admin_repair_tool_normalize_result( $result = array() ) {
 	if ( ! is_array( $result ) || ! isset( $result[1] ) || ( ! is_string( $result[1] ) && ! is_wp_error( $result[1] ) ) ) {
@@ -472,11 +475,11 @@ function bbp_admin_repair_tool_batch_message( $details, $complete, $dry_run = fa
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @param array  $batch     Worker status, including code, error, and complete.
+ * @param array<string, mixed> $batch Worker status, including code, error, and complete.
  * @param string $statement Translated status statement.
  * @param string $detail    Translated success detail.
  * @param bool   $dry_run   Whether to omit Run progress text.
- * @return array Tool result and completion flag.
+ * @return array<int|string, mixed> Tool result and completion flag.
  */
 function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $dry_run = false ) {
 	if ( $batch['code'] ) {
@@ -518,13 +521,13 @@ function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $
  * @since 2.7.0 bbPress (r8350)
  * @access private
  *
- * @param array  $batch          Worker result.
+ * @param array<string, mixed> $batch Worker result.
  * @param string $statement      Translated status statement with one placeholder.
  * @param string $detail         Translated success detail.
  * @param bool   $dry_run        Whether this is a read-only preview.
  * @param bool   $no_changes     Whether the completed operation found no work.
  * @param string $no_change_text Translated completed no-op detail.
- * @return array Tool callback result.
+ * @return array<int|string, mixed> Tool callback result.
  */
 function bbp_admin_repair_tool_present_batch( $batch, $statement, $detail = '', $dry_run = false, $no_changes = false, $no_change_text = '' ) {
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, ! empty( $batch['restarted'] ), $dry_run );
@@ -551,13 +554,13 @@ function bbp_admin_repair_tool_present_batch( $batch, $statement, $detail = '', 
  *
  * @since 2.7.0 bbPress (r8288)
  *
- * @param array    $args     User query arguments.
+ * @param array<string, mixed> $args User query arguments.
  * @param int      $cursor   Last completed user ID.
  * @param int      $upper_id Fixed upper user ID.
  * @param int      $size     Work budget, with one additional lookahead row.
  * @param int|null $matched  Optional output of raw matching rows, including lookahead.
  * @param-out int   $matched  Raw matching rows, including lookahead.
- * @return array|false User IDs, or false on a read failure or invalid results.
+ * @return list<int>|false User IDs, or false on a read failure or invalid results.
  */
 function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$matched = null ) {
 	$db         = bbp_db();
@@ -613,8 +616,8 @@ function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$m
  *
  * @since 2.7.0 bbPress (r8281)
  *
- * @param array $topic_statuses Countable topic statuses.
- * @param array $reply_statuses Countable reply statuses.
+ * @param list<string> $topic_statuses Countable topic statuses.
+ * @param list<string> $reply_statuses Countable reply statuses.
  * @param bool  $anonymous      Whether to retain anonymous authors.
  * @return string Prepared relationship query.
  */
@@ -649,7 +652,7 @@ function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $rep
  * @param string                $meta_type Metadata type: 'post' or 'user'.
  * @param object                $row       Source metadata row.
  * @param string                $key       Canonical metadata key.
- * @param int|string|array|null $value     Repaired value, or null to remove the row.
+ * @param int|string|array<int|string, mixed>|null $value Repaired value, or null to remove the row.
  * @return int Zero on success, or a read, delete, or update error code.
  */
 function bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value ) {
@@ -694,8 +697,8 @@ function bbp_admin_repair_metadata_row( $meta_type, $row, $key, $value ) {
  *
  * @param string $meta_type Metadata type: 'post' or 'user'.
  * @param string $key       Canonical metadata key.
- * @param array  $expected  Object IDs mapped to values, or null for absence.
- * @return array|false Mismatched object IDs, or false on a read error.
+ * @param array<int, mixed> $expected Object IDs mapped to values, or null for absence.
+ * @return list<int>|false Mismatched object IDs, or false on a read error.
  */
 function bbp_admin_repair_metadata_mismatches( $meta_type, $key, $expected ) {
 	$status = bbp_admin_repair_metadata_status( $meta_type, $key, $expected );
@@ -713,8 +716,8 @@ function bbp_admin_repair_metadata_mismatches( $meta_type, $key, $expected ) {
  *
  * @param string $meta_type Metadata type: 'post' or 'user'.
  * @param string $key       Canonical metadata key.
- * @param array  $expected  Object IDs mapped to values, or null for absence.
- * @return array|false Change status by object ID, or a read error.
+ * @param array<int, mixed> $expected Object IDs mapped to values, or null for absence.
+ * @return array<int, array{changed:bool}>|false Change status by object ID, or a read error.
  */
 function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 	if ( ! in_array( $meta_type, array( 'post', 'user' ), true ) ) {
@@ -801,8 +804,8 @@ function bbp_admin_repair_metadata_update( $meta_type, $object_id, $key, $value 
  * @param string           $meta_type Metadata type: 'post' or 'user'.
  * @param int              $object_id Object ID.
  * @param string           $key       Canonical metadata key.
- * @param int|string|array $value     Replacement value.
- * @return array Status code and verified metadata ID.
+ * @param int|string|array<int|string, mixed> $value Replacement value.
+ * @return array{code:int, meta_id:int} Status code and verified metadata ID.
  */
 function bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value ) {
 	$result = array(
@@ -879,11 +882,11 @@ function bbp_admin_repair_metadata_add( $meta_type, $object_id, $key, $value ) {
  * @param string                $meta_type Metadata type: 'post' or 'user'.
  * @param int                   $object_id Object ID.
  * @param string                $key       Metadata key.
- * @param int|string|array|null $value     Expected value, or null when no row should remain.
+ * @param int|string|array<int|string, mixed>|null $value Expected value, or null when no row should remain.
  * @param int                   $limit     Maximum metadata writes to plan or perform.
  * @param bool                  $dry_run   Whether to preview without writes.
  * @param array|null            $preview   Request-local Dry Run progress for this field.
- * @return array Status code, work used, changed flag, and completion flag.
+ * @return array{code:int, work:int, operations:int, changed:bool, complete:bool} Status code, work used, changed flag, and completion flag.
  */
 function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value, $limit, $dry_run = false, &$preview = null ) {
 	$bbp_db     = bbp_db();
@@ -1011,12 +1014,12 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  *
  * @since 2.7.0 bbPress (r8281)
  *
- * @param array         $rows    Selected metadata rows, including is_source flags.
+ * @param array<int, object> $rows Selected metadata rows, including is_source flags.
  * @param string        $source Prepared source relationship query.
  * @param bool          $dry_run Whether to preview without writes or cache invalidation.
  * @param array         $planned Relationships already counted by a synchronous preview.
  * @param callable|null $claim   Optional bounded cross-request relationship claim.
- * @return array Status, failure reason, additions, removals, changed topic IDs, and cursor.
+ * @return array{code:int, error:string, added:int, removed:int, topics:array<int, bool>, cursor:int} Status, failure reason, additions, removals, changed topic IDs, and cursor.
  */
 function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$planned = array(), $claim = null ) {
 	$bbp_db = bbp_db();
@@ -1101,7 +1104,7 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
  * @param string $option_name    Option name.
  * @param mixed  $option_default Default value.
  * @param bool   $filtered       Whether to apply the native option filters.
- * @return array Read success and option value.
+ * @return array{bool, mixed} Read success and option value.
  */
 function bbp_admin_repair_get_option( $option_name, $option_default = false, $filtered = true ) {
 	if ( $filtered ) {
@@ -1281,7 +1284,7 @@ function bbp_admin_repair_tool_scratch_option_name( $tool_id, $token, $collectio
  * @param string $token     Scratch generation token.
  * @param string $collection Logical scratch collection.
  * @param mixed  $key       Stable value key.
- * @return array Read success, existence, and stored value.
+ * @return array{bool, bool, mixed} Read success, existence, and stored value.
  */
 function bbp_admin_repair_tool_scratch_get( $tool_id, $token, $collection, $key ) {
 	$option = bbp_admin_repair_tool_scratch_option_name( $tool_id, $token, $collection, $key );
@@ -1320,7 +1323,7 @@ function bbp_admin_repair_tool_scratch_set( $tool_id, $token, $collection, $key,
  * @param string $token     Scratch generation token.
  * @param string $collection Logical scratch collection.
  * @param mixed  $key       Stable value key.
- * @return array Save success and whether this was the first claim.
+ * @return array{bool, bool} Save success and whether this was the first claim.
  */
 function bbp_admin_repair_tool_scratch_claim( $tool_id, $token, $collection, $key ) {
 	// Individual option names provide indexed, cross-batch deduplication without
@@ -1343,7 +1346,7 @@ function bbp_admin_repair_tool_scratch_claim( $tool_id, $token, $collection, $ke
  *
  * @param string $tool_id Repair or upgrade tool ID.
  * @param int    $limit   Maximum options to inspect.
- * @return array Cleanup success, work used, and completion flag.
+ * @return array{bool, int, bool} Cleanup success, work used, and completion flag.
  */
 function bbp_admin_repair_tool_cleanup_scratch( $tool_id, $limit ) {
 	$created   = array();
@@ -1388,7 +1391,7 @@ function bbp_admin_repair_tool_has_scratch( $tool_id ) {
  * @param string $tool_id    Repair or upgrade tool ID.
  * @param string $token      Scratch generation token.
  * @param string $collection Logical scratch collection.
- * @return array|false Stored chunks, or false after a read failure.
+ * @return list<mixed>|false Stored chunks, or false after a read failure.
  */
 function bbp_admin_repair_tool_scratch_values( $tool_id, $token, $collection ) {
 	$db     = bbp_db();
@@ -1415,7 +1418,7 @@ function bbp_admin_repair_tool_scratch_values( $tool_id, $token, $collection ) {
  * @param string $collection Logical scratch collection.
  * @param string $field      Chunk field containing ordered values.
  * @param int    $end        Expected exclusive end offset.
- * @return array|false Ordered values, or false on invalid scratch data.
+ * @return list<mixed>|false Ordered values, or false on invalid scratch data.
  */
 function bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, $field, $end ) {
 	$chunks = bbp_admin_repair_tool_scratch_values( $tool_id, $token, $collection );
@@ -1462,7 +1465,7 @@ function bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, $f
  *
  * @param array $state Saved worker checkpoint, passed by reference.
  * @param array $batch Batch status, passed by reference.
- * @param array $reset Worker fields to reset for the current source row.
+ * @param array<string, mixed> $reset Worker fields to reset for the current source row.
  * @return bool Whether the collection was restarted.
  */
 function bbp_admin_repair_tool_restart_scratch( &$state, &$batch, $reset ) {
@@ -1491,7 +1494,7 @@ function bbp_admin_repair_tool_restart_scratch( &$state, &$batch, $reset ) {
  * @param string|null $action  Tool action, or null to read the context.
  * @param string      $run_id  Saved-run owner.
  * @param bool        $started Whether the current tool has processed a batch.
- * @return array Current action, run owner, and tool state.
+ * @return array{action:string, run_id:string, started:bool} Current action, run owner, and tool state.
  */
 function bbp_admin_repair_tool_execution_context( $action = null, $run_id = '', $started = false ) {
 	static $context = array(
@@ -1546,8 +1549,8 @@ function bbp_admin_repair_tool_is_async_dry_run() {
  * @since 2.7.0 bbPress (r8339)
  * @access private
  *
- * @param array $fields Worker-specific result fields.
- * @return array Complete initial batch result.
+ * @param array<string, mixed> $fields Worker-specific result fields.
+ * @return array<string, mixed> Complete initial batch result.
  */
 function bbp_admin_repair_tool_batch_status( $fields = array() ) {
 	return array_merge(
@@ -1612,8 +1615,8 @@ function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validat
  * @param array  $batch   Current worker result.
  * @param bool   $complete Whether this operation completed.
  * @param bool   $dry_run Whether this is a read-only preview.
- * @param array  $fields  Aggregate result fields to save.
- * @param array  $data    Worker-local simulation data.
+ * @param list<string> $fields Aggregate result fields to save.
+ * @param array<string, mixed> $data Worker-local simulation data.
  * @return bool Whether the checkpoint was saved or removed.
  */
 function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete, $dry_run = false, $fields = array(), $data = array() ) {
@@ -1637,7 +1640,7 @@ function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete
  * @since 2.7.0 bbPress (r8339)
  * @access private
  *
- * @param array $batch   Current worker result.
+ * @param array<string, mixed> $batch Current worker result.
  * @param bool  $dry_run Whether this is a read-only preview.
  * @return bool Whether another simulated Dry Run batch may run.
  */
@@ -1651,10 +1654,10 @@ function bbp_admin_repair_tool_batch_continue( $batch, $dry_run = false ) {
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
- * @param array $state  Saved worker checkpoint.
+ * @param array<string, mixed> $state Saved worker checkpoint.
  * @param array $batch  Current worker result.
- * @param array $fields Aggregate result fields to restore.
- * @return array Worker-local simulation data.
+ * @param list<string> $fields Aggregate result fields to restore.
+ * @return array<string, mixed> Worker-local simulation data.
  */
 function bbp_admin_repair_tool_restore_preview( $state, &$batch, $fields = array() ) {
 	if ( ! bbp_admin_repair_tool_is_async_dry_run() || empty( $state['_preview_state'] )
@@ -1681,9 +1684,10 @@ function bbp_admin_repair_tool_restore_preview( $state, &$batch, $fields = array
  * @access private
  *
  * @param array $state  Worker checkpoint to update.
- * @param array $batch  Current worker result.
- * @param array $fields Aggregate result fields to save.
- * @param array $data   Worker-local simulation data.
+ * @param array<string, mixed> $batch Current worker result.
+ * @param list<string> $fields Aggregate result fields to save.
+ * @param array<string, mixed> $data Worker-local simulation data.
+ * @return void
  */
 function bbp_admin_repair_tool_store_preview( &$state, $batch, $fields = array(), $data = array() ) {
 	if ( ! bbp_admin_repair_tool_is_async_dry_run() ) {
@@ -1710,7 +1714,7 @@ function bbp_admin_repair_tool_store_preview( &$state, $batch, $fields = array()
  *
  * @param string $tool_id Repair or upgrade tool ID.
  * @param bool   $dry_run  Whether to start a fresh, read-only preview.
- * @return array Read success and checkpoint, or false when no checkpoint exists.
+ * @return array{bool, mixed} Read success and checkpoint, or false when no checkpoint exists.
  */
 function bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run = false ) {
 	if ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) {
@@ -1732,7 +1736,7 @@ function bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run = false ) {
  * @param callable $validator Checkpoint validator, accepting state and context.
  * @param mixed    $context   Validator context or extra integer field names.
  * @param bool     $dry_run   Whether to start a fresh, read-only preview.
- * @return array Read success, usable checkpoint or false, and restart flag.
+ * @return array{bool, mixed, bool} Read success, usable checkpoint or false, and restart flag.
  */
 function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false ) {
 	if ( ! is_callable( $validator ) ) {
@@ -1755,9 +1759,9 @@ function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admi
  * @access private
  *
  * @param mixed $state          Saved worker checkpoint.
- * @param array $integer_fields Nonnegative integer total fields.
- * @param array $boolean_fields Boolean total fields.
- * @param array $array_fields   Array data fields.
+ * @param list<string> $integer_fields Nonnegative integer total fields.
+ * @param list<string> $boolean_fields Boolean total fields.
+ * @param list<string> $array_fields Array data fields.
  * @return bool Whether the aggregate preview state is valid.
  */
 function bbp_admin_repair_tool_is_valid_preview_state( $state, $integer_fields = array(), $boolean_fields = array(), $array_fields = array() ) {
@@ -1797,7 +1801,7 @@ function bbp_admin_repair_tool_is_valid_preview_state( $state, $integer_fields =
  * @access private
  *
  * @param mixed $state  Saved checkpoint.
- * @param array $fields Expected identity fields, without changing their layout.
+ * @param array<string, mixed> $fields Expected identity fields, without changing their layout.
  * @return bool Whether the checkpoint matches the expected identity fields.
  */
 function bbp_admin_repair_tool_is_matching_checkpoint( $state, $fields ) {
@@ -1818,7 +1822,7 @@ function bbp_admin_repair_tool_is_matching_checkpoint( $state, $fields ) {
  * @since 2.7.0 bbPress (r8254)
  *
  * @param mixed $state        Saved checkpoint.
- * @param array $extra_fields Additional nonnegative integer fields to check.
+ * @param list<string> $extra_fields Additional nonnegative integer fields to check.
  * @return bool Whether the checkpoint fields and bounds are valid.
  */
 function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = array() ) {
@@ -1872,7 +1876,7 @@ function bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state, $allow_row
  * @param string|null $value  Stored list.
  * @param int         $offset Inclusive byte offset.
  * @param int         $limit  Maximum source tokens to inspect.
- * @return array Parsed positive IDs, next byte offset, work used, and completion flag.
+ * @return array{ids: list<int>, offset: int, work: int, complete: bool} Parsed IDs, offset, work, and completion.
  */
 function bbp_admin_repair_user_meta_id_batch( $value, $offset, $limit ) {
 	$value      = (string) $value;
@@ -1922,7 +1926,7 @@ function bbp_admin_repair_user_meta_id_batch( $value, $offset, $limit ) {
  * @param string|null $value  Stored list.
  * @param int         $offset Inclusive byte offset.
  * @param int         $limit  Maximum source tokens to inspect.
- * @return array Parsed positive IDs, next byte offset, work used, and completion flag.
+ * @return array{ids: list<int>, offset: int, work: int, complete: bool} Parsed IDs, offset, work, and completion.
  */
 function bbp_admin_repair_user_meta_canonical_id_batch( $value, $offset, $limit ) {
 	$value    = (string) $value;
@@ -2031,7 +2035,7 @@ function bbp_admin_repair_user_meta_row( $key, $cursor, $upper_id, &$batch ) {
  * @since 2.7.0 bbPress (r8315) Share read-only Dry Run persistence policy.
  *
  * @param string $tool_id  Repair or upgrade tool ID.
- * @param array  $state    Next batch checkpoint.
+ * @param array<string, mixed> $state Next batch checkpoint.
  * @param bool   $complete Whether the tool has completed.
  * @param bool   $dry_run  Whether to skip storage and cache changes.
  * @return bool Whether the stored checkpoint matches the requested state.
@@ -2088,7 +2092,7 @@ function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
  * @param bool   $dry_run  Whether to preview without writes.
  * @param array  $created  Names created by this preview.
  * @param array  $cleaned  Names already removed by this preview.
- * @return array Success, work performed, and completion.
+ * @return array{bool, int, bool} Success, work performed, and completion.
  */
 function bbp_admin_repair_tool_cleanup_options( $prefix, $limit, $dry_run, &$created, &$cleaned ) {
 	$db    = bbp_db();
@@ -2218,7 +2222,7 @@ function bbp_admin_repair_tool_restart_statement( $statement, $restarted = false
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param array           $tool    Repair tool registration.
+ * @param array<string, mixed> $tool Repair tool registration.
  * @param string|WP_Error $message Repair tool result message.
  * @return string Formatted HTML notice.
  */
@@ -2245,7 +2249,7 @@ function bbp_admin_repair_tool_notice_message( $tool = array(), $message = '' ) 
  * @since 2.6.0 bbPress (r5885)
  *
  * @param string $type repair|upgrade The type of tools to get. Default empty for all tools.
- * @return array
+ * @return array<string, array<string, mixed>>
  */
 function bbp_get_admin_repair_tools( $type = '' ) {
 
@@ -2268,7 +2272,7 @@ function bbp_get_admin_repair_tools( $type = '' ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_admin_repair_tool_registered_components() {
 
@@ -2307,6 +2311,7 @@ function bbp_get_admin_repair_tool_registered_components() {
  * Output the repair list search form.
  *
  * @since 2.6.0 bbPress (r5885)
+ * @return void
  */
 function bbp_admin_repair_list_search_form() {
 ?>
@@ -2324,6 +2329,7 @@ function bbp_admin_repair_list_search_form() {
  * Output a select drop-down of components to filter by.
  *
  * @since 2.6.0 bbPress (r5885)
+ * @return void
  */
 function bbp_admin_repair_list_components_filter() {
 
@@ -2360,7 +2366,7 @@ function bbp_admin_repair_list_components_filter() {
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_admin_repair_tool_registered_versions() {
 
@@ -2410,6 +2416,7 @@ function bbp_get_admin_repair_tool_registered_versions() {
  * Output a select drop-down of versions to filter by.
  *
  * @since 2.6.0 bbPress (r6894)
+ * @return void
  */
 function bbp_admin_repair_list_versions_filter() {
 
@@ -2558,7 +2565,7 @@ function bbp_admin_repair_tool_translate_version( $version = '' ) {
  * @since 2.1.0 bbPress (r3884)
  *
  * @param string $type Repair tool type to list.
- * @return array Repair list of options.
+ * @return array<int, array<string, mixed>> Repair list of options.
  */
 function bbp_admin_repair_list( $type = 'repair' ) {
 
@@ -2682,8 +2689,8 @@ function bbp_admin_repair_list( $type = 'repair' ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $item Repair tool entry containing components.
- * @return array
+ * @param array<string, mixed> $item Repair tool entry containing components.
+ * @return list<string>
  */
 function bbp_get_admin_repair_tool_components( $item = array() ) {
 
@@ -2719,8 +2726,8 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @param array $item Repair tool entry containing versions.
- * @return array
+ * @param array<string, mixed> $item Repair tool entry containing versions.
+ * @return list<string>
  */
 function bbp_get_admin_repair_tool_version( $item = array() ) {
 
@@ -2756,8 +2763,8 @@ function bbp_get_admin_repair_tool_version( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r6176)
  *
- * @param array $item Repair tool entry containing overhead values.
- * @return array
+ * @param array<string, mixed> $item Repair tool entry containing overhead values.
+ * @return list<string>
  */
 function bbp_get_admin_repair_tool_overhead( $item = array() ) {
 
@@ -2795,7 +2802,8 @@ function bbp_get_admin_repair_tool_overhead( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $args Display options for overhead filter links.
+ * @param array<string, mixed> $args Display options for overhead filter links.
+ * @return void
  */
 function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 	echo bbp_get_admin_repair_tool_overhead_filters( $args );
@@ -2806,7 +2814,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param array $args Display options for overhead filter links.
+ * @param array<string, mixed> $args Display options for overhead filter links.
  * @return string Filter links for repair tool overheads.
  */
 function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
@@ -2928,7 +2936,8 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6926)
  *
- * @param array $args Display options for status filter links.
+ * @param array<string, mixed> $args Display options for status filter links.
+ * @return void
  */
 function bbp_admin_repair_tool_status_filters( $args = array() ) {
 	echo bbp_get_admin_repair_tool_status_filters( $args );
@@ -2939,7 +2948,7 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6926)
  *
- * @param array $args Display options for status filter links.
+ * @param array<string, mixed> $args Display options for status filter links.
  * @return string Filter links for repair tool statuses.
  */
 function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
