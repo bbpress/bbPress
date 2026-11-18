@@ -25,7 +25,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Field mapping used during conversion.
 	 *
-	 * @var array
+	 * @var array<int, array<string, mixed>>
 	 */
 	protected $field_map = array();
 
@@ -60,35 +60,35 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Cached topic to forum ID mappings.
 	 *
-	 * @var array
+	 * @var array<int|string, int|string>
 	 */
 	protected $map_topicid_to_forumid = array();
 
 	/**
 	 * Cached source to destination forum ID mappings.
 	 *
-	 * @var array
+	 * @var array<int|string, int|string>
 	 */
 	protected $map_forumid = array();
 
 	/**
 	 * Cached source to destination topic ID mappings.
 	 *
-	 * @var array
+	 * @var array<int|string, int|string>
 	 */
 	protected $map_topicid = array();
 
 	/**
 	 * Cached source to destination reply ID mappings.
 	 *
-	 * @var array
+	 * @var array<int|string, int|string>
 	 */
 	protected $map_reply_to = array();
 
 	/**
 	 * Cached source to destination user ID mappings.
 	 *
-	 * @var array
+	 * @var array<int|string, int|string>
 	 */
 	protected $map_userid = array();
 
@@ -130,7 +130,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * BBCode parser property overrides.
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	public $bbcode_parser_properties = array();
 
@@ -148,6 +148,8 @@ abstract class BBP_Converter_Base {
 	 * Initialize the converter
 	 *
 	 * @since 2.6.0 bbPress (r6456)
+	 *
+	 * @return void
 	 */
 	private function init() {
 
@@ -296,6 +298,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * Setup global values.
+	 *
+	 * @return void
 	 */
 	public function setup_globals() {}
 
@@ -303,6 +307,8 @@ abstract class BBP_Converter_Base {
 	 * Setup fields that require an active source database connection.
 	 *
 	 * @since 2.6.18 bbPress (r7589)
+	 *
+	 * @return void
 	 */
 	protected function setup_source_fields() {}
 
@@ -764,7 +770,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @since 2.6.18 bbPress (r7601)
 	 *
-	 * @param array $post_data Converted post data.
+	 * @param array<string, mixed> $post_data Converted post data.
 	 * @return int|WP_Error Post ID on success, WP_Error on failure.
 	 */
 	protected function insert_post( $post_data = array() ) {
@@ -1276,7 +1282,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param string $query SQL query to run.
 	 * @param string $output Result format. Defaults to OBJECT.
-	 * @return array Query rows.
+	 * @return array<int|string, object|array<string, mixed>> Query rows.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
 		$this->update_query( $query );
@@ -1332,7 +1338,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $query       The literal MySQL results query.
 	 * @param string $count_query The literal MySQL count query.
 	 * @param int    $start       Current conversion offset.
-	 * @return array Rows returned for this conversion batch.
+	 * @return array<int, object> Rows returned for this conversion batch.
 	 */
 	private function count_rows_by_results( $query = '', $count_query = '', $start = 0 ) {
 		$results      = $this->get_results( $query );
@@ -1369,7 +1375,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.18 bbPress (r7589)
 	 *
 	 * @param string $serialized_pass Serialized password metadata.
-	 * @return array|false Password metadata, or false when invalid.
+	 * @return array<int|string, mixed>|false Password metadata, or false when invalid.
 	 */
 	protected function unserialize_pass( $serialized_pass = '' ) {
 		if ( ! is_string( $serialized_pass ) || ! is_serialized( $serialized_pass ) || $this->serialized_pass_has_object( $serialized_pass ) ) {

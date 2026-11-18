@@ -63,7 +63,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	private $preview_plans = array();
 
@@ -72,7 +72,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @var array
+	 * @var array<string, bool>
 	 */
 	private $inspected_options = array();
 
@@ -99,7 +99,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @var array
+	 * @var array{groups:int, forums:int, statuses:int, root:int, rename:int, roles:list<string>}
 	 */
 	private $counts = array(
 		'groups'   => 0,
@@ -134,7 +134,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 * @since 2.7.0 bbPress (r8331) Support complete browser Dry Runs across requests.
 	 *
-	 * @return array Migration result, continuation state, and aggregate totals.
+	 * @return array<string, mixed> Migration result, continuation state, and aggregate totals.
 	 */
 	public function run() {
 		list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
@@ -204,7 +204,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $state Saved checkpoint.
+	 * @param array<string, mixed> $state Saved checkpoint.
 	 * @return bool Whether the checkpoint can be resumed.
 	 */
 	private function valid_state( $state ) {
@@ -236,7 +236,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @return array|false New checkpoint, or false after a database failure.
+	 * @return array<string, mixed>|false New checkpoint, or false after a database failure.
 	 */
 	protected function new_state() {
 		$upper = (int) $this->db->get_var( $this->db->prepare( "SELECT MAX(ID) FROM {$this->db->posts} WHERE post_type = %s", $this->forum_post_type ) );
@@ -322,6 +322,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param string $phase Next migration phase.
+	 * @return void
 	 */
 	private function next_phase( $phase ) {
 		$this->state['phase']  = $phase;
@@ -334,7 +335,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param mixed $value Possible ID list.
-	 * @return array|false Normalized IDs, or false when a member is invalid.
+	 * @return int[]|false Normalized IDs, or false when a member is invalid.
 	 */
 	private function parse_id_list( $value ) {
 		if ( is_string( $value ) ) {
@@ -363,7 +364,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @param int    $id         Object ID.
 	 * @param string $key        Metadata key.
 	 * @param string $read_error Failure reason for a failed database read.
-	 * @return array|false Stored field description, or false on failure.
+	 * @return array<string, mixed>|false Stored field description, or false on failure.
 	 */
 	private function read_field( $table, $column, $id, $key, $read_error ) {
 		$field = $this->db->get_row( $this->db->prepare( "SELECT COUNT(*) AS rows_found, MIN(meta_value) AS value, MIN(meta_key) AS field_key FROM `{$table}` WHERE `{$column}` = %d AND meta_key = %s", $id, $key ), ARRAY_A );
@@ -389,7 +390,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param int $id Forum ID.
-	 * @return array|false Forum migration source, or false on failure.
+	 * @return array<string, mixed>|false Forum migration source, or false on failure.
 	 */
 	private function read_forum_source( $id ) {
 		$post = $this->db->get_row( $this->db->prepare( "SELECT ID, post_status FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->forum_post_type ) );
@@ -434,7 +435,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param int $id Group ID.
-	 * @return array|false Group migration source, or false on failure.
+	 * @return array<string, mixed>|false Group migration source, or false on failure.
 	 */
 	private function read_group_forum_source( $id ) {
 		$field = $this->read_field( $this->groupmeta_table, 'group_id', $id, 'forum_id', 'groupmeta-read' );
@@ -541,7 +542,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $plan Forum migration plan.
+	 * @param array<string, mixed> $plan Forum migration plan.
 	 * @return bool Whether the live source still matches.
 	 */
 	private function source_matches( $plan ) {
@@ -600,6 +601,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param int $id Forum ID.
+	 * @return void
 	 */
 	private function index_forum( $id ) {
 		$plan = $this->state['group_marker_offset'] ? $this->read_plan( 'forum_' . $id ) : $this->read_forum_source( $id );
@@ -654,6 +656,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @param string $key Claim key.
 	 * @param int    $id  Forum ID.
+	 * @return void
 	 */
 	private function claim( $key, $id ) {
 		$claimed = $this->read_plan( $key );
@@ -671,7 +674,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $plan   Forum migration plan.
+	 * @param array<string, mixed> $plan Forum migration plan.
 	 * @param bool  $verify Whether to verify a previously selected mapping.
 	 * @return bool Whether candidate planning is complete for this forum.
 	 */
@@ -741,7 +744,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $plan   Forum migration plan.
+	 * @param array<string, mixed> $plan Forum migration plan.
 	 * @param int   $group  Selected group ID, or zero when no group matches.
 	 * @param bool  $update Whether the group's legacy marker needs updating.
 	 * @return bool True after the plan has been finalized.
@@ -792,7 +795,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $source Group migration source.
+	 * @param array<string, mixed> $source Group migration source.
 	 * @return string Target forum status, or an empty string when unchanged.
 	 */
 	private function group_visibility_target( $source ) {
@@ -834,7 +837,8 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $plan Forum migration plan.
+	 * @param array<string, mixed> $plan Forum migration plan.
+	 * @return void
 	 */
 	private function apply_plan( $plan ) {
 		$id       = $plan['id'];
@@ -898,7 +902,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @return array|false Root forum source, or false on failure.
+	 * @return array<string, mixed>|false Root forum source, or false on failure.
 	 */
 	private function read_root_source() {
 		$legacy_root_id = function_exists( 'bp_forums_parent_forum_id' ) ? bp_forums_parent_forum_id() : ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ? (int) BP_FORUMS_PARENT_FORUM_ID : 1 );
@@ -928,6 +932,8 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 * Fixed-size finalization runs only after every relationship plan succeeds.
 	 *
 	 * @since 2.7.0 bbPress (r8315)
+	 *
+	 * @return void
 	 */
 	private function finalize_root() {
 		$planned = $this->read_plan( 'root' );
