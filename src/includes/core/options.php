@@ -338,6 +338,8 @@ function bbp_filter_default_option( $default = false, $option = '', $passed_defa
  * Loads & caches bbPress options if a persistent cache is not being used.
  *
  * @since 2.6.0 bbPress (r6544)
+ *
+ * @return mixed Intercepted result, or null when option loading is skipped or finished.
  */
 function bbp_pre_load_options() {
 

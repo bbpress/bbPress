@@ -76,7 +76,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		add_action( 'bbp_enqueue_scripts',         array( $this, 'enqueue_styles'        ) ); // Enqueue theme CSS
 		add_action( 'bbp_enqueue_scripts',         array( $this, 'enqueue_scripts'       ) ); // Enqueue theme JS
-		add_filter( 'bbp_enqueue_scripts',         array( $this, 'localize_topic_script' ) ); // Enqueue theme script localization
+		add_action( 'bbp_enqueue_scripts',         array( $this, 'localize_topic_script' ) ); // Enqueue theme script localization
 		add_action( 'bbp_ajax_favorite',           array( $this, 'ajax_favorite'         ) ); // Handles the topic ajax favorite/unfavorite
 		add_action( 'bbp_ajax_subscription',       array( $this, 'ajax_subscription'     ) ); // Handles the topic ajax subscribe/unsubscribe
 
@@ -223,6 +223,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3734)
 	 * @since 2.7.0 bbPress (r8370) Support topic-tag subscription links.
+	 * @return void
 	 */
 	public function localize_topic_script() {
 

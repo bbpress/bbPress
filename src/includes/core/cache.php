@@ -145,6 +145,7 @@ class BBP_Skip_Children {
  *
  * @param int     $post_id ID supplied by clean_post_cache. The post object supplies the ID used here.
  * @param WP_Post $post    Required post object supplied by clean_post_cache.
+ * @return void
  */
 function bbp_clean_post_cache( $post_id = null, $post = null ) {
 

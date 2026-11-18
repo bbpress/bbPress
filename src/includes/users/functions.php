@@ -1112,6 +1112,7 @@ function bbp_update_counts_on_user_reassignment( $user_id = 0, $reassign = null 
  * @since 2.6.0 bbPress (r5309)
  *
  * @param int $topic_id Topic ID.
+ * @return int|false Updated count, or false when no change is made.
  */
 function bbp_increase_user_topic_count( $topic_id = 0 ) {
 
@@ -1131,6 +1132,7 @@ function bbp_increase_user_topic_count( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r5309)
  *
  * @param int $reply_id Reply ID.
+ * @return int|false Updated count, or false when no change is made.
  */
 function bbp_increase_user_reply_count( $reply_id = 0 ) {
 
@@ -1150,6 +1152,7 @@ function bbp_increase_user_reply_count( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5309)
  *
  * @param int $topic_id Topic ID.
+ * @return int|false Updated count, or false when no change is made.
  */
 function bbp_decrease_user_topic_count( $topic_id = 0 ) {
 
@@ -1169,6 +1172,7 @@ function bbp_decrease_user_topic_count( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r5309)
  *
  * @param int $reply_id Reply ID.
+ * @return int|false Updated count, or false when no change is made.
  */
 function bbp_decrease_user_reply_count( $reply_id = 0 ) {
 

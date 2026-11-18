@@ -2124,6 +2124,7 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2895)
  * @param int $reply_id Reply ID being deleted.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_delete_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2133,6 +2134,8 @@ function bbp_delete_reply( $reply_id = 0 ) {
 	}
 
 	do_action( 'bbp_delete_reply', $reply_id );
+
+	return null;
 }
 
 /**
@@ -2140,6 +2143,7 @@ function bbp_delete_reply( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2895)
  * @param int $reply_id Reply ID being trashed.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_trash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2149,6 +2153,8 @@ function bbp_trash_reply( $reply_id = 0 ) {
 	}
 
 	do_action( 'bbp_trash_reply', $reply_id );
+
+	return null;
 }
 
 /**
@@ -2156,6 +2162,7 @@ function bbp_trash_reply( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2895)
  * @param int $reply_id Reply ID being restored.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_untrash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2165,6 +2172,8 @@ function bbp_untrash_reply( $reply_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrash_reply', $reply_id );
+
+	return null;
 }
 
 /** After Delete/Trash/Untrash ************************************************/
@@ -2174,6 +2183,7 @@ function bbp_untrash_reply( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2895)
  * @param int $reply_id Reply ID that was deleted.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_deleted_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2183,6 +2193,8 @@ function bbp_deleted_reply( $reply_id = 0 ) {
 	}
 
 	do_action( 'bbp_deleted_reply', $reply_id );
+
+	return null;
 }
 
 /**
@@ -2190,6 +2202,7 @@ function bbp_deleted_reply( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2895)
  * @param int $reply_id Reply ID that was trashed.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_trashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2199,6 +2212,8 @@ function bbp_trashed_reply( $reply_id = 0 ) {
 	}
 
 	do_action( 'bbp_trashed_reply', $reply_id );
+
+	return null;
 }
 
 /**
@@ -2206,6 +2221,7 @@ function bbp_trashed_reply( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2895)
  * @param int $reply_id Reply ID that was restored.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_untrashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2215,6 +2231,8 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrashed_reply', $reply_id );
+
+	return null;
 }
 
 /** Settings ******************************************************************/
@@ -2604,9 +2622,9 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
 	$removed = false;
 
 	// Toggle revisions off as we are not altering content
-	if ( has_filter( 'clean_post_cache', 'bbp_clean_post_cache' ) ) {
+	if ( has_action( 'clean_post_cache', 'bbp_clean_post_cache' ) ) {
 		$removed = true;
-		remove_filter( 'clean_post_cache', 'bbp_clean_post_cache', 10 );
+		remove_action( 'clean_post_cache', 'bbp_clean_post_cache', 10 );
 	}
 
 	// Update the replies' 'menu_order' with the reply position
@@ -2617,7 +2635,7 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
 	// Toggle revisions back on
 	if ( true === $removed ) {
 		$removed = false;
-		add_filter( 'clean_post_cache', 'bbp_clean_post_cache', 10, 2 );
+		add_action( 'clean_post_cache', 'bbp_clean_post_cache', 10, 2 );
 	}
 
 	return (int) $reply_position;

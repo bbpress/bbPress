@@ -2551,18 +2551,19 @@ function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $topic_id Get the topic id to remove.
+ * @return bool|null Whether subscriptions were removed, or null when skipped.
  */
 function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 
 	// Subscriptions are not active
 	if ( ! bbp_is_subscriptions_active() ) {
-		return;
+		return null;
 	}
 
 	// Bail if no topic
 	$topic_id = bbp_get_topic_id( $topic_id );
 	if ( empty( $topic_id ) ) {
-		return;
+		return null;
 	}
 
 	// Remove all users
@@ -3720,6 +3721,7 @@ function bbp_unstick_topic( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_delete_topic( $topic_id = 0 ) {
 
@@ -3731,6 +3733,8 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_delete_topic', $topic_id );
+
+	return null;
 }
 
 /**
@@ -3827,6 +3831,7 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_trash_topic( $topic_id = 0 ) {
 
@@ -3838,6 +3843,8 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_trash_topic', $topic_id );
+
+	return null;
 }
 
 /**
@@ -3899,6 +3906,7 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_untrash_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -3908,6 +3916,8 @@ function bbp_untrash_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrash_topic', $topic_id );
+
+	return null;
 }
 
 /**
@@ -3980,6 +3990,7 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_deleted_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -3989,6 +4000,8 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_deleted_topic', $topic_id );
+
+	return null;
 }
 
 /**
@@ -3997,6 +4010,7 @@ function bbp_deleted_topic( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_trashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -4006,6 +4020,8 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_trashed_topic', $topic_id );
+
+	return null;
 }
 
 /**
@@ -4014,6 +4030,7 @@ function bbp_trashed_topic( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2895)
  *
  * @param int $topic_id Topic id.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_untrashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -4023,6 +4040,8 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrashed_topic', $topic_id );
+
+	return null;
 }
 
 /** Settings ******************************************************************/

@@ -91,6 +91,12 @@ parameters:
 			path: src/includes/core/actions.php
 
 		-
+			message: '#^Action callback returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/includes/core/actions.php
+
+		-
 			message: '#^Action callback returns bool but should not return anything\.$#'
 			identifier: return.void
 			count: 33
@@ -99,19 +105,19 @@ parameters:
 		-
 			message: '#^Action callback returns bool\|null but should not return anything\.$#'
 			identifier: return.void
-			count: 5
+			count: 14
 			path: src/includes/core/actions.php
 
 		-
 			message: '#^Action callback returns false\|null but should not return anything\.$#'
 			identifier: return.void
-			count: 1
+			count: 22
 			path: src/includes/core/actions.php
 
 		-
 			message: '#^Action callback returns int\|false but should not return anything\.$#'
 			identifier: return.void
-			count: 2
+			count: 4
 			path: src/includes/core/actions.php
 
 		-

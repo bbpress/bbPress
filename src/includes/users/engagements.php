@@ -566,6 +566,7 @@ function bbp_recalculate_topic_engagements( $topic_id = 0, $force = false ) {
  * @since 2.6.0 bbPress (r6529)
  *
  * @param int $topic_id Topic id.
+ * @return bool|null Whether an engagement was added, or null when skipped.
  */
 function bbp_update_topic_engagements( $topic_id = 0 ) {
 
@@ -574,7 +575,7 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
 
 		// Bail if reply isn't published
 		if ( ! bbp_is_reply_published( $topic_id ) ) {
-			return;
+			return null;
 		}
 
 		$author_id = bbp_get_reply_author_id( $topic_id );
@@ -585,7 +586,7 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
 
 		// Bail if topic isn't published
 		if ( ! bbp_is_topic_published( $topic_id ) ) {
-			return;
+			return null;
 		}
 
 		$author_id = bbp_get_topic_author_id( $topic_id );
@@ -593,12 +594,12 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
 
 	// Is unknown
 	} else {
-		return;
+		return null;
 	}
 
 	// Bail if topic is not public
 	if ( ! bbp_is_topic_public( $topic_id ) ) {
-		return;
+		return null;
 	}
 
 	// Return whether engagement was added

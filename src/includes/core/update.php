@@ -316,6 +316,8 @@ function bbp_create_initial_content( $args = array() ) {
  * to correct issues with bbPress meta-data silently on software update.
  *
  * @since 2.2.0 bbPress (r4105)
+ *
+ * @return false|null False when an upgrade must remain pending, otherwise null.
  */
 function bbp_version_updater() {
 	$safe_to_bump = true;
@@ -490,6 +492,8 @@ function bbp_version_updater() {
 
 	// Delete rewrite rules to force a flush
 	bbp_delete_rewrite_rules();
+
+	return null;
 }
 
 /**

@@ -1208,18 +1208,19 @@ function bbp_repair_forum_visibility() {
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $forum_id Get the forum ID to remove.
+ * @return bool|null Whether subscriptions were removed, or null when skipped.
  */
 function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
 
 	// Subscriptions are not active
 	if ( ! bbp_is_subscriptions_active() ) {
-		return;
+		return null;
 	}
 
 	// Bail if no forum
 	$forum_id = bbp_get_forum_id( $forum_id );
 	if ( empty( $forum_id ) ) {
-		return;
+		return null;
 	}
 
 	// Remove forum from all subscriptions
@@ -2184,6 +2185,7 @@ function bbp_update_forum_subforum_count_on_transition_post_status( $new_status 
  * @param int     $forum_id     Forum ID.
  * @param WP_Post|false $forum_after  Forum object following the update.
  * @param WP_Post|false $forum_before Forum object before the update.
+ * @return false|null False when no recount is needed, otherwise null.
  */
 function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum_after = false, $forum_before = false ) {
 	// Bail if the forum update has no complete object pair
@@ -2222,6 +2224,8 @@ function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum
 	foreach ( array_filter( array_unique( $parent_ids ) ) as $parent_id ) {
 		bbp_update_forum_subforum_count( $parent_id );
 	}
+
+	return null;
 }
 
 /**
@@ -3944,6 +3948,7 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3669)
  * @param int $forum_id Forum ID being deleted.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_delete_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3953,6 +3958,8 @@ function bbp_delete_forum( $forum_id = 0 ) {
 	}
 
 	do_action( 'bbp_delete_forum', $forum_id );
+
+	return null;
 }
 
 /**
@@ -3964,6 +3971,7 @@ function bbp_delete_forum( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3669)
  * @param int $forum_id Forum ID being trashed.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_trash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3973,6 +3981,8 @@ function bbp_trash_forum( $forum_id = 0 ) {
 	}
 
 	do_action( 'bbp_trash_forum', $forum_id );
+
+	return null;
 }
 
 /**
@@ -3980,6 +3990,7 @@ function bbp_trash_forum( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3669)
  * @param int $forum_id Forum ID being restored.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_untrash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -3989,6 +4000,8 @@ function bbp_untrash_forum( $forum_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrash_forum', $forum_id );
+
+	return null;
 }
 
 /** After Delete/Trash/Untrash ************************************************/
@@ -4027,6 +4040,7 @@ function bbp_deleted_forum( $forum_id = 0, $forum = false ) {
  *
  * @since 2.1.0 bbPress (r3669)
  * @param int $forum_id Forum ID that was trashed.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_trashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -4036,6 +4050,8 @@ function bbp_trashed_forum( $forum_id = 0 ) {
 	}
 
 	do_action( 'bbp_trashed_forum', $forum_id );
+
+	return null;
 }
 
 /**
@@ -4043,6 +4059,7 @@ function bbp_trashed_forum( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3669)
  * @param int $forum_id Forum ID that was restored.
+ * @return false|null False for an invalid post, otherwise null.
  */
 function bbp_untrashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -4052,4 +4069,6 @@ function bbp_untrashed_forum( $forum_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrashed_forum', $forum_id );
+
+	return null;
 }
