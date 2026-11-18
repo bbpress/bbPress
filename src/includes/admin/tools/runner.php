@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param array $tool Repair tool registration.
+ * @param array<string, mixed> $tool Repair tool registration.
  * @return bool Whether the tool should flush caches after running.
  */
 function bbp_admin_repair_tool_flushes_cache( $tool = array() ) {
@@ -28,7 +28,7 @@ function bbp_admin_repair_tool_flushes_cache( $tool = array() ) {
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string $tool_id Repair tool ID.
- * @return array|false Lock owner data, or false when already locked.
+ * @return array{name:string, value:string}|false Lock owner data, or false when already locked.
  */
 function bbp_admin_repair_tool_lock( $tool_id = '' ) {
 	$tool_id = sanitize_key( $tool_id );
@@ -40,7 +40,8 @@ function bbp_admin_repair_tool_lock( $tool_id = '' ) {
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param array $lock Lock owner data.
+ * @param array{name?:string, value?:string} $lock Lock owner data.
+ * @return void
  */
 function bbp_admin_repair_tool_unlock( $lock = array() ) {
 	bbp_release_option_lock( $lock );
@@ -52,8 +53,8 @@ function bbp_admin_repair_tool_unlock( $lock = array() ) {
  * @since 2.7.0 bbPress (r8359)
  * @access private
  *
- * @param array|false|null $lock Lock ownership, false to clear, or null to read.
- * @return array|false Current lock ownership.
+ * @param array{name:string, value:string}|false|null $lock Lock ownership, false to clear, or null to read.
+ * @return array{name:string, value:string}|false Current lock ownership.
  */
 function bbp_admin_repair_tool_active_lock( $lock = null ) {
 	static $active = false;
@@ -96,7 +97,7 @@ function bbp_admin_repair_tool_refresh_lock() {
  *
  * @param string $type   Repair tool type.
  * @param string $action Tool action.
- * @return array|false Lock owner data, or false when still locked.
+ * @return array{name:string, value:string}|false Lock owner data, or false when still locked.
  */
 function bbp_admin_repair_tool_lock_run_state( $type = '', $action = 'run' ) {
 	$action = sanitize_key( $action );
@@ -146,7 +147,7 @@ function bbp_admin_repair_tool_run_state_option_name( $type = '', $action = 'run
  * @param string $type     Repair tool type.
  * @param bool   $filtered Whether to apply native option view filters.
  * @param string $action   Tool action.
- * @return array Read success and normalized internal state, or false when absent.
+ * @return array{bool, array<string, mixed>|false} Read success and normalized internal state.
  */
 function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $action = 'run' ) {
 	$action = sanitize_key( $action );
@@ -188,7 +189,7 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
  *
  * @param string $type   Repair tool type.
  * @param string $action Tool action.
- * @return array|false Run state, or false when no valid run exists.
+ * @return array<string, mixed>|false Run state, or false when no valid run exists.
  */
 function bbp_admin_repair_tool_get_run_state( $type = '', $action = 'run' ) {
 	list( $read, $state ) = bbp_admin_repair_tool_read_run_state( $type, true, $action );
@@ -204,7 +205,7 @@ function bbp_admin_repair_tool_get_run_state( $type = '', $action = 'run' ) {
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @param array|false $state   Normalized run state.
+ * @param array<string, mixed>|false $state Normalized run state.
  * @param string      $run_id  Expected owner.
  * @param string      $tool_id Optional expected first tool.
  * @return bool Whether the run matches the owner and optional first tool.
@@ -220,7 +221,7 @@ function bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id = '' ) {
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @param array|false $state Normalized run state.
+ * @param array<string, mixed>|false $state Normalized run state.
  * @return bool Whether the run was recently active.
  */
 function bbp_admin_repair_tool_run_is_active( $state ) {
@@ -234,7 +235,7 @@ function bbp_admin_repair_tool_run_is_active( $state ) {
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @return array Error code and message for an outdated run.
+ * @return array{code:string, message:string} Error code and message for an outdated run.
  */
 function bbp_admin_repair_tool_stale_run_error() {
 	return array(
@@ -252,7 +253,7 @@ function bbp_admin_repair_tool_stale_run_error() {
  * @access private
  *
  * @param string $type   Repair tool type.
- * @param array  $tools  Ordered repair tool IDs.
+ * @param list<string> $tools Ordered repair tool IDs.
  * @param string $run_id Run owner.
  * @param string $action Tool action.
  * @return string Unescaped continuation URL for the selected tools.
@@ -326,13 +327,13 @@ function bbp_admin_repair_tool_discard_nonce_action( $run_id, $action = 'run' ) 
  * @access private
  *
  * @param string      $type          Repair tool type.
- * @param array|null  $tools         Ordered IDs, or null for status-only changes.
+ * @param list<string>|null $tools    Ordered IDs, or null for status-only changes.
  * @param string      $run_id        Current owner, or empty to create a run.
  * @param string|null $status        running|paused|discarding|error, or null to preserve it.
  * @param bool        $rotate_run_id Whether to replace the exact owner and queue.
  * @param string      $action        Tool action.
  * @param bool|null   $started       Whether the current tool has processed a batch.
- * @return array|false Saved public run state, or false on failure.
+ * @return array<string, mixed>|false Saved public run state, or false on failure.
  */
 function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run_id = '', $status = null, $rotate_run_id = false, $action = 'run', $started = null ) {
 	$status_only = is_null( $tools );
@@ -410,13 +411,13 @@ function bbp_admin_repair_tool_update_run_state( $type = '', $tools = null, $run
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string      $type          Repair tool type.
- * @param array       $tools         Ordered repair tool IDs.
+ * @param list<string> $tools        Ordered repair tool IDs.
  * @param string      $run_id        Existing run ID, or empty to start a new run.
  * @param string|null $status        running|paused|discarding|error, or null to preserve status.
  * @param bool        $rotate_run_id Whether to replace the exact owner and queue.
  * @param string      $action        Tool action.
  * @param bool|null   $started       Whether the current tool has processed a batch.
- * @return array|false Saved run state, or false on invalid input.
+ * @return array<string, mixed>|false Saved run state, or false on invalid input.
  */
 function bbp_admin_repair_tool_save_run_state( $type = '', $tools = array(), $run_id = '', $status = 'running', $rotate_run_id = false, $action = 'run', $started = null ) {
 	return bbp_admin_repair_tool_update_run_state( $type, (array) $tools, $run_id, $status, $rotate_run_id, $action, $started );
@@ -428,10 +429,10 @@ function bbp_admin_repair_tool_save_run_state( $type = '', $tools = array(), $ru
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string $type   Repair tool type.
- * @param array  $tools  Expected ordered repair tool IDs.
+ * @param list<string> $tools Expected ordered repair tool IDs.
  * @param string $run_id Current run ID.
  * @param string $action Tool action.
- * @return array|false Resumed run state, or false on a mismatch.
+ * @return array<string, mixed>|false Resumed run state, or false on a mismatch.
  */
 function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $run_id = '', $action = 'run' ) {
 	return bbp_admin_repair_tool_save_run_state( $type, $tools, $run_id, 'running', true, $action );
@@ -446,7 +447,7 @@ function bbp_admin_repair_tool_rotate_run_state( $type = '', $tools = array(), $
  * @param string $run_id Run ID.
  * @param string $status running|paused|discarding|error.
  * @param string $action Tool action.
- * @return array|false Updated run state, or false on a mismatch.
+ * @return array<string, mixed>|false Updated run state, or false on a mismatch.
  */
 function bbp_admin_repair_tool_update_run_status( $type = '', $run_id = '', $status = 'running', $action = 'run' ) {
 	return bbp_admin_repair_tool_update_run_state( $type, null, $run_id, $status, false, $action );
@@ -518,7 +519,7 @@ function bbp_admin_repair_tool_discard_run( $type, $run_id, $action = 'run' ) {
  * @since 2.7.0 bbPress (r8350)
  * @access private
  *
- * @param array  $tools  Repair tool IDs.
+ * @param list<string> $tools Repair tool IDs.
  * @param string $run_id Browser-run owner or Dry Run preview namespace.
  * @param string $action Tool action.
  * @param string $type   Repair tool type whose run state should also be deleted.
@@ -645,7 +646,7 @@ function bbp_admin_repair_tool_delete_batch_state( $tools, $run_id, $action, $ty
  * @access private
  *
  * @param string $type          Repair tool type.
- * @param array  $state         Owned run state.
+ * @param array<string, mixed> $state Owned run state.
  * @param string $run_id        Run owner.
  * @param string $action        Tool action.
  * @param bool   $tool_complete Whether the current tool completed.
@@ -678,10 +679,10 @@ function bbp_admin_repair_tool_save_queue_progress( $type, $state, $run_id, $act
  * @since 2.7.0 bbPress (r8252)
  *
  * @param string $type   Repair tool type.
- * @param array  $tools  Ordered repair tool IDs.
+ * @param list<string> $tools Ordered repair tool IDs.
  * @param string $run_id Existing run ID, or empty to start a new run.
  * @param string $action Tool action.
- * @return array|false Saved run state, or false on invalid input.
+ * @return array<string, mixed>|false Saved run state, or false on invalid input.
  */
 function bbp_admin_repair_tool_enqueue_runner( $type = '', $tools = array(), $run_id = '', $action = 'run' ) {
 	$type   = sanitize_key( $type );
@@ -744,6 +745,8 @@ function bbp_admin_repair_tool_enqueue_runner( $type = '', $tools = array(), $ru
  * Persist the paused state of a browser repair tool runner.
  *
  * @since 2.7.0 bbPress (r8252)
+ *
+ * @return void
  */
 function bbp_admin_repair_tool_run_status_ajax_handler() {
 	if ( ! bbp_is_post_request() ) {
@@ -820,6 +823,8 @@ function bbp_admin_repair_tool_run_status_ajax_handler() {
  * Add completion or recovery feedback on a repair or upgrade tools page.
  *
  * @since 2.7.0 bbPress (r8252)
+ *
+ * @return void
  */
 function bbp_admin_tools_repair_upgrade_notices() {
 	$type = bbp_get_admin_repair_tool_page_id();
@@ -957,8 +962,8 @@ function bbp_admin_tools_repair_upgrade_notices() {
  *
  * @param string $type              Repair or upgrade tool type.
  * @param string $action            Tool action.
- * @param array  $selected_tool_ids Selected repair tool IDs.
- * @param array  $registered_tools  Registered repair tools.
+ * @param list<string>                       $selected_tool_ids Selected repair tool IDs.
+ * @param array<string, array<string, mixed>> $registered_tools  Registered repair tools.
  * @param string $run_id            Existing run owner, or empty for a new run.
  * @return void
  */
@@ -1047,6 +1052,8 @@ function bbp_admin_repair_tool_start_browser_run( $type, $action, $selected_tool
  * Handle the processing and feedback of the admin tools page.
  *
  * @since 2.1.0 bbPress (r3884)
+ *
+ * @return void
  */
 function bbp_admin_repair_handler() {
 
@@ -1153,6 +1160,8 @@ function bbp_admin_repair_handler() {
  * Process one repair or upgrade tool batch over AJAX.
  *
  * @since 2.7.0 bbPress (r8252)
+ *
+ * @return void
  */
 function bbp_admin_repair_ajax_handler() {
 	if ( ! bbp_is_post_request() ) {
@@ -1215,7 +1224,7 @@ function bbp_admin_repair_ajax_handler() {
  * @param string $action  Run or Dry Run.
  * @param string $tool_id Registered tool ID.
  * @param string $run_id  Current run-state owner.
- * @return array Success flag, response data, and error status.
+ * @return array<string, mixed> Success flag, response data, and error status.
  */
 function bbp_admin_repair_tool_process_batch( $type, $action, $tool_id, $run_id ) {
 	bbp_register_repair_tools();
