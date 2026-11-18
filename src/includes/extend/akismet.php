@@ -26,7 +26,7 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r7268)
 	 *
-	 * @var array $last_post Default empty array.
+	 * @var array<string, mixed> $last_post Default empty array.
 	 */
 	protected $last_post = array();
 
@@ -45,6 +45,7 @@ class BBP_Akismet {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -99,9 +100,9 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3278)
 	 *
-	 * @param array $post_data Topic or reply data to check.
+	 * @param array<string, mixed> $post_data Topic or reply data to check.
 	 *
-	 * @return array Array of post data.
+	 * @return array<string, mixed> Array of post data.
 	 */
 	public function check_post( $post_data = array() ) {
 
@@ -216,9 +217,9 @@ class BBP_Akismet {
 	 *
 	 * @since 2.6.0 bbPress (r6874)
 	 *
-	 * @param array $post_data Checked post data and Akismet response.
+	 * @param array<string, mixed> $post_data Checked post data and Akismet response.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	private function parse_response( $post_data = array() ) {
 
@@ -452,11 +453,11 @@ class BBP_Akismet {
 	 * @global string $akismet_api_host Akismet API host.
 	 * @global string $akismet_api_port Akismet API port.
 	 *
-	 * @param array  $post_data Post data to check or submit.
+	 * @param mixed  $post_data Post data to check or submit.
 	 * @param string $check     Operation: check or submit.
 	 * @param string $spam      Submission type: spam or ham.
 	 *
-	 * @return array Array of post data.
+	 * @return array<array-key, mixed> Array of post data.
 	 */
 	private function maybe_spam( $post_data = array(), $check = 'check', $spam = 'spam' ) {
 		global $akismet_api_host, $akismet_api_port;
@@ -570,6 +571,7 @@ class BBP_Akismet {
 	 *
 	 * @param int           $post_id Post ID.
 	 * @param WP_Post|false $_post Post object, or false to load it by ID.
+	 * @return void
 	 */
 	public function update_post_meta( $post_id = 0, $_post = false ) {
 
@@ -732,6 +734,7 @@ class BBP_Akismet {
 	 * @param int         $post_id Post ID.
 	 * @param string|null $message History message.
 	 * @param string|null $event   History event name.
+	 * @return void
 	 */
 	public function update_post_history( $post_id = 0, $message = null, $event = null ) {
 
@@ -765,7 +768,7 @@ class BBP_Akismet {
 	 *
 	 * @param int $post_id Post ID whose Akismet history is requested.
 	 *
-	 * @return array Array of Akismet history.
+	 * @return list<mixed> Array of Akismet history.
 	 */
 	public function get_post_history( $post_id = 0 ) {
 
@@ -861,8 +864,8 @@ class BBP_Akismet {
 	 * @since 2.6.7 bbPress (r7196)
 	 *
 	 * @param string $host_and_path Scheme-less URL.
-	 * @param array  $http_args     Array of arguments for wp_remote_post().
-	 * @return array
+	 * @param array<string, mixed> $http_args     Array of arguments for wp_remote_post().
+	 * @return array<int, mixed>
 	 */
 	private function get_response( $host_and_path = '', $http_args = array() ) {
 
@@ -924,6 +927,7 @@ class BBP_Akismet {
 	 * Add Aksimet History meta-boxes to topics and replies.
 	 *
 	 * @since 2.4.0 bbPress (r5050)
+	 * @return void
 	 */
 	public function add_metaboxes() {
 
@@ -952,6 +956,7 @@ class BBP_Akismet {
 	 * Output for Akismet History meta-box.
 	 *
 	 * @since 2.4.0 bbPress (r5050)
+	 * @return void
 	 */
 	public function history_metabox() {
 
@@ -1054,6 +1059,7 @@ class BBP_Akismet {
 	 * @since 2.6.7 bbPress (r7204)
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
+	 * @return void
 	 */
 	public function delete_old_spam() {
 		global $wpdb;
@@ -1135,6 +1141,7 @@ class BBP_Akismet {
 	 * @since 2.6.7 bbPress (r7204)
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
+	 * @return void
 	 */
 	public function delete_old_spam_meta() {
 		global $wpdb;
@@ -1190,6 +1197,7 @@ class BBP_Akismet {
 	 * @since 2.6.7 bbPress (r7204)
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
+	 * @return void
 	 */
 	public function delete_orphaned_spam_meta() {
 		global $wpdb;
@@ -1276,6 +1284,7 @@ class BBP_Akismet {
 	 * @since 2.7.0 bbPress (r7204)
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
+	 * @return void
 	 */
 	private function maybe_optimize_postmeta() {
 		global $wpdb;
