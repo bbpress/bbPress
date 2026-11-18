@@ -343,6 +343,18 @@ class BBP_Tests_Admin_Replies extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Replies_Admin::row_actions
+	 */
+	public function test_row_actions_without_reply_preserve_other_actions() {
+		$actions = $this->get_admin_without_hooks()->row_actions( array(
+			'inline hide-if-no-js' => 'Quick Edit',
+			'edit'                 => 'Edit',
+		) );
+
+		$this->assertSame( array( 'edit' => 'Edit' ), $actions );
+	}
+
+	/**
+	 * @covers BBP_Replies_Admin::row_actions
 	 * @covers BBP_Replies_Admin::filter_dropdown
 	 * @covers BBP_Replies_Admin::updated_messages
 	 * @covers ::bbp_admin_replies

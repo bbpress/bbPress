@@ -1129,8 +1129,8 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.4.0 bbPress (r4991)
 	 *
-	 * @param array  $actions Actions.
-	 * @param object $topic   Topic object.
+	 * @param array         $actions Actions.
+	 * @param WP_Post|false $topic   Topic object, or false when omitted.
 	 *
 	 * @return array Updated topic row actions.
 	 */
@@ -1138,6 +1138,11 @@ class BBP_Topics_Admin {
 
 		// Disable quick edit (too much to do here)
 		unset( $actions['inline hide-if-no-js'] );
+
+		// Bail if there is no topic for these actions
+		if ( ! ( $topic instanceof WP_Post ) ) {
+			return $actions;
+		}
 
 		// View link
 		$view_link = bbp_get_topic_permalink( $topic->ID );

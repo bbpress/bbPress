@@ -768,6 +768,18 @@ class BBP_Tests_Admin_Topics extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Topics_Admin::row_actions
+	 */
+	public function test_row_actions_without_topic_preserve_other_actions() {
+		$actions = $this->get_admin_without_hooks()->row_actions( array(
+			'inline hide-if-no-js' => 'Quick Edit',
+			'edit'                 => 'Edit',
+		) );
+
+		$this->assertSame( array( 'edit' => 'Edit' ), $actions );
+	}
+
+	/**
+	 * @covers BBP_Topics_Admin::row_actions
 	 * @ticket 3706
 	 */
 	public function test_row_actions_cover_public_pending_spam_and_trash_states() {

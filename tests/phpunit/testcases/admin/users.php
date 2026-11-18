@@ -365,6 +365,15 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Users_Admin::user_row_actions
+	 */
+	public function test_user_row_actions_without_user_preserve_other_actions() {
+		$actions = array( 'edit' => 'Edit', 'delete' => 'Delete' );
+
+		$this->assertSame( $actions, $this->get_admin_without_hooks()->user_row_actions( $actions ) );
+	}
+
+	/**
+	 * @covers BBP_Users_Admin::user_row_actions
 	 * @ticket 3706
 	 */
 	public function test_user_row_actions_prepends_profile_link() {

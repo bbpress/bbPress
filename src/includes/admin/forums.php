@@ -688,8 +688,8 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3097)
 	 *
-	 * @param array  $actions Actions.
-	 * @param object $forum   Forum object.
+	 * @param array         $actions Actions.
+	 * @param WP_Post|false $forum   Forum object, or false when omitted.
 	 *
 	 * @return array Updated forum row actions.
 	 */
@@ -697,6 +697,11 @@ class BBP_Forums_Admin {
 
 		// Disable quick edit (too much to do here)
 		unset( $actions['inline hide-if-no-js'] );
+
+		// Bail if there is no forum for these actions
+		if ( ! ( $forum instanceof WP_Post ) ) {
+			return $this->sort_row_actions( $actions );
+		}
 
 		// Only show the actions if the user is capable of viewing them :)
 		if ( current_user_can( 'edit_forum', $forum->ID ) ) {

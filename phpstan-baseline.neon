@@ -61,12 +61,6 @@ parameters:
 			path: src/includes/admin/forums.php
 
 		-
-			message: '#^Default value of the parameter \#2 \$forum \(false\) of method BBP_Forums_Admin\:\:row_actions\(\) is incompatible with type object\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: src/includes/admin/forums.php
-
-		-
 			message: '#^Array has 2 duplicate keys with value '';\-D'' \('';\-D'', '';\-D''\)\.$#'
 			identifier: array.duplicateKey
 			count: 1
@@ -99,12 +93,6 @@ parameters:
 		-
 			message: '#^Action callback returns int but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: src/includes/admin/replies.php
-
-		-
-			message: '#^Default value of the parameter \#2 \$reply \(false\) of method BBP_Replies_Admin\:\:row_actions\(\) is incompatible with type object\.$#'
-			identifier: parameter.defaultValue
 			count: 1
 			path: src/includes/admin/replies.php
 
@@ -163,12 +151,6 @@ parameters:
 			path: src/includes/admin/topics.php
 
 		-
-			message: '#^Default value of the parameter \#2 \$topic \(false\) of method BBP_Topics_Admin\:\:row_actions\(\) is incompatible with type object\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: src/includes/admin/topics.php
-
-		-
 			message: '#^Filter callback return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
@@ -177,12 +159,6 @@ parameters:
 		-
 			message: '#^Action callback returns array but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: src/includes/admin/users.php
-
-		-
-			message: '#^Default value of the parameter \#2 \$user \(false\) of method BBP_Users_Admin\:\:user_row_actions\(\) is incompatible with type WP_User\.$#'
-			identifier: parameter.defaultValue
 			count: 1
 			path: src/includes/admin/users.php
 

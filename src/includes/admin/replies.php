@@ -952,8 +952,8 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.4.0 bbPress (r4991)
 	 *
-	 * @param array  $actions Actions.
-	 * @param object $reply   Reply object.
+	 * @param array         $actions Actions.
+	 * @param WP_Post|false $reply   Reply object, or false when omitted.
 	 *
 	 * @return array Updated reply row actions.
 	 */
@@ -961,6 +961,11 @@ class BBP_Replies_Admin {
 
 		// Disable quick edit (too much to do here)
 		unset( $actions['inline hide-if-no-js'] );
+
+		// Bail if there is no reply for these actions
+		if ( ! ( $reply instanceof WP_Post ) ) {
+			return $actions;
+		}
 
 		// View link
 		$view_link = bbp_get_reply_url( $reply->ID );

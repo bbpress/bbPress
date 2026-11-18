@@ -298,12 +298,16 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6502)
 	 *
-	 * @param array   $actions Existing user row actions.
-	 * @param WP_User $user    User represented by the row.
+	 * @param array         $actions Existing user row actions.
+	 * @param WP_User|false $user    User represented by the row, or false when omitted.
 	 *
-	 * @return array Actions with 'view' link added to them.
+	 * @return array Actions with a profile link when a user is available.
 	 */
 	public function user_row_actions( $actions = array(), $user = false ) {
+		// Bail if there is no user for these actions
+		if ( ! ( $user instanceof WP_User ) ) {
+			return $actions;
+		}
 
 		// Reverse
 		$actions = array_reverse( $actions );

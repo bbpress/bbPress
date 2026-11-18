@@ -720,6 +720,19 @@ class BBP_Tests_Admin_Forums extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Forums_Admin::row_actions
+	 */
+	public function test_row_actions_without_forum_preserve_other_actions() {
+		$actions = $this->get_admin_without_hooks()->row_actions( array(
+			'view'                 => 'View',
+			'inline hide-if-no-js' => 'Quick Edit',
+			'custom'               => 'Custom',
+		) );
+
+		$this->assertSame( array( 'view' => 'View', 'custom' => 'Custom' ), $actions );
+	}
+
+	/**
+	 * @covers BBP_Forums_Admin::row_actions
 	 * @ticket 3706
 	 */
 	public function test_row_actions_remove_quick_edit_toggle_state_escape_content_and_sort_actions() {
