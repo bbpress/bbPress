@@ -139,12 +139,6 @@ parameters:
 			path: src/includes/core/extend.php
 
 		-
-			message: '#^Found usage of constant WP_USE_THEMES\. Use wp_using_themes\(\) instead\.$#'
-			identifier: phpstanWP.wpConstant.fetch
-			count: 1
-			path: src/includes/core/template-functions.php
-
-		-
 			message: '#^Method BBP_Theme_Compat\:\:__set\(\) with return type void returns mixed but should not return anything\.$#'
 			identifier: return.void
 			count: 1
@@ -203,12 +197,6 @@ parameters:
 			identifier: empty.variable
 			count: 1
 			path: src/includes/replies/template.php
-
-		-
-			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/includes/topics/functions.php
 
 		-
 			message: '#^Variable \$old_forum_ancestors in empty\(\) always exists and is not falsy\.$#'

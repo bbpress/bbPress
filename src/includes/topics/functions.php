@@ -4032,7 +4032,7 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return string
+ * @return array Topic tag terms.
  */
 function bbp_get_topic_tags( $topic_id = 0 ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );

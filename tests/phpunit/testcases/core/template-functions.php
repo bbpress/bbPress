@@ -160,6 +160,29 @@ class BBP_Tests_Core_Template_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_locate_template
+	 * @ticket BBP3794
+	 */
+	public function test_locate_template_honors_wp_using_themes_filter() {
+		$template_dir = BBP_TESTS_DIR . '/data/themes/bbp-classic-theme';
+		$stack        = function() use ( $template_dir ) {
+			return $template_dir;
+		};
+
+		bbp_register_template_stack( $stack, -100 );
+		add_filter( 'wp_using_themes', '__return_true' );
+
+		try {
+			$this->assertSame( $template_dir . '/theme-filter.php', bbp_locate_template( 'theme-filter.php', true, false ) );
+			$this->assertTrue( $GLOBALS['bbp_test_theme_template_loaded'] );
+		} finally {
+			remove_filter( 'wp_using_themes', '__return_true' );
+			bbp_deregister_template_stack( $stack, -100 );
+			unset( $GLOBALS['bbp_test_theme_template_loaded'] );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_locate_enqueueable
 	 */
 	public function test_locate_enqueueable_prefers_the_expected_asset_variant() {
