@@ -1632,7 +1632,7 @@ function bbp_is_subscription_unsubscribe( $status = '' ) {
 		$rewrite_id = bbp_get_subscription_unsubscribe_rewrite_id();
 		$retval     = ! empty( $current );
 
-		if ( empty( $retval ) && ! empty( $wp_query->bbp_is_subscription_unsubscribe ) ) {
+		if ( empty( $retval ) && isset( $wp_query->bbp_is_subscription_unsubscribe ) ) {
 			$retval = ( true === $wp_query->bbp_is_subscription_unsubscribe );
 		}
 

@@ -120,7 +120,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			$wp_query = bbp_get_wp_query();
 
 			// Moderators can edit users if super moderators is enabled.
-			if ( bbp_allow_super_mods() && ! is_admin() && ! empty( $wp_query->bbp_is_single_user ) && ( true === $wp_query->bbp_is_single_user ) ) {
+			if ( bbp_allow_super_mods() && ! is_admin() && isset( $wp_query->bbp_is_single_user ) && ( true === $wp_query->bbp_is_single_user ) ) {
 
 				// Get the user ID
 				$_user_id = ! empty( $args[0] )

@@ -198,7 +198,7 @@ function bbp_is_forum_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_forum_edit ) && ( true === $wp_query->bbp_is_forum_edit ) ) {
+	if ( isset( $wp_query->bbp_is_forum_edit ) && ( true === $wp_query->bbp_is_forum_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
@@ -299,7 +299,7 @@ function bbp_is_topic_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_topic_edit ) && ( true === $wp_query->bbp_is_topic_edit ) ) {
+	if ( isset( $wp_query->bbp_is_topic_edit ) && ( true === $wp_query->bbp_is_topic_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
@@ -409,7 +409,7 @@ function bbp_is_topic_tag_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_topic_tag_edit ) && ( true === $wp_query->bbp_is_topic_tag_edit ) ) {
+	if ( isset( $wp_query->bbp_is_topic_tag_edit ) && ( true === $wp_query->bbp_is_topic_tag_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
@@ -639,7 +639,7 @@ function bbp_is_reply_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_reply_edit ) && ( true === $wp_query->bbp_is_reply_edit ) ) {
+	if ( isset( $wp_query->bbp_is_reply_edit ) && ( true === $wp_query->bbp_is_reply_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
@@ -712,7 +712,7 @@ function bbp_is_favorites() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_favs ) && ( true === $wp_query->bbp_is_single_user_favs ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_favs ) && ( true === $wp_query->bbp_is_single_user_favs ) ) {
 		$retval = true;
 	}
 
@@ -736,7 +736,7 @@ function bbp_is_subscriptions() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_subs ) && ( true === $wp_query->bbp_is_single_user_subs ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_subs ) && ( true === $wp_query->bbp_is_single_user_subs ) ) {
 		$retval = true;
 	}
 
@@ -761,7 +761,7 @@ function bbp_is_topics_created() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_topics ) && ( true === $wp_query->bbp_is_single_user_topics ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_topics ) && ( true === $wp_query->bbp_is_single_user_topics ) ) {
 		$retval = true;
 	}
 
@@ -786,7 +786,7 @@ function bbp_is_replies_created() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_replies ) && ( true === $wp_query->bbp_is_single_user_replies ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_replies ) && ( true === $wp_query->bbp_is_single_user_replies ) ) {
 		$retval = true;
 	}
 
@@ -810,7 +810,7 @@ function bbp_is_user_home() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_home ) && ( true === $wp_query->bbp_is_single_user_home ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_home ) && ( true === $wp_query->bbp_is_single_user_home ) ) {
 		$retval = true;
 	}
 
@@ -854,7 +854,7 @@ function bbp_is_single_user() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user ) && ( true === $wp_query->bbp_is_single_user ) ) {
+	if ( isset( $wp_query->bbp_is_single_user ) && ( true === $wp_query->bbp_is_single_user ) ) {
 		$retval = true;
 	}
 
@@ -878,7 +878,7 @@ function bbp_is_single_user_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_edit ) && ( true === $wp_query->bbp_is_single_user_edit ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_edit ) && ( true === $wp_query->bbp_is_single_user_edit ) ) {
 		$retval = true;
 	}
 
@@ -902,7 +902,7 @@ function bbp_is_single_user_profile() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_profile ) && ( true === $wp_query->bbp_is_single_user_profile ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_profile ) && ( true === $wp_query->bbp_is_single_user_profile ) ) {
 		$retval = true;
 	}
 
@@ -926,7 +926,7 @@ function bbp_is_single_user_topics() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_topics ) && ( true === $wp_query->bbp_is_single_user_topics ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_topics ) && ( true === $wp_query->bbp_is_single_user_topics ) ) {
 		$retval = true;
 	}
 
@@ -950,7 +950,7 @@ function bbp_is_single_user_replies() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_replies ) && ( true === $wp_query->bbp_is_single_user_replies ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_replies ) && ( true === $wp_query->bbp_is_single_user_replies ) ) {
 		$retval = true;
 	}
 
@@ -974,7 +974,7 @@ function bbp_is_single_user_engagements() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_single_user_engagements ) && ( true === $wp_query->bbp_is_single_user_engagements ) ) {
+	if ( isset( $wp_query->bbp_is_single_user_engagements ) && ( true === $wp_query->bbp_is_single_user_engagements ) ) {
 		$retval = true;
 	}
 
@@ -1011,7 +1011,7 @@ function bbp_is_single_view() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_view ) && ( true === $wp_query->bbp_is_view ) ) {
+	if ( isset( $wp_query->bbp_is_view ) && ( true === $wp_query->bbp_is_view ) ) {
 		$retval = true;
 	}
 
@@ -1048,7 +1048,7 @@ function bbp_is_search() {
 	$rewrite_id = bbp_get_search_rewrite_id();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_search ) && ( true === $wp_query->bbp_is_search ) ) {
+	if ( isset( $wp_query->bbp_is_search ) && ( true === $wp_query->bbp_is_search ) ) {
 		$retval = true;
 	}
 
@@ -1121,7 +1121,7 @@ function bbp_is_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_edit ) && ( true === $wp_query->bbp_is_edit ) ) {
+	if ( isset( $wp_query->bbp_is_edit ) && ( true === $wp_query->bbp_is_edit ) ) {
 		$retval = true;
 	}
 
