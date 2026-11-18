@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.1.0 bbPress (r3979)
  *
  * @param string $path Additional path with leading slash.
+ * @return void
  */
 function bbp_forums_url( $path = '/' ) {
 	echo esc_url( bbp_get_forums_url( $path ) );
@@ -41,6 +42,7 @@ function bbp_get_forums_url( $path = '/' ) {
  * @since 2.1.0 bbPress (r3979)
  *
  * @param string $path Additional path with leading slash.
+ * @return void
  */
 function bbp_topics_url( $path = '/' ) {
 	echo esc_url( bbp_get_topics_url( $path ) );
@@ -65,6 +67,8 @@ function bbp_get_topics_url( $path = '/' ) {
  * Add our custom head action to wp_head.
  *
  * @since 2.0.0 bbPress (r2464)
+ *
+ * @return void
  */
 function bbp_head() {
 	do_action( 'bbp_head' );
@@ -74,6 +78,8 @@ function bbp_head() {
  * Add our custom footer action to wp_footer.
  *
  * @since 2.0.0 bbPress (r2464)
+ *
+ * @return void
  */
 function bbp_footer() {
 	do_action( 'bbp_footer' );
@@ -1150,10 +1156,10 @@ function bbp_is_edit() {
  *
  * @since 2.0.0 bbPress (r2926)
  *
- * @param array      $wp_classes     WordPress body classes.
- * @param array|bool $custom_classes Custom classes passed to the body class filters.
+ * @param array<int, string>      $wp_classes WordPress body classes.
+ * @param array<int, string>|bool $custom_classes Custom classes passed to the body class filters.
  *
- * @return array Body classes.
+ * @return array<int, string> Body classes.
  */
 function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 
@@ -1285,6 +1291,8 @@ function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
  * with "bbp-js" to allow interactive & dynamic elements to work as intended.
  *
  * @since 2.6.10 bbPress (r7231)
+ *
+ * @return void
  */
 function bbp_swap_no_js_body_class() {
 	static $done = false;
@@ -1452,7 +1460,8 @@ function is_bbpress() {
  *
  * @since 2.0.0 bbPress (r2815)
  *
- * @param array $args Login action, context, and URL settings.
+ * @param array<string, mixed> $args Login action, context, and URL settings.
+ * @return void
  */
 function bbp_wp_login_action( $args = array() ) {
 	echo esc_url( bbp_get_wp_login_action( $args ) );
@@ -1463,7 +1472,7 @@ function bbp_wp_login_action( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5685)
  *
- * @param array $args Login action, context, and URL settings.
+ * @param array<string, mixed> $args Login action, context, and URL settings.
  * @return string Login form action URL.
  */
 function bbp_get_wp_login_action( $args = array() ) {
@@ -1499,6 +1508,7 @@ function bbp_get_wp_login_action( $args = array() ) {
  * @since 2.0.0 bbPress (r2815)
  *
  * @param string $redirect_to Pass a URL to redirect to.
+ * @return void
  */
 function bbp_redirect_to_field( $redirect_to = '' ) {
 
@@ -1529,6 +1539,7 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
  *
  * @param string $request    Name of the request value to sanitize.
  * @param string $input_type Input type: text, textarea, password, select, radio, or checkbox.
+ * @return void
  */
 function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo bbp_get_sanitize_val( $request, $input_type );
@@ -1590,6 +1601,7 @@ function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
  *
  * @param bool $auto_increment Optional. Default true. Set to false to prevent
  *                            increment.
+ * @return void
  */
 function bbp_tab_index( $auto_increment = true ) {
 	echo bbp_get_tab_index( $auto_increment );
@@ -1633,6 +1645,7 @@ function bbp_get_tab_index( $auto_increment = true ) {
  * @since 2.6.0 bbPress (r6433)
  *
  * @param mixed $tab False to skip, any integer to use.
+ * @return void
  */
 function bbp_tab_index_attribute( $tab = false ) {
 	echo bbp_get_tab_index_attribute( $tab );
@@ -1671,7 +1684,8 @@ function bbp_get_tab_index_attribute( $tab = false ) {
  *
  * @since 2.0.0 bbPress (r2746)
  *
- * @param array $args See {@link bbp_get_dropdown()} for arguments.
+ * @param array<string, mixed> $args See {@link bbp_get_dropdown()} for arguments.
+ * @return void
  */
 function bbp_dropdown( $args = array() ) {
 	echo bbp_get_dropdown( $args );
@@ -1682,7 +1696,7 @@ function bbp_dropdown( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2746)
  *
- * @param array $args Dropdown query and display settings. Supports post_type,
+ * @param array<string, mixed> $args Dropdown query and display settings. Supports post_type,
  *                    post_parent, post_status, selected, include, exclude,
  *                    numberposts, orderby, order, posts, walker, select_id,
  *                    select_class, tab, options_only, show_none,
@@ -1849,6 +1863,8 @@ function bbp_get_dropdown( $args = array() ) {
  * Output the required hidden fields when creating/editing a forum.
  *
  * @since 2.1.0 bbPress (r3553)
+ *
+ * @return void
  */
 function bbp_forum_form_fields() {
 	if ( bbp_is_forum_edit() ) { ?>
@@ -1882,6 +1898,8 @@ function bbp_forum_form_fields() {
  * Output the required hidden fields when creating/editing a topic.
  *
  * @since 2.0.0 bbPress (r2753)
+ *
+ * @return void
  */
 function bbp_topic_form_fields() {
 	if ( bbp_is_topic_edit() ) { ?>
@@ -1915,6 +1933,8 @@ function bbp_topic_form_fields() {
  * Output the required hidden fields when creating/editing a reply.
  *
  * @since 2.0.0 bbPress (r2753)
+ *
+ * @return void
  */
 function bbp_reply_form_fields() {
 	if ( bbp_is_reply_edit() ) { ?>
@@ -1951,6 +1971,8 @@ function bbp_reply_form_fields() {
  * Output the required hidden fields when editing a user.
  *
  * @since 2.0.0 bbPress (r2690)
+ *
+ * @return void
  */
 function bbp_edit_user_form_fields() {
 ?>
@@ -1967,6 +1989,8 @@ function bbp_edit_user_form_fields() {
  * Output the required hidden fields when merging a topic.
  *
  * @since 2.0.0 bbPress (r2756)
+ *
+ * @return void
  */
 function bbp_merge_topic_form_fields() {
 ?>
@@ -1983,6 +2007,8 @@ function bbp_merge_topic_form_fields() {
  * Output the required hidden fields when splitting a topic.
  *
  * @since 2.0.0 bbPress (r2756)
+ *
+ * @return void
  */
 function bbp_split_topic_form_fields() {
 ?>
@@ -1999,6 +2025,8 @@ function bbp_split_topic_form_fields() {
  * Output the required hidden fields when moving a reply.
  *
  * @since 2.3.0 bbPress (r4522)
+ *
+ * @return void
  */
 function bbp_move_reply_form_fields() {
 ?>
@@ -2014,7 +2042,8 @@ function bbp_move_reply_form_fields() {
  *
  * @since 2.1.0 bbPress (r3586)
  *
- * @param array $args Editor settings.
+ * @param array<string, mixed> $args Editor settings.
+ * @return void
  */
 function bbp_the_content( $args = array() ) {
 	echo bbp_get_the_content( $args );
@@ -2025,7 +2054,7 @@ function bbp_the_content( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3586)
  *
- * @param array $args Editor settings.
+ * @param array<string, mixed> $args Editor settings.
  *
  * @return string HTML from output buffer
  */
@@ -2132,11 +2161,11 @@ function bbp_get_the_content( $args = array() ) {
  *
  * @since 2.3.0 bbPress (r4576)
  *
- * @param array $plugins TinyMCE plugins.
+ * @param array<array-key, string> $plugins TinyMCE plugins.
  *
  * @see tiny_mce_plugins, teeny_mce_plugins
  *
- * @return array
+ * @return array<array-key, string>
  */
 function bbp_get_tiny_mce_plugins( $plugins = array() ) {
 
@@ -2160,11 +2189,11 @@ function bbp_get_tiny_mce_plugins( $plugins = array() ) {
  *
  * @since 2.3.0 bbPress (r4606)
  *
- * @param array $buttons TeenyMCE buttons.
+ * @param array<array-key, string> $buttons TeenyMCE buttons.
  *
  * @see teeny_mce_buttons
  *
- * @return array
+ * @return array<array-key, string>
  */
 function bbp_get_teeny_mce_buttons( $buttons = array() ) {
 
@@ -2191,11 +2220,11 @@ function bbp_get_teeny_mce_buttons( $buttons = array() ) {
  *
  * @since 2.3.0 bbPress (r4607)
  *
- * @param array $settings Quicktags settings.
+ * @param array<string, mixed> $settings Quicktags settings.
  *
  * @see quicktags_settings
  *
- * @return array Quicktags settings
+ * @return array<string, mixed> Quicktags settings.
  */
 function bbp_get_quicktags_settings( $settings = array() ) {
 
@@ -2227,6 +2256,7 @@ function bbp_get_quicktags_settings( $settings = array() ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string|int $view Optional. View ID.
+ * @return void
  */
 function bbp_view_id( $view = '' ) {
 	echo bbp_get_view_id( $view );
@@ -2277,6 +2307,7 @@ function bbp_get_view_id( $view = '' ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string|int $view Optional. View ID.
+ * @return void
  */
 function bbp_view_title( $view = '' ) {
 	echo bbp_get_view_title( $view );
@@ -2311,6 +2342,7 @@ function bbp_get_view_title( $view = '' ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string|int|false $view Optional. View ID.
+ * @return void
  */
 function bbp_view_url( $view = false ) {
 	echo esc_url( bbp_get_view_url( $view ) );
@@ -2384,6 +2416,7 @@ function bbp_get_query_name() {
  * @since 2.0.0 bbPress (r2692)
  *
  * @param string $name What to set the query var to.
+ * @return void
  */
 function bbp_set_query_name( $name = '' ) {
 	set_query_var( '_bbp_query_name', $name );
@@ -2393,6 +2426,8 @@ function bbp_set_query_name( $name = '' ) {
  * Used to clear the '_bbp_query_name' setting.
  *
  * @since 2.0.0 bbPress (r2692)
+ *
+ * @return void
  */
 function bbp_reset_query_name() {
 	bbp_set_query_name();
@@ -2405,7 +2440,8 @@ function bbp_reset_query_name() {
  *
  * @since 2.0.0 bbPress (r2583)
  *
- * @param array $args Breadcrumb settings.
+ * @param array<string, mixed> $args Breadcrumb settings.
+ * @return void
  */
 function bbp_title_breadcrumb( $args = array() ) {
 	echo bbp_get_breadcrumb( $args );
@@ -2416,7 +2452,8 @@ function bbp_title_breadcrumb( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2589)
  *
- * @param array $args Breadcrumb settings.
+ * @param array<string, mixed> $args Breadcrumb settings.
+ * @return void
  */
 function bbp_breadcrumb( $args = array() ) {
 	echo bbp_get_breadcrumb( $args );
@@ -2427,7 +2464,7 @@ function bbp_breadcrumb( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2589)
  *
- * @param array $args Breadcrumb settings.
+ * @param array<string, mixed> $args Breadcrumb settings.
  *
  * @return string|null Breadcrumb markup, or null when breadcrumbs are disabled.
  */
@@ -2714,6 +2751,8 @@ function bbp_get_breadcrumb( $args = array() ) {
  * attributes are supported. As well as any plugins which want to display it.
  *
  * @since 2.0.0 bbPress (r2780)
+ *
+ * @return void
  */
 function bbp_allowed_tags() {
 	echo bbp_get_allowed_tags();
@@ -2787,7 +2826,7 @@ function bbp_get_template_notice_context() {
  *
  * @since 2.6.20 bbPress (r7969)
  *
- * @param string|array $context Context or contexts to check.
+ * @param string|array<int, string> $context Context or contexts to check.
  * @return bool
  */
 function bbp_is_template_notice_context( $context = '' ) {
@@ -2806,6 +2845,7 @@ function bbp_is_template_notice_context( $context = '' ) {
  *
  * @param string $context Optional. Form context. Accepts 'forum', 'topic', or
  *                        'reply'. Default empty.
+ * @return void
  */
 function bbp_template_notices( $context = '' ) {
 
@@ -2875,7 +2915,8 @@ function bbp_template_notices( $context = '' ) {
  * @since 2.7.0 bbPress (r7975) Added the `$classes` parameter.
  *
  * @param string $redirect_to Redirect to url.
- * @param array  $classes     Classes to add to the logout link.
+ * @param array<int, string> $classes Classes to add to the logout link.
+ * @return void
  */
 function bbp_logout_link( $redirect_to = '', $classes = array( 'button', 'logout-link' ) ) {
 	echo bbp_get_logout_link( $redirect_to, $classes );
@@ -2888,7 +2929,7 @@ function bbp_logout_link( $redirect_to = '', $classes = array( 'button', 'logout
  * @since 2.7.0 bbPress (r7975) Added the `$classes` parameter.
  *
  * @param string $redirect_to Redirect to url.
- * @param array  $classes     Classes to add to the logout link.
+ * @param array<int, string> $classes Classes to add to the logout link.
  *
  * @return string The logout link.
  */
