@@ -60,6 +60,8 @@ function bbp_is_anonymous() {
  * @since 2.0.0 bbPress (r2734)
  *
  * @param string $key Anonymous poster data key to echo.
+ *
+ * @return void
  */
 function bbp_current_anonymous_user_data( $key = '' ) {
 	echo esc_attr( bbp_get_current_anonymous_user_data( $key ) );
@@ -72,7 +74,7 @@ function bbp_current_anonymous_user_data( $key = '' ) {
  *
  * @param string $key Optional. Which value to get? If not given, then
  *                     an array is returned.
- * @return string|array Cookie(s) for current poster.
+ * @return string|array<string, string> Cookie(s) for current poster.
  */
 function bbp_get_current_anonymous_user_data( $key = '' ) {
 
@@ -108,9 +110,11 @@ function bbp_get_current_anonymous_user_data( $key = '' ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ * @param array<string, string> $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}.
+ *
+ * @return void
  */
 function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 
@@ -176,9 +180,9 @@ function bbp_current_author_ua() {
  * @since 2.6.17 bbPress (r7513)
  * @since 2.6.20 bbPress (r7891) Preserve the nickname when profile fields cannot be edited.
  *
- * @param array $data    Submitted user profile data.
+ * @param array<string, mixed> $data    Submitted user profile data.
  * @param int   $user_id User being edited.
- * @return array Filtered user profile data.
+ * @return array<string, mixed> Filtered user profile data.
  */
 function bbp_filter_user_edit_post_data( $data = array(), $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
@@ -260,7 +264,9 @@ function bbp_user_email_change_requires_confirmation( $user_id = 0 ) {
  * @since 2.6.19 bbPress (r7696)
  *
  * @param int   $user_id User being edited.
- * @param array $data    Submitted profile fields.
+ * @param array<string, mixed> $data    Submitted profile fields.
+ *
+ * @return void
  */
 function bbp_maybe_update_user_super_admin( $user_id = 0, $data = array() ) {
 	if ( ! is_multisite() || bbp_is_user_home_edit() || ! current_user_can( 'manage_network_options' ) || ! is_super_admin() ) {
@@ -284,6 +290,8 @@ function bbp_maybe_update_user_super_admin( $user_id = 0, $data = array() ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_edit_user_handler( $action = '' ) {
 
@@ -402,6 +410,8 @@ function bbp_edit_user_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r5663)
  *
  * @param string $action Requested user action.
+ *
+ * @return void
  */
 function bbp_user_email_change_handler( $action = '' ) {
 
@@ -504,7 +514,9 @@ function bbp_user_email_change_handler( $action = '' ) {
  * @see send_confirmation_on_profile_email()
  *
  * @param int   $user_id ID of the user requesting an email change.
- * @param array $args    Notification arguments.
+ * @param array<string, string> $args    Notification arguments.
+ *
+ * @return void
  */
 function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) {
 
@@ -589,6 +601,8 @@ The %4$s Team
  * also avoids needing to pollute the templates with additional logic and actions.
  *
  * @since 2.2.0 bbPress (r4274)
+ *
+ * @return void
  */
 function bbp_user_edit_after() {
 	$action = bbp_is_user_home_edit() ? 'show_user_profile' : 'edit_user_profile';
@@ -605,7 +619,7 @@ function bbp_user_edit_after() {
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  * @since 2.6.20 bbPress (r7910) Include pending topics on the current user's profile.
  *
- * @param array|int $args Optional. Query arguments or a user ID.
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID.
  *
  * @return bool True if user has started topics, otherwise false.
  */
@@ -653,7 +667,7 @@ function bbp_get_user_topics_started( $args = array() ) {
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  * @since 2.6.20 bbPress (r7910) Include pending replies on the current user's profile.
  *
- * @param array|int $args Optional. Query arguments or a user ID.
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID.
  *
  * @return bool True if user has created replies, otherwise false.
  */
@@ -709,7 +723,7 @@ function bbp_get_user_replies_created( $args = array() ) {
  * @since 2.6.0 bbPress (r6056)
  *
  * @param mixed $user_nicenames User nicenames to resolve.
- * @return array
+ * @return array<int|string, int>
  */
 function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 
@@ -752,7 +766,7 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
  * @since 2.6.0 bbPress (r6056)
  *
  * @param mixed $user_ids User ids.
- * @return array
+ * @return array<int|string, string>
  */
 function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
 
@@ -841,6 +855,8 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  *
  * @param int|string $user_id    User ID.
  * @param int        $difference Optional. Default 1. Number to bump.
+ *
+ * @return int|bool
  */
 function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 
@@ -882,6 +898,8 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  *
  * @param int|string $user_id    User ID.
  * @param int        $difference Optional. Default 1. Number to bump.
+ *
+ * @return int|bool
  */
 function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 
@@ -923,6 +941,8 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
  * @param int     $post_id     Post ID.
  * @param WP_Post|false $post_after  Post object following the update.
  * @param WP_Post|false $post_before Post object before the update.
+ *
+ * @return void
  */
 function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = false, $post_before = false ) {
 	// Bail if the post update has no complete object pair
@@ -989,6 +1009,8 @@ function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = fa
  * @param int     $post_id     Post ID.
  * @param WP_Post|false $post_after  Post object following the update.
  * @param WP_Post|false $post_before Post object before the update.
+ *
+ * @return void
  */
 function bbp_recalculate_engagements_on_post_author_change( $post_id = 0, $post_after = false, $post_before = false ) {
 	// Bail if the post update has no complete object pair
@@ -1026,6 +1048,8 @@ function bbp_recalculate_engagements_on_post_author_change( $post_id = 0, $post_
  *
  * @param int      $user_id  ID of the user being deleted.
  * @param int|null $reassign ID of the user receiving the posts.
+ *
+ * @return void
  */
 function bbp_update_counts_on_user_reassignment( $user_id = 0, $reassign = null ) {
 	static $topic_ids = array();
@@ -1168,6 +1192,8 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
  * earn the ability to access this template.
  *
  * @since 2.1.0 bbPress (r3607)
+ *
+ * @return void
  */
 function bbp_check_user_edit() {
 
@@ -1213,6 +1239,8 @@ function bbp_check_user_edit() {
  * Check if a user is blocked, or cannot spectate the forums.
  *
  * @since 2.2.0 bbPress (r4316)
+ *
+ * @return void
  */
 function bbp_forum_enforce_blocked() {
 
@@ -1304,6 +1332,8 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
  * @since 2.1.0 bbPress (r4072)
  * @since 2.6.10 bbPress (r7245) Switched from direct query to get_user_by()
  * @since 2.6.18 bbPress (r7547) Improved input handling and email login support.
+ *
+ * @return void
  */
 function bbp_user_maybe_convert_pass() {
 

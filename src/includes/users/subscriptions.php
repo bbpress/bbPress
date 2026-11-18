@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param int    $object_id Optional. ID of object (forum, topic, or something else).
  * @param string $type Object metadata type. Defaults to post.
- * @return array Subscriber user IDs, or an empty array.
+ * @return array<int|string, int|string> Subscriber user IDs, or an empty array.
  */
 function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );
@@ -34,9 +34,9 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
- * @param array|int $args Optional. Query arguments or a user ID.
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID.
  *
- * @return bool|array Whether subscribed topics are available, or an empty array if no query is built.
+ * @return bool|array<int|string, mixed> Whether subscribed topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_topic_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'topic_subscriptions', '_bbp_subscription' );
@@ -54,9 +54,9 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  *
- * @param array|int $args Optional. Query arguments or a user ID.
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID.
  *
- * @return bool|array Whether subscribed forums are available, or an empty array if no query is built.
+ * @return bool|array<int|string, mixed> Whether subscribed forums are available, or an empty array if no query is built.
  */
 function bbp_get_user_forum_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'forum_subscriptions', '_bbp_subscription' );
@@ -73,7 +73,7 @@ function bbp_get_user_forum_subscriptions( $args = array() ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array|int $args Optional. Query arguments or a user ID. The taxonomy
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID. The taxonomy
  *                        argument defaults to topic tags.
  * @return bool Whether the user has subscribed terms in the taxonomy.
  */
@@ -98,7 +98,7 @@ function bbp_get_user_term_subscriptions( $args = array() ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @return array Taxonomy names.
+ * @return array<int|string, string> Taxonomy names.
  */
 function bbp_get_topic_subscription_taxonomies() {
 	$taxonomies = array();
@@ -124,7 +124,7 @@ function bbp_get_topic_subscription_taxonomies() {
  *
  * @param int  $topic_id Optional. Topic ID.
  * @param bool $for_email Optional. Only include enabled email subscriptions.
- * @return array Subscription object data keyed by user ID.
+ * @return array<int, array{object_id?: int, object_type?: string}> Subscription object data keyed by user ID.
  */
 function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = false ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );
@@ -181,7 +181,7 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
  * @since 2.7.0 bbPress (r8335)
  *
  * @param int $topic_id Optional. Topic ID.
- * @return array User IDs.
+ * @return list<int> User IDs.
  */
 function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
 	$user_ids = array_keys( bbp_get_topic_term_subscription_contexts( $topic_id ) );
@@ -448,6 +448,8 @@ function bbp_get_subscription_unsubscribe_url( $user_id = 0, $object_id = 0, $ob
  * that form submit `List-Unsubscribe=One-Click` with POST.
  *
  * @since 2.7.0 bbPress (r8349)
+ *
+ * @return void
  */
 function bbp_subscription_unsubscribe_handler() {
 	if ( empty( get_query_var( bbp_get_subscription_unsubscribe_rewrite_id() ) ) ) {
@@ -520,6 +522,8 @@ function bbp_subscription_unsubscribe_handler() {
  *
  * @param int $author_id Topic or reply author ID.
  * @param int $topic_id Topic ID.
+ *
+ * @return void
  */
 function bbp_update_user_topic_subscription( $author_id = 0, $topic_id = 0 ) {
 
@@ -545,8 +549,10 @@ function bbp_update_user_topic_subscription( $author_id = 0, $topic_id = 0 ) {
  *
  * @param int   $topic_id Topic ID.
  * @param int   $forum_id Forum ID.
- * @param array $anonymous_data Anonymous author data.
+ * @param array<string, mixed> $anonymous_data Anonymous author data.
  * @param int   $author_id Topic author ID.
+ *
+ * @return void
  */
 function bbp_update_topic_subscription( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0 ) {
 	bbp_update_user_topic_subscription( $author_id, $topic_id );
@@ -560,8 +566,10 @@ function bbp_update_topic_subscription( $topic_id = 0, $forum_id = 0, $anonymous
  * @param int   $reply_id Reply ID.
  * @param int   $topic_id Topic ID.
  * @param int   $forum_id Forum ID.
- * @param array $anonymous_data Anonymous author data.
+ * @param array<string, mixed> $anonymous_data Anonymous author data.
  * @param int   $author_id Reply author ID.
+ *
+ * @return void
  */
 function bbp_update_reply_subscription( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0 ) {
 	bbp_update_user_topic_subscription( $author_id, $topic_id );
@@ -684,7 +692,7 @@ function bbp_subscriptions_handler( $action = '' ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array Return array of subscribed forum ids, or empty array.
+ * @return array<int|string, int|string> Return array of subscribed forum ids, or empty array.
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
@@ -704,7 +712,7 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array Return array of subscribed topic ids, or empty array.
+ * @return array<int|string, int|string> Return array of subscribed topic ids, or empty array.
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
@@ -726,7 +734,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return bool|array Whether subscribed topics are available, or an empty array if no query is built.
+ * @return bool|array<int|string, mixed> Whether subscribed topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_subscriptions( $user_id = 0 ) {
 	_deprecated_function( __FUNCTION__, '2.5', 'bbp_get_user_topic_subscriptions()' );
@@ -744,7 +752,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
  *
  * @param int $forum_id Optional. forum id.
  *
- * @return array Forum subscribers, or an empty array.
+ * @return array<int|string, int|string> Forum subscribers, or an empty array.
  */
 function bbp_get_forum_subscribers( $forum_id = 0 ) {
 	$users = bbp_get_users_for_object( $forum_id, '_bbp_subscription' );
@@ -761,7 +769,7 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array Topic subscribers, or an empty array.
+ * @return array<int|string, int|string> Topic subscribers, or an empty array.
  */
 function bbp_get_topic_subscribers( $topic_id = 0 ) {
 	$users = bbp_get_users_for_object( $topic_id, '_bbp_subscription' );
