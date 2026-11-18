@@ -13,8 +13,15 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Added
+
+- Added `bbp_remove_all_moderators()` to clear an object's moderator
+  assignments.
+
 ### Fixed
 
+- Fixed forum moderator replacement and removal with term and user engagement
+  storage.
 - Fixed member profile and forum section links on child sites when BuddyPress is network active.
 
 ## 2.6.22 - 2026-11-15

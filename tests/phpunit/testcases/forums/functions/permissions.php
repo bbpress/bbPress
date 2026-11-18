@@ -218,6 +218,54 @@ class BBP_Tests_Forums_Functions_Permissions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @dataProvider moderator_engagement_strategies
+	 * @covers ::bbp_save_forum_extras
+	 */
+	public function test_forum_moderators_can_be_replaced_and_cleared_with_each_engagement_strategy( $class_name ) {
+		$previous_strategy = bbpress()->engagements;
+		bbpress()->engagements = new $class_name();
+
+		try {
+			$forum_id        = $this->factory->forum->create();
+			$other_forum     = $this->factory->forum->create();
+			$old_moderator   = $this->factory->user->create();
+			$other_moderator = $this->factory->user->create();
+			$new_moderator   = $this->factory->user->create();
+			$actor           = $this->factory->user->create();
+
+			bbp_set_user_role( $actor, bbp_get_moderator_role() );
+			$this->set_current_user( $actor );
+			bbp_add_moderator( $forum_id, $old_moderator );
+			bbp_add_moderator( $forum_id, $other_moderator );
+			bbp_add_moderator( $other_forum, $old_moderator );
+			$this->assertEqualSets( array( $old_moderator, $other_moderator ), bbp_get_moderator_ids( $forum_id ) );
+
+			$_POST = array( 'bbp_moderators' => get_userdata( $new_moderator )->user_nicename );
+			bbp_save_forum_extras( $forum_id );
+			$this->assertSame( array( $new_moderator ), bbp_get_moderator_ids( $forum_id ) );
+
+			$_POST = array( 'bbp_moderators' => '' );
+			bbp_save_forum_extras( $forum_id );
+			$this->assertSame( array(), bbp_get_moderator_ids( $forum_id ) );
+			$this->assertSame( array( $old_moderator ), bbp_get_moderator_ids( $other_forum ) );
+		} finally {
+			bbpress()->engagements = $previous_strategy;
+		}
+	}
+
+	/**
+	 * @return array Engagement strategies.
+	 */
+	public function moderator_engagement_strategies() {
+		return array(
+			'meta' => array( 'BBP_User_Engagements_Meta' ),
+			'term' => array( 'BBP_User_Engagements_Term' ),
+			'user' => array( 'BBP_User_Engagements_User' )
+		);
+	}
+
+	/**
 	 * @covers ::bbp_filter_admin_forum_post_data
 	 */
 	public function test_per_forum_moderator_cannot_change_forum_structure_through_wp_admin() {

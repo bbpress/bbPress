@@ -799,7 +799,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 			if ( ! empty( $user_ids ) ) {
 
 				// Remove all moderators
-				bbp_remove_moderator( $forum_id, null );
+				bbp_remove_all_moderators( $forum_id );
 
 				// Add moderators
 				foreach ( $user_ids as $user_id ) {
@@ -809,7 +809,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 		// ...or remove them.
 		} elseif ( isset( $_POST['bbp_moderators'] ) ) {
-			bbp_remove_moderator( $forum_id, null );
+			bbp_remove_all_moderators( $forum_id );
 		}
 	}
 }
