@@ -23,7 +23,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		/**
 		 * Map of block names to shortcode callbacks.
 		 *
-		 * @var array Block => function
+		 * @var array<string, string> Block name to shortcode slug.
 		 */
 		public $blocks = array();
 
@@ -44,6 +44,8 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 * Block globals.
 		 *
 		 * @since 2.7.0 bbPress (r7383)
+		 *
+		 * @return void
 		 */
 		private function setup_globals() {
 
@@ -55,6 +57,8 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 * Register blocks from block.json files.
 		 *
 		 * @since 2.7.0 bbPress (r7383)
+		 *
+		 * @return void
 		 */
 		public function register_blocks() {
 
@@ -110,6 +114,8 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 * Setup actions & filters.
 		 *
 		 * @since 2.7.0 bbPress (r7383)
+		 *
+		 * @return void
 		 */
 		private function setup_hooks() {
 
@@ -127,6 +133,8 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 * Enqueue block editor assets and localize script data.
 		 *
 		 * @since 2.7.0 bbPress (r7383)
+		 *
+		 * @return void
 		 */
 		public function enqueue_block_editor_assets() {
 
@@ -169,7 +177,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 *
 		 * @since 2.7.0 bbPress (r7383)
 		 *
-		 * @return array Array of block metadata objects.
+		 * @return array<int, array<string, mixed>> Block metadata objects.
 		 */
 		public static function get_block_metadata() {
 			$blocks     = array();
@@ -204,7 +212,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 *
 		 * @since 2.7.0 bbPress (r7383)
 		 *
-		 * @param array       $attributes Block attributes.
+		 * @param array<string, mixed> $attributes Block attributes.
 		 * @param string|null $content    Optional block content.
 		 * @param WP_Block|null $block      Parsed block instance, used to find mapping.
 		 *
@@ -236,10 +244,10 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 *
 		 * @since 2.7.0 bbPress (r7383)
 		 *
-		 * @param array                   $categories Array of block categories.
+		 * @param array<int, array<string, mixed>> $categories Array of block categories.
 		 * @param WP_Block_Editor_Context $context Block editor context.
 		 *
-		 * @return array Modified categories.
+		 * @return array<int, array<string, mixed>> Modified categories.
 		 */
 		public function register_block_category( $categories, $context ) {
 
@@ -262,7 +270,7 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 		 * @since 2.7.0 bbPress (r7383)
 		 *
 		 * @param string $data Data key to retrieve.
-		 * @return array|null Localized data or null when unavailable.
+		 * @return array<int, array{value: int|string, label: string}>|null Localized data or null when unavailable.
 		 */
 		public static function get_localize_script_data( $data = '' ) {
 			switch ( $data ) {

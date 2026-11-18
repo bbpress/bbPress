@@ -21,7 +21,8 @@ defined( 'ABSPATH' ) || exit;
  * @global string $bbp_xmlrpc_error_post_type Post type of the post that failed XML-RPC validation.
  *
  * @param string $method XML-RPC method name.
- * @param array  $args   XML-RPC method arguments.
+ * @param array<array-key, mixed> $args XML-RPC method arguments.
+ * @return void
  */
 function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	global $bbp_xmlrpc_error_post_id, $bbp_xmlrpc_error_post_type;
@@ -218,7 +219,7 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
  *
  * @since 2.6.19 bbPress (r7683)
  *
- * @param array   $post_data Submitted post fields.
+ * @param array<string, mixed> $post_data Submitted post fields.
  * @param WP_Post $post      Existing post.
  * @return bool Whether the publication date would change.
  */
@@ -254,11 +255,11 @@ function bbp_xmlrpc_post_date_changed( $post_data, $post ) {
  * @global int    $bbp_xmlrpc_error_post_id   ID of the post that failed XML-RPC validation.
  * @global string $bbp_xmlrpc_error_post_type Post type of the post that failed XML-RPC validation.
  *
- * @param array  $caps    Required capabilities.
+ * @param array<int, string> $caps Required capabilities.
  * @param string $cap     Requested capability.
  * @param int    $user_id User ID.
- * @param array  $args    Capability arguments.
- * @return array Required capabilities.
+ * @param array<array-key, mixed> $args Capability arguments.
+ * @return array<int, string> Required capabilities.
  */
 function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 	global $bbp_xmlrpc_error_post_id, $bbp_xmlrpc_error_post_type;
@@ -294,8 +295,8 @@ function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
  *
  * @since 2.7.0 bbPress (r7485)
  *
- * @param array $post_data Parsed post data.
- * @return array Parsed post data.
+ * @param array<string, mixed> $post_data Parsed post data.
+ * @return array<string, mixed> Parsed post data.
  */
 function bbp_xmlrpc_wp_insert_post_data( $post_data = array() ) {
 	$post_id   = ! empty( $post_data['ID'] ) ? (int) $post_data['ID'] : 0;

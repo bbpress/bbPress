@@ -23,7 +23,7 @@ class BBP_Shortcodes {
 	/**
 	 * Shortcode => function.
 	 *
-	 * @var array
+	 * @var array<string, callable>
 	 */
 	public $codes = array();
 
@@ -45,6 +45,8 @@ class BBP_Shortcodes {
 	 * @since 2.0.0 bbPress (r3344)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_globals() {
 
@@ -105,6 +107,8 @@ class BBP_Shortcodes {
 	 * Register the bbPress shortcodes
 	 *
 	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @return void
 	 */
 	private function add_shortcodes() {
 		foreach ( (array) $this->codes as $code => $function ) {
@@ -116,6 +120,8 @@ class BBP_Shortcodes {
 	 * Unset some globals in the $bbp object that hold query related info
 	 *
 	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @return void
 	 */
 	private function unset_globals() {
 		$bbp = bbpress();
@@ -149,6 +155,7 @@ class BBP_Shortcodes {
 	 * @since 2.0.0 bbPress (r3344)
 	 *
 	 * @param string $query_name Optional query name to set before buffering.
+	 * @return void
 	 */
 	private function start( $query_name = '' ) {
 
@@ -221,7 +228,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string Forum markup or supplied content.
 	 */
@@ -312,7 +319,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string Topic markup or supplied content.
 	 */
@@ -382,7 +389,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3042)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string Topic form markup.
 	 */
@@ -436,7 +443,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.1.0 bbPress (r3634)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string Reply markup or supplied content.
 	 */
@@ -555,7 +562,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3132)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string Topic tag listing markup or supplied content.
 	 */
@@ -618,7 +625,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3167)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string View markup or supplied content.
 	 */
@@ -684,7 +691,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param array  $attr    Shortcode attributes.
+	 * @param array<array-key, mixed> $attr Shortcode attributes.
 	 * @param string $content Shortcode content.
 	 * @return string|null Search results or supplied content, or null when search is disabled.
 	 */
@@ -862,8 +869,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.1.0 bbPress (r3637)
 	 *
-	 * @param array $args Query arguments.
-	 * @return array Topic index query arguments.
+	 * @param array<string, mixed> $args Query arguments.
+	 * @return array<string, mixed> Topic index query arguments.
 	 */
 	public function display_topic_index_query( $args = array() ) {
 		$args['author']        = 0;
@@ -877,8 +884,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.1.0 bbPress (r3637)
 	 *
-	 * @param array $args Query arguments.
-	 * @return array Topic tag query arguments.
+	 * @param array<string, mixed> $args Query arguments.
+	 * @return array<string, mixed> Topic tag query arguments.
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
 		$args['tax_query'] = array(

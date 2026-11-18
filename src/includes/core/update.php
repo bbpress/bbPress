@@ -150,6 +150,8 @@ function bbp_is_deactivation( $basename = '' ) {
  * Update the DB to the latest version.
  *
  * @since 2.0.0 bbPress (r3421)
+ *
+ * @return void
  */
 function bbp_version_bump() {
 	update_option( '_bbp_db_version', bbp_get_db_version() );
@@ -164,6 +166,7 @@ function bbp_version_bump() {
  * @global string $pagenow The filename of the current screen.
  *
  * @param WP_Screen|null $current_screen Current admin screen.
+ * @return void
  */
 function bbp_setup_updater( $current_screen = null ) {
 	global $pagenow;
@@ -197,6 +200,7 @@ function bbp_setup_updater( $current_screen = null ) {
  * @since 2.6.0 bbPress (r6780)
  *
  * @param int $site_id Side id.
+ * @return void
  */
 function bbp_setup_new_site( $site_id = 0 ) {
 
@@ -221,8 +225,8 @@ function bbp_setup_new_site( $site_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3768)
  *
- * @param array $args Array of arguments to override default values.
- * @return array Forum, topic, and reply insertion results keyed by type.
+ * @param array<string, mixed> $args Arguments to override default values.
+ * @return array{forum_id: int|false, topic_id: int|false, reply_id: int|false} Insertion results keyed by type.
  */
 function bbp_create_initial_content( $args = array() ) {
 
@@ -615,7 +619,7 @@ function bbp_get_pending_upgrade_count( $type = '' ) {
  *
  * @param string $type Type of pending upgrades (upgrade|repair|empty).
  *
- * @return array
+ * @return array<array-key, mixed> Pending upgrade IDs.
  */
 function bbp_get_pending_upgrades( $type = '' ) {
 
@@ -643,7 +647,7 @@ function bbp_get_pending_upgrades( $type = '' ) {
  *
  * @param string $upgrade_id Upgrade ID.
  * @param string $action     Add, remove, or clear.
- * @return array Whether storage is correct and whether it changed.
+ * @return array{saved: bool, changed: bool} Whether storage is correct and whether it changed.
  */
 function bbp_update_pending_upgrade( $upgrade_id, $action = 'add' ) {
 	$result = array(
