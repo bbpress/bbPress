@@ -105,31 +105,6 @@ class BBP_Converter {
 	public $converters_dir = '';
 
 	/**
-	 * Map of steps to methods.
-	 *
-	 * @var array
-	 */
-	private $steps = array(
-		1  => 'sync_table',
-		2  => 'users',
-		3  => 'passwords',
-		4  => 'forums',
-		5  => 'forum_hierarchy',
-		6  => 'forum_subscriptions',
-		7  => 'topics',
-		8  => 'topics_authors',
-		9  => 'stickies',
-		10 => 'super_stickies',
-		11 => 'closed_topics',
-		12 => 'topic_tags',
-		13 => 'topic_subscriptions',
-		14 => 'topic_favorites',
-		15 => 'replies',
-		16 => 'reply_authors',
-		17 => 'reply_hierarchy'
-	);
-
-	/**
 	 * The main bbPress Converter loader
 	 *
 	 * @since 2.1.0 bbPress (r3816)
@@ -576,9 +551,30 @@ class BBP_Converter {
 	 */
 	private function do_steps() {
 
-		// Step exists in map, and method exists
-		if ( isset( $this->steps[ $this->step ] ) && method_exists( $this, "step_{$this->steps[ $this->step ]}" ) ) {
-			return call_user_func( array( $this, "step_{$this->steps[ $this->step ]}" ) );
+		// Map stored steps to their private callbacks
+		$steps = array(
+			1  => array( $this, 'step_sync_table' ),
+			2  => array( $this, 'step_users' ),
+			3  => array( $this, 'step_passwords' ),
+			4  => array( $this, 'step_forums' ),
+			5  => array( $this, 'step_forum_hierarchy' ),
+			6  => array( $this, 'step_forum_subscriptions' ),
+			7  => array( $this, 'step_topics' ),
+			8  => array( $this, 'step_topics_authors' ),
+			9  => array( $this, 'step_stickies' ),
+			10 => array( $this, 'step_super_stickies' ),
+			11 => array( $this, 'step_closed_topics' ),
+			12 => array( $this, 'step_topic_tags' ),
+			13 => array( $this, 'step_topic_subscriptions' ),
+			14 => array( $this, 'step_topic_favorites' ),
+			15 => array( $this, 'step_replies' ),
+			16 => array( $this, 'step_reply_authors' ),
+			17 => array( $this, 'step_reply_hierarchy' )
+		);
+
+		// Run the current step
+		if ( isset( $steps[ $this->step ] ) ) {
+			return call_user_func( $steps[ $this->step ] );
 		}
 
 		// Done!
