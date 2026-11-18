@@ -41,7 +41,7 @@ function bbp_get_topic_post_type() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_topic_post_type_labels() {
 
@@ -90,7 +90,7 @@ function bbp_get_topic_post_type_labels() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<string, mixed>
  */
 function bbp_get_topic_post_type_rewrite() {
 
@@ -109,7 +109,7 @@ function bbp_get_topic_post_type_rewrite() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<array-key, string>
  */
 function bbp_get_topic_post_type_supports() {
 
@@ -152,7 +152,7 @@ function bbp_show_lead_topic( $show_lead = false ) {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @param array $args All the arguments supported by {@link WP_Query}.
+ * @param array<string, mixed> $args All the arguments supported by {@link WP_Query}.
  * @return bool Whether topics are available.
  */
 function bbp_has_topics( $args = array() ) {
@@ -340,8 +340,9 @@ function bbp_the_topic() {
  *
  * @since 2.6.0 bbPress (r6402)
  *
- * @param WP_Query $query Topic query to update.
- * @param array    $args  Sticky topic query arguments.
+ * @param WP_Query             $query Topic query to update.
+ * @param array<string, mixed> $args  Sticky topic query arguments.
+ * @return mixed Intercepted value, or null after updating the query.
  */
 function bbp_add_sticky_topics( &$query, $args = array() ) {
 
@@ -556,7 +557,7 @@ function bbp_get_topic_id( $topic_id = 0 ) {
  * @param int|WP_Post $topic Topic ID or post object.
  * @param string      $output Output type. Defaults to OBJECT.
  * @param string      $filter Post filter. Defaults to raw.
- * @return WP_Post|array|null Topic in the requested format, or null if unavailable.
+ * @return WP_Post|array<array-key, mixed>|null Topic in the requested format, or null if unavailable.
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 
@@ -851,7 +852,7 @@ function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false
  *
  * @since 2.0.0 bbPress (r2967)
  *
- * @param array $args See {@link bbp_get_topic_pagination()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_pagination()}.
  * @return void
  */
 function bbp_topic_pagination( $args = array() ) {
@@ -863,7 +864,7 @@ function bbp_topic_pagination( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2967)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - topic_id: Topic id
  *  - before: Before the links
  *  - after: After the links.
@@ -1048,7 +1049,7 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $topic_id Optional. Topic id.
- * @return array Raw revision log of the topic, or an empty array.
+ * @return array<array-key, mixed> Raw revision log of the topic, or an empty array.
  */
 function bbp_get_topic_raw_revision_log( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -1701,7 +1702,7 @@ function bbp_get_topic_author_email( $topic_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3860)
  *
- * @param array $args Optional.
+ * @param array<string, mixed> $args Optional.
  * @return void
  */
 function bbp_topic_author_role( $args = array() ) {
@@ -1713,7 +1714,7 @@ function bbp_topic_author_role( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3860)
  *
- * @param array $args Optional.
+ * @param array<string, mixed> $args Optional.
  * @return string topic author role.
  */
 function bbp_get_topic_author_role( $args = array() ) {
@@ -1895,7 +1896,7 @@ function bbp_get_topic_last_active_time( $topic_id = 0 ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args Subscription link arguments.
+ * @param array<string, mixed> $args Subscription link arguments.
  * @return void
  */
 function bbp_topic_subscription_link( $args = array() ) {
@@ -1910,7 +1911,7 @@ function bbp_topic_subscription_link( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args Subscription link arguments.
+ * @param array<string, mixed> $args Subscription link arguments.
  * @return string|false|null Subscription link, false when unavailable, or null when subscriptions are inactive.
  */
 function bbp_get_topic_subscription_link( $args = array() ) {
@@ -1955,7 +1956,7 @@ function bbp_get_topic_subscription_link( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args Favorite link arguments.
+ * @param array<string, mixed> $args Favorite link arguments.
  * @return void
  */
 function bbp_topic_favorite_link( $args = array() ) {
@@ -1970,7 +1971,7 @@ function bbp_topic_favorite_link( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args Favorite link arguments.
+ * @param array<string, mixed> $args Favorite link arguments.
  * @return string|false Favorite link, or false when unavailable.
  */
 function bbp_get_topic_favorite_link( $args = array() ) {
@@ -2359,7 +2360,7 @@ function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
  * @since 2.0.0 bbPress (r2583)
  *
  * @param int   $topic_id Optional. Topic id.
- * @param array $args See {@link bbp_get_topic_tag_list()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_tag_list()}.
  * @return void
  */
 function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
@@ -2372,7 +2373,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
  * @since 2.0.0 bbPress (r2583)
  *
  * @param int   $topic_id Optional. Topic id.
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - before: Before the tag list
  *  - sep: Tag separator
  *  - after: After the tag list.
@@ -2431,7 +2432,7 @@ function bbp_get_topic_tag_list( $topic_id = 0, $args = array() ) {
  * @since 2.0.0 bbPress (r2678)
  *
  * @param int   $topic_id Optional. Topic ID.
- * @param array $classes  Extra classes for the topic.
+ * @param array<array-key, string> $classes  Extra classes for the topic.
  * @return void
  */
 function bbp_topic_class( $topic_id = 0, $classes = array() ) {
@@ -2444,7 +2445,7 @@ function bbp_topic_class( $topic_id = 0, $classes = array() ) {
  * @since 2.0.0 bbPress (r2678)
  *
  * @param int   $topic_id Optional. Topic ID.
- * @param array $classes  Extra classes for the topic.
+ * @param array<array-key, string> $classes  Extra classes for the topic.
  * @return string Row class of a topic.
  */
 function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
@@ -2504,7 +2505,7 @@ function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
 /**
  * Output admin links for topic.
  *
- * @param array $args See {@link bbp_get_topic_admin_links()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_admin_links()}.
  * @return void
  */
 function bbp_topic_admin_links( $args = array() ) {
@@ -2516,7 +2517,7 @@ function bbp_topic_admin_links( $args = array() ) {
  *
  * Move topic functionality is handled by the edit topic page.
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - before: Before the links
  *  - after: After the links
@@ -2586,7 +2587,7 @@ function bbp_get_topic_admin_links( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args See {@link bbp_get_topic_edit_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_edit_link()}.
  * @return void
  */
 function bbp_topic_edit_link( $args = array() ) {
@@ -2598,7 +2599,7 @@ function bbp_topic_edit_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -2707,7 +2708,7 @@ function bbp_get_topic_edit_url( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args See {@link bbp_get_topic_trash_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_trash_link()}.
  * @return void
  */
 function bbp_topic_trash_link( $args = array() ) {
@@ -2719,7 +2720,7 @@ function bbp_topic_trash_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -2809,7 +2810,7 @@ function bbp_get_topic_trash_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args See {@link bbp_get_topic_close_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_close_link()}.
  * @return void
  */
 function bbp_topic_close_link( $args = array() ) {
@@ -2821,7 +2822,7 @@ function bbp_topic_close_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -2872,7 +2873,7 @@ function bbp_get_topic_close_link( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5504)
  *
- * @param array $args See {@link bbp_get_topic_approve_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_approve_link()}.
  * @return void
  */
 function bbp_topic_approve_link( $args = array() ) {
@@ -2884,7 +2885,7 @@ function bbp_topic_approve_link( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5504)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -2936,7 +2937,7 @@ function bbp_get_topic_approve_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2754)
  *
- * @param array $args See {@link bbp_get_topic_stick_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_stick_link()}.
  * @return void
  */
 function bbp_topic_stick_link( $args = array() ) {
@@ -2948,7 +2949,7 @@ function bbp_topic_stick_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2754)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -3029,7 +3030,7 @@ function bbp_get_topic_stick_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @param array $args Topic merge link arguments.
+ * @param array<string, mixed> $args Topic merge link arguments.
  * @return void
  */
 function bbp_topic_merge_link( $args = array() ) {
@@ -3041,7 +3042,7 @@ function bbp_topic_merge_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -3084,7 +3085,7 @@ function bbp_get_topic_merge_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args See {@link bbp_get_topic_spam_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_spam_link()}.
  * @return void
  */
 function bbp_topic_spam_link( $args = array() ) {
@@ -3096,7 +3097,7 @@ function bbp_topic_spam_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2727)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - id: Optional. Topic id
  *  - link_before: Before the link
  *  - link_after: After the link
@@ -3150,7 +3151,7 @@ function bbp_get_topic_spam_link( $args = array() ) {
  *
  * @since 2.4.0 bbPress (r4966)
  *
- * @param array $args Topic reply link arguments.
+ * @param array<string, mixed> $args Topic reply link arguments.
  * @return void
  */
 function bbp_topic_reply_link( $args = array() ) {
@@ -3162,7 +3163,7 @@ function bbp_topic_reply_link( $args = array() ) {
  *
  * @since 2.4.0 bbPress (r4966)
  *
- * @param array $args Arguments.
+ * @param array<string, mixed> $args Arguments.
  *
  * @return string|null Link for a reply to a topic, or null when unavailable.
  */
@@ -3425,7 +3426,7 @@ function bbp_topic_notices() {
  *
  * @deprecated 2.4.0 bbPress (r5059)
  *
- * @param array $args Supported dropdown arguments.
+ * @param array<string, mixed> $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_stick_topic
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
@@ -3442,7 +3443,7 @@ function bbp_topic_type_select( $args = array() ) {
  *
  * @since 2.4.0 bbPress (r5060)
  *
- * @param array $args Supported dropdown arguments.
+ * @param array<string, mixed> $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_stick_topic
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
@@ -3459,7 +3460,7 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
  *
  * @since 2.4.0 bbPress (r5060)
  *
- * @param array $args Supported dropdown arguments.
+ * @param array<string, mixed> $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_stick_topic
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
@@ -3540,7 +3541,7 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
  *
  * @since 2.4.0 bbPress (r5060)
  *
- * @param array $args Supported dropdown arguments.
+ * @param array<string, mixed> $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_topic_status
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
@@ -3561,7 +3562,7 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
  *
  * @since 2.4.0 bbPress (r5060)
  *
- * @param array $args Supported dropdown arguments.
+ * @param array<string, mixed> $args Supported dropdown arguments.
  *  - select_id: Select id. Defaults to bbp_topic_status
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
@@ -3628,7 +3629,7 @@ function bbp_get_form_topic_status_dropdown( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2872)
  *
- * @param array $args See {@link bbp_get_single_topic_description()}.
+ * @param array<string, mixed> $args See {@link bbp_get_single_topic_description()}.
  * @return void
  */
 function bbp_single_topic_description( $args = array() ) {
@@ -3641,7 +3642,7 @@ function bbp_single_topic_description( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2872)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - topic_id: Topic id
  *  - before: Before the text
  *  - after: After the text
@@ -3669,7 +3670,7 @@ function bbp_get_single_topic_description( $args = array() ) {
 	 *
 	 * @param bool  $use_description Whether to build the description.
 	 * @param array $r               Parsed arguments.
-	 * @param array $args            Original arguments.
+	 * @param array<string, mixed> $args            Original arguments.
 	 */
 	if ( ! apply_filters( 'bbp_use_single_topic_description', true, $r, $args ) ) {
 		return apply_filters( 'bbp_get_single_topic_description', '', $r, $args );
@@ -3801,7 +3802,7 @@ function bbp_get_topic_tag_tax_id() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_topic_tag_tax_labels() {
 
@@ -3840,7 +3841,7 @@ function bbp_get_topic_tag_tax_labels() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<string, mixed>
  */
 function bbp_get_topic_tag_tax_rewrite() {
 
@@ -4015,7 +4016,7 @@ function bbp_get_topic_tag_link( $tag = '' ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array $args See {@link bbp_get_topic_tag_subscription_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_topic_tag_subscription_link()}.
  * @return void
  */
 function bbp_topic_tag_subscription_link( $args = array() ) {
@@ -4029,7 +4030,7 @@ function bbp_topic_tag_subscription_link( $args = array() ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array $args Optional. Subscription-link arguments.
+ * @param array<string, mixed> $args Optional. Subscription-link arguments.
  * @return string|false Subscription link, or false when unavailable.
  */
 function bbp_get_topic_tag_subscription_link( $args = array() ) {
@@ -4116,7 +4117,7 @@ function bbp_get_topic_tag_edit_link( $tag = '' ) {
  *
  * @since 2.0.0 bbPress (r3109)
  *
- * @param array $args Description arguments.
+ * @param array<string, mixed> $args Description arguments.
  * @return void
  */
 function bbp_topic_tag_description( $args = array() ) {
@@ -4128,7 +4129,7 @@ function bbp_topic_tag_description( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r3109)
  *
- * @param array $args before|after|tag.
+ * @param array<string, mixed> $args before|after|tag.
  *
  * @return string Term Name.
  */

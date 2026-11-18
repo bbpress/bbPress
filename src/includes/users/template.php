@@ -61,7 +61,7 @@ class BBP_User_Query extends WP_User_Query {
 	 * @since 2.6.0 bbPress (r6334)
 	 * @access public
 	 *
-	 * @param null|string|array $query Optional. The query variables.
+	 * @param null|string|array<string, mixed> $query Optional. The query variables.
 	 */
 	public function __construct( $query = null ) {
 		if ( ! empty( $query ) ) {
@@ -93,6 +93,8 @@ class BBP_User_Query extends WP_User_Query {
 	 *
 	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
+	 *
+	 * @return void
 	 */
 	public function the_user() {
 		$this->in_the_loop = true;
@@ -151,6 +153,8 @@ class BBP_User_Query extends WP_User_Query {
 	 *
 	 * @since 2.6.0 bbPress (r6332)
 	 * @access public
+	 *
+	 * @return void
 	 */
 	public function rewind_users() {
 		$this->current_user = -1;
@@ -209,7 +213,7 @@ class BBP_Term_Query extends WP_Term_Query {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param string|array|null $query Optional. Term query variables.
+	 * @param string|array<string, mixed>|null $query Optional. Term query variables.
 	 */
 	public function __construct( $query = null ) {
 		$this->terms = array();
@@ -239,6 +243,8 @@ class BBP_Term_Query extends WP_Term_Query {
 	 * Set up the current term in the loop.
 	 *
 	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return void
 	 */
 	public function the_term() {
 		$this->in_the_loop = true;
@@ -274,6 +280,8 @@ class BBP_Term_Query extends WP_Term_Query {
 	 * Rewind the terms and reset the term index.
 	 *
 	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return void
 	 */
 	public function rewind_terms() {
 		$this->current_term = -1;
@@ -296,7 +304,7 @@ class BBP_Taxonomy_Query {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @var array
+	 * @var list<WP_Taxonomy>
 	 */
 	public $taxonomies = array();
 
@@ -341,7 +349,7 @@ class BBP_Taxonomy_Query {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param array $taxonomies Optional. Taxonomy names.
+	 * @param array<array-key, string> $taxonomies Optional. Taxonomy names.
 	 */
 	public function __construct( $taxonomies = array() ) {
 		foreach ( $taxonomies as $taxonomy ) {
@@ -410,6 +418,8 @@ class BBP_Taxonomy_Query {
 	 * Rewind the taxonomies and reset the taxonomy index.
 	 *
 	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @return void
 	 */
 	public function rewind_taxonomies() {
 		$this->current_taxonomy = -1;
@@ -427,7 +437,7 @@ class BBP_Taxonomy_Query {
  *
  * @since 2.6.0 bbPress (r6332)
  *
- * @param array $args All the arguments supported by {@link WP_User_Query}.
+ * @param array<string, mixed> $args All the arguments supported by {@link WP_User_Query}.
  * @return bool Whether users are available.
  */
 function bbp_has_users( $args = array() ) {
@@ -482,7 +492,7 @@ function bbp_the_user() {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array $args Arguments supported by {@link WP_Term_Query}.
+ * @param array<string, mixed> $args Arguments supported by {@link WP_Term_Query}.
  * @return bool Whether the query has terms.
  */
 function bbp_has_terms( $args = array() ) {
@@ -804,7 +814,7 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
  * @since 2.3.0 bbPress (r4672)
  *
  * @param int   $user_id User ID whose nicename to get.
- * @param array $args    Before, after, user ID, and forced nicename settings.
+ * @param array<string, mixed> $args    Before, after, user ID, and forced nicename settings.
  * @return void
  */
 function bbp_user_nicename( $user_id = 0, $args = array() ) {
@@ -817,7 +827,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
  * @since 2.3.0 bbPress (r4672)
  *
  * @param int   $user_id User ID whose nicename to get.
- * @param array $args    Before, after, user ID, and forced nicename settings.
+ * @param array<string, mixed> $args    Before, after, user ID, and forced nicename settings.
  * @return string|false User nicename with optional wrapper, or false if no user ID exists.
  */
 function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
@@ -1089,7 +1099,7 @@ function bbp_get_user_display_role( $user_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2827)
  *
- * @param array $args Optional. See {@link bbp_get_admin_link()}.
+ * @param array<string, mixed> $args Optional. See {@link bbp_get_admin_link()}.
  * @return void
  */
 function bbp_admin_link( $args = array() ) {
@@ -1101,7 +1111,7 @@ function bbp_admin_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2827)
  *
- * @param array|string $args Link text and before/after wrapper settings.
+ * @param array<string, mixed>|string $args Link text and before/after wrapper settings.
  * @return string|null Admin link, or null without moderation capability.
  */
 function bbp_get_admin_link( $args = array() ) {
@@ -1139,7 +1149,7 @@ function bbp_get_admin_link( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r3120)
  *
- * @param array|int $args Optional. Arguments or a post ID.
+ * @param array<string, mixed>|int $args Optional. Arguments or a post ID.
  * @return void
  */
 function bbp_author_ip( $args = array() ) {
@@ -1151,7 +1161,7 @@ function bbp_author_ip( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r3120)
  *
- * @param array|int $args Optional. Arguments or a post ID.
+ * @param array<string, mixed>|int $args Optional. Arguments or a post ID.
  * @return string Author IP address with optional markup, or an empty string when unavailable.
  */
 function bbp_get_author_ip( $args = array() ) {
@@ -1438,7 +1448,7 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r2652)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args See {@link bbp_get_user_favorites_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_user_favorites_link()}.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
  * @return void
@@ -1456,7 +1466,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @since 2.0.0 bbPress (r2652)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args    Favorite labels, object ID/type, user ID, wrapper, and redirect settings.
+ * @param array<string, mixed> $args    Favorite labels, object ID/type, user ID, wrapper, and redirect settings.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
  * @return string|false Favorites link, or false when unavailable.
@@ -1951,7 +1961,7 @@ function bbp_get_term_subscription_permalink( $term = 0 ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array $args Optional. Subscription-link arguments.
+ * @param array<string, mixed> $args Optional. Subscription-link arguments.
  * @return void
  */
 function bbp_term_subscription_toggle_link( $args = array() ) {
@@ -1963,7 +1973,7 @@ function bbp_term_subscription_toggle_link( $args = array() ) {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @param array $args Optional. Subscription-link arguments.
+ * @param array<string, mixed> $args Optional. Subscription-link arguments.
  * @return string|false Subscription link, or false when unavailable.
  */
 function bbp_get_term_subscription_toggle_link( $args = array() ) {
@@ -1993,7 +2003,7 @@ function bbp_get_term_subscription_toggle_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args See {@link bbp_get_user_subscribe_link()}.
+ * @param array<string, mixed> $args See {@link bbp_get_user_subscribe_link()}.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
  * @return void
@@ -2010,7 +2020,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @since 2.7.0 bbPress (r8323) Scope the nonce to the object type for non-posts.
  * @since 2.7.0 bbPress (r8335) Scope element IDs to the object type for non-posts.
  *
- * @param array $args    Subscription labels, object ID/type, user ID, wrapper, and redirect settings.
+ * @param array<string, mixed> $args    Subscription labels, object ID/type, user ID, wrapper, and redirect settings.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
  * @return string|false|null Subscription link, false when unavailable, or null when subscriptions are inactive.
@@ -2441,7 +2451,7 @@ function bbp_filter_user_edit_password_fields( $show, $profile_user ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @return array User contact methods.
+ * @return array<string, string> User contact methods.
  */
 function bbp_edit_user_contact_methods() {
 
@@ -2457,7 +2467,7 @@ function bbp_edit_user_contact_methods() {
  *
  * @since 2.6.0 bbPress (r6489)
  *
- * @param array $args See wp_dropdown_languages().
+ * @param array<string, mixed> $args See wp_dropdown_languages().
  * @return void
  */
 function bbp_edit_user_language( $args = array() ) {
@@ -2834,7 +2844,7 @@ function bbp_user_notification_preferences_nonce() {
  *
  * @since 2.6.0 bbPress (r6489)
  *
- * @param array $args See wp_dropdown_languages().
+ * @param array<string, mixed> $args See wp_dropdown_languages().
  * @return void
  */
 function bbp_user_languages_dropdown( $args = array() ) {
@@ -2846,7 +2856,7 @@ function bbp_user_languages_dropdown( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6489)
  *
- * @param array $args See wp_dropdown_languages().
+ * @param array<string, mixed> $args See wp_dropdown_languages().
  * @return string
  */
 function bbp_get_user_languages_dropdown( $args = array() ) {
@@ -3043,7 +3053,7 @@ function bbp_user_lost_pass_fields() {
  *
  * @since 2.0.0 bbPress (r2874)
  *
- * @param array|int $args Optional. Arguments or a post ID.
+ * @param array<string, mixed>|int $args Optional. Arguments or a post ID.
  * @return void
  */
 function bbp_author_link( $args = array() ) {
@@ -3056,7 +3066,7 @@ function bbp_author_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2874)
  * @since 2.6.21 bbPress (r8080) Added the `user_id` argument for non-topic and non-reply posts.
  *
- * @param array|int $args Optional. Arguments or a post ID.
+ * @param array<string, mixed>|int $args Optional. Arguments or a post ID.
  * @return string Author link, placeholder, or an empty string.
  */
 function bbp_get_author_link( $args = array() ) {
@@ -3170,7 +3180,7 @@ function bbp_get_author_link( $args = array() ) {
  * @since 2.0.0 bbPress (r3057)
  * @since 2.6.19 bbPress (r7675) Check forum ancestors by default.
  *
- * @param array $args User ID, forum ID, and ancestor check settings.
+ * @param array<string, mixed> $args User ID, forum ID, and ancestor check settings.
  * @return bool
  */
 function bbp_user_can_view_forum( $args = array() ) {
@@ -3323,9 +3333,9 @@ function bbp_current_user_can_publish_replies() {
  *
  * @since 2.0.0 bbPress (r3127)
  *
- * @param array $args Forum query arguments.
+ * @param array<string, mixed> $args Forum query arguments.
  *
- * @return array
+ * @return array<array-key, WP_Post>|false Forums, or false when none are available.
  */
 function bbp_get_forums_for_current_user( $args = array() ) {
 
@@ -3534,7 +3544,7 @@ function bbp_current_user_can_access_anonymous_user_form() {
  * @since 2.6.0 bbPress (r6056)
  *
  * @param int   $forum_id Optional. Topic id.
- * @param array $args     See {@link bbp_get_moderator_list()}.
+ * @param array<string, mixed> $args     See {@link bbp_get_moderator_list()}.
  * @return void
  */
 function bbp_moderator_list( $forum_id = 0, $args = array() ) {
@@ -3547,7 +3557,7 @@ function bbp_moderator_list( $forum_id = 0, $args = array() ) {
  * @since 2.6.0 bbPress (r6056)
  *
  * @param int   $object_id Optional. Object id.
- * @param array $args      Before, separator, after, and empty-list markup.
+ * @param array<string, mixed> $args      Before, separator, after, and empty-list markup.
  *
  * @return string Moderator list of the object.
  */

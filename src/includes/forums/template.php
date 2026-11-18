@@ -41,7 +41,7 @@ function bbp_get_forum_post_type() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_forum_post_type_labels() {
 
@@ -90,7 +90,7 @@ function bbp_get_forum_post_type_labels() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<string, mixed>
  */
 function bbp_get_forum_post_type_rewrite() {
 
@@ -109,7 +109,7 @@ function bbp_get_forum_post_type_rewrite() {
  *
  * @since 2.5.0 bbPress (r5130)
  *
- * @return array
+ * @return array<array-key, string>
  */
 function bbp_get_forum_post_type_supports() {
 
@@ -133,7 +133,7 @@ function bbp_get_forum_post_type_supports() {
  *
  * @since 2.0.0 bbPress (r2464)
  *
- * @param array $args Arguments supported by {@link WP_Query}.
+ * @param array<string, mixed> $args Arguments supported by {@link WP_Query}.
  *
  * @return bool Whether forums are available.
  */
@@ -290,7 +290,7 @@ function bbp_get_forum_id( $forum_id = 0 ) {
  * @param string     $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
  * @param string     $filter Optional Sanitation filter. See {@link sanitize_post()}.
  *
- * @return WP_Post|array|null Forum in the requested format, or null if unavailable.
+ * @return WP_Post|array<array-key, mixed>|null Forum in the requested format, or null if unavailable.
  */
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 
@@ -737,7 +737,7 @@ function bbp_get_forum_parent_id( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
- * @return array Forum ancestors.
+ * @return array<array-key, int> Forum ancestors.
  */
 function bbp_get_forum_ancestors( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
@@ -765,8 +765,8 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2914)
  *
- * @param array|int|string $args Query arguments or a parent forum ID.
- * @return array Subforum posts, or an empty array when none are found.
+ * @param array<string, mixed>|int|string $args Query arguments or a parent forum ID.
+ * @return array<array-key, WP_Post> Subforum posts, or an empty array when none are found.
  */
 function bbp_forum_get_subforums( $args = array() ) {
 
@@ -811,7 +811,7 @@ function bbp_forum_get_subforums( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2708)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - before: Markup before the list. Defaults to '<ul class="bbp-forums-list">'
  *  - after: Markup after the list. Defaults to '</ul>'
  *  - link_before: Markup before each link. Defaults to '<li class="bbp-forum css-sep">'
@@ -929,7 +929,7 @@ function bbp_list_forums( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args Subscription link arguments.
+ * @param array<string, mixed> $args Subscription link arguments.
  * @return void
  */
 function bbp_forum_subscription_link( $args = array() ) {
@@ -944,7 +944,7 @@ function bbp_forum_subscription_link( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
- * @param array $args Subscription link arguments.
+ * @param array<string, mixed> $args Subscription link arguments.
  * @return string|false|null Subscription link, false when unavailable, or null when subscriptions are inactive.
  */
 function bbp_get_forum_subscription_link( $args = array() ) {
@@ -2153,9 +2153,9 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id, $time_since = '', 
  *
  * @since 2.0.0 bbPress (r3008)
  *
- * @param string    $author_link Original author link.
- * @param array     $args        Author link arguments.
- * @param array|int $original_args Original author-link arguments.
+ * @param string                   $author_link   Original author link.
+ * @param array<string, mixed>     $args          Author link arguments.
+ * @param array<string, mixed>|int $original_args Original author-link arguments.
  *
  * @return string
  */
@@ -2210,7 +2210,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array(), $
  * @since 2.0.0 bbPress (r2678)
  *
  * @param int   $forum_id Optional. Forum ID.
- * @param array $classes  Extra classes for the forum.
+ * @param array<array-key, string> $classes  Extra classes for the forum.
  * @return void
  */
 function bbp_forum_class( $forum_id = 0, $classes = array() ) {
@@ -2223,7 +2223,7 @@ function bbp_forum_class( $forum_id = 0, $classes = array() ) {
  * @since 2.0.0 bbPress (r2678)
  *
  * @param int   $forum_id Optional. Forum ID.
- * @param array $classes  Extra classes for the forum.
+ * @param array<array-key, string> $classes  Extra classes for the forum.
  * @return string Row class of the forum.
  */
 function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
@@ -2294,7 +2294,7 @@ function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
  *
  * @since 2.0.0 bbPress (r2876)
  *
- * @param array $args Arguments passed to alter output.
+ * @param array<string, mixed> $args Arguments passed to alter output.
  * @return void
  */
 function bbp_single_forum_description( $args = array() ) {
@@ -2307,7 +2307,7 @@ function bbp_single_forum_description( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2876)
  *
- * @param array $args Supported arguments.
+ * @param array<string, mixed> $args Supported arguments.
  *  - forum_id: Forum id
  *  - before: Before the text
  *  - after: After the text
@@ -2337,7 +2337,7 @@ function bbp_get_single_forum_description( $args = array() ) {
 	 *
 	 * @param bool  $use_description Whether to build the description.
 	 * @param array $r               Parsed arguments.
-	 * @param array $args            Original arguments.
+	 * @param array<string, mixed> $args            Original arguments.
 	 */
 	if ( ! apply_filters( 'bbp_use_single_forum_description', true, $r, $args ) ) {
 		return apply_filters( 'bbp_get_single_forum_description', '', $r, $args );
@@ -2724,7 +2724,7 @@ function bbp_get_form_forum_subscribed() {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @param array|int $args Supported dropdown arguments or a forum ID.
+ * @param array<string, mixed>|int $args Supported dropdown arguments or a forum ID.
  *  - select_id: Select id. Defaults to bbp_forum_type
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
@@ -2741,7 +2741,7 @@ function bbp_form_forum_type_dropdown( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @param array|int $args Supported dropdown arguments or a forum ID.
+ * @param array<string, mixed>|int $args Supported dropdown arguments or a forum ID.
  *  - select_id: Select id. Defaults to bbp_forum_type
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
@@ -2813,7 +2813,7 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @param array|int $args Supported dropdown arguments or a forum ID.
+ * @param array<string, mixed>|int $args Supported dropdown arguments or a forum ID.
  *  - select_id: Select id. Defaults to bbp_forum_status
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
@@ -2830,7 +2830,7 @@ function bbp_form_forum_status_dropdown( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @param array|int $args Supported dropdown arguments or a forum ID.
+ * @param array<string, mixed>|int $args Supported dropdown arguments or a forum ID.
  *  - select_id: Select id. Defaults to bbp_forum_status
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
@@ -2902,7 +2902,7 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @param array|int $args Supported dropdown arguments or a forum ID.
+ * @param array<string, mixed>|int $args Supported dropdown arguments or a forum ID.
  *  - select_id: Select id. Defaults to bbp_forum_visibility
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
@@ -2919,7 +2919,7 @@ function bbp_form_forum_visibility_dropdown( $args = array() ) {
  *
  * @since 2.1.0 bbPress (r3563)
  *
- * @param array|int $args Supported dropdown arguments or a forum ID.
+ * @param array<string, mixed>|int $args Supported dropdown arguments or a forum ID.
  *  - select_id: Select id. Defaults to bbp_forum_visibility
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
