@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $reference Reference type: 'topic' or 'forum'.
  * @param bool   $dry_run   Whether to preview without writes.
- * @return array Status code, repair counts, and progress flags.
+ * @return array<string, mixed> Status code, repair counts, and progress flags.
  */
 function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run = false ) {
 	$batch = bbp_admin_repair_tool_batch_status(
@@ -188,6 +188,7 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
  * @since 2.6.17 bbPress (r7453)
  *
  * @param string $post_type Post type name.
+ * @return void
  */
 function bbp_admin_repair_clean_post_meta_cache( $post_type = '' ) {
 	$bbp_db   = bbp_db();
@@ -206,6 +207,7 @@ function bbp_admin_repair_clean_post_meta_cache( $post_type = '' ) {
  * @since 2.6.0 bbPress (r5885) Upgraded to list-table UI
  *
  * @todo Use a real list table
+ * @return void
  */
 function bbp_admin_repair_page() {
 	bbp_admin_tools_repair_upgrade_page( 'repair' );
@@ -218,7 +220,7 @@ function bbp_admin_repair_page() {
  * @since 2.7.0 bbPress (r8222) Added Dry Run support.
  * @since 2.7.0 bbPress (r8265) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_reply_count() {
 	return bbp_admin_repair_topic_reply_count_process();
@@ -231,7 +233,7 @@ function bbp_admin_repair_topic_reply_count() {
  * @since 2.7.0 bbPress (r8265) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_reply_count_dry_run() {
 	return bbp_admin_repair_topic_reply_count_process( true );
@@ -244,7 +246,7 @@ function bbp_admin_repair_topic_reply_count_dry_run() {
  *
  * @param bool $hidden  Whether to count non-public replies.
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status code, repaired topic count, and completion flag.
+ * @return array<string, mixed> Status code, repaired topic count, and completion flag.
  */
 function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = false ) {
 	$bbp_db  = bbp_db();
@@ -357,7 +359,7 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
  *
  * @param bool $dry_run Whether to preview changes without updating data.
  * @param bool $hidden  Whether to count non-public replies.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_reply_count_process( $dry_run = false, $hidden = false ) {
 	if ( $hidden ) {
@@ -407,7 +409,7 @@ function bbp_admin_repair_topic_reply_count_process( $dry_run = false, $hidden =
  * @since 2.7.0 bbPress (r8221) Added Dry Run support.
  * @since 2.7.0 bbPress (r8281) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_voice_count() {
 	return bbp_admin_repair_topic_voice_count_process();
@@ -420,7 +422,7 @@ function bbp_admin_repair_topic_voice_count() {
  * @since 2.7.0 bbPress (r8281) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_voice_count_dry_run() {
 	return bbp_admin_repair_topic_voice_count_process( true );
@@ -432,7 +434,7 @@ function bbp_admin_repair_topic_voice_count_dry_run() {
  * @since 2.7.0 bbPress (r8281)
  *
  * @param mixed $state   Saved checkpoint.
- * @param array $context Current post types and countable statuses.
+ * @param array<string, mixed> $context Current post types and countable statuses.
  * @return bool Whether progress can resume.
  */
 function bbp_admin_repair_topic_voice_count_is_valid_checkpoint( $state, $context ) {
@@ -464,7 +466,7 @@ function bbp_admin_repair_topic_voice_count_is_valid_checkpoint( $state, $contex
  * @since 2.7.0 bbPress (r8281)
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status code, repair counts, and progress flags.
+ * @return array<string, mixed> Status code, repair counts, and progress flags.
  */
 function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 	$bbp_db  = bbp_db();
@@ -682,7 +684,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8281) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
 	if ( $dry_run ) {
@@ -721,7 +723,7 @@ function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8223) Added Dry Run support.
  * @since 2.7.0 bbPress (r8265) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_hidden_reply_count() {
 	return bbp_admin_repair_topic_hidden_reply_count_process();
@@ -734,7 +736,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
  * @since 2.7.0 bbPress (r8265) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_hidden_reply_count_dry_run() {
 	return bbp_admin_repair_topic_hidden_reply_count_process( true );
@@ -747,7 +749,7 @@ function bbp_admin_repair_topic_hidden_reply_count_dry_run() {
  * @since 2.7.0 bbPress (r8265) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_hidden_reply_count_process( $dry_run = false ) {
 	return bbp_admin_repair_topic_reply_count_process( $dry_run, true );
@@ -760,7 +762,7 @@ function bbp_admin_repair_topic_hidden_reply_count_process( $dry_run = false ) {
  *
  * @param string $type    Count type: topics, replies, or hidden-replies.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Status code, repaired forum count, and progress flags.
+ * @return array<string, mixed> Status code, repaired forum count, and progress flags.
  */
 function bbp_admin_repair_forum_count_batch( $type = 'topics', $dry_run = false ) {
 	$worker = new BBP_Admin_Forum_Counts( $type, $dry_run );
@@ -774,7 +776,7 @@ function bbp_admin_repair_forum_count_batch( $type = 'topics', $dry_run = false 
  *
  * @param string $type    Count type.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_count_process( $type = 'topics', $dry_run = false ) {
 	if ( 'topics' === $type ) {
@@ -835,7 +837,7 @@ function bbp_admin_repair_forum_count_process( $type = 'topics', $dry_run = fals
  * @since 2.7.0 bbPress (r8242) Added Dry Run support.
  * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_topic_count() {
 	return bbp_admin_repair_forum_topic_count_process();
@@ -847,7 +849,7 @@ function bbp_admin_repair_forum_topic_count() {
  * @since 2.7.0 bbPress (r8242)
  * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_topic_count_dry_run() {
 	return bbp_admin_repair_forum_topic_count_process( true );
@@ -860,7 +862,7 @@ function bbp_admin_repair_forum_topic_count_dry_run() {
  * @since 2.7.0 bbPress (r8284) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview the repair without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_topic_count_process( $dry_run = false ) {
 	return bbp_admin_repair_forum_count_process( 'topics', $dry_run );
@@ -873,7 +875,7 @@ function bbp_admin_repair_forum_topic_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8243) Added Dry Run support.
  * @since 2.7.0 bbPress (r8274) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_subforum_count() {
 	return bbp_admin_repair_forum_subforum_count_process();
@@ -886,7 +888,7 @@ function bbp_admin_repair_forum_subforum_count() {
  * @since 2.7.0 bbPress (r8274) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_subforum_count_dry_run() {
 	return bbp_admin_repair_forum_subforum_count_process( true );
@@ -897,8 +899,8 @@ function bbp_admin_repair_forum_subforum_count_dry_run() {
  *
  * @since 2.7.0 bbPress (r8274)
  *
- * @param array|null $forum_ids Optional IDs to inspect, or null for all.
- * @return array Status code and expected counts indexed by forum ID.
+ * @param list<int|string|null>|null $forum_ids Optional IDs to inspect, or null for all.
+ * @return array{code:int, counts?:array<int, int>} Status code and expected counts indexed by forum ID.
  */
 function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
 	$bbp_db    = bbp_db();
@@ -952,8 +954,8 @@ function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
  * @since 2.7.0 bbPress (r8243)
  * @since 2.7.0 bbPress (r8274) Accepts a bounded list of forum IDs.
  *
- * @param array|null $forum_ids Optional IDs to inspect, or null for all.
- * @return array Status code, forum IDs, and number of forums to repair.
+ * @param list<int|string|null>|null $forum_ids Optional IDs to inspect, or null for all.
+ * @return array{code:int, forum_ids?:list<int>, repair_count?:int} Status code, forum IDs, and number of forums to repair.
  */
 function bbp_admin_repair_forum_subforum_count_get_status( $forum_ids = null ) {
 	$result = bbp_admin_repair_forum_subforum_counts( $forum_ids );
@@ -977,7 +979,7 @@ function bbp_admin_repair_forum_subforum_count_get_status( $forum_ids = null ) {
  * @since 2.7.0 bbPress (r8274)
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status code, repaired forum count, and progress flags.
+ * @return array<string, mixed> Status code, repaired forum count, and progress flags.
  */
 function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 	$bbp_db  = bbp_db();
@@ -1086,7 +1088,7 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8274) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_subforum_count_process( $dry_run = false ) {
 	if ( $dry_run ) {
@@ -1121,7 +1123,7 @@ function bbp_admin_repair_forum_subforum_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8244) Added Dry Run support.
  * @since 2.7.0 bbPress (r8267) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_tag_count() {
 	return bbp_admin_repair_topic_tag_count_process();
@@ -1134,7 +1136,7 @@ function bbp_admin_repair_topic_tag_count() {
  * @since 2.7.0 bbPress (r8267) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_tag_count_dry_run() {
 	return bbp_admin_repair_topic_tag_count_process( true );
@@ -1147,8 +1149,8 @@ function bbp_admin_repair_topic_tag_count_dry_run() {
  * @since 2.7.0 bbPress (r8267) Accepts a bounded list of term taxonomy IDs.
  *
  * @param object     $taxonomy          Topic-tag taxonomy object.
- * @param array|null $term_taxonomy_ids Optional IDs to inspect, or null for all.
- * @return array Status code, term taxonomy IDs, and number of tags to repair.
+ * @param list<int>|null $term_taxonomy_ids Optional IDs to inspect, or null for all.
+ * @return array{code:int, term_taxonomy_ids?:list<int>, repair_count?:int} Status code, term taxonomy IDs, and number of tags to repair.
  */
 function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_ids = null ) {
 	$bbp_db          = bbp_db();
@@ -1232,7 +1234,7 @@ function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_
  * @param object   $taxonomy Topic-tag taxonomy object.
  * @param callable $callback Configured term count callback.
  * @param bool     $dry_run  Whether to preview without writes.
- * @return array Status code, tag counts, and initial/completion flags.
+ * @return array<string, mixed> Status code, tag counts, and initial/completion flags.
  */
 function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run = false ) {
 	$bbp_db   = bbp_db();
@@ -1363,7 +1365,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
  * @since 2.7.0 bbPress (r8267) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview the repair without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
 	$result   = esc_html__( 'Failed!', 'bbpress' );
@@ -1427,7 +1429,7 @@ function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8245) Added Dry Run support.
  * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_reply_count() {
 	return bbp_admin_repair_forum_reply_count_process();
@@ -1439,7 +1441,7 @@ function bbp_admin_repair_forum_reply_count() {
  * @since 2.7.0 bbPress (r8245)
  * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_reply_count_dry_run() {
 	return bbp_admin_repair_forum_reply_count_process( true );
@@ -1452,7 +1454,7 @@ function bbp_admin_repair_forum_reply_count_dry_run() {
  * @since 2.7.0 bbPress (r8284) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview the repair without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_reply_count_process( $dry_run = false ) {
 	return bbp_admin_repair_forum_count_process( 'replies', $dry_run );
@@ -1466,7 +1468,7 @@ function bbp_admin_repair_forum_reply_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8246) Added Dry Run support.
  * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_hidden_reply_count() {
 	return bbp_admin_repair_forum_hidden_reply_count_process();
@@ -1478,7 +1480,7 @@ function bbp_admin_repair_forum_hidden_reply_count() {
  * @since 2.7.0 bbPress (r8246)
  * @since 2.7.0 bbPress (r8284) Shares resumable forum recounts.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_hidden_reply_count_dry_run() {
 	return bbp_admin_repair_forum_hidden_reply_count_process( true );
@@ -1491,7 +1493,7 @@ function bbp_admin_repair_forum_hidden_reply_count_dry_run() {
  * @since 2.7.0 bbPress (r8284) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview the repair without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_hidden_reply_count_process( $dry_run = false ) {
 	return bbp_admin_repair_forum_count_process( 'hidden-replies', $dry_run );
@@ -1508,10 +1510,10 @@ function bbp_admin_repair_forum_hidden_reply_count_process( $dry_run = false ) {
  *
  * @param string $tool_id   Repair tool ID.
  * @param string $post_type Post type to count.
- * @param array  $statuses  Public post statuses.
+ * @param list<string> $statuses  Public post statuses.
  * @param string $key       Site-specific user-meta key.
  * @param bool   $dry_run   Whether to preview without writes.
- * @return array Status code, repaired user count, and completion flag.
+ * @return array<string, mixed> Status code, repaired user count, and completion flag.
  */
 function bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses, $key, $dry_run = false ) {
 	$bbp_db = bbp_db();
@@ -1614,7 +1616,7 @@ function bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses
  *
  * @param string $type    Whether to recount 'topic' or 'reply' posts.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_post_count_process( $type, $dry_run = false ) {
 	if ( 'topic' === $type ) {
@@ -1679,7 +1681,7 @@ function bbp_admin_repair_user_post_count_process( $type, $dry_run = false ) {
  * @since 2.7.0 bbPress (r8224) Added Dry Run support.
  * @since 2.7.0 bbPress (r8265) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_user_topic_count() {
 	return bbp_admin_repair_user_topic_count_process();
@@ -1690,7 +1692,7 @@ function bbp_admin_repair_user_topic_count() {
  *
  * @since 2.7.0 bbPress (r8224)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_user_topic_count_dry_run() {
 	return bbp_admin_repair_user_topic_count_process( true );
@@ -1702,7 +1704,7 @@ function bbp_admin_repair_user_topic_count_dry_run() {
  * @since 2.7.0 bbPress (r8224)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_user_topic_count_process( $dry_run = false ) {
 	return bbp_admin_repair_user_post_count_process( 'topic', $dry_run );
@@ -1715,7 +1717,7 @@ function bbp_admin_repair_user_topic_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8225) Added Dry Run support.
  * @since 2.7.0 bbPress (r8265) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_user_reply_count() {
 	return bbp_admin_repair_user_reply_count_process();
@@ -1726,7 +1728,7 @@ function bbp_admin_repair_user_reply_count() {
  *
  * @since 2.7.0 bbPress (r8225)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_user_reply_count_dry_run() {
 	return bbp_admin_repair_user_reply_count_process( true );
@@ -1738,7 +1740,7 @@ function bbp_admin_repair_user_reply_count_dry_run() {
  * @since 2.7.0 bbPress (r8225)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_user_reply_count_process( $dry_run = false ) {
 	return bbp_admin_repair_user_post_count_process( 'reply', $dry_run );
@@ -1751,7 +1753,7 @@ function bbp_admin_repair_user_reply_count_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8347) Validate shared source and preview state.
  *
  * @param mixed $state   Saved progress.
- * @param array $context Current key, post type, and public statuses.
+ * @param array<string, mixed> $context Current key, post type, and public statuses.
  * @return bool Whether the saved state can be resumed.
  */
 function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
@@ -1788,7 +1790,7 @@ function bbp_admin_repair_user_meta_is_valid_checkpoint( $state, $context ) {
  * @param string $token      Scratch generation token.
  * @param string $collection Source-row collection.
  * @param int    $length     Source value length in bytes.
- * @return array|false Sorted unique IDs, or false on invalid scratch data.
+ * @return list<int>|false Sorted unique IDs, or false on invalid scratch data.
  */
 function bbp_admin_repair_user_meta_values( $tool_id, $token, $collection, $length ) {
 	$ids = bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, 'ids', $length );
@@ -1814,7 +1816,7 @@ function bbp_admin_repair_user_meta_values( $tool_id, $token, $collection, $leng
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Status code, repaired stored lists, and progress flags.
+ * @return array<string, mixed> Status code, repaired stored lists, and progress flags.
  */
 function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false ) {
 	$db     = bbp_db();
@@ -2074,7 +2076,7 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
  *
  * @param string $type    Favorites, topic-subscriptions, or forum-subscriptions.
  * @param bool   $dry_run Whether to preview without writes.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = false ) {
 	if ( 'favorites' === $type ) {
@@ -2147,7 +2149,7 @@ function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = fal
  * @since 2.7.0 bbPress (r8226) Added Dry Run support.
  * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_favorites() {
 	return bbp_admin_repair_user_favorites_process();
@@ -2159,7 +2161,7 @@ function bbp_admin_repair_user_favorites() {
  * @since 2.7.0 bbPress (r8226)
  * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_favorites_dry_run() {
 	return bbp_admin_repair_user_favorites_process( true );
@@ -2172,7 +2174,7 @@ function bbp_admin_repair_user_favorites_dry_run() {
  * @since 2.7.0 bbPress (r8286) Shares legacy user-list repair batching.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_favorites_process( $dry_run = false ) {
 	return bbp_admin_repair_user_meta_process( 'favorites', $dry_run );
@@ -2185,7 +2187,7 @@ function bbp_admin_repair_user_favorites_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8227) Added Dry Run support.
  * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_topic_subscriptions() {
 	return bbp_admin_repair_user_topic_subscriptions_process();
@@ -2197,7 +2199,7 @@ function bbp_admin_repair_user_topic_subscriptions() {
  * @since 2.7.0 bbPress (r8227)
  * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_topic_subscriptions_dry_run() {
 	return bbp_admin_repair_user_topic_subscriptions_process( true );
@@ -2210,7 +2212,7 @@ function bbp_admin_repair_user_topic_subscriptions_dry_run() {
  * @since 2.7.0 bbPress (r8286) Shares legacy user-list repair batching.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_topic_subscriptions_process( $dry_run = false ) {
 	return bbp_admin_repair_user_meta_process( 'topic-subscriptions', $dry_run );
@@ -2223,7 +2225,7 @@ function bbp_admin_repair_user_topic_subscriptions_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8228) Added Dry Run support.
  * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_forum_subscriptions() {
 	return bbp_admin_repair_user_forum_subscriptions_process();
@@ -2235,7 +2237,7 @@ function bbp_admin_repair_user_forum_subscriptions() {
  * @since 2.7.0 bbPress (r8228)
  * @since 2.7.0 bbPress (r8286) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_forum_subscriptions_dry_run() {
 	return bbp_admin_repair_user_forum_subscriptions_process( true );
@@ -2248,7 +2250,7 @@ function bbp_admin_repair_user_forum_subscriptions_dry_run() {
  * @since 2.7.0 bbPress (r8286) Shares legacy user-list repair batching.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_user_forum_subscriptions_process( $dry_run = false ) {
 	return bbp_admin_repair_user_meta_process( 'forum-subscriptions', $dry_run );
@@ -2263,7 +2265,7 @@ function bbp_admin_repair_user_forum_subscriptions_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8229) Added Dry Run support.
  * @since 2.7.0 bbPress (r8288) Process one resumable batch per call.
  *
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_repair_user_roles() {
 	return bbp_admin_repair_user_roles_process();
@@ -2274,7 +2276,7 @@ function bbp_admin_repair_user_roles() {
  *
  * @since 2.7.0 bbPress (r8229)
  *
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_repair_user_roles_dry_run() {
 	return bbp_admin_repair_user_roles_process( true );
@@ -2292,8 +2294,8 @@ function bbp_admin_repair_user_roles_dry_run() {
  * @param int        $user_id User ID.
  * @param string     $role    Target forum role.
  * @param bool       $dry_run Whether to preview without writes.
- * @param array|null $planned Earlier preview of this user's forum roles.
- * @return array Status, changed assignments, and planned forum roles.
+ * @param list<string>|null $planned Earlier preview of this user's forum roles.
+ * @return array{code:int, changed:int, roles:list<string>} Status, changed assignments, and planned forum roles.
  */
 function bbp_admin_repair_user_role( $user_id, $role, $dry_run = false, $planned = null ) {
 	$db     = bbp_db();
@@ -2383,7 +2385,7 @@ function bbp_admin_repair_user_role_plan_is_valid( $roles ) {
  * @access private
  *
  * @param mixed $state   Saved checkpoint.
- * @param array $context Current role map and site context.
+ * @param array<string, mixed> $context Current role map and site context.
  * @return bool Whether the mapping checkpoint can be resumed.
  */
 function bbp_admin_repair_user_roles_is_valid_checkpoint( $state, $context ) {
@@ -2409,7 +2411,7 @@ function bbp_admin_repair_user_roles_is_valid_checkpoint( $state, $context ) {
  * @since 2.7.0 bbPress (r8348) Share the procedural worker lifecycle.
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status, changed assignments, and completion flags.
+ * @return array<string, mixed> Status, changed assignments, and completion flags.
  */
 function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 	$db      = bbp_db();
@@ -2579,7 +2581,7 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8229)
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Status code, feedback, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, feedback, and completion flag.
  */
 function bbp_admin_repair_user_roles_process( $dry_run = false ) {
 	if ( $dry_run ) {
@@ -2608,7 +2610,7 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8241) Added Dry Run support.
  * @since 2.7.0 bbPress (r8299) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_freshness() {
 	return bbp_admin_repair_freshness_process();
@@ -2620,7 +2622,7 @@ function bbp_admin_repair_freshness() {
  * @since 2.7.0 bbPress (r8241)
  * @since 2.7.0 bbPress (r8299) Processes one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_freshness_dry_run() {
 	return bbp_admin_repair_freshness_process( true );
@@ -2632,7 +2634,7 @@ function bbp_admin_repair_freshness_dry_run() {
  * @since 2.7.0 bbPress (r8299)
  *
  * @param bool $dry_run Whether to preview without updating metadata or progress.
- * @return array Status, totals, and progress flags.
+ * @return array<string, mixed> Status, totals, and progress flags.
  */
 function bbp_admin_repair_freshness_batch( $dry_run = false ) {
 	$repair = new BBP_Admin_Forum_Freshness( $dry_run );
@@ -2645,7 +2647,7 @@ function bbp_admin_repair_freshness_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8241)
  *
  * @param bool $dry_run Whether to preview the rebuild without updating data.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_freshness_process( $dry_run = false ) {
 	$statement = $dry_run
@@ -2685,7 +2687,7 @@ function bbp_admin_repair_freshness_process( $dry_run = false ) {
  * @since 2.3.0 bbPress (r4695)
  * @since 2.7.0 bbPress (r8219) Added Dry Run support.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_sticky() {
 	return bbp_admin_repair_sticky_process();
@@ -2696,7 +2698,7 @@ function bbp_admin_repair_sticky() {
  *
  * @since 2.7.0 bbPress (r8219)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_sticky_dry_run() {
 	return bbp_admin_repair_sticky_process( true );
@@ -2709,7 +2711,7 @@ function bbp_admin_repair_sticky_dry_run() {
  * @since 2.7.0 bbPress (r8348) Validate aggregate preview state.
  *
  * @param mixed $state   Saved checkpoint.
- * @param array $context Current post type and super-sticky configuration.
+ * @param array<string, mixed> $context Current post type and super-sticky configuration.
  * @return bool
  */
 function bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) {
@@ -2742,7 +2744,7 @@ function bbp_admin_repair_sticky_is_valid_checkpoint( $state, $context ) {
  * @param string $token      Scratch generation token.
  * @param string $collection Forum source collection.
  * @param int    $length     Number of source assignments.
- * @return array|false Ordered surviving assignments, or false on invalid data.
+ * @return list<mixed>|false Ordered surviving assignments, or false on invalid data.
  */
 function bbp_admin_repair_sticky_values( $tool_id, $token, $collection, $length ) {
 	return bbp_admin_repair_tool_scratch_chunks( $tool_id, $token, $collection, 'items', $length );
@@ -2760,7 +2762,7 @@ function bbp_admin_repair_sticky_values( $tool_id, $token, $collection, $length 
  * @since 2.7.0 bbPress (r8348) Share the procedural worker lifecycle.
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status code, repaired assignments, and progress flags.
+ * @return array<string, mixed> Status code, repaired assignments, and progress flags.
  */
 function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 	$db      = bbp_db();
@@ -3064,7 +3066,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8303) Process one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating metadata.
- * @return array Status code, message, and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status code, message, and completion flag.
  */
 function bbp_admin_repair_sticky_process( $dry_run = false ) {
 	$batch = bbp_admin_repair_sticky_batch( $dry_run );
@@ -3098,7 +3100,7 @@ function bbp_admin_repair_sticky_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8218) Added Dry Run support.
  * @since 2.7.0 bbPress (r8253) Process one resumable batch per call.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_closed_topics() {
 	return bbp_admin_repair_closed_topics_process();
@@ -3109,7 +3111,7 @@ function bbp_admin_repair_closed_topics() {
  *
  * @since 2.7.0 bbPress (r8218)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_closed_topics_dry_run() {
 	return bbp_admin_repair_closed_topics_process( true );
@@ -3135,7 +3137,7 @@ function bbp_admin_repair_closed_topics_is_valid_checkpoint( $state ) {
  * @since 2.7.0 bbPress (r8348)
  *
  * @param bool $dry_run Whether to preview changes without updating metadata.
- * @return array Status, repair count, and progress flags.
+ * @return array<string, mixed> Status, repair count, and progress flags.
  */
 function bbp_admin_repair_closed_topics_batch( $dry_run = false ) {
 	$db      = bbp_db();
@@ -3213,7 +3215,7 @@ function bbp_admin_repair_closed_topics_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8348) Share the procedural worker lifecycle.
  *
  * @param bool $dry_run Whether to preview changes without updating metadata.
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 	if ( $dry_run ) {
@@ -3240,7 +3242,7 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
  * @since 2.2.0 bbPress (r4105)
  * @since 2.7.0 bbPress (r8240) Added Dry Run support.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_forum_visibility() {
 	return bbp_admin_repair_forum_visibility_process();
@@ -3251,7 +3253,7 @@ function bbp_admin_repair_forum_visibility() {
  *
  * @since 2.7.0 bbPress (r8240)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_forum_visibility_dry_run() {
 	return bbp_admin_repair_forum_visibility_process( true );
@@ -3263,7 +3265,7 @@ function bbp_admin_repair_forum_visibility_dry_run() {
  * @since 2.7.0 bbPress (r8304)
  *
  * @param mixed $stored   Existing option value.
- * @param array $expected Expected forum IDs.
+ * @param list<int> $expected Expected forum IDs.
  * @return int
  */
 function bbp_admin_repair_forum_visibility_changes( $stored, $expected ) {
@@ -3296,7 +3298,7 @@ function bbp_admin_repair_forum_visibility_changes( $stored, $expected ) {
  * @param string $post_type Forum post type.
  * @param string $status    Forum visibility status.
  * @param int    $upper_id  Fixed post ID bound for this generation.
- * @return array|false Ordered forum IDs, or false on a read failure.
+ * @return list<int>|false Ordered forum IDs, or false on a read failure.
  */
 function bbp_admin_repair_forum_visibility_ids( $post_type, $status, $upper_id ) {
 	$db  = bbp_db();
@@ -3312,7 +3314,7 @@ function bbp_admin_repair_forum_visibility_ids( $post_type, $status, $upper_id )
  * @since 2.7.0 bbPress (r8348) Validate aggregate preview state.
  *
  * @param mixed $state   Saved checkpoint.
- * @param array $context Current forum post type and visibility statuses.
+ * @param array<string, mixed> $context Current forum post type and visibility statuses.
  * @return bool
  */
 function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) {
@@ -3353,7 +3355,7 @@ function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context
  * @since 2.7.0 bbPress (r8348) Share the procedural worker lifecycle.
  *
  * @param bool $dry_run Whether to preview without writes or cache invalidation.
- * @return array Status, counts and completion flags.
+ * @return array<string, mixed> Status, counts and completion flags.
  */
 function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
 	$db      = bbp_db();
@@ -3538,7 +3540,7 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8304) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 	$batch = bbp_admin_repair_forum_visibility_batch( $dry_run );
@@ -3590,7 +3592,7 @@ function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8239) Added Dry Run support.
  * @since 2.7.0 bbPress (r8280) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_meta() {
 	return bbp_admin_repair_forum_meta_process();
@@ -3603,7 +3605,7 @@ function bbp_admin_repair_forum_meta() {
  * @since 2.7.0 bbPress (r8280) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_meta_dry_run() {
 	return bbp_admin_repair_forum_meta_process( true );
@@ -3615,7 +3617,7 @@ function bbp_admin_repair_forum_meta_dry_run() {
  * @since 2.7.0 bbPress (r8280)
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status code, repair counts, and progress flags.
+ * @return array<string, mixed> Status code, repair counts, and progress flags.
  */
 function bbp_admin_repair_forum_meta_batch( $dry_run = false ) {
 	return bbp_admin_repair_post_reference_batch( 'forum', $dry_run );
@@ -3628,7 +3630,7 @@ function bbp_admin_repair_forum_meta_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8280) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
 	if ( $dry_run ) {
@@ -3701,7 +3703,7 @@ function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8238) Added Dry Run support.
  * @since 2.7.0 bbPress (r8277) Processes one resumable batch per call.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_meta() {
 	return bbp_admin_repair_topic_meta_process();
@@ -3714,7 +3716,7 @@ function bbp_admin_repair_topic_meta() {
  * @since 2.7.0 bbPress (r8277) Added resumable batching.
  * @since 2.7.0 bbPress (r8331) Previews the complete operation without changing saved progress.
  *
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_meta_dry_run() {
 	return bbp_admin_repair_topic_meta_process( true );
@@ -3730,7 +3732,7 @@ function bbp_admin_repair_topic_meta_dry_run() {
  * @since 2.7.0 bbPress (r8280) Shares the post-reference worker.
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status code, repair counts, and progress flags.
+ * @return array<string, mixed> Status code, repair counts, and progress flags.
  */
 function bbp_admin_repair_topic_meta_batch( $dry_run = false ) {
 	return bbp_admin_repair_post_reference_batch( 'topic', $dry_run );
@@ -3743,7 +3745,7 @@ function bbp_admin_repair_topic_meta_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8277) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview changes without updating data.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 	if ( $dry_run ) {
@@ -3803,7 +3805,7 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
  * @since 2.6.0 bbPress (r5368)
  * @since 2.7.0 bbPress (r8220) Added Dry Run support.
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_reply_menu_order() {
 	return bbp_admin_repair_reply_menu_order_process();
@@ -3814,7 +3816,7 @@ function bbp_admin_repair_reply_menu_order() {
  *
  * @since 2.7.0 bbPress (r8220)
  *
- * @return array An array of the status code and the message.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} An array of the status code and the message.
  */
 function bbp_admin_repair_reply_menu_order_dry_run() {
 	return bbp_admin_repair_reply_menu_order_process( true );
@@ -3934,7 +3936,7 @@ function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id,
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
- * @param array $state Validated scan bounds and phase.
+ * @param array<string, mixed> $state Validated scan bounds and phase.
  * @param int   $size Maximum source rows to read.
  * @param array $ranks Native source prefixes shared with the position helper.
  * @param array|null $preview Source rows, positions, and cache IDs for this window.
@@ -4019,7 +4021,7 @@ function bbp_admin_repair_reply_menu_order_is_valid_checkpoint( $state ) {
  * @since 2.7.0 bbPress (r8305)
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Status, counts and completion flags.
+ * @return array<string, mixed> Status, counts and completion flags.
  */
 function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 	$db      = bbp_db();
@@ -4167,7 +4169,7 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
  * @since 2.7.0 bbPress (r8305) Processes one resumable batch per call.
  *
  * @param bool $dry_run Whether to preview without writes.
- * @return array Tool result and completion flag.
+ * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 	$batch = bbp_admin_repair_reply_menu_order_batch( $dry_run );
