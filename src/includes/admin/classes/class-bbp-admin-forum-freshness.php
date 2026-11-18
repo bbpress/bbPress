@@ -38,7 +38,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8331)
 	 *
-	 * @var array
+	 * @var array<int, string>
 	 */
 	private $topic_times = array();
 
@@ -50,7 +50,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @var array
+	 * @var array<int, array{id:int, time:string}>
 	 */
 	private $forum_topics = array();
 
@@ -59,7 +59,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @var array
+	 * @var array{topics:int, forums:int, stale:int}
 	 */
 	private $totals = array(
 		'topics' => 0,
@@ -97,7 +97,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array Repair result, continuation state, and aggregate totals.
+	 * @return array<string, mixed> Repair result, continuation state, and aggregate totals.
 	 */
 	public function run() {
 		return array_merge( parent::run(), $this->totals );
@@ -108,7 +108,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array Freshness phase names.
+	 * @return list<string> Freshness phase names.
 	 */
 	protected function phases() {
 		return array_merge( parent::phases(), array( 'topics', 'orphans', 'summary-cleanup' ) );
@@ -119,7 +119,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array Active freshness phase names.
+	 * @return list<string> Active freshness phase names.
 	 */
 	protected function active_phases() {
 		return array_merge( parent::active_phases(), array( 'topics' ) );
@@ -130,7 +130,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $state Saved checkpoint.
+	 * @param array<string, mixed> $state Saved checkpoint.
 	 * @return bool Whether the checkpoint can be resumed.
 	 */
 	protected function valid_state( $state ) {
@@ -165,7 +165,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array|false New checkpoint, or false after a database failure.
+	 * @return array<string, mixed>|false New checkpoint, or false after a database failure.
 	 */
 	protected function new_state() {
 		$state = parent::new_state();
@@ -204,7 +204,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8359) Store every active topic node in its checkpoint.
 	 *
 	 * @param int $id Source post ID.
-	 * @return array|false Traversal node, or false when no node exists.
+	 * @return mixed Stored traversal node value, or false when none exists.
 	 */
 	protected function read_node( $id ) {
 		if ( 'topics' !== $this->state['phase'] ) {
@@ -220,7 +220,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8331) Store browser Dry Run topic nodes between requests.
 	 * @since 2.7.0 bbPress (r8359) Store every active topic node in its checkpoint.
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @return bool Whether the node was saved.
 	 */
 	protected function save_node( $node ) {
@@ -312,7 +312,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @return array Node phase names.
+	 * @return list<string> Node phase names.
 	 */
 	protected function node_phases() {
 		return array_merge( parent::node_phases(), array( 'replies' ) );
@@ -337,9 +337,9 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array  $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @param object $post Source post row.
-	 * @return array Prepared traversal node.
+	 * @return array<string, mixed> Prepared traversal node.
 	 */
 	protected function prepare_node( $node, $post ) {
 		$node            = parent::prepare_node( $node, $post );
@@ -373,7 +373,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @return bool Whether the freshness fields are valid.
 	 */
 	protected function valid_extra_node( $node ) {
@@ -422,7 +422,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @param int    $id   Source post ID.
 	 * @param object $post Source post row.
-	 * @return array Activity values keyed by metadata name.
+	 * @return array<string, int|string|null> Activity values keyed by metadata name.
 	 */
 	protected function values( $id, $post ) {
 		$values = array_fill_keys( $this->meta_keys, null );
@@ -464,7 +464,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8359)
 	 *
 	 * @param int $id Post ID.
-	 * @return array Stored values keyed by metadata name.
+	 * @return array<string, string> Stored values keyed by metadata name.
 	 */
 	private function metadata_snapshot( $id ) {
 		$args   = array();
@@ -495,7 +495,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @param array $values Raw metadata values.
+	 * @param array<string, string> $values Raw metadata values.
 	 * @return bool Whether a newer topic or reply exists.
 	 */
 	private function has_newer_activity( $values ) {
@@ -531,9 +531,9 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8359)
 	 *
 	 * @param array $node           Traversal node, passed by reference.
-	 * @param array $current        Current raw metadata values.
+	 * @param array<string, string> $current Current raw metadata values.
 	 * @param bool  $prefer_current Whether every current value is newer than the snapshot.
-	 * @param array $expected       Expected raw metadata after this repair's own write.
+	 * @param array<string, string> $expected Expected raw metadata after this repair's own write.
 	 * @return bool Whether the concurrent values were accepted.
 	 */
 	private function accept_concurrent_metadata( &$node, $current, $prefer_current = false, $expected = array() ) {
@@ -641,7 +641,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @param array $node  Topic traversal node.
+	 * @param array<string, mixed> $node Topic traversal node.
 	 * @param int   $limit Maximum reply rows to inspect.
 	 * @return int Work units consumed.
 	 */
@@ -696,7 +696,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @param array  $node   Traversal node, passed by reference.
 	 * @param string $key    Completed metadata key.
-	 * @param array  $result Shared metadata result.
+	 * @param array<string, mixed> $result Shared metadata result.
 	 * @return bool Whether processing may continue.
 	 */
 	protected function after_write( &$node, $key, $result ) {
@@ -773,7 +773,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $node Completed topic node.
+	 * @param array<string, mixed> $node Completed topic node.
 	 * @return bool Whether the aggregate was recorded.
 	 */
 	private function record_forum_topic( $node ) {
@@ -872,7 +872,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param array $parent_node Parent traversal node, passed by reference.
-	 * @param array $child       Completed child traversal node.
+	 * @param array<string, mixed> $child Completed child traversal node.
 	 * @param int   $edge        Child forum ID used by the parent edge.
 	 */
 	protected function merge_child( &$parent_node, $child, $edge ) {
@@ -907,9 +907,9 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array  $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @param string $key  Completed metadata key.
-	 * @return array Updated traversal node.
+	 * @return array<string, mixed> Updated traversal node.
 	 * @phpstan-impure
 	 */
 	protected function after_key( $node, $key ) {
@@ -988,7 +988,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8331)
 	 *
-	 * @param array $node Completed traversal node.
+	 * @param array<string, mixed> $node Completed traversal node.
 	 */
 	protected function leaving_node( $node ) {
 		++$this->totals[ $node['kind'] ];
@@ -999,7 +999,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $data Preview simulation data.
+	 * @param array<string, mixed> $data Preview simulation data.
 	 * @return bool Whether the aggregate totals are valid.
 	 */
 	protected function valid_preview_state( $data ) {
@@ -1017,7 +1017,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $data Preview simulation data.
+	 * @param array<string, mixed> $data Preview simulation data.
 	 */
 	protected function load_preview_state( $data ) {
 		if ( isset( $data['totals'] ) ) {
@@ -1042,7 +1042,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param object $post Source post row.
-	 * @return array Normalized source identity.
+	 * @return array{parent:int, status:string, type:string, date:string} Normalized source identity.
 	 */
 	protected function source_identity( $post ) {
 		$source         = parent::source_identity( $post );

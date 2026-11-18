@@ -46,7 +46,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @var array
+	 * @var list<string>
 	 */
 	protected $meta_keys;
 
@@ -55,7 +55,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	protected $context;
 
@@ -73,7 +73,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @var array
+	 * @var array<int, mixed>
 	 */
 	protected $nodes = array();
 
@@ -82,7 +82,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @var array
+	 * @var array<string, bool>
 	 */
 	protected $created_options = array();
 
@@ -91,7 +91,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @var array
+	 * @var array<string, bool>
 	 */
 	protected $inspected_options = array();
 
@@ -100,7 +100,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @var array
+	 * @var array<int, bool>
 	 */
 	protected $changed_ids = array();
 
@@ -109,7 +109,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8331)
 	 *
-	 * @var array|null
+	 * @var array<string, mixed>|null
 	 */
 	protected $preview_metadata = null;
 
@@ -163,7 +163,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array Repair result and continuation state.
+	 * @return array<string, mixed> Repair result and continuation state.
 	 */
 	public function run() {
 		$complete       = false;
@@ -305,7 +305,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $state Saved checkpoint.
+	 * @param array<string, mixed> $state Saved checkpoint.
 	 * @return bool Whether the checkpoint can be resumed.
 	 */
 	protected function valid_state( $state ) {
@@ -338,7 +338,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array|false New checkpoint, or false after a database failure.
+	 * @return array<string, mixed>|false New checkpoint, or false after a database failure.
 	 */
 	protected function new_state() {
 		$upper = $this->upper_id();
@@ -386,7 +386,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int $id Post ID.
-	 * @return array|false Traversal node, or false when none exists or it is invalid.
+	 * @return array<string, mixed>|false Traversal node, or false when none exists or it is invalid.
 	 * @phpstan-impure
 	 */
 	protected function get_node( $id ) {
@@ -424,7 +424,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @return bool Whether the node was saved.
 	 */
 	protected function persist_node( $node ) {
@@ -445,7 +445,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int $id Post ID.
-	 * @return array|false Stored node, or false when no node exists.
+	 * @return mixed Stored node value, or false when no node exists.
 	 */
 	protected function read_node( $id ) {
 		if ( ! $this->persisted ) {
@@ -463,7 +463,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @return bool Whether the node was saved or safely retained in memory.
 	 */
 	protected function save_node( $node ) {
@@ -482,7 +482,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param int  $id        Post ID.
 	 * @param int  $parent_id Parent post ID in this traversal.
 	 * @param bool $counted   Whether to calculate values or prune stale metadata.
-	 * @return array|false Traversal node, deferred marker, or false on failure.
+	 * @return array<string, mixed>|false Traversal node, deferred marker, or false on failure.
 	 */
 	protected function enter_node( $id, $parent_id, $counted ) {
 		$id   = $this->normalize_id( $id, $counted );
@@ -567,7 +567,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param int      $id     Parent forum ID.
 	 * @param int|null $cursor Last child ID, or null to return a compatibility list.
 	 * @param int      $limit  Optional maximum compatibility-list rows.
-	 * @return array Child forum IDs.
+	 * @return array<int, int|string> Child forum IDs.
 	 * @phpstan-impure
 	 */
 	protected function child_ids( $id, $cursor = null, $limit = 0 ) {
@@ -601,7 +601,8 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
+	 * @return void
 	 */
 	protected function visit_children( $node ) {
 		// Persist each edge before descending. Clear it only with its merged total,
@@ -699,7 +700,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node  Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @param int   $limit Maximum metadata rows to inspect.
 	 * @return int Work units consumed.
 	 */
@@ -896,7 +897,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array Traversal phase names.
+	 * @return list<string> Traversal phase names.
 	 */
 	protected function phases() {
 		return array( 'prepare', 'count', 'prune', 'cleanup' );
@@ -907,7 +908,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array Active traversal phase names.
+	 * @return list<string> Active traversal phase names.
 	 */
 	protected function active_phases() {
 		return array( 'count', 'prune' );
@@ -932,7 +933,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @return bool Whether the additional fields are valid.
 	 */
 	protected function valid_extra_node( $node ) {
@@ -958,7 +959,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @return array|null Forum statuses, or null to include every status.
+	 * @return list<string>|null Forum statuses, or null to include every status.
 	 */
 	protected function root_statuses() {
 		return $this->context['forums'];
@@ -1008,7 +1009,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @return array Node phase names.
+	 * @return list<string> Node phase names.
 	 */
 	protected function node_phases() {
 		return array( 'children', 'write', 'done' );
@@ -1020,9 +1021,9 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array  $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @param object $post Source post row.
-	 * @return array Prepared traversal node.
+	 * @return array<string, mixed> Prepared traversal node.
 	 * @phpstan-impure
 	 */
 	protected function prepare_node( $node, $post ) {
@@ -1036,9 +1037,9 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param array  $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @param string $key  Completed metadata key.
-	 * @return array Updated traversal node.
+	 * @return array<string, mixed> Updated traversal node.
 	 */
 	protected function after_key( $node, $key ) {
 		return $node;
@@ -1053,7 +1054,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @param array  $node   Traversal node, passed by reference.
 	 * @param string $key    Completed metadata key.
-	 * @param array  $result Shared metadata result.
+	 * @param array<string, mixed> $result Shared metadata result.
 	 * @return bool Whether processing may continue.
 	 */
 	protected function after_write( &$node, $key, $result ) {
@@ -1067,7 +1068,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param object $post Source post row.
-	 * @return array Normalized source identity.
+	 * @return array{parent:int, status:string, type:string} Normalized source identity.
 	 */
 	protected function source_identity( $post ) {
 		return array(
@@ -1105,7 +1106,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param array $parent_node Parent traversal node, passed by reference.
-	 * @param array $child       Completed child traversal node.
+	 * @param array<string, mixed> $child Completed child traversal node.
 	 * @param int   $edge        Child post ID used by the parent edge.
 	 * @return bool Whether the child was ready and merged.
 	 * @phpstan-impure
@@ -1139,6 +1140,8 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * Reset subclass state after rotating to a new traversal generation.
 	 *
 	 * @since 2.7.0 bbPress (r8359)
+	 *
+	 * @return void
 	 */
 	protected function reset_generation() {}
 
@@ -1147,7 +1150,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $data Preview simulation data.
+	 * @param array<string, mixed> $data Preview simulation data.
 	 * @return bool Whether the subclass data is valid.
 	 */
 	protected function valid_preview_state( $data ) {
@@ -1159,7 +1162,8 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8350)
 	 *
-	 * @param array $data Preview simulation data.
+	 * @param array<string, mixed> $data Preview simulation data.
+	 * @return void
 	 */
 	protected function load_preview_state( $data ) {}
 
@@ -1169,6 +1173,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8350)
 	 *
 	 * @param array $data Preview simulation data, passed by reference.
+	 * @return void
 	 */
 	protected function save_preview_state( &$data ) {}
 
@@ -1177,7 +1182,8 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8331)
 	 *
-	 * @param array $node Completed traversal node.
+	 * @param array<string, mixed> $node Completed traversal node.
+	 * @return void
 	 */
 	protected function leaving_node( $node ) {}
 
@@ -1189,7 +1195,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @param int    $id   Source post ID.
 	 * @param object $post Source post row.
-	 * @return array Values keyed by metadata name.
+	 * @return array<string, mixed> Values keyed by metadata name.
 	 * @phpstan-impure
 	 */
 	abstract protected function values( $id, $post );
@@ -1211,6 +1217,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param array $parent_node Parent traversal node, passed by reference.
 	 * @param array $child       Completed child traversal node.
 	 * @param int   $edge        Child post ID used by the parent edge.
+	 * @return void
 	 */
 	abstract protected function merge_child( &$parent_node, $child, $edge );
 }
