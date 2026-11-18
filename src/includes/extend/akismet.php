@@ -478,22 +478,18 @@ class BBP_Akismet {
 		$post_data['user_agent']   = bbp_current_author_ua();
 
 		// Keep all form fields, including third-party fields, as Akismet signals.
-		if ( ! empty( $_POST ) && is_countable( $_POST ) ) {
-			foreach ( $_POST as $key => $value ) {
-				if ( is_string( $value ) ) {
-					$post_data[ 'POST_' . $key ] = $value;
-				}
+		foreach ( $this->request_fields( $_POST ) as $key => $value ) {
+			if ( is_string( $value ) ) {
+				$post_data[ 'POST_' . $key ] = $value;
 			}
 		}
 
 		// Keep server fields for third-party signals, but omit known credential keys.
-		if ( ! empty( $_SERVER ) && is_countable( $_SERVER ) ) {
-			foreach ( $_SERVER as $key => $value ) {
-				if ( is_string( $value ) && ! $this->is_sensitive_server_key( $key ) ) {
-					$post_data[ $key ] = $value;
-				} else {
-					$post_data[ $key ] = '';
-				}
+		foreach ( $this->request_fields( $_SERVER ) as $key => $value ) {
+			if ( is_string( $value ) && ! $this->is_sensitive_server_key( $key ) ) {
+				$post_data[ $key ] = $value;
+			} else {
+				$post_data[ $key ] = '';
 			}
 		}
 
@@ -531,6 +527,18 @@ class BBP_Akismet {
 
 		// Return the post data, with the results of the external Akismet request
 		return $post_data;
+	}
+
+	/**
+	 * Return request fields when a superglobal is still an array.
+	 *
+	 * @since 2.7.0 bbPress (r8487)
+	 *
+	 * @param mixed $fields Request fields, which another plugin may replace.
+	 * @return array<array-key, mixed> Request fields, or an empty array for invalid input.
+	 */
+	private function request_fields( $fields ) {
+		return is_array( $fields ) ? $fields : array();
 	}
 
 	/**

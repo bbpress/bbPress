@@ -219,6 +219,34 @@ class BBP_Tests_Security_Akismet extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_akismet_skips_non_array_request_globals() {
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+
+		$old_post   = $_POST;
+		$old_server = $_SERVER;
+		add_filter( 'bbp_bypass_check_for_spam', '__return_true' );
+
+		try {
+			$_POST   = 'invalid-post-fields';
+			$_SERVER = 'invalid-server-fields';
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$method     = $reflection->getMethod( 'maybe_spam' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+			$result = $method->invoke( $akismet );
+
+			$this->assertArrayHasKey( 'blog', $result );
+			$this->assertArrayNotHasKey( 'POST_0', $result );
+			$this->assertArrayNotHasKey( 0, $result );
+		} finally {
+			remove_filter( 'bbp_bypass_check_for_spam', '__return_true' );
+			$_POST   = $old_post;
+			$_SERVER = $old_server;
+		}
+	}
+
 	public function test_anonymous_akismet_author_remains_available() {
 		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
 		$old_post = $_POST;
