@@ -27,7 +27,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8359)
 	 *
-	 * @var array
+	 * @var array<int, array{last_changed:string, values:array<string, int>}>
 	 */
 	private $validated_counts = array();
 
@@ -69,7 +69,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @param int    $id       Forum ID.
 	 * @param string $type     Child post type.
-	 * @param array  $statuses Post statuses to count.
+	 * @param string[] $statuses Post statuses to count.
 	 * @param bool   $hidden   Whether the count is for non-public children.
 	 * @return int Filtered child count.
 	 */
@@ -119,7 +119,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @param int         $id   Forum ID.
 	 * @param object|null $post Forum source row. Unused by recounts.
-	 * @return array Metadata values keyed by metadata name.
+	 * @return array<string, int> Metadata values keyed by metadata name.
 	 */
 	protected function values( $id, $post ) {
 		if ( 'topics' === $this->type ) {
@@ -168,9 +168,9 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array  $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @param object $post Forum source row.
-	 * @return array Prepared traversal node.
+	 * @return array<string, mixed> Prepared traversal node.
 	 */
 	protected function prepare_node( $node, $post ) {
 		$node           = parent::prepare_node( $node, $post );
@@ -183,7 +183,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param array $node Traversal node.
+	 * @param array<string, mixed> $node Traversal node.
 	 * @return bool Whether the recount fields are valid.
 	 */
 	protected function valid_extra_node( $node ) {
@@ -253,9 +253,10 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8284)
 	 *
-	 * @param array $parent_node Parent traversal node, passed by reference.
-	 * @param array $child       Completed child traversal node.
-	 * @param int   $edge        Child forum ID used by the parent edge.
+	 * @param array<string, mixed> $parent_node Parent traversal node, passed by reference.
+	 * @param array<string, mixed> $child       Completed child traversal node.
+	 * @param int                  $edge        Child forum ID used by the parent edge.
+	 * @return void
 	 */
 	protected function merge_child( &$parent_node, $child, $edge ) {
 		$total_key = $this->meta_keys[1];

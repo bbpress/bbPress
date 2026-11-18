@@ -32,7 +32,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @param array $args Optional list table arguments.
+	 * @param array<string, mixed> $args Optional list table arguments.
 	 */
 	public function __construct( $args = array() ) {
 
@@ -58,7 +58,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @see WP_List_Table::single_row_columns()
 	 *
-	 * @return array An associative array containing column information
+	 * @return array<string, string> An associative array containing column information.
 	 */
 	public function get_columns() {
 		return array(
@@ -74,7 +74,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @return array An associative array containing the `bbp_reply_created` column.
+	 * @return array<string, array{string, bool}> An associative array containing the `bbp_reply_created` column.
 	 */
 	public function get_sortable_columns() {
 		return array(
@@ -87,7 +87,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @return array An associative array containing all the bulk actions.
+	 * @return array<string, string> An associative array containing all the bulk actions.
 	 */
 	public function get_bulk_actions() {
 
@@ -131,6 +131,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @param WP_Post|string $item Reply post, or an empty string when omitted.
+	 * @return void
 	 */
 	public function column_bbp_topic_reply_author( $item = '' ) {
 		if ( ! ( $item instanceof WP_Post ) ) {
@@ -200,6 +201,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Handle bulk action requests.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @return void
 	 */
 	public function process_bulk_action() {
 		switch ( $this->current_action() ) {
@@ -218,6 +221,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @param int $topic_id Topic whose replies are listed.
+	 * @return void
 	 */
 	public function prepare_items( $topic_id = 0 ) {
 
@@ -285,6 +289,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Message to be displayed when there are no items.
 	 *
 	 * @since 2.6.0 bbPress (r5930)
+	 *
+	 * @return void
 	 */
 	public function no_items() {
 		esc_html_e( 'No replies to this topic.', 'bbpress' );
@@ -297,6 +303,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * with a nonce and check that we do not need.
 	 *
 	 * @since 2.6.0 bbPress (r5930)
+	 *
+	 * @return void
 	 */
 	public function display() {
 
@@ -358,6 +366,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * @access public
 	 *
 	 * @param object $item The current item.
+	 * @return void
 	 */
 	public function single_row( $item ) {
 
