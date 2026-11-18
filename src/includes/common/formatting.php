@@ -36,10 +36,10 @@ function bbp_make_plain_text( $value ) {
  * @since 2.6.20 bbPress (r7847)
  * @since 2.7.0  bbPress (r8045) Remove shortcodes from WordPress feed content.
  *
- * @param false|string $output  Short-circuit value from an earlier filter.
- * @param string       $tag     Shortcode name.
- * @param array        $attr    Shortcode attributes.
- * @param array        $matches Shortcode regular expression match.
+ * @param false|string           $output Short-circuit value from an earlier filter.
+ * @param string                 $tag    Shortcode name.
+ * @param array<array-key, mixed> $attr Shortcode attributes.
+ * @param array<int, string>      $matches Shortcode regular expression match.
  * @return false|string Filtered short-circuit value.
  */
 function bbp_pre_do_shortcode_tag( $output, $tag, $attr, $matches ) {
@@ -62,10 +62,10 @@ function bbp_pre_do_shortcode_tag( $output, $tag, $attr, $matches ) {
  *
  * @since 2.6.20 bbPress (r7847)
  *
- * @param false|string $output  Short-circuit value from an earlier filter.
- * @param string       $tag     Shortcode name.
- * @param array        $attr    Shortcode attributes.
- * @param array        $matches Shortcode regular expression match.
+ * @param false|string           $output Short-circuit value from an earlier filter.
+ * @param string                 $tag    Shortcode name.
+ * @param array<array-key, mixed> $attr Shortcode attributes.
+ * @param array<int, string>      $matches Shortcode regular expression match.
  * @return false|string Short-circuit value or the literal shortcode.
  */
 function bbp_prevent_content_shortcodes( $output, $tag, $attr, $matches ) {
@@ -99,7 +99,7 @@ function bbp_prevent_content_shortcodes( $output, $tag, $attr, $matches ) {
  *
  * @since 2.3.0 bbPress (r4604)
  *
- * @return array Associative array of allowed tags and attributes.
+ * @return array<string, array<string, bool>> Allowed tags and attributes.
  */
 function bbp_kses_allowed_tags() {
 
@@ -406,7 +406,7 @@ function bbp_encode_bad( $content = '' ) {
  *
  * @since 2.3.0 bbPress (r4642)
  *
- * @param array $matches Matched inline or block code.
+ * @param array<int, string> $matches Matched inline or block code.
  * @return string Encoded code markup.
  */
 function bbp_encode_callback( $matches = array() ) {
@@ -443,7 +443,7 @@ function bbp_encode_callback( $matches = array() ) {
  * @since 2.3.0 bbPress (r4642)
  * @since 2.6.22 bbPress (r8322) Preserve code containing backticks.
  *
- * @param array $matches Matched encoded code.
+ * @param array<int, string> $matches Matched encoded code.
  * @todo Experiment with _wp_specialchars()
  * @return string Decoded code markup.
  */
@@ -485,6 +485,7 @@ function bbp_decode_callback( $matches = array() ) {
  * @param string $content Content being encoded, passed by reference.
  * @param int    $key     Unused callback key.
  * @param string $preg    Pattern for tags to replace.
+ * @return void
  */
 function bbp_encode_empty_callback( &$content = '', $key = 0, $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
@@ -502,6 +503,7 @@ function bbp_encode_empty_callback( &$content = '', $key = 0, $preg = '' ) {
  * @param string $content Content being encoded, passed by reference.
  * @param int    $key     Unused callback key.
  * @param string $preg    Pattern for tags to replace.
+ * @return void
  */
 function bbp_encode_normal_callback( &$content = '', $key = 0, $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
@@ -529,7 +531,7 @@ function bbp_rel_nofollow( $text = '' ) {
  * @since 2.4.0 bbPress (r4866)
  * @since 2.6.17 bbPress (r7491) Use the WordPress link relationship callback.
  *
- * @param array $matches Matched link markup.
+ * @param array<int, string> $matches Matched link markup.
  * @return string Link with rel=nofollow added.
  */
 function bbp_rel_nofollow_callback( $matches = array() ) {
@@ -553,7 +555,7 @@ function bbp_rel_ugc( $text = '' ) {
  *
  * @since 2.6.21 bbPress (r8112)
  *
- * @param array $matches Matched link markup.
+ * @param array<int, string> $matches Matched link markup.
  * @return string Link with the ugc relationship.
  */
 function bbp_rel_ugc_callback( $matches = array() ) {
@@ -697,7 +699,7 @@ function bbp_make_mentions_clickable( $text = '' ) {
  *
  * @since 2.6.0 bbPress (r6014)
  *
- * @param array $matches Regular expression matches in the current text blob.
+ * @param array<int, string> $matches Regular expression matches in the current text blob.
  *
  * @return string Original text if no user exists, or link to user profile.
  */
@@ -855,6 +857,7 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  * @param string|int|false $newer_date Optional. Unix timestamp from which the
  *                                     difference ends. False for current time.
  * @param bool             $gmt Optional. Whether to use GMT timezone. Defaults to false.
+ * @return void
  */
 function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	echo bbp_get_time_since( $older_date, $newer_date, $gmt );

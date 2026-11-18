@@ -70,7 +70,7 @@ class BBP_Component {
 	 *
 	 * @since 2.1.0 bbPress (r3829)
 	 *
-	 * @param array $args Component name, ID, and slug.
+	 * @param array<string, mixed> $args Component name, ID, and slug.
 	 */
 	public function __construct( $args = array() ) {
 		if ( empty( $args ) ) {
@@ -89,7 +89,8 @@ class BBP_Component {
 	 *
 	 * @access private
 	 *
-	 * @param array $args Component name, ID, and slug.
+	 * @param array<string, mixed> $args Component name, ID, and slug.
+	 * @return void
 	 */
 	private function setup_globals( $args = array() ) {
 		$this->name = $args['name'];
@@ -103,6 +104,8 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function includes() {
 		do_action( 'bbp_' . $this->name . 'includes' );
@@ -114,6 +117,8 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_actions() {
 		add_action( 'bbp_register_post_types',    array( $this, 'register_post_types'    ), 10, 0 ); // Register post types
@@ -129,6 +134,8 @@ class BBP_Component {
 	 * Setup the component post types.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
+	 *
+	 * @return void
 	 */
 	public function register_post_types() {
 		do_action( 'bbp_' . $this->name . '_register_post_types' );
@@ -138,6 +145,8 @@ class BBP_Component {
 	 * Register component specific taxonomies.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
+	 *
+	 * @return void
 	 */
 	public function register_taxonomies() {
 		do_action( 'bbp_' . $this->name . '_register_taxonomies' );
@@ -147,6 +156,8 @@ class BBP_Component {
 	 * Add any additional rewrite tags.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
+	 *
+	 * @return void
 	 */
 	public function add_rewrite_tags() {
 		do_action( 'bbp_' . $this->name . '_add_rewrite_tags' );
@@ -158,6 +169,7 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @param WP_Rewrite $wp_rewrite WordPress rewrite rules object.
+	 * @return void
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
 		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', array( &$wp_rewrite ) );
@@ -224,9 +236,9 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @param object $object Post data object.
 	 * @param int    $depth  Depth of post in reference to parent posts. Used
 	 *                       for padding.
-	 * @param array  $args   Uses 'selected' argument for selected post to set
-	 *                       selected HTML attribute for option element.
+	 * @param array<string, mixed> $args Uses 'selected' to mark the current option.
 	 * @param int    $current_object_id ID of the current object.
+	 * @return void
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 		$pad     = str_repeat( '&nbsp;', (int) $depth * 3 );
@@ -310,7 +322,8 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param int    $depth  Depth of reply.
-	 * @param array  $args   Uses 'style' argument for type of HTML list.
+	 * @param array<string, mixed> $args Uses 'style' argument for type of HTML list.
+	 * @return void
 	 */
 	public function start_lvl( &$output = '', $depth = 0, $args = array() ) {
 		bbpress()->reply_query->reply_depth = (int) $depth + 1;
@@ -337,7 +350,8 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param int    $depth  Depth of reply.
-	 * @param array  $args   Will only append content if style argument value is 'ol' or 'ul'.
+	 * @param array<string, mixed> $args Will only append content if style argument value is 'ol' or 'ul'.
+	 * @return void
 	 */
 	public function end_lvl( &$output = '', $depth = 0, $args = array() ) {
 		bbpress()->reply_query->reply_depth = (int) $depth + 1;
@@ -361,10 +375,10 @@ class BBP_Walker_Reply extends Walker {
 	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param WP_Post|false $element           Reply to display.
-	 * @param array         $children_elements Child replies, passed by reference.
+	 * @param array<array-key, mixed> $children_elements Child replies, passed by reference.
 	 * @param int           $max_depth         Maximum walker depth.
 	 * @param int           $depth             Current walker depth.
-	 * @param array         $args              Walker arguments.
+	 * @param array<array-key, mixed> $args Walker arguments.
 	 * @param string        $output            Output markup, passed by reference.
 	 */
 	public function display_element( $element = false, &$children_elements = array(), $max_depth = 0, $depth = 0, $args = array(), &$output = '' ) {
@@ -400,8 +414,9 @@ class BBP_Walker_Reply extends Walker {
 	 * @param string  $output            Output markup, passed by reference.
 	 * @param WP_Post $object            Reply to display.
 	 * @param int     $depth             Current walker depth.
-	 * @param array   $args              Walker arguments.
+	 * @param array<string, mixed> $args Walker arguments.
 	 * @param int     $current_object_id ID of the current object.
+	 * @return void
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
@@ -437,7 +452,8 @@ class BBP_Walker_Reply extends Walker {
 	 * @param string        $output Output markup, passed by reference.
 	 * @param WP_Post|false $object Reply being closed.
 	 * @param int           $depth  Current walker depth.
-	 * @param array         $args   Walker arguments.
+	 * @param array<string, mixed> $args Walker arguments.
+	 * @return void
 	 */
 	public function end_el( &$output = '', $object = false, $depth = 0, $args = array() ) {
 
@@ -519,10 +535,10 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	 * @param int    $depth  Depth of post in reference to parent posts. Used
 	 *                       for padding.
 	 *
-	 * @param array  $args   Uses 'selected' argument for selected post to set
-	 *                       selected HTML attribute for option element.
+	 * @param array<string, mixed> $args Uses 'selected' to mark the current option.
 	 *
 	 * @param int    $current_object_id Not Used.
+	 * @return void
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
