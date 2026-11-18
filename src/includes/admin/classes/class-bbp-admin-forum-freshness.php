@@ -817,6 +817,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @param int $id Topic ID.
 	 * @return string Topic activity time.
+	 * @phpstan-impure
 	 */
 	private function topic_time( $id ) {
 		if ( $this->dry_run && isset( $this->topic_times[ $id ] ) ) {
@@ -909,6 +910,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @param array  $node Traversal node.
 	 * @param string $key  Completed metadata key.
 	 * @return array Updated traversal node.
+	 * @phpstan-impure
 	 */
 	protected function after_key( $node, $key ) {
 		if ( 'forums' !== $node['kind'] || null === $node['direct']['_bbp_last_reply_id'] ) {
@@ -948,6 +950,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @param array $node  Completed traversal node, passed by reference.
 	 * @param bool  $count Whether to add this completion to synchronous totals.
+	 * @return void
 	 */
 	protected function completed_node( &$node, $count = true ) {
 		if ( 'topics' === $node['kind'] ) {

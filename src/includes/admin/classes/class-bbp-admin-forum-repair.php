@@ -387,6 +387,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @param int $id Post ID.
 	 * @return array|false Traversal node, or false when none exists or it is invalid.
+	 * @phpstan-impure
 	 */
 	protected function get_node( $id ) {
 		if ( ! array_key_exists( $id, $this->nodes ) ) {
@@ -567,6 +568,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param int|null $cursor Last child ID, or null to return a compatibility list.
 	 * @param int      $limit  Optional maximum compatibility-list rows.
 	 * @return array Child forum IDs.
+	 * @phpstan-impure
 	 */
 	protected function child_ids( $id, $cursor = null, $limit = 0 ) {
 		if ( empty( $this->context['forums'] ) ) {
@@ -785,6 +787,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param int  $limit    Maximum work available to this step.
 	 * @param bool $complete Whether the complete traversal is finished, passed by reference.
 	 * @return int Work units consumed.
+	 * @phpstan-impure
 	 */
 	protected function step( $limit, &$complete ) {
 		if ( in_array( $this->state['phase'], array( 'prepare', 'cleanup' ), true ) ) {
@@ -1013,12 +1016,14 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 
 	/**
 	 * Add shared source identity to a new traversal node.
+	 * Subclasses may record source errors while preparing their fields.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param array  $node Traversal node.
 	 * @param object $post Source post row.
 	 * @return array Prepared traversal node.
+	 * @phpstan-impure
 	 */
 	protected function prepare_node( $node, $post ) {
 		$node['source'] = $this->source_identity( $post );
@@ -1103,6 +1108,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @param array $child       Completed child traversal node.
 	 * @param int   $edge        Child post ID used by the parent edge.
 	 * @return bool Whether the child was ready and merged.
+	 * @phpstan-impure
 	 */
 	protected function merge_checked_child( &$parent_node, $child, $edge ) {
 		if ( ! $this->before_write( $child ) ) {
@@ -1120,10 +1126,12 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 
 	/**
 	 * Act when all metadata fields for a node are complete.
+	 * Implementations may update traversal state or record a failure.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param array $node Completed traversal node, passed by reference.
+	 * @return void
 	 */
 	protected function completed_node( &$node ) {}
 
@@ -1175,12 +1183,14 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 
 	/**
 	 * Calculate direct values for one source post.
+	 * Implementations may record database failures in worker state.
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int    $id   Source post ID.
 	 * @param object $post Source post row.
 	 * @return array Values keyed by metadata name.
+	 * @phpstan-impure
 	 */
 	abstract protected function values( $id, $post );
 

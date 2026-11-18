@@ -138,6 +138,7 @@ abstract class BBP_Admin_Batch_Worker {
 	 *
 	 * @param string $reason Semantic failure reason.
 	 * @return bool Whether this call recorded the failure.
+	 * @phpstan-impure
 	 */
 	protected function fail( $reason ) {
 		return self::record_failure( $this->error, $reason );

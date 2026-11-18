@@ -305,6 +305,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @param string $key   Plan record key.
 	 * @param mixed  $value Plan value.
+	 * @return void
 	 */
 	private function write_plan( $key, $value ) {
 		$name = $this->option( $key );
