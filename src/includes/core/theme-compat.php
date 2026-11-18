@@ -51,7 +51,7 @@ class BBP_Theme_Compat {
 	 *     'url'     => URL to theme
 	 * );
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	private $_data = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
@@ -60,7 +60,7 @@ class BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3927)
 	 *
-	 * @param array $properties Theme compatibility properties.
+	 * @param array<string, mixed> $properties Theme compatibility properties.
 	 */
 	public function __construct( array $properties = array() ) {
 		$this->_data = $properties;
@@ -113,6 +113,7 @@ class BBP_Theme_Compat {
  * @since 2.0.0 bbPress (r3028)
  *
  * @param string $theme Registered template pack ID.
+ * @return void
  */
 function bbp_setup_theme_compat( $theme = 'default' ) {
 	$bbp = bbpress();
@@ -273,8 +274,8 @@ function bbp_set_theme_compat_active( $set = true ) {
  * to override them, or see what files are being scanned for inclusion.
  *
  * @since 2.0.0 bbPress (r3311)
- * @param array $templates Candidate template files.
- * @return array Candidate template files.
+ * @param array<int, string> $templates Candidate template files.
+ * @return array<int, string> Candidate template files.
  */
 function bbp_set_theme_compat_templates( $templates = array() ) {
 	bbpress()->theme_compat->templates = $templates;
@@ -340,8 +341,9 @@ function bbp_is_theme_compat_original_template( $template = '' ) {
  *
  * @since 2.1.0 bbPress (r3830)
  *
- * @param array|BBP_Theme_Compat $theme Template pack properties or object.
+ * @param array<string, mixed>|BBP_Theme_Compat $theme Template pack properties or object.
  * @param bool                   $override Whether to replace an existing package.
+ * @return void
  */
 function bbp_register_theme_package( $theme = array(), $override = true ) {
 
@@ -373,7 +375,8 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
  * @global WP_Query $wp_query WordPress query object.
  * @global WP_Post  $post     Global post object.
  *
- * @param array $args Dummy post properties.
+ * @param array<string, mixed> $args Dummy post properties.
+ * @return void
  */
 function bbp_theme_compat_reset_post( $args = array() ) {
 	global $wp_query, $post;
@@ -1255,6 +1258,8 @@ function bbp_force_comment_status( $open = false, $post_id = 0 ) {
  *
  * @since 2.6.5 bbPress (r7072)
  * @since 2.6.22 bbPress (r8320) Disable adjacent-post navigation.
+ *
+ * @return void
  */
 function bbp_remove_adjacent_posts() {
 

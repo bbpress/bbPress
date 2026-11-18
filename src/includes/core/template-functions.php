@@ -51,7 +51,7 @@ function bbp_get_template_part( $slug, $name = null ) {
  *
  * @since 2.1.0 bbPress (r3623)
  *
- * @param string|array $template_names Template file(s) to search for, in order.
+ * @param string|array<int, string> $template_names Template file(s) to search for, in order.
  * @param bool         $load           Whether to load the template file if found.
  * @param bool         $require_once   Whether to require_once or require. Defaults to true.
  *                                      Has no effect if $load is false.
@@ -199,7 +199,7 @@ function bbp_urlize_enqueueable( $file = '' ) {
  *
  * @param string      $handle Name of the stylesheet.
  * @param string|bool $file   Relative path to stylesheet. Example: '/css/mystyle.css'.
- * @param array       $deps   An array of registered style handles this stylesheet depends on. Default empty array.
+ * @param array<int, string> $deps An array of registered style handles this stylesheet depends on. Default empty array.
  * @param string|bool $ver    String specifying the stylesheet version number, if it has one. This parameter is used
  *                            to ensure that the correct version is sent to the client regardless of caching, and so
  *                            should be included if a version number is available and makes sense for the stylesheet.
@@ -244,7 +244,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  *
  * @param string      $handle    Name of the script.
  * @param string|bool $file      Relative path to the script. Example: '/js/myscript.js'.
- * @param array       $deps      An array of registered handles this script depends on. Default empty array.
+ * @param array<int, string> $deps An array of registered handles this script depends on. Default empty array.
  * @param string|bool $ver       Optional. String specifying the script version number, if it has one. This parameter
  *                               is used to ensure that the correct version is sent to the client regardless of caching,
  *                               and so should be included if a version number is available and makes sense for the script.
@@ -291,6 +291,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
  *
  * @param callable|string $location_callback Callback that returns a template location.
  * @param int             $priority          Filter priority.
+ * @return bool Whether the location was registered.
  */
 function bbp_register_template_stack( $location_callback = '', $priority = 10 ) {
 
@@ -334,7 +335,7 @@ function bbp_deregister_template_stack( $location_callback = '', $priority = 10 
  * @global array     $merged_filters    Tracks the tags that need to be merged for later.
  * @global string[]  $wp_current_filter Stores the list of current filters with the current one last.
  *
- * @return array The filtered value after all hooked functions are applied to it.
+ * @return array<int, string> The filtered template locations.
  */
 function bbp_get_template_stack() {
 	global $wp_filter, $merged_filters, $wp_current_filter;
@@ -431,7 +432,7 @@ function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
  * @since 2.1.0 bbPress (r3629)
  *
  * @param string $type Filename without extension.
- * @param array  $templates An optional list of template candidates.
+ * @param array<int, string> $templates An optional list of template candidates.
  * @return string Full path to file.
  */
 function bbp_get_query_template( $type, $templates = array() ) {
@@ -463,8 +464,8 @@ function bbp_get_query_template( $type, $templates = array() ) {
  *
  * @since 2.1.0 bbPress (r3739)
  *
- * @param array $templates Templates we are looking for.
- * @return array Possible subdirectories to look in.
+ * @param array<int, string> $templates Templates we are looking for.
+ * @return array<int, string> Possible subdirectories to look in.
  */
 function bbp_get_template_locations( $templates = array() ) {
 	$locations = array(
@@ -482,8 +483,8 @@ function bbp_get_template_locations( $templates = array() ) {
  *
  * @since 2.3.0 bbPress (r4762)
  *
- * @param array $stacks Template stack paths.
- * @return array Template locations.
+ * @param array<int, string> $stacks Template stack paths.
+ * @return array<int, string> Template locations.
  */
 function bbp_add_template_stack_locations( $stacks = array() ) {
 	$retval = array();
@@ -529,6 +530,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  * @since 2.1.0 bbPress (r3646)
  *
  * @param WP_Query $posts_query Current query.
+ * @return void
  */
 function bbp_parse_query( $posts_query ) {
 

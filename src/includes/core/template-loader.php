@@ -108,6 +108,7 @@ function bbp_is_template_included() {
  * @since 2.1.0 bbPress (r3734)
  *
  * @global string $pagenow The filename of the current screen.
+ * @return void
  */
 function bbp_load_theme_functions() {
 	global $pagenow;
@@ -431,7 +432,7 @@ function bbp_get_topic_tag_edit_template() {
  *
  * @since 2.6.22 bbPress (r8344)
  *
- * @return array Template filenames.
+ * @return array<int, string> Template filenames.
  */
 function bbp_get_theme_compat_template_hierarchy() {
 	$templates = array(
@@ -503,7 +504,7 @@ function bbp_get_theme_canvas_template() {
  *
  * @since 2.7.0 bbPress (r7394)
  *
- * @return array Key => Value array of checkers & getters.
+ * @return array<string, string> Checkers and their template getters.
  */
 function bbp_get_template_include_templates() {
 
