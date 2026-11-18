@@ -43,7 +43,7 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 		remove_filter( 'manage_users_custom_column', array( $admin, 'user_role_row' ), 10 );
 		remove_filter( 'get_role_list', array( $admin, 'user_role_list_filter' ), 10 );
 		remove_action( 'load-users.php', array( $admin, 'user_role_bulk_change' ), 10 );
-		remove_action( 'user_row_actions', array( $admin, 'user_row_actions' ), 10 );
+		remove_filter( 'user_row_actions', array( $admin, 'user_row_actions' ), 10 );
 	}
 
 	private function capture( $callback, ...$arguments ) {
@@ -95,7 +95,7 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 			$this->assertSame( 10, has_filter( 'manage_users_custom_column', array( $admin, 'user_role_row' ) ) );
 			$this->assertSame( 10, has_filter( 'get_role_list', array( $admin, 'user_role_list_filter' ) ) );
 			$this->assertSame( 10, has_action( 'load-users.php', array( $admin, 'user_role_bulk_change' ) ) );
-			$this->assertSame( 10, has_action( 'user_row_actions', array( $admin, 'user_row_actions' ) ) );
+			$this->assertSame( 10, has_filter( 'user_row_actions', array( $admin, 'user_row_actions' ) ) );
 		} finally {
 			remove_action( 'bbp_admin_users_loaded', $observe );
 			$this->remove_hooks( $admin );

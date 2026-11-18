@@ -7,12 +7,6 @@ parameters:
 			path: src/bbpress.php
 
 		-
-			message: '#^Action callback returns array but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: src/includes/admin/actions.php
-
-		-
 			message: '#^Action callback returns object but should not return anything\.$#'
 			identifier: return.void
 			count: 3
@@ -121,12 +115,6 @@ parameters:
 			path: src/includes/admin/topics.php
 
 		-
-			message: '#^Action callback returns array but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: src/includes/admin/users.php
-
-		-
 			message: '#^Callback expects 0 parameters, \$accepted_args is set to 2\.$#'
 			identifier: arguments.count
 			count: 3
@@ -191,12 +179,6 @@ parameters:
 			identifier: function.inner
 			count: 1
 			path: src/includes/core/extend.php
-
-		-
-			message: '#^Action callback returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: src/includes/core/filters.php
 
 		-
 			message: '#^Callback expects 0\-1 parameters, \$accepted_args is set to 2\.$#'
