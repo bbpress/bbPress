@@ -73,7 +73,8 @@ function bbp_filter_rest_password_required_revisions( $response, $handler, $requ
 		return $response;
 	}
 
-	if ( ! ( $callback[0] instanceof WP_REST_Revisions_Controller ) && ! ( $callback[0] instanceof WP_REST_Autosaves_Controller ) ) {
+	// Autosave controllers extend the revisions controller.
+	if ( ! ( $callback[0] instanceof WP_REST_Revisions_Controller ) ) {
 		return $response;
 	}
 

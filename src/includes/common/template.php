@@ -2620,8 +2620,8 @@ function bbp_get_breadcrumb( $args = array() ) {
 			// Parents
 			$parent = get_post( $parent_id );
 
-			// Skip parent if empty or error
-			if ( empty( $parent ) || is_wp_error( $parent ) ) {
+			// Skip parent if empty
+			if ( empty( $parent ) ) {
 				continue;
 			}
 

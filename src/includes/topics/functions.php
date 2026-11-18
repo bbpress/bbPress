@@ -1747,7 +1747,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	$replies = (array) $bbp_db->get_results( $query );
 
 	// Make sure there are replies to loop through
-	if ( ! empty( $replies ) && ! is_wp_error( $replies ) ) {
+	if ( ! empty( $replies ) ) {
 
 		// Save reply ids
 		$reply_ids = array();
