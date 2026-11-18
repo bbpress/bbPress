@@ -14,8 +14,8 @@
  *
  * @since 2.6.0 bbPress (r5269)
  *
- * @param array $elements Optional. The existing "at a glance" dashboard items.
- * @return array
+ * @param array<int|string, string> $elements Optional. The existing "at a glance" dashboard items.
+ * @return array<int|string, string>
  */
 function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
@@ -113,6 +113,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
  * @since 2.0.0 bbPress (r2770)
  *
  * @deprecated 2.6.0 bbPress (r5268)
+ * @return void
  */
 function bbp_dashboard_widget_right_now() {
 
@@ -337,6 +338,7 @@ function bbp_dashboard_widget_right_now() {
  * @since 2.0.0 bbPress (r2746)
  *
  * @param WP_Post $post The current forum post object.
+ * @return void
  */
 function bbp_forum_metabox( $post ) {
 
@@ -434,6 +436,7 @@ function bbp_forum_metabox( $post ) {
  * @since 2.0.0 bbPress (r2464)
  *
  * @param WP_Post $post The current topic post object.
+ * @return void
  */
 function bbp_topic_metabox( $post ) {
 
@@ -515,6 +518,7 @@ function bbp_topic_metabox( $post ) {
  * @since 2.0.0 bbPress (r2614)
  *
  * @param WP_Post $post The current reply post object.
+ * @return void
  */
 function bbp_reply_metabox( $post ) {
 
@@ -646,6 +650,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
  * @since 2.0.0 bbPress (r3120)
  *
  * @param WP_Post $post The current post object.
+ * @return void
  */
 function bbp_author_metabox( $post ) {
 
@@ -697,6 +702,7 @@ function bbp_author_metabox( $post ) {
  * @since 2.6.0 bbPress (r6056)
  *
  * @param WP_Post $post The current forum post object.
+ * @return void
  */
 function bbp_moderator_assignment_metabox( $post ) {
 
@@ -722,6 +728,7 @@ function bbp_moderator_assignment_metabox( $post ) {
  * @since 2.6.0 bbPress (r6334)
  *
  * @param WP_Post $post The current topic post object.
+ * @return void
  */
 function bbp_topic_engagements_metabox( $post ) {
 
@@ -758,6 +765,7 @@ function bbp_topic_engagements_metabox( $post ) {
  * @since 2.7.0 bbPress (r8264)
  *
  * @param WP_Post $post Topic or reply being edited.
+ * @return void
  */
 function bbp_mentions_metabox( $post ) {
 	$cap = ( bbp_get_reply_post_type() === $post->post_type ) ? 'edit_reply' : 'edit_topic';
@@ -792,6 +800,7 @@ function bbp_mentions_metabox( $post ) {
  * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
  *
  * @param WP_Post $post The current topic post object.
+ * @return void
  */
 function bbp_topic_favorites_metabox( $post ) {
 
@@ -827,6 +836,7 @@ function bbp_topic_favorites_metabox( $post ) {
  * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
  *
  * @param WP_Post $post The current topic post object.
+ * @return void
  */
 function bbp_topic_subscriptions_metabox( $post ) {
 
@@ -862,6 +872,7 @@ function bbp_topic_subscriptions_metabox( $post ) {
  * @since 2.6.0 bbPress (r6334) Updated to use BBP_User_Query
  *
  * @param WP_Post $post The current forum post object.
+ * @return void
  */
 function bbp_forum_subscriptions_metabox( $post ) {
 
@@ -897,6 +908,7 @@ function bbp_forum_subscriptions_metabox( $post ) {
  * additional actions, so do not use this function in any third party plugin.
  *
  * @since 2.6.0 bbPress (r6914)
+ * @return void
  */
 function bbp_metabox_user_links() {
 

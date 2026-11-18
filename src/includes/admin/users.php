@@ -35,6 +35,7 @@ class BBP_Users_Admin {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -184,6 +185,7 @@ class BBP_Users_Admin {
 	 * @since 2.6.19 bbPress (r7685) Show only assignable roles.
 	 *
 	 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
+	 * @return void
 	 */
 	public static function user_role_bulk_dropdown( $which ) {
 
@@ -221,6 +223,7 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4365)
 	 * @since 2.6.19 bbPress (r7685) Check each user and assignable role.
+	 * @return void
 	 */
 	public function user_role_bulk_change() {
 
@@ -298,10 +301,10 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6502)
 	 *
-	 * @param array         $actions Existing user row actions.
+	 * @param array<string, string>         $actions Existing user row actions.
 	 * @param WP_User|false $user    User represented by the row, or false when omitted.
 	 *
-	 * @return array Actions with a profile link when a user is available.
+	 * @return array<string, string> Actions with a profile link when a user is available.
 	 */
 	public function user_row_actions( $actions = array(), $user = false ) {
 		// Bail if there is no user for these actions
@@ -325,8 +328,8 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4338)
 	 *
-	 * @param array $columns Users table columns.
-	 * @return array User table columns.
+	 * @param array<string, string> $columns Users table columns.
+	 * @return array<string, string> User table columns.
 	 */
 	public static function user_role_column( $columns = array() ) {
 
@@ -386,9 +389,9 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6052)
 	 *
-	 * @param array   $roles Site roles available to the user.
+	 * @param array<string, string>   $roles Site roles available to the user.
 	 * @param WP_User $user  User whose roles are listed.
-	 * @return array Filtered site roles.
+	 * @return array<string, string> Filtered site roles.
 	 */
 	public static function user_role_list_filter( $roles, $user ) {
 

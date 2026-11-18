@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.0.0 bbPress (r2464)
  *
  * @global array $menu WordPress admin menu entries.
+ * @return void
  */
 function bbp_admin_separator() {
 
@@ -68,8 +69,8 @@ function bbp_admin_custom_menu_order( $menu_order = false ) {
  *
  * @since 2.0.0 bbPress (r2958)
  *
- * @param array $menu_order Menu Order.
- * @return array Modified menu order.
+ * @param list<string> $menu_order Menu Order.
+ * @return list<string> Modified menu order.
  */
 function bbp_admin_menu_order( $menu_order ) {
 
@@ -124,6 +125,7 @@ function bbp_admin_menu_order( $menu_order ) {
  * @since 2.7.0 bbPress (r8330)
  *
  * @param WP_Screen $current_screen Current screen object.
+ * @return void
  */
 function bbp_admin_term_subscriptions( $current_screen ) {
 
@@ -148,6 +150,7 @@ function bbp_admin_term_subscriptions( $current_screen ) {
  *
  * @param WP_Term $term     Term being edited.
  * @param string  $taxonomy Taxonomy name.
+ * @return void
  */
 function bbp_term_subscriptions_field( $term, $taxonomy ) {
 	if ( ! ( $term instanceof WP_Term ) || ( $term->taxonomy !== $taxonomy ) || ! bbp_is_subscription_subtype_active( 'term', $taxonomy ) ) {
@@ -220,6 +223,7 @@ function bbp_sanitize_slug( $slug = '' ) {
  * @since 2.1.0 bbPress (r3766)
  *
  * @param int $site_id Optional. Site ID to uninstall. Defaults to the current site.
+ * @return void
  */
 function bbp_do_uninstall( $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
@@ -245,6 +249,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
  *
  * @global string $plugin_page  Current plugin admin page.
  * @global string $submenu_file Submenu item to highlight.
+ * @return void
  */
 function bbp_tools_modify_menu_highlight() {
 	global $plugin_page, $submenu_file;

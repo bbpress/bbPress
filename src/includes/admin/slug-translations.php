@@ -31,7 +31,7 @@ function bbp_admin_slug_translation_locale() {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @return array Slugs keyed by option name.
+ * @return array<string, array{string, string}> Slugs keyed by option name.
  */
 function bbp_admin_slug_translation_strings() {
 	$locale   = bbp_admin_slug_translation_locale();
@@ -73,8 +73,8 @@ function bbp_admin_slug_translation_strings() {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @param array $applied Slugs previously applied by this feature.
- * @return array Suggested slugs keyed by option name.
+ * @param array<string, mixed> $applied Slugs previously applied by this feature.
+ * @return array<string, array{current: mixed, new: string}> Suggested slugs keyed by option name.
  */
 function bbp_admin_slug_translation_suggestions( $applied = array() ) {
 	$suggestions = array();
@@ -103,8 +103,8 @@ function bbp_admin_slug_translation_suggestions( $applied = array() ) {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @param array $suggestions Eligible slug changes.
- * @return array Current and resulting slugs keyed by option name.
+ * @param array<string, array{current: mixed, new: string}> $suggestions Eligible slug changes.
+ * @return array<string, array{current: mixed, new: mixed}> Current and resulting slugs keyed by option name.
  */
 function bbp_admin_slug_translation_preview( $suggestions ) {
 	$preview = array();
@@ -125,8 +125,8 @@ function bbp_admin_slug_translation_preview( $suggestions ) {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @param array $suggestions Suggested slug changes.
- * @return array Option names with conflicting suggestions.
+ * @param array<string, array{current: mixed, new: string}> $suggestions Suggested slug changes.
+ * @return list<string> Option names with conflicting suggestions.
  */
 function bbp_admin_slug_translation_conflicts( $suggestions ) {
 	$slugs = array();
@@ -169,7 +169,7 @@ function bbp_admin_slug_translation_conflicts( $suggestions ) {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @return array Prompt state.
+ * @return array<string, mixed> Prompt state.
  */
 function bbp_admin_slug_translation_state() {
 	$state  = (array) get_option( '_bbp_slug_translation_prompt', array() );
@@ -189,7 +189,7 @@ function bbp_admin_slug_translation_state() {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @return array Suggested slugs.
+ * @return array<string, array{current: mixed, new: string}> Suggested slugs.
  */
 function bbp_admin_slug_translation_prompt() {
 	$state = bbp_admin_slug_translation_state();
@@ -239,6 +239,7 @@ function bbp_admin_slug_translation_help_link() {
  * Add slug help to the separate page used by deep integration.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_help() {
 	$screen = get_current_screen();
@@ -262,6 +263,7 @@ function bbp_admin_slug_translation_help() {
  * Register the Slugs page when needed and mark pending suggestions in the menu.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_menu() {
 	global $submenu;
@@ -299,6 +301,7 @@ function bbp_admin_slug_translation_menu() {
  * Point administrators to the review on the Forums settings page.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_notice() {
 	if ( ! current_user_can( 'bbp_settings_page' ) || ! bbp_admin_slug_translation_prompt() ) {
@@ -323,6 +326,7 @@ function bbp_admin_slug_translation_notice() {
  * Show the review when bbPress settings use deep integration.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_page() {
 	?>
@@ -337,6 +341,7 @@ function bbp_admin_slug_translation_page() {
  * Show the slug preview and choices above the Forums settings form.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_panel() {
 	if ( ! current_user_can( 'bbp_settings_page' ) ) {
@@ -424,7 +429,7 @@ function bbp_admin_slug_translation_panel() {
  *
  * @since 2.7.0 bbPress (r8405)
  *
- * @param array $suggestions Suggested slug changes.
+ * @param array<string, array{current: mixed, new: string}> $suggestions Suggested slug changes.
  * @return bool Whether every slug was saved.
  */
 function bbp_admin_apply_slug_translations( $suggestions ) {
@@ -456,6 +461,7 @@ function bbp_admin_apply_slug_translations( $suggestions ) {
  * Handle the administrator's decision about slug translations.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_handler() {
 	if ( ! current_user_can( 'bbp_settings_page' ) ) {
@@ -500,6 +506,7 @@ function bbp_admin_slug_translation_handler() {
  * Dismiss slug suggestions without navigating away from the settings page.
  *
  * @since 2.7.0 bbPress (r8405)
+ * @return void
  */
 function bbp_admin_slug_translation_cancel_ajax() {
 	if ( ! current_user_can( 'bbp_settings_page' ) ) {

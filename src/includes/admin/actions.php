@@ -156,7 +156,8 @@ function bbp_admin() {
  * @param string $domain  Domain of the new site.
  * @param string $path    Path of the new site.
  * @param int    $site_id ID of the network.
- * @param array  $meta    Metadata for the new site.
+ * @param array<string, mixed>  $meta    Metadata for the new site.
+ * @return void
  */
 function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 
@@ -180,9 +181,9 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
  *
  * @since 2.6.0 bbPress (r5833)
  *
- * @param  array $columns Column headers fed into list-table objects.
+ * @param  array<string, string> $columns Column headers fed into list-table objects.
  *
- * @return array Possibly altered column headers.
+ * @return array<string, string> Possibly altered column headers.
  */
 function bbp_filter_column_headers( $columns = array() ) {
 
@@ -259,6 +260,7 @@ function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
  * Piggy back the repair and upgrade tools page-load actions.
  *
  * @since 2.7.0 bbPress (r8252)
+ * @return void
  */
 function bbp_admin_load_tools_repair_upgrade() {
 	do_action( 'bbp_admin_load_tools_repair_upgrade' );
@@ -268,6 +270,7 @@ function bbp_admin_load_tools_repair_upgrade() {
  * Piggy back admin_init action.
  *
  * @since 2.1.0 bbPress (r3766)
+ * @return void
  */
 function bbp_admin_init() {
 	do_action( 'bbp_admin_init' );
@@ -277,6 +280,7 @@ function bbp_admin_init() {
  * Piggy back admin_menu action.
  *
  * @since 2.1.0 bbPress (r3766)
+ * @return void
  */
 function bbp_admin_menu() {
 	do_action( 'bbp_admin_menu' );
@@ -286,6 +290,7 @@ function bbp_admin_menu() {
  * Piggy back admin_head action.
  *
  * @since 2.1.0 bbPress (r3766)
+ * @return void
  */
 function bbp_admin_head() {
 	do_action( 'bbp_admin_head' );
@@ -295,6 +300,7 @@ function bbp_admin_head() {
  * Piggy back admin_notices action.
  *
  * @since 2.0.0 bbPress (r2615)
+ * @return void
  */
 function bbp_admin_notices() {
 	do_action( 'bbp_admin_notices' );
@@ -304,6 +310,7 @@ function bbp_admin_notices() {
  * Dedicated action to register bbPress importers.
  *
  * @since 2.1.0 bbPress (r3766)
+ * @return void
  */
 function bbp_register_importers() {
 	do_action( 'bbp_register_importers' );
@@ -313,6 +320,7 @@ function bbp_register_importers() {
  * Dedicated action to register admin styles.
  *
  * @since 2.6.0 bbPress (r6913)
+ * @return void
  */
 function bbp_register_admin_styles() {
 
@@ -336,6 +344,7 @@ function bbp_register_admin_styles() {
  * Dedicated action to register admin scripts.
  *
  * @since 2.6.0 bbPress (r6913)
+ * @return void
  */
 function bbp_register_admin_scripts() {
 	do_action( 'bbp_register_admin_scripts' );
@@ -345,6 +354,7 @@ function bbp_register_admin_scripts() {
  * Dedicated action to register admin settings.
  *
  * @since 2.1.0 bbPress (r3766)
+ * @return void
  */
 function bbp_register_admin_settings() {
 	do_action( 'bbp_register_admin_settings' );
@@ -354,6 +364,7 @@ function bbp_register_admin_settings() {
  * Dedicated action to output admin tools.php sections.
  *
  * @since 2.6.0 bbPress (r6274)
+ * @return void
  */
 function bbp_admin_tool_box() {
 	do_action( 'bbp_admin_tool_box' );
@@ -365,6 +376,7 @@ function bbp_admin_tool_box() {
  * @since 2.6.0 bbPress (r6186)
  *
  * @param WP_Screen|string $current_screen Current admin screen, or an empty string when omitted.
+ * @return void
  */
 function bbp_current_screen( $current_screen = '' ) {
 	do_action( 'bbp_current_screen', $current_screen );
