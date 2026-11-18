@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3421)
  *
- * @return array Filtered option names and values.
+ * @return array<string, mixed> Filtered option names and values.
  */
 function bbp_get_default_options() {
 	static $options = null;
@@ -169,6 +169,8 @@ function bbp_get_default_options() {
  * This is non-destructive, so existing settings will not be overridden.
  *
  * @since 2.0.0 bbPress (r2786)
+ *
+ * @return void
  */
 function bbp_add_options() {
 
@@ -193,6 +195,8 @@ function bbp_add_options() {
  * @since 2.7.0 bbPress (r8284) Delete temporary forum hierarchy nodes.
  * @since 2.7.0 bbPress (r8303) Clean up the shared batch namespace.
  * @since 2.7.0 bbPress (r8350) Delete Dry Run, lock, and mention backfill state.
+ *
+ * @return void
  */
 function bbp_delete_options() {
 
@@ -262,6 +266,8 @@ function bbp_delete_options_with_prefix( $prefix = '' ) {
  * inside the $bbp->options array.
  *
  * @since 2.0.0 bbPress (r3452)
+ *
+ * @return void
  */
 function bbp_setup_option_filters() {
 
@@ -396,7 +402,7 @@ function bbp_pre_load_options() {
  *
  * @since 2.6.20 bbPress (r7851)
  *
- * @return array Status labels keyed by status ID.
+ * @return array<string, string> Status labels keyed by status ID.
  */
 function bbp_get_forums_statuses() {
 	$statuses = array(
@@ -567,7 +573,7 @@ function bbp_is_subscriptions_active( $default = 1 ) {
  *
  * @since 2.7.0 bbPress (r8330)
  *
- * @return array Subscription subtype labels keyed by object type and subtype.
+ * @return array<string, string> Subscription subtype labels keyed by object type and subtype.
  */
 function bbp_get_subscription_subtype_labels() {
 	$labels = array();
@@ -599,7 +605,7 @@ function bbp_get_subscription_subtype_labels() {
  * @since 2.7.0 bbPress (r8330)
  *
  * @param mixed $default Optional. Default subscription value.
- * @return array Subscription subtype IDs.
+ * @return array<int, string> Subscription subtype IDs.
  */
 function bbp_get_subscription_subtypes( $default = 1 ) {
 	$subtypes  = get_option( '_bbp_enable_subscriptions', $default );
@@ -674,7 +680,7 @@ function bbp_is_engagements_active( $default = 1 ) {
  *
  * @since 2.7.0 bbPress (r8089)
  *
- * @return array Recipient type labels keyed by type ID.
+ * @return array<string, string> Recipient type labels keyed by type ID.
  */
 function bbp_get_moderation_notification_recipient_type_labels() {
 	$labels = array(
@@ -692,8 +698,8 @@ function bbp_get_moderation_notification_recipient_type_labels() {
  *
  * @since 2.7.0 bbPress (r8089)
  *
- * @param array $default Optional. Default recipient types.
- * @return array Recipient type IDs.
+ * @param array<int, string> $default Optional. Default recipient types.
+ * @return array<int, string> Recipient type IDs.
  */
 function bbp_get_moderation_notification_recipient_types( $default = array() ) {
 	$types     = get_option( '_bbp_moderation_notification_recipient_types', $default );
@@ -914,8 +920,8 @@ function bbp_get_default_role( $default = 'bbp_participant' ) {
  *
  * @since 2.7.0 bbPress (r8131)
  *
- * @param array $default Optional. Default action IDs.
- * @return array Selected action IDs.
+ * @param array<array-key, mixed> $default Optional. Default action IDs.
+ * @return array<array-key, mixed> Selected action IDs.
  */
 function bbp_get_user_block_action_ids( $default = array() ) {
 	$actions = get_option( '_bbp_user_block_actions', $default );
@@ -972,6 +978,7 @@ function bbp_get_theme_package_id( $default = 'default' ) {
  * @since 2.0.0 bbPress (r3246)
  *
  * @param int $default Optional. Default value 80.
+ * @return void
  */
 function bbp_title_max_length( $default = 80 ) {
 	echo bbp_get_title_max_length( $default );
@@ -998,6 +1005,7 @@ function bbp_get_title_max_length( $default = 80 ) {
  * @since 2.6.0 bbPress (r6869)
  *
  * @param int $default Optional. Default value 5.
+ * @return void
  */
 function bbp_edit_lock( $default = 5 ) {
 	echo bbp_get_edit_lock( $default );
@@ -1024,6 +1032,7 @@ function bbp_get_edit_lock( $default = 5 ) {
  * @since 2.1.0 bbPress (r3575)
  *
  * @param int $default Optional. Default value.
+ * @return void
  */
 function bbp_group_forums_root_id( $default = 0 ) {
 	echo bbp_get_group_forums_root_id( $default );
@@ -1395,7 +1404,7 @@ function bbp_get_view_slug( $default = 'view' ) {
  *
  * @since 2.6.21 bbPress (r8065)
  *
- * @return array Route root slugs.
+ * @return array<int, string> Route root slugs.
  */
 function bbp_get_route_root_slugs() {
 	$slugs = array(
@@ -1477,7 +1486,7 @@ function bbp_get_config_location( $default = '' ) {
  *
  * @param string $option  Option name.
  * @param mixed  $default Default when the row is absent.
- * @return array Read success, decoded value and row existence.
+ * @return array{bool, mixed, bool} Read success, decoded value and row existence.
  */
 function bbp_get_raw_option( $option, $default = false ) {
 	$db  = bbp_db();
@@ -1495,7 +1504,7 @@ function bbp_get_raw_option( $option, $default = false ) {
  * @access private
  *
  * @param string $name Lock option name.
- * @return array|false Lock ownership, or false when unavailable.
+ * @return array{name: string, value: string}|false Lock ownership, or false when unavailable.
  */
 function bbp_acquire_option_lock( $name ) {
 	global $wpdb;
@@ -1559,7 +1568,7 @@ function bbp_acquire_option_lock( $name ) {
  * @since 2.7.0 bbPress (r8359)
  * @access private
  *
- * @param array $lock Lock ownership, updated with the refreshed value.
+ * @param array{name: string, value: string} $lock Lock ownership, updated with the refreshed value.
  * @return bool Whether this caller still owns the lock.
  */
 function bbp_refresh_option_lock( &$lock ) {
@@ -1607,7 +1616,8 @@ function bbp_refresh_option_lock( &$lock ) {
  * @since 2.7.0 bbPress (r8315)
  * @access private
  *
- * @param array $lock Lock ownership.
+ * @param array{name?: string, value?: string} $lock Lock ownership.
+ * @return void
  */
 function bbp_release_option_lock( $lock = array() ) {
 	global $wpdb;

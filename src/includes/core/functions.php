@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * Output the bbPress version.
  *
  * @since 2.0.0 bbPress (r3468)
+ *
+ * @return void
  */
 function bbp_version() {
 	echo bbp_get_version();
@@ -36,6 +38,8 @@ function bbp_get_version() {
  * Output the bbPress asset version.
  *
  * @since 2.6.7 bbPress (r7190)
+ *
+ * @return void
  */
 function bbp_asset_version() {
 	echo bbp_get_asset_version();
@@ -58,6 +62,8 @@ function bbp_get_asset_version() {
  * Output the bbPress database version.
  *
  * @since 2.0.0 bbPress (r3468)
+ *
+ * @return void
  */
 function bbp_db_version() {
 	echo bbp_get_db_version();
@@ -78,6 +84,8 @@ function bbp_get_db_version() {
  * Output the bbPress database version directly from the database.
  *
  * @since 2.1.0 bbPress (r3764)
+ *
+ * @return void
  */
 function bbp_db_version_raw() {
 	echo bbp_get_db_version_raw();
@@ -185,7 +193,7 @@ function bbp_update_reply_to_id( $post_id = 0, $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @return array Views.
+ * @return array<string, array{title: string, query: array<string, mixed>, feed: bool}> Views.
  */
 function bbp_get_views() {
 	return bbpress()->views;
@@ -202,7 +210,7 @@ function bbp_get_views() {
  * @param bool   $feed Have a feed for the view? Defaults to true.
  * @param string $capability Capability that the current user must have.
  *
- * @return array|false Registered view, or false if registration fails.
+ * @return array{title: string, query: array<string, mixed>, feed: bool}|false Registered view, or false if registration fails.
  */
 function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capability = '' ) {
 
@@ -296,7 +304,7 @@ function bbp_view_query( $view = '', $new_args = '' ) {
  *
  * @param string $view View name.
  *
- * @return array Query arguments.
+ * @return array<string, mixed> Query arguments.
  */
 function bbp_get_view_query_args( $view = '' ) {
 	$bbp    = bbpress();
@@ -321,6 +329,7 @@ function bbp_get_view_query_args( $view = '' ) {
  * @param string $code Unique code for the error message.
  * @param string $message Translated error message.
  * @param mixed  $data Any additional data passed with the error message.
+ * @return void
  */
 function bbp_add_error( $code = '', $message = '', $data = '' ) {
 	bbpress()->errors->add( $code, $message, $data );
@@ -373,7 +382,7 @@ function bbp_find_mentions_pattern() {
  *
  * @param string $content The content.
  *
- * @return array|false Usernames found, or false when there are no matches.
+ * @return array<array-key, string>|false Usernames found, or false when there are no matches.
  */
 function bbp_find_mentions( $content = '' ) {
 	$pattern   = bbp_find_mentions_pattern();
@@ -660,6 +669,8 @@ function bbp_get_paged_rewrite_id() {
  * the subsequent page load.
  *
  * @since 2.2.0 bbPress (r4198)
+ *
+ * @return void
  */
 function bbp_delete_rewrite_rules() {
 	delete_option( 'rewrite_rules' );
@@ -685,7 +696,7 @@ function bbp_get_post_action() {
  *
  * @since 2.6.20 bbPress (r7969)
  *
- * @param string|array $action Action or actions to check.
+ * @param string|array<int, string> $action Action or actions to check.
  * @return bool
  */
 function bbp_is_post_action( $action = '' ) {
@@ -723,7 +734,7 @@ function bbp_is_get_request() {
  *
  * @since 2.6.20 bbPress (r7985)
  *
- * @param string|array $action Action or actions to check.
+ * @param string|array<int, string> $action Action or actions to check.
  * @return bool
  */
 function bbp_is_get_action( $action = '' ) {
@@ -751,6 +762,7 @@ function bbp_is_get_action( $action = '' ) {
  * @param string $location The URL to redirect the user to.
  * @param int    $status   Optional. The numeric code to give in the redirect
  *                         headers. Default: 302.
+ * @return never This function redirects and exits.
  */
 function bbp_redirect( $location = '', $status = 302 ) {
 
