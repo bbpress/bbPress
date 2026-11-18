@@ -370,7 +370,7 @@ function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = t
  *
  * @since 2.7.0 bbPress (r8252)
  *
- * @param array $result Repair tool callback result.
+ * @param mixed $result Repair tool callback result.
  * @return array|false Normalized result, or false for an invalid result.
  */
 function bbp_admin_repair_tool_normalize_result( $result = array() ) {
@@ -551,11 +551,12 @@ function bbp_admin_repair_tool_present_batch( $batch, $statement, $detail = '', 
  *
  * @since 2.7.0 bbPress (r8288)
  *
- * @param array $args     User query arguments.
- * @param int   $cursor   Last completed user ID.
- * @param int   $upper_id Fixed upper user ID.
- * @param int   $size     Work budget, with one additional lookahead row.
- * @param int   $matched  Optional output of raw matching rows, including lookahead.
+ * @param array    $args     User query arguments.
+ * @param int      $cursor   Last completed user ID.
+ * @param int      $upper_id Fixed upper user ID.
+ * @param int      $size     Work budget, with one additional lookahead row.
+ * @param int|null $matched  Optional output of raw matching rows, including lookahead.
+ * @param-out int   $matched  Raw matching rows, including lookahead.
  * @return array|false User IDs, or false on a read failure or invalid results.
  */
 function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$matched = null ) {

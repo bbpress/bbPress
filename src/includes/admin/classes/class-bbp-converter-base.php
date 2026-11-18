@@ -39,7 +39,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Connection to the source database.
 	 *
-	 * @var object
+	 * @var object|null
 	 */
 	protected $opdb;
 

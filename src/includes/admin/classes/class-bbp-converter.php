@@ -93,7 +93,7 @@ class BBP_Converter {
 	/**
 	 * Type of converter to use.
 	 *
-	 * @var BBP_Converter_Base
+	 * @var BBP_Converter_Base|null
 	 */
 	public $converter = null;
 
