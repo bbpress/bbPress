@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3349)
  *
- * @param array $forum_data Forum post data.
- * @param array $forum_meta Forum meta data.
+ * @param array<string, mixed> $forum_data Forum post data.
+ * @param array<string, mixed> $forum_meta Forum meta data.
  *
  * @return int|false Forum ID on success, false on failure.
  */
@@ -670,9 +670,9 @@ function bbp_edit_forum_handler( $action = '' ) {
  *
  * @since 2.7.0 bbPress (r7489)
  *
- * @param array $data    Sanitized post data.
- * @param array $postarr Raw post data.
- * @return array Filtered post data.
+ * @param array<string, mixed> $data    Sanitized post data.
+ * @param array<string, mixed> $postarr Raw post data.
+ * @return array<string, mixed> Filtered post data.
  */
 function bbp_filter_admin_forum_post_data( $data = array(), $postarr = array() ) {
 
@@ -2484,7 +2484,7 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
  * @since 2.0.0 bbPress (r2907)
  * @since 2.6.22 bbPress (r8369) Added the explicit recount argument.
  *
- * @param array $args Forum ID, latest topic/reply/activity values, and recount flag.
+ * @param array<string, mixed> $args Forum ID, latest topic/reply/activity values, and recount flag.
  *
  * @return void
  */
@@ -2548,7 +2548,7 @@ function bbp_update_forum( $args = array() ) {
  *
  * @since 2.6.17 bbPress (r7455)
  *
- * @param array $args Parsed arguments from bbp_update_forum().
+ * @param array<string, mixed> $args Parsed arguments from bbp_update_forum().
  * @return false|null False if there is no parent forum, otherwise null.
  */
 function bbp_update_forum_walker( $args = array() ) {
@@ -2585,7 +2585,7 @@ function bbp_update_forum_walker( $args = array() ) {
  *
  * @param int $forum_id Optional. Forum id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_forum_statuses( $forum_id = 0 ) {
 
@@ -2607,7 +2607,7 @@ function bbp_get_forum_statuses( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_forum_types( $forum_id = 0 ) {
 
@@ -2632,7 +2632,7 @@ function bbp_get_forum_types( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_forum_visibilities( $forum_id = 0 ) {
 
@@ -2668,7 +2668,7 @@ function bbp_get_forum_visibility_ids( $forum_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6922)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_public_forum_statuses() {
 	$statuses = array(
@@ -2684,7 +2684,7 @@ function bbp_get_public_forum_statuses() {
  *
  * @since 2.6.0 bbPress (r6922)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_non_public_forum_statuses() {
 	$statuses = array(
@@ -2701,7 +2701,7 @@ function bbp_get_non_public_forum_statuses() {
  *
  * @since 2.6.17 bbPress (r7453)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_countable_forum_statuses() {
 	$statuses = array_values( array_unique( array_merge( bbp_get_public_forum_statuses(), bbp_get_non_public_forum_statuses() ) ) );
@@ -2845,7 +2845,7 @@ function bbp_get_unclassified_forum_ids() {
  * @since 2.6.0 bbPress (r6426)
  * @since 2.6.22 bbPress (r8269) Treat unclassified forum statuses like hidden forums.
  *
- * @return array Forum IDs to exclude, or an empty array.
+ * @return list<int> Forum IDs to exclude, or an empty array.
  */
 function bbp_get_excluded_forum_ids() {
 
@@ -2978,7 +2978,7 @@ function bbp_forum_query_all_descendant_ids( $forum_ids ) {
  * @since 2.0.0 bbPress (r3085)
  *
  * @param string $type Return format: string, array, or meta_query.
- * @return string|array Forum exclusions in the requested format.
+ * @return string|array<int|string, mixed> Forum exclusions in the requested format.
  */
 function bbp_exclude_forum_ids( $type = 'string' ) {
 

@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r2970)
  *
- * @param array $topic_data Forum post data.
- * @param array $topic_meta Forum meta data.
+ * @param array<string, mixed> $topic_data Forum post data.
+ * @param array<string, mixed> $topic_meta Forum meta data.
  *
  * @return int|false Topic ID on success, false on failure.
  */
@@ -828,7 +828,7 @@ function bbp_edit_topic_handler( $action = '' ) {
  *
  * @param int   $topic_id       Optional topic ID.
  * @param int   $forum_id       Optional forum ID.
- * @param array $anonymous_data Sanitized anonymous poster data, if applicable.
+ * @param array<string, mixed> $anonymous_data Sanitized anonymous poster data, if applicable.
  * @param int   $author_id      Author ID for a registered user.
  * @param bool  $is_edit        Whether the topic is being edited. Defaults to false.
  *
@@ -2119,7 +2119,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_topic_statuses( $topic_id = 0 ) {
 
@@ -2144,7 +2144,7 @@ function bbp_get_topic_statuses( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_topic_types( $topic_id = 0 ) {
 
@@ -2167,7 +2167,7 @@ function bbp_get_topic_types( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_topic_toggles( $topic_id = 0 ) {
 
@@ -2190,7 +2190,7 @@ function bbp_get_topic_toggles( $topic_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6384)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_public_topic_statuses() {
 	$statuses = array(
@@ -2207,7 +2207,7 @@ function bbp_get_public_topic_statuses() {
  *
  * @since 2.6.0 bbPress (r6644)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_non_public_topic_statuses() {
 	$statuses = array(
@@ -2229,7 +2229,7 @@ function bbp_get_non_public_topic_statuses() {
  *
  * @param int $forum_id Optional. If not passed, super stickies are returned.
  *
- * @return array IDs of sticky topics of a forum or super stickies.
+ * @return array<int, int> IDs of sticky topics of a forum or super stickies.
  */
 function bbp_get_stickies( $forum_id = 0 ) {
 
@@ -2252,7 +2252,7 @@ function bbp_get_stickies( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2592)
  *
- * @return array IDs of super sticky topics.
+ * @return array<int, int> IDs of super sticky topics.
  */
 function bbp_get_super_stickies() {
 
@@ -2359,7 +2359,8 @@ function bbp_toggle_topic_handler( $action = '' ) {
  * @since 2.6.0  bbPress (r6142)
  * @access private
  *
- * @param array $args Topic ID, action, and related toggle settings.
+ * @param array<string, mixed> $args Topic ID, action, and related toggle settings.
+ * @return array<string, mixed>
  */
 function bbp_toggle_topic( $args = array() ) {
 
@@ -3059,7 +3060,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2782)
  *
- * @param array $args Topic ID, author ID, edit reason, and revision ID.
+ * @param array<string, mixed> $args Topic ID, author ID, edit reason, and revision ID.
  *
  * @return int|bool Meta ID when added, true when updated, false on failure or unchanged.
  */
@@ -3103,7 +3104,7 @@ function bbp_update_topic_revision_log( $args = array() ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_close_topic( $topic_id = 0 ) {
 	$revisions_removed = false;
@@ -3164,7 +3165,7 @@ function bbp_close_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_open_topic( $topic_id = 0 ) {
 	$revisions_removed = false;
@@ -3225,7 +3226,7 @@ function bbp_open_topic( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id.
- * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_spam_topic( $topic_id = 0 ) {
 
@@ -3332,7 +3333,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_spam_topic_tags( $topic_id = 0 ) {
 
@@ -3371,7 +3372,7 @@ function bbp_spam_topic_tags( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_unspam_topic( $topic_id = 0 ) {
 
@@ -3488,7 +3489,7 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return array
+ * @return array<string, mixed>
  */
 function bbp_unspam_topic_tags( $topic_id = 0 ) {
 
@@ -3569,7 +3570,7 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_approve_topic( $topic_id = 0 ) {
 
@@ -3618,7 +3619,7 @@ function bbp_approve_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_unapprove_topic( $topic_id = 0 ) {
 
@@ -4081,7 +4082,7 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return array Topic tag terms.
+ * @return array<int, WP_Term> Topic tag terms.
  */
 function bbp_get_topic_tags( $topic_id = 0 ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );
@@ -4168,7 +4169,7 @@ function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $us
  *
  * @since 2.6.0 bbPress (r6254)
  *
- * @param array  $terms    List of Term taxonomy IDs.
+ * @param array<int, int|string> $terms    List of Term taxonomy IDs.
  * @param object $taxonomy Current taxonomy object of terms.
  *
  * @return void
@@ -4245,7 +4246,7 @@ function bbp_topic_content_autoembed() {
  *
  * @since 2.0.0 bbPress (r3171)
  *
- * @param array $topics_query Topics query arguments.
+ * @param array<string, mixed> $topics_query Topics query arguments.
  *
  * @return void
  */

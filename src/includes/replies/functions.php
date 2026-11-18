@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3349)
  *
- * @param array $reply_data Forum post data.
- * @param array $reply_meta Forum meta data.
+ * @param array<string, mixed> $reply_data Forum post data.
+ * @param array<string, mixed> $reply_meta Forum meta data.
  *
  * @return int|false Reply ID on success, false on failure.
  */
@@ -909,7 +909,7 @@ function bbp_edit_reply_handler( $action = '' ) {
  * @param int   $reply_id       Reply ID.
  * @param int   $topic_id       Topic ID.
  * @param int   $forum_id       Forum ID.
- * @param array $anonymous_data Sanitized anonymous poster data, if applicable.
+ * @param array<string, mixed> $anonymous_data Sanitized anonymous poster data, if applicable.
  * @param int   $author_id      Reply author ID.
  * @param bool  $is_edit        Whether this is an edit. Defaults to false.
  * @param int   $reply_to       Parent reply ID.
@@ -1260,7 +1260,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
  * @since 2.6.0 bbPress (r5390)
  *
  * @param int $reply_id Reply ID whose ancestors are requested.
- * @return array
+ * @return array<int, int>
  */
 function bbp_get_reply_ancestors( $reply_id = 0 ) {
 
@@ -1307,8 +1307,8 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2782)
  *
- * @param array $args Reply ID, author ID, edit reason, and revision ID.
- * @return array Updated revision log.
+ * @param array<string, mixed> $args Reply ID, author ID, edit reason, and revision ID.
+ * @return array<array-key, mixed> Updated revision log.
  */
 function bbp_update_reply_revision_log( $args = array() ) {
 
@@ -1755,7 +1755,8 @@ function bbp_toggle_reply_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r6133)
  * @access private
  *
- * @param array $args Reply ID, action, and related toggle settings.
+ * @param array<string, mixed> $args Reply ID, action, and related toggle settings.
+ * @return array<string, mixed>
  */
 function bbp_toggle_reply( $args = array() ) {
 
@@ -1858,7 +1859,7 @@ function bbp_toggle_reply( $args = array() ) {
  *
  * @param int $reply_id Optional. Reply id.
  *
- * @return array
+ * @return array<string, string>
  */
 function bbp_get_reply_statuses( $reply_id = 0 ) {
 
@@ -1882,7 +1883,7 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
  *
  * @param int $reply_id Optional. Reply id.
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_reply_toggles( $reply_id = 0 ) {
 
@@ -1903,7 +1904,7 @@ function bbp_get_reply_toggles( $reply_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6706)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_public_reply_statuses() {
 	$statuses = array(
@@ -1919,7 +1920,7 @@ function bbp_get_public_reply_statuses() {
  *
  * @since 2.6.0 bbPress (r6791)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_non_public_reply_statuses() {
 	$statuses = array(
@@ -1940,7 +1941,7 @@ function bbp_get_non_public_reply_statuses() {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id.
- * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
+ * @return int|array<int|string, mixed>|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_spam_reply( $reply_id = 0 ) {
 
@@ -1983,7 +1984,7 @@ function bbp_spam_reply( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id.
- * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
+ * @return int|array<int|string, mixed>|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_unspam_reply( $reply_id = 0 ) {
 
@@ -2031,7 +2032,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id.
- * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
+ * @return int|array<int|string, mixed>|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_approve_reply( $reply_id = 0 ) {
 
@@ -2079,7 +2080,7 @@ function bbp_approve_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id.
- * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
+ * @return int|array<int|string, mixed>|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_unapprove_reply( $reply_id = 0 ) {
 
@@ -2410,7 +2411,7 @@ function bbp_reply_enforce_visibility() {
  *
  * @since 2.0.0 bbPress (r3171)
  *
- * @param array $replies_query Replies query arguments.
+ * @param array<string, mixed> $replies_query Replies query arguments.
  *
  * @return void
  */
@@ -2700,7 +2701,7 @@ function bbp_thread_replies() {
  * List threaded replies.
  *
  * @since 2.4.0 bbPress (r4944)
- * @param array $args Threaded reply display arguments.
+ * @param array<string, mixed> $args Threaded reply display arguments.
  *
  * @return void
  */
