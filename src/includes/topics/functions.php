@@ -3064,14 +3064,14 @@ function bbp_update_topic_revision_log( $args = array() ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_close_topic( $topic_id = 0 ) {
 	$revisions_removed = false;
 
 	// Get topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return $topic;
 	}
 
@@ -3125,14 +3125,14 @@ function bbp_close_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_open_topic( $topic_id = 0 ) {
 	$revisions_removed = false;
 
 	// Get topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return $topic;
 	}
 
@@ -3186,13 +3186,13 @@ function bbp_open_topic( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id.
- * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_spam_topic( $topic_id = 0 ) {
 
 	// Get the topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return $topic;
 	}
 
@@ -3214,13 +3214,14 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	$topic->post_status = $status;
 
 	// Empty the topic of its tags
-	$topic->tax_input = bbp_spam_topic_tags( $topic_id );
+	$topic_data              = get_object_vars( $topic );
+	$topic_data['tax_input'] = bbp_spam_topic_tags( $topic_id );
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
-	// Update the topic
-	$topic_id = wp_update_post( $topic );
+	// Update the topic as an object to preserve WordPress slashing
+	$topic_id = wp_update_post( (object) $topic_data );
 
 	// Execute post spam code
 	do_action( 'bbp_spammed_topic', $topic_id );
@@ -3329,13 +3330,13 @@ function bbp_spam_topic_tags( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Get the topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return $topic;
 	}
 
@@ -3357,7 +3358,8 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Set post status to pre spam
 	$topic->post_status = $topic_status;
-	$topic->tax_input   = bbp_unspam_topic_tags( $topic_id );
+	$topic_data              = get_object_vars( $topic );
+	$topic_data['tax_input'] = bbp_unspam_topic_tags( $topic_id );
 
 	// Delete pre spam meta
 	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
@@ -3365,8 +3367,8 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
-	// Update the topic
-	$topic_id = wp_update_post( $topic );
+	// Update the topic as an object to preserve WordPress slashing
+	$topic_id = wp_update_post( (object) $topic_data );
 
 	// Execute post unspam code
 	do_action( 'bbp_unspammed_topic', $topic_id );
@@ -3524,13 +3526,13 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_approve_topic( $topic_id = 0 ) {
 
 	// Get topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return $topic;
 	}
 
@@ -3573,13 +3575,13 @@ function bbp_approve_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
  */
 function bbp_unapprove_topic( $topic_id = 0 ) {
 
 	// Get topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return $topic;
 	}
 

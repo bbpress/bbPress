@@ -1922,13 +1922,13 @@ function bbp_get_non_public_reply_statuses() {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id.
- * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_spam_reply( $reply_id = 0 ) {
 
 	// Get reply
 	$reply = bbp_get_reply( $reply_id );
-	if ( empty( $reply ) ) {
+	if ( ! ( $reply instanceof WP_Post ) ) {
 		return $reply;
 	}
 
@@ -1965,13 +1965,13 @@ function bbp_spam_reply( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id.
- * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_unspam_reply( $reply_id = 0 ) {
 
 	// Get reply
 	$reply = bbp_get_reply( $reply_id );
-	if ( empty( $reply ) ) {
+	if ( ! ( $reply instanceof WP_Post ) ) {
 		return $reply;
 	}
 
@@ -2013,13 +2013,13 @@ function bbp_unspam_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id.
- * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_approve_reply( $reply_id = 0 ) {
 
 	// Get reply
 	$reply = bbp_get_reply( $reply_id );
-	if ( empty( $reply ) ) {
+	if ( ! ( $reply instanceof WP_Post ) ) {
 		return $reply;
 	}
 
@@ -2061,13 +2061,13 @@ function bbp_approve_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id.
- * @return int|false|null Reply ID on success, 0 on update failure, false if unchanged, or null if unavailable.
+ * @return int|array|false|null Reply ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_reply().
  */
 function bbp_unapprove_reply( $reply_id = 0 ) {
 
 	// Get reply
 	$reply = bbp_get_reply( $reply_id );
-	if ( empty( $reply ) ) {
+	if ( ! ( $reply instanceof WP_Post ) ) {
 		return $reply;
 	}
 

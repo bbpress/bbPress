@@ -142,6 +142,41 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_spam_reply
+	 * @covers ::bbp_unspam_reply
+	 * @covers ::bbp_approve_reply
+	 * @covers ::bbp_unapprove_reply
+	 */
+	public function test_reply_status_helpers_return_non_object_lookups() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$functions = array(
+			'bbp_spam_reply',
+			'bbp_unspam_reply',
+			'bbp_approve_reply',
+			'bbp_unapprove_reply',
+		);
+		$result = array();
+		$filter = function() use ( &$result ) {
+			return $result;
+		};
+
+		add_filter( 'bbp_get_reply', $filter );
+		try {
+			foreach ( array( array(), array( 'custom' => 'reply' ) ) as $result ) {
+				foreach ( $functions as $function ) {
+					$this->assertSame( $result, $function( $reply_id ) );
+				}
+			}
+		} finally {
+			remove_filter( 'bbp_get_reply', $filter );
+		}
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_counts_on_transition_post_status
 	 */
 	public function test_status_transitions_update_reply_counts_once() {

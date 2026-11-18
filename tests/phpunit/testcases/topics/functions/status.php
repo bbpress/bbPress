@@ -118,6 +118,62 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_close_topic
 	 * @covers ::bbp_open_topic
+	 * @covers ::bbp_spam_topic
+	 * @covers ::bbp_unspam_topic
+	 * @covers ::bbp_approve_topic
+	 * @covers ::bbp_unapprove_topic
+	 */
+	public function test_topic_status_helpers_return_non_object_lookups() {
+		$topic_id = $this->factory->topic->create();
+		$functions = array(
+			'bbp_close_topic',
+			'bbp_open_topic',
+			'bbp_spam_topic',
+			'bbp_unspam_topic',
+			'bbp_approve_topic',
+			'bbp_unapprove_topic',
+		);
+		$result = array();
+		$filter = function() use ( &$result ) {
+			return $result;
+		};
+
+		add_filter( 'bbp_get_topic', $filter );
+		try {
+			foreach ( array( array(), array( 'custom' => 'topic' ) ) as $result ) {
+				foreach ( $functions as $function ) {
+					$this->assertSame( $result, $function( $topic_id ) );
+				}
+			}
+		} finally {
+			remove_filter( 'bbp_get_topic', $filter );
+		}
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_spam_topic
+	 * @covers ::bbp_unspam_topic
+	 */
+	public function test_spam_and_unspam_topic_preserve_tags_and_quoted_content() {
+		wp_set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$topic_id = $this->factory->topic->create( array( 'post_content' => "A quoted 'topic'" ) );
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		wp_set_object_terms( $topic_id, 'tagged', $taxonomy );
+
+		$this->assertSame( $topic_id, bbp_spam_topic( $topic_id ) );
+		$this->assertFalse( has_term( 'tagged', $taxonomy, $topic_id ) );
+		$this->assertSame( "A quoted 'topic'", get_post_field( 'post_content', $topic_id ) );
+
+		$this->assertSame( $topic_id, bbp_unspam_topic( $topic_id ) );
+		$this->assertTrue( has_term( 'tagged', $taxonomy, $topic_id ) );
+		$this->assertSame( "A quoted 'topic'", get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_close_topic
+	 * @covers ::bbp_open_topic
 	 */
 	public function test_bbp_open_topic_restores_previous_pending_status() {
 		$topic_id = $this->factory->topic->create( array( 'post_status' => bbp_get_pending_status_id() ) );
