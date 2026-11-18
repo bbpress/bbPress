@@ -142,6 +142,69 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_edit_reply_handler
+	 */
+	public function test_bbp_edit_reply_handler_reports_failed_update() {
+		$admin_id   = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_author' => $admin_id ) );
+		$reply_id   = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_author' => $admin_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$old_post         = $_POST;
+		$old_request      = $_REQUEST;
+		$old_server       = $_SERVER;
+		$old_user         = get_current_user_id();
+		$old_errors       = bbpress()->errors;
+		$old_content      = get_post_field( 'post_content', $reply_id );
+		$home_url         = wp_parse_url( home_url( '/' ) );
+		$set_terms_called = false;
+		$reject_update = function ( $maybe_empty, $postarr ) use ( $reply_id ) {
+			return ( $postarr['ID'] === $reply_id ) ? true : $maybe_empty;
+		};
+		$track_terms = function ( $terms ) use ( &$set_terms_called ) {
+			$set_terms_called = true;
+			return $terms;
+		};
+		$prevent_redirect = function () {
+			throw new RuntimeException( 'Failed reply edit redirected.' );
+		};
+
+		bbp_set_user_role( $admin_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $admin_id );
+		$_POST = array(
+			'bbp_reply_id'      => $reply_id,
+			'bbp_reply_content' => 'Rejected reply edit',
+		);
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		bbpress()->errors      = new WP_Error();
+		add_filter( 'wp_insert_post_empty_content', $reject_update, 10, 2 );
+		add_filter( 'bbp_edit_reply_pre_set_terms', $track_terms );
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			$this->assertNull( bbp_edit_reply_handler( 'bbp-edit-reply' ) );
+			$this->assertSame( $old_content, get_post_field( 'post_content', $reply_id ) );
+			$this->assertFalse( $set_terms_called );
+			$this->assertSame( array( 'bbp_reply_error' ), bbpress()->errors->get_error_codes() );
+			$this->assertStringContainsString( __( 'Content, title, and excerpt are empty.' ) . ' Please try again.', bbpress()->errors->get_error_message( 'bbp_reply_error' ) );
+		} finally {
+			remove_filter( 'wp_insert_post_empty_content', $reject_update, 10 );
+			remove_filter( 'bbp_edit_reply_pre_set_terms', $track_terms );
+			remove_filter( 'wp_redirect', $prevent_redirect );
+			$_POST            = $old_post;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
+			bbpress()->errors = $old_errors;
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @group canonical
 	 * @covers ::bbp_insert_reply
 	 */

@@ -816,7 +816,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	}
 
 	// Insert reply
-	$reply_id = wp_update_post( $reply_data );
+	$reply_id = wp_update_post( $reply_data, true );
 
 	// Toggle revisions back on
 	if ( true === $revisions_removed ) {
@@ -824,22 +824,21 @@ function bbp_edit_reply_handler( $action = '' ) {
 		add_post_type_support( bbp_get_reply_post_type(), 'revisions' );
 	}
 
-	/** Topic Tags ************************************************************/
-
-	// Just in time manipulation of reply terms before being edited
-	$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id, $reply_id );
-
-	// Insert terms
-	$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
-
-	// Term error
-	if ( is_wp_error( $terms ) ) {
-		bbp_add_error( 'bbp_reply_tags', __( '<strong>Error</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
-	}
-
 	/** No Errors *************************************************************/
 
-	if ( ! empty( $reply_id ) && ! is_wp_error( $reply_id ) ) {
+	if ( ! is_wp_error( $reply_id ) ) {
+		/** Topic Tags ********************************************************/
+
+		// Just in time manipulation of reply terms before being edited
+		$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id, $reply_id );
+
+		// Insert terms
+		$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
+
+		// Term error
+		if ( is_wp_error( $terms ) ) {
+			bbp_add_error( 'bbp_reply_tags', __( '<strong>Error</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
+		}
 
 		// Update counts, etc...
 		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_data['post_author'], true, $reply_to );
@@ -889,12 +888,10 @@ function bbp_edit_reply_handler( $action = '' ) {
 	/** Errors ****************************************************************/
 
 	} else {
-		$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() )
-			? $reply_id->get_error_message() . ' '
-			: '';
+		$append_error = esc_html( $reply_id->get_error_message() );
 
 		/* translators: %s: Error message(s) */
-		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your reply: %s. Please try again.', 'bbpress' ) ), $append_error );
+		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your reply: %s Please try again.', 'bbpress' ), $append_error ) );
 	}
 }
 

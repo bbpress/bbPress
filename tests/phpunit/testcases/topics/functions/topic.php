@@ -458,6 +458,58 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_edit_topic_handler
+	 */
+	public function test_bbp_edit_topic_handler_reports_failed_update() {
+		$admin_id         = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$forum_id         = $this->factory->forum->create();
+		$topic_id         = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_author' => $admin_id ) );
+		$old_post         = $_POST;
+		$old_request      = $_REQUEST;
+		$old_server       = $_SERVER;
+		$old_user         = get_current_user_id();
+		$old_errors       = bbpress()->errors;
+		$old_title        = get_post_field( 'post_title', $topic_id );
+		$home_url         = wp_parse_url( home_url( '/' ) );
+		$reject_update = function ( $maybe_empty, $postarr ) use ( $topic_id ) {
+			return ( $postarr['ID'] === $topic_id ) ? true : $maybe_empty;
+		};
+		$prevent_redirect = function () {
+			throw new RuntimeException( 'Failed topic edit redirected.' );
+		};
+
+		bbp_set_user_role( $admin_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $admin_id );
+		$_POST = array(
+			'bbp_topic_id'      => $topic_id,
+			'bbp_forum_id'      => $forum_id,
+			'bbp_topic_title'   => 'Rejected topic edit',
+			'bbp_topic_content' => 'Rejected content',
+		);
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'bbp-edit-topic_' . $topic_id );
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		bbpress()->errors      = new WP_Error();
+		add_filter( 'wp_insert_post_empty_content', $reject_update, 10, 2 );
+		add_filter( 'wp_redirect', $prevent_redirect );
+
+		try {
+			$this->assertNull( bbp_edit_topic_handler( 'bbp-edit-topic' ) );
+			$this->assertSame( $old_title, get_post_field( 'post_title', $topic_id ) );
+			$this->assertSame( array( 'bbp_topic_error' ), bbpress()->errors->get_error_codes() );
+			$this->assertStringContainsString( __( 'Content, title, and excerpt are empty.' ) . ' Please try again.', bbpress()->errors->get_error_message( 'bbp_topic_error' ) );
+		} finally {
+			remove_filter( 'wp_insert_post_empty_content', $reject_update, 10 );
+			remove_filter( 'wp_redirect', $prevent_redirect );
+			$_POST            = $old_post;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
+			bbpress()->errors = $old_errors;
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_update_topic
 	 */
 	public function test_bbp_update_topic() {

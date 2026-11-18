@@ -563,11 +563,11 @@ function bbp_edit_forum_handler( $action = '' ) {
 	);
 
 	// Insert forum
-	$forum_id = wp_update_post( $forum_data );
+	$forum_id = wp_update_post( $forum_data, true );
 
 	/** No Errors *************************************************************/
 
-	if ( ! empty( $forum_id ) && ! is_wp_error( $forum_id ) ) {
+	if ( ! is_wp_error( $forum_id ) ) {
 
 		// Update counts, etc...
 		do_action(
@@ -647,14 +647,14 @@ function bbp_edit_forum_handler( $action = '' ) {
 	/** Errors ****************************************************************/
 
 	} else {
-		$append_error = ( is_wp_error( $forum_id ) && $forum_id->get_error_message() ) ? $forum_id->get_error_message() . ' ' : '';
+		$append_error = esc_html( $forum_id->get_error_message() );
 		bbp_add_error(
 			'bbp_forum_error',
 			sprintf(
 				/* translators: %s: Error message */
-				__( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' )
-			),
-			$append_error
+				__( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' ),
+				$append_error
+			)
 		);
 	}
 }

@@ -172,6 +172,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Show the WordPress error when a forum, topic, or reply edit fails, without
+  changing topic tags after a failed reply edit.
 - Used standard moderation checks when an unsupported moderation mode is passed.
 - Passed author website URLs to the WordPress comment link-limit filter during
   bbPress moderation.

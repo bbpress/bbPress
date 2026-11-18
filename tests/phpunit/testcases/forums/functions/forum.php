@@ -41,7 +41,7 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	 * @param string $nonce_action Nonce action.
 	 * @param string $saved_action After-save action.
 	 * @param array  $post         Form fields.
-	 * @return array Saved forum IDs, redirect, and errors.
+	 * @return array Saved forum IDs, redirect, error codes, and error messages.
 	 */
 	protected function submit_forum_form( $handler, $action, $nonce_action, $saved_action, $post ) {
 		$old_post    = $_POST;
@@ -75,6 +75,7 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 			}
 		} finally {
 			$errors            = bbpress()->errors->get_error_codes();
+			$error_messages    = bbpress()->errors->get_error_messages();
 			$_POST             = $old_post;
 			$_REQUEST          = $old_request;
 			$_SERVER           = $old_server;
@@ -83,7 +84,7 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 			remove_filter( 'wp_redirect', $prevent_redirect );
 		}
 
-		return array( $saved_ids, $redirect, $errors );
+		return array( $saved_ids, $redirect, $errors, $error_messages );
 	}
 
 	/**
@@ -276,6 +277,43 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 		$this->assertSame( 'Edited forum description', get_post_field( 'post_content', $forum_id ) );
 		$this->assertSame( $user_id, (int) get_post_meta( $forum_id, '_edit_last', true ) );
 		$this->assertSame( bbp_get_forum_permalink( $forum_id ), $redirect );
+	}
+
+	/**
+	 * @covers ::bbp_edit_forum_handler
+	 */
+	public function test_bbp_edit_forum_handler_reports_failed_update() {
+		$forum_id = $this->factory->forum->create( array( 'post_title' => 'Unchanged forum' ) );
+		$user_id  = $this->factory->user->create();
+		$reject_update = function ( $maybe_empty, $postarr ) use ( $forum_id ) {
+			return ( $postarr['ID'] === $forum_id ) ? true : $maybe_empty;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+		add_filter( 'wp_insert_post_empty_content', $reject_update, 10, 2 );
+
+		try {
+			list( $saved_ids, $redirect, $errors, $error_messages ) = $this->submit_forum_form(
+				'bbp_edit_forum_handler',
+				'bbp-edit-forum',
+				'bbp-edit-forum_' . $forum_id,
+				'bbp_edit_forum_post_extras',
+				array(
+					'bbp_forum_id'      => $forum_id,
+					'bbp_forum_title'   => 'Rejected forum edit',
+					'bbp_forum_content' => 'Rejected description',
+				)
+			);
+
+			$this->assertSame( array(), $saved_ids );
+			$this->assertSame( '', $redirect );
+			$this->assertSame( 'Unchanged forum', get_the_title( $forum_id ) );
+			$this->assertSame( array( 'bbp_forum_error' ), $errors );
+			$this->assertStringContainsString( __( 'Content, title, and excerpt are empty.' ) . ' Please try again.', $error_messages[0] );
+		} finally {
+			remove_filter( 'wp_insert_post_empty_content', $reject_update, 10 );
+		}
 	}
 
 	/**

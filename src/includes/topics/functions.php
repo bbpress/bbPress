@@ -734,7 +734,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	}
 
 	// Insert topic
-	$topic_id = wp_update_post( $topic_data );
+	$topic_id = wp_update_post( $topic_data, true );
 
 	// Toggle revisions back on
 	if ( true === $revisions_removed ) {
@@ -744,7 +744,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	/** No Errors *************************************************************/
 
-	if ( ! empty( $topic_id ) && ! is_wp_error( $topic_id ) ) {
+	if ( ! is_wp_error( $topic_id ) ) {
 
 		// Update counts, etc...
 		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_data['post_author'], true /* Is edit */ );
@@ -811,9 +811,9 @@ function bbp_edit_topic_handler( $action = '' ) {
 	/** Errors ****************************************************************/
 
 	} else {
-		$append_error = ( is_wp_error( $topic_id ) && $topic_id->get_error_message() ) ? $topic_id->get_error_message() . ' ' : '';
+		$append_error = esc_html( $topic_id->get_error_message() );
 		/* translators: %s: Error message(s) */
-		bbp_add_error( 'bbp_topic_error', sprintf( esc_html_e( '<strong>Error</strong>: The following problem(s) have been found with your topic: %s. Please try again.', 'bbpress' ) ), $append_error );
+		bbp_add_error( 'bbp_topic_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your topic: %s Please try again.', 'bbpress' ), $append_error ) );
 	}
 }
 
