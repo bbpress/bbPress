@@ -483,10 +483,10 @@ function bbp_decode_callback( $matches = array() ) {
  *
  * @internal Used by bbp_encode_bad()
  * @param string $content Content being encoded, passed by reference.
- * @param string $key     Unused callback key.
+ * @param int    $key     Unused callback key.
  * @param string $preg    Pattern for tags to replace.
  */
-function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
+function bbp_encode_empty_callback( &$content = '', $key = 0, $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
 		$content = preg_replace( "|&lt;({$preg})\s*?/*?&gt;|i", '<$1 />', $content ) ?? $content;
 	}
@@ -500,10 +500,10 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
  * @internal Used by bbp_encode_bad()
  *
  * @param string $content Content being encoded, passed by reference.
- * @param string $key     Unused callback key.
+ * @param int    $key     Unused callback key.
  * @param string $preg    Pattern for tags to replace.
  */
-function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
+function bbp_encode_normal_callback( &$content = '', $key = 0, $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
 		$content = preg_replace( "|&lt;(/?{$preg})&gt;|i", '<$1>', $content ) ?? $content;
 	}
@@ -949,7 +949,7 @@ function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			$seconds = $chunks[ $i ][0];
 
 			// Finding the biggest chunk (if the chunk fits, break)
-			$count = floor( $since / $seconds );
+			$count = (int) floor( $since / $seconds );
 			if ( ! empty( $count ) ) {
 				break;
 			}
@@ -967,7 +967,7 @@ function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			// Step two: the second chunk
 			if ( $i + 2 < $j ) {
 				$seconds2 = $chunks[ $i + 1 ][0];
-				$count2   = floor( ( $since - ( $chunks[ $i ][0] * $count ) ) / $seconds2 );
+				$count2   = (int) floor( ( $since - ( $chunks[ $i ][0] * $count ) ) / $seconds2 );
 
 				// Add to output var
 				if ( ! empty( $count2 ) ) {

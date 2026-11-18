@@ -357,7 +357,7 @@ function bbp_version_updater() {
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/1891
 			 */
-			$safe_to_bump = bbp_run_required_upgrade( 'bbp-sync-forum-visibility', 'bbp_admin_repair_forum_visibility' ) && $safe_to_bump;
+			$safe_to_bump = bbp_run_required_upgrade( 'bbp-sync-forum-visibility', 'bbp_admin_repair_forum_visibility' );
 		}
 
 		/** 2.2 Branch ********************************************************/

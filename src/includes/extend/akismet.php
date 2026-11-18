@@ -336,13 +336,14 @@ class BBP_Akismet {
 
 		// Pass title & content together into comment content
 		$_post_content = trim( $_post->post_title . "\n\n" . $_post->post_content );
+		$author_id     = (int) $_post->post_author;
 
 		// Set some default post_data
 		$post_data = array(
 			'comment_approved'     => $_post->post_status,
-			'comment_author'       => $_post->post_author ? get_the_author_meta( 'display_name', $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_name',    true ),
-			'comment_author_email' => $_post->post_author ? get_the_author_meta( 'email',        $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_email',   true ),
-			'comment_author_url'   => $_post->post_author ? bbp_get_user_profile_url(            $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_website', true ),
+			'comment_author'       => $author_id ? get_the_author_meta( 'display_name', $author_id ) : get_post_meta( $post_id, '_bbp_anonymous_name',    true ),
+			'comment_author_email' => $author_id ? get_the_author_meta( 'email',        $author_id ) : get_post_meta( $post_id, '_bbp_anonymous_email',   true ),
+			'comment_author_url'   => $author_id ? bbp_get_user_profile_url(            $author_id ) : get_post_meta( $post_id, '_bbp_anonymous_website', true ),
 			'comment_content'      => $_post_content,
 			'comment_date_gmt'     => $_post->post_date_gmt,
 			'comment_ID'           => $post_id,
@@ -351,7 +352,7 @@ class BBP_Akismet {
 			'permalink'            => get_permalink( $post_id ),
 			'user_ID'              => $_post->post_author,
 			'user_ip'              => get_post_meta( $post_id, '_bbp_author_ip', true ),
-			'user_role'            => $this->get_user_roles( $_post->post_author ),
+			'user_role'            => $this->get_user_roles( $author_id ),
 		);
 
 		// Use the original version stored in post_meta if available
@@ -596,7 +597,7 @@ class BBP_Akismet {
 			do_action( 'bbp_akismet_before_update_post_meta', $post_id, $_post );
 
 			// Get user data
-			$userdata = get_userdata( $_post->post_author );
+			$userdata = get_userdata( (int) $_post->post_author );
 			if ( ! empty( $userdata ) ) {
 				$name  = $userdata->display_name;
 				$email = $userdata->user_email;
