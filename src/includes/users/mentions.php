@@ -69,7 +69,7 @@ function bbp_is_mention_notifications_active() {
  * @since 2.7.0 bbPress (r8264)
  *
  * @param string $content Unfiltered post content.
- * @return array Unique user IDs.
+ * @return list<int> Unique user IDs.
  */
 function bbp_get_mentioned_user_ids( $content = '' ) {
 	$user_ids = array();
@@ -108,7 +108,7 @@ function bbp_get_mentioned_user_ids( $content = '' ) {
  * @since 2.7.0 bbPress (r8331)
  *
  * @param int $post_id Topic or reply ID.
- * @return array Post, current and expected user IDs, additions, and removals.
+ * @return array{post:WP_Post|false, current:list<int>, expected:list<int>, added:list<int>, removed:list<int>} Post, current and expected user IDs, additions, and removals.
  */
 function bbp_get_post_mention_changes( $post_id = 0 ) {
 	$post = get_post( $post_id );
@@ -140,8 +140,8 @@ function bbp_get_post_mention_changes( $post_id = 0 ) {
  * @since 2.7.0 bbPress (r8331)
  *
  * @param int   $post_id Topic or reply ID.
- * @param array $changes Planned changes from bbp_get_post_mention_changes().
- * @return array Expected mentioned user IDs.
+ * @param array{post:WP_Post|false, current:list<int>, expected:list<int>, added:list<int>, removed:list<int>} $changes Planned changes from bbp_get_post_mention_changes().
+ * @return list<int> Expected mentioned user IDs.
  */
 function bbp_apply_post_mention_changes( $post_id, $changes ) {
 	foreach ( $changes['removed'] as $user_id ) {
@@ -162,7 +162,7 @@ function bbp_apply_post_mention_changes( $post_id, $changes ) {
  * @since 2.7.0 bbPress (r8264)
  *
  * @param int $post_id Topic or reply ID.
- * @return array Current mentioned user IDs.
+ * @return list<int> Current mentioned user IDs.
  */
 function bbp_update_post_mentions( $post_id = 0 ) {
 	$changes = bbp_get_post_mention_changes( $post_id );
@@ -186,9 +186,9 @@ function bbp_update_post_mentions( $post_id = 0 ) {
  * @since 2.7.0 bbPress (r8264)
  *
  * @param int   $post_id  Topic or reply ID.
- * @param array $user_ids Recipients to mark handled.
- * @param array $baseline Previously mentioned users for an untracked post.
- * @return array Newly reserved recipients.
+ * @param array<array-key, int|string> $user_ids Recipients to mark handled.
+ * @param array<array-key, int|string> $baseline Previously mentioned users for an untracked post.
+ * @return list<int> Newly reserved recipients.
  */
 function bbp_claim_mention_notification_recipients( $post_id = 0, $user_ids = array(), $baseline = array() ) {
 	$bbp_db   = bbp_db();
@@ -255,6 +255,7 @@ function bbp_claim_mention_notification_recipients( $post_id = 0, $user_ids = ar
  * @param WP_Post      $post        Saved post.
  * @param bool         $update      Whether this updates an existing post.
  * @param WP_Post|null $post_before Previous post.
+ * @return void
  */
 function bbp_save_post_mentions( $post_id, $post, $update, $post_before ) {
 	if ( ! in_array( $post->post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
@@ -357,7 +358,8 @@ function bbp_is_user_mention_email_enabled( $user_id = 0 ) {
  *
  * @param int   $post_id  Topic or reply ID.
  * @param int   $parent_id Parent ID (unused).
- * @param array $user_ids Subscription recipients.
+ * @param array<array-key, int|string> $user_ids Subscription recipients.
+ * @return void
  */
 function bbp_record_mention_subscription_recipients( $post_id, $parent_id, $user_ids ) {
 	$sent = (array) bbpress()->mention_subscription_recipients;
@@ -374,6 +376,7 @@ function bbp_record_mention_subscription_recipients( $post_id, $parent_id, $user
  *
  * @since 2.7.0 bbPress (r8264)
  * @since 2.7.0 bbPress (r8361) Add instructions for replying to notifications.
+ * @return void
  */
 function bbp_send_mention_notifications() {
 	$queue = (array) bbpress()->mention_notification_queue;
@@ -592,6 +595,7 @@ function bbp_get_user_mentions( $user_id = 0 ) {
  * @since 2.7.0 bbPress (r8264)
  *
  * @param int $post_id Deleted post ID.
+ * @return void
  */
 function bbp_delete_post_mentions( $post_id = 0 ) {
 	if ( in_array( get_post_type( $post_id ), array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {

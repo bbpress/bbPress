@@ -36,7 +36,7 @@ function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
  *
  * @param string $name Engagement type name, matching the relationship type
  *                     passed to the engagements API (for example, 'post').
- * @param array  $args {
+ * @param array<string, mixed>  $args {
  *     Optional. Engagement type arguments.
  *
  *     @type string $class Class name. Must be or extend BBP_User_Engagements_Type.
@@ -255,7 +255,7 @@ function bbp_remove_all_users_from_all_objects( $rel_key = '', $rel_type = 'post
  * @param string $rel_key   The key used to index this relationship.
  * @param string $rel_type  The type of meta to look in.
  *
- * @return array Returns ids of users
+ * @return list<int> Returns ids of users
  */
 function bbp_get_users_for_object( $object_id = 0, $rel_key = '', $rel_type = 'post' ) {
 	$object_id = absint( $object_id );
@@ -294,13 +294,13 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
  * @since 2.7.0 bbPress (r8318) Prevent unrestricted queries for unsupported types.
  * @since 2.7.0 bbPress (r8335) Pass optional object subtype context to queries.
  *
- * @param array|int $args        Query arguments or a user ID.
+ * @param array<string, mixed>|int $args        Query arguments or a user ID.
  * @param string    $context     Additional context.
  * @param string    $rel_key     The relationship key.
  * @param string    $rel_type    The relationship type (usually 'post').
  * @param string    $rel_subtype Optional. Registered object subtype.
  *
- * @return array
+ * @return array<string, mixed>
  */
 function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '', $rel_type = 'post', $rel_subtype = '' ) {
 	$type        = bbp_get_engagement_type( $rel_type );
@@ -332,7 +332,7 @@ function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array Users engaged in the topic, or an empty array.
+ * @return list<int> Users engaged in the topic, or an empty array.
  */
 function bbp_get_topic_engagements( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -352,7 +352,7 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return array
+ * @return list<int>
  */
 function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 
@@ -399,9 +399,9 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6619) Signature changed to accept an array of arguments
  * @since 2.7.0 bbPress (r8318) Avoid querying when the registered type cannot limit results.
  *
- * @param array|int $args Optional. Query arguments or a user ID.
+ * @param array<string, mixed>|int $args Optional. Query arguments or a user ID.
  *
- * @return bool|array Whether engaged topics are available, or an empty array if no query is built.
+ * @return bool|array<array-key, mixed> Whether engaged topics are available, or an empty array if no query is built.
  */
 function bbp_get_user_engagements( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'engagements', '_bbp_engagement' );
@@ -691,9 +691,9 @@ function bbp_current_user_can_toggle_engagement( $object_id = 0, $object_type = 
  *
  * @since 2.6.0 bbPress (r6607)
  *
- * @param array $args User ID, object type, relationship key and type, filter name, and query arguments.
+ * @param array<string, mixed> $args User ID, object type, relationship key and type, filter name, and query arguments.
  *
- * @return array Object IDs, or an empty array when none are found.
+ * @return array<int, int|WP_Post> Object IDs, posts when the query fields are overridden, or an empty array.
  */
 function bbp_get_user_object_ids( $args = array() ) {
 	$object_ids = $defaults = array();
@@ -762,7 +762,7 @@ function bbp_get_user_object_ids( $args = array() ) {
  *
  * @param int $user_id User id.
  *
- * @return array Return array of forum ids, or empty array.
+ * @return list<int> Return array of forum ids, or empty array.
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
@@ -782,7 +782,7 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array Return array of topic ids, or empty array.
+ * @return list<int> Return array of topic ids, or empty array.
  */
 function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
