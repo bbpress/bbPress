@@ -14,7 +14,7 @@
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @return array Reply capabilities.
+ * @return array<string, string> Reply capabilities.
  */
 function bbp_get_reply_caps() {
 
@@ -23,7 +23,7 @@ function bbp_get_reply_caps() {
 	 *
 	 * @since 2.0.0 bbPress (r2593)
 	 *
-	 * @param array $caps An array of reply capabilities with keys mapping to WordPress capabilities.
+	 * @param array<string, string> $caps An array of reply capabilities with keys mapping to WordPress capabilities.
 	 */
 	return (array) apply_filters(
 		'bbp_get_reply_caps',
@@ -44,12 +44,12 @@ function bbp_get_reply_caps() {
  *
  * @since 2.2.0 bbPress (r4244)
  *
- * @param array  $caps    Capabilities for meta capability.
+ * @param list<string> $caps    Capabilities for meta capability.
  * @param string $cap     Capability name.
  * @param int    $user_id User id.
- * @param array  $args    Arguments.
+ * @param list<mixed> $args    Arguments.
  *
- * @return array Actual capabilities for meta capability.
+ * @return list<string> Actual capabilities for meta capability.
  */
 function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
