@@ -111,6 +111,8 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @param int $reply_id The reply id.
  * @param int $topic_id The topic id.
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id = 0 ) {
 
@@ -136,6 +138,8 @@ function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id
  * @since 2.6.20 bbPress (r7977)
  *
  * @param string $reply_title Reply title.
+ *
+ * @return void
  */
 function bbp_validate_reply_title( $reply_title = '' ) {
 
@@ -155,6 +159,8 @@ function bbp_validate_reply_title( $reply_title = '' ) {
  * @param string $action The requested action to compare this function to
  *                    id, anonymous data, reply author, edit (false), and
  *                    the reply to id.
+ *
+ * @return void
  */
 function bbp_new_reply_handler( $action = '' ) {
 
@@ -578,6 +584,8 @@ function bbp_new_reply_handler( $action = '' ) {
  * @param string $action The requested action to compare this function to
  *                       id, anonymous data, reply author, bool true (for edit),
  *                       and the reply to id.
+ *
+ * @return void
  */
 function bbp_edit_reply_handler( $action = '' ) {
 
@@ -905,6 +913,8 @@ function bbp_edit_reply_handler( $action = '' ) {
  * @param int   $author_id      Reply author ID.
  * @param bool  $is_edit        Whether this is an edit. Defaults to false.
  * @param int   $reply_to       Parent reply ID.
+ *
+ * @return void
  */
 function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
@@ -1016,6 +1026,8 @@ function bbp_suspend_reply_walker( $topic_id = 0, $suspend = null ) {
  * @param int    $forum_id         Optional forum ID.
  * @param int    $topic_id         Optional topic ID.
  * @param bool   $refresh          Whether to reset previous values. Defaults to true.
+ *
+ * @return void
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
 
@@ -1340,6 +1352,8 @@ function bbp_update_reply_revision_log( $args = array() ) {
  * @since 2.3.0 bbPress (r4522)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_move_reply_handler( $action = '' ) {
 
@@ -1613,6 +1627,8 @@ function bbp_move_reply_handler( $action = '' ) {
  * @param int $move_reply_id Move reply id.
  * @param int $source_topic_id Source topic id.
  * @param int $destination_topic_id Destination topic id.
+ *
+ * @return void
  */
 function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_topic_id ) {
 	$source_forum_id      = bbp_get_topic_forum_id( $source_topic_id );
@@ -1663,6 +1679,8 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  * @since 2.0.0 bbPress (r2740)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_toggle_reply_handler( $action = '' ) {
 
@@ -2252,6 +2270,8 @@ function bbp_get_replies_per_rss_page( $default = 25 ) {
  * @since 2.1.0 bbPress (r3753)
  *
  * @global WP_Embed $wp_embed WordPress Embed object.
+ *
+ * @return void
  */
 function bbp_reply_content_autoembed() {
 	global $wp_embed;
@@ -2352,6 +2372,8 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
  * Prevent direct access to replies whose status or parent topic is not visible.
  *
  * @since 2.6.20 bbPress (r8012)
+ *
+ * @return void
  */
 function bbp_reply_enforce_visibility() {
 
@@ -2389,6 +2411,8 @@ function bbp_reply_enforce_visibility() {
  * @since 2.0.0 bbPress (r3171)
  *
  * @param array $replies_query Replies query arguments.
+ *
+ * @return void
  */
 function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
@@ -2521,6 +2545,8 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
  * Redirect if unauthorized user is attempting to edit a reply.
  *
  * @since 2.1.0 bbPress (r3607)
+ *
+ * @return void
  */
 function bbp_check_reply_edit() {
 
@@ -2675,6 +2701,8 @@ function bbp_thread_replies() {
  *
  * @since 2.4.0 bbPress (r4944)
  * @param array $args Threaded reply display arguments.
+ *
+ * @return void
  */
 function bbp_list_replies( $args = array() ) {
 

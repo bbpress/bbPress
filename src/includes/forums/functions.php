@@ -128,6 +128,8 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
  *
  * @param string $forum_title     Forum title.
  * @param string $empty_error_code Optional. Error code for an empty title.
+ *
+ * @return void
  */
 function bbp_validate_forum_title( $forum_title = '', $empty_error_code = 'bbp_forum_title' ) {
 
@@ -148,6 +150,8 @@ function bbp_validate_forum_title( $forum_title = '', $empty_error_code = 'bbp_f
  * Handles the front end forum submission.
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_new_forum_handler( $action = '' ) {
 
@@ -411,6 +415,8 @@ function bbp_new_forum_handler( $action = '' ) {
  * Handles the front end edit forum submission.
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_edit_forum_handler( $action = '' ) {
 
@@ -965,6 +971,8 @@ function bbp_update_forum_visibility_options( $forum_id = 0, $visibility = '' ) 
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
  * @param WP_Post|false $post Post object, or false when omitted.
+ *
+ * @return void
  */
 function bbp_update_forum_visibility_on_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
 
@@ -1007,6 +1015,8 @@ function bbp_update_forum_visibility_version() {
  * @param int     $post_id     Post ID.
  * @param WP_Post|false $post_after  Post after the update.
  * @param WP_Post|false $post_before Post before the update.
+ *
+ * @return void
  */
 function bbp_update_forum_visibility_version_on_post_updated( $post_id = 0, $post_after = false, $post_before = false ) {
 	if ( ! ( $post_after instanceof WP_Post ) || ! ( $post_before instanceof WP_Post )
@@ -1284,6 +1294,8 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_increase_forum_topic_count( $forum_id = 0 ) {
 
@@ -1314,6 +1326,8 @@ function bbp_increase_forum_topic_count( $forum_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_decrease_forum_topic_count( $forum_id = 0 ) {
 
@@ -1404,6 +1418,8 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1, $upd
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_increase_forum_topic_count_hidden( $forum_id = 0 ) {
 
@@ -1434,6 +1450,8 @@ function bbp_increase_forum_topic_count_hidden( $forum_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_decrease_forum_topic_count_hidden( $forum_id = 0 ) {
 
@@ -1640,6 +1658,8 @@ function bbp_bump_forum_ancestor_count( $forum_id = 0, $meta_key = '', $differen
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_increase_forum_reply_count( $forum_id = 0 ) {
 
@@ -1670,6 +1690,8 @@ function bbp_increase_forum_reply_count( $forum_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_decrease_forum_reply_count( $forum_id = 0 ) {
 
@@ -1700,6 +1722,8 @@ function bbp_decrease_forum_reply_count( $forum_id = 0 ) {
  * @since 2.6.0 bbPress (r6923)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_increase_forum_reply_count_hidden( $forum_id = 0 ) {
 
@@ -1730,6 +1754,8 @@ function bbp_increase_forum_reply_count_hidden( $forum_id = 0 ) {
  * @since 2.6.0 bbPress (r6923)
  *
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_decrease_forum_reply_count_hidden( $forum_id = 0 ) {
 
@@ -1760,6 +1786,8 @@ function bbp_decrease_forum_reply_count_hidden( $forum_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
+ *
+ * @return void
  */
 function bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id = 0 ) {
 
@@ -2070,6 +2098,8 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = false ) {
  *
  * @param int     $forum_id Deleted forum ID.
  * @param WP_Post|false $forum Deleted forum post object.
+ *
+ * @return void
  */
 function bbp_reparent_forum_subforums( $forum_id = 0, $forum = false ) {
 	// Bail if there is no deleted forum object
@@ -2455,6 +2485,8 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
  * @since 2.6.22 bbPress (r8369) Added the explicit recount argument.
  *
  * @param array $args Forum ID, latest topic/reply/activity values, and recount flag.
+ *
+ * @return void
  */
 function bbp_update_forum( $args = array() ) {
 
@@ -3627,6 +3659,8 @@ function bbp_forum_query_last_activity_id( $forum_id = 0 ) {
  * the user can't view it, then sets a 404.
  *
  * @since 2.0.0 bbPress (r3430)
+ *
+ * @return void
  */
 function bbp_forum_enforce_hidden() {
 
@@ -3674,6 +3708,8 @@ function bbp_forum_enforce_hidden() {
  * the user can't view it, then sets a 404.
  *
  * @since 2.0.0 bbPress (r3430)
+ *
+ * @return void
  */
 function bbp_forum_enforce_private() {
 
@@ -3722,6 +3758,8 @@ function bbp_forum_enforce_private() {
  * Redirect if unauthorized user is attempting to edit a forum.
  *
  * @since 2.1.0 bbPress (r3607)
+ *
+ * @return void
  */
 function bbp_check_forum_edit() {
 
@@ -3743,6 +3781,8 @@ function bbp_check_forum_edit() {
  * @since 2.6.22 bbPress (r8369) Defer forum refresh during permanent deletion.
  *
  * @param int $forum_id Forum ID whose topics are being deleted.
+ *
+ * @return void
  */
 function bbp_delete_forum_topics( $forum_id = 0 ) {
 
@@ -3804,6 +3844,8 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3669)
  *
  * @param int $forum_id Forum ID whose topics are being trashed.
+ *
+ * @return void
  */
 function bbp_trash_forum_topics( $forum_id = 0 ) {
 
@@ -3849,6 +3891,8 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3669)
  *
  * @param int $forum_id Forum ID whose topics are being restored.
+ *
+ * @return void
  */
 function bbp_untrash_forum_topics( $forum_id = 0 ) {
 

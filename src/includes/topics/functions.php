@@ -110,6 +110,8 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  *
  * @param string $topic_title     Topic title.
  * @param string $empty_error_code Optional. Error code for an empty title.
+ *
+ * @return void
  */
 function bbp_validate_topic_title( $topic_title = '', $empty_error_code = 'bbp_topic_title' ) {
 
@@ -130,6 +132,8 @@ function bbp_validate_topic_title( $topic_title = '', $empty_error_code = 'bbp_t
  * Handles the front end topic submission.
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_new_topic_handler( $action = '' ) {
 
@@ -479,6 +483,8 @@ function bbp_new_topic_handler( $action = '' ) {
  * @since 2.6.19 bbPress (r7679) Enforce the edit lock on submissions.
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_edit_topic_handler( $action = '' ) {
 
@@ -825,6 +831,8 @@ function bbp_edit_topic_handler( $action = '' ) {
  * @param array $anonymous_data Sanitized anonymous poster data, if applicable.
  * @param int   $author_id      Author ID for a registered user.
  * @param bool  $is_edit        Whether the topic is being edited. Defaults to false.
+ *
+ * @return void
  */
 function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false ) {
 
@@ -972,6 +980,8 @@ function bbp_suspend_deleted_topic_walker( $forum_id = 0, $suspend = null ) {
  * @param int    $forum_id         Optional forum ID.
  * @param int    $reply_id         Optional reply ID.
  * @param bool   $refresh          Whether to reset the previous values. Defaults to true.
+ *
+ * @return void
  */
 function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id = 0, $reply_id = 0, $refresh = true ) {
 
@@ -1038,6 +1048,8 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * @param int $topic_id     The topic id.
  * @param int $old_forum_id Old forum id.
  * @param int $new_forum_id New forum id.
+ *
+ * @return void
  */
 function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 
@@ -1188,6 +1200,8 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  * @since 2.0.0 bbPress (r2756)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_merge_topic_handler( $action = '' ) {
 
@@ -1453,6 +1467,8 @@ function bbp_merge_topic_handler( $action = '' ) {
  * @param int $destination_topic_id Destination topic id.
  * @param int $source_topic_id Source topic id.
  * @param int $source_topic_forum_id Source topic's forum id.
+ *
+ * @return void
  */
 function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source_topic_forum_id ) {
 	$destination_forum_id = bbp_get_topic_forum_id( $destination_topic_id );
@@ -1499,6 +1515,8 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @since 2.0.0 bbPress (r2756)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_split_topic_handler( $action = '' ) {
 
@@ -1842,6 +1860,8 @@ function bbp_split_topic_handler( $action = '' ) {
  * @param int $from_reply_id From reply id.
  * @param int $source_topic_id Source topic id.
  * @param int $destination_topic_id Destination topic id.
+ *
+ * @return void
  */
 function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_topic_id ) {
 	$source_forum_id      = bbp_get_topic_forum_id( $source_topic_id );
@@ -1889,6 +1909,8 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  * @since 2.1.0 bbPress (r3671)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_edit_topic_tag_handler( $action = '' ) {
 
@@ -2255,6 +2277,8 @@ function bbp_get_super_stickies() {
  * @since 2.0.0 bbPress (r2727)
  *
  * @param string $action The requested action to compare this function to.
+ *
+ * @return void
  */
 function bbp_toggle_topic_handler( $action = '' ) {
 
@@ -2494,6 +2518,8 @@ function bbp_toggle_topic( $args = array() ) {
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $topic_id Get the topic id to remove.
+ *
+ * @return void
  */
 function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -2581,6 +2607,8 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
+ *
+ * @return void
  */
 function bbp_increase_topic_reply_count( $topic_id = 0 ) {
 
@@ -2611,6 +2639,8 @@ function bbp_increase_topic_reply_count( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
+ *
+ * @return void
  */
 function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
 
@@ -2672,6 +2702,8 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
+ *
+ * @return void
  */
 function bbp_increase_topic_reply_count_hidden( $topic_id = 0 ) {
 
@@ -2702,6 +2734,8 @@ function bbp_increase_topic_reply_count_hidden( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
+ *
+ * @return void
  */
 function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
 
@@ -2735,6 +2769,8 @@ function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
  *
  * @param int $topic_id The topic id.
  * @param int $forum_id The forum id.
+ *
+ * @return void
  */
 function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
 
@@ -3242,6 +3278,8 @@ function bbp_spam_topic( $topic_id = 0 ) {
  * @since 2.6.20 bbPress (r8016) Use an unfiltered structural reply lookup.
  *
  * @param int $topic_id Topic id.
+ *
+ * @return void
  */
 function bbp_spam_topic_replies( $topic_id = 0 ) {
 
@@ -3388,6 +3426,8 @@ function bbp_unspam_topic( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id Topic id.
+ *
+ * @return void
  */
 function bbp_unspam_topic_replies( $topic_id = 0 ) {
 
@@ -3701,6 +3741,8 @@ function bbp_delete_topic( $topic_id = 0 ) {
  * @since 2.6.22 bbPress (r8369) Defer redundant reply refreshes during deletion.
  *
  * @param int $topic_id Topic id.
+ *
+ * @return void
  */
 function bbp_delete_topic_replies( $topic_id = 0 ) {
 
@@ -3805,6 +3847,8 @@ function bbp_trash_topic( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id Topic id.
+ *
+ * @return void
  */
 function bbp_trash_topic_replies( $topic_id = 0 ) {
 
@@ -3873,6 +3917,8 @@ function bbp_untrash_topic( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r5406)
  *
  * @param int $topic_id Topic id.
+ *
+ * @return void
  */
 function bbp_untrash_topic_replies( $topic_id = 0 ) {
 
@@ -4124,6 +4170,8 @@ function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $us
  *
  * @param array  $terms    List of Term taxonomy IDs.
  * @param object $taxonomy Current taxonomy object of terms.
+ *
+ * @return void
  */
 function bbp_update_topic_tag_count( $terms, $taxonomy ) {
 
@@ -4179,6 +4227,8 @@ function bbp_update_topic_tag_count( $terms, $taxonomy ) {
  * @since 2.1.0 bbPress (r3753)
  *
  * @global WP_Embed $wp_embed WordPress Embed object.
+ *
+ * @return void
  */
 function bbp_topic_content_autoembed() {
 	global $wp_embed;
@@ -4196,6 +4246,8 @@ function bbp_topic_content_autoembed() {
  * @since 2.0.0 bbPress (r3171)
  *
  * @param array $topics_query Topics query arguments.
+ *
+ * @return void
  */
 function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
@@ -4290,6 +4342,8 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
  * Redirect if unauthorized user is attempting to edit a topic.
  *
  * @since 2.1.0 bbPress (r3607)
+ *
+ * @return void
  */
 function bbp_check_topic_edit() {
 
@@ -4308,6 +4362,8 @@ function bbp_check_topic_edit() {
  * Redirect if unauthorized user is attempting to edit a topic tag.
  *
  * @since 2.1.0 bbPress (r3607)
+ *
+ * @return void
  */
 function bbp_check_topic_tag_edit() {
 
