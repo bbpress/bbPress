@@ -67,11 +67,12 @@ class BBP_Akismet {
 			'bbp_unspammed_reply' => 10, // Unspammed reply
 		);
 
-		// Add the checks
-		foreach ( $checks as $type => $functions ) {
-			foreach ( $functions as $function => $priority ) {
-				add_filter( $function, array( $this, $type . '_post'  ), $priority );
-			}
+		// Add the checks and submissions
+		foreach ( $checks['check'] as $function => $priority ) {
+			add_filter( $function, array( $this, 'check_post' ), $priority );
+		}
+		foreach ( $checks['submit'] as $function => $priority ) {
+			add_action( $function, array( $this, 'submit_post' ), $priority );
 		}
 
 		// Update post meta
@@ -495,11 +496,9 @@ class BBP_Akismet {
 			}
 		}
 
-		// Encode post data
-		if ( ! empty( $post_data ) && is_countable( $post_data ) ) {
+			// Encode post data
 			foreach ( $post_data as $key => $data ) {
 				$query_string .= $key . '=' . urlencode( wp_unslash( $data ) ) . '&';
-			}
 		}
 
 		// Only accepts spam|ham
@@ -1065,11 +1064,6 @@ class BBP_Akismet {
 		// Query loop of topic & reply IDs
 		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) { // phpcs:ignore
 
-			// Exit loop if no spam IDs
-			if ( empty( $spam_ids ) ) {
-				break;
-			}
-
 			// Reset queries
 			$wpdb->queries = array();
 
@@ -1151,11 +1145,6 @@ class BBP_Akismet {
 		// Query loop of topic & reply IDs
 		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) { // phpcs:ignore
 
-			// Exit loop if no spam IDs
-			if ( empty( $spam_ids ) ) {
-				break;
-			}
-
 			// Reset queries
 			$wpdb->queries = array();
 
@@ -1228,11 +1217,6 @@ class BBP_Akismet {
 
 		// Query loop of topic & reply IDs
 		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) { // phpcs:ignore
-
-			// Exit loop if no spam IDs
-			if ( empty( $spam_meta_results ) ) {
-				break;
-			}
 
 			// Reset queries
 			$wpdb->queries = array();

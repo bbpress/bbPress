@@ -175,30 +175,6 @@ parameters:
 			path: src/includes/core/theme-compat.php
 
 		-
-			message: '#^Filter callback return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/includes/extend/akismet.php
-
-		-
-			message: '#^Variable \$post_data in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/extend/akismet.php
-
-		-
-			message: '#^Variable \$spam_ids in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 2
-			path: src/includes/extend/akismet.php
-
-		-
-			message: '#^Variable \$spam_meta_results in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/includes/extend/akismet.php
-
-		-
 			message: '#^Variable \$forum_id in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
