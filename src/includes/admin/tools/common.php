@@ -1583,12 +1583,12 @@ function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
  * @since 2.7.0 bbPress (r8339)
  * @access private
  *
- * @param string   $tool_id   Repair or upgrade tool ID.
- * @param array    $state     Loaded checkpoint, or false for a new operation.
- * @param array    $batch     Current worker result.
- * @param callable $validator Checkpoint validator.
- * @param mixed    $context   Validator context.
- * @param bool     $dry_run   Whether this is a read-only preview.
+ * @param string      $tool_id   Repair or upgrade tool ID.
+ * @param array|false $state     Loaded checkpoint, or false for a new operation.
+ * @param array       $batch     Current worker result.
+ * @param callable    $validator Checkpoint validator.
+ * @param mixed       $context   Validator context.
+ * @param bool        $dry_run   Whether this is a read-only preview.
  * @return bool Whether the checkpoint was read successfully.
  */
 function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false ) {

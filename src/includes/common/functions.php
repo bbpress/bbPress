@@ -3151,9 +3151,9 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  *
  * @since 2.1.0 bbPress (r3840)
  *
- * @param string|array $args Value to merge with $defaults.
- * @param array        $defaults Array that serves as the defaults.
- * @param string       $filter_key String to key the filters from.
+ * @param string|array|object $args Value to merge with $defaults.
+ * @param array               $defaults Array that serves as the defaults.
+ * @param string              $filter_key String to key the filters from.
  * @return array Merged user defined values with defaults.
  */
 function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
