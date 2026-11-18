@@ -32,7 +32,7 @@ class BBP_Replies_Admin {
 	/**
 	 * Accepted reply moves keyed by reply ID.
 	 *
-	 * @var array
+	 * @var array<int, array{old: int, new: int}>
 	 */
 	private $accepted_topic_moves = array();
 
@@ -55,6 +55,8 @@ class BBP_Replies_Admin {
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -111,6 +113,8 @@ class BBP_Replies_Admin {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_globals() {
 		$this->post_type = bbp_get_reply_post_type();
@@ -122,6 +126,8 @@ class BBP_Replies_Admin {
 	 * Contextual help for bbPress reply edit page.
 	 *
 	 * @since 2.1.0 bbPress (r3686)
+	 *
+	 * @return void
 	 */
 	public function edit_help() {
 
@@ -192,6 +198,8 @@ class BBP_Replies_Admin {
 	 * Contextual help for bbPress reply edit page.
 	 *
 	 * @since 2.1.0 bbPress (r3686)
+	 *
+	 * @return void
 	 */
 	public function new_help() {
 
@@ -255,8 +263,8 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6101)
 	 *
-	 * @param array $actions The list of bulk actions.
-	 * @return array The filtered list of bulk actions.
+	 * @param array<string, string> $actions The list of bulk actions.
+	 * @return array<string, string> The filtered list of bulk actions.
 	 */
 	public function bulk_actions( $actions ) {
 
@@ -276,9 +284,9 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6101)
 	 *
-	 * @param array $bulk_messages Arrays of messages, each keyed by the corresponding post type.
-	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
-	 * @return array Bulk action messages with reply results.
+	 * @param array<string, array<string, string>> $bulk_messages Arrays of messages, each keyed by the corresponding post type.
+	 * @param array<string, int> $bulk_counts   Array of item counts for each message, used to build internationalized strings.
+	 * @return array<string, array<string, string>> Bulk action messages with reply results.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
 		/* translators: %s: Number of replies */
@@ -298,7 +306,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @param string $sendback The sendback URL.
 	 * @param string $doaction The action to be taken.
-	 * @param array  $post_ids The post IDS to take the action on.
+	 * @param list<int>  $post_ids The post IDS to take the action on.
 	 * @return string The sendback URL.
 	 */
 	public function handle_bulk_actions( $sendback, $doaction, $post_ids ) {
@@ -370,6 +378,8 @@ class BBP_Replies_Admin {
 	 * Add the reply attributes meta-box.
 	 *
 	 * @since 2.4.0 bbPress (r4991)
+	 *
+	 * @return void
 	 */
 	public function attributes_metabox() {
 		add_meta_box(
@@ -388,6 +398,8 @@ class BBP_Replies_Admin {
 	 * Allows editing of information about an author.
 	 *
 	 * @since 2.0.0 bbPress (r3120)
+	 *
+	 * @return void
 	 */
 	public function author_metabox() {
 
@@ -411,6 +423,8 @@ class BBP_Replies_Admin {
 	 * Add the mentions meta-box for saved content.
 	 *
 	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @return void
 	 */
 	public function mentions_metabox() {
 
@@ -433,6 +447,8 @@ class BBP_Replies_Admin {
 	 * Remove comments & discussion meta-boxes if comments are not supported.
 	 *
 	 * @since 2.6.0 bbPress (r6186)
+	 *
+	 * @return void
 	 */
 	public function comments_metabox() {
 		if ( ! post_type_supports( $this->post_type, 'comments' ) ) {
@@ -519,9 +535,9 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.19 bbPress (r7687)
 	 *
-	 * @param array $data    Sanitized post data.
-	 * @param array $postarr Unprocessed post data.
-	 * @return array Filtered post data.
+	 * @param array<string, mixed> $data    Sanitized post data.
+	 * @param array<string, mixed> $postarr Unprocessed post data.
+	 * @return array<string, mixed> Filtered post data.
 	 */
 	public function filter_post_data( $data, $postarr ) {
 
@@ -584,6 +600,8 @@ class BBP_Replies_Admin {
 	 * Handles the admin-side spamming/unspamming of replies.
 	 *
 	 * @since 2.0.0 bbPress (r3095)
+	 *
+	 * @return void
 	 */
 	public function toggle_reply() {
 
@@ -671,6 +689,8 @@ class BBP_Replies_Admin {
 	 * {@link BBP_Admin::toggle_reply()}
 	 *
 	 * @since 2.0.0 bbPress (r3095)
+	 *
+	 * @return void
 	 */
 	public function toggle_reply_notice() {
 
@@ -750,7 +770,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_row_action_sort_order() {
 
@@ -782,7 +802,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6397)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_allowed_notice_toggles() {
 
@@ -809,7 +829,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6397)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_allowed_action_toggles() {
 
@@ -834,9 +854,9 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.4.0 bbPress (r4991)
 	 *
-	 * @param array $columns The columns.
+	 * @param array<string, string> $columns The columns.
 	 *
-	 * @return array bbPress reply columns.
+	 * @return array<string, string> bbPress reply columns.
 	 */
 	public function column_headers( $columns ) {
 		$columns = array(
@@ -865,6 +885,8 @@ class BBP_Replies_Admin {
 	 *
 	 * @param string $column Column.
 	 * @param int    $reply_id Reply id.
+	 *
+	 * @return void
 	 */
 	public function column_data( $column, $reply_id ) {
 
@@ -952,10 +974,10 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.4.0 bbPress (r4991)
 	 *
-	 * @param array         $actions Actions.
+	 * @param array<string, string>         $actions Actions.
 	 * @param WP_Post|false $reply   Reply object, or false when omitted.
 	 *
-	 * @return array Updated reply row actions.
+	 * @return array<string, string> Updated reply row actions.
 	 */
 	public function row_actions( $actions = array(), $reply = false ) {
 
@@ -1049,9 +1071,9 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @param array $actions Optional. Row actions to sort.
+	 * @param array<string, string> $actions Optional. Row actions to sort.
 	 *
-	 * @return array
+	 * @return array<string, string>
 	 */
 	private function sort_row_actions( $actions = array() ) {
 
@@ -1100,6 +1122,8 @@ class BBP_Replies_Admin {
 	 * Add "Empty Spam" button for moderators.
 	 *
 	 * @since 2.6.0 bbPress (r6791)
+	 *
+	 * @return void
 	 */
 	public function filter_empty_spam() {
 
@@ -1133,8 +1157,8 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3095)
 	 *
-	 * @param array $query_vars Query variables from {@link WP_Query}.
-	 * @return array Processed Query Vars.
+	 * @param array<string, mixed> $query_vars Query variables from {@link WP_Query}.
+	 * @return array<string, mixed> Processed Query Vars.
 	 */
 	public function filter_post_rows( $query_vars ) {
 
@@ -1156,9 +1180,9 @@ class BBP_Replies_Admin {
 	 *
 	 * @global int $post_ID ID of the post being edited.
 	 *
-	 * @param array $messages Existing post update messages.
+	 * @param array<string, array<int, string|false>> $messages Existing post update messages.
 	 *
-	 * @return array
+	 * @return array<string, array<int, string|false>>
 	 */
 	public function updated_messages( $messages ) {
 		global $post_ID;
@@ -1276,6 +1300,8 @@ function bbp_user_can_move_reply_to_topic( $reply, $topic_id, $forum_id ) {
  * Preview the forum that will be saved with a selected reply topic.
  *
  * @since 2.6.21 bbPress (r8137)
+ *
+ * @return void
  */
 function bbp_ajax_reply_topic_forum() {
 	$reply_id = isset( $_POST['reply_id'] ) ? absint( wp_unslash( $_POST['reply_id'] ) ) : 0;
@@ -1320,6 +1346,8 @@ function bbp_ajax_reply_topic_forum() {
  * @since 2.0.0 bbPress (r3343)
  *
  * @param WP_Screen $current_screen Current screen object.
+ *
+ * @return void
  */
 function bbp_admin_replies( $current_screen ) {
 

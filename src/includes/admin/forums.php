@@ -47,6 +47,8 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -88,6 +90,8 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_globals() {
 		$this->post_type = bbp_get_forum_post_type();
@@ -99,6 +103,8 @@ class BBP_Forums_Admin {
 	 * Contextual help for bbPress forum edit page.
 	 *
 	 * @since 2.1.0 bbPress (r3686)
+	 *
+	 * @return void
 	 */
 	public function edit_help() {
 
@@ -166,6 +172,8 @@ class BBP_Forums_Admin {
 	 * Contextual help for bbPress forum edit page.
 	 *
 	 * @since 2.1.0 bbPress (r3686)
+	 *
+	 * @return void
 	 */
 	public function new_help() {
 
@@ -230,6 +238,8 @@ class BBP_Forums_Admin {
 	 * Add the forum attributes meta-box.
 	 *
 	 * @since 2.0.0 bbPress (r3097)
+	 *
+	 * @return void
 	 */
 	public function attributes_metabox() {
 
@@ -252,6 +262,8 @@ class BBP_Forums_Admin {
 	 * Add the forum moderators meta-box.
 	 *
 	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @return void
 	 */
 	public function moderators_metabox() {
 
@@ -277,6 +289,8 @@ class BBP_Forums_Admin {
 	 * Allows viewing of users who have subscribed to a forum.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
+	 *
+	 * @return void
 	 */
 	public function subscriptions_metabox() {
 
@@ -305,6 +319,8 @@ class BBP_Forums_Admin {
 	 * Remove comments & discussion meta-boxes if comments are not supported.
 	 *
 	 * @since 2.6.0 bbPress (r6186)
+	 *
+	 * @return void
 	 */
 	public function comments_metabox() {
 		if ( ! post_type_supports( $this->post_type, 'comments' ) ) {
@@ -377,6 +393,8 @@ class BBP_Forums_Admin {
 	 * Handles the admin-side opening/closing of forums.
 	 *
 	 * @since 2.6.0 bbPress (r5254)
+	 *
+	 * @return void
 	 */
 	public function toggle_forum() {
 
@@ -451,6 +469,8 @@ class BBP_Forums_Admin {
 	 * {@link BBP_Admin::toggle_forum()}
 	 *
 	 * @since 2.6.0 bbPress (r5254)
+	 *
+	 * @return void
 	 */
 	public function toggle_forum_notice() {
 
@@ -514,7 +534,7 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_row_action_sort_order() {
 
@@ -543,7 +563,7 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6397)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_allowed_notice_toggles() {
 
@@ -568,7 +588,7 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6397)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_allowed_action_toggles() {
 
@@ -592,9 +612,9 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3097)
 	 *
-	 * @param array $columns The columns.
+	 * @param array<string, string> $columns The columns.
 	 *
-	 * @return array bbPress forum columns.
+	 * @return array<string, string> bbPress forum columns.
 	 */
 	public function column_headers( $columns ) {
 
@@ -632,6 +652,8 @@ class BBP_Forums_Admin {
 	 *
 	 * @param string $column Column.
 	 * @param int    $forum_id Forum id.
+	 *
+	 * @return void
 	 */
 	public function column_data( $column, $forum_id ) {
 
@@ -688,10 +710,10 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3097)
 	 *
-	 * @param array         $actions Actions.
+	 * @param array<string, string>         $actions Actions.
 	 * @param WP_Post|false $forum   Forum object, or false when omitted.
 	 *
-	 * @return array Updated forum row actions.
+	 * @return array<string, string> Updated forum row actions.
 	 */
 	public function row_actions( $actions = array(), $forum = false ) {
 
@@ -742,9 +764,9 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @param array $actions Optional. Row actions to sort.
+	 * @param array<string, string> $actions Optional. Row actions to sort.
 	 *
-	 * @return array
+	 * @return array<string, string>
 	 */
 	private function sort_row_actions( $actions = array() ) {
 
@@ -773,9 +795,9 @@ class BBP_Forums_Admin {
 	 *
 	 * @global int $post_ID ID of the post being edited.
 	 *
-	 * @param array $messages Existing post update messages.
+	 * @param array<string, array<int, string|false>> $messages Existing post update messages.
 	 *
-	 * @return array
+	 * @return array<string, array<int, string|false>>
 	 */
 	public function updated_messages( $messages ) {
 		global $post_ID;
@@ -868,6 +890,8 @@ endif; // class_exists check
  * @since 2.0.0 bbPress (r3343)
  *
  * @param WP_Screen $current_screen Current screen object.
+ *
+ * @return void
  */
 function bbp_admin_forums( $current_screen ) {
 

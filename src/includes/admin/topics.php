@@ -32,7 +32,7 @@ class BBP_Topics_Admin {
 	/**
 	 * Accepted topic moves keyed by topic ID.
 	 *
-	 * @var array
+	 * @var array<int, array{old: int, new: int}>
 	 */
 	private $accepted_forum_moves = array();
 
@@ -55,6 +55,8 @@ class BBP_Topics_Admin {
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -115,6 +117,8 @@ class BBP_Topics_Admin {
 	 * @since 2.0.0 bbPress (r3376)
 	 *
 	 * @access private
+	 *
+	 * @return void
 	 */
 	private function setup_globals() {
 		$this->post_type = bbp_get_topic_post_type();
@@ -126,6 +130,8 @@ class BBP_Topics_Admin {
 	 * Contextual help for bbPress topic edit page.
 	 *
 	 * @since 2.1.0 bbPress (r3686)
+	 *
+	 * @return void
 	 */
 	public function edit_help() {
 
@@ -198,6 +204,8 @@ class BBP_Topics_Admin {
 	 * Contextual help for bbPress topic edit page.
 	 *
 	 * @since 2.1.0 bbPress (r3686)
+	 *
+	 * @return void
 	 */
 	public function new_help() {
 
@@ -260,8 +268,8 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6101)
 	 *
-	 * @param array $actions The list of bulk actions.
-	 * @return array The filtered list of bulk actions.
+	 * @param array<string, string> $actions The list of bulk actions.
+	 * @return array<string, string> The filtered list of bulk actions.
 	 */
 	public function bulk_actions( $actions ) {
 
@@ -281,9 +289,9 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6101)
 	 *
-	 * @param array $bulk_messages Arrays of messages, each keyed by the corresponding post type.
-	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
-	 * @return array Bulk action messages with topic results.
+	 * @param array<string, array<string, string>> $bulk_messages Arrays of messages, each keyed by the corresponding post type.
+	 * @param array<string, int> $bulk_counts   Array of item counts for each message, used to build internationalized strings.
+	 * @return array<string, array<string, string>> Bulk action messages with topic results.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
 		/* translators: %s: Number of topics */
@@ -303,7 +311,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @param string $sendback The sendback URL.
 	 * @param string $doaction The action to be taken.
-	 * @param array  $post_ids The post IDS to take the action on.
+	 * @param list<int>  $post_ids The post IDS to take the action on.
 	 * @return string The sendback URL.
 	 */
 	public function handle_bulk_actions( $sendback, $doaction, $post_ids ) {
@@ -375,6 +383,8 @@ class BBP_Topics_Admin {
 	 * Add the topic attributes meta-box.
 	 *
 	 * @since 2.1.0 bbPress (r3749)
+	 *
+	 * @return void
 	 */
 	public function attributes_metabox() {
 		add_meta_box(
@@ -391,6 +401,8 @@ class BBP_Topics_Admin {
 	 * Add the author info meta-box.
 	 *
 	 * @since 2.0.0 bbPress (r3120)
+	 *
+	 * @return void
 	 */
 	public function author_metabox() {
 
@@ -417,6 +429,8 @@ class BBP_Topics_Admin {
 	 * comments are visible on a blog post.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
+	 *
+	 * @return void
 	 */
 	public function replies_metabox() {
 
@@ -442,6 +456,8 @@ class BBP_Topics_Admin {
 	 * Allows viewing of users who have engaged in a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6334)
+	 *
+	 * @return void
 	 */
 	public function engagements_metabox() {
 
@@ -470,6 +486,8 @@ class BBP_Topics_Admin {
 	 * Add the mentions meta-box for saved content.
 	 *
 	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @return void
 	 */
 	public function mentions_metabox() {
 
@@ -494,6 +512,8 @@ class BBP_Topics_Admin {
 	 * Allows viewing of users who have favorited a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
+	 *
+	 * @return void
 	 */
 	public function favorites_metabox() {
 
@@ -524,6 +544,8 @@ class BBP_Topics_Admin {
 	 * Allows viewing of users who have subscribed to a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
+	 *
+	 * @return void
 	 */
 	public function subscriptions_metabox() {
 
@@ -552,6 +574,8 @@ class BBP_Topics_Admin {
 	 * Remove comments & discussion meta-boxes if comments are not supported.
 	 *
 	 * @since 2.6.0 bbPress (r6186)
+	 *
+	 * @return void
 	 */
 	public function comments_metabox() {
 		if ( ! post_type_supports( $this->post_type, 'comments' ) ) {
@@ -632,9 +656,9 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.19 bbPress (r7687)
 	 *
-	 * @param array $data    Sanitized post data.
-	 * @param array $postarr Unprocessed post data.
-	 * @return array Filtered post data.
+	 * @param array<string, mixed> $data    Sanitized post data.
+	 * @param array<string, mixed> $postarr Unprocessed post data.
+	 * @return array<string, mixed> Filtered post data.
 	 */
 	public function filter_post_data( $data, $postarr ) {
 
@@ -702,6 +726,8 @@ class BBP_Topics_Admin {
 	 * spamming/unspamming of topics.
 	 *
 	 * @since 2.0.0 bbPress (r3095)
+	 *
+	 * @return void
 	 */
 	public function toggle_topic() {
 
@@ -826,6 +852,8 @@ class BBP_Topics_Admin {
 	 * {@link BBP_Admin::toggle_topic()}
 	 *
 	 * @since 2.0.0 bbPress (r3095)
+	 *
+	 * @return void
 	 */
 	public function toggle_topic_notice() {
 
@@ -946,7 +974,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_row_action_sort_order() {
 
@@ -974,7 +1002,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6397)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_allowed_notice_toggles() {
 
@@ -1000,7 +1028,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6397)
 	 *
-	 * @return array
+	 * @return array<int|string, string>
 	 */
 	private function get_allowed_action_toggles() {
 
@@ -1021,9 +1049,9 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.4.0 bbPress (r4991)
 	 *
-	 * @param array $columns The columns.
+	 * @param array<string, string> $columns The columns.
 	 *
-	 * @return array bbPress topic columns.
+	 * @return array<string, string> bbPress topic columns.
 	 */
 	public function column_headers( $columns ) {
 		$columns = array(
@@ -1048,6 +1076,8 @@ class BBP_Topics_Admin {
 	 *
 	 * @param string $column Column.
 	 * @param int    $topic_id Topic id.
+	 *
+	 * @return void
 	 */
 	public function column_data( $column, $topic_id ) {
 
@@ -1129,10 +1159,10 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.4.0 bbPress (r4991)
 	 *
-	 * @param array         $actions Actions.
+	 * @param array<string, string>         $actions Actions.
 	 * @param WP_Post|false $topic   Topic object, or false when omitted.
 	 *
-	 * @return array Updated topic row actions.
+	 * @return array<string, string> Updated topic row actions.
 	 */
 	public function row_actions( $actions = array(), $topic = false ) {
 
@@ -1259,9 +1289,9 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6772)
 	 *
-	 * @param array $actions Optional. Row actions to sort.
+	 * @param array<string, string> $actions Optional. Row actions to sort.
 	 *
-	 * @return array
+	 * @return array<string, string>
 	 */
 	private function sort_row_actions( $actions = array() ) {
 
@@ -1310,6 +1340,8 @@ class BBP_Topics_Admin {
 	 * Add "Empty Spam" button for moderators.
 	 *
 	 * @since 2.6.0 bbPress (r6791)
+	 *
+	 * @return void
 	 */
 	public function filter_empty_spam() {
 
@@ -1343,8 +1375,8 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3095)
 	 *
-	 * @param array $query_vars Query variables from {@link WP_Query}.
-	 * @return array Processed Query Vars.
+	 * @param array<string, mixed> $query_vars Query variables from {@link WP_Query}.
+	 * @return array<string, mixed> Processed Query Vars.
 	 */
 	public function filter_post_rows( $query_vars ) {
 
@@ -1366,9 +1398,9 @@ class BBP_Topics_Admin {
 	 *
 	 * @global int $post_ID ID of the post being edited.
 	 *
-	 * @param array $messages Existing post update messages.
+	 * @param array<string, array<int, string|false>> $messages Existing post update messages.
 	 *
-	 * @return array
+	 * @return array<string, array<int, string|false>>
 	 */
 	public function updated_messages( $messages ) {
 		global $post_ID;
@@ -1461,6 +1493,8 @@ endif; // class_exists check
  * @since 2.0.0 bbPress (r3343)
  *
  * @param WP_Screen $current_screen Current screen object.
+ *
+ * @return void
  */
 function bbp_admin_topics( $current_screen ) {
 
