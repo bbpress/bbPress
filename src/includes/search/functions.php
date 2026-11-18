@@ -39,7 +39,7 @@ function bbp_search_query( $new_args = array() ) {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @return array Query arguments.
+ * @return array<string, mixed> Query arguments.
  */
 function bbp_get_search_query_args() {
 
@@ -87,7 +87,7 @@ function bbp_search_results_redirect() {
  *
  * @since 2.6.0 bbPress (r6903)
  *
- * @return array
+ * @return list<string>
  */
 function bbp_get_search_type_ids() {
 	return apply_filters( 'bbp_get_search_types', array( 's', 'fs', 'ts', 'rs' ) );

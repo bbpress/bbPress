@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @param array $args All the arguments supported by {@link WP_Query}.
+ * @param array<string, mixed> $args All the arguments supported by {@link WP_Query}.
  * @return bool Whether search results are available.
  */
 function bbp_has_search_results( $args = array() ) {
@@ -157,6 +157,7 @@ function bbp_the_search_result() {
  * Output the search page title.
  *
  * @since 2.3.0 bbPress (r4579)
+ * @return void
  */
 function bbp_search_title() {
 	echo bbp_get_search_title();
@@ -192,6 +193,7 @@ function bbp_get_search_title() {
  * Output the search url.
  *
  * @since 2.3.0 bbPress (r4579)
+ * @return void
  */
 function bbp_search_url() {
 	echo esc_url( bbp_get_search_url() );
@@ -232,6 +234,7 @@ function bbp_get_search_url() {
  * Output the search results url.
  *
  * @since 2.4.0 bbPress (r4928)
+ * @return void
  */
 function bbp_search_results_url() {
 	echo esc_url( bbp_get_search_results_url() );
@@ -284,6 +287,7 @@ function bbp_get_search_results_url() {
  * @since 2.3.0 bbPress (r4579)
  *
  * @param string $search_terms Optional. Search terms.
+ * @return void
  */
 function bbp_search_terms( $search_terms = '' ) {
 	echo esc_attr( bbp_get_search_terms( $search_terms ) );
@@ -395,6 +399,7 @@ function bbp_get_search_pagination_base() {
  * Output the search result pagination count.
  *
  * @since 2.3.0 bbPress (r4579)
+ * @return void
  */
 function bbp_search_pagination_count() {
 	echo bbp_get_search_pagination_count();
@@ -461,6 +466,7 @@ function bbp_get_search_pagination_count() {
  * Output search pagination links.
  *
  * @since 2.3.0 bbPress (r4579)
+ * @return void
  */
 function bbp_search_pagination_links() {
 	echo bbp_get_search_pagination_links();

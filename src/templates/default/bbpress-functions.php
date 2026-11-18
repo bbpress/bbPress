@@ -41,7 +41,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3734)
 	 *
-	 * @param array $properties Theme compatibility properties.
+	 * @param array<string, mixed> $properties Theme compatibility properties.
 	 */
 	public function __construct( $properties = array() ) {
 
@@ -68,6 +68,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @since 2.1.0 bbPress (r3734)
 	 *
 	 * @access private
+	 * @return void
 	 */
 	private function setup_actions() {
 
@@ -94,6 +95,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * the Twenty Twelve theme.
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @return void
 	 */
 	public function before_main_content() {
 	?>
@@ -109,6 +111,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * the Twenty Twelve theme.
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @return void
 	 */
 	public function after_main_content() {
 	?>
@@ -123,6 +126,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Load the theme CSS
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @return void
 	 */
 	public function enqueue_styles() {
 
@@ -156,6 +160,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3734)
 	 * @since 2.7.0 bbPress (r8370) Support topic-tag subscription links.
+	 * @return void
 	 */
 	public function enqueue_scripts() {
 
@@ -239,6 +244,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * AJAX handler to add or remove a topic from a user's favorites
 	 *
 	 * @since 2.1.0 bbPress (r3734)
+	 * @return void
 	 */
 	public function ajax_favorite() {
 
@@ -305,6 +311,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @since 2.1.0 bbPress (r3734)
 	 * @since 2.7.0 bbPress (r8323) Validate objects through their engagement type,
 	 *                              and require a type-scoped nonce for non-posts.
+	 * @return void
 	 */
 	public function ajax_subscription() {
 
