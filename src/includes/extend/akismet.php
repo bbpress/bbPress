@@ -893,19 +893,14 @@ class BBP_Akismet {
 	 */
 	private function get_user_roles( $user_id = 0 ) {
 
-		// Default return value
-		$roles = array();
-
 		// Bail if cannot query the user
 		if ( ! class_exists( 'WP_User' ) || empty( $user_id ) ) {
 			return false;
 		}
 
 		// User ID
-		$user = new WP_User( $user_id );
-		if ( isset( $user->roles ) ) {
-			$roles = (array) $user->roles;
-		}
+		$user  = new WP_User( $user_id );
+		$roles = $user->roles;
 
 		// Super admin
 		if ( is_multisite() && is_super_admin( $user_id ) ) {

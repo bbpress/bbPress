@@ -95,10 +95,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 				'capabilities'          => array(),
 				'rewrite'               => false,
 				'query_var'             => '',
-				'update_count_callback' => '',
 				'show_in_rest'          => false,
-				'rest_base'             => false,
-				'rest_controller_class' => false,
 				'_builtin'              => false
 			)
 		);

@@ -161,6 +161,13 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 		$this->assertNotEmpty( $user_term );
 		$this->assertSame( array( (string) $term_id ), get_objects_in_term( $user_term->term_id, '_bbp_subscription_term' ) );
 		$this->assertFalse( get_term_by( 'slug', "_bbp_subscription_user_id_{$user_id}", '_bbp_subscription_post' ) );
+
+		$storage = get_taxonomy( '_bbp_subscription_term' );
+		$this->assertInstanceOf( 'WP_Taxonomy', $storage );
+		$this->assertTrue( $storage->bbp_engagement_storage );
+		$this->assertSame( '', $storage->update_count_callback );
+		$this->assertFalse( $storage->rest_base );
+		$this->assertFalse( $storage->rest_controller_class );
 	}
 
 	/**

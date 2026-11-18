@@ -3938,6 +3938,7 @@ function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id,
  * @param int   $size Maximum source rows to read.
  * @param array $ranks Native source prefixes shared with the position helper.
  * @param array|null $preview Source rows, positions, and cache IDs for this window.
+ * @param-out array $preview Source rows, positions, and cache IDs for this window.
  * @return void
  */
 function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$ranks, &$preview ) {
