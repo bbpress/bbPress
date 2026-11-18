@@ -16,12 +16,12 @@
  * @since 2.6.19 bbPress (r7689) Limit super moderator edits to site members and protect peer roles.
  * @since 2.6.20 bbPress (r7891) Treat network users as forum users when global access is enabled.
  *
- * @param array  $caps Capabilities for meta capability.
+ * @param list<string>  $caps Capabilities for meta capability.
  * @param string $cap Capability name.
  * @param int    $user_id User id.
- * @param array  $args Arguments.
+ * @param list<mixed>  $args Arguments.
  *
- * @return array Actual capabilities for meta capability.
+ * @return list<string> Actual capabilities for meta capability.
  */
 function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -276,7 +276,7 @@ function bbp_update_user_role( $user, $new_role ) {
  *
  * @since 2.7.0 bbPress (r8131)
  *
- * @return array Block action details keyed by action ID.
+ * @return array<string, array<string, mixed>> Block action details keyed by action ID.
  */
 function bbp_get_user_block_actions() {
 	$actions = array(
@@ -310,7 +310,7 @@ function bbp_get_user_block_actions() {
  *
  * @since 2.7.0 bbPress (r8131)
  *
- * @param array $action           Registered action details.
+ * @param mixed $action           Registered action details.
  * @param bool  $check_capability Whether to check the current user's capability.
  * @return bool Whether the action is available.
  */
@@ -339,6 +339,7 @@ function bbp_is_user_block_action_available( $action, $check_capability = true )
  * @param string|bool $new_role New forum role.
  * @param string|bool $old_role Previous forum role.
  * @param WP_User     $user     User object.
+ * @return void
  */
 function bbp_run_user_block_actions( $new_role, $old_role, $user ) {
 	static $running = array();
@@ -419,6 +420,7 @@ function bbp_get_user_default_role_override( $user_id = 0 ) {
  * @param string|bool $new_role New forum role.
  * @param string|bool $old_role Previous forum role.
  * @param WP_User     $user     User object.
+ * @return void
  */
 function bbp_clear_user_default_role_on_unblock( $new_role, $old_role, $user ) {
 	if (
@@ -448,7 +450,7 @@ function bbp_clear_user_default_role_on_unblock( $new_role, $old_role, $user ) {
  * @since 2.7.0 bbPress (r8131)
  *
  * @param int $user_id User ID.
- * @return array Results keyed by site ID.
+ * @return array<int, string|bool> Results keyed by site ID.
  */
 function bbp_block_user_on_sites( $user_id ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
@@ -508,6 +510,7 @@ function bbp_mark_user_as_spam( $user_id ) {
  * @since 2.7.0 bbPress (r8131)
  *
  * @param int $user_id User ID.
+ * @return void
  */
 function bbp_clear_user_block_spam_marker( $user_id ) {
 	delete_user_meta( $user_id, '_bbp_block_action_spammed_user' );
@@ -524,6 +527,7 @@ function bbp_clear_user_block_spam_marker( $user_id ) {
  * @param string|bool $new_role New forum role.
  * @param string|bool $old_role Previous forum role.
  * @param WP_User     $user     User object.
+ * @return void
  */
 function bbp_unspam_user_after_unblock( $new_role, $old_role, $user ) {
 	if (
@@ -565,10 +569,10 @@ function bbp_unspam_user_after_unblock( $new_role, $old_role, $user ) {
  *
  * @param int         $user_id             User ID.
  * @param string|bool $new_role            New forum role. Pass an empty string to remove it.
- * @param array|null  $site_ids            Optional. Site IDs. Null defaults to the user's sites.
+ * @param array<int, int|string>|null  $site_ids            Optional. Site IDs. Null defaults to the user's sites.
  * @param bool        $only_existing_roles Optional. Skip sites without an existing forum role.
  * @param string|bool $only_from_role      Optional. Change only sites with this forum role.
- * @return array Results keyed by site ID.
+ * @return array<int, string|bool> Results keyed by site ID.
  */
 function bbp_set_user_role_on_sites( $user_id = 0, $new_role = false, $site_ids = null, $only_existing_roles = false, $only_from_role = false ) {
 	static $running = array();
@@ -712,6 +716,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4330)
  *
  * @param int $user_id User id.
+ * @return void
  */
 function bbp_profile_update_role( $user_id = 0 ) {
 
@@ -818,6 +823,7 @@ function bbp_is_user_auto_role_excluded( $user_id = 0 ) {
  * @since 2.7.0 bbPress (r8160)
  *
  * @param int $user_id User ID.
+ * @return void
  */
 function bbp_profile_update_auto_role_exclusion( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
@@ -887,7 +893,7 @@ function bbp_profile_update_auto_role_exclusion( $user_id = 0 ) {
  * @since 2.6.19 bbPress (r7685) Allow site administrators to assign staff roles.
  *
  * @param int $user_id User being edited. Defaults to the displayed user.
- * @return array Filtered array of editable forum roles.
+ * @return array<string, array{name:string, capabilities:array<string, bool>}> Filtered array of editable forum roles.
  */
 function bbp_get_user_editable_forum_roles( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
@@ -1095,7 +1101,7 @@ function bbp_set_current_user_default_role() {
  *
  * @since 2.2.0 bbPress (r4335)
  *
- * @return array Filtered array of WordPress roles to bbPress roles.
+ * @return array<string, string> Filtered array of WordPress roles to bbPress roles.
  */
 function bbp_get_user_role_map() {
 
@@ -1520,7 +1526,7 @@ function bbp_remove_all_moderators( $object_id = 0, $object_type = 'post' ) {
  * @param int    $object_id   Traditionally a post ID.
  * @param string $object_type Type of meta (post,term,user,comment).
  *
- * @return array
+ * @return list<int>
  */
 function bbp_get_moderator_ids( $object_id = 0, $object_type = 'post' ) {
 	return bbp_get_users_for_object( $object_id, '_bbp_moderator_id', $object_type );
@@ -1535,7 +1541,7 @@ function bbp_get_moderator_ids( $object_id = 0, $object_type = 'post' ) {
  * @param int    $object_id   Traditionally a post ID.
  * @param string $object_type Type of meta (post,term,user,comment).
  *
- * @return array
+ * @return list<WP_User>
  */
 function bbp_get_moderators( $object_id = 0, $object_type = 'post' ) {
 
