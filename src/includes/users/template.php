@@ -536,6 +536,7 @@ function bbp_the_term() {
  * @param int|string $user_id                 Optional user ID.
  * @param bool       $displayed_user_fallback Whether to use the displayed user.
  * @param bool       $current_user_fallback   Whether to use the current user.
+ * @return void
  */
 function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
 	echo bbp_get_user_id( $user_id, $displayed_user_fallback, $current_user_fallback );
@@ -583,6 +584,8 @@ function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $curren
  * Output ID of current user.
  *
  * @since 2.0.0 bbPress (r2574)
+ *
+ * @return void
  */
 function bbp_current_user_id() {
 	echo bbp_get_current_user_id();
@@ -605,6 +608,8 @@ function bbp_get_current_user_id() {
  * Output ID of displayed user.
  *
  * @since 2.0.0 bbPress (r2688)
+ *
+ * @return void
  */
 function bbp_displayed_user_id() {
 	echo bbp_get_displayed_user_id();
@@ -634,6 +639,7 @@ function bbp_get_displayed_user_id() {
  *
  * @param string $field Field to get.
  * @param string $filter How to filter the field value (null|raw|db|display|edit).
+ * @return void
  */
 function bbp_displayed_user_field( $field = '', $filter = 'display' ) {
 	echo bbp_get_displayed_user_field( $field, $filter );
@@ -680,6 +686,8 @@ function bbp_get_displayed_user_field( $field = '', $filter = 'display' ) {
  * Output name of current user.
  *
  * @since 2.0.0 bbPress (r2574)
+ *
+ * @return void
  */
 function bbp_current_user_name() {
 	echo esc_attr( bbp_get_current_user_name() );
@@ -712,6 +720,7 @@ function bbp_get_current_user_name() {
  * @since 2.0.0 bbPress (r2574)
  *
  * @param int $size Size of the avatar. Defaults to 40.
+ * @return void
  */
 function bbp_current_user_avatar( $size = 40 ) {
 	echo bbp_get_current_user_avatar( $size );
@@ -744,6 +753,7 @@ function bbp_get_current_user_avatar( $size = 40 ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_user_profile_link( $user_id = 0 ) {
 	echo bbp_get_user_profile_link( $user_id );
@@ -795,6 +805,7 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
  *
  * @param int   $user_id User ID whose nicename to get.
  * @param array $args    Before, after, user ID, and forced nicename settings.
+ * @return void
  */
 function bbp_user_nicename( $user_id = 0, $args = array() ) {
 	echo bbp_get_user_nicename( $user_id, $args );
@@ -861,6 +872,7 @@ function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
  *
  * @param int    $user_id       Optional user ID.
  * @param string $user_nicename Optional user nicename.
+ * @return void
  */
 function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	echo esc_url( bbp_get_user_profile_url( $user_id, $user_nicename ) );
@@ -922,6 +934,7 @@ function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_user_profile_edit_link( $user_id = 0 ) {
 	echo bbp_get_user_profile_edit_link( $user_id );
@@ -973,6 +986,7 @@ function bbp_get_user_profile_edit_link( $user_id = 0 ) {
  *
  * @param int    $user_id       Optional user ID.
  * @param string $user_nicename Optional user nicename.
+ * @return void
  */
 function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	echo esc_url( bbp_get_user_profile_edit_url( $user_id, $user_nicename ) );
@@ -1028,6 +1042,7 @@ function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
  * @since 2.1.0 bbPress (r3860)
  *
  * @param int $user_id User id.
+ * @return void
  */
 function bbp_user_display_role( $user_id = 0 ) {
 	echo esc_attr( bbp_get_user_display_role( $user_id ) );
@@ -1075,6 +1090,7 @@ function bbp_get_user_display_role( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r2827)
  *
  * @param array $args Optional. See {@link bbp_get_admin_link()}.
+ * @return void
  */
 function bbp_admin_link( $args = array() ) {
 	echo bbp_get_admin_link( $args );
@@ -1124,6 +1140,7 @@ function bbp_get_admin_link( $args = array() ) {
  * @since 2.0.0 bbPress (r3120)
  *
  * @param array|int $args Optional. Arguments or a post ID.
+ * @return void
  */
 function bbp_author_ip( $args = array() ) {
 	echo bbp_get_author_ip( $args );
@@ -1194,6 +1211,7 @@ function bbp_get_fallback_display_name( $object_id = 0 ) {
  * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
+ * @return void
  */
 function bbp_author_display_name( $post_id = 0 ) {
 	echo esc_attr( bbp_get_author_display_name( $post_id ) );
@@ -1244,6 +1262,7 @@ function bbp_get_author_display_name( $post_id = 0 ) {
  * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
+ * @return void
  */
 function bbp_author_email( $post_id = 0 ) {
 	echo esc_attr( bbp_get_author_email( $post_id ) );
@@ -1294,6 +1313,7 @@ function bbp_get_author_email( $post_id = 0 ) {
  * @since 2.5.0 bbPress (r5120)
  *
  * @param int $post_id Post id.
+ * @return void
  */
 function bbp_author_url( $post_id = 0 ) {
 	echo esc_attr( bbp_get_author_url( $post_id ) );
@@ -1343,6 +1363,7 @@ function bbp_get_author_url( $post_id = 0 ) {
  * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_favorites_permalink( $user_id = 0 ) {
 	echo esc_url( bbp_get_favorites_permalink( $user_id ) );
@@ -1420,6 +1441,7 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
  * @param array $args See {@link bbp_get_user_favorites_link()}.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
+ * @return void
  */
 function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) {
 	echo bbp_get_user_favorites_link( $args, $user_id, $wrap );
@@ -1533,6 +1555,7 @@ function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = tru
  * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_subscriptions_permalink( $user_id = 0 ) {
 	echo esc_url( bbp_get_subscriptions_permalink( $user_id ) );
@@ -1671,6 +1694,8 @@ function bbp_get_subscription_unsubscribe_title() {
  * Output the feedback class for the current subscription-unsubscribe request.
  *
  * @since 2.7.0 bbPress (r8349)
+ *
+ * @return void
  */
 function bbp_subscription_unsubscribe_feedback_class() {
 	echo esc_attr( bbp_get_subscription_unsubscribe_feedback_class() );
@@ -1697,6 +1722,8 @@ function bbp_get_subscription_unsubscribe_feedback_class() {
  * Output feedback for the current subscription-unsubscribe request.
  *
  * @since 2.7.0 bbPress (r8349)
+ *
+ * @return void
  */
 function bbp_subscription_unsubscribe_feedback() {
 	echo esc_html( bbp_get_subscription_unsubscribe_feedback() );
@@ -1728,6 +1755,8 @@ function bbp_get_subscription_unsubscribe_feedback() {
  * Output a user's subscribed taxonomy terms.
  *
  * @since 2.7.0 bbPress (r8335)
+ *
+ * @return void
  */
 function bbp_user_term_subscriptions() {
 	bbp_get_template_part( 'user', 'term-subscriptions' );
@@ -1792,6 +1821,8 @@ function bbp_get_term_subscription_taxonomy() {
  * Output the current term subscription taxonomy ID.
  *
  * @since 2.7.0 bbPress (r8335)
+ *
+ * @return void
  */
 function bbp_term_subscription_taxonomy_id() {
 	echo esc_attr( bbp_get_term_subscription_taxonomy_id() );
@@ -1860,6 +1891,7 @@ function bbp_get_term_subscription( $term = 0 ) {
  * @since 2.7.0 bbPress (r8335)
  *
  * @param int|WP_Term $term Optional. Term ID or object.
+ * @return void
  */
 function bbp_term_subscription_name( $term = 0 ) {
 	echo esc_html( bbp_get_term_subscription_name( $term ) );
@@ -1889,6 +1921,7 @@ function bbp_get_term_subscription_name( $term = 0 ) {
  * @since 2.7.0 bbPress (r8335)
  *
  * @param int|WP_Term $term Optional. Term ID or object.
+ * @return void
  */
 function bbp_term_subscription_permalink( $term = 0 ) {
 	echo esc_url( bbp_get_term_subscription_permalink( $term ) );
@@ -1919,6 +1952,7 @@ function bbp_get_term_subscription_permalink( $term = 0 ) {
  * @since 2.7.0 bbPress (r8335)
  *
  * @param array $args Optional. Subscription-link arguments.
+ * @return void
  */
 function bbp_term_subscription_toggle_link( $args = array() ) {
 	echo bbp_get_term_subscription_toggle_link( $args );
@@ -1962,6 +1996,7 @@ function bbp_get_term_subscription_toggle_link( $args = array() ) {
  * @param array $args See {@link bbp_get_user_subscribe_link()}.
  * @param int   $user_id Legacy user ID parameter; use $args['user_id'] instead.
  * @param bool  $wrap    Whether to wrap the link in a span.
+ * @return void
  */
 function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
 	echo bbp_get_user_subscribe_link( $args, $user_id, $wrap );
@@ -2079,6 +2114,8 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
  * Display profile edit success notice on user edit page.
  *
  * @since 2.0.0 bbPress (r2688)
+ *
+ * @return void
  */
 function bbp_notice_edit_user_success() {
 
@@ -2105,6 +2142,8 @@ function bbp_notice_edit_user_success() {
  * Display pending email change notice on user edit page.
  *
  * @since 2.6.0 bbPress (r5661)
+ *
+ * @return void
  */
 function bbp_notice_edit_user_pending_email() {
 
@@ -2157,6 +2196,8 @@ function bbp_notice_edit_user_pending_email() {
  * Super admin privileges notice.
  *
  * @since 2.0.0 bbPress (r2688)
+ *
+ * @return void
  */
 function bbp_notice_edit_user_is_super_admin() {
 	if ( is_multisite() && ( bbp_is_single_user() || bbp_is_single_user_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
@@ -2174,6 +2215,8 @@ function bbp_notice_edit_user_is_super_admin() {
  * Drop down for selecting the user's display name.
  *
  * @since 2.0.0 bbPress (r2688)
+ *
+ * @return void
  */
 function bbp_edit_user_display_name() {
 	$bbp            = bbpress();
@@ -2222,6 +2265,8 @@ function bbp_edit_user_display_name() {
  * Output blog role selector (for user edit).
  *
  * @since 2.2.0 bbPress (r4288)
+ *
+ * @return void
  */
 function bbp_edit_user_blog_role() {
 
@@ -2256,6 +2301,7 @@ function bbp_edit_user_blog_role() {
  * @since 2.7.0 bbPress (r8160)
  *
  * @param int $user_id User ID.
+ * @return void
  */
 function bbp_user_auto_role_exclusion_form( $user_id = 0 ) {
 	$user_id              = bbp_get_user_id( $user_id, false, false );
@@ -2306,6 +2352,8 @@ function bbp_user_auto_role_exclusion_form( $user_id = 0 ) {
  * Output the automatic forum role assignment exclusion for administrators editing a user.
  *
  * @since 2.7.0 bbPress (r8160)
+ *
+ * @return void
  */
 function bbp_edit_user_auto_role_exclusion() {
 	$user_id = bbp_get_displayed_user_id();
@@ -2331,6 +2379,8 @@ function bbp_edit_user_auto_role_exclusion() {
  * Output forum role selector (for user edit).
  *
  * @since 2.2.0 bbPress (r4288)
+ *
+ * @return void
  */
 function bbp_edit_user_forums_role() {
 
@@ -2471,6 +2521,7 @@ function bbp_is_user_profile_form_post_request( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_user_topics_created_url( $user_id = 0 ) {
 	echo esc_url( bbp_get_user_topics_created_url( $user_id ) );
@@ -2528,6 +2579,7 @@ function bbp_get_user_topics_created_url( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4228)
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_user_replies_created_url( $user_id = 0 ) {
 	echo esc_url( bbp_get_user_replies_created_url( $user_id ) );
@@ -2585,6 +2637,7 @@ function bbp_get_user_replies_created_url( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id.
+ * @return void
  */
 function bbp_user_engagements_url( $user_id = 0 ) {
 	echo esc_url( bbp_get_user_engagements_url( $user_id ) );
@@ -2669,6 +2722,7 @@ function bbp_get_user_mentions_url( $user_id = 0 ) {
  * @since 2.7.0 bbPress (r8363)
  *
  * @param WP_User|null $user User being edited, or the displayed user.
+ * @return void
  */
 function bbp_user_notification_settings( $user = null ) {
 	// bbPress also invokes the WordPress profile hooks on its front-end form.
@@ -2721,6 +2775,7 @@ function bbp_get_user_notification_preference_choice( $user_id = 0, $type = '' )
  *
  * @param int    $user_id User ID.
  * @param string $type    Notification type.
+ * @return void
  */
 function bbp_user_notification_preference_field( $user_id = 0, $type = '' ) {
 	$types = bbp_get_notification_types();
@@ -2750,6 +2805,8 @@ function bbp_user_notification_preference_field( $user_id = 0, $type = '' ) {
  * Output notification preference fields for the displayed user.
  *
  * @since 2.7.0 bbPress (r8363)
+ *
+ * @return void
  */
 function bbp_user_notification_preference_fields() {
 	$user_id = bbp_get_displayed_user_id();
@@ -2763,6 +2820,8 @@ function bbp_user_notification_preference_fields() {
  * Output the displayed user's notification preference nonce.
  *
  * @since 2.7.0 bbPress (r8363)
+ *
+ * @return void
  */
 function bbp_user_notification_preferences_nonce() {
 	wp_nonce_field( 'bbp-notification-preferences-' . bbp_get_displayed_user_id(), '_bbp_notification_nonce', false );
@@ -2776,6 +2835,7 @@ function bbp_user_notification_preferences_nonce() {
  * @since 2.6.0 bbPress (r6489)
  *
  * @param array $args See wp_dropdown_languages().
+ * @return void
  */
 function bbp_user_languages_dropdown( $args = array() ) {
 	echo bbp_get_user_languages_dropdown( $args );
@@ -2844,6 +2904,8 @@ function bbp_get_user_languages_dropdown( $args = array() ) {
  * Handle the login and registration template notices.
  *
  * @since 2.0.0 bbPress (r2970)
+ *
+ * @return void
  */
 function bbp_login_notices() {
 
@@ -2887,6 +2949,7 @@ function bbp_login_notices() {
  * @since 2.0.0 bbPress (r2815)
  *
  * @param string $url The URL to redirect to.
+ * @return void
  */
 function bbp_logged_in_redirect( $url = '' ) {
 
@@ -2906,6 +2969,8 @@ function bbp_logged_in_redirect( $url = '' ) {
  * Output the required hidden fields when logging in.
  *
  * @since 2.0.0 bbPress (r2815)
+ *
+ * @return void
  */
 function bbp_user_login_fields() {
 ?>
@@ -2928,6 +2993,8 @@ function bbp_user_login_fields() {
  * Output the required hidden fields when registering.
  *
  * @since 2.0.0 bbPress (r2815)
+ *
+ * @return void
  */
 function bbp_user_register_fields() {
 ?>
@@ -2951,6 +3018,8 @@ function bbp_user_register_fields() {
  * Output the required hidden fields when user lost password.
  *
  * @since 2.0.0 bbPress (r2815)
+ *
+ * @return void
  */
 function bbp_user_lost_pass_fields() {
 ?>
@@ -2975,6 +3044,7 @@ function bbp_user_lost_pass_fields() {
  * @since 2.0.0 bbPress (r2874)
  *
  * @param array|int $args Optional. Arguments or a post ID.
+ * @return void
  */
 function bbp_author_link( $args = array() ) {
 	echo bbp_get_author_link( $args );
@@ -3465,6 +3535,7 @@ function bbp_current_user_can_access_anonymous_user_form() {
  *
  * @param int   $forum_id Optional. Topic id.
  * @param array $args     See {@link bbp_get_moderator_list()}.
+ * @return void
  */
 function bbp_moderator_list( $forum_id = 0, $args = array() ) {
 	echo bbp_get_moderator_list( $forum_id, $args );

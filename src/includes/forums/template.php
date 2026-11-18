@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * Output the unique id of the custom post type for forums.
  *
  * @since 2.0.0 bbPress (r2858)
+ *
+ * @return void
  */
 function bbp_forum_post_type() {
 	echo bbp_get_forum_post_type();
@@ -228,6 +230,7 @@ function bbp_the_forum() {
  * @since 2.0.0 bbPress (r2464)
  *
  * @param int|string $forum_id Optional. Forum ID.
+ * @return void
  */
 function bbp_forum_id( $forum_id = 0 ) {
 	echo bbp_get_forum_id( $forum_id );
@@ -331,6 +334,8 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
  * @param int    $forum_id Optional. Forum id.
  * @param string $redirect_to Optional. Pass a redirect value for use with
  *                              shortcodes and other fun things.
+ *
+ * @return void
  */
 function bbp_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 	echo esc_url( bbp_get_forum_permalink( $forum_id, $redirect_to ) );
@@ -402,6 +407,7 @@ function bbp_get_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
  * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_title( $forum_id = 0 ) {
 	echo bbp_get_forum_title( $forum_id );
@@ -430,6 +436,7 @@ function bbp_get_forum_title( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r3250)
  *
  * @param string $title Default text to use as title.
+ * @return void
  */
 function bbp_forum_archive_title( $title = '' ) {
 	echo bbp_get_forum_archive_title( $title );
@@ -471,6 +478,7 @@ function bbp_get_forum_archive_title( $title = '' ) {
  * @since 2.0.0 bbPress (r2794)
  *
  * @param int $forum_id Optional. Topic id.
+ * @return void
  */
 function bbp_forum_content( $forum_id = 0 ) {
 	echo bbp_get_forum_content( $forum_id );
@@ -506,6 +514,7 @@ function bbp_get_forum_content( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3654)
  *
  * @todo Links and filter.
+ * @return void
  */
 function bbp_forum_row_actions() {
 	do_action( 'bbp_forum_row_actions' );
@@ -517,6 +526,7 @@ function bbp_forum_row_actions() {
  * @since 2.0.0 bbPress (r2876)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_active_id( $forum_id = 0 ) {
 	echo bbp_get_forum_last_active_id( $forum_id );
@@ -545,6 +555,7 @@ function bbp_get_forum_last_active_id( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2876)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_active_time( $forum_id = 0 ) {
 	echo bbp_get_forum_last_active_time( $forum_id );
@@ -603,6 +614,7 @@ function bbp_get_forum_last_active_time( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum ID.
+ * @return void
  */
 function bbp_forum_freshness_link( $forum_id = 0 ) {
 	echo bbp_get_forum_freshness_link( $forum_id );
@@ -687,6 +699,7 @@ function bbp_get_forum_freshness_link( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3678)
  *
  * @param int $forum_id Forum ID.
+ * @return void
  */
 function bbp_forum_parent_id( $forum_id = 0 ) {
 	echo bbp_get_forum_parent_id( $forum_id );
@@ -917,6 +930,7 @@ function bbp_list_forums( $args = array() ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args Subscription link arguments.
+ * @return void
  */
 function bbp_forum_subscription_link( $args = array() ) {
 	echo bbp_get_forum_subscription_link( $args );
@@ -978,6 +992,7 @@ function bbp_get_forum_subscription_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_topic_id( $forum_id = 0 ) {
 	echo bbp_get_forum_last_topic_id( $forum_id );
@@ -1005,6 +1020,7 @@ function bbp_get_forum_last_topic_id( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_topic_title( $forum_id = 0 ) {
 	echo bbp_get_forum_last_topic_title( $forum_id );
@@ -1035,6 +1051,7 @@ function bbp_get_forum_last_topic_title( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
 	echo esc_url( bbp_get_forum_last_topic_permalink( $forum_id ) );
@@ -1080,6 +1097,7 @@ function bbp_get_forum_last_topic_author_id( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_topic_author_link( $forum_id = 0 ) {
 	echo bbp_get_forum_last_topic_author_link( $forum_id );
@@ -1110,6 +1128,7 @@ function bbp_get_forum_last_topic_author_link( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_reply_id( $forum_id = 0 ) {
 	echo bbp_get_forum_last_reply_id( $forum_id );
@@ -1135,6 +1154,7 @@ function bbp_get_forum_last_reply_id( $forum_id = 0 ) {
  * Output the title of the last reply inside a forum.
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_reply_title( $forum_id = 0 ) {
 	echo bbp_get_forum_last_reply_title( $forum_id );
@@ -1161,6 +1181,7 @@ function bbp_get_forum_last_reply_title( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_reply_permalink( $forum_id = 0 ) {
 	echo esc_url( bbp_get_forum_last_reply_permalink( $forum_id ) );
@@ -1190,6 +1211,7 @@ function bbp_get_forum_last_reply_permalink( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2684)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_reply_url( $forum_id = 0 ) {
 	echo esc_url( bbp_get_forum_last_reply_url( $forum_id ) );
@@ -1231,6 +1253,7 @@ function bbp_get_forum_last_reply_url( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_reply_author_id( $forum_id = 0 ) {
 	echo bbp_get_forum_last_reply_author_id( $forum_id );
@@ -1259,6 +1282,7 @@ function bbp_get_forum_last_reply_author_id( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_last_reply_author_link( $forum_id = 0 ) {
 	echo bbp_get_forum_last_reply_author_link( $forum_id );
@@ -1289,6 +1313,7 @@ function bbp_get_forum_last_reply_author_link( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2889)
  *
  * @param int $forum_id Optional. Forum ID.
+ * @return void
  */
 function bbp_forum_topics_link( $forum_id = 0 ) {
 	echo bbp_get_forum_topics_link( $forum_id );
@@ -1341,6 +1366,7 @@ function bbp_get_forum_topics_link( $forum_id = 0 ) {
  *
  * @param int     $forum_id Optional. Forum id to check.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
 	echo bbp_get_forum_subforum_count( $forum_id, $integer );
@@ -1373,6 +1399,7 @@ function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	echo bbp_get_forum_topic_count( $forum_id, $total_count, $integer );
@@ -1407,6 +1434,7 @@ function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	echo bbp_get_forum_reply_count( $forum_id, $total_count, $integer );
@@ -1441,6 +1469,7 @@ function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	echo bbp_get_forum_post_count( $forum_id, $total_count, $integer );
@@ -1478,6 +1507,7 @@ function bbp_get_forum_post_count( $forum_id = 0, $total_count = true, $integer 
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param bool|null $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 	echo bbp_get_forum_topic_count_hidden( $forum_id, $total_count, $integer );
@@ -1515,6 +1545,7 @@ function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param bool    $integer Optional. Whether to use the integer count filter.
+ * @return void
  */
 function bbp_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $integer = false ) {
 	echo bbp_get_forum_reply_count_hidden( $forum_id, $total_count, $integer );
@@ -1548,6 +1579,7 @@ function bbp_get_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $
  * @since 2.0.0 bbPress (r2678)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_status( $forum_id = 0 ) {
 	echo bbp_get_forum_status( $forum_id );
@@ -1579,6 +1611,7 @@ function bbp_get_forum_status( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2998)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_visibility( $forum_id = 0 ) {
 	echo bbp_get_forum_visibility( $forum_id );
@@ -1624,6 +1657,7 @@ function bbp_is_forum_visibility_valid( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3563)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_type( $forum_id = 0 ) {
 	echo bbp_get_forum_type( $forum_id );
@@ -2023,6 +2057,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
  * @since 2.1.0 bbPress (r3678)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_author_id( $forum_id = 0 ) {
 	echo bbp_get_forum_author_id( $forum_id );
@@ -2051,6 +2086,7 @@ function bbp_get_forum_author_id( $forum_id = 0 ) {
  * @since 2.1.0 bbPress (r3678)
  *
  * @param int $forum_id Optional. Forum id.
+ * @return void
  */
 function bbp_forum_author_display_name( $forum_id = 0 ) {
 	echo bbp_get_forum_author_display_name( $forum_id );
@@ -2175,6 +2211,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array(), $
  *
  * @param int   $forum_id Optional. Forum ID.
  * @param array $classes  Extra classes for the forum.
+ * @return void
  */
 function bbp_forum_class( $forum_id = 0, $classes = array() ) {
 	echo bbp_get_forum_class( $forum_id, $classes );
@@ -2258,6 +2295,7 @@ function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
  * @since 2.0.0 bbPress (r2876)
  *
  * @param array $args Arguments passed to alter output.
+ * @return void
  */
 function bbp_single_forum_description( $args = array() ) {
 	echo bbp_get_single_forum_description( $args );
@@ -2401,6 +2439,8 @@ function bbp_get_single_forum_description( $args = array() ) {
  * Output the value of forum title field.
  *
  * @since 2.1.0 bbPress (r3551)
+ *
+ * @return void
  */
 function bbp_form_forum_title() {
 	echo bbp_get_form_forum_title();
@@ -2436,6 +2476,8 @@ function bbp_get_form_forum_title() {
  * Output the value of forum content field.
  *
  * @since 2.1.0 bbPress (r3551)
+ *
+ * @return void
  */
 function bbp_form_forum_content() {
 	echo bbp_get_form_forum_content();
@@ -2471,6 +2513,8 @@ function bbp_get_form_forum_content() {
  * Output value of forum moderators field.
  *
  * @since 2.6.0 bbPress (r6056)
+ *
+ * @return void
  */
 function bbp_form_forum_moderators() {
 	echo bbp_get_form_forum_moderators();
@@ -2522,6 +2566,8 @@ function bbp_get_form_forum_moderators() {
  * Output value of forum parent.
  *
  * @since 2.1.0 bbPress (r3551)
+ *
+ * @return void
  */
 function bbp_form_forum_parent() {
 	echo bbp_get_form_forum_parent();
@@ -2557,6 +2603,8 @@ function bbp_get_form_forum_parent() {
  * Output value of forum type.
  *
  * @since 2.1.0 bbPress (r3563)
+ *
+ * @return void
  */
 function bbp_form_forum_type() {
 	echo bbp_get_form_forum_type();
@@ -2592,6 +2640,8 @@ function bbp_get_form_forum_type() {
  * Output value of forum visibility.
  *
  * @since 2.1.0 bbPress (r3563)
+ *
+ * @return void
  */
 function bbp_form_forum_visibility() {
 	echo bbp_get_form_forum_visibility();
@@ -2627,6 +2677,8 @@ function bbp_get_form_forum_visibility() {
  * Output checked value of forum subscription.
  *
  * @since 2.5.0 bbPress (r5156)
+ *
+ * @return void
  */
 function bbp_form_forum_subscribed() {
 	echo bbp_get_form_forum_subscribed();
@@ -2677,6 +2729,8 @@ function bbp_get_form_forum_subscribed() {
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_form_forum_type_dropdown( $args = array() ) {
 	echo bbp_get_form_forum_type_dropdown( $args );
@@ -2764,6 +2818,8 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_form_forum_status_dropdown( $args = array() ) {
 	echo bbp_get_form_forum_status_dropdown( $args );
@@ -2851,6 +2907,8 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_form_forum_visibility_dropdown( $args = array() ) {
 	echo bbp_get_form_forum_visibility_dropdown( $args );
@@ -2978,6 +3036,7 @@ function bbp_is_forum_form_post_request() {
  * @since 2.0.0 bbPress (r3172)
  *
  * @param int $forum_id Optional. Forum ID.
+ * @return void
  */
 function bbp_forum_topics_feed_link( $forum_id = 0 ) {
 	echo bbp_get_forum_topics_feed_link( $forum_id );
@@ -3036,6 +3095,7 @@ function bbp_get_forum_topics_feed_link( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r3172)
  *
  * @param int $forum_id Optional. Forum ID.
+ * @return void
  */
 function bbp_forum_replies_feed_link( $forum_id = 0 ) {
 	echo bbp_get_forum_replies_feed_link( $forum_id );

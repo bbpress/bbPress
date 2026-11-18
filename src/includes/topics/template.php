@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * Output the unique id of the custom post type for topics.
  *
  * @since 2.0.0 bbPress (r2858)
+ *
+ * @return void
  */
 function bbp_topic_post_type() {
 	echo bbp_get_topic_post_type();
@@ -495,6 +497,7 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
  * @since 2.0.0 bbPress (r2485)
  *
  * @param int|string $topic_id Optional. Topic ID.
+ * @return void
  */
 function bbp_topic_id( $topic_id = 0 ) {
 	echo bbp_get_topic_id( $topic_id );
@@ -597,6 +600,8 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
  * @param int    $topic_id Optional. Topic id.
  * @param string $redirect_to Optional. Pass a redirect value for use with
  *                              shortcodes and other fun things.
+ *
+ * @return void
  */
 function bbp_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
 	echo esc_url( bbp_get_topic_permalink( $topic_id, $redirect_to ) );
@@ -634,6 +639,7 @@ function bbp_get_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
  * @since 2.0.0 bbPress (r2485)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_title( $topic_id = 0 ) {
 	echo bbp_get_topic_title( $topic_id );
@@ -662,6 +668,7 @@ function bbp_get_topic_title( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r3250)
  *
  * @param string $title Default text to use as title.
+ * @return void
  */
 function bbp_topic_archive_title( $title = '' ) {
 	echo bbp_get_topic_archive_title( $title );
@@ -703,6 +710,7 @@ function bbp_get_topic_archive_title( $title = '' ) {
  * @since 2.0.0 bbPress (r2780)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_content( $topic_id = 0 ) {
 	echo bbp_get_topic_content( $topic_id );
@@ -738,6 +746,7 @@ function bbp_get_topic_content( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  * @param int $length Optional. Length of the excerpt. Defaults to 100 letters.
+ * @return void
  */
 function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	echo bbp_get_topic_excerpt( $topic_id, $length );
@@ -794,6 +803,8 @@ function bbp_get_topic_excerpt( $topic_id = 0, $length = 100 ) {
  * @param bool   $gmt Optional. Use GMT.
  * @param string $date_format Optional. PHP date format. Defaults to the WordPress date format.
  *                            Ignored when `$humanize` is true.
+ *
+ * @return void
  */
 function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false, $date_format = '' ) {
 	echo bbp_get_topic_post_date( $topic_id, $humanize, $gmt, $date_format );
@@ -841,6 +852,7 @@ function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false
  * @since 2.0.0 bbPress (r2967)
  *
  * @param array $args See {@link bbp_get_topic_pagination()}.
+ * @return void
  */
 function bbp_topic_pagination( $args = array() ) {
 	echo bbp_get_topic_pagination( $args );
@@ -957,6 +969,7 @@ function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_revision_log( $topic_id = 0 ) {
 	echo bbp_get_topic_revision_log( $topic_id );
@@ -1133,6 +1146,7 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_status( $topic_id = 0 ) {
 	echo bbp_get_topic_status( $topic_id );
@@ -1329,6 +1343,7 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
  * @deprecated 2.5.0 bbPress (r5119)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_author( $topic_id = 0 ) {
 	echo bbp_get_topic_author_display_name( $topic_id );
@@ -1365,6 +1380,7 @@ function bbp_get_topic_author( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2590)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_author_id( $topic_id = 0 ) {
 	echo bbp_get_topic_author_id( $topic_id );
@@ -1392,6 +1408,7 @@ function bbp_get_topic_author_id( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2590)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_author_display_name( $topic_id = 0 ) {
 	echo bbp_get_topic_author_display_name( $topic_id );
@@ -1443,6 +1460,7 @@ function bbp_get_topic_author_display_name( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  * @param int $size Optional. Avatar size. Defaults to 40.
+ * @return void
  */
 function bbp_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 	echo bbp_get_topic_author_avatar( $topic_id, $size );
@@ -1479,6 +1497,7 @@ function bbp_get_topic_author_avatar( $topic_id = 0, $size = 40 ) {
  * @since 2.0.0 bbPress (r2720)
  *
  * @param mixed|int $args If it is an integer, it is used as topic_id. Optional.
+ * @return void
  */
 function bbp_topic_author_link( $args = array() ) {
 	echo bbp_get_topic_author_link( $args );
@@ -1597,6 +1616,7 @@ function bbp_get_topic_author_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2590)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_author_url( $topic_id = 0 ) {
 	echo esc_url( bbp_get_topic_author_url( $topic_id ) );
@@ -1635,6 +1655,7 @@ function bbp_get_topic_author_url( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r3446)
  *
  * @param int $topic_id Optional. Reply id.
+ * @return void
  */
 function bbp_topic_author_email( $topic_id = 0 ) {
 	echo bbp_get_topic_author_email( $topic_id );
@@ -1681,6 +1702,7 @@ function bbp_get_topic_author_email( $topic_id = 0 ) {
  * @since 2.1.0 bbPress (r3860)
  *
  * @param array $args Optional.
+ * @return void
  */
 function bbp_topic_author_role( $args = array() ) {
 	echo bbp_get_topic_author_role( $args );
@@ -1737,6 +1759,7 @@ function bbp_get_topic_author_role( $args = array() ) {
  * @since 2.0.0 bbPress (r2572)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_forum_title( $topic_id = 0 ) {
 	echo bbp_get_topic_forum_title( $topic_id );
@@ -1764,6 +1787,7 @@ function bbp_get_topic_forum_title( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2494)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_forum_id( $topic_id = 0 ) {
 	echo bbp_get_topic_forum_id( $topic_id );
@@ -1801,6 +1825,7 @@ function bbp_get_topic_forum_id( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2872)
  *
  * @param int $topic_id Optional. Forum id.
+ * @return void
  */
 function bbp_topic_last_active_id( $topic_id = 0 ) {
 	echo bbp_get_topic_last_active_id( $topic_id );
@@ -1828,6 +1853,7 @@ function bbp_get_topic_last_active_id( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2872)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_last_active_time( $topic_id = 0 ) {
 	echo bbp_get_topic_last_active_time( $topic_id );
@@ -1870,6 +1896,7 @@ function bbp_get_topic_last_active_time( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args Subscription link arguments.
+ * @return void
  */
 function bbp_topic_subscription_link( $args = array() ) {
 	echo bbp_get_topic_subscription_link( $args );
@@ -1929,6 +1956,7 @@ function bbp_get_topic_subscription_link( $args = array() ) {
  * @since 2.6.0 bbPress (r6307) Add 'redirect_to' support
  *
  * @param array $args Favorite link arguments.
+ * @return void
  */
 function bbp_topic_favorite_link( $args = array() ) {
 	echo bbp_get_topic_favorite_link( $args );
@@ -1987,6 +2015,7 @@ function bbp_get_topic_favorite_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_last_reply_id( $topic_id = 0 ) {
 	echo bbp_get_topic_last_reply_id( $topic_id );
@@ -2014,6 +2043,7 @@ function bbp_get_topic_last_reply_id( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_last_reply_title( $topic_id = 0 ) {
 	echo bbp_get_topic_last_reply_title( $topic_id );
@@ -2046,6 +2076,7 @@ function bbp_get_topic_last_reply_title( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_last_reply_permalink( $topic_id = 0 ) {
 	echo esc_url( bbp_get_topic_last_reply_permalink( $topic_id ) );
@@ -2074,6 +2105,7 @@ function bbp_get_topic_last_reply_permalink( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2684)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_last_reply_url( $topic_id = 0 ) {
 	echo esc_url( bbp_get_topic_last_reply_url( $topic_id ) );
@@ -2108,6 +2140,7 @@ function bbp_get_topic_last_reply_url( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2627)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_freshness_link( $topic_id = 0 ) {
 	echo bbp_get_topic_freshness_link( $topic_id );
@@ -2144,6 +2177,7 @@ function bbp_get_topic_freshness_link( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_replies_link( $topic_id = 0 ) {
 	echo bbp_get_topic_replies_link( $topic_id );
@@ -2196,6 +2230,7 @@ function bbp_get_topic_replies_link( $topic_id = 0 ) {
  *
  * @param int     $topic_id Optional. Topic id.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
 	echo bbp_get_topic_reply_count( $topic_id, $integer );
@@ -2227,6 +2262,7 @@ function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
  *
  * @param int     $topic_id Optional. Topic id.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_topic_post_count( $topic_id = 0, $integer = false ) {
 	echo bbp_get_topic_post_count( $topic_id, $integer );
@@ -2259,6 +2295,7 @@ function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
  *
  * @param int     $topic_id Optional. Topic id.
  * @param boolean $integer Optional. Whether or not to format the result.
+ * @return void
  */
 function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 	echo bbp_get_topic_reply_count_hidden( $topic_id, $integer );
@@ -2291,6 +2328,7 @@ function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
  *
  * @param int  $topic_id Optional. Topic ID.
  * @param bool $integer  Whether to return an integer.
+ * @return void
  */
 function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
 	echo bbp_get_topic_voice_count( $topic_id, $integer );
@@ -2322,6 +2360,7 @@ function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
  *
  * @param int   $topic_id Optional. Topic id.
  * @param array $args See {@link bbp_get_topic_tag_list()}.
+ * @return void
  */
 function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 	echo bbp_get_topic_tag_list( $topic_id, $args );
@@ -2393,6 +2432,7 @@ function bbp_get_topic_tag_list( $topic_id = 0, $args = array() ) {
  *
  * @param int   $topic_id Optional. Topic ID.
  * @param array $classes  Extra classes for the topic.
+ * @return void
  */
 function bbp_topic_class( $topic_id = 0, $classes = array() ) {
 	echo bbp_get_topic_class( $topic_id, $classes );
@@ -2465,6 +2505,7 @@ function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
  * Output admin links for topic.
  *
  * @param array $args See {@link bbp_get_topic_admin_links()}.
+ * @return void
  */
 function bbp_topic_admin_links( $args = array() ) {
 	echo bbp_get_topic_admin_links( $args );
@@ -2546,6 +2587,7 @@ function bbp_get_topic_admin_links( $args = array() ) {
  * @since 2.0.0 bbPress (r2727)
  *
  * @param array $args See {@link bbp_get_topic_edit_link()}.
+ * @return void
  */
 function bbp_topic_edit_link( $args = array() ) {
 	echo bbp_get_topic_edit_link( $args );
@@ -2612,6 +2654,7 @@ function bbp_get_topic_edit_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2753)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_edit_url( $topic_id = 0 ) {
 	echo esc_url( bbp_get_topic_edit_url( $topic_id ) );
@@ -2665,6 +2708,7 @@ function bbp_get_topic_edit_url( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2727)
  *
  * @param array $args See {@link bbp_get_topic_trash_link()}.
+ * @return void
  */
 function bbp_topic_trash_link( $args = array() ) {
 	echo bbp_get_topic_trash_link( $args );
@@ -2766,6 +2810,7 @@ function bbp_get_topic_trash_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2727)
  *
  * @param array $args See {@link bbp_get_topic_close_link()}.
+ * @return void
  */
 function bbp_topic_close_link( $args = array() ) {
 	echo bbp_get_topic_close_link( $args );
@@ -2828,6 +2873,7 @@ function bbp_get_topic_close_link( $args = array() ) {
  * @since 2.6.0 bbPress (r5504)
  *
  * @param array $args See {@link bbp_get_topic_approve_link()}.
+ * @return void
  */
 function bbp_topic_approve_link( $args = array() ) {
 	echo bbp_get_topic_approve_link( $args );
@@ -2891,6 +2937,7 @@ function bbp_get_topic_approve_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2754)
  *
  * @param array $args See {@link bbp_get_topic_stick_link()}.
+ * @return void
  */
 function bbp_topic_stick_link( $args = array() ) {
 	echo bbp_get_topic_stick_link( $args );
@@ -2983,6 +3030,7 @@ function bbp_get_topic_stick_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2756)
  *
  * @param array $args Topic merge link arguments.
+ * @return void
  */
 function bbp_topic_merge_link( $args = array() ) {
 	echo bbp_get_topic_merge_link( $args );
@@ -3037,6 +3085,7 @@ function bbp_get_topic_merge_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2727)
  *
  * @param array $args See {@link bbp_get_topic_spam_link()}.
+ * @return void
  */
 function bbp_topic_spam_link( $args = array() ) {
 	echo bbp_get_topic_spam_link( $args );
@@ -3102,6 +3151,7 @@ function bbp_get_topic_spam_link( $args = array() ) {
  * @since 2.4.0 bbPress (r4966)
  *
  * @param array $args Topic reply link arguments.
+ * @return void
  */
 function bbp_topic_reply_link( $args = array() ) {
 	echo bbp_get_topic_reply_link( $args );
@@ -3232,6 +3282,8 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
  * the 'bbp_get_forum_pagination_count' filter.
  *
  * @since 2.0.0 bbPress (r2574)
+ *
+ * @return void
  */
 function bbp_forum_pagination_count() {
 	echo bbp_get_forum_pagination_count();
@@ -3291,6 +3343,8 @@ function bbp_get_forum_pagination_count() {
  * Output pagination links.
  *
  * @since 2.0.0 bbPress (r2574)
+ *
+ * @return void
  */
 function bbp_forum_pagination_links() {
 	echo bbp_get_forum_pagination_links();
@@ -3318,6 +3372,8 @@ function bbp_get_forum_pagination_links() {
  * Displays topic notices.
  *
  * @since 2.0.0 bbPress (r2744)
+ *
+ * @return void
  */
 function bbp_topic_notices() {
 
@@ -3374,6 +3430,8 @@ function bbp_topic_notices() {
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_topic_type_select( $args = array() ) {
 	echo bbp_get_form_topic_type_dropdown( $args );
@@ -3389,6 +3447,8 @@ function bbp_topic_type_select( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_form_topic_type_dropdown( $args = array() ) {
 	echo bbp_get_form_topic_type_dropdown( $args );
@@ -3485,6 +3545,8 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
  *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_form_topic_status_dropdown( $args = array() ) {
 	echo bbp_get_form_topic_status_dropdown( $args );
@@ -3567,6 +3629,7 @@ function bbp_get_form_topic_status_dropdown( $args = array() ) {
  * @since 2.0.0 bbPress (r2872)
  *
  * @param array $args See {@link bbp_get_single_topic_description()}.
+ * @return void
  */
 function bbp_single_topic_description( $args = array() ) {
 	echo bbp_get_single_topic_description( $args );
@@ -3713,6 +3776,8 @@ function bbp_get_single_topic_description( $args = array() ) {
  * Output the unique id of the topic tag taxonomy.
  *
  * @since 2.0.0 bbPress (r3348)
+ *
+ * @return void
  */
 function bbp_topic_tag_tax_id() {
 	echo bbp_get_topic_tag_tax_id();
@@ -3795,6 +3860,7 @@ function bbp_get_topic_tag_tax_rewrite() {
  * @since 2.0.0 bbPress (r3109)
  *
  * @param string $tag Optional. Topic tag slug.
+ * @return void
  */
 function bbp_topic_tag_id( $tag = '' ) {
 	echo bbp_get_topic_tag_id( $tag );
@@ -3833,6 +3899,7 @@ function bbp_get_topic_tag_id( $tag = '' ) {
  * @since 2.0.0 bbPress (r3109)
  *
  * @param string $tag Optional. Topic tag slug.
+ * @return void
  */
 function bbp_topic_tag_name( $tag = '' ) {
 	echo bbp_get_topic_tag_name( $tag );
@@ -3871,6 +3938,7 @@ function bbp_get_topic_tag_name( $tag = '' ) {
  * @since 2.0.0 bbPress (r3109)
  *
  * @param string $tag Optional. Topic tag slug.
+ * @return void
  */
 function bbp_topic_tag_slug( $tag = '' ) {
 	echo bbp_get_topic_tag_slug( $tag );
@@ -3909,6 +3977,7 @@ function bbp_get_topic_tag_slug( $tag = '' ) {
  * @since 2.0.0 bbPress (r3348)
  *
  * @param string $tag Optional. Topic tag slug.
+ * @return void
  */
 function bbp_topic_tag_link( $tag = '' ) {
 	echo esc_url( bbp_get_topic_tag_link( $tag ) );
@@ -3947,6 +4016,7 @@ function bbp_get_topic_tag_link( $tag = '' ) {
  * @since 2.7.0 bbPress (r8335)
  *
  * @param array $args See {@link bbp_get_topic_tag_subscription_link()}.
+ * @return void
  */
 function bbp_topic_tag_subscription_link( $args = array() ) {
 	echo bbp_get_topic_tag_subscription_link( $args );
@@ -4000,6 +4070,7 @@ function bbp_get_topic_tag_subscription_link( $args = array() ) {
  * @since 2.0.0 bbPress (r3348)
  *
  * @param string $tag Optional. Topic tag slug.
+ * @return void
  */
 function bbp_topic_tag_edit_link( $tag = '' ) {
 	echo esc_url( bbp_get_topic_tag_edit_link( $tag ) );
@@ -4046,6 +4117,7 @@ function bbp_get_topic_tag_edit_link( $tag = '' ) {
  * @since 2.0.0 bbPress (r3109)
  *
  * @param array $args Description arguments.
+ * @return void
  */
 function bbp_topic_tag_description( $args = array() ) {
 	echo bbp_get_topic_tag_description( $args );
@@ -4097,6 +4169,8 @@ function bbp_get_topic_tag_description( $args = array() ) {
  * Output the value of topic title field.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_title() {
 	echo bbp_get_form_topic_title();
@@ -4135,6 +4209,8 @@ function bbp_get_form_topic_title() {
  * Output the value of topic content field.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_content() {
 	echo bbp_get_form_topic_content();
@@ -4175,6 +4251,7 @@ function bbp_get_form_topic_content() {
  * @since 2.1.0 bbPress (r3654)
  *
  * @todo Links and filter.
+ * @return void
  */
 function bbp_topic_row_actions() {
 	do_action( 'bbp_topic_row_actions' );
@@ -4184,6 +4261,8 @@ function bbp_topic_row_actions() {
  * Output value of topic tags field.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_tags() {
 	echo bbp_get_form_topic_tags();
@@ -4247,6 +4326,8 @@ function bbp_get_form_topic_tags() {
  * Output value of topic forum.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_forum() {
 	echo bbp_get_form_topic_forum();
@@ -4282,6 +4363,8 @@ function bbp_get_form_topic_forum() {
  * Output checked value of topic subscription.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_subscribed() {
 	echo bbp_get_form_topic_subscribed();
@@ -4324,6 +4407,8 @@ function bbp_get_form_topic_subscribed() {
  * Output checked value of topic log edit field.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_log_edit() {
 	echo bbp_get_form_topic_log_edit();
@@ -4358,6 +4443,8 @@ function bbp_get_form_topic_log_edit() {
  * Output the value of the topic edit reason.
  *
  * @since 2.0.0 bbPress (r2976)
+ *
+ * @return void
  */
 function bbp_form_topic_edit_reason() {
 	echo bbp_get_form_topic_edit_reason();
@@ -4467,6 +4554,7 @@ function bbp_show_topic_lock_alert() {
  * @since 2.6.0 bbPress (r6344)
  *
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_topic_lock_description( $topic_id = 0 ) {
 	echo bbp_get_topic_lock_description( $topic_id );

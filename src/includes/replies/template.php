@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * Return the unique id of the custom post type for replies.
  *
  * @since 2.0.0 bbPress (r2858)
+ *
+ * @return void
  */
 function bbp_reply_post_type() {
 	echo bbp_get_reply_post_type();
@@ -323,6 +325,7 @@ function bbp_the_reply() {
  * @since 2.0.0 bbPress (r2553)
  *
  * @param int|string $reply_id Optional. Reply ID.
+ * @return void
  */
 function bbp_reply_id( $reply_id = 0 ) {
 	echo bbp_get_reply_id( $reply_id );
@@ -419,6 +422,7 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
  * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_permalink( $reply_id = 0 ) {
 	echo esc_url( bbp_get_reply_permalink( $reply_id ) );
@@ -446,6 +450,7 @@ function bbp_get_reply_permalink( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2680)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_url( $reply_id = 0 ) {
 	echo esc_url( bbp_get_reply_url( $reply_id ) );
@@ -538,6 +543,7 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
  * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_title( $reply_id = 0 ) {
 	echo bbp_get_reply_title( $reply_id );
@@ -622,6 +628,7 @@ function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
  * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. reply id.
+ * @return void
  */
 function bbp_reply_content( $reply_id = 0 ) {
 	echo bbp_get_reply_content( $reply_id );
@@ -657,6 +664,7 @@ function bbp_get_reply_content( $reply_id = 0 ) {
  *
  * @param int $reply_id Optional. Reply id.
  * @param int $length Optional. Length of the excerpt. Defaults to 100 letters.
+ * @return void
  */
 function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	echo bbp_get_reply_excerpt( $reply_id, $length );
@@ -713,6 +721,8 @@ function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
  * @param bool   $gmt Optional. Use GMT.
  * @param string $date_format Optional. PHP date format. Defaults to the WordPress date format.
  *                            Ignored when `$humanize` is true.
+ *
+ * @return void
  */
 function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false, $date_format = '' ) {
 	echo bbp_get_reply_post_date( $reply_id, $humanize, $gmt, $date_format );
@@ -783,6 +793,7 @@ function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_revision_log( $reply_id = 0 ) {
 	echo bbp_get_reply_revision_log( $reply_id );
@@ -925,6 +936,7 @@ function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_status( $reply_id = 0 ) {
 	echo bbp_get_reply_status( $reply_id );
@@ -1090,6 +1102,7 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
  * @deprecated 2.5.0 bbPress (r5119)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_author( $reply_id = 0 ) {
 	echo bbp_get_reply_author_display_name( $reply_id );
@@ -1126,6 +1139,7 @@ function bbp_get_reply_author( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_author_id( $reply_id = 0 ) {
 	echo bbp_get_reply_author_id( $reply_id );
@@ -1153,6 +1167,7 @@ function bbp_get_reply_author_id( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_author_display_name( $reply_id = 0 ) {
 	echo bbp_get_reply_author_display_name( $reply_id );
@@ -1204,6 +1219,7 @@ function bbp_get_reply_author_display_name( $reply_id = 0 ) {
  *
  * @param int $reply_id Optional. Reply id.
  * @param int $size Optional. Size of the avatar. Defaults to 40.
+ * @return void
  */
 function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	echo bbp_get_reply_author_avatar( $reply_id, $size );
@@ -1243,6 +1259,7 @@ function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
  * @since 2.0.0 bbPress (r2720)
  *
  * @param array|int $args Optional. Arguments or a reply ID.
+ * @return void
  */
 function bbp_reply_author_link( $args = array() ) {
 	echo bbp_get_reply_author_link( $args );
@@ -1360,6 +1377,7 @@ function bbp_get_reply_author_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_author_url( $reply_id = 0 ) {
 	echo esc_url( bbp_get_reply_author_url( $reply_id ) );
@@ -1397,6 +1415,7 @@ function bbp_get_reply_author_url( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r3446)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_author_email( $reply_id = 0 ) {
 	echo bbp_get_reply_author_email( $reply_id );
@@ -1443,6 +1462,7 @@ function bbp_get_reply_author_email( $reply_id = 0 ) {
  * @since 2.1.0 bbPress (r3860)
  *
  * @param array $args Optional.
+ * @return void
  */
 function bbp_reply_author_role( $args = array() ) {
 	echo bbp_get_reply_author_role( $args );
@@ -1499,6 +1519,7 @@ function bbp_get_reply_author_role( $args = array() ) {
  * @since 2.0.0 bbPress (r2680)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_topic_title( $reply_id = 0 ) {
 	echo bbp_get_reply_topic_title( $reply_id );
@@ -1527,6 +1548,7 @@ function bbp_get_reply_topic_title( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_topic_id( $reply_id = 0 ) {
 	echo bbp_get_reply_topic_id( $reply_id );
@@ -1564,6 +1586,7 @@ function bbp_get_reply_topic_id( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2680)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_forum_id( $reply_id = 0 ) {
 	echo bbp_get_reply_forum_id( $reply_id );
@@ -1603,6 +1626,7 @@ function bbp_get_reply_forum_id( $reply_id = 0 ) {
  * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_ancestor_id( $reply_id = 0 ) {
 	echo bbp_get_reply_ancestor_id( $reply_id );
@@ -1645,6 +1669,7 @@ function bbp_get_reply_ancestor_id( $reply_id = 0 ) {
  * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_to( $reply_id = 0 ) {
 	echo bbp_get_reply_to( $reply_id );
@@ -1681,6 +1706,7 @@ function bbp_get_reply_to( $reply_id = 0 ) {
  * @since 2.4.0 bbPress (r4944)
  *
  * @param array $args Reply link arguments.
+ * @return void
  */
 function bbp_reply_to_link( $args = array() ) {
 	echo bbp_get_reply_to_link( $args );
@@ -1760,6 +1786,7 @@ function bbp_get_reply_to_link( $args = array() ) {
  * @since 2.4.0 bbPress (r4944)
  *
  * @param string $text Cancellation link text.
+ * @return void
  */
 function bbp_cancel_reply_to_link( $text = '' ) {
 	echo bbp_get_cancel_reply_to_link( $text );
@@ -1806,6 +1833,7 @@ function bbp_get_cancel_reply_to_link( $text = '' ) {
  *
  * @param int $reply_id Optional. Reply id.
  * @param int $topic_id Optional. Topic id.
+ * @return void
  */
 function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 	echo bbp_get_reply_position( $reply_id, $topic_id );
@@ -1867,6 +1895,7 @@ function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2667)
  *
  * @param array $args See {@link bbp_get_reply_admin_links()}.
+ * @return void
  */
 function bbp_reply_admin_links( $args = array() ) {
 	echo bbp_get_reply_admin_links( $args );
@@ -1958,6 +1987,7 @@ function bbp_get_reply_admin_links( $args = array() ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param array $args See {@link bbp_get_reply_edit_link()}.
+ * @return void
  */
 function bbp_reply_edit_link( $args = array() ) {
 	echo bbp_get_reply_edit_link( $args );
@@ -2024,6 +2054,7 @@ function bbp_get_reply_edit_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2753)
  *
  * @param int $reply_id Optional. Reply id.
+ * @return void
  */
 function bbp_reply_edit_url( $reply_id = 0 ) {
 	echo esc_url( bbp_get_reply_edit_url( $reply_id ) );
@@ -2077,6 +2108,7 @@ function bbp_get_reply_edit_url( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param array $args See {@link bbp_get_reply_trash_link()}.
+ * @return void
  */
 function bbp_reply_trash_link( $args = array() ) {
 	echo bbp_get_reply_trash_link( $args );
@@ -2167,6 +2199,7 @@ function bbp_get_reply_trash_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param array $args See {@link bbp_get_reply_spam_link()}.
+ * @return void
  */
 function bbp_reply_spam_link( $args = array() ) {
 	echo bbp_get_reply_spam_link( $args );
@@ -2233,6 +2266,7 @@ function bbp_get_reply_spam_link( $args = array() ) {
  * @since 2.3.0 bbPress (r4522)
  *
  * @param array $args See {@link bbp_get_reply_move_link()}.
+ * @return void
  */
 function bbp_reply_move_link( $args = array() ) {
 	echo bbp_get_reply_move_link( $args );
@@ -2299,6 +2333,7 @@ function bbp_get_reply_move_link( $args = array() ) {
  * @since 2.0.0 bbPress (r2756)
  *
  * @param array $args See {@link bbp_get_topic_split_link()}.
+ * @return void
  */
 function bbp_topic_split_link( $args = array() ) {
 	echo bbp_get_topic_split_link( $args );
@@ -2363,6 +2398,7 @@ function bbp_get_topic_split_link( $args = array() ) {
  * @since 2.6.0 bbPress (r5507)
  *
  * @param array $args See {@link bbp_get_reply_approve_link()}.
+ * @return void
  */
 function bbp_reply_approve_link( $args = array() ) {
 	echo bbp_get_reply_approve_link( $args );
@@ -2430,6 +2466,7 @@ function bbp_get_reply_approve_link( $args = array() ) {
  *
  * @param int   $reply_id Optional. Reply ID.
  * @param array $classes  Extra classes for the reply.
+ * @return void
  */
 function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 	echo bbp_get_reply_class( $reply_id, $classes );
@@ -2544,6 +2581,8 @@ function bbp_get_replies_pagination_base( $topic_id = 0 ) {
  * the 'bbp_get_topic_pagination_count' filter.
  *
  * @since 2.0.0 bbPress (r2519)
+ *
+ * @return void
  */
 function bbp_topic_pagination_count() {
 	echo bbp_get_topic_pagination_count();
@@ -2626,6 +2665,8 @@ function bbp_get_topic_pagination_count() {
  * Output topic pagination links.
  *
  * @since 2.0.0 bbPress (r2519)
+ *
+ * @return void
  */
 function bbp_topic_pagination_links() {
 	echo bbp_get_topic_pagination_links();
@@ -2655,6 +2696,8 @@ function bbp_get_topic_pagination_links() {
  * Output the value of reply content field.
  *
  * @since 2.0.0 bbPress (r3101)
+ *
+ * @return void
  */
 function bbp_form_reply_content() {
 	echo bbp_get_form_reply_content();
@@ -2693,6 +2736,8 @@ function bbp_get_form_reply_content() {
  * Output the value of the reply to field.
  *
  * @since 2.4.0 bbPress (r4944)
+ *
+ * @return void
  */
 function bbp_form_reply_to() {
 	echo bbp_get_form_reply_to();
@@ -2731,6 +2776,7 @@ function bbp_get_form_reply_to() {
  * @since 2.6.0 bbPress (r5387)
  *
  * @param int $reply_id Reply id.
+ * @return void
  */
 function bbp_reply_to_dropdown( $reply_id = 0 ) {
 	echo bbp_get_reply_to_dropdown( $reply_id );
@@ -2819,6 +2865,8 @@ function bbp_get_reply_to_dropdown( $reply_id = 0, $topic_id = 0 ) {
  * Output checked value of reply log edit field.
  *
  * @since 2.0.0 bbPress (r3101)
+ *
+ * @return void
  */
 function bbp_form_reply_log_edit() {
 	echo bbp_get_form_reply_log_edit();
@@ -2853,6 +2901,8 @@ function bbp_get_form_reply_log_edit() {
  * Output the value of the reply edit reason.
  *
  * @since 2.0.0 bbPress (r3101)
+ *
+ * @return void
  */
 function bbp_form_reply_edit_reason() {
 	echo bbp_get_form_reply_edit_reason();
@@ -2890,6 +2940,8 @@ function bbp_get_form_reply_edit_reason() {
  *  - tab: Deprecated. Tabindex
  *  - reply_id: Reply id
  *  - selected: Override the selected option.
+ *
+ * @return void
  */
 function bbp_form_reply_status_dropdown( $args = array() ) {
 	echo bbp_get_form_reply_status_dropdown( $args );
