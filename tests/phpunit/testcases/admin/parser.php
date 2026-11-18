@@ -108,7 +108,23 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		$this->assertSame( '[img]missing.png[/img]', $this->parse_without_errors( '[img]missing.png[/img]', $parser ) );
 		$this->assertSame( '<b>x</b>', $this->parse_without_errors( '[b]x', $parser ) );
 		$this->assertSame( '[code]x', $this->parse_without_errors( '[code]x', $parser ) );
+		$this->assertSame( $code, $this->parse_without_errors( '[code]<b>x</b>[/CODE]', $parser ) );
 		$this->assertSame( '', $this->parse_without_errors( null, $parser ) );
+	}
+
+	/**
+	 * An empty smiley collection leaves ordinary text intact.
+	 *
+	 * @covers BBCode::Internal_ProcessSmileys
+	 * @covers BBCode::Internal_RebuildSmileys
+	 * @ticket 3727
+	 */
+	public function test_empty_smiley_collection_does_not_raise_errors() {
+		$parser               = BBCode::getInstance();
+		$parser->smileys      = array();
+		$parser->smiley_regex = false;
+
+		$this->assertSame( 'Hi :)', $this->parse_without_errors( 'Hi :)', $parser ) );
 	}
 
 	/**
@@ -722,6 +738,47 @@ class BBP_Tests_Admin_Parser extends BBP_UnitTestCase {
 		$this->assertSame( 'url', $lexer->tag['_name'] );
 		$this->assertTrue( $lexer->tag['_end'] );
 		$this->assertSame( BBCODE_EOI, $lexer->NextToken() );
+	}
+
+	/**
+	 * Quoted parameter names and values can contain a closing tag marker.
+	 *
+	 * @covers BBCodeLexer::NextToken
+	 * @covers BBCodeLexer::Internal_DecodeTag
+	 * @ticket 3727
+	 */
+	public function test_lexer_preserves_brackets_in_quoted_parameters() {
+		$lexer = new BBCodeLexer( '[quote "A [B]"=value]text[/quote]' );
+
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'value', $lexer->tag['a [b]'] );
+		$this->assertSame( BBCODE_TEXT, $lexer->NextToken() );
+		$this->assertSame( 'text', $lexer->text );
+		$this->assertSame( BBCODE_ENDTAG, $lexer->NextToken() );
+		$this->assertSame( BBCODE_EOI, $lexer->NextToken() );
+
+		$lexer = new BBCodeLexer( '[quote name="C [D]"]text[/quote]' );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'C [D]', $lexer->tag['name'] );
+
+		$lexer = new BBCodeLexer( '[quote "A [B]"="C [D]"]text[/quote]' );
+		$this->assertSame( BBCODE_TAG, $lexer->NextToken() );
+		$this->assertSame( 'C [D]', $lexer->tag['a [b]'] );
+	}
+
+	/**
+	 * Unquoted apostrophes do not consume adjacent BBCode tags.
+	 *
+	 * @covers BBCode::Parse
+	 * @ticket 3727
+	 */
+	public function test_repeated_unquoted_apostrophes_preserve_quote_tags() {
+		$input  = "[quote=O'Brien]one[/quote][quote=O'Brien]two[/quote]";
+		$output = str_replace( '&#039;', "'", $this->parse_without_errors( $input ) );
+
+		$this->assertSame( 2, substr_count( $output, '<div class="bbcode_quote_head">O\'Brien wrote:</div>' ) );
+		$this->assertStringContainsString( '<div class="bbcode_quote_body">one</div>', $output );
+		$this->assertStringContainsString( '<div class="bbcode_quote_body">two</div>', $output );
 	}
 
 	/**
