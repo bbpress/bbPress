@@ -109,7 +109,7 @@ jobs:
           extensions: mysqli, mbstring, curl, dom, json, libxml, xml, zip
 
       - name: Set up Node
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           package-manager-cache: false
           node-version-file: automation/.nvmrc
