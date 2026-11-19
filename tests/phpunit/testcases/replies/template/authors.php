@@ -133,6 +133,30 @@ class BBP_Tests_Replies_Template_Authors extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_reply_author_link
+	 */
+	public function test_bbp_get_reply_author_link_skips_invalid_urls() {
+		$user_id  = $this->factory->user->create( array( 'display_name' => 'Reply Author' ) );
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $user_id ) );
+		$args     = array( 'post_id' => $reply_id, 'type' => 'name' );
+
+		foreach ( array( false, '/relative-profile/', 'javascript:alert(1)' ) as $invalid ) {
+			$filter = static function() use ( $invalid ) {
+				return $invalid;
+			};
+			add_filter( 'bbp_get_reply_author_url', $filter );
+			try {
+				$link = bbp_get_reply_author_link( $args );
+				$this->assertStringContainsString( 'Reply Author', $link );
+				$this->assertStringNotContainsString( '<a ', $link );
+			} finally {
+				remove_filter( 'bbp_get_reply_author_url', $filter );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_reply_author_url
 	 * @covers ::bbp_get_reply_author_url
 	 */

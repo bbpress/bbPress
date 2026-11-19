@@ -118,6 +118,29 @@ class BBP_Tests_Topics_Template_Authors extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_topic_author_link
+	 */
+	public function test_bbp_get_topic_author_link_skips_invalid_urls() {
+		$user_id  = $this->factory->user->create( array( 'display_name' => 'Topic Author' ) );
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+		$args     = array( 'post_id' => $topic_id, 'type' => 'name' );
+
+		foreach ( array( false, '/relative-profile/', 'javascript:alert(1)' ) as $invalid ) {
+			$filter = static function() use ( $invalid ) {
+				return $invalid;
+			};
+			add_filter( 'bbp_get_topic_author_url', $filter );
+			try {
+				$link = bbp_get_topic_author_link( $args );
+				$this->assertStringContainsString( 'Topic Author', $link );
+				$this->assertStringNotContainsString( '<a ', $link );
+			} finally {
+				remove_filter( 'bbp_get_topic_author_url', $filter );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_topic_author_url
 	 * @covers ::bbp_get_topic_author_url
 	 */

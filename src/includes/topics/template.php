@@ -1542,7 +1542,7 @@ function bbp_get_topic_author_link( $args = array() ) {
 	if ( ! empty( $topic_id ) ) {
 
 		// Get some useful topic information
-		$author_url = bbp_get_topic_author_url( $topic_id );
+		$author_url = bbp_validate_url( bbp_get_topic_author_url( $topic_id ) );
 		$anonymous  = bbp_is_topic_anonymous( $topic_id );
 
 		// Tweak link title if empty
@@ -1598,7 +1598,7 @@ function bbp_get_topic_author_link( $args = array() ) {
 		$author_link = implode( $r['sep'], $sections );
 
 		// Only wrap in link if profile exists
-		if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
+		if ( empty( $anonymous ) && ( false !== $author_url ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
 			$author_link = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, ' class="bbp-author-link"', $author_link );
 		}
 

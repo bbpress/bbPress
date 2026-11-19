@@ -978,10 +978,10 @@ function bbp_get_user_profile_edit_link( $user_id = 0 ) {
 		: bbp_get_fallback_display_name();
 
 	// URL
-	$url = bbp_get_user_profile_edit_url( $user_id );
+	$url = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
 
 	// Link
-	$link = ! empty( $url )
+	$link = ( false !== $url )
 		? '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>'
 		: esc_html( $name );
 
@@ -2176,7 +2176,7 @@ function bbp_notice_edit_user_pending_email() {
 	}
 
 	// Build the nonced URL to dismiss the pending change
-	$user_url = bbp_get_user_profile_edit_url( $user_id );
+	$user_url = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
 	$nonce    = "dismiss-{$user_id}{$key}";
 	$args     = array(
 		'action'  => 'bbp-update-user-email',
@@ -2184,17 +2184,24 @@ function bbp_notice_edit_user_pending_email() {
 	);
 
 	// Build the variables to pass into printf()
-	$dismiss_url  = wp_nonce_url( add_query_arg( $args, $user_url ), $nonce );
-	$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html_x( 'Cancel', 'Dismiss pending user email address change', 'bbpress' ) . '</a>';
-	$coded_email  = '<code>' . esc_html( $new_email['newemail'] ) . '</code>'; ?>
+	if ( false !== $user_url ) {
+		$dismiss_url  = wp_nonce_url( add_query_arg( $args, $user_url ), $nonce );
+		$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html_x( 'Cancel', 'Dismiss pending user email address change', 'bbpress' ) . '</a>';
+		/* translators: 1: New email address, 2: Dismiss change link */
+		$notice = esc_html__( 'There is a pending email address change to %1$s. %2$s', 'bbpress' );
+	} else {
+		$dismiss_link = '';
+		/* translators: %s: New email address */
+		$notice = esc_html__( 'There is a pending email address change to %1$s.', 'bbpress' );
+	}
+	$coded_email = '<code>' . esc_html( $new_email['newemail'] ) . '</code>'; ?>
 
 	<div class="bbp-template-notice info">
 		<ul>
 			<li>
 				<?php
 				printf(
-					/* translators: 1: New email address, 2: Dismiss change link */
-					esc_html__( 'There is a pending email address change to %1$s. %2$s', 'bbpress' ),
+					$notice,
 					$coded_email,
 					$dismiss_link
 				);

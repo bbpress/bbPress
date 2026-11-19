@@ -303,6 +303,34 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_user_profile_edit_link
+	 */
+	public function test_bbp_get_user_profile_edit_link_skips_invalid_urls() {
+		$name = esc_html( $this->keymaster_userdata->display_name );
+		foreach ( array( false, null, '', '/relative-edit/', 'javascript:alert(1)' ) as $invalid ) {
+			$filter = static function() use ( $invalid ) {
+				return $invalid;
+			};
+			add_filter( 'bbp_get_user_edit_profile_url', $filter );
+			try {
+				$this->assertSame( $name, bbp_get_user_profile_edit_link( $this->keymaster_id ) );
+			} finally {
+				remove_filter( 'bbp_get_user_edit_profile_url', $filter );
+			}
+		}
+
+		$filter = static function() {
+			return 'https://mapped.example.net/edit/';
+		};
+		add_filter( 'bbp_get_user_edit_profile_url', $filter );
+		try {
+			$this->assertStringContainsString( '<a href="https://mapped.example.net/edit/"', bbp_get_user_profile_edit_link( $this->keymaster_id ) );
+		} finally {
+			remove_filter( 'bbp_get_user_edit_profile_url', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_user_profile_edit_url
 	 */
 	public function test_bbp_user_profile_edit_url() {
@@ -717,6 +745,19 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 			$output = ob_get_clean();
 			$this->assertStringContainsString( '<code>new@example.org</code>', $output );
 			$this->assertStringContainsString( 'Cancel', $output );
+
+			$invalid_url = '__return_false';
+			add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			try {
+				ob_start();
+				bbp_notice_edit_user_pending_email();
+				$output = ob_get_clean();
+				$this->assertStringContainsString( '<code>new@example.org</code>', $output );
+				$this->assertStringNotContainsString( '<a ', $output );
+				$this->assertStringNotContainsString( 'Cancel', $output );
+			} finally {
+				remove_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			}
 		} finally {
 			delete_user_meta( $this->keymaster_id, '_new_email' );
 			remove_filter( 'bbp_is_user_home_edit', '__return_true' );

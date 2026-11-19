@@ -109,6 +109,32 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->assertSame( array( 'handled' => array( $this->recipient ) ), get_post_meta( $topic, '_bbp_mention_notification', true ) );
 	}
 
+	public function test_mention_email_omits_invalid_settings_url() {
+		$invalid_url = '__return_false';
+		add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+		try {
+			$this->topic();
+			bbp_send_mention_notifications();
+			$this->assertCount( 1, $this->mail );
+			$this->assertStringNotContainsString( 'You can turn off mention emails', $this->mail[0]['message'] );
+		} finally {
+			remove_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+		}
+
+		$settings_url = static function() {
+			return 'https://mapped.example.net/settings/';
+		};
+		add_filter( 'bbp_mention_email_settings_url', $settings_url );
+		try {
+			$this->topic();
+			bbp_send_mention_notifications();
+			$this->assertCount( 2, $this->mail );
+			$this->assertStringContainsString( 'https://mapped.example.net/settings/', $this->mail[1]['message'] );
+		} finally {
+			remove_filter( 'bbp_mention_email_settings_url', $settings_url );
+		}
+	}
+
 	public function test_reply_notifies_without_a_subscription() {
 		$topic = $this->topic( array( 'post_content' => 'No mentions.' ) );
 		$reply = $this->factory->reply->create( array( 'post_parent' => $topic, 'post_author' => $this->author, 'post_content' => '@mention-user', 'reply_meta' => array( 'topic_id' => $topic, 'forum_id' => $this->forum ) ) );

@@ -358,6 +358,18 @@
 			$_POST['email']   = get_userdata( $other_id )->user_email;
 			bbp_edit_user_handler( 'bbp-update-user' );
 			$this->assertContains( 'bbp_user_email_taken', bbpress()->errors->get_error_codes() );
+
+			bbpress()->errors = new WP_Error();
+			$_POST['email']   = 'new@example.org';
+			$invalid_url      = '__return_false';
+			add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			try {
+				bbp_edit_user_handler( 'bbp-update-user' );
+				$this->assertContains( 'bbp_user_email_invalid_url', bbpress()->errors->get_error_codes() );
+				$this->assertSame( '', get_user_meta( $user_id, '_new_email', true ) );
+			} finally {
+				remove_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			}
 		} finally {
 			remove_filter( 'bbp_get_displayed_user_id', $displayed );
 			$this->set_current_user( $old_user );
@@ -441,6 +453,16 @@
 			$this->assertCount( 1, $sent );
 			$this->assertSame( 'new@example.org', $sent[0]['to'] );
 			$this->assertStringContainsString( 'newuseremail=test-hash', $sent[0]['message'] );
+
+			$invalid_url = '__return_false';
+			add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			try {
+				bbp_edit_user_email_send_notification( $user_id, array( 'hash' => 'other-hash', 'newemail' => 'new@example.org' ) );
+				$this->assertContains( 'bbp_user_email_invalid_url', bbpress()->errors->get_error_codes() );
+				$this->assertCount( 1, $sent );
+			} finally {
+				remove_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			}
 		} finally {
 			remove_filter( 'bbp_get_displayed_user_id', $displayed );
 			remove_filter( 'pre_wp_mail', $mail, 10 );

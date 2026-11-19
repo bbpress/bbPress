@@ -348,6 +348,12 @@ function bbp_edit_user_handler( $action = '' ) {
 		}
 
 		if ( bbp_user_email_change_requires_confirmation( $user_id ) ) {
+			// A confirmation email needs a usable profile edit URL.
+			if ( false === bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) ) ) {
+				bbp_add_error( 'bbp_user_email_invalid_url', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+				return;
+			}
+
 			// Update the option.
 			$option = array(
 				'hash'     => md5( $_POST['email'] . time() . wp_rand() ),
@@ -397,8 +403,8 @@ function bbp_edit_user_handler( $action = '' ) {
 
 		// Redirect
 		$args     = array( 'updated' => 'true' );
-		$user_url = bbp_get_user_profile_edit_url( $edit_user );
-		$redirect = add_query_arg( $args, $user_url );
+		$user_url = bbp_validate_url( bbp_get_user_profile_edit_url( $edit_user ) );
+		$redirect = ( false !== $user_url ) ? add_query_arg( $args, $user_url ) : false;
 
 		bbp_redirect( $redirect );
 	}
@@ -433,7 +439,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 	// Get the displayed user ID & option key
 	$user_id     = bbp_get_displayed_user_id();
 	$key         = '_new_email';
-	$redirect_to = bbp_get_user_profile_edit_url( $user_id );
+	$redirect_to = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
 
 	// Execute confirmed email change.
 	if ( ! empty( $_GET['newuseremail'] ) ) {
@@ -489,7 +495,8 @@ function bbp_user_email_change_handler( $action = '' ) {
 
 					delete_user_meta( $user_id, $key );
 
-					bbp_redirect( add_query_arg( array( 'updated' => 'true' ), $redirect_to ) );
+					$redirect = ( false !== $redirect_to ) ? add_query_arg( array( 'updated' => 'true' ), $redirect_to ) : false;
+					bbp_redirect( $redirect );
 				}
 			}
 		}
@@ -535,9 +542,14 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) 
 		return;
 	}
 
-	// Build the nonced URL to dismiss the pending change
+	// Build the confirmation URL
 	$user_login  = bbp_get_displayed_user_field( 'user_login', 'raw' );
-	$user_url    = bbp_get_user_profile_edit_url( $user_id );
+	$user_url    = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
+	if ( false === $user_url ) {
+		bbp_add_error( 'bbp_user_email_invalid_url', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+		return;
+	}
+
 	$confirm_url = add_query_arg(
 		array(
 			'action'       => 'bbp-update-user-email',
