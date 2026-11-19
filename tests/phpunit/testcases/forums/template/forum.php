@@ -403,6 +403,164 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * A public parent must not expose activity behind a child or ancestor password.
+	 *
+	 * @covers ::bbp_is_forum_activity_public
+	 * @covers ::bbp_get_forum_freshness_link
+	 * @covers ::bbp_get_forum_last_active_time
+	 */
+	public function test_password_protected_forum_activity_requires_password() {
+		$public_forum = $this->factory->forum->create();
+		$protected_forum = $this->factory->forum->create( array(
+			'post_parent'   => $public_forum,
+			'post_password' => 'forum-secret',
+		) );
+		$nested_forum = $this->factory->forum->create( array(
+			'post_parent' => $protected_forum,
+		) );
+		$participant_id = $this->factory->user->create();
+		$keymaster_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$author_id = $this->factory->user->create( array( 'display_name' => 'Protected author marker' ) );
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		foreach ( array( $protected_forum, $nested_forum ) as $source_forum ) {
+			$topic_id = $this->factory->topic->create( array(
+				'post_parent' => $source_forum,
+				'post_title'  => 'Protected topic marker',
+				'topic_meta'  => array( 'forum_id' => $source_forum ),
+			) );
+			$reply_id = $this->factory->reply->create( array(
+				'post_parent' => $topic_id,
+				'post_title'  => 'Protected reply marker',
+				'post_author' => $author_id,
+				'reply_meta'  => array( 'forum_id' => $source_forum, 'topic_id' => $topic_id ),
+			) );
+
+			update_post_meta( $public_forum, '_bbp_last_reply_id', $reply_id );
+			update_post_meta( $public_forum, '_bbp_last_active_id', $reply_id );
+			update_post_meta( $public_forum, '_bbp_last_active_time', get_post_field( 'post_date', $reply_id ) );
+			update_post_meta( $source_forum, '_bbp_last_reply_id', $reply_id );
+			update_post_meta( $source_forum, '_bbp_last_active_id', $reply_id );
+			update_post_meta( $source_forum, '_bbp_last_active_time', get_post_field( 'post_date', $reply_id ) );
+
+			foreach ( array( 0, $participant_id, $keymaster_id ) as $user_id ) {
+				wp_set_current_user( $user_id );
+				$this->assertFalse( bbp_is_forum_activity_public( $topic_id ) );
+				$this->assertFalse( bbp_is_forum_activity_public( $reply_id ) );
+				$this->assertSame( '-', bbp_get_forum_freshness_link( $public_forum ) );
+				$this->assertSame( '-', bbp_get_forum_freshness_link( $source_forum ) );
+				$this->assertSame( '', bbp_get_forum_last_active_time( $public_forum ) );
+				if ( $keymaster_id !== $user_id ) {
+					$this->assertStringNotContainsString( 'Protected author marker', bbp_get_author_link( $reply_id ) );
+				}
+			}
+		}
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher = new PasswordHash( 8, true );
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'forum-secret' );
+
+		try {
+			foreach ( array( 0, $participant_id, $keymaster_id ) as $user_id ) {
+				wp_set_current_user( $user_id );
+				$this->assertTrue( bbp_is_forum_activity_public( $reply_id ) );
+				$this->assertStringContainsString( 'Protected reply marker', bbp_get_forum_freshness_link( $public_forum ) );
+				$this->assertStringContainsString( 'Protected reply marker', bbp_get_forum_freshness_link( $nested_forum ) );
+				$this->assertNotSame( '', bbp_get_forum_last_active_time( $public_forum ) );
+			}
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
+	 * Activity passwords on topics and replies also apply in public forums.
+	 *
+	 * @covers ::bbp_is_forum_activity_public
+	 * @covers ::bbp_get_forum_freshness_link
+	 */
+	public function test_password_protected_topic_and_reply_activity_is_not_public() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent'   => $forum_id,
+			'post_password' => 'topic-secret',
+			'post_title'    => 'Protected topic marker',
+			'topic_meta'    => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_title'  => 'Protected reply marker',
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		wp_set_current_user( 0 );
+		$this->assertFalse( bbp_is_forum_activity_public( $topic_id ) );
+		$this->assertFalse( bbp_is_forum_activity_public( $reply_id ) );
+
+		update_post_meta( $forum_id, '_bbp_last_active_id', $reply_id );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+
+		wp_update_post( array( 'ID' => $topic_id, 'post_password' => '' ) );
+		wp_update_post( array( 'ID' => $reply_id, 'post_password' => 'reply-secret' ) );
+		$this->assertTrue( bbp_is_forum_activity_public( $topic_id ) );
+		$this->assertFalse( bbp_is_forum_activity_public( $reply_id ) );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+
+		wp_update_post( array( 'ID' => $reply_id, 'post_password' => '' ) );
+		$this->assertTrue( bbp_is_forum_activity_public( $reply_id ) );
+		$this->assertStringContainsString( 'Protected reply marker', bbp_get_forum_freshness_link( $forum_id ) );
+	}
+
+	/**
+	 * Stale forum IDs must not select a protected title after a public ID passes.
+	 *
+	 * @covers ::bbp_get_forum_freshness_link
+	 */
+	public function test_forum_freshness_checks_the_rendered_activity_id() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$protected_reply_id = $this->factory->reply->create( array(
+			'post_parent'   => $topic_id,
+			'post_password' => 'reply-secret',
+			'post_title'    => 'Protected reply marker',
+			'reply_meta'    => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$protected_topic_id = $this->factory->topic->create( array(
+			'post_parent'   => $forum_id,
+			'post_password' => 'topic-secret',
+			'post_title'    => 'Protected topic marker',
+			'topic_meta'    => array( 'forum_id' => $forum_id ),
+		) );
+
+		wp_set_current_user( 0 );
+		update_post_meta( $forum_id, '_bbp_last_active_id', $reply_id );
+		update_post_meta( $forum_id, '_bbp_last_reply_id', $protected_reply_id );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+
+		update_post_meta( $forum_id, '_bbp_last_active_id', $topic_id );
+		update_post_meta( $forum_id, '_bbp_last_topic_id', $protected_topic_id );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+
+		update_post_meta( $forum_id, '_bbp_last_active_id', $reply_id );
+		delete_post_meta( $forum_id, '_bbp_last_reply_id' );
+		$this->assertSame( '-', bbp_get_forum_freshness_link( $forum_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_get_forum_freshness_link
 	 */
 	public function test_bbp_get_forum_freshness_link_with_unpublished_replies() {
