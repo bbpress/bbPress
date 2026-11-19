@@ -4020,6 +4020,7 @@ function bbp_escape_feed_cdata( $content = '' ) {
  * the stars align and the user has requested a feed of any bbPress type.
  *
  * @since 2.0.0 bbPress (r3171)
+ * @since 2.7.0 bbPress (r8529) Add user profile topics and replies feeds.
  *
  * @param array<string, mixed> $query_vars Query variables for the request.
  * @return array<string, mixed> Query variables for the request.
@@ -4250,9 +4251,75 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 					$query_vars['error'] = 404;
 				}
 			}
-		}
 
-		// @todo User profile feeds
+		// User Topics/Replies Feed
+		} elseif ( isset( $query_vars[ bbp_get_user_rewrite_id() ] ) ) {
+			$user_id    = bbp_get_user_rewrite_id();
+			$topics_id  = bbp_get_user_topics_rewrite_id();
+			$replies_id = bbp_get_user_replies_rewrite_id();
+
+			// Only topics and replies have profile feeds
+			if ( ! empty( $query_vars[ $topics_id ] ) || ! empty( $query_vars[ $replies_id ] ) ) {
+				$bbp_user = $query_vars[ $user_id ];
+				$the_user = false;
+
+				// Look up the user the same way bbp_parse_query() does
+				if ( is_scalar( $bbp_user ) ) {
+					if ( get_option( 'permalink_structure' ) ) {
+						$the_user = get_user_by( 'slug', $bbp_user );
+					} elseif ( is_numeric( $bbp_user ) ) {
+						$the_user = get_user_by( 'id', $bbp_user );
+					}
+				}
+
+				// Return a 404 for users without a profile
+				if ( empty( $the_user->ID ) || ! bbp_user_has_profile( $the_user->ID ) ) {
+					unset( $query_vars[ $user_id ], $query_vars[ $topics_id ], $query_vars[ $replies_id ] );
+					$query_vars['error'] = 404;
+
+				// Topics started
+				} elseif ( ! empty( $query_vars[ $topics_id ] ) ) {
+
+					// The query
+					$the_query = array(
+						// WordPress
+						'author'                         => $the_user->ID,
+						'feed'                           => true,
+						'post_parent'                    => 'any',
+						'post_status'                    => bbp_get_public_topic_statuses(),
+						'posts_per_page'                 => bbp_get_topics_per_rss_page(),
+						'show_stickies'                  => false,
+
+						// bbPress: omit password-protected items from this public listing
+						'_bbp_password_protected_search' => true
+					);
+
+					// Output the feed
+					bbp_display_topics_feed_rss2( $the_query );
+
+				// Replies created
+				} else {
+
+					// The query
+					$the_query = array(
+						// WordPress
+						'author'                         => $the_user->ID,
+						'feed'                           => true,
+						'post_type'                      => bbp_get_reply_post_type(),
+						'post_parent'                    => 'any',
+						'post_status'                    => bbp_get_public_reply_statuses(),
+						'posts_per_page'                 => bbp_get_replies_per_rss_page(),
+						'order'                          => 'DESC',
+
+						// bbPress: omit password-protected items from this public listing
+						'_bbp_password_protected_search' => true
+					);
+
+					// Output the feed
+					bbp_display_replies_feed_rss2( $the_query );
+				}
+			}
+		}
 	}
 
 	// No feed so continue on

@@ -676,6 +676,42 @@ function bbp_delete_rewrite_rules() {
 	delete_option( 'rewrite_rules' );
 }
 
+/**
+ * Refresh stored rewrite rules when required bbPress rules are missing or stale.
+ *
+ * WordPress rebuilds an absent rules option automatically. Check saved rules
+ * only when pretty permalinks are active and rules have already been stored.
+ * Add future rules that need a refresh to the list below.
+ *
+ * @since 2.7.0 bbPress (r8529)
+ *
+ * @return void
+ */
+function bbp_maybe_flush_rewrite_rules() {
+	$rewrite = bbp_rewrite();
+	if ( ! ( $rewrite instanceof WP_Rewrite ) || ! $rewrite->using_permalinks() ) {
+		return;
+	}
+
+	$stored_rules = get_option( 'rewrite_rules' );
+	if ( ! is_array( $stored_rules ) || empty( $stored_rules ) ) {
+		return;
+	}
+
+	$required_rules = array(
+		bbp_get_user_slug() . '/([^/]+)/' . bbp_get_topic_archive_slug() . '/feed/?$',
+		bbp_get_user_slug() . '/([^/]+)/' . bbp_get_reply_archive_slug() . '/feed/?$'
+	);
+
+	foreach ( $required_rules as $regex ) {
+		// Compare with the rule registered on this request, including its target.
+		if ( isset( $rewrite->extra_rules_top[ $regex ] ) && ( ! isset( $stored_rules[ $regex ] ) || $stored_rules[ $regex ] !== $rewrite->extra_rules_top[ $regex ] ) ) {
+			bbp_delete_rewrite_rules();
+			return;
+		}
+	}
+}
+
 /** Requests ******************************************************************/
 
 /**

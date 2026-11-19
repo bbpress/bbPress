@@ -81,6 +81,9 @@ Development for the next bbPress release is in progress. See the active
   Taxonomies can opt into term subscriptions, with topic tags enabled by default.
   Deleting a subscribed term or opted-in custom post removes its subscribers.
 - Added contributor, security, support, governance, and repository guidance.
+- Added RSS feeds for a user's topics started and replies created at their
+  profile's `topics/feed/` and `replies/feed/` URLs, which previously returned
+  an empty comments feed.
 
 ### Changed
 

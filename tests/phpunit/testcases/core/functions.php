@@ -411,6 +411,61 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_maybe_flush_rewrite_rules
+	 */
+	public function test_maybe_flush_rewrite_rules_detects_missing_and_changed_rules() {
+		$rewrite       = bbp_rewrite();
+		$old_rules     = get_option( 'rewrite_rules', null );
+		$old_structure = $rewrite->permalink_structure;
+		$db_version    = get_option( '_bbp_db_version' );
+		$topic_rule    = bbp_get_user_slug() . '/([^/]+)/' . bbp_get_topic_archive_slug() . '/feed/?$';
+		$reply_rule    = bbp_get_user_slug() . '/([^/]+)/' . bbp_get_reply_archive_slug() . '/feed/?$';
+		$sentinel      = array( 'sentinel' => 'saved' );
+
+		try {
+			$rewrite->permalink_structure = '/%postname%/';
+			bbPress::add_rewrite_rules();
+			update_option( 'rewrite_rules', $sentinel );
+			bbp_maybe_flush_rewrite_rules();
+			$this->assertFalse( get_option( 'rewrite_rules' ) );
+
+			$rules = $rewrite->wp_rewrite_rules();
+			$this->assertSame( $rewrite->extra_rules_top[ $topic_rule ], $rules[ $topic_rule ] );
+			$this->assertSame( $rewrite->extra_rules_top[ $reply_rule ], $rules[ $reply_rule ] );
+
+			update_option( 'rewrite_rules', $rules );
+			bbp_maybe_flush_rewrite_rules();
+			$this->assertSame( $rules, get_option( 'rewrite_rules' ) );
+
+			$stale_rules = $rules;
+			unset( $stale_rules[ $reply_rule ] );
+			update_option( 'rewrite_rules', $stale_rules );
+			bbp_maybe_flush_rewrite_rules();
+			$this->assertFalse( get_option( 'rewrite_rules' ) );
+
+			$stale_rules                = $rules;
+			$stale_rules[ $topic_rule ] = 'index.php?stale=1';
+			update_option( 'rewrite_rules', $stale_rules );
+			bbp_maybe_flush_rewrite_rules();
+			$this->assertFalse( get_option( 'rewrite_rules' ) );
+
+			$rewrite->permalink_structure = '';
+			update_option( 'rewrite_rules', $sentinel );
+			bbp_maybe_flush_rewrite_rules();
+			$this->assertSame( $sentinel, get_option( 'rewrite_rules' ) );
+
+			$this->assertSame( $db_version, get_option( '_bbp_db_version' ) );
+		} finally {
+			$rewrite->permalink_structure = $old_structure;
+			if ( null === $old_rules ) {
+				delete_option( 'rewrite_rules' );
+			} else {
+				update_option( 'rewrite_rules', $old_rules );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_post_request
 	 * @covers ::bbp_is_get_request
 	 */

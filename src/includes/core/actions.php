@@ -101,6 +101,11 @@ add_action( 'bbp_init', 'bbp_setup_engagements', 50  );
 add_action( 'bbp_init', 'bbp_ready',             999 );
 
 /**
+ * bbp_init - Refresh stored rewrite rules when required rules change.
+ */
+add_action( 'bbp_init', 'bbp_maybe_flush_rewrite_rules', 45 );
+
+/**
  * bbp_rest_api_init - Attached to 'rest_api_init' above.
  */
 add_action( 'bbp_rest_api_init', 'bbp_register_rest_attachment_controller', 5 );

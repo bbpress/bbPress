@@ -1178,6 +1178,8 @@ final class bbPress {
 		$subs_paged_rule = '/([^/]+)/' . $user_subs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$engs_paged_rule = '/([^/]+)/' . $user_engs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$ment_paged_rule = '/([^/]+)/' . $user_ment_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
+		$tops_feed_rule  = '/([^/]+)/' . $topic_archive_slug . '/' . $feed_slug  . '/?$';
+		$reps_feed_rule  = '/([^/]+)/' . $reply_archive_slug . '/' . $feed_slug  . '/?$';
 
 		// Edit Forum|Topic|Reply|Topic-tag
 		add_rewrite_rule( $forum_slug . $edit_rule, 'index.php?' . bbp_get_forum_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
@@ -1188,7 +1190,9 @@ final class bbPress {
 		// Subscription unsubscribe confirmation
 		add_rewrite_rule( $unsubscribe_slug . '/?$', 'index.php?' . $unsubscribe_id . '=1', $priority );
 
-		// User Pagination|Edit|View
+		// User Pagination|Feed|Edit|View
+		add_rewrite_rule( $user_slug . $tops_feed_rule,  'index.php?' . $user_id  . '=$matches[1]&' . $user_tops_id . '=1&' . $feed_id  . '=' . $feed_slug,  $priority );
+		add_rewrite_rule( $user_slug . $reps_feed_rule,  'index.php?' . $user_id  . '=$matches[1]&' . $user_reps_id . '=1&' . $feed_id  . '=' . $feed_slug,  $priority );
 		add_rewrite_rule( $user_slug . $tops_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_tops_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $reps_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_reps_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $favs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_favs_id . '=1&' . $paged_id . '=$matches[2]', $priority );

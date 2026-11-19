@@ -97,6 +97,7 @@ class BBP_Tests_Core_Actions extends BBP_UnitTestCase {
 			array( 'bbp_init',   'bbp_add_rewrite_tags',          20, 1 ),
 			array( 'bbp_init',   'bbp_add_rewrite_rules',         30, 1 ),
 			array( 'bbp_init',   'bbp_add_permastructs',          40, 1 ),
+			array( 'bbp_init',   'bbp_maybe_flush_rewrite_rules', 45, 1 ),
 			array( 'bbp_init',   'bbp_setup_engagements',         50, 1 ),
 			array( 'bbp_init',   'bbp_ready',                    999, 1 ),
 		) );

@@ -159,6 +159,28 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_parse_query
+	 * @ticket 3796
+	 */
+	public function test_parse_query_preserves_user_and_feed_states_together() {
+		$user_id = $this->factory->user->create();
+
+		foreach ( array( bbp_get_user_topics_rewrite_id() => 'bbp_is_single_user_topics', bbp_get_user_replies_rewrite_id() => 'bbp_is_single_user_replies' ) as $rewrite_id => $property ) {
+			$query = $this->set_main_query();
+			$query->parse_query( array(
+				bbp_get_user_rewrite_id() => $user_id,
+				$rewrite_id                => 1,
+				'feed'                     => 'rss2'
+			) );
+
+			$this->assertTrue( $query->is_feed(), $property );
+			$this->assertTrue( $query->bbp_is_single_user, $property );
+			$this->assertTrue( $query->{$property}, $property );
+			$this->assertFalse( $query->is_singular(), $property );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_parse_query
 	 */
 	public function test_parse_query_sets_user_edit_state() {
 		$user_id = $this->factory->user->create();

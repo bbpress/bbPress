@@ -2653,6 +2653,69 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			array( 'feed' => 'rss2', 'error' => 404 ),
 			bbp_request_feed_trap( array( 'feed' => 'rss2', $view_id => 'missing-view' ) )
 		);
+
+		$this->assertSame(
+			array( 'feed' => 'feed', 'error' => 404 ),
+			bbp_request_feed_trap( array( 'feed' => 'feed', bbp_get_user_rewrite_id() => 'missing-user', bbp_get_user_replies_rewrite_id() => '1' ) )
+		);
+	}
+
+	/**
+	 * @covers bbPress::add_rewrite_rules
+	 */
+	public function test_user_topics_and_replies_feed_rewrite_rules() {
+		bbPress::add_rewrite_tags();
+		bbPress::add_rewrite_rules();
+
+		$rules = bbp_rewrite()->extra_rules_top;
+		$user  = 'index.php?' . bbp_get_user_rewrite_id() . '=$matches[1]&';
+
+		$this->assertSame(
+			$user . bbp_get_user_topics_rewrite_id() . '=1&feed=feed',
+			$rules[ bbp_get_user_slug() . '/([^/]+)/' . bbp_get_topic_archive_slug() . '/feed/?$' ]
+		);
+		$this->assertSame(
+			$user . bbp_get_user_replies_rewrite_id() . '=1&feed=feed',
+			$rules[ bbp_get_user_slug() . '/([^/]+)/' . bbp_get_reply_archive_slug() . '/feed/?$' ]
+		);
+	}
+
+	/**
+	 * @covers ::bbp_request_feed_trap
+	 */
+	public function test_user_feeds_only_include_public_content_by_the_requested_author() {
+		require_once dirname( __DIR__, 2 ) . '/includes/feed-rss2-test.php';
+
+		foreach ( array( 'user-replies' => 'Public User Feed Reply', 'user-topics' => 'Public User Feed Topic' ) as $mode => $title ) {
+			$xml  = bbp_test_run_feed_rss2( $mode );
+			$feed = new DOMDocument();
+			$this->assertTrue( $feed->loadXML( $xml ), $xml );
+
+			$items = $feed->getElementsByTagName( 'item' );
+			$this->assertSame( 1, $items->length, $xml );
+			$this->assertSame( $title, $items->item( 0 )->getElementsByTagName( 'title' )->item( 0 )->textContent );
+			$this->assertStringContainsString( 'Public user ' . ( 'user-topics' === $mode ? 'topic' : 'reply' ) . ' body', $xml );
+
+			foreach ( array( 'Private', 'Hidden', 'Password', 'Protected', 'Protected Reply', 'Missing Forum Meta', 'Pending', 'Other' ) as $excluded ) {
+				$this->assertStringNotContainsString( $excluded . ' User Feed', $xml );
+				$this->assertStringNotContainsString( $excluded . ' user ', $xml );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_request_feed_trap
+	 */
+	public function test_user_feeds_keep_password_protected_items_out_for_privileged_users() {
+		require_once dirname( __DIR__, 2 ) . '/includes/feed-rss2-test.php';
+
+		foreach ( array( 'user-topics-privileged', 'user-replies-privileged' ) as $mode ) {
+			$xml = bbp_test_run_feed_rss2( $mode );
+			$this->assertStringContainsString( 'Public User Feed', $xml );
+			$this->assertStringNotContainsString( 'Password User Feed', $xml );
+			$this->assertStringNotContainsString( 'Protected User Feed', $xml );
+			$this->assertStringNotContainsString( 'Protected Reply User Feed', $xml );
+		}
 	}
 
 	/**
