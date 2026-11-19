@@ -479,7 +479,7 @@ function bbp_admin_repair_tool_batch_message( $details, $complete, $dry_run = fa
  * @param string $statement Translated status statement.
  * @param string $detail    Translated success detail.
  * @param bool   $dry_run   Whether to omit Run progress text.
- * @return array<int|string, mixed> Tool result and completion flag.
+ * @return array{0:int, 1:string, success?:bool, complete?:bool, batches?:int, error?:string} Tool result and completion flag.
  */
 function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $dry_run = false ) {
 	if ( $batch['code'] ) {
@@ -527,7 +527,7 @@ function bbp_admin_repair_tool_batch_result( $batch, $statement, $detail = '', $
  * @param bool   $dry_run        Whether this is a read-only preview.
  * @param bool   $no_changes     Whether the completed operation found no work.
  * @param string $no_change_text Translated completed no-op detail.
- * @return array<int|string, mixed> Tool callback result.
+ * @return array{0:int, 1:string, success?:bool, complete?:bool, batches?:int, error?:string} Tool callback result.
  */
 function bbp_admin_repair_tool_present_batch( $batch, $statement, $detail = '', $dry_run = false, $no_changes = false, $no_change_text = '' ) {
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, ! empty( $batch['restarted'] ), $dry_run );
