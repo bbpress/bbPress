@@ -578,6 +578,11 @@ function bbp_is_forum_activity_public( $post_id = 0 ) {
 		return false;
 	}
 
+	// Hide activity while this post or an ancestor requires a password.
+	if ( bbp_get_password_required_id( $post_id ) ) {
+		return false;
+	}
+
 	if ( bbp_is_topic( $post_id ) ) {
 		return bbp_is_topic_public( $post_id );
 	}
@@ -611,8 +616,19 @@ function bbp_is_forum_activity_public( $post_id = 0 ) {
 			$active_id = bbp_get_forum_last_topic_id( $forum_id );
 		}
 
+		// The rendered link may use a different stale forum ID.
+		$rendered_id = 0;
+		if ( bbp_is_topic( $active_id ) ) {
+			$rendered_id = bbp_get_forum_last_topic_id( $forum_id );
+		} elseif ( bbp_is_reply( $active_id ) ) {
+			$rendered_id = bbp_get_forum_last_reply_id( $forum_id );
+			if ( empty( $rendered_id ) ) {
+				$rendered_id = bbp_get_forum_last_topic_id( $forum_id );
+			}
+		}
+
 		// Existing forum metadata may still point to non-public content
-		if ( ! empty( $active_id ) && ! bbp_is_forum_activity_public( $active_id ) ) {
+		if ( ! empty( $active_id ) && ( ! bbp_is_forum_activity_public( $active_id ) || ( ! empty( $rendered_id ) && ! bbp_is_forum_activity_public( $rendered_id ) ) ) ) {
 			return apply_filters( 'bbp_get_forum_freshness_link', '-', $forum_id, '', '', '', $active_id );
 		}
 
