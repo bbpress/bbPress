@@ -1026,14 +1026,19 @@ function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 	// Get user profile URL
 	$profile_url = bbp_get_user_profile_url( $user_id, $user_nicename );
+	$url         = false;
+
+	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
+		$profile_url = false;
+	}
 
 	// Pretty permalinks
-	if ( bbp_use_pretty_urls() ) {
+	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
 		$url = trailingslashit( $profile_url ) . bbp_get_edit_slug();
 		$url = user_trailingslashit( $url );
 
 	// Unpretty permalinks
-	} else {
+	} elseif ( false !== $profile_url ) {
 		$url = add_query_arg(
 			array(
 				bbp_get_edit_rewrite_id() => '1'
@@ -1404,11 +1409,16 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
 
 	// Get user profile URL & page
 	$profile_url = bbp_get_user_profile_url( $user_id );
+	$url         = false;
 	$page        = (int) bbpress()->topic_query->paged;
 	$paged       = (bool) bbpress()->topic_query->in_the_loop;
 
+	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
+		$profile_url = false;
+	}
+
 	// Pretty permalinks
-	if ( bbp_use_pretty_urls() ) {
+	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
 
 		// Base URL
 		$url = trailingslashit( $profile_url ) . bbp_get_user_favorites_slug();
@@ -1422,7 +1432,7 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
 		$url = user_trailingslashit( $url );
 
 	// Unpretty permalinks
-	} else {
+	} elseif ( false !== $profile_url ) {
 
 		// Base arguments
 		$args = array(
@@ -1596,6 +1606,7 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 
 	// Get user profile URL
 	$profile_url = bbp_get_user_profile_url( $user_id );
+	$url         = false;
 	$page        = 0;
 	$paged       = false;
 
@@ -1609,8 +1620,12 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 		$paged = (bool) bbpress()->forum_query->in_the_loop;
 	}
 
+	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
+		$profile_url = false;
+	}
+
 	// Pretty permalinks
-	if ( bbp_use_pretty_urls() ) {
+	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
 
 		// Base URL
 		$url = trailingslashit( $profile_url ) . bbp_get_user_subscriptions_slug();
@@ -1624,7 +1639,7 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 		$url = user_trailingslashit( $url );
 
 	// Unpretty permalinks
-	} else {
+	} elseif ( false !== $profile_url ) {
 
 		// Base arguments
 		$args = array(
@@ -2561,14 +2576,19 @@ function bbp_get_user_topics_created_url( $user_id = 0 ) {
 
 	// Get user profile URL
 	$profile_url = bbp_get_user_profile_url( $user_id );
+	$url         = false;
+
+	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
+		$profile_url = false;
+	}
 
 	// Pretty permalinks
-	if ( bbp_use_pretty_urls() ) {
+	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
 		$url = trailingslashit( $profile_url ) . bbp_get_topic_archive_slug();
 		$url = user_trailingslashit( $url );
 
 	// Unpretty permalinks
-	} else {
+	} elseif ( false !== $profile_url ) {
 		$url = add_query_arg(
 			array(
 				bbp_get_user_topics_rewrite_id() => '1',
@@ -2619,14 +2639,19 @@ function bbp_get_user_replies_created_url( $user_id = 0 ) {
 
 	// Get user profile URL
 	$profile_url = bbp_get_user_profile_url( $user_id );
+	$url         = false;
+
+	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
+		$profile_url = false;
+	}
 
 	// Pretty permalinks
-	if ( bbp_use_pretty_urls() ) {
+	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
 		$url = trailingslashit( $profile_url ) . bbp_get_reply_archive_slug();
 		$url = user_trailingslashit( $url );
 
 	// Unpretty permalinks
-	} else {
+	} elseif ( false !== $profile_url ) {
 		$url = add_query_arg(
 			array(
 				bbp_get_user_replies_rewrite_id() => '1',
@@ -2677,14 +2702,19 @@ function bbp_get_user_engagements_url( $user_id = 0 ) {
 
 	// Get user profile URL
 	$profile_url = bbp_get_user_profile_url( $user_id );
+	$url         = false;
+
+	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
+		$profile_url = false;
+	}
 
 	// Pretty permalinks
-	if ( bbp_use_pretty_urls() ) {
+	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
 		$url = trailingslashit( $profile_url ) . bbp_get_user_engagements_slug();
 		$url = user_trailingslashit( $url );
 
 	// Unpretty permalinks
-	} else {
+	} elseif ( false !== $profile_url ) {
 		$url = add_query_arg(
 			array(
 				bbp_get_user_engagements_rewrite_id() => '1',
@@ -2719,9 +2749,14 @@ function bbp_get_user_mentions_url( $user_id = 0 ) {
 	}
 
 	$url = bbp_get_user_profile_url( $user_id );
-	$url = bbp_use_pretty_urls()
-		? user_trailingslashit( trailingslashit( $url ) . bbp_get_user_mentions_slug() )
-		: add_query_arg( bbp_get_user_mentions_rewrite_id(), '1', $url );
+	if ( ! is_string( $url ) || '' === $url ) {
+		$url = false;
+	}
+	if ( false !== $url ) {
+		$url = bbp_use_pretty_urls()
+			? user_trailingslashit( trailingslashit( $url ) . bbp_get_user_mentions_slug() )
+			: add_query_arg( bbp_get_user_mentions_rewrite_id(), '1', $url );
+	}
 
 	return apply_filters( 'bbp_get_user_mentions_url', $url, $user_id );
 }
