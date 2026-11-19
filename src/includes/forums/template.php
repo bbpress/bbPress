@@ -291,6 +291,7 @@ function bbp_get_forum_id( $forum_id = 0 ) {
  * @param string     $filter Optional Sanitation filter. See {@link sanitize_post()}.
  *
  * @return WP_Post|array<array-key, mixed>|null Forum in the requested format, or null if unavailable.
+ * @phpstan-return ($output is 'ARRAY_A'|'ARRAY_N' ? array<array-key, mixed>|null : WP_Post|null)
  */
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 

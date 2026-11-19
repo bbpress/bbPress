@@ -32,14 +32,14 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Connection to the WordPress database.
 	 *
-	 * @var object
+	 * @var wpdb
 	 */
 	protected $wpdb;
 
 	/**
 	 * Connection to the source database.
 	 *
-	 * @var object|null
+	 * @var BBP_Converter_DB|null
 	 */
 	protected $opdb;
 

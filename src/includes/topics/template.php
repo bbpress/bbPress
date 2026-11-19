@@ -558,6 +558,7 @@ function bbp_get_topic_id( $topic_id = 0 ) {
  * @param string      $output Output type. Defaults to OBJECT.
  * @param string      $filter Post filter. Defaults to raw.
  * @return WP_Post|array<array-key, mixed>|null Topic in the requested format, or null if unavailable.
+ * @phpstan-return ($output is 'ARRAY_A'|'ARRAY_N' ? array<array-key, mixed>|null : WP_Post|null)
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 
