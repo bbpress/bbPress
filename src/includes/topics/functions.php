@@ -3105,7 +3105,7 @@ function bbp_update_topic_revision_log( $args = array() ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_close_topic( $topic_id = 0 ) {
 	$revisions_removed = false;
@@ -3166,7 +3166,7 @@ function bbp_close_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_open_topic( $topic_id = 0 ) {
 	$revisions_removed = false;
@@ -3227,7 +3227,7 @@ function bbp_open_topic( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id.
- * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_spam_topic( $topic_id = 0 ) {
 
@@ -3373,7 +3373,7 @@ function bbp_spam_topic_tags( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_unspam_topic( $topic_id = 0 ) {
 
@@ -3571,7 +3571,7 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_approve_topic( $topic_id = 0 ) {
 
@@ -3620,7 +3620,7 @@ function bbp_approve_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id.
  *
- * @return int|array<int|string, mixed>|false|null Topic ID on success, 0 on update failure, false if unchanged, or the non-object result from bbp_get_topic().
+ * @return int|false|null Topic ID on success, 0 on update failure, false if unchanged, or null if unavailable.
  */
 function bbp_unapprove_topic( $topic_id = 0 ) {
 
