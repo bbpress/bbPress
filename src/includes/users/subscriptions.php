@@ -181,7 +181,7 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
  * @since 2.7.0 bbPress (r8335)
  *
  * @param int $topic_id Optional. Topic ID.
- * @return list<int> User IDs.
+ * @return array<int, int> User IDs. Keys may have gaps after WordPress removes duplicates.
  */
 function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
 	$user_ids = array_keys( bbp_get_topic_term_subscription_contexts( $topic_id ) );

@@ -108,7 +108,7 @@ function bbp_get_mentioned_user_ids( $content = '' ) {
  * @since 2.7.0 bbPress (r8331)
  *
  * @param int $post_id Topic or reply ID.
- * @return array{post:WP_Post|false, current:list<int>, expected:list<int>, added:list<int>, removed:list<int>} Post, current and expected user IDs, additions, and removals.
+ * @return array{post:WP_Post|false, current:array<array-key, int>, expected:list<int>, added:list<int>, removed:list<int>} Post, current and expected user IDs, additions, and removals.
  */
 function bbp_get_post_mention_changes( $post_id = 0 ) {
 	$post = get_post( $post_id );
@@ -140,7 +140,7 @@ function bbp_get_post_mention_changes( $post_id = 0 ) {
  * @since 2.7.0 bbPress (r8331)
  *
  * @param int   $post_id Topic or reply ID.
- * @param array{post:WP_Post|false, current:list<int>, expected:list<int>, added:list<int>, removed:list<int>} $changes Planned changes from bbp_get_post_mention_changes().
+ * @param array{post:WP_Post|false, current:array<array-key, int>, expected:list<int>, added:list<int>, removed:list<int>} $changes Planned changes from bbp_get_post_mention_changes().
  * @return list<int> Expected mentioned user IDs.
  */
 function bbp_apply_post_mention_changes( $post_id, $changes ) {

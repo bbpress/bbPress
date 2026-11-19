@@ -985,7 +985,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int $id Post ID.
-	 * @return object|null Source row, or null when the post does not exist.
+	 * @return stdClass|null Source row, or null when the post does not exist.
 	 */
 	protected function source_post( $id ) {
 		return $this->db->get_row( $this->db->prepare( "SELECT ID, post_parent, post_status, post_type FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->context['forum'] ) );
@@ -996,7 +996,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param object $post    Source post row.
+	 * @param stdClass $post  Source post row.
 	 * @param bool   $counted Whether the node is being counted or pruned.
 	 * @return string Node phase.
 	 */
@@ -1022,7 +1022,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param array<string, mixed> $node Traversal node.
-	 * @param object $post Source post row.
+	 * @param stdClass $post Source post row.
 	 * @return array<string, mixed> Prepared traversal node.
 	 * @phpstan-impure
 	 */
@@ -1067,7 +1067,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param object $post Source post row.
+	 * @param stdClass $post Source post row.
 	 * @return array{parent:int, status:string, type:string} Normalized source identity.
 	 */
 	protected function source_identity( $post ) {
@@ -1194,7 +1194,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int    $id   Source post ID.
-	 * @param object $post Source post row.
+	 * @param stdClass $post Source post row.
 	 * @return array<string, mixed> Values keyed by metadata name.
 	 * @phpstan-impure
 	 */

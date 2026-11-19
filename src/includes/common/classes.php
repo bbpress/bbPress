@@ -233,7 +233,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 *
 	 * @param string $output Passed by reference. Used to append additional
 	 *                       content.
-	 * @param object $object Post data object.
+	 * @param WP_Post $object Post data object.
 	 * @param int    $depth  Depth of post in reference to parent posts. Used
 	 *                       for padding.
 	 * @param array<string, mixed> $args Uses 'selected' to mark the current option.
@@ -530,7 +530,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	 * @param string $output Passed by reference. Used to append additional
 	 *                       content.
 	 *
-	 * @param object $object Post data object.
+	 * @param WP_Post $object Post data object.
 	 *
 	 * @param int    $depth  Depth of post in reference to parent posts. Used
 	 *                       for padding.

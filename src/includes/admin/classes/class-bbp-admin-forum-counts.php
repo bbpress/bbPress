@@ -118,7 +118,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8284)
 	 *
 	 * @param int         $id   Forum ID.
-	 * @param object|null $post Forum source row. Unused by recounts.
+	 * @param stdClass|null $post Forum source row. Unused by recounts.
 	 * @return array<string, int> Metadata values keyed by metadata name.
 	 */
 	protected function values( $id, $post ) {
@@ -169,7 +169,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8315)
 	 *
 	 * @param array<string, mixed> $node Traversal node.
-	 * @param object $post Forum source row.
+	 * @param stdClass $post Forum source row.
 	 * @return array<string, mixed> Prepared traversal node.
 	 */
 	protected function prepare_node( $node, $post ) {

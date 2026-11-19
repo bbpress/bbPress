@@ -146,7 +146,7 @@ function bbp_admin_upgrade_user_mentions_process( $dry_run = false, $automatic =
  * @since 2.7.0 bbPress (r8331)
  *
  * @param int $post_id Topic or reply ID.
- * @return array{changes:array<string, mixed>, handled:list<int>, baseline:bool}|WP_Error Planned changes, or an invalid notification record.
+ * @return array{changes:array{post:WP_Post|false, current:array<array-key, int>, expected:list<int>, added:list<int>, removed:list<int>}, handled:array<int, int>, baseline:bool}|WP_Error Planned changes, or an invalid notification record.
  */
 function bbp_get_mention_backfill_plan( $post_id = 0 ) {
 	$changes = bbp_get_post_mention_changes( $post_id );

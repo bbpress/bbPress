@@ -1148,7 +1148,7 @@ function bbp_admin_repair_topic_tag_count_dry_run() {
  * @since 2.7.0 bbPress (r8244)
  * @since 2.7.0 bbPress (r8267) Accepts a bounded list of term taxonomy IDs.
  *
- * @param object     $taxonomy          Topic-tag taxonomy object.
+ * @param WP_Taxonomy $taxonomy         Topic-tag taxonomy object.
  * @param list<int>|null $term_taxonomy_ids Optional IDs to inspect, or null for all.
  * @return array{code:int, term_taxonomy_ids?:list<int>, repair_count?:int} Status code, term taxonomy IDs, and number of tags to repair.
  */
@@ -1231,7 +1231,7 @@ function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_
  *
  * @since 2.7.0 bbPress (r8267)
  *
- * @param object   $taxonomy Topic-tag taxonomy object.
+ * @param WP_Taxonomy $taxonomy Topic-tag taxonomy object.
  * @param callable $callback Configured term count callback.
  * @param bool     $dry_run  Whether to preview without writes.
  * @return array<string, mixed> Status code, tag counts, and initial/completion flags.
@@ -3831,7 +3831,7 @@ function bbp_admin_repair_reply_menu_order_dry_run() {
  *
  * @since 2.7.0 bbPress (r8305)
  *
- * @param object     $reply   Current reply row.
+ * @param stdClass $reply Current reply row.
  * @param array<int, array<string, mixed>> $ranks Ranks shared within this batch, keyed by topic ID.
  * @param array<string, mixed>|null $preview Read-only window context, or null for Run.
  * @param string     $error   Optional semantic failure reason, passed by reference.

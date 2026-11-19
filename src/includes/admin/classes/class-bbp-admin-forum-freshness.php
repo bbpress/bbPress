@@ -284,7 +284,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int $id Source post ID.
-	 * @return object|null Source row, or null when the post does not exist.
+	 * @return stdClass|null Source row, or null when the post does not exist.
 	 */
 	protected function source_post( $id ) {
 		$type = 'topics' === $this->state['phase'] ? $this->context['topic'] : $this->context['forum'];
@@ -296,7 +296,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8299)
 	 *
-	 * @param object $post    Source post row.
+	 * @param stdClass $post  Source post row.
 	 * @param bool   $counted Whether the node is being counted or pruned.
 	 * @return string Node phase.
 	 */
@@ -338,7 +338,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param array<string, mixed> $node Traversal node.
-	 * @param object $post Source post row.
+	 * @param stdClass $post Source post row.
 	 * @return array<string, mixed> Prepared traversal node.
 	 */
 	protected function prepare_node( $node, $post ) {
@@ -421,7 +421,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int    $id   Source post ID.
-	 * @param object $post Source post row.
+	 * @param stdClass $post Source post row.
 	 * @return array<string, int|string|null> Activity values keyed by metadata name.
 	 */
 	protected function values( $id, $post ) {
@@ -1041,7 +1041,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 *
 	 * @since 2.7.0 bbPress (r8315)
 	 *
-	 * @param object $post Source post row.
+	 * @param stdClass $post Source post row.
 	 * @return array{parent:int, status:string, type:string, date:string} Normalized source identity.
 	 */
 	protected function source_identity( $post ) {
