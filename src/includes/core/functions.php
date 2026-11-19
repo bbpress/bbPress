@@ -425,7 +425,10 @@ function bbp_mention_filter( $content = '' ) {
 		}
 
 		// Link
-		$profile_url  = bbp_get_user_profile_url( $user->ID );
+		$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user->ID ) );
+		if ( false === $profile_url ) {
+			continue;
+		}
 		$profile_link = sprintf( '<a href="%1$s">@%2$s</a>', esc_url( $profile_url ), esc_html( $username ) );
 		$no_followed  = bbp_rel_nofollow( $profile_link );
 		$pattern      = "/(@{$username}\b)/";

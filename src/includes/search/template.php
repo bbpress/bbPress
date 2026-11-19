@@ -363,7 +363,7 @@ function bbp_get_search_terms( $passed_terms = '' ) {
  *
  * @since 2.6.0 bbPress (r6680)
  *
- * @return string
+ * @return string|false Pagination base, or false when its URL is invalid.
  */
 function bbp_get_search_pagination_base() {
 
@@ -384,7 +384,10 @@ function bbp_get_search_pagination_base() {
 		}
 
 		// Add pagination base
-		$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		$base = bbp_validate_url( $base );
+		if ( false !== $base ) {
+			$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		}
 
 	// Unpretty permalinks
 	} else {

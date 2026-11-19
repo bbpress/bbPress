@@ -403,6 +403,23 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Users_Admin::user_row_actions
+	 */
+	public function test_user_row_actions_skips_invalid_profile_url() {
+		$user_id = $this->factory->user->create();
+		$actions = array( 'edit' => 'Edit' );
+		$filter = static function() {
+			return false;
+		};
+		add_filter( 'bbp_get_user_profile_url', $filter );
+		try {
+			$this->assertSame( $actions, $this->get_admin_without_hooks()->user_row_actions( $actions, get_userdata( $user_id ) ) );
+		} finally {
+			remove_filter( 'bbp_get_user_profile_url', $filter );
+		}
+	}
+
+	/**
 	 * @covers BBP_Users_Admin::user_role_column
 	 * @covers BBP_Users_Admin::user_role_row
 	 * @ticket 3706

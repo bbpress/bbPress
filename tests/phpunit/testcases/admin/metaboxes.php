@@ -535,6 +535,18 @@ class BBP_Tests_Admin_Metaboxes extends BBP_UnitTestCase {
 				$this->assertStringContainsString( esc_url( bbp_get_user_profile_url( $user_id ) ), $output );
 			}
 
+			$invalid_profile = static function() {
+				return false;
+			};
+			add_filter( 'bbp_get_user_profile_url', $invalid_profile );
+			try {
+				$output = $this->capture_callback( 'bbp_topic_engagements_metabox', get_post( $topic_id ) );
+				$this->assertStringContainsString( 'avatar', $output );
+				$this->assertStringNotContainsString( '<a href=', $output );
+			} finally {
+				remove_filter( 'bbp_get_user_profile_url', $invalid_profile );
+			}
+
 			$this->set_current_user( 0 );
 			$empty_topic = get_post( $this->factory->topic->create( array( 'post_author' => 0 ) ) );
 			$empty_forum = get_post( $this->factory->forum->create( array( 'post_author' => 0 ) ) );

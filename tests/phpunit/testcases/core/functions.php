@@ -352,6 +352,22 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_mention_filter
+	 */
+	public function test_mention_filter_preserves_text_when_profile_url_is_invalid() {
+		self::factory()->user->create( array( 'user_login' => 'mention-user' ) );
+		$filter = static function() {
+			return false;
+		};
+		add_filter( 'bbp_get_user_profile_url', $filter );
+		try {
+			$this->assertSame( 'Hello @mention-user.', bbp_mention_filter( 'Hello @mention-user.' ) );
+		} finally {
+			remove_filter( 'bbp_get_user_profile_url', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_public_status_id
 	 * @covers ::bbp_get_pending_status_id
 	 * @covers ::bbp_get_private_status_id

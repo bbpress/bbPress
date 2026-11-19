@@ -797,10 +797,10 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
 		: bbp_get_fallback_display_name();
 
 	// URL
-	$url = bbp_get_user_profile_url( $user_id );
+	$url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 
 	// Link
-	$link = ! empty( $url )
+	$link = ( false !== $url )
 		? '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>'
 		: esc_html( $name );
 
@@ -3119,7 +3119,7 @@ function bbp_get_author_link( $args = array() ) {
 		$user_id    = ! empty( $r['user_id'] )
 			? (int) $r['user_id']
 			: get_post_field( 'post_author', $r['post_id'] );
-		$author_url = bbp_get_user_profile_url( $user_id );
+		$author_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 		$anonymous  = empty( $r['user_id'] ) && ! empty( $r['post_id'] ) && bbp_is_reply_anonymous( $r['post_id'] );
 
 		// Generate title with the display name of the author
@@ -3171,7 +3171,7 @@ function bbp_get_author_link( $args = array() ) {
 		$author_link = implode( $r['sep'], $sections );
 
 		// Only wrap in link if profile exists
-		if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
+		if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) && ( false !== $author_url ) ) {
 			$author_link = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, ' class="bbp-author-link"', $author_link );
 		}
 	}

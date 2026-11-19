@@ -920,7 +920,7 @@ function bbp_metabox_user_links() {
 
 		// Get the user ID, URL, and Avatar
 		$user_id     = bbp_get_user_id();
-		$user_url    = bbp_get_user_profile_url( $user_id );
+		$user_url    = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 		$user_avatar = get_avatar(
 			$user_id,
 			32,
@@ -931,7 +931,9 @@ function bbp_metabox_user_links() {
 			)
 		);
 
-		// Output a link to the user avatar
-		echo '<a href="' . esc_url( $user_url ) . '">' . $user_avatar . '</a>';
+		// Output a link to the user avatar when the profile URL is valid
+		echo ( false !== $user_url )
+			? '<a href="' . esc_url( $user_url ) . '">' . $user_avatar . '</a>'
+			: $user_avatar;
 	}
 }

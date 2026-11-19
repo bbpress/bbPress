@@ -737,7 +737,10 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 
 	// Create the link to the user's profile
 	$html    = '<a href="%1$s"%2$s>%3$s</a>';
-	$url     = bbp_get_user_profile_url( $user->ID );
+	$url     = bbp_validate_url( bbp_get_user_profile_url( $user->ID ) );
+	if ( false === $url ) {
+		return $matches[0];
+	}
 	$mention = '@' . $matches[2];
 	$anchor  = sprintf( $html, esc_url( $url ), $class, esc_html( $mention ) );
 

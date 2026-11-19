@@ -559,6 +559,23 @@ class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_make_mentions_clickable
+	 * @covers ::bbp_make_mentions_clickable_callback
+	 */
+	public function test_mentions_remain_plain_when_profile_url_is_invalid() {
+		$this->factory->user->create( array( 'user_login' => 'mention-user', 'user_nicename' => 'mention-user' ) );
+		$filter = static function() {
+			return 'javascript:alert(1)';
+		};
+		add_filter( 'bbp_get_user_profile_url', $filter );
+		try {
+			$this->assertSame( 'Hello @mention-user!', bbp_make_mentions_clickable( 'Hello @mention-user!' ) );
+		} finally {
+			remove_filter( 'bbp_get_user_profile_url', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_number_not_negative
 	 */
 	public function test_number_not_negative_normalizes_inputs_and_filters_context() {

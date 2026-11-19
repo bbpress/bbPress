@@ -192,6 +192,34 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_user_profile_link
+	 */
+	public function test_bbp_get_user_profile_link_skips_invalid_urls() {
+		$name = esc_html( $this->keymaster_userdata->display_name );
+		foreach ( array( false, null, '', '/relative-profile/', 'javascript:alert(1)' ) as $invalid ) {
+			$filter = static function() use ( $invalid ) {
+				return $invalid;
+			};
+			add_filter( 'bbp_get_user_profile_url', $filter );
+			try {
+				$this->assertSame( $name, bbp_get_user_profile_link( $this->keymaster_id ) );
+			} finally {
+				remove_filter( 'bbp_get_user_profile_url', $filter );
+			}
+		}
+
+		$filter = static function() {
+			return 'https://mapped.example.net/profile/';
+		};
+		add_filter( 'bbp_get_user_profile_url', $filter );
+		try {
+			$this->assertStringContainsString( '<a href="https://mapped.example.net/profile/"', bbp_get_user_profile_link( $this->keymaster_id ) );
+		} finally {
+			remove_filter( 'bbp_get_user_profile_url', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_user_nicename
 	 * @covers ::bbp_get_user_nicename
 	 */
@@ -980,6 +1008,23 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		// Output.
 		$this->expectOutputString( $author_link );
 		bbp_author_link( $t );
+	}
+
+	/**
+	 * @covers ::bbp_get_author_link
+	 */
+	public function test_bbp_get_author_link_skips_invalid_profile_urls() {
+		$filter = static function() {
+			return '/relative-profile/';
+		};
+		add_filter( 'bbp_get_user_profile_url', $filter );
+		try {
+			$link = bbp_get_author_link( array( 'user_id' => $this->keymaster_id, 'type' => 'name' ) );
+			$this->assertStringNotContainsString( '<a ', $link );
+			$this->assertStringContainsString( esc_html( $this->keymaster_userdata->display_name ), $link );
+		} finally {
+			remove_filter( 'bbp_get_user_profile_url', $filter );
+		}
 	}
 
 	/**

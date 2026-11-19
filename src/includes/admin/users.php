@@ -315,8 +315,11 @@ class BBP_Users_Admin {
 		// Reverse
 		$actions = array_reverse( $actions );
 
-		// Add the view action link
-		$actions['view'] = '<a href="' . esc_url( bbp_get_user_profile_url( $user->ID ) ) . '" class="bbp-user-profile-link">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+		// Add the view action link when the profile URL is valid
+		$url = bbp_validate_url( bbp_get_user_profile_url( $user->ID ) );
+		if ( false !== $url ) {
+			$actions['view'] = '<a href="' . esc_url( $url ) . '" class="bbp-user-profile-link">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+		}
 
 		// Re-reverse
 		return array_reverse( $actions );

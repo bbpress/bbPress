@@ -3213,7 +3213,7 @@ function bbp_get_topic_reply_link( $args = array() ) {
  * @since 2.6.0 bbPress (r6402)
  *
  * @param int $forum_id Forum id.
- * @return string
+ * @return string|false Pagination base, or false when its URL is invalid.
  */
 function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 
@@ -3266,7 +3266,10 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 		}
 
 		// Use pagination base
-		$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		$base = bbp_validate_url( $base );
+		if ( false !== $base ) {
+			$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		}
 
 	// Unpretty pagination
 	} else {

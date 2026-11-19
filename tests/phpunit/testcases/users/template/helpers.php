@@ -318,6 +318,47 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_topics_pagination_base
+	 * @covers ::bbp_get_replies_pagination_base
+	 * @covers ::bbp_get_search_pagination_base
+	 */
+	public function test_profile_pagination_skips_invalid_url_bases() {
+		$user_id = $this->factory->user->create();
+		$displayed = static function() use ( $user_id ) {
+			return $user_id;
+		};
+		$getters = array(
+			'bbp_is_single_user_topics'   => 'bbp_get_topics_pagination_base',
+			'bbp_is_single_user_replies'  => 'bbp_get_replies_pagination_base',
+			'bbp_is_single_user_mentions' => 'bbp_get_search_pagination_base',
+		);
+		add_filter( 'bbp_get_displayed_user_id', $displayed );
+		try {
+			$this->set_permalink_structure( '/%postname%/' );
+			foreach ( array( false, '/relative-profile/' ) as $invalid ) {
+				$profile = static function() use ( $invalid ) {
+					return $invalid;
+				};
+				add_filter( 'bbp_get_user_profile_url', $profile );
+				try {
+					foreach ( $getters as $flag => $getter ) {
+						add_filter( $flag, '__return_true' );
+						try {
+							$this->assertFalse( $getter(), $getter );
+						} finally {
+							remove_filter( $flag, '__return_true' );
+						}
+					}
+				} finally {
+					remove_filter( 'bbp_get_user_profile_url', $profile );
+				}
+			}
+		} finally {
+			remove_filter( 'bbp_get_displayed_user_id', $displayed );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_moderator_list
 	 * @covers ::bbp_get_moderator_list
 	 */

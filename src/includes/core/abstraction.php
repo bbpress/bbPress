@@ -564,6 +564,11 @@ function bbp_paginate_links( $args = array() ) {
 		'paginate_links'
 	);
 
+	// Do not build pagination links without a valid base URL
+	if ( ! is_string( $r['base'] ) || '' === $r['base'] ) {
+		return null;
+	}
+
 	// Return paginated links
 	return bbp_make_first_page_canonical( paginate_links( $r ) );
 }

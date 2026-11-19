@@ -2540,7 +2540,7 @@ function bbp_get_reply_class( $reply_id = 0, $classes = array() ) {
  * @since 2.6.0 bbPress (r6680)
  *
  * @param int $topic_id Topic id.
- * @return string
+ * @return string|false Pagination base, or false when its URL is invalid.
  */
 function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 
@@ -2564,7 +2564,10 @@ function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 			$base = get_permalink( $topic_id );
 		}
 
-		$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		$base = bbp_validate_url( $base );
+		if ( false !== $base ) {
+			$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		}
 
 	// Unpretty permalinks
 	} else {

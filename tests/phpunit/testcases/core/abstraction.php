@@ -666,6 +666,14 @@ class BBP_Tests_Core_Abstraction extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_paginate_links
+	 */
+	public function test_bbp_paginate_links_skips_invalid_base() {
+		$this->assertNull( bbp_paginate_links( array( 'base' => false, 'total' => 3, 'current' => 1 ) ) );
+		$this->assertNull( bbp_paginate_links( array( 'base' => '', 'total' => 3, 'current' => 1 ) ) );
+	}
+
+	/**
 	 * @covers ::bbp_get_major_wp_version
 	 */
 	public function test_bbp_get_major_wp_version() {
