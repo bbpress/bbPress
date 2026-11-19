@@ -255,7 +255,7 @@ function bbp_remove_all_users_from_all_objects( $rel_key = '', $rel_type = 'post
  * @param string $rel_key   The key used to index this relationship.
  * @param string $rel_type  The type of meta to look in.
  *
- * @return list<int> Returns ids of users
+ * @return array<array-key, int> Returns ids of users
  */
 function bbp_get_users_for_object( $object_id = 0, $rel_key = '', $rel_type = 'post' ) {
 	$object_id = absint( $object_id );
@@ -332,7 +332,7 @@ function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return list<int> Users engaged in the topic, or an empty array.
+ * @return array<array-key, int> Users engaged in the topic, or an empty array.
  */
 function bbp_get_topic_engagements( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -352,7 +352,7 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return list<int>
+ * @return array<array-key, int>
  */
 function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 

@@ -65,7 +65,7 @@ function bbp_get_topic_tag_caps() {
  * @param int    $user_id User id.
  * @param list<mixed> $args    Arguments.
  *
- * @return list<string> Actual capabilities for meta capability.
+ * @return array<array-key, string> Actual capabilities for meta capability.
  */
 function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -312,7 +312,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  * @param int    $user_id User id.
  * @param list<mixed> $args Arguments.
  *
- * @return list<string> Actual capabilities for meta capability.
+ * @return array<array-key, string> Actual capabilities for meta capability.
  */
 function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 

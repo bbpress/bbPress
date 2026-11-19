@@ -1883,7 +1883,7 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
  *
  * @param int $reply_id Optional. Reply id.
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_reply_toggles( $reply_id = 0 ) {
 
@@ -1904,7 +1904,7 @@ function bbp_get_reply_toggles( $reply_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6706)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_public_reply_statuses() {
 	$statuses = array(
@@ -1920,7 +1920,7 @@ function bbp_get_public_reply_statuses() {
  *
  * @since 2.6.0 bbPress (r6791)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_non_public_reply_statuses() {
 	$statuses = array(

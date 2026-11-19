@@ -49,7 +49,7 @@ function bbp_get_reply_caps() {
  * @param int    $user_id User id.
  * @param list<mixed> $args    Arguments.
  *
- * @return list<string> Actual capabilities for meta capability.
+ * @return array<array-key, string> Actual capabilities for meta capability.
  */
 function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 

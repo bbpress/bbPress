@@ -2672,7 +2672,7 @@ function bbp_get_forum_visibility_ids( $forum_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6922)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_public_forum_statuses() {
 	$statuses = array(
@@ -2688,7 +2688,7 @@ function bbp_get_public_forum_statuses() {
  *
  * @since 2.6.0 bbPress (r6922)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_non_public_forum_statuses() {
 	$statuses = array(
@@ -2705,7 +2705,7 @@ function bbp_get_non_public_forum_statuses() {
  *
  * @since 2.6.17 bbPress (r7453)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_countable_forum_statuses() {
 	$statuses = array_values( array_unique( array_merge( bbp_get_public_forum_statuses(), bbp_get_non_public_forum_statuses() ) ) );
@@ -2849,7 +2849,7 @@ function bbp_get_unclassified_forum_ids() {
  * @since 2.6.0 bbPress (r6426)
  * @since 2.6.22 bbPress (r8269) Treat unclassified forum statuses like hidden forums.
  *
- * @return list<int> Forum IDs to exclude, or an empty array.
+ * @return array<array-key, int> Forum IDs to exclude, or an empty array.
  */
 function bbp_get_excluded_forum_ids() {
 

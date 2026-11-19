@@ -1510,7 +1510,7 @@ function bbp_admin_repair_forum_hidden_reply_count_process( $dry_run = false ) {
  *
  * @param string $tool_id   Repair tool ID.
  * @param string $post_type Post type to count.
- * @param list<string> $statuses  Public post statuses.
+ * @param array<array-key, string> $statuses Public post statuses.
  * @param string $key       Site-specific user-meta key.
  * @param bool   $dry_run   Whether to preview without writes.
  * @return array<string, mixed> Status code, repaired user count, and completion flag.

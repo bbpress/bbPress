@@ -21,7 +21,7 @@
  * @param int    $user_id User id.
  * @param list<mixed>  $args Arguments.
  *
- * @return list<string> Actual capabilities for meta capability.
+ * @return array<array-key, string> Actual capabilities for meta capability.
  */
 function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -1526,7 +1526,7 @@ function bbp_remove_all_moderators( $object_id = 0, $object_type = 'post' ) {
  * @param int    $object_id   Traditionally a post ID.
  * @param string $object_type Type of meta (post,term,user,comment).
  *
- * @return list<int>
+ * @return array<array-key, int>
  */
 function bbp_get_moderator_ids( $object_id = 0, $object_type = 'post' ) {
 	return bbp_get_users_for_object( $object_id, '_bbp_moderator_id', $object_type );
@@ -1541,7 +1541,7 @@ function bbp_get_moderator_ids( $object_id = 0, $object_type = 'post' ) {
  * @param int    $object_id   Traditionally a post ID.
  * @param string $object_type Type of meta (post,term,user,comment).
  *
- * @return list<WP_User>
+ * @return array<array-key, WP_User>
  */
 function bbp_get_moderators( $object_id = 0, $object_type = 'post' ) {
 

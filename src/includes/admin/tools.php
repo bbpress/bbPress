@@ -811,7 +811,7 @@ function bbp_get_tools_admin_tabs( $active_tab = '' ) {
  *
  * @since 2.6.0 bbPress (r6274)
  *
- * @return list<array<string, mixed>>
+ * @return array<array-key, array<string, mixed>>
  */
 function bbp_get_tools_admin_pages() {
 

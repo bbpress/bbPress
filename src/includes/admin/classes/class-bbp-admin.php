@@ -853,7 +853,7 @@ class BBP_Admin {
 	 * @param int    $user_id User id.
 	 * @param array<int, mixed>  $args Arguments.
 	 *
-	 * @return list<string> Actual capabilities for meta capability.
+	 * @return array<array-key, string> Actual capabilities for meta capability.
 	 */
 	public static function map_settings_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 

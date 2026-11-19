@@ -2167,7 +2167,7 @@ function bbp_get_topic_types( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id.
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_topic_toggles( $topic_id = 0 ) {
 
@@ -2190,7 +2190,7 @@ function bbp_get_topic_toggles( $topic_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6384)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_public_topic_statuses() {
 	$statuses = array(
@@ -2207,7 +2207,7 @@ function bbp_get_public_topic_statuses() {
  *
  * @since 2.6.0 bbPress (r6644)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_non_public_topic_statuses() {
 	$statuses = array(

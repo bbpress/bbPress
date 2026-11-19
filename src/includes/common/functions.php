@@ -3579,7 +3579,7 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  * @param int          $parent_id   Parent ID.
  * @param string       $post_type   Post type.
  * @param string|array<array-key, string> $post_status Post status or statuses.
- * @return list<int> Child post IDs.
+ * @return array<int, int> Child post IDs.
  */
 function bbp_get_child_ids_by_status( $parent_id = 0, $post_type = 'post', $post_status = array() ) {
 	$parent_id   = absint( $parent_id );

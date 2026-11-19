@@ -2272,7 +2272,7 @@ function bbp_get_admin_repair_tools( $type = '' ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_admin_repair_tool_registered_components() {
 
@@ -2366,7 +2366,7 @@ function bbp_admin_repair_list_components_filter() {
  *
  * @since 2.6.0 bbPress (r6894)
  *
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_admin_repair_tool_registered_versions() {
 
@@ -2690,7 +2690,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
  * @since 2.6.0 bbPress (r5885)
  *
  * @param array<string, mixed> $item Repair tool entry containing components.
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_admin_repair_tool_components( $item = array() ) {
 
@@ -2727,7 +2727,7 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
  * @since 2.6.0 bbPress (r6894)
  *
  * @param array<string, mixed> $item Repair tool entry containing versions.
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_admin_repair_tool_version( $item = array() ) {
 
@@ -2764,7 +2764,7 @@ function bbp_get_admin_repair_tool_version( $item = array() ) {
  * @since 2.6.0 bbPress (r6176)
  *
  * @param array<string, mixed> $item Repair tool entry containing overhead values.
- * @return list<string>
+ * @return array<array-key, string>
  */
 function bbp_get_admin_repair_tool_overhead( $item = array() ) {
 

@@ -186,7 +186,7 @@ function bbp_db() {
  * @param int    $object_id  ID of the object metadata is for.
  * @param string $meta_key   Metadata key.
  * @param int    $difference Amount to add to the stored value.
- * @param int    $default    Existing value to use when metadata is missing.
+ * @param int|string $default Existing value to use when metadata is missing.
  * @return bool True on success, false on failure or no change.
  */
 function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $difference = 1, $default = 0 ) {
