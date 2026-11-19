@@ -1025,12 +1025,8 @@ function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	}
 
 	// Get user profile URL
-	$profile_url = bbp_get_user_profile_url( $user_id, $user_nicename );
+	$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user_id, $user_nicename ) );
 	$url         = false;
-
-	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
-		$profile_url = false;
-	}
 
 	// Pretty permalinks
 	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
@@ -1408,14 +1404,10 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
 	}
 
 	// Get user profile URL & page
-	$profile_url = bbp_get_user_profile_url( $user_id );
+	$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 	$url         = false;
 	$page        = (int) bbpress()->topic_query->paged;
 	$paged       = (bool) bbpress()->topic_query->in_the_loop;
-
-	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
-		$profile_url = false;
-	}
 
 	// Pretty permalinks
 	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
@@ -1605,7 +1597,7 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 	}
 
 	// Get user profile URL
-	$profile_url = bbp_get_user_profile_url( $user_id );
+	$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 	$url         = false;
 	$page        = 0;
 	$paged       = false;
@@ -1618,10 +1610,6 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 	} elseif ( bbpress()->forum_query->in_the_loop ) {
 		$page  = (int) bbpress()->forum_query->paged;
 		$paged = (bool) bbpress()->forum_query->in_the_loop;
-	}
-
-	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
-		$profile_url = false;
 	}
 
 	// Pretty permalinks
@@ -2575,12 +2563,8 @@ function bbp_get_user_topics_created_url( $user_id = 0 ) {
 	}
 
 	// Get user profile URL
-	$profile_url = bbp_get_user_profile_url( $user_id );
+	$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 	$url         = false;
-
-	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
-		$profile_url = false;
-	}
 
 	// Pretty permalinks
 	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
@@ -2638,12 +2622,8 @@ function bbp_get_user_replies_created_url( $user_id = 0 ) {
 	}
 
 	// Get user profile URL
-	$profile_url = bbp_get_user_profile_url( $user_id );
+	$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 	$url         = false;
-
-	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
-		$profile_url = false;
-	}
 
 	// Pretty permalinks
 	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
@@ -2701,12 +2681,8 @@ function bbp_get_user_engagements_url( $user_id = 0 ) {
 	}
 
 	// Get user profile URL
-	$profile_url = bbp_get_user_profile_url( $user_id );
+	$profile_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 	$url         = false;
-
-	if ( ! is_string( $profile_url ) || '' === $profile_url ) {
-		$profile_url = false;
-	}
 
 	// Pretty permalinks
 	if ( false !== $profile_url && bbp_use_pretty_urls() ) {
@@ -2748,10 +2724,7 @@ function bbp_get_user_mentions_url( $user_id = 0 ) {
 		return $intercept;
 	}
 
-	$url = bbp_get_user_profile_url( $user_id );
-	if ( ! is_string( $url ) || '' === $url ) {
-		$url = false;
-	}
+	$url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 	if ( false !== $url ) {
 		$url = bbp_use_pretty_urls()
 			? user_trailingslashit( trailingslashit( $url ) . bbp_get_user_mentions_slug() )

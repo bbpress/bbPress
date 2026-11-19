@@ -278,6 +278,19 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_validate_url
+	 */
+	public function test_bbp_validate_url() {
+		foreach ( array( 'https://mapped.example.net/forums/users/name/', 'http://localhost:8986/forums/users/name/', 'https://mapped.example.net/forums/users/name/?page=2&view=all', 'https://münchen.example/forums/users/name/', 'https://example.org/a%20b/' ) as $url ) {
+			$this->assertSame( $url, bbp_validate_url( $url ), $url );
+		}
+
+		foreach ( array( false, null, '', 0, '0', '/forums/users/name/', '//mapped.example.net/forums/users/name/', 'https://', 'https://exa mple.net/', 'https://exa<mple.net/', 'https://example.org/a%zz/', 'javascript:alert(1)', 'ftp://example.org/' ) as $url ) {
+			$this->assertFalse( bbp_validate_url( $url ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_number_format
 	 */
 	public function test_bbp_number_format() {

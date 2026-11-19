@@ -427,6 +427,36 @@ function bbp_get_string_array_values( $arr = array() ) {
 }
 
 /**
+ * Validate an absolute HTTP or HTTPS URL.
+ *
+ * The host may differ from the current site, as with Multisite or domain mapping.
+ *
+ * @since 2.7.0 bbPress (r8532)
+ *
+ * @param mixed $url Value to check.
+ * @return string|false The unchanged URL if valid, or false if invalid.
+ */
+function bbp_validate_url( $url = '' ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return false;
+	}
+
+	// Reject unescaped whitespace, unsafe delimiters, and broken percent escapes.
+	if ( preg_match( '/[\x00-\x20\x7F<>"\x5C]/', $url ) || preg_match( '/%(?![a-f0-9]{2})/i', $url ) ) {
+		return false;
+	}
+
+	$parts = wp_parse_url( $url );
+
+	$valid = is_array( $parts )
+		&& ! empty( $parts['host'] )
+		&& isset( $parts['scheme'] )
+		&& in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true );
+
+	return $valid ? $url : false;
+}
+
+/**
  * Remove unsafe markup from forum, topic, and reply titles before storage.
  *
  * This protects importers and other integrations that write directly through

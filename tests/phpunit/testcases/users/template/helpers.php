@@ -254,7 +254,7 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 			'bbp_get_user_mentions_url'        => 'bbp_get_user_mentions_url',
 		);
 
-		foreach ( array( false, null, '' ) as $unavailable ) {
+		foreach ( array( false, null, '', '/forums/users/name/', 'javascript:alert(1)' ) as $unavailable ) {
 			$filter = static function() use ( $unavailable ) {
 				return $unavailable;
 			};
@@ -276,6 +276,44 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 			} finally {
 				remove_filter( 'bbp_get_user_profile_url', $filter );
 			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_user_profile_url
+	 * @covers ::bbp_get_user_profile_edit_url
+	 * @covers ::bbp_get_favorites_permalink
+	 * @covers ::bbp_get_subscriptions_permalink
+	 * @covers ::bbp_get_user_topics_created_url
+	 * @covers ::bbp_get_user_replies_created_url
+	 * @covers ::bbp_get_user_engagements_url
+	 * @covers ::bbp_get_user_mentions_url
+	 */
+	public function test_user_urls_accept_profile_url_on_another_host() {
+		$user_id = $this->factory->user->create();
+		$filter  = static function() {
+			return 'https://mapped.example.net/forums/users/name/';
+		};
+		$getters = array(
+			'bbp_get_user_profile_edit_url',
+			'bbp_get_favorites_permalink',
+			'bbp_get_subscriptions_permalink',
+			'bbp_get_user_topics_created_url',
+			'bbp_get_user_replies_created_url',
+			'bbp_get_user_engagements_url',
+			'bbp_get_user_mentions_url',
+		);
+
+		add_filter( 'bbp_get_user_profile_url', $filter );
+		try {
+			foreach ( array( '/%postname%/', '' ) as $permalink_structure ) {
+				$this->set_permalink_structure( $permalink_structure );
+				foreach ( $getters as $getter ) {
+					$this->assertSame( 'mapped.example.net', wp_parse_url( $getter( $user_id ), PHP_URL_HOST ), $getter );
+				}
+			}
+		} finally {
+			remove_filter( 'bbp_get_user_profile_url', $filter );
 		}
 	}
 
