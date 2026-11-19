@@ -670,7 +670,7 @@ class XenForo extends BBP_Converter_Base {
 	 *
 	 * @param string $field Serialized authentication data.
 	 * @param array<string, mixed>  $row   Source database row.
-	 * @return array<string, mixed>|bool Authentication metadata, or false if invalid.
+	 * @return array<array-key, mixed>|false Authentication metadata, or false if invalid.
 	 */
 	public function callback_savepass( $field, $row ) {
 		$pass_array = $this->unserialize_pass( $field );

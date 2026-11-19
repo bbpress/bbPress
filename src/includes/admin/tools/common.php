@@ -2015,7 +2015,7 @@ function bbp_admin_repair_user_meta_upper_id( $key, &$batch ) {
  * @param int    $cursor   Inclusive metadata ID cursor.
  * @param int    $upper_id Inclusive fixed upper metadata ID.
  * @param array<string, mixed> $batch Current worker result.
- * @return object|null|false Source row, no row, or a read failure.
+ * @return stdClass|null|false Source row, no row, or a read failure.
  */
 function bbp_admin_repair_user_meta_row( $key, $cursor, $upper_id, &$batch ) {
 	$db  = bbp_db();

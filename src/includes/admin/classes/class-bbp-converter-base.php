@@ -1269,7 +1269,7 @@ abstract class BBP_Converter_Base {
 	 * Update the last query option and return results.
 	 *
 	 * @param string $query SQL query to run.
-	 * @return object|null Matching row, if found.
+	 * @return stdClass|null Matching row, if found.
 	 */
 	private function get_row( $query = '' ) {
 		$this->update_query( $query );
@@ -1281,7 +1281,7 @@ abstract class BBP_Converter_Base {
 	 * Update the last query option and return results.
 	 *
 	 * @param string $query SQL query to run.
-	 * @param string $output Result format. Defaults to OBJECT.
+	 * @param 'OBJECT'|'ARRAY_A' $output Result format. Defaults to OBJECT.
 	 * @return array<int|string, object|array<string, mixed>> Query rows.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
@@ -1338,7 +1338,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $query       The literal MySQL results query.
 	 * @param string $count_query The literal MySQL count query.
 	 * @param int    $start       Current conversion offset.
-	 * @return array<int, object> Rows returned for this conversion batch.
+	 * @return list<stdClass> Rows returned for this conversion batch.
 	 */
 	private function count_rows_by_results( $query = '', $count_query = '', $start = 0 ) {
 		$results      = $this->get_results( $query );
