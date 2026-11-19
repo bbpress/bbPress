@@ -55,7 +55,7 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 
 	$type_slots = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
 	$batch['initial'] = ( false === $state );
-	if ( $batch['initial'] ) {
+	if ( false === $state ) {
 		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(ID) FROM {$bbp_db->posts} WHERE post_type IN ({$type_slots})", $types ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
@@ -997,7 +997,7 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 	}
 
 	$batch['initial'] = ( false === $state );
-	if ( $batch['initial'] ) {
+	if ( false === $state ) {
 		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(ID) FROM {$bbp_db->posts} WHERE post_type = %s", $fpt ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
@@ -1257,7 +1257,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 		return $batch;
 	}
 	$batch['initial'] = ( false === $state );
-	if ( $batch['initial'] ) {
+	if ( false === $state ) {
 		$upper_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT MAX(term_taxonomy_id) FROM {$bbp_db->term_taxonomy} WHERE taxonomy = %s", $taxonomy->name ) );
 		if ( ! empty( $bbp_db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
@@ -1850,7 +1850,7 @@ function bbp_admin_repair_user_meta_batch( $type = 'favorites', $dry_run = false
 		return $batch;
 	}
 	$batch['initial'] = false === $state;
-	if ( $batch['initial'] ) {
+	if ( false === $state ) {
 		$upper = bbp_admin_repair_user_meta_upper_id( $key, $batch );
 		if ( false === $upper ) {
 			return $batch;
@@ -2798,7 +2798,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 		'ready'         => false,
 		'scratch_retry' => false,
 	);
-	if ( $batch['initial'] ) {
+	if ( false === $state ) {
 		$upper = (int) $db->get_var( "SELECT MAX(ID) FROM {$db->posts}" );
 		if ( ! empty( $db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );

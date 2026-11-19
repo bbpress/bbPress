@@ -1409,7 +1409,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 			return $batch;
 		}
 		$batch['initial'] = false === $state;
-		if ( $batch['initial'] ) {
+		if ( false === $state ) {
 			$upper = bbp_admin_repair_user_meta_upper_id( $key, $batch );
 			if ( false === $upper ) {
 				return $batch;
