@@ -362,13 +362,21 @@
 			bbpress()->errors = new WP_Error();
 			$_POST['email']   = 'new@example.org';
 			$invalid_url      = '__return_false';
+			$later_error      = static function() {
+				bbp_add_error( 'bbp_later_profile_error', 'Another profile error.' );
+			};
 			add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+			add_action( 'personal_options_update', $later_error );
+			add_action( 'edit_user_profile_update', $later_error );
 			try {
 				bbp_edit_user_handler( 'bbp-update-user' );
 				$this->assertContains( 'bbp_user_email_invalid_url', bbpress()->errors->get_error_codes() );
+				$this->assertContains( 'bbp_later_profile_error', bbpress()->errors->get_error_codes() );
 				$this->assertSame( '', get_user_meta( $user_id, '_new_email', true ) );
 			} finally {
 				remove_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
+				remove_action( 'personal_options_update', $later_error );
+				remove_action( 'edit_user_profile_update', $later_error );
 			}
 		} finally {
 			remove_filter( 'bbp_get_displayed_user_id', $displayed );
@@ -449,6 +457,7 @@
 			bbp_edit_user_email_send_notification( $user_id, array( 'newemail' => 'new@example.org' ) );
 			$this->assertContains( 'bbp_user_email_invalid_hash', bbpress()->errors->get_error_codes() );
 			$this->assertSame( array(), $sent );
+			bbpress()->errors = new WP_Error();
 			bbp_edit_user_email_send_notification( $user_id, array( 'hash' => 'test-hash', 'newemail' => 'new@example.org' ) );
 			$this->assertCount( 1, $sent );
 			$this->assertSame( 'new@example.org', $sent[0]['to'] );
@@ -457,7 +466,8 @@
 			$invalid_url = '__return_false';
 			add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );
 			try {
-				bbp_edit_user_email_send_notification( $user_id, array( 'hash' => 'other-hash', 'newemail' => 'new@example.org' ) );
+				bbp_edit_user_email_send_notification( $user_id, array( 'newemail' => 'new@example.org' ) );
+				$this->assertContains( 'bbp_user_email_invalid_hash', bbpress()->errors->get_error_codes() );
 				$this->assertContains( 'bbp_user_email_invalid_url', bbpress()->errors->get_error_codes() );
 				$this->assertCount( 1, $sent );
 			} finally {

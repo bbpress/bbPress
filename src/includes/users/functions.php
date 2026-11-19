@@ -351,23 +351,22 @@ function bbp_edit_user_handler( $action = '' ) {
 			// A confirmation email needs a usable profile edit URL.
 			if ( false === bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) ) ) {
 				bbp_add_error( 'bbp_user_email_invalid_url', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
-				return;
+			} else {
+				// Update the option.
+				$option = array(
+					'hash'     => md5( $_POST['email'] . time() . wp_rand() ),
+					'newemail' => $_POST['email'],
+				);
+				update_user_meta( $user_id, '_new_email', $option );
+
+				// Attempt to notify the user of email address change.
+				bbp_edit_user_email_send_notification( $user_id, $option );
+
+				// Set the POST email variable back to the user's email address
+				// so `edit_user()` does not attempt to update it. This is not ideal,
+				// but it's also what send_confirmation_on_profile_email() does.
+				$_POST['email'] = $user_email;
 			}
-
-			// Update the option.
-			$option = array(
-				'hash'     => md5( $_POST['email'] . time() . wp_rand() ),
-				'newemail' => $_POST['email'],
-			);
-			update_user_meta( $user_id, '_new_email', $option );
-
-			// Attempt to notify the user of email address change.
-			bbp_edit_user_email_send_notification( $user_id, $option );
-
-			// Set the POST email variable back to the user's email address
-			// so `edit_user()` does not attempt to update it. This is not ideal,
-			// but it's also what send_confirmation_on_profile_email() does.
-			$_POST['email'] = $user_email;
 		}
 	}
 
@@ -536,20 +535,24 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) 
 		)
 	);
 
-	// Bail if any relevant parameters are empty
+	// Check relevant parameters
 	if ( empty( $user_id ) || empty( $r['hash'] ) || empty( $r['newemail'] ) ) {
 		bbp_add_error( 'bbp_user_email_invalid_hash', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+	}
+
+	// Check the confirmation URL
+	$user_url = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
+	if ( false === $user_url ) {
+		bbp_add_error( 'bbp_user_email_invalid_url', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+	}
+
+	// Bail after collecting errors
+	if ( bbp_has_errors() ) {
 		return;
 	}
 
 	// Build the confirmation URL
 	$user_login  = bbp_get_displayed_user_field( 'user_login', 'raw' );
-	$user_url    = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
-	if ( false === $user_url ) {
-		bbp_add_error( 'bbp_user_email_invalid_url', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
-		return;
-	}
-
 	$confirm_url = add_query_arg(
 		array(
 			'action'       => 'bbp-update-user-email',
