@@ -1282,7 +1282,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param string $query SQL query to run.
 	 * @param 'OBJECT'|'ARRAY_A' $output Result format. Defaults to OBJECT.
-	 * @return array<int|string, object|array<string, mixed>> Query rows.
+	 * @return ($output is 'ARRAY_A' ? list<array<string, mixed>> : list<stdClass>) Query rows.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
 		$this->update_query( $query );

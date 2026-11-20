@@ -180,7 +180,7 @@ function bbp_register_repair_tools() {
  * @access private
  *
  * @param string $type Favorites, topic-subscriptions, or forum-subscriptions.
- * @return array<string, string>|false Fixed tool IDs and storage keys, or false for an unknown type.
+ * @return ($type is 'favorites'|'topic-subscriptions'|'forum-subscriptions' ? array<string, string> : false)
  */
 function bbp_admin_get_user_relationship_config( $type ) {
 	$configs = array(
