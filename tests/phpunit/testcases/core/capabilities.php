@@ -646,6 +646,45 @@ class BBP_Tests_Core_Capabilities extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_map_topic_meta_caps
+	 * @covers ::bbp_map_reply_meta_caps
+	 * @ticket 3794
+	 */
+	public function test_unregistered_post_types_do_not_grant_object_capabilities() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$user_id  = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+		$cases    = array(
+			array( bbp_get_forum_post_type(), 'forum', $forum_id, 'bbp_map_forum_meta_caps' ),
+			array( bbp_get_topic_post_type(), 'topic', $topic_id, 'bbp_map_topic_meta_caps' ),
+			array( bbp_get_reply_post_type(), 'reply', $reply_id, 'bbp_map_reply_meta_caps' ),
+		);
+		$types    = array();
+
+		foreach ( $cases as $case ) {
+			$types[ $case[0] ] = $GLOBALS['wp_post_types'][ $case[0] ];
+			unset( $GLOBALS['wp_post_types'][ $case[0] ] );
+		}
+
+		try {
+			foreach ( $cases as $case ) {
+				foreach ( array( 'read', 'edit', 'delete' ) as $action ) {
+					$cap = $action . '_' . $case[1];
+					$this->assertSame( array( 'do_not_allow' ), call_user_func( $case[3], array(), $cap, $user_id, array( $case[2] ) ) );
+				}
+			}
+		} finally {
+			foreach ( $types as $post_type => $object ) {
+				$GLOBALS['wp_post_types'][ $post_type ] = $object;
+			}
+		}
+	}
+
+	/**
 	 * Create an in-memory WP_Roles object.
 	 *
 	 * @param array $roles Role definitions.

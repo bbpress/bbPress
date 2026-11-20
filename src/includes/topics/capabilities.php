@@ -105,6 +105,11 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					// Get caps for post type object
 					$post_type = get_post_type_object( $_post->post_type );
 
+					if ( ! $post_type ) {
+						$caps = array( 'do_not_allow' );
+						break;
+					}
+
 					// Post is public
 					if ( in_array( $_post->post_status, bbp_get_public_topic_statuses(), true ) ) {
 
@@ -189,6 +194,12 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
+
+				if ( ! $post_type ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+
 				$forum_id  = bbp_get_topic_forum_id( $_post->ID );
 
 				// An auto-draft's first save creates a topic.
@@ -258,6 +269,11 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
+
+				if ( ! $post_type ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {

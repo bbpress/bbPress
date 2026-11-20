@@ -89,6 +89,11 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					// Get post type object
 					$post_type = get_post_type_object( $_post->post_type );
 
+					if ( ! $post_type ) {
+						$caps = array( 'do_not_allow' );
+						break;
+					}
+
 					// Post is public
 					if ( bbp_get_public_status_id() === $_post->post_status ) {
 
@@ -173,6 +178,12 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get post type object
 				$post_type = get_post_type_object( $_post->post_type );
+
+				if ( ! $post_type ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+
 				$forum_id  = bbp_get_reply_forum_id( $_post->ID );
 
 				// An auto-draft's first save creates a reply.
@@ -238,6 +249,11 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get post type object
 				$post_type = get_post_type_object( $_post->post_type );
+
+				if ( ! $post_type ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
