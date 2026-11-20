@@ -1109,16 +1109,23 @@ function bbp_get_statistics( $args = array() ) {
 		$tt_id = bbp_get_topic_tag_tax_id();
 
 		// Get the count
-		$topic_tag_count = wp_count_terms(
+		$tag_count = wp_count_terms(
 			array(
 				'taxonomy'   => $tt_id,
 				'hide_empty' => true
 			)
 		);
 
-		// Empty tags
-		if ( ! empty( $r['count_empty_tags'] ) && ! empty( $caps['edit_topic_tags'] ) ) {
-			$empty_topic_tag_count = wp_count_terms( array( 'taxonomy' => $tt_id ) ) - $topic_tag_count;
+		if ( ! is_wp_error( $tag_count ) ) {
+			$topic_tag_count = $tag_count;
+
+			// Empty tags
+			if ( ! empty( $r['count_empty_tags'] ) && ! empty( $caps['edit_topic_tags'] ) ) {
+				$all_tag_count = wp_count_terms( array( 'taxonomy' => $tt_id ) );
+				if ( ! is_wp_error( $all_tag_count ) ) {
+					$empty_topic_tag_count = $all_tag_count - $topic_tag_count;
+				}
+			}
 		}
 	}
 
@@ -3227,7 +3234,7 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
  * @global WP $wp Current WordPress environment instance.
  *
  * @param string          $where Existing SQL WHERE clause.
- * @param WP_Query|string $query Query with parent arguments, or an empty string.
+ * @param object|string $query Query with parent arguments, or an empty string.
  * @return string
  */
 function bbp_query_post_parent__in( $where, $query = '' ) {
@@ -3238,8 +3245,8 @@ function bbp_query_post_parent__in( $where, $query = '' ) {
 		return $where;
 	}
 
-	// Bail if no object passed
-	if ( empty( $query ) ) {
+	// Bail if no query arguments are available
+	if ( ! is_object( $query ) || ! isset( $query->query_vars ) || ! is_array( $query->query_vars ) ) {
 		return $where;
 	}
 
@@ -3936,20 +3943,21 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	// and other funny things that plugins might to do to it.
 	$parsed_home = wp_parse_url( home_url( '/', ( is_ssl() ? 'https' : 'http' ) ) );
 
-	// Maybe include the port, if it's included
-	if ( isset( $parsed_home['port'] ) ) {
-		$parsed_host = $parsed_home['host'] . ':' . $parsed_home['port'];
-	} else {
-		$parsed_host = $parsed_home['host'];
-	}
+	$home_url = false;
+	if ( is_array( $parsed_home ) && ! empty( $parsed_home['scheme'] ) && ! empty( $parsed_home['host'] ) ) {
+		// Maybe include the port, if it's included
+		$parsed_host = isset( $parsed_home['port'] )
+			? $parsed_home['host'] . ':' . $parsed_home['port']
+			: $parsed_home['host'];
 
-	// Set the home URL for use in comparisons
-	$home_url = trim( strtolower( $parsed_home['scheme'] . '://' . $parsed_host . $parsed_home['path'] ), '/' );
+		// Set the home URL for use in comparisons
+		$home_url = trim( strtolower( $parsed_home['scheme'] . '://' . $parsed_host . ( $parsed_home['path'] ?? '' ) ), '/' );
+	}
 
 	/** Requested URL *********************************************************/
 
 	// Maybe include the port, if it's included in home_url()
-	if ( isset( $parsed_home['port'] ) && false === strpos( $_SERVER['HTTP_HOST'], ':' ) ) {
+	if ( is_array( $parsed_home ) && isset( $parsed_home['port'] ) && false === strpos( $_SERVER['HTTP_HOST'], ':' ) ) {
 		$request_host = $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'];
 	} else {
 		$request_host = $_SERVER['HTTP_HOST'];
@@ -3978,7 +3986,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 		: false;
 
 	// Nonce check failed
-	if ( empty( $result ) || empty( $action ) || ( strpos( $matched_url, $home_url ) !== 0 ) ) {
+	if ( empty( $result ) || empty( $action ) || false === $home_url || ( strpos( $matched_url, $home_url ) !== 0 ) ) {
 		$result = false;
 	}
 

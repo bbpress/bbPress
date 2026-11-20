@@ -1359,6 +1359,24 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_statistics
+	 * @ticket 3794
+	 */
+	public function test_bbp_get_statistics_handles_failed_tag_counts() {
+		$fail_count = function() {
+			return new WP_Error( 'term_count_failed' );
+		};
+		add_filter( 'terms_pre_query', $fail_count );
+		try {
+			$statistics = bbp_get_statistics();
+			$this->assertSame( 0, $statistics['topic_tag_count_int'] );
+			$this->assertSame( 0, $statistics['empty_topic_tag_count_int'] );
+		} finally {
+			remove_filter( 'terms_pre_query', $fail_count );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_escape_feed_cdata
 	 */
 	public function test_bbp_escape_feed_cdata_keeps_description_inside_cdata() {
@@ -2610,6 +2628,33 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			$this->assertFalse( bbp_verify_nonce_request( $action ) );
 		} finally {
 			remove_filter( 'bbp_verify_nonce_request_url', $match );
+			$_REQUEST = $old_request;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_verify_nonce_request
+	 * @ticket 3794
+	 */
+	public function test_bbp_verify_nonce_request_rejects_an_unparseable_home_url() {
+		$old_request = $_REQUEST;
+		$action      = 'common-functions-invalid-home-nonce';
+		$home_url    = function() {
+			return 'not-a-url';
+		};
+		$observed    = array();
+		$listener    = function( $checked_action, $result ) use ( &$observed ) {
+			$observed = array( $checked_action, $result );
+		};
+		add_filter( 'home_url', $home_url );
+		add_action( 'bbp_verify_nonce_request', $listener, 10, 2 );
+		try {
+			$_REQUEST['_wpnonce'] = wp_create_nonce( $action );
+			$this->assertFalse( bbp_verify_nonce_request( $action ) );
+			$this->assertSame( array( $action, false ), $observed );
+		} finally {
+			remove_filter( 'home_url', $home_url );
+			remove_action( 'bbp_verify_nonce_request', $listener, 10 );
 			$_REQUEST = $old_request;
 		}
 	}

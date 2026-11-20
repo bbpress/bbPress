@@ -21,6 +21,8 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 
 		try {
 			$this->assertSame( 'base', bbp_query_post_parent__in( 'base' ) );
+			$this->assertSame( 'base', bbp_query_post_parent__in( 'base', 'not a query' ) );
+			$this->assertSame( 'base', bbp_query_post_parent__in( 'base', new stdClass() ) );
 			$this->assertSame( 'base AND ' . bbp_db()->posts . '.post_parent IN (12,34)', bbp_query_post_parent__in( 'base', $query ) );
 
 			$query->query_vars['post_parent__in'] = array();
