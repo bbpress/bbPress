@@ -330,6 +330,99 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_move_reply_handler
+	 * @ticket 3794
+	 */
+	public function test_move_rejects_a_filtered_non_post_reply() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+		$invalid_reply        = static function( $value, $post ) use ( $reply_id ) {
+			return $reply_id === $post->ID ? 'invalid-reply' : $value;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		add_filter( 'bbp_get_reply', $invalid_reply, 10, 2 );
+
+		try {
+			$did_redirect = $this->submit_reply_move( $reply_id, 'existing', $destination_topic_id );
+		} finally {
+			remove_filter( 'bbp_get_reply', $invalid_reply, 10 );
+		}
+
+		$this->assertContains( 'bbp_mover_reply_r_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertContains( 'bbp_move_reply_source_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
+	 * @ticket 3794
+	 */
+	public function test_move_nonce_uses_the_resolved_reply_id() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$requested_reply_id   = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+		$resolved_reply_id    = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+		$resolve_other_reply  = static function( $value, $post ) use ( $requested_reply_id, $resolved_reply_id ) {
+			return $requested_reply_id === $post->ID ? get_post( $resolved_reply_id ) : $value;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		add_filter( 'bbp_get_reply', $resolve_other_reply, 10, 2 );
+
+		try {
+			$did_redirect = $this->submit_reply_move( $requested_reply_id, 'existing', $destination_topic_id );
+		} finally {
+			remove_filter( 'bbp_get_reply', $resolve_other_reply, 10 );
+		}
+
+		$this->assertContains( 'bbp_move_reply_nonce', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $requested_reply_id ) );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $resolved_reply_id ) );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
+	 * @ticket 3794
+	 */
+	public function test_move_nonce_error_does_not_skip_destination_errors() {
+		$user_id         = $this->factory->user->create();
+		$forum_id        = $this->factory->forum->create();
+		$source_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id        = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+		$invalid_url     = static function() {
+			return 'https://invalid.example/';
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		add_filter( 'bbp_verify_nonce_request_url', $invalid_url );
+
+		try {
+			$did_redirect = $this->submit_reply_move( $reply_id, 'existing' );
+		} finally {
+			remove_filter( 'bbp_verify_nonce_request_url', $invalid_url );
+		}
+
+		$this->assertContains( 'bbp_move_reply_nonce', bbpress()->errors->get_error_codes() );
+		$this->assertContains( 'bbp_move_reply_destination_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
 	 */
 	public function test_keymaster_cannot_move_reply_into_new_topic_when_frozen() {
 		$user_id         = $this->factory->user->create();

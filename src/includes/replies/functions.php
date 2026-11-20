@@ -1378,28 +1378,30 @@ function bbp_move_reply_handler( $action = '' ) {
 	$move_reply = bbp_get_reply( $move_reply_id );
 
 	// Reply exists
-	if ( empty( $move_reply ) ) {
+	if ( ! ( $move_reply instanceof WP_Post ) ) {
 		bbp_add_error( 'bbp_mover_reply_r_not_found', __( '<strong>Error</strong>: The reply you want to move was not found.', 'bbpress' ) );
 	}
 
 	/** Topic to Move From ***************************************************/
 
 	// Get the current topic a reply is in
-	$source_topic = bbp_get_topic( $move_reply->post_parent );
+	if ( $move_reply instanceof WP_Post ) {
+		$source_topic = bbp_get_topic( $move_reply->post_parent );
+	}
 
 	// No topic
-	if ( empty( $source_topic ) ) {
+	if ( ! ( $source_topic instanceof WP_Post ) ) {
 		bbp_add_error( 'bbp_move_reply_source_not_found', __( '<strong>Error</strong>: The topic you want to move from was not found.', 'bbpress' ) );
 	}
 
 	// Nonce check failed
-	if ( ! bbp_verify_nonce_request( 'bbp-move-reply_' . $move_reply->ID ) ) {
+	$nonce_reply_id = ( $move_reply instanceof WP_Post ) ? $move_reply->ID : $move_reply_id;
+	if ( ! bbp_verify_nonce_request( 'bbp-move-reply_' . $nonce_reply_id ) ) {
 		bbp_add_error( 'bbp_move_reply_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
-		return;
 	}
 
 	// User must moderate and edit the source topic
-	if ( ! current_user_can( 'moderate', $source_topic->ID ) || ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
+	if ( ( $source_topic instanceof WP_Post ) && ( ! current_user_can( 'moderate', $source_topic->ID ) || ! current_user_can( 'edit_topic', $source_topic->ID ) ) ) {
 		bbp_add_error( 'bbp_move_reply_source_permission', __( '<strong>Error</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 	}
 
@@ -1433,17 +1435,17 @@ function bbp_move_reply_handler( $action = '' ) {
 				$destination_topic = bbp_get_topic( $destination_topic_id );
 
 				// No destination topic
-				if ( empty( $destination_topic ) ) {
+				if ( ! ( $destination_topic instanceof WP_Post ) ) {
 					bbp_add_error( 'bbp_move_reply_destination_not_found', __( '<strong>Error</strong>: The topic you want to move to was not found.', 'bbpress' ) );
 				}
 
 				// User must moderate and edit the destination topic
-				if ( ! current_user_can( 'moderate', $destination_topic->ID ) || ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
+				if ( ( $destination_topic instanceof WP_Post ) && ( ! current_user_can( 'moderate', $destination_topic->ID ) || ! current_user_can( 'edit_topic', $destination_topic->ID ) ) ) {
 					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>Error</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 
 				// Bail before moving the reply if there are errors
-				if ( bbp_has_errors() ) {
+				if ( bbp_has_errors() || ! ( $move_reply instanceof WP_Post ) || ! ( $source_topic instanceof WP_Post ) || ! ( $destination_topic instanceof WP_Post ) ) {
 					break;
 				}
 
@@ -1475,7 +1477,7 @@ function bbp_move_reply_handler( $action = '' ) {
 				if ( current_user_can( 'publish_topics' ) ) {
 
 					// Bail before converting the reply if there are errors
-					if ( bbp_has_errors() ) {
+					if ( bbp_has_errors() || ! ( $move_reply instanceof WP_Post ) || ! ( $source_topic instanceof WP_Post ) ) {
 						break;
 					}
 
@@ -1518,7 +1520,7 @@ function bbp_move_reply_handler( $action = '' ) {
 					}
 
 					// Report a failed conversion
-					if ( empty( $destination_topic ) ) {
+					if ( ! ( $destination_topic instanceof WP_Post ) ) {
 						bbp_add_error( 'bbp_move_reply_destination_reply', __( '<strong>Error</strong>: There was a problem converting the reply into the topic. Please try again.', 'bbpress' ) );
 					} else {
 						// Make sure the new topic knows its a topic
@@ -1535,7 +1537,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	}
 
 	// Bail if there are errors
-	if ( bbp_has_errors() ) {
+	if ( bbp_has_errors() || ! ( $move_reply instanceof WP_Post ) || ! ( $source_topic instanceof WP_Post ) || ! ( $destination_topic instanceof WP_Post ) ) {
 		return;
 	}
 

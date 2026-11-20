@@ -796,6 +796,35 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_merge_topic_handler
+	 * @ticket 3794
+	 */
+	public function test_merge_rejects_a_filtered_non_post_source() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$invalid_source       = static function( $value, $post ) use ( $source_topic_id ) {
+			return $source_topic_id === $post->ID ? 'invalid-topic' : $value;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		add_filter( 'bbp_get_topic', $invalid_source, 10, 2 );
+
+		try {
+			$did_redirect = $this->submit_topic_merge( $source_topic_id, $destination_topic_id );
+		} finally {
+			remove_filter( 'bbp_get_topic', $invalid_source, 10 );
+		}
+
+		$this->assertContains( 'bbp_merge_topic_source_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( bbp_get_topic_post_type(), get_post_type( $source_topic_id ) );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
 	 * @covers ::bbp_split_topic_handler
 	 */
 	public function test_participant_cannot_split_another_users_reply_from_own_topic() {
@@ -1142,6 +1171,37 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertContains( 'bbp_split_topic_r_not_found', bbpress()->errors->get_error_codes() );
 		$this->assertContains( 'bbp_split_topic_destination_not_found', bbpress()->errors->get_error_codes() );
 		$this->assertSame( array(), $warnings );
+		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_split_topic_handler
+	 * @ticket 3794
+	 */
+	public function test_split_rejects_a_filtered_non_post_reply() {
+		$user_id              = $this->factory->user->create();
+		$forum_id             = $this->factory->forum->create();
+		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id             = $this->factory->reply->create( array( 'post_parent' => $source_topic_id ) );
+		$invalid_reply        = static function( $value, $post ) use ( $reply_id ) {
+			return $reply_id === $post->ID ? 'invalid-reply' : $value;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		$_POST['bbp_destination_topic'] = $destination_topic_id;
+		add_filter( 'bbp_get_reply', $invalid_reply, 10, 2 );
+
+		try {
+			$did_redirect = $this->submit_topic_split( $reply_id, $source_topic_id, 'existing' );
+		} finally {
+			remove_filter( 'bbp_get_reply', $invalid_reply, 10 );
+		}
+
+		$this->assertContains( 'bbp_split_topic_r_not_found', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
 		$this->assertFalse( $did_redirect );
 	}
 
