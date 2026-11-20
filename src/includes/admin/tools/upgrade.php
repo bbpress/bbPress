@@ -421,7 +421,7 @@ function bbp_get_mention_backfill_posts( $state, $batch_size ) {
 	$bbp_db = bbp_db();
 	$posts  = $bbp_db->get_results( $bbp_db->prepare( "SELECT ID, post_type FROM {$bbp_db->posts} WHERE ID > %d AND ID <= %d ORDER BY ID ASC LIMIT %d", $state['cursor'], $state['upper'], $batch_size ) );
 
-	if ( $bbp_db->last_error ) {
+	if ( ! is_array( $posts ) || $bbp_db->last_error ) {
 		return new WP_Error( 'bbp_mention_backfill_query', __( 'Could not read posts for the mention backfill.', 'bbpress' ) );
 	}
 
@@ -633,7 +633,7 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 			continue;
 		}
 		$rows = $bbp_db->get_results( $bbp_db->prepare( "SELECT meta_id, post_id, meta_value, (meta_key = '_bbp_topic_id') AS is_source FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_topic_id', '_bbp_engagement') AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['cursor'], $state['upper_id'], $size + 1 ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
+		if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 			return $batch;
 		}
@@ -1427,7 +1427,7 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 		bbp_admin_repair_tool_restore_preview( $state, $batch, $fields );
 		do {
 			$rows = $db->get_results( $db->prepare( "SELECT umeta_id, user_id FROM {$db->usermeta} WHERE meta_key = %s AND umeta_id > %d AND umeta_id <= %d ORDER BY umeta_id LIMIT %d", $key, $state['cursor'], $state['upper_id'], $size + 1 ) );
-			if ( ! empty( $db->last_error ) ) {
+			if ( ! is_array( $rows ) || ! empty( $db->last_error ) ) {
 				bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 				return $batch;
 			}

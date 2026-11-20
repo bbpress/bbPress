@@ -608,7 +608,7 @@ class BBP_Admin {
 			}
 
 			// Do not hide pending content behind a cached database failure.
-			if ( empty( $wpdb->last_error ) ) {
+			if ( is_array( $results ) && empty( $wpdb->last_error ) ) {
 				wp_cache_set(
 					$cache_key,
 					array(
@@ -1011,6 +1011,9 @@ class BBP_Admin {
 
 		// Enqueue suggest for forum/topic/reply autocompletes
 		wp_enqueue_script( 'suggest' );
+		if ( ! $current_screen ) {
+			return;
+		}
 
 		// Post type checker (only topics and replies)
 		if ( 'post' === $current_screen->base ) {
@@ -1740,8 +1743,15 @@ class BBP_Admin {
 				// Get blogs 5 at a time
 				$blogs = $bbp_db->get_results( "SELECT * FROM {$bbp_db->blogs} WHERE site_id = '{$bbp_db->siteid}' AND spam = '0' AND deleted = '0' AND archived = '0' ORDER BY registered DESC LIMIT {$n}, 5", ARRAY_A );
 
+				// Do not report completion when the site query failed.
+				if ( ! is_array( $blogs ) || ! empty( $bbp_db->last_error ) ) : ?>
+
+					<p><?php esc_html_e( 'Could not read sites for the forum update.', 'bbpress' ); ?></p>
+
+					<?php
+
 				// No blogs so all done!
-				if ( empty( $blogs ) ) : ?>
+				elseif ( empty( $blogs ) ) : ?>
 
 					<p><?php esc_html_e( 'All done!', 'bbpress' ); ?></p>
 					<a class="button" href="update-core.php?page=bbpress-update"><?php esc_html_e( 'Go Back', 'bbpress' ); ?></a>

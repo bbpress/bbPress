@@ -83,7 +83,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		$query = $this->db->prepare( $sql, $id, $this->context['forum'], $this->context['topic'], $id, $this->context['topic'], $this->context['reply'] );
 		$query = apply_filters( 'bbp_get_child_counts_query', $query, $id, $this->context['forum'] );
 		$rows  = $this->db->get_results( $query, ARRAY_A );
-		if ( ! empty( $this->db->last_error ) ) {
+		if ( ! is_array( $rows ) || ! empty( $this->db->last_error ) ) {
 			$this->fail(
 				$hidden
 					? 'hidden-reply-count-read'

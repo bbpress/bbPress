@@ -907,7 +907,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	private function read_root_source() {
 		$legacy_root_id = function_exists( 'bp_forums_parent_forum_id' ) ? bp_forums_parent_forum_id() : ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ? (int) BP_FORUMS_PARENT_FORUM_ID : 1 );
 		$posts          = $this->db->get_results( $this->db->prepare( "SELECT DISTINCT p.ID, p.post_type, p.post_parent, p.post_status, p.post_title, p.post_name FROM {$this->db->posts} p INNER JOIN {$this->db->postmeta} m ON p.ID = m.post_id WHERE p.post_type = %s AND m.meta_key = '_bbp_old_forum_id' AND CAST(m.meta_value AS SIGNED) = %d ORDER BY p.ID LIMIT 2", $this->forum_post_type, $legacy_root_id ), ARRAY_A );
-		if ( ! empty( $this->db->last_error ) ) {
+		if ( ! is_array( $posts ) || ! empty( $this->db->last_error ) ) {
 			$this->fail( 'forums-read' );
 			return false;
 		}

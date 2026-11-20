@@ -1936,6 +1936,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_forum_subforum_counts
 	 * @covers ::bbp_admin_repair_metadata_status
+	 * @covers ::bbp_get_mention_backfill_posts
+	 * @covers BBP_Admin_Forum_Counts::child_count
 	 * @ticket 3794
 	 */
 	public function test_repair_queries_report_null_results_without_database_errors() {
@@ -1968,6 +1970,21 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		try {
 			$this->assertSame( array( 'code' => 3 ), bbp_admin_repair_forum_subforum_counts() );
 			$this->assertFalse( bbp_admin_repair_metadata_status( 'post', '_bbp_preview', array( 1 => 1 ) ) );
+			$mentions = bbp_get_mention_backfill_posts( array( 'cursor' => 0, 'upper' => 1 ), 1 );
+			$this->assertWPError( $mentions );
+			$this->assertSame( 'bbp_mention_backfill_query', $mentions->get_error_code() );
+
+			$counts = new class( 'topics' ) extends BBP_Admin_Forum_Counts {
+				public function read_children() {
+					return $this->child_count( 1, bbp_get_topic_post_type(), array( bbp_get_public_status_id() ), false );
+				}
+
+				public function read_error() {
+					return $this->error;
+				}
+			};
+			$this->assertSame( 0, $counts->read_children() );
+			$this->assertSame( 'public-topic-count-read', $counts->read_error() );
 		} finally {
 			remove_filter( 'bbp_get_global_object', $filter, 10 );
 		}

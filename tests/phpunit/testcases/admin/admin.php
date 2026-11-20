@@ -513,6 +513,62 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Admin::add_pending_counts
+	 * @ticket 3794
+	 */
+	public function test_pending_counts_are_not_cached_when_results_are_missing() {
+		global $wpdb;
+
+		$user_id = $this->factory->user->create();
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		$GLOBALS['menu'] = array(
+			array( 'Topics', 'edit_topics', 'edit.php?post_type=' . bbp_get_topic_post_type() ),
+		);
+		wp_cache_delete( 'bbp_pending_counts', 'bbpress_posts' );
+		$admin = bbp_admin();
+		$db    = $wpdb;
+		$wpdb  = new class( $db ) {
+			public $posts;
+			public $last_error = '';
+			public $reads = 0;
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db    = $db;
+				$this->posts = $db->posts;
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_results( $query ) {
+				++$this->reads;
+				return null;
+			}
+
+			public function __call( $name, $args ) {
+				return $this->db->$name( ...$args );
+			}
+
+			public function __get( $name ) {
+				return $this->db->$name;
+			}
+		};
+
+		try {
+			$admin->add_pending_counts();
+			$this->assertSame( 1, $wpdb->reads );
+		} finally {
+			$wpdb = $db;
+		}
+
+		$this->assertFalse( wp_cache_get( 'bbp_pending_counts', 'bbpress_posts' ) );
+		$this->assertSame( 'Topics', $GLOBALS['menu'][0][0] );
+	}
+
+	/**
 	 * Replace the pending-count table with a missing table.
 	 *
 	 * @param string $query Database query.
@@ -817,6 +873,27 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Admin::enqueue_scripts
+	 * @ticket 3794
+	 */
+	public function test_admin_scripts_allow_a_missing_current_screen() {
+		$screen  = get_current_screen();
+		$scripts = clone wp_scripts();
+		wp_dequeue_script( 'suggest' );
+		wp_dequeue_script( 'bbp-admin-common-js' );
+		$GLOBALS['current_screen'] = null;
+
+		try {
+			bbp_admin()->enqueue_scripts();
+			$this->assertTrue( wp_script_is( 'suggest', 'enqueued' ) );
+			$this->assertFalse( wp_script_is( 'bbp-admin-common-js', 'enqueued' ) );
+		} finally {
+			$GLOBALS['current_screen'] = $screen;
+			$GLOBALS['wp_scripts']     = $scripts;
+		}
+	}
+
+	/**
 	 * @covers BBP_Admin::display_post_states
 	 * @ticket 3706
 	 *
@@ -1095,6 +1172,51 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			false === $rewrite_rules
 				? delete_option( 'rewrite_rules' )
 				: update_option( 'rewrite_rules', $rewrite_rules );
+		}
+	}
+
+	/**
+	 * @covers BBP_Admin::network_update_screen
+	 * @ticket 3794
+	 */
+	public function test_network_update_does_not_report_completion_after_a_site_read_failure() {
+		$get     = $_GET;
+		$request = $_REQUEST;
+		$db      = new class() {
+			public $blogs = 'wp_blogs';
+			public $siteid = 1;
+			public $last_error = '';
+			public $result = null;
+
+			public function get_results( $query, $output = OBJECT ) {
+				return $this->result;
+			}
+		};
+		$filter = static function( $object, $name ) use ( $db ) {
+			return 'wpdb' === $name ? $db : $object;
+		};
+		$_GET = array(
+			'action'   => 'bbpress-update',
+			'_wpnonce' => wp_create_nonce( 'bbpress-update' ),
+		);
+		$_REQUEST = $_GET;
+		add_filter( 'bbp_get_global_object', $filter, 10, 2 );
+
+		try {
+			$output = $this->capture( array( 'BBP_Admin', 'network_update_screen' ) );
+			$this->assertStringContainsString( 'Could not read sites for the forum update.', $output );
+			$this->assertStringNotContainsString( 'All done!', $output );
+			$this->assertStringNotContainsString( 'Next Forums', $output );
+
+			$db->result     = array();
+			$db->last_error = 'query failed';
+			$output = $this->capture( array( 'BBP_Admin', 'network_update_screen' ) );
+			$this->assertStringContainsString( 'Could not read sites for the forum update.', $output );
+			$this->assertStringNotContainsString( 'All done!', $output );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $filter, 10 );
+			$_GET     = $get;
+			$_REQUEST = $request;
 		}
 	}
 
