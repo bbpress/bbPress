@@ -798,7 +798,7 @@ function bbp_is_get_action( $action = '' ) {
  *
  * @see  bbp_redirect_to_field()
  *
- * @param string $location The URL to redirect the user to.
+ * @param string|false $location The URL to redirect the user to, or false to use the forum root.
  * @param int    $status   Optional. The numeric code to give in the redirect
  *                         headers. Default: 302.
  * @return never This function redirects and exits.

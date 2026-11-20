@@ -362,7 +362,7 @@ class BBP_Users_Admin {
 	 * @param string $column_name Column key being rendered.
 	 * @param int    $user_id     ID of the user in the row.
 	 *
-	 * @return string Displayable bbPress user role.
+	 * @return string|false Displayable bbPress user role, or false when none is assigned.
 	 */
 	public static function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
 

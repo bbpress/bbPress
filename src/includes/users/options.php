@@ -342,7 +342,7 @@ function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
  *
  * @param int $user_id User ID to update.
  * @param int $time Time in time() format.
- * @return bool False if no user or failure, true if successful.
+ * @return int|bool User option ID when added, true when updated, false on failure or no change.
  */
 function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
 

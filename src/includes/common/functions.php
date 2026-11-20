@@ -2287,7 +2287,7 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 		 * @since 2.6.17 bbPress (r7493)
 		 *
 		 * @param bool $can_view Whether the user can view the forum.
-		 * @param int  $user_id  User ID.
+		 * @param int|string $user_id User ID.
 		 * @param int  $forum_id Forum ID.
 		 * @param int  $topic_id Topic ID.
 		 * @param int  $reply_id Reply ID.
