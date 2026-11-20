@@ -3323,7 +3323,8 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 			'no_found_rows'          => true
 		)
 	);
-	$child_id = array_shift( $query->posts );
+	$posts    = $query->posts;
+	$child_id = is_array( $posts ) ? array_shift( $posts ) : null;
 	unset( $query );
 
 	// Filter & return
@@ -3434,26 +3435,25 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 		$query = apply_filters( 'bbp_get_child_counts_query', $query, $parent_id, $post_type );
 
 		// Get results
-		$results = $bbp_db->get_results( $query, ARRAY_A );
+		$results = is_string( $query ) && '' !== $query
+			? $bbp_db->get_results( $query, ARRAY_A )
+			: null;
+		$retval = array();
 
-		// Setup return value
-		$retval    = wp_list_pluck( $results, 'type', 'type' );
-		$statuses  = get_post_stati();
+		// Only cache a successful read.
+		if ( is_array( $results ) && empty( $bbp_db->last_error ) ) {
+			$retval   = wp_list_pluck( $results, 'type', 'type' );
+			$statuses = get_post_stati();
 
-		// Loop through results
-		foreach ( $results as $row ) {
-
-			// Setup empties
-			if ( ! is_array( $retval[ $row['type'] ] ) ) {
-				$retval[ $row['type'] ] = array_fill_keys( $statuses, 0 );
+			foreach ( $results as $row ) {
+				if ( ! is_array( $retval[ $row['type'] ] ) ) {
+					$retval[ $row['type'] ] = array_fill_keys( $statuses, 0 );
+				}
+				$retval[ $row['type'] ][ $row['status'] ] = bbp_number_not_negative( $row['count'] );
 			}
 
-			// Set statuses
-			$retval[ $row['type'] ][ $row['status'] ] = bbp_number_not_negative( $row['count'] );
+			wp_cache_set( $cache_key, $retval, 'bbpress_posts' );
 		}
-
-		// Always cache the results
-		wp_cache_set( $cache_key, $retval, 'bbpress_posts' );
 	}
 
 	// Make sure results are INTs

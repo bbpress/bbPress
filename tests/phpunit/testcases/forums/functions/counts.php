@@ -927,6 +927,40 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_forum_subforum_count
+	 * @ticket 3794
+	 */
+	public function test_bbp_update_forum_subforum_count_preserves_count_after_missing_result() {
+		global $wpdb;
+
+		$forum_id = $this->factory->forum->create();
+		$this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+		bbp_update_forum_subforum_count( $forum_id, 7 );
+
+		$failed = false;
+		$fail_query = function( $query ) use ( $wpdb, $forum_id, &$failed ) {
+			if ( ! $failed && false !== strpos( $query, "FROM {$wpdb->posts}" ) && false !== strpos( $query, "post_parent = {$forum_id}" ) ) {
+				$failed = true;
+				return '';
+			}
+
+			return $query;
+		};
+		$wpdb->last_error = '';
+		add_filter( 'query', $fail_query );
+
+		try {
+			$this->assertFalse( bbp_update_forum_subforum_count( $forum_id ) );
+			$this->assertTrue( $failed );
+			$this->assertSame( '', $wpdb->last_error );
+			$this->assertSame( 7, bbp_get_forum_subforum_count( $forum_id, true ) );
+			$this->assertSame( 1, bbp_update_forum_subforum_count( $forum_id ) );
+		} finally {
+			remove_filter( 'query', $fail_query );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_update_parent_forum_subforum_count
 	 * @covers ::bbp_update_forum_subforum_count_on_transition_post_status
 	 * @ticket BBP2649

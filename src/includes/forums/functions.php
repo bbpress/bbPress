@@ -2090,7 +2090,7 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = false ) {
 			$subforums     = $bbp_db->get_var( $query );
 
 			// Bail if the count query failed
-			if ( ! empty( $bbp_db->last_error ) ) {
+			if ( null === $subforums || ! empty( $bbp_db->last_error ) ) {
 				return false;
 			}
 
@@ -3529,7 +3529,8 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 		)
 	);
 
-	$reply_id = array_shift( $query->posts );
+	$posts    = $query->posts;
+	$reply_id = is_array( $posts ) ? array_shift( $posts ) : null;
 
 	unset( $query );
 

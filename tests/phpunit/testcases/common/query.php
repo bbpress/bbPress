@@ -232,6 +232,37 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_child_counts
+	 * @ticket 3794
+	 */
+	public function test_bbp_get_child_counts_retries_after_failed_read() {
+		global $wpdb;
+
+		$topic_id = $this->factory->topic->create();
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$failed = false;
+		$fail_query = function( $query ) use ( &$failed, $wpdb ) {
+			if ( ! $failed ) {
+				$failed = true;
+				return str_replace( "FROM {$wpdb->posts}", "FROM {$wpdb->posts}_missing", $query );
+			}
+
+			return $query;
+		};
+		$old_errors = $wpdb->suppress_errors( true );
+		add_filter( 'bbp_get_child_counts_query', $fail_query );
+
+		try {
+			$this->assertSame( array(), bbp_get_child_counts( $topic_id ) );
+			$this->assertTrue( $failed );
+			$this->assertSame( 1, bbp_get_child_counts( $topic_id )['reply']['publish'] );
+		} finally {
+			remove_filter( 'bbp_get_child_counts_query', $fail_query );
+			$wpdb->suppress_errors( $old_errors );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_public_child_ids
 	 */
 	public function test_bbp_get_public_child_ids() {
