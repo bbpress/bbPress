@@ -1430,7 +1430,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts. Defaults to total.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int|string Forum topic count, formatted by default.
+ * @return ($integer is true ? int : int|string) Forum topic count, formatted by default.
  */
 function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1465,7 +1465,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param boolean $integer Optional. Whether or not to format the result.
- * @return int|string Forum reply count, formatted by default.
+ * @return ($integer is true ? int : int|string) Forum reply count, formatted by default.
  */
 function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1540,7 +1540,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $inte
  * @param int     $forum_id Optional. Forum id.
  * @param bool    $total_count Optional. Whether to include nested forum counts.
  * @param bool|null $integer Optional. Whether or not to format the result.
- * @return int|string Forum hidden topic count, formatted by default.
+ * @return ($integer is true ? int : int|string) Forum hidden topic count, formatted by default.
  */
 function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
