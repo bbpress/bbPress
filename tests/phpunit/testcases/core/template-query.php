@@ -227,6 +227,30 @@ class BBP_Tests_Core_Template_Query extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_parse_query
+	 * @ticket 3794
+	 */
+	public function test_parse_query_rejects_non_id_scalar_users() {
+		$user_id = $this->factory->user->create();
+
+		$this->set_permalink_structure( '' );
+		foreach ( array( (float) $user_id, true ) as $value ) {
+			$query = $this->set_main_query();
+			$query->set( bbp_get_user_rewrite_id(), $value );
+			bbp_parse_query( $query );
+
+			$this->assertTrue( $query->bbp_is_404 );
+			$this->assertFalse( isset( $query->bbp_is_single_user ) );
+		}
+
+		$query = $this->set_main_query();
+		$query->set( bbp_get_user_rewrite_id(), (string) $user_id );
+		bbp_parse_query( $query );
+		$this->assertTrue( $query->bbp_is_single_user );
+		$this->assertSame( $user_id, $query->get( 'bbp_user_id' ) );
+	}
+
+	/**
+	 * @covers ::bbp_parse_query
 	 */
 	public function test_parse_query_sets_view_and_missing_view_states() {
 		$view_id = 'bbp-unit-test-view';

@@ -2716,6 +2716,13 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			array( 'feed' => 'feed', 'error' => 404 ),
 			bbp_request_feed_trap( array( 'feed' => 'feed', bbp_get_user_rewrite_id() => 'missing-user', bbp_get_user_replies_rewrite_id() => '1' ) )
 		);
+
+		foreach ( array( true, 1.5 ) as $value ) {
+			$this->assertSame(
+				array( 'feed' => 'feed', 'error' => 404 ),
+				bbp_request_feed_trap( array( 'feed' => 'feed', bbp_get_user_rewrite_id() => $value, bbp_get_user_replies_rewrite_id() => '1' ) )
+			);
+		}
 	}
 
 	/**

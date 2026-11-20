@@ -4302,7 +4302,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 				$the_user = false;
 
 				// Look up the user the same way bbp_parse_query() does
-				if ( is_scalar( $bbp_user ) ) {
+				if ( is_int( $bbp_user ) || is_string( $bbp_user ) ) {
 					if ( get_option( 'permalink_structure' ) ) {
 						$the_user = get_user_by( 'slug', $bbp_user );
 					} elseif ( is_numeric( $bbp_user ) ) {
