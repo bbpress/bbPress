@@ -998,79 +998,79 @@ class phpBB extends BBP_Converter_Base {
 		$phpbb_uid = html_entity_decode( $phpbb_uid );
 
 		// Replace '[b:XXXXXXX]' with '<strong>'
-		$phpbb_uid = preg_replace( '/\[b:(.*?)\]/',   '<strong>',  $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[b:(.*?)\]/',   '<strong>',  $phpbb_uid );
 		// Replace '[/b:XXXXXXX]' with '</strong>'
-		$phpbb_uid = preg_replace( '/\[\/b:(.*?)\]/', '</strong>', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/b:(.*?)\]/', '</strong>', $phpbb_uid );
 
 		// Replace '[i:XXXXXXX]' with '<em>'
-		$phpbb_uid = preg_replace( '/\[i:(.*?)\]/',   '<em>',      $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[i:(.*?)\]/',   '<em>',      $phpbb_uid );
 		// Replace '[/i:XXXXXXX]' with '</em>'
-		$phpbb_uid = preg_replace( '/\[\/i:(.*?)\]/', '</em>',     $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/i:(.*?)\]/', '</em>',     $phpbb_uid );
 
 		// Replace '[u:XXXXXXX]' with '<u>'
-		$phpbb_uid = preg_replace( '/\[u:(.*?)\]/',   '<u>',       $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[u:(.*?)\]/',   '<u>',       $phpbb_uid );
 		// Replace '[/u:XXXXXXX]' with '</u>'
-		$phpbb_uid = preg_replace( '/\[\/u:(.*?)\]/', '</u>',      $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/u:(.*?)\]/', '</u>',      $phpbb_uid );
 
 		// Replace '[quote:XXXXXXX]' with '<blockquote>'
-		$phpbb_uid = preg_replace( '/\[quote:(.*?)\]/',          '<blockquote>',                   $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[quote:(.*?)\]/',          '<blockquote>',                   $phpbb_uid );
 		// Replace '[quote="$1"]' with '<em>$1 wrote:</em><blockquote>"
-		$phpbb_uid = preg_replace( '/\[quote="(.*?)":(.*?)\]/', '<em>@$1 wrote:</em><blockquote>', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[quote="(.*?)":(.*?)\]/', '<em>@$1 wrote:</em><blockquote>', $phpbb_uid );
 		// Replace '[/quote:XXXXXXX]' with '</blockquote>'
-		$phpbb_uid = preg_replace( '/\[\/quote:(.*?)\]/',       '</blockquote>',                   $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/quote:(.*?)\]/',       '</blockquote>',                   $phpbb_uid );
 
 		// Replace '[img:XXXXXXX]' with '<img src="'
-		$phpbb_uid = preg_replace( '/\[img:(.*?)\]/',   '<img src="', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[img:(.*?)\]/',   '<img src="', $phpbb_uid );
 		// Replace '[/img:XXXXXXX]' with ' alt="">'
-		$phpbb_uid = preg_replace( '/\[\/img:(.*?)\]/', '" alt="">',  $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/img:(.*?)\]/', '" alt="">',  $phpbb_uid );
 
 		// Replace '<!-- s$1 --><img src=\"{SMILIES_PATH}$2 -->' with '$1'
-		$phpbb_uid = preg_replace( '/<!-- s(.*?) --><img src=\"{SMILIES_PATH}(.*?)-->/', '$1', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/<!-- s(.*?) --><img src=\"{SMILIES_PATH}(.*?)-->/', '$1', $phpbb_uid );
 
 		// Replace '<!-- m --><a class="postlink" href="$1">$1</a><!-- m -->' with '$1'
-		$phpbb_uid = preg_replace( '/\<!-- m --\>\<a class="postlink" href="([^\[]+?)"\>([^\[]+?)\<\/a\>\<!-- m --\>/', '$1', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\<!-- m --\>\<a class="postlink" href="([^\[]+?)"\>([^\[]+?)\<\/a\>\<!-- m --\>/', '$1', $phpbb_uid );
 
 		// Replace '[url:XXXXXXX]$1[/url:XXXXXXX]' with '<a href="http://$1">$1</a>'
-		$phpbb_uid = preg_replace( '/\[url:(?:[^\]]+)\]([^\[]+?)\[\/url:(?:[^\]]+)\]/',       '<a href="http://$1">$1</a>',  $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[url:(?:[^\]]+)\]([^\[]+?)\[\/url:(?:[^\]]+)\]/',       '<a href="http://$1">$1</a>',  $phpbb_uid );
 		// Replace '[url=http://$1:XXXXXXX]$3[/url:XXXXXXX]' with '<a href="http://$1">$3</a>'
-		$phpbb_uid = preg_replace( '/\[url\=http\:\/\/(.*?)\:(.*?)\](.*?)\[\/url:(.*?)\]/i',  '<a href="http://$1">$3</a>',  $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[url\=http\:\/\/(.*?)\:(.*?)\](.*?)\[\/url:(.*?)\]/i',  '<a href="http://$1">$3</a>',  $phpbb_uid );
 		// Replace '[url=https://$1:XXXXXXX]$3[/url:XXXXXXX]' with '<a href="http://$1">$3</a>'
-		$phpbb_uid = preg_replace( '/\[url\=https\:\/\/(.*?)\:(.*?)\](.*?)\[\/url:(.*?)\]/i', '<a href="https://$1">$3</a>', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[url\=https\:\/\/(.*?)\:(.*?)\](.*?)\[\/url:(.*?)\]/i', '<a href="https://$1">$3</a>', $phpbb_uid );
 
 		// Replace '[email:XXXXXXX]' with '<a href="mailto:$2">$2</a>'
-		$phpbb_uid = preg_replace( '/\[email:(.*?)\](.*?)\[\/email:(.*?)\]/', '<a href="mailto:$2">$2</a>', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[email:(.*?)\](.*?)\[\/email:(.*?)\]/', '<a href="mailto:$2">$2</a>', $phpbb_uid );
 		// Replace '<!-- e -->no.one@domain.adr<!-- e -->' with '$1'
-		$phpbb_uid = preg_replace( '/\<!-- e --\>(.*?)\<!-- e --\>/', '$1', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\<!-- e --\>(.*?)\<!-- e --\>/', '$1', $phpbb_uid );
 
 		// Replace '[code:XXXXXXX]' with '<pre><code>'
-		$phpbb_uid = preg_replace( '/\[code:(.*?)\]/',   '<pre><code>',   $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[code:(.*?)\]/',   '<pre><code>',   $phpbb_uid );
 		// Replace '[/code:XXXXXXX]' with '</code></pre>'
-		$phpbb_uid = preg_replace( '/\[\/code:(.*?)\]/', '</code></pre>', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/code:(.*?)\]/', '</code></pre>', $phpbb_uid );
 
 		// Replace '[color=$1:XXXXXXXX]' with '<span style="color:$1">'
-		$phpbb_uid = preg_replace( '/\[color=(.*?)\:(.*?)\]/', '<span style="color: $1">', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[color=(.*?)\:(.*?)\]/', '<span style="color: $1">', $phpbb_uid );
 		// Replace '[/color:XXXXXXX]' with '</span>'
-		$phpbb_uid = preg_replace( '/\[\/color:(.*?)\]/',      '</span>',                  $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/color:(.*?)\]/',      '</span>',                  $phpbb_uid );
 
 		// Replace '[size=$1:XXXXXXXX]' with '<span style="font-size:$1%;">$3</span>'
-		$phpbb_uid = preg_replace( '/\[size=(.*?):(.*?)\]/', '<span style="font-size:$1%;">', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[size=(.*?):(.*?)\]/', '<span style="font-size:$1%;">', $phpbb_uid );
 		// Replace '[/size:XXXXXXX]' with ''
-		$phpbb_uid = preg_replace( '/\[\/size:(.*?)\]/',     '</span>',                       $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/size:(.*?)\]/',     '</span>',                       $phpbb_uid );
 
 		// Replace '[list:XXXXXXX]' with '<ul>'
-		$phpbb_uid = preg_replace( '/\[list:(.*?)\]/',     '<ul>',          $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[list:(.*?)\]/',     '<ul>',          $phpbb_uid );
 		// Replace '[list=a:XXXXXXX]' with '<ol type="a">'
-		$phpbb_uid = preg_replace( '/\[list=a:(.*?)\]/',   '<ol type="a">', $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[list=a:(.*?)\]/',   '<ol type="a">', $phpbb_uid );
 		// Replace '[list=1:XXXXXXX]' with '<ol>'
-		$phpbb_uid = preg_replace( '/\[list=1:(.*?)\]/',   '<ol>',          $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[list=1:(.*?)\]/',   '<ol>',          $phpbb_uid );
 		// Replace '[*:XXXXXXX]' with '<li>'
-		$phpbb_uid = preg_replace( '/\[\*:(.*?)\]/',       '<li>',          $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\*:(.*?)\]/',       '<li>',          $phpbb_uid );
 		// Replace '[/*:m:XXXXXXX]' with '</li>'
-		$phpbb_uid = preg_replace( '/\[\/\*:m:(.*?)\]/',   '</li>',         $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/\*:m:(.*?)\]/',   '</li>',         $phpbb_uid );
 		// Replace '[/list:u:XXXXXXX]' with '</ul>'
-		$phpbb_uid = preg_replace( '/\[\/list:u:(.*?)\]/', '</ul>',         $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/list:u:(.*?)\]/', '</ul>',         $phpbb_uid );
 		// Replace '[/list:o:XXXXXXX]' with '</ol>'
-		$phpbb_uid = preg_replace( '/\[\/list:o:(.*?)\]/', '</ol>',         $phpbb_uid );
+		$phpbb_uid = $this->replace_string( '/\[\/list:o:(.*?)\]/', '</ol>',         $phpbb_uid );
 
 		// Now that phpBB's 'magic_url' and 'bbcode_uid' have been stripped put the cleaned HTML back in $field
 		$field = $phpbb_uid;

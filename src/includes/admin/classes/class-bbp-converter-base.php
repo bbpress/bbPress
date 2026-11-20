@@ -1653,6 +1653,22 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
+	 * Replace converter text without discarding it after a PCRE error.
+	 *
+	 * @since 2.7.0 bbPress (r8549)
+	 *
+	 * @param string $pattern     Regular expression.
+	 * @param string $replacement Replacement text.
+	 * @param string $subject     Text to update.
+	 * @return string Updated or original text.
+	 */
+	protected function replace_string( $pattern, $replacement, $subject ) {
+		$replaced = preg_replace( $pattern, $replacement, $subject );
+
+		return ( null === $replaced ) ? $subject : $replaced;
+	}
+
+	/**
 	 * Convert source BBCode to HTML.
 	 *
 	 * @param string $field Source BBCode.

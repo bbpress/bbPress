@@ -42,6 +42,10 @@ class BBP_Tests_Admin_Converters_Base_Converter extends BBP_Converter_Base {
 		return $this->callback_html( $value );
 	}
 
+	public function invoke_replace_string( $pattern, $replacement, $value ) {
+		return $this->replace_string( $pattern, $replacement, $value );
+	}
+
 	public function invoke_callback_null( $value ) {
 		return $this->callback_null( $value );
 	}
@@ -294,6 +298,18 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 			}
 			$instance->setValue( null, null );
 		}
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::replace_string
+	 * @ticket 3794
+	 */
+	public function test_replace_string_preserves_text_after_pcre_error() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$invalid   = "\xFF";
+
+		$this->assertSame( '<strong>Text</strong>', $converter->invoke_replace_string( '/\[b\](.*?)\[\/b\]/', '<strong>$1</strong>', '[b]Text[/b]' ) );
+		$this->assertSame( $invalid, $converter->invoke_replace_string( '/./u', 'x', $invalid ) );
 	}
 
 	/**

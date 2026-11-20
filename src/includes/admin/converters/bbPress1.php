@@ -754,7 +754,7 @@ class bbPress1 extends BBP_Converter_Base {
 	protected function callback_topic_subscriptions( $field ) {
 
 		// Replace 'topic-' with '' so that only the original topic ID remains
-		$field = absint( (int) preg_replace( '/(topic-)(\d+)/', '$2', $field ) );
+		$field = absint( (int) $this->replace_string( '/(topic-)(\d+)/', '$2', $field ) );
 		return $field;
 	}
 }

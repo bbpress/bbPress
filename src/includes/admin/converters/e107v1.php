@@ -604,7 +604,7 @@ class e107v1 extends BBP_Converter_Base {
 	protected function callback_e107v1_userid( $field ) {
 
 		// Strip only the user id from the topic and reply authors
-		$field = preg_replace( '/(\d+?)+\.[\S\s]+/', '$1', $field );
+		$field = $this->replace_string( '/(\d+?)+\.[\S\s]+/', '$1', $field );
 
 		if ( ! isset( $this->map_userid[ $field ] ) ) {
 
@@ -641,28 +641,28 @@ class e107v1 extends BBP_Converter_Base {
 		$e107v1_markup = html_entity_decode( $e107v1_markup );
 
 		// Replace '[blockquote]' with '<blockquote>'
-		$e107v1_markup = preg_replace( '/\[blockquote\]/',   '<blockquote>',  $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[blockquote\]/',   '<blockquote>',  $e107v1_markup );
 		// Replace '[/blockquote]' with '</blockquote>'
-		$e107v1_markup = preg_replace( '/\[\/blockquote\]/', '</blockquote>', $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[\/blockquote\]/', '</blockquote>', $e107v1_markup );
 
 		// Replace '[quote$1=$2]' with '<em>$2 wrote:</em><blockquote>"
-		$e107v1_markup = preg_replace( '/\[quote(.*?)=(.*?)\]/', '<em>@$2 wrote:</em><blockquote>', $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[quote(.*?)=(.*?)\]/', '<em>@$2 wrote:</em><blockquote>', $e107v1_markup );
 		// Replace '[/quote$1]' with '</blockquote>"
-		$e107v1_markup = preg_replace( '/\[\/quote(.*?)\]/',     '</blockquote>',                   $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[\/quote(.*?)\]/',     '</blockquote>',                   $e107v1_markup );
 
 		// Remove '[justify]'
-		$e107v1_markup = preg_replace( '/\[justify\]/',   '', $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[justify\]/',   '', $e107v1_markup );
 		// Remove '[/justify]'
-		$e107v1_markup = preg_replace( '/\[\/justify\]/', '', $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[\/justify\]/', '', $e107v1_markup );
 
 		// Replace '[link=(https|http)://$2]$3[/link]' with '<a href="$1://$2">$3</a>'
-		$e107v1_markup = preg_replace( '/\[link\=(https|http)\:\/\/(.*?)\](.*?)\[\/link\]/i',  '<a href="$1://$2">$3</a>',  $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[link\=(https|http)\:\/\/(.*?)\](.*?)\[\/link\]/i',  '<a href="$1://$2">$3</a>',  $e107v1_markup );
 
 		// Replace '[list=(decimal|lower-roman|upper-roman|lower-alpha|upper-alpha)]' with '[list]'
-		$e107v1_markup = preg_replace( '/\[list\=(decimal|lower-roman|upper-roman|lower-alpha|upper-alpha)\]/i',  '[list]',  $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[list\=(decimal|lower-roman|upper-roman|lower-alpha|upper-alpha)\]/i',  '[list]',  $e107v1_markup );
 
 		// Replace '[youtube]$1[/youtube]' with '$1"
-		$e107v1_markup = preg_replace( '/\[youtube\](.*?)\[\/youtube\]/', 'https://youtu.be/$1', $e107v1_markup );
+		$e107v1_markup = $this->replace_string( '/\[youtube\](.*?)\[\/youtube\]/', 'https://youtu.be/$1', $e107v1_markup );
 
 		// Now that e107v1 custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $e107v1_markup;

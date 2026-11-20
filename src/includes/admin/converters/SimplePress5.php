@@ -590,26 +590,26 @@ class SimplePress5 extends BBP_Converter_Base {
 		$simplepress_markup = html_entity_decode( $simplepress_markup );
 
 		// Replace any SimplePress smilies from path '/sp-resources/forum-smileys/sf-smily.gif' with the equivelant WordPress Smilie
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-confused\.gif(.*?)\" \/>/',     ':?',      $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cool\.gif(.*?)\" \/>/',        ':cool:',   $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cry\.gif(.*?)\" \/>/',         ':cry:',    $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-embarassed\.gif(.*?)\" \/>/',  ':oops:',   $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-frown\.gif(.*?)\" \/>/',       ':(',       $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-kiss\.gif(.*?)\" \/>/',        ':P',       $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-laugh\.gif(.*?)\" \/>/',       ':D',       $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-smile\.gif(.*?)\" \/>/',       ':smile:',  $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-surprised\.gif(.*?)\" \/>/',   ':o',       $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-wink\.gif(.*?)\" \/>/',        ':wink:',   $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-yell\.gif(.*?)\" \/>/',         ':x',      $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-confused\.gif(.*?)\" \/>/',     ':?',      $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cool\.gif(.*?)\" \/>/',        ':cool:',   $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cry\.gif(.*?)\" \/>/',         ':cry:',    $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-embarassed\.gif(.*?)\" \/>/',  ':oops:',   $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-frown\.gif(.*?)\" \/>/',       ':(',       $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-kiss\.gif(.*?)\" \/>/',        ':P',       $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-laugh\.gif(.*?)\" \/>/',       ':D',       $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-smile\.gif(.*?)\" \/>/',       ':smile:',  $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-surprised\.gif(.*?)\" \/>/',   ':o',       $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-wink\.gif(.*?)\" \/>/',        ':wink:',   $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-yell\.gif(.*?)\" \/>/',         ':x',      $simplepress_markup );
 
 		// Replace '<div class="sfcode">example code</div>' with '<code>*</code>'
-		$simplepress_markup = preg_replace( '/\<div class\=\"sfcode\"\>(.*?)\<\/div\>/', '<code>$1</code>', $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<div class\=\"sfcode\"\>(.*?)\<\/div\>/', '<code>$1</code>', $simplepress_markup );
 
 		// Replace '<strong>username said </strong>' with '@username said:'
-		$simplepress_markup = preg_replace( '/\<strong\>(.*?)\ said\ \<\/strong\>/',     '@$1 said:',        $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\<strong\>(.*?)\ said\ \<\/strong\>/',     '@$1 said:',        $simplepress_markup );
 
 		// Replace '<p>&nbsp;</p>' with '<p>&nbsp;</p>'
-		$simplepress_markup = preg_replace( '/\n(&nbsp;|[\s\p{Z}\xA0\x{00A0}]+)\r/', '<br>', $simplepress_markup );
+		$simplepress_markup = $this->replace_string( '/\n(&nbsp;|[\s\p{Z}\xA0\x{00A0}]+)\r/', '<br>', $simplepress_markup );
 
 		// Now that SimplePress' custom HTML codes have been stripped put the cleaned HTML back in $field
 		$field = $simplepress_markup;

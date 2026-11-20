@@ -616,69 +616,69 @@ class Invision extends BBP_Converter_Base {
 		$invision_markup = html_entity_decode( $invision_markup );
 
 		// Replace '[html]' with '<pre><code>'
-		$invision_markup = preg_replace( '/\[html\]/', '<pre><code>',     $invision_markup );
+		$invision_markup = $this->replace_string( '/\[html\]/', '<pre><code>',     $invision_markup );
 		// Replace '[/html]' with '</code></pre>'
-		$invision_markup = preg_replace( '/\[\/html\]/', '</code></pre>', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/html\]/', '</code></pre>', $invision_markup );
 		// Replace '[sql]' with '<pre><code>'
-		$invision_markup = preg_replace( '/\[sql\]/', '<pre><code>',      $invision_markup );
+		$invision_markup = $this->replace_string( '/\[sql\]/', '<pre><code>',      $invision_markup );
 		// Replace '[/sql]' with '</code></pre>'
-		$invision_markup = preg_replace( '/\[\/sql\]/', '</code></pre>',  $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/sql\]/', '</code></pre>',  $invision_markup );
 		// Replace '[php]' with '<pre><code>'
-		$invision_markup = preg_replace( '/\[php\]/', '<pre><code>',      $invision_markup );
+		$invision_markup = $this->replace_string( '/\[php\]/', '<pre><code>',      $invision_markup );
 		// Replace '[/php]' with '</code></pre>'
-		$invision_markup = preg_replace( '/\[\/php\]/', '</code></pre>',  $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/php\]/', '</code></pre>',  $invision_markup );
 		// Replace '[xml]' with '<pre><code>'
-		$invision_markup = preg_replace( '/\[xml\]/', '<pre><code>',      $invision_markup );
+		$invision_markup = $this->replace_string( '/\[xml\]/', '<pre><code>',      $invision_markup );
 		// Replace '[/xml]' with '</code></pre>'
-		$invision_markup = preg_replace( '/\[\/xml\]/', '</code></pre>',  $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/xml\]/', '</code></pre>',  $invision_markup );
 		// Replace '[CODE]' with '<pre><code>'
-		$invision_markup = preg_replace( '/\[CODE\]/', '<pre><code>',     $invision_markup );
+		$invision_markup = $this->replace_string( '/\[CODE\]/', '<pre><code>',     $invision_markup );
 		// Replace '[/CODE]' with '</code></pre>'
-		$invision_markup = preg_replace( '/\[\/CODE\]/', '</code></pre>', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/CODE\]/', '</code></pre>', $invision_markup );
 
 		// Replace '[quote:XXXXXXX]' with '<blockquote>'
-		$invision_markup = preg_replace( '/\[quote:(.*?)\]/', '<blockquote>',                            $invision_markup );
+		$invision_markup = $this->replace_string( '/\[quote:(.*?)\]/', '<blockquote>',                            $invision_markup );
 		// Replace '[quote="$1"]' with '<em>@$1 wrote:</em><blockquote>'
-		$invision_markup = preg_replace( '/\[quote="(.*?)":(.*?)\]/', '<em>@$1 wrote:</em><blockquote>', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[quote="(.*?)":(.*?)\]/', '<em>@$1 wrote:</em><blockquote>', $invision_markup );
 		// Replace '[/quote:XXXXXXX]' with '</blockquote>'
-		$invision_markup = preg_replace( '/\[\/quote:(.*?)\]/', '</blockquote>',                         $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/quote:(.*?)\]/', '</blockquote>',                         $invision_markup );
 
 		// Replace '[twitter]$1[/twitter]' with '<a href="https://twitter.com/$1">@$1</a>"
-		$invision_markup = preg_replace( '/\[twitter\](.*?)\[\/twitter\]/', '<a href="https://twitter.com/$1">@$1</a>', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[twitter\](.*?)\[\/twitter\]/', '<a href="https://twitter.com/$1">@$1</a>', $invision_markup );
 
 		// Replace '[member='username']' with '@username"
-		$invision_markup = preg_replace( '/\[member=\'(.*?)\'\]/', '@$1 ', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[member=\'(.*?)\'\]/', '@$1 ', $invision_markup );
 
 		// Replace '[media]' with ''
-		$invision_markup = preg_replace( '/\[media\]/', '',   $invision_markup );
+		$invision_markup = $this->replace_string( '/\[media\]/', '',   $invision_markup );
 		// Replace '[/media]' with ''
-		$invision_markup = preg_replace( '/\[\/media\]/', '', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/media\]/', '', $invision_markup );
 
 		// Replace '[list:XXXXXXX]' with '<ul>'
-		$invision_markup = preg_replace( '/\[list\]/', '<ul>',                    $invision_markup );
+		$invision_markup = $this->replace_string( '/\[list\]/', '<ul>',                    $invision_markup );
 		// Replace '[list=1:XXXXXXX]' with '<ul>'
-		$invision_markup = preg_replace( '/\[list=1\]/', '<ul>',                  $invision_markup );
+		$invision_markup = $this->replace_string( '/\[list=1\]/', '<ul>',                  $invision_markup );
 		// Replace '[*:XXXXXXX]' with '<li>'
-		$invision_markup = preg_replace( '/\[\*\](.*?)\<br \/\>/', '<li>$1</li>', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\*\](.*?)\<br \/\>/', '<li>$1</li>', $invision_markup );
 		// Replace '[/list:u:XXXXXXX]' with '</ul>'
-		$invision_markup = preg_replace( '/\[\/list\]/', '</ul>',                 $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/list\]/', '</ul>',                 $invision_markup );
 
 		// Replace '[hr]' with '<hr>"
-		$invision_markup = preg_replace( '/\[hr\]/', '<hr>',     $invision_markup );
+		$invision_markup = $this->replace_string( '/\[hr\]/', '<hr>',     $invision_markup );
 
 		// Replace '[font=XXXXXXX]' with ''
-		$invision_markup = preg_replace( '/\[font=(.*?)\]/', '', $invision_markup );
+		$invision_markup = $this->replace_string( '/\[font=(.*?)\]/', '', $invision_markup );
 		// Replace '[/font]' with ''
-		$invision_markup = preg_replace( '/\[\/font\]/', '',     $invision_markup );
+		$invision_markup = $this->replace_string( '/\[\/font\]/', '',     $invision_markup );
 
 		// Replace any Invision smilies from path '/sp-resources/forum-smileys/sf-smily.gif' with the equivelant WordPress Smilie
-		$invision_markup = preg_replace( '/\<img src=(.*?)EMO\_DIR(.*?)bbc_emoticon(.*?)alt=\'(.*?)\' \/\>/', '$4', $invision_markup );
-		$invision_markup = preg_replace( '/\:angry\:/',    ':mad:',     $invision_markup );
-		$invision_markup = preg_replace( '/\:mellow\:/',   ':neutral:', $invision_markup );
-		$invision_markup = preg_replace( '/\:blink\:/',    ':eek:',     $invision_markup );
-		$invision_markup = preg_replace( '/B\)/',          ':cool:',    $invision_markup );
-		$invision_markup = preg_replace( '/\:rolleyes\:/', ':roll:',    $invision_markup );
-		$invision_markup = preg_replace( '/\:unsure\:/',   ':???:',     $invision_markup );
+		$invision_markup = $this->replace_string( '/\<img src=(.*?)EMO\_DIR(.*?)bbc_emoticon(.*?)alt=\'(.*?)\' \/\>/', '$4', $invision_markup );
+		$invision_markup = $this->replace_string( '/\:angry\:/',    ':mad:',     $invision_markup );
+		$invision_markup = $this->replace_string( '/\:mellow\:/',   ':neutral:', $invision_markup );
+		$invision_markup = $this->replace_string( '/\:blink\:/',    ':eek:',     $invision_markup );
+		$invision_markup = $this->replace_string( '/B\)/',          ':cool:',    $invision_markup );
+		$invision_markup = $this->replace_string( '/\:rolleyes\:/', ':roll:',    $invision_markup );
+		$invision_markup = $this->replace_string( '/\:unsure\:/',   ':???:',     $invision_markup );
 
 		// Now that Invision custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $invision_markup;

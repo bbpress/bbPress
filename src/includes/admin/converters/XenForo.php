@@ -851,26 +851,29 @@ class XenForo extends BBP_Converter_Base {
 		$xenforo_markup = html_entity_decode( $xenforo_markup );
 
 		// Replace '[QUOTE]' with '<blockquote>'
-		$xenforo_markup = preg_replace( '/\[QUOTE\]/', '<blockquote>', $xenforo_markup );
+		$xenforo_markup = $this->replace_string( '/\[QUOTE\]/', '<blockquote>', $xenforo_markup );
 		// Replace '[/QUOTE]' with '</blockquote>'
-		$xenforo_markup = preg_replace( '/\[\/QUOTE\]/', '</blockquote>', $xenforo_markup );
+		$xenforo_markup = $this->replace_string( '/\[\/QUOTE\]/', '</blockquote>', $xenforo_markup );
 		// Replace '[QUOTE="User Name, post: 1, member: 2"]' with '<em>@User Name wrote:</em><blockquote>'
-		$xenforo_markup = preg_replace_callback(
+		$attributed_quotes = preg_replace_callback(
 			'/\[quote="([^"]+),\s*post:\s*[^,"]+,\s*member:\s*[^"]+"\]/i',
 			function ( $matches ) {
 				return '<em>@' . esc_html( $matches[1] ) . ' wrote:</em><blockquote>';
 			},
 			$xenforo_markup
 		);
+		if ( null !== $attributed_quotes ) {
+			$xenforo_markup = $attributed_quotes;
+		}
 		// Replace '[/quote]' with '</blockquote>'
-		$xenforo_markup = preg_replace( '/\[\/quote\]/', '</blockquote>', $xenforo_markup );
+		$xenforo_markup = $this->replace_string( '/\[\/quote\]/', '</blockquote>', $xenforo_markup );
 
 		// Replace '[media=youtube]$1[/media]' with '$1"
-		$xenforo_markup = preg_replace( '/\[media\=youtube\](.*?)\[\/media\]/', 'https://youtu.be/$1', $xenforo_markup );
+		$xenforo_markup = $this->replace_string( '/\[media\=youtube\](.*?)\[\/media\]/', 'https://youtu.be/$1', $xenforo_markup );
 		// Replace '[media=dailymotion]$1[/media]' with '$1"
-		$xenforo_markup = preg_replace( '/\[media\=dailymotion\](.*?)\[\/media\]/', 'https://www.dailymotion.com/video/$1', $xenforo_markup );
+		$xenforo_markup = $this->replace_string( '/\[media\=dailymotion\](.*?)\[\/media\]/', 'https://www.dailymotion.com/video/$1', $xenforo_markup );
 		// Replace '[media=vimeo]$1[/media]' with '$1"
-		$xenforo_markup = preg_replace( '/\[media\=vimeo\](.*?)\[\/media\]/', 'https://vimeo.com/$1', $xenforo_markup );
+		$xenforo_markup = $this->replace_string( '/\[media\=vimeo\](.*?)\[\/media\]/', 'https://vimeo.com/$1', $xenforo_markup );
 
 		// Now that Xenforo custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $xenforo_markup;

@@ -763,68 +763,68 @@ class SMF extends BBP_Converter_Base {
 		$smf_markup = html_entity_decode( $smf_markup );
 
 		// Replace '[quote]' with '<blockquote>'
-		$smf_markup = preg_replace( '/\[quote\]/',       '<blockquote>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[quote\]/',       '<blockquote>',  $smf_markup );
 		// Replace '[quote ($1)]' with '<blockquote>"
-		$smf_markup = preg_replace( '/\[quote (.*?)\]/', '<blockquote>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[quote (.*?)\]/', '<blockquote>',  $smf_markup );
 		// Replace '[/quote]' with '</blockquote>'
-		$smf_markup = preg_replace( '/\[\/quote\]/',     '</blockquote>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/quote\]/',     '</blockquote>', $smf_markup );
 
 		// Replace '[glow]' with ''
-		$smf_markup = preg_replace( '/\[glow\]/',   '',       $smf_markup );
+		$smf_markup = $this->replace_string( '/\[glow\]/',   '',       $smf_markup );
 		// Replace '[glow]' with ''
-		$smf_markup = preg_replace( '/\[glow=(.*?)\]/',   '', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[glow=(.*?)\]/',   '', $smf_markup );
 		// Replace '[/glow]' with ''
-		$smf_markup = preg_replace( '/\[\/glow\]/', '',       $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/glow\]/', '',       $smf_markup );
 
 		// Replace '[shadow]' with ''
-		$smf_markup = preg_replace( '/\[shadow\]/',   '',       $smf_markup );
+		$smf_markup = $this->replace_string( '/\[shadow\]/',   '',       $smf_markup );
 		// Replace '[shadow]' with ''
-		$smf_markup = preg_replace( '/\[shadow=(.*?)\]/',   '', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[shadow=(.*?)\]/',   '', $smf_markup );
 		// Replace '[/shadow]' with ''
-		$smf_markup = preg_replace( '/\[\/shadow\]/', '',       $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/shadow\]/', '',       $smf_markup );
 
 		// Replace '[move]' with ''
-		$smf_markup = preg_replace( '/\[move\]/',   '', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[move\]/',   '', $smf_markup );
 		// Replace '[/move]' with ''
-		$smf_markup = preg_replace( '/\[\/move\]/', '', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/move\]/', '', $smf_markup );
 
 		// Replace '[table]' with '<table>'
-		$smf_markup = preg_replace( '/\[table\]/',   '<table>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[table\]/',   '<table>',  $smf_markup );
 		// Replace '[/table]' with '</table>'
-		$smf_markup = preg_replace( '/\[\/table\]/', '</table>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/table\]/', '</table>', $smf_markup );
 		// Replace '[tr]' with '<tr>'
-		$smf_markup = preg_replace( '/\[tr\]/',   '<tr>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[tr\]/',   '<tr>',  $smf_markup );
 		// Replace '[/tr]' with '</tr>'
-		$smf_markup = preg_replace( '/\[\/tr\]/', '</tr>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/tr\]/', '</tr>', $smf_markup );
 		// Replace '[td]' with '<td>'
-		$smf_markup = preg_replace( '/\[td\]/',   '<td>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[td\]/',   '<td>',  $smf_markup );
 		// Replace '[/td]' with '</td>'
-		$smf_markup = preg_replace( '/\[\/td\]/', '</td>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/td\]/', '</td>', $smf_markup );
 
 		// Replace '[list]' with '<ul>'
-		$smf_markup = preg_replace( '/\[list\]/',     '<ul>',                      $smf_markup );
+		$smf_markup = $this->replace_string( '/\[list\]/',     '<ul>',                      $smf_markup );
 		// Replace '[liist type=decimal]' with '<ol type="a">'
-		$smf_markup = preg_replace( '/\[list\ type=decimal\]/',   '<ol type="a">', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[list\ type=decimal\]/',   '<ol type="a">', $smf_markup );
 		// Replace '[li]' with '<li>'
-		$smf_markup = preg_replace( '/\[li\]/',   '<li>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[li\]/',   '<li>',  $smf_markup );
 		// Replace '[/li]' with '</li>'
-		$smf_markup = preg_replace( '/\[\/li\]/', '</li>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/li\]/', '</li>', $smf_markup );
 
 		// Replace '[tt]' with '<tt>'
-		$smf_markup = preg_replace( '/\[tt\]/',   '<tt>',  $smf_markup );
+		$smf_markup = $this->replace_string( '/\[tt\]/',   '<tt>',  $smf_markup );
 		// Replace '[/tt]' with '</tt>'
-		$smf_markup = preg_replace( '/\[\/tt\]/', '</tt>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/tt\]/', '</tt>', $smf_markup );
 
 		// Replace '<br />' with '<br>'
-		$smf_markup = preg_replace( '/\<br \/\>/', '<br>', $smf_markup );
+		$smf_markup = $this->replace_string( '/\<br \/\>/', '<br>', $smf_markup );
 
 		// Replace '[size=$1]' with '<span style="font-size:$1%;">$3</span>'
-		$smf_markup = preg_replace( '/\[size=(.*?)\]/', '<span style="font-size:$1">', $smf_markup );
+		$smf_markup = $this->replace_string( '/\[size=(.*?)\]/', '<span style="font-size:$1">', $smf_markup );
 		// Replace '[/size]' with '</span>'
-		$smf_markup = preg_replace( '/\[\/size\]/',     '</span>',                     $smf_markup );
+		$smf_markup = $this->replace_string( '/\[\/size\]/',     '</span>',                     $smf_markup );
 
 		// Replace non-break space '&nbsp;' with space ' '
-		$smf_markup = preg_replace( '/&nbsp;/', ' ', $smf_markup );
+		$smf_markup = $this->replace_string( '/&nbsp;/', ' ', $smf_markup );
 
 		// Now that SMF custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $smf_markup;
