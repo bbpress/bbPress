@@ -57,6 +57,14 @@ class BBP_Tests_Admin_Converters_Base_Converter extends BBP_Converter_Base {
 	public function set_max_rows( $max_rows ) {
 		$this->max_rows = $max_rows;
 	}
+
+	public function add_source_field( $field ) {
+		$this->field_map[] = $field;
+	}
+
+	public function set_source_database( $database ) {
+		$this->opdb = $database;
+	}
 }
 
 class BBP_Tests_Admin_Converters_Base_Delegating_Converter extends BBP_Tests_Admin_Converters_Base_Converter {
@@ -153,11 +161,28 @@ class BBP_Tests_Admin_Converters_Base_Import_Database extends BBP_Converter_DB {
 class BBP_Tests_Admin_Converters_Base_Source_Database {
 	public $prefix      = '';
 	public $connections = 0;
+	public $row_count   = 0;
+	public $rows        = array();
+	public $count_error = '';
+	public $rows_error  = '';
+	public $last_error  = '';
 
 	public function db_connect( $allow_bail = true ) {
 		++$this->connections;
 
 		return true;
+	}
+
+	public function get_var( $query ) {
+		$this->last_error = $this->count_error;
+
+		return $this->row_count;
+	}
+
+	public function get_results( $query, $output = OBJECT ) {
+		$this->last_error = $this->rows_error;
+
+		return $this->rows;
 	}
 }
 
@@ -769,18 +794,81 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 
 		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
 		$source_db = new BBP_Tests_Admin_Converters_Base_Source_Database();
-		$set_source_db = Closure::bind(
-			function( $object, $database ) {
-				$object->opdb = $database;
-			},
-			null,
-			'BBP_Converter_Base'
-		);
-		$set_source_db( $converter, $source_db );
+		$converter->set_source_database( $source_db );
 
 		$converter->convert_table( 'connection_probe', 1 );
 
 		$this->assertSame( 1, $source_db->connections );
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::convert_table
+	 * @ticket 3794
+	 */
+	public function test_convert_table_reports_failed_source_reads() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$source_db = new BBP_Tests_Admin_Converters_Base_Source_Database();
+		$converter->set_source_database( $source_db );
+		$converter->add_source_field( array(
+			'from_tablename' => 'legacy_forums',
+			'from_fieldname' => 'id',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_old_forum_id'
+		) );
+
+		$wp_die_ajax_handler = function() {
+			return function() {
+				throw new BBP_Tests_Admin_Converters_Ajax_Response_Exception( 'AJAX response complete' );
+			};
+		};
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
+
+		try {
+			foreach ( array(
+				array( null, '', null, '' ),
+				array( 1, 'count failed', null, '' ),
+				array( 1, '', null, '' ),
+				array( 1, '', array(), 'rows failed' )
+			) as $case ) {
+				list( $source_db->row_count, $source_db->count_error, $source_db->rows, $source_db->rows_error ) = $case;
+				ob_start();
+				try {
+					$converter->convert_table( 'forum', 0 );
+					$this->fail( 'Expected a failed source read to stop the import.' );
+				} catch ( BBP_Tests_Admin_Converters_Ajax_Response_Exception $error ) {
+					$response = json_decode( ob_get_contents(), true );
+					$this->assertFalse( $response['success'] );
+					$this->assertSame( 'bbp_converter_source_query_failed', $response['data'][0]['code'] );
+				} finally {
+					ob_end_clean();
+				}
+			}
+		} finally {
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::convert_table
+	 * @ticket 3794
+	 */
+	public function test_convert_table_accepts_an_unchanged_zero_row_count() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$source_db = new BBP_Tests_Admin_Converters_Base_Source_Database();
+		$converter->set_source_database( $source_db );
+		$converter->add_source_field( array(
+			'from_tablename' => 'legacy_forums',
+			'from_fieldname' => 'id',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_old_forum_id'
+		) );
+
+		update_option( '_bbp_converter_rows_in_step', 0 );
+		$this->assertTrue( $converter->convert_table( 'forum', 0 ) );
+		$this->assertTrue( $converter->convert_table( 'forum', 0 ) );
+		$this->assertSame( 0, (int) get_option( '_bbp_converter_rows_in_step' ) );
 	}
 
 	/**

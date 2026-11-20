@@ -409,7 +409,8 @@ abstract class BBP_Converter_Base {
 
 		// Connect to the source database only when conversion begins. This keeps
 		// first-login password upgrades independent of the source database.
-		if ( ! $this->opdb->db_connect( false ) ) {
+		$source_db = $this->opdb;
+		if ( ! $source_db || ! $source_db->db_connect( false ) ) {
 			$error = new WP_Error( 'bbp_converter_db_connection_failed', esc_html__( 'Database connection failed.', 'bbpress' ) );
 			wp_send_json_error( $error );
 		}
@@ -466,7 +467,7 @@ abstract class BBP_Converter_Base {
 
 					// Doing some joining
 					if ( ! in_array( $item['from_tablename'], $from_tables, true ) && in_array( $item['join_tablename'], $from_tables, true ) ) {
-						$from_tablename .= ' ' . $item['join_type'] . ' JOIN ' . $this->opdb->prefix . $item['from_tablename'] . ' AS ' . $item['from_tablename'] . ' ' . $item['join_expression'];
+						$from_tablename .= ' ' . $item['join_type'] . ' JOIN ' . $source_db->prefix . $item['from_tablename'] . ' AS ' . $item['from_tablename'] . ' ' . $item['join_expression'];
 					}
 
 				// $from_tablename needs to be set
@@ -499,18 +500,25 @@ abstract class BBP_Converter_Base {
 		if ( ! empty( $from_tablename ) ) {
 
 			// Update rows
-			$this->count_rows_by_table( "{$this->opdb->prefix}{$from_tablename}" );
+			if ( ! $this->count_rows_by_table( "{$source_db->prefix}{$from_tablename}" ) ) {
+				$error = new WP_Error( 'bbp_converter_source_query_failed', esc_html__( 'Could not read the source database.', 'bbpress' ) );
+				wp_send_json_error( $error );
+			}
 
 			// Get some data from the old forums
 			$field_list  = array_unique( $field_list );
 			$fields      = implode( ',', $field_list );
-			$forum_query = "SELECT {$fields} FROM {$this->opdb->prefix}{$from_tablename} LIMIT {$start}, {$this->max_rows}";
+			$forum_query = "SELECT {$fields} FROM {$source_db->prefix}{$from_tablename} LIMIT {$start}, {$this->max_rows}";
 
 			// Set this query as the last one ran
 			$this->update_query( $forum_query );
 
 			// Get results as an array
-			$forum_array = $this->opdb->get_results( $forum_query, ARRAY_A );
+			$forum_array = $source_db->get_results( $forum_query, ARRAY_A );
+			if ( ! is_array( $forum_array ) || ! empty( $source_db->last_error ) ) {
+				$error = new WP_Error( 'bbp_converter_source_query_failed', esc_html__( 'Could not read the source database.', 'bbpress' ) );
+				wp_send_json_error( $error );
+			}
 
 			// Query returned some results
 			if ( ! empty( $forum_array ) ) {
@@ -1359,12 +1367,21 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r6681)
 	 *
 	 * @param string $table_name The literal MySQL query.
-	 * @return bool Whether the saved row count was updated.
+	 * @return bool Whether the source row count was read.
 	 */
 	private function count_rows_by_table( $table_name = '' ) {
-		$count = (int) $this->opdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+		if ( ! $this->opdb ) {
+			return false;
+		}
 
-		return update_option( '_bbp_converter_rows_in_step', $count );
+		$count = $this->opdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+		if ( null === $count || ! empty( $this->opdb->last_error ) ) {
+			return false;
+		}
+
+		update_option( '_bbp_converter_rows_in_step', (int) $count );
+
+		return true;
 	}
 
 	/** Callbacks *************************************************************/
