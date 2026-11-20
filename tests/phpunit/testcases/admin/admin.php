@@ -845,6 +845,17 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$this->assertSame( $expected_states, $states );
 	}
 
+	/**
+	 * @covers BBP_Admin::display_post_states
+	 * @ticket 3794
+	 */
+	public function test_display_post_states_preserves_existing_states_without_a_post() {
+		$states = array( 'Existing' );
+
+		$this->assertSame( $states, bbp_admin()->display_post_states( $states ) );
+		$this->assertSame( $states, bbp_admin()->display_post_states( $states, false ) );
+	}
+
 	public static function post_state_provider() {
 		return array(
 			'forum shortcode'       => array( '[bbp-forum-index]', 'page', 'Forum Archive', 'bbp-forum-index' ),

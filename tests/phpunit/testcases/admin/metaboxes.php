@@ -370,6 +370,7 @@ class BBP_Tests_Admin_Metaboxes extends BBP_UnitTestCase {
 	 */
 	public function test_topic_replies_metabox_handles_empty_and_populated_topics() {
 		$this->assertSame( '', $this->capture_callback( 'bbp_topic_replies_metabox' ) );
+		$this->assertSame( '', $this->capture_callback( 'bbp_topic_replies_metabox', true ) );
 
 		$old_screen  = isset( $GLOBALS['current_screen'] ) ? $GLOBALS['current_screen'] : null;
 		$hook_suffix = isset( $GLOBALS['hook_suffix'] ) ? $GLOBALS['hook_suffix'] : null;

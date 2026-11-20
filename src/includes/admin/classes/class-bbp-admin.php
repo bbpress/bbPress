@@ -1200,6 +1200,9 @@ class BBP_Admin {
 
 		// Default return value
 		$retval = $post_states;
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return $retval;
+		}
 
 		/** Shortcodes ********************************************************/
 

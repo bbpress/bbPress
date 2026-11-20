@@ -615,7 +615,7 @@ function bbp_reply_metabox( $post ) {
 function bbp_topic_replies_metabox( $topic = false ) {
 
 	// Bail if no topic to load replies for
-	if ( empty( $topic ) ) {
+	if ( ! ( $topic instanceof WP_Post ) ) {
 		return;
 	}
 
