@@ -120,7 +120,7 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 					array_merge( $kind_args, $value_args, $ids )
 				)
 			);
-			if ( ! empty( $bbp_db->last_error ) ) {
+			if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 				return $batch;
 			}
@@ -294,7 +294,7 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
 			),
 			ARRAY_A
 		);
-		if ( ! empty( $bbp_db->last_error ) ) {
+		if ( ! is_array( $topics ) || ! empty( $bbp_db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
@@ -556,7 +556,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 					$size + 1
 				)
 			);
-			if ( ! empty( $bbp_db->last_error ) ) {
+			if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 				return $batch;
 			}
@@ -612,7 +612,7 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 					$source . $bbp_db->prepare( " AND topics.ID IN ({$slots})", $ids ) .
 					') AS relations GROUP BY relations.post_id'
 				);
-				if ( ! empty( $bbp_db->last_error ) ) {
+				if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 					return $batch;
 				}
@@ -935,7 +935,7 @@ function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
 		),
 		ARRAY_A
 	);
-	if ( ! empty( $bbp_db->last_error ) ) {
+	if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 		return array( 'code' => 3 );
 	}
 	$counts = array();
@@ -1206,7 +1206,7 @@ function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_
 		ARRAY_A
 	);
 
-	if ( ! empty( $bbp_db->last_error ) ) {
+	if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 		return array( 'code' => 3 );
 	}
 
@@ -1287,7 +1287,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 			),
 			ARRAY_A
 		);
-		if ( ! empty( $bbp_db->last_error ) ) {
+		if ( ! is_array( $rows ) || ! empty( $bbp_db->last_error ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 			return $batch;
 		}
@@ -3952,11 +3952,11 @@ function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$rank
 	);
 	if ( 0 === $state['phase'] ) {
 		$preview['rows'] = $db->get_results( $db->prepare( "SELECT meta_id, post_id, (post_id = meta_value) AS self_reference FROM {$db->postmeta} WHERE meta_key = '_bbp_reply_to' AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT %d", $state['meta_cursor'], $state['meta_upper'], $size ) );
-		$preview['error'] = empty( $db->last_error ) ? '' : 'metadata-read';
+		$preview['error'] = is_array( $preview['rows'] ) && empty( $db->last_error ) ? '' : 'metadata-read';
 		return;
 	}
 	$preview['rows'] = $db->get_results( $db->prepare( "SELECT ID, post_parent, post_status, menu_order FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT %d", $state['context'], $state['cursor'], $state['upper_id'], $size ) );
-	if ( ! empty( $db->last_error ) ) {
+	if ( ! is_array( $preview['rows'] ) || ! empty( $db->last_error ) ) {
 		$preview['error'] = 'source-read';
 		return;
 	}

@@ -1934,6 +1934,46 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_forum_subforum_counts
+	 * @covers ::bbp_admin_repair_metadata_status
+	 * @ticket 3794
+	 */
+	public function test_repair_queries_report_null_results_without_database_errors() {
+		$db       = bbp_db();
+		$null_db  = new class( $db ) {
+			public $posts;
+			public $postmeta;
+			public $last_error = '';
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db       = $db;
+				$this->posts    = $db->posts;
+				$this->postmeta = $db->postmeta;
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_results( $query, $output = OBJECT ) {
+				return null;
+			}
+		};
+		$filter = static function( $object, $name ) use ( $null_db ) {
+			return 'wpdb' === $name ? $null_db : $object;
+		};
+
+		add_filter( 'bbp_get_global_object', $filter, 10, 2 );
+		try {
+			$this->assertSame( array( 'code' => 3 ), bbp_admin_repair_forum_subforum_counts() );
+			$this->assertFalse( bbp_admin_repair_metadata_status( 'post', '_bbp_preview', array( 1 => 1 ) ) );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_forum_subforum_count
 	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
 	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status

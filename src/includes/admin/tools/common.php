@@ -749,7 +749,7 @@ function bbp_admin_repair_metadata_status( $meta_type, $key, $expected ) {
 		),
 		OBJECT_K
 	);
-	if ( ! empty( $db->last_error ) ) {
+	if ( ! is_array( $rows ) || ! empty( $db->last_error ) ) {
 		return false;
 	}
 	$status = array();

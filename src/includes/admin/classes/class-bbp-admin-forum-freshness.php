@@ -659,7 +659,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 				$limit + 1
 			)
 		);
-		if ( ! empty( $this->db->last_error ) ) {
+		if ( ! is_array( $rows ) || ! empty( $this->db->last_error ) ) {
 			$this->fail( 'source-read' );
 			return 1;
 		}
@@ -1072,7 +1072,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			$args
 		);
 		$rows = $this->db->get_results( $query );
-		if ( ! empty( $this->db->last_error ) ) {
+		if ( ! is_array( $rows ) || ! empty( $this->db->last_error ) ) {
 			$this->fail( 'metadata-read' );
 			return 1;
 		}
