@@ -900,7 +900,7 @@ function bbp_admin_repair_forum_subforum_count_dry_run() {
  * @since 2.7.0 bbPress (r8274)
  *
  * @param list<int|string|null>|null $forum_ids Optional IDs to inspect, or null for all.
- * @return array{code:int, counts?:array<int, int>} Status code and expected counts indexed by forum ID.
+ * @return array{code:3}|array{code:0, counts:array<int, int>} Status code and expected counts indexed by forum ID.
  */
 function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
 	$bbp_db    = bbp_db();
@@ -955,7 +955,7 @@ function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
  * @since 2.7.0 bbPress (r8274) Accepts a bounded list of forum IDs.
  *
  * @param list<int|string|null>|null $forum_ids Optional IDs to inspect, or null for all.
- * @return array{code:int, forum_ids?:list<int>, repair_count?:int} Status code, forum IDs, and number of forums to repair.
+ * @return array{code:3|4}|array{code:0, forum_ids:list<int>, repair_count:int} Status code, forum IDs, and number of forums to repair.
  */
 function bbp_admin_repair_forum_subforum_count_get_status( $forum_ids = null ) {
 	$result = bbp_admin_repair_forum_subforum_counts( $forum_ids );
@@ -1149,8 +1149,8 @@ function bbp_admin_repair_topic_tag_count_dry_run() {
  * @since 2.7.0 bbPress (r8267) Accepts a bounded list of term taxonomy IDs.
  *
  * @param WP_Taxonomy $taxonomy         Topic-tag taxonomy object.
- * @param list<int>|null $term_taxonomy_ids Optional IDs to inspect, or null for all.
- * @return array{code:int, term_taxonomy_ids?:list<int>, repair_count?:int} Status code, term taxonomy IDs, and number of tags to repair.
+ * @param array<int, int>|null $term_taxonomy_ids Optional IDs to inspect, or null for all.
+ * @return array{code:3}|array{code:0, term_taxonomy_ids:list<int>, repair_count:int} Status code, term taxonomy IDs, and number of tags to repair.
  */
 function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_ids = null ) {
 	$bbp_db          = bbp_db();

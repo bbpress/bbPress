@@ -209,6 +209,7 @@ function bbp_admin_repair_tool_get_run_state( $type = '', $action = 'run' ) {
  * @param string      $run_id  Expected owner.
  * @param string      $tool_id Optional expected first tool.
  * @return bool Whether the run matches the owner and optional first tool.
+ * @phpstan-assert-if-true array<string, mixed> $state
  */
 function bbp_admin_repair_tool_owns_run( $state, $run_id, $tool_id = '' ) {
 	return ! empty( $state ) && ! empty( $run_id ) && hash_equals( $state['id'], $run_id )

@@ -1282,7 +1282,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param string $query SQL query to run.
 	 * @param 'OBJECT'|'ARRAY_A' $output Result format. Defaults to OBJECT.
-	 * @return ($output is 'ARRAY_A' ? list<array<string, mixed>> : list<stdClass>) Query rows.
+	 * @return ($output is 'ARRAY_A' ? array<int, array<array-key, mixed>> : array<int, stdClass>) Query rows.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
 		$this->update_query( $query );
@@ -1338,7 +1338,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $query       The literal MySQL results query.
 	 * @param string $count_query The literal MySQL count query.
 	 * @param int    $start       Current conversion offset.
-	 * @return list<stdClass> Rows returned for this conversion batch.
+	 * @return array<int, stdClass> Rows returned for this conversion batch.
 	 */
 	private function count_rows_by_results( $query = '', $count_query = '', $start = 0 ) {
 		$results      = $this->get_results( $query );
