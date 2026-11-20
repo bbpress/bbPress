@@ -1041,6 +1041,9 @@ function bbp_update_forum_visibility_version_on_post_updated( $post_id = 0, $pos
 function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
+	if ( ! $forum_id || false === get_post_type( $forum_id ) ) {
+		return $forum_id;
+	}
 
 	do_action( 'bbp_publicize_forum',  $forum_id );
 
@@ -1051,7 +1054,10 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	if ( bbp_get_public_status_id() !== $current_visibility ) {
 		$bbp_db = bbp_db();
 		$bbp_db->update( $bbp_db->posts, array( 'post_status' => bbp_get_public_status_id() ), array( 'ID' => $forum_id ) );
-		wp_transition_post_status( bbp_get_public_status_id(), $current_visibility, get_post( $forum_id ) );
+		$forum = get_post( $forum_id );
+		if ( $forum instanceof WP_Post ) {
+			wp_transition_post_status( bbp_get_public_status_id(), $current_visibility, $forum );
+		}
 		clean_post_cache( $forum_id );
 	}
 
@@ -1072,6 +1078,9 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
+	if ( ! $forum_id || false === get_post_type( $forum_id ) ) {
+		return $forum_id;
+	}
 
 	do_action( 'bbp_privatize_forum',  $forum_id );
 
@@ -1084,7 +1093,10 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 		// Update forums visibility setting
 		$bbp_db = bbp_db();
 		$bbp_db->update( $bbp_db->posts, array( 'post_status' => bbp_get_private_status_id() ), array( 'ID' => $forum_id ) );
-		wp_transition_post_status( bbp_get_private_status_id(), $current_visibility, get_post( $forum_id ) );
+		$forum = get_post( $forum_id );
+		if ( $forum instanceof WP_Post ) {
+			wp_transition_post_status( bbp_get_private_status_id(), $current_visibility, $forum );
+		}
 		clean_post_cache( $forum_id );
 	}
 
@@ -1105,6 +1117,9 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
+	if ( ! $forum_id || false === get_post_type( $forum_id ) ) {
+		return $forum_id;
+	}
 
 	do_action( 'bbp_hide_forum', $forum_id );
 
@@ -1117,7 +1132,10 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 		// Update forums visibility setting
 		$bbp_db = bbp_db();
 		$bbp_db->update( $bbp_db->posts, array( 'post_status' => bbp_get_hidden_status_id() ), array( 'ID' => $forum_id ) );
-		wp_transition_post_status( bbp_get_hidden_status_id(), $current_visibility, get_post( $forum_id ) );
+		$forum = get_post( $forum_id );
+		if ( $forum instanceof WP_Post ) {
+			wp_transition_post_status( bbp_get_hidden_status_id(), $current_visibility, $forum );
+		}
 		clean_post_cache( $forum_id );
 	}
 
@@ -1262,8 +1280,7 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 	if ( true === $update_ancestors ) {
 
 		// Get post ancestors
-		$forum     = get_post( $forum_id );
-		$ancestors = get_post_ancestors( $forum );
+		$ancestors = get_post_ancestors( $forum_id );
 
 		// If has ancestors, loop through them...
 		if ( ! empty( $ancestors ) ) {
@@ -1386,8 +1403,7 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1, $upd
 	if ( true === $update_ancestors ) {
 
 		// Get post ancestors
-		$forum     = get_post( $forum_id );
-		$ancestors = get_post_ancestors( $forum );
+		$ancestors = get_post_ancestors( $forum_id );
 
 		// If has ancestors, loop through them...
 		if ( ! empty( $ancestors ) ) {
@@ -1510,8 +1526,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 	if ( true === $update_ancestors ) {
 
 		// Get post ancestors
-		$forum     = get_post( $forum_id );
-		$ancestors = get_post_ancestors( $forum );
+		$ancestors = get_post_ancestors( $forum_id );
 
 		// If has ancestors, loop through them...
 		if ( ! empty( $ancestors ) ) {
@@ -1570,8 +1585,7 @@ function bbp_bump_forum_reply_count_hidden( $forum_id = 0, $difference = 1, $upd
 	if ( true === $update_ancestors ) {
 
 		// Get post ancestors
-		$forum     = get_post( $forum_id );
-		$ancestors = get_post_ancestors( $forum );
+		$ancestors = get_post_ancestors( $forum_id );
 
 		// If has ancestors, loop through them...
 		if ( ! empty( $ancestors ) ) {

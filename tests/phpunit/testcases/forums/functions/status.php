@@ -244,6 +244,25 @@ class BBP_Tests_Forums_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_publicize_forum
+	 * @covers ::bbp_privatize_forum
+	 * @covers ::bbp_hide_forum
+	 * @ticket 3794
+	 */
+	public function test_forum_visibility_changes_without_a_post() {
+		$forum_id = 999999999;
+		$private  = get_option( '_bbp_private_forums', array() );
+		$hidden   = get_option( '_bbp_hidden_forums', array() );
+		$this->assertNull( get_post( $forum_id ) );
+
+		$this->assertSame( $forum_id, bbp_publicize_forum( $forum_id, bbp_get_hidden_status_id() ) );
+		$this->assertSame( $forum_id, bbp_privatize_forum( $forum_id, bbp_get_public_status_id() ) );
+		$this->assertSame( $forum_id, bbp_hide_forum( $forum_id, bbp_get_private_status_id() ) );
+		$this->assertSame( $private, get_option( '_bbp_private_forums', array() ) );
+		$this->assertSame( $hidden, get_option( '_bbp_hidden_forums', array() ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_forum_visibility_on_transition_post_status
 	 * @covers ::bbp_update_forum_visibility_options
 	 */

@@ -316,8 +316,11 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 	 * @covers ::bbp_transition_post_status
 	 */
 	public function test_transition_post_status_only_dispatches_for_bbp_posts() {
+		global $post;
+
 		$topic_id = $this->factory->topic->create();
 		$post_id  = self::factory()->post->create();
+		$old_post = $post;
 		$calls    = array();
 		$callback = function( $new_status, $old_status, $post ) use ( &$calls ) {
 			$calls[] = array( $new_status, $old_status, $post->ID );
@@ -325,9 +328,12 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 
 		add_action( 'bbp_transition_post_status', $callback, 999, 3 );
 		try {
+			$post = get_post( $topic_id );
+			bbp_transition_post_status( 'closed', 'publish', false );
 			bbp_transition_post_status( 'publish', 'draft', get_post( $post_id ) );
 			bbp_transition_post_status( 'closed', 'publish', get_post( $topic_id ) );
 		} finally {
+			$post = $old_post;
 			remove_action( 'bbp_transition_post_status', $callback, 999 );
 		}
 

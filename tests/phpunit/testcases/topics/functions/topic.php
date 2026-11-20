@@ -1065,6 +1065,32 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_toggle_topic
+	 * @ticket 3794
+	 */
+	public function test_bbp_toggle_topic_keeps_forum_redirect_when_delete_fails() {
+		$forum_id    = $this->factory->forum->create();
+		$topic_id    = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$old_request = $_REQUEST;
+		$stop_delete = function( $result, $post ) use ( $topic_id ) {
+			return $topic_id === $post->ID ? false : $result;
+		};
+
+		wp_trash_post( $topic_id );
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'delete-' . bbp_get_topic_post_type() . '_' . $topic_id );
+		add_filter( 'pre_delete_post', $stop_delete, 10, 2 );
+		try {
+			$result = bbp_toggle_topic( array( 'id' => $topic_id, 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete' ) );
+			$this->assertFalse( $result['status'] );
+			$this->assertSame( bbp_get_forum_permalink( $forum_id ), $result['redirect_to'] );
+			$this->assertInstanceOf( 'WP_Post', get_post( $topic_id ) );
+		} finally {
+			remove_filter( 'pre_delete_post', $stop_delete, 10 );
+			$_REQUEST = $old_request;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_remove_topic_from_all_favorites
 	 */
 	public function test_bbp_remove_topic_from_all_favorites() {

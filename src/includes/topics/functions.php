@@ -2494,7 +2494,10 @@ function bbp_toggle_topic( $args = array() ) {
 
 					$retval['status']      = wp_delete_post( $r['id'] );
 					$retval['message']     = __( '<strong>Error</strong>: There was a problem deleting the topic.', 'bbpress' );
-					$retval['redirect_to'] = bbp_get_forum_permalink( $retval['status']->post_parent );
+					$forum_id             = ( $retval['status'] instanceof WP_Post )
+						? $retval['status']->post_parent
+						: bbp_get_topic_forum_id( $r['id'] );
+					$retval['redirect_to'] = bbp_get_forum_permalink( $forum_id );
 
 					break;
 			}

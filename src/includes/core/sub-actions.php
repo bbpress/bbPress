@@ -389,6 +389,9 @@ function bbp_login_form_login() {
  * @return void
  */
 function bbp_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
+	if ( ! ( $post instanceof WP_Post ) ) {
+		return;
+	}
 
 	// Get bbPress post types
 	$post_type = get_post_type( $post );
