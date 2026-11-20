@@ -4453,7 +4453,9 @@ function bbp_set_404( $query = null ) {
 	}
 
 	// Setup environment
-	$query->set_404();
+	if ( $query instanceof WP_Query ) {
+		$query->set_404();
+	}
 
 	// Setup request
 	status_header( 404 );

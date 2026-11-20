@@ -198,6 +198,36 @@ class BBP_Tests_Common_Reply_Query_Visibility extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_reply_enforce_visibility
+	 * @ticket 3794
+	 */
+	public function test_denied_reply_without_a_query_still_sends_404() {
+		$fixture = $this->create_reply_visibility_fixture();
+		$this->set_current_user( 0 );
+		$this->go_to_reply( $fixture['pending_reply'] );
+		$query          = $GLOBALS['wp_query'];
+		$status_code    = null;
+		$missing_query  = static function( $object, $name ) {
+			return 'wp_query' === $name ? null : $object;
+		};
+		$capture_status = static function( $header, $code ) use ( &$status_code ) {
+			$status_code = $code;
+			return $header;
+		};
+
+		add_filter( 'bbp_get_global_object', $missing_query, 10, 2 );
+		add_filter( 'status_header', $capture_status, 10, 2 );
+		try {
+			bbp_reply_enforce_visibility();
+			$this->assertSame( 404, $status_code );
+			$this->assertFalse( $query->is_404() );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $missing_query, 10 );
+			remove_filter( 'status_header', $capture_status, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_reply_enforce_visibility
 	 */
 	public function test_single_reply_feed_stops_after_parent_topic_visibility_failure() {
 		$topic_author_id = $this->create_user_with_bbp_role( bbp_get_participant_role() );

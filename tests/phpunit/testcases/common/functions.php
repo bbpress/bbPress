@@ -3796,4 +3796,29 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		bbp_set_404( $query );
 		$this->assertTrue( $query->is_404() );
 	}
+
+	/**
+	 * @covers ::bbp_set_404
+	 * @ticket 3794
+	 */
+	public function test_bbp_set_404_without_a_query() {
+		$status_code   = null;
+		$missing_query = static function( $object, $name ) {
+			return 'wp_query' === $name ? null : $object;
+		};
+		$capture_status = static function( $header, $code ) use ( &$status_code ) {
+			$status_code = $code;
+			return $header;
+		};
+
+		add_filter( 'bbp_get_global_object', $missing_query, 10, 2 );
+		add_filter( 'status_header', $capture_status, 10, 2 );
+		try {
+			bbp_set_404();
+			$this->assertSame( 404, $status_code );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $missing_query, 10 );
+			remove_filter( 'status_header', $capture_status, 10 );
+		}
+	}
 }

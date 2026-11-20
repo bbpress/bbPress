@@ -2410,6 +2410,9 @@ function bbp_reply_enforce_visibility() {
 		$query = bbp_get_wp_query();
 
 		bbp_set_404( $query );
+		if ( ! ( $query instanceof WP_Query ) ) {
+			return;
+		}
 
 		// Prevent later templates from using the denied object.
 		$query->is_feed           = false;

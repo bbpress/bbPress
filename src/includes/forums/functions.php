@@ -3676,6 +3676,10 @@ function bbp_forum_enforce_hidden() {
 	// Define local variables
 	$forum_id = 0;
 	$wp_query = bbp_get_wp_query();
+	if ( ! ( $wp_query instanceof WP_Query ) ) {
+		return;
+	}
+
 	$post_id  = ! empty( $wp_query->post->ID )
 		? $wp_query->post->ID
 		: 0;
@@ -3725,6 +3729,10 @@ function bbp_forum_enforce_private() {
 	// Define local variables
 	$forum_id = 0;
 	$wp_query = bbp_get_wp_query();
+	if ( ! ( $wp_query instanceof WP_Query ) ) {
+		return;
+	}
+
 	$post_id  = ! empty( $wp_query->post->ID )
 		? $wp_query->post->ID
 		: 0;

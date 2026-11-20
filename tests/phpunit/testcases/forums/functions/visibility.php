@@ -1432,4 +1432,32 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	public function test_bbp_forum_enforce_private() {
 		$this->assert_forum_visibility_guard( 'bbp_forum_enforce_private', 'private' );
 	}
+
+	/**
+	 * @covers ::bbp_forum_enforce_hidden
+	 * @covers ::bbp_forum_enforce_private
+	 * @ticket 3794
+	 */
+	public function test_forum_visibility_guards_skip_a_missing_query() {
+		global $wp_query;
+
+		$previous      = $wp_query;
+		$wp_query      = new WP_Query();
+		$wp_query->is_singular = true;
+		$missing_query = static function( $object, $name ) {
+			return 'wp_query' === $name ? null : $object;
+		};
+		$this->set_current_user( 0 );
+
+		add_filter( 'bbp_get_global_object', $missing_query, 10, 2 );
+		try {
+			$this->assertTrue( is_singular() );
+			bbp_forum_enforce_hidden();
+			bbp_forum_enforce_private();
+			$this->assertFalse( $wp_query->is_404() );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $missing_query, 10 );
+			$wp_query = $previous;
+		}
+	}
 }
