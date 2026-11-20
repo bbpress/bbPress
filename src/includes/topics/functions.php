@@ -3051,9 +3051,16 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 	// Query the DB to get anonymous replies in this topic
 	$bbp_db  = bbp_db();
 	$query   = $bbp_db->prepare( "SELECT COUNT( ID ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = %s AND post_type = %s AND post_author = 0 ) OR ( ID = %d AND post_type = %s AND post_author = 0 )", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
-	$replies = (int) $bbp_db->get_var( $query );
-
-	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );
+	$queried = is_string( $query ) && '' !== $query
+		? $bbp_db->query( $query )
+		: false;
+	$replies = false === $queried ? null : $bbp_db->get_var();
+	if ( null === $replies || ! empty( $bbp_db->last_error ) ) {
+		$replies = (int) get_post_meta( $topic_id, '_bbp_anonymous_reply_count', true );
+	} else {
+		$replies = (int) $replies;
+		update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );
+	}
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_anonymous_reply_count', $replies, $topic_id );

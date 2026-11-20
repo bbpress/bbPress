@@ -2422,20 +2422,33 @@ function bbp_update_forum_reply_count( $forum_id = 0, $update_ancestors = false 
 					$reply_statuses
 				)
 			);
-			$reply_count = bbp_number_not_negative( $bbp_db->get_var( $query ) );
+			$queried = is_string( $query ) && '' !== $query
+				? $bbp_db->query( $query )
+				: false;
+			$reply_count = false === $queried ? null : $bbp_db->get_var();
+			if ( null === $reply_count || ! empty( $bbp_db->last_error ) ) {
+				$reply_count = null;
+			} else {
+				$reply_count = bbp_number_not_negative( $reply_count );
+			}
 		}
 	}
 
-	// Calculate total replies in this forum
-	$total_replies = (int) ( $reply_count + $children_reply_count );
+	if ( null === $reply_count ) {
+		// Keep the saved total when the count query fails.
+		$total_replies = bbp_number_not_negative( (int) get_post_meta( $forum_id, '_bbp_total_reply_count', true ) );
+	} else {
+		// Calculate total replies in this forum
+		$total_replies = (int) ( $reply_count + $children_reply_count );
 
-	// Update the counts
-	update_post_meta( $forum_id, '_bbp_reply_count',       $reply_count   );
-	update_post_meta( $forum_id, '_bbp_total_reply_count', $total_replies );
+		// Update the counts
+		update_post_meta( $forum_id, '_bbp_reply_count',       $reply_count   );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', $total_replies );
 
-	// Update ancestor total counts by the persisted difference
-	if ( true === $update_ancestors ) {
-		bbp_bump_forum_ancestor_count( $forum_id, '_bbp_total_reply_count', $total_replies - $old_total_replies );
+		// Update ancestor total counts by the persisted difference
+		if ( true === $update_ancestors ) {
+			bbp_bump_forum_ancestor_count( $forum_id, '_bbp_total_reply_count', $total_replies - $old_total_replies );
+		}
 	}
 
 	// Filter & return

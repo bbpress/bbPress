@@ -891,6 +891,10 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 	$count      = ( false === get_user_option( '_bbp_topic_count', $user_id ) )
 		? bbp_get_user_topic_count_raw( $user_id ) - $difference
 		: bbp_get_user_topic_count( $user_id, true );
+	if ( ! is_numeric( $count ) ) {
+		return false;
+	}
+	$count = (int) $count;
 
 	$user_topic_count = (int) bbp_number_not_negative( $count + $difference );
 
@@ -934,6 +938,10 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 	$count      = ( false === get_user_option( '_bbp_reply_count', $user_id ) )
 		? bbp_get_user_reply_count_raw( $user_id ) - $difference
 		: bbp_get_user_reply_count( $user_id, true );
+	if ( ! is_numeric( $count ) ) {
+		return false;
+	}
+	$count = (int) $count;
 
 	$user_reply_count = (int) bbp_number_not_negative( $count + $difference );
 

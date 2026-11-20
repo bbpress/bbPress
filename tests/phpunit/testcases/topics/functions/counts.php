@@ -711,4 +711,49 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		$this->assertSame( 2, bbp_update_topic_anonymous_reply_count( $topic_id ) );
 		$this->assertSame( '2', get_post_meta( $topic_id, '_bbp_anonymous_reply_count', true ) );
 	}
+
+	/**
+	 * @covers ::bbp_update_topic_anonymous_reply_count
+	 * @ticket 3794
+	 */
+	public function test_bbp_update_topic_anonymous_reply_count_preserves_count_after_missing_result() {
+		global $wpdb;
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'post_author' => $user_id ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => 0 ) );
+		update_post_meta( $topic_id, '_bbp_anonymous_reply_count', 7 );
+
+		$failed = false;
+		$fail_query = function( $query ) use ( $wpdb, &$failed ) {
+			if ( ! $failed && false !== strpos( $query, "SELECT COUNT( ID ) FROM {$wpdb->posts}" ) ) {
+				$failed = true;
+				return '';
+			}
+
+			return $query;
+		};
+		$wpdb->last_error = '';
+		$returned = array();
+		$record_return = function( $count ) use ( &$returned ) {
+			$returned[] = $count;
+			return $count;
+		};
+		add_filter( 'query', $fail_query );
+		add_filter( 'bbp_update_topic_anonymous_reply_count', $record_return );
+
+		try {
+			$this->assertSame( 7, bbp_update_topic_anonymous_reply_count( $topic_id ) );
+			$this->assertTrue( $failed );
+			$this->assertSame( '', $wpdb->last_error );
+			$this->assertSame( '7', get_post_meta( $topic_id, '_bbp_anonymous_reply_count', true ) );
+			$this->assertSame( array( 7 ), $returned );
+			$this->assertSame( 1, bbp_update_topic_anonymous_reply_count( $topic_id ) );
+			$this->assertSame( array( 7, 1 ), $returned );
+		} finally {
+			remove_filter( 'query', $fail_query );
+			remove_filter( 'bbp_update_topic_anonymous_reply_count', $record_return );
+		}
+	}
 }

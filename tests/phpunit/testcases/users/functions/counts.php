@@ -332,6 +332,59 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_bump_user_topic_count
+	 * @covers ::bbp_bump_user_reply_count
+	 * @ticket 3794
+	 * @dataProvider user_count_bump_types
+	 *
+	 * @param string $type User count type.
+	 */
+	public function test_bump_user_count_validates_filtered_count( $type ) {
+		$user_id = $this->factory->user->create();
+		$update  = "bbp_update_user_{$type}_count";
+		$get     = "bbp_get_user_{$type}_count";
+		$bump    = "bbp_bump_user_{$type}_count";
+		$filter  = "bbp_get_user_{$type}_count_int";
+
+		$update( $user_id, 4 );
+		$numeric = function() {
+			return '4';
+		};
+		add_filter( $filter, $numeric );
+		try {
+			$this->assertNotFalse( $bump( $user_id ) );
+		} finally {
+			remove_filter( $filter, $numeric );
+		}
+		$this->assertSame( 5, $get( $user_id, true ) );
+
+		foreach ( array( false, 'invalid' ) as $invalid ) {
+			$invalid_count = function() use ( $invalid ) {
+				return $invalid;
+			};
+			add_filter( $filter, $invalid_count );
+			try {
+				$this->assertFalse( $bump( $user_id ) );
+			} finally {
+				remove_filter( $filter, $invalid_count );
+			}
+			$this->assertSame( 5, $get( $user_id, true ) );
+		}
+	}
+
+	/**
+	 * Return the user count types exercised by the bump validation test.
+	 *
+	 * @return array<string, array{string}> User count types.
+	 */
+	public function user_count_bump_types() {
+		return array(
+			'topics'  => array( 'topic' ),
+			'replies' => array( 'reply' )
+		);
+	}
+
+	/**
+	 * @covers ::bbp_bump_user_topic_count
 	 * @covers ::bbp_update_user_topic_count
 	 * @ticket BBP3678
 	 */

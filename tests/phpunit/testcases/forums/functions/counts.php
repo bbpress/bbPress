@@ -1269,4 +1269,54 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_update_forum_reply_count( $f2 );
 		$this->assertSame( 3, $count );
 	}
+
+	/**
+	 * @covers ::bbp_update_forum_reply_count
+	 * @ticket 3794
+	 */
+	public function test_bbp_update_forum_reply_count_preserves_count_after_missing_result() {
+		global $wpdb;
+
+		$parent_id = $this->factory->forum->create();
+		$forum_id = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		update_post_meta( $forum_id, '_bbp_reply_count', 7 );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', 7 );
+		update_post_meta( $parent_id, '_bbp_total_reply_count', 7 );
+
+		$failed = false;
+		$fail_query = function( $query ) use ( $wpdb, &$failed ) {
+			if ( ! $failed && false !== strpos( $query, "FROM {$wpdb->posts} AS replies" ) ) {
+				$failed = true;
+				return '';
+			}
+
+			return $query;
+		};
+		$wpdb->last_error = '';
+		$returned = array();
+		$record_return = function( $count ) use ( &$returned ) {
+			$returned[] = $count;
+			return $count;
+		};
+		add_filter( 'query', $fail_query );
+		add_filter( 'bbp_update_forum_reply_count', $record_return );
+
+		try {
+			$this->assertSame( 7, bbp_update_forum_reply_count( $forum_id, true ) );
+			$this->assertTrue( $failed );
+			$this->assertSame( '', $wpdb->last_error );
+			$this->assertSame( '7', get_post_meta( $forum_id, '_bbp_reply_count', true ) );
+			$this->assertSame( 7, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( '7', get_post_meta( $parent_id, '_bbp_total_reply_count', true ) );
+			$this->assertSame( array( 7 ), $returned );
+			$this->assertSame( 1, bbp_update_forum_reply_count( $forum_id, true ) );
+			$this->assertSame( '1', get_post_meta( $parent_id, '_bbp_total_reply_count', true ) );
+			$this->assertSame( array( 7, 1 ), $returned );
+		} finally {
+			remove_filter( 'query', $fail_query );
+			remove_filter( 'bbp_update_forum_reply_count', $record_return );
+		}
+	}
 }
