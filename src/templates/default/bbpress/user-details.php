@@ -27,8 +27,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 		<ul>
 			<li class="<?php if ( bbp_is_single_user_profile() ) : ?>current<?php endif; ?>">
 				<span class="vcard bbp-user-profile-link">
-					<a class="url fn n" href="<?php bbp_user_profile_url(); ?>" title="
-						<?php
+					<a class="url fn n" href="<?php bbp_user_profile_url(); ?>" title="<?php
 						printf(
 							/* translators: %s: User's display name */
 							esc_attr__( "%s's Profile", 'bbpress' ),
@@ -42,8 +41,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 
 			<li class="<?php if ( bbp_is_single_user_topics() ) : ?>current<?php endif; ?>">
 				<span class='bbp-user-topics-created-link'>
-					<a href="<?php bbp_user_topics_created_url(); ?>" title="
-						<?php
+					<a href="<?php bbp_user_topics_created_url(); ?>" title="<?php
 						printf(
 							/* translators: %s: User's display name */
 							esc_attr__( "%s's Topics Started", 'bbpress' ),
@@ -57,8 +55,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 
 			<li class="<?php if ( bbp_is_single_user_replies() ) : ?>current<?php endif; ?>">
 				<span class='bbp-user-replies-created-link'>
-					<a href="<?php bbp_user_replies_created_url(); ?>" title="
-						<?php
+					<a href="<?php bbp_user_replies_created_url(); ?>" title="<?php
 						printf(
 							/* translators: %s: User's display name */
 							esc_attr__( "%s's Replies Created", 'bbpress' ),
@@ -73,8 +70,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 			<?php if ( bbp_is_engagements_active() ) : ?>
 				<li class="<?php if ( bbp_is_single_user_engagements() ) : ?>current<?php endif; ?>">
 					<span class='bbp-user-engagements-created-link'>
-						<a href="<?php bbp_user_engagements_url(); ?>" title="
-							<?php
+						<a href="<?php bbp_user_engagements_url(); ?>" title="<?php
 							printf(
 								/* translators: %s: User's display name */
 								esc_attr__( "%s's Engagements", 'bbpress' ),
@@ -98,8 +94,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 			<?php if ( bbp_is_favorites_active() ) : ?>
 				<li class="<?php if ( bbp_is_favorites() ) : ?>current<?php endif; ?>">
 					<span class="bbp-user-favorites-link">
-						<a href="<?php bbp_favorites_permalink(); ?>" title="
-							<?php
+						<a href="<?php bbp_favorites_permalink(); ?>" title="<?php
 							printf(
 								/* translators: %s: User's display name */
 								esc_attr__( "%s's Favorites", 'bbpress' ),
@@ -114,8 +109,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 			<?php if ( bbp_is_subscriptions_active() && bbp_current_user_can_manage_engagements( 'subscription' ) ) : ?>
 				<li class="<?php if ( bbp_is_subscriptions() ) : ?>current<?php endif; ?>">
 					<span class="bbp-user-subscriptions-link">
-						<a href="<?php bbp_subscriptions_permalink(); ?>" title="
-							<?php
+						<a href="<?php bbp_subscriptions_permalink(); ?>" title="<?php
 							printf(
 								/* translators: %s: User's display name */
 								esc_attr__( "%s's Subscriptions", 'bbpress' ),
@@ -132,8 +126,7 @@ do_action( 'bbp_template_before_user_details' ); ?>
 
 				<li class="<?php if ( bbp_is_single_user_edit() ) : ?>current<?php endif; ?>">
 					<span class="bbp-user-edit-link">
-						<a href="<?php bbp_user_profile_edit_url(); ?>" title="
-							<?php
+						<a href="<?php bbp_user_profile_edit_url(); ?>" title="<?php
 							printf(
 								/* translators: %s: User's display name */
 								esc_attr__( "Edit %s's Profile", 'bbpress' ),
