@@ -46,7 +46,7 @@ function bbp_get_notification_types() {
  *
  * @since 2.7.0 bbPress (r8363)
  *
- * @param int    $user_id User ID.
+ * @param int|string $user_id User ID.
  * @param string $type    Registered notification type.
  * @return bool|null Explicit preference, or null when unset.
  */
@@ -70,7 +70,7 @@ function bbp_get_user_notification_preference( $user_id = 0, $type = '' ) {
  *
  * @since 2.7.0 bbPress (r8376)
  *
- * @param int    $user_id User ID.
+ * @param int|string $user_id User ID.
  * @param string $type    Registered notification type.
  * @return bool Whether the default sends email.
  */
@@ -97,7 +97,7 @@ function bbp_get_user_notification_default( $user_id = 0, $type = '' ) {
  *
  * @since 2.7.0 bbPress (r8363)
  *
- * @param int    $user_id User ID.
+ * @param int|string $user_id User ID.
  * @param string $type    Registered notification type.
  * @return bool Whether the notification is enabled.
  */
@@ -132,7 +132,7 @@ function bbp_is_user_notification_enabled( $user_id = 0, $type = '' ) {
  *
  * @since 2.7.0 bbPress (r8363)
  *
- * @param int   $user_id User ID.
+ * @param int|string $user_id User ID.
  * @param array<array-key, mixed> $changes Preferences keyed by notification type.
  * @return bool Whether the preferences were accepted.
  */

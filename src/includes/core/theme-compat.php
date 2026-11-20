@@ -290,8 +290,8 @@ function bbp_set_theme_compat_templates( $templates = array() ) {
  * to override it, or see what file is being included.
  *
  * @since 2.0.0 bbPress (r3311)
- * @param string $template Selected template file.
- * @return string Selected template file.
+ * @param string|false $template Selected template file, or false when none is found.
+ * @return string|false Selected template file, or false when none is found.
  */
 function bbp_set_theme_compat_template( $template = '' ) {
 	bbpress()->theme_compat->template = $template;

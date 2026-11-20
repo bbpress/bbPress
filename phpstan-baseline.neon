@@ -87,7 +87,13 @@ parameters:
 		-
 			message: '#^Action callback returns int\|false but should not return anything\.$#'
 			identifier: return.void
-			count: 4
+			count: 2
+			path: src/includes/core/actions.php
+
+		-
+			message: '#^Action callback returns bool\|int but should not return anything\.$#'
+			identifier: return.void
+			count: 2
 			path: src/includes/core/actions.php
 
 		-

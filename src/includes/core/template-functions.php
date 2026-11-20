@@ -121,7 +121,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *
  * @since 2.6.0 bbPress (r6862)
  *
- * @param string $file File path to locate.
+ * @param string|false $file File path to locate, or false when unavailable.
  *
  * @return string|false The file path if located, false otherwise.
  */
@@ -198,7 +198,7 @@ function bbp_urlize_enqueueable( $file = '' ) {
  * @since 2.5.0 bbPress (r5181)
  *
  * @param string      $handle Name of the stylesheet.
- * @param string|bool $file   Relative path to stylesheet. Example: '/css/mystyle.css'.
+ * @param string|false $file Relative path to stylesheet, or false when unavailable. Example: '/css/mystyle.css'.
  * @param array<int, string> $deps An array of registered style handles this stylesheet depends on. Default empty array.
  * @param string|bool $ver    String specifying the stylesheet version number, if it has one. This parameter is used
  *                            to ensure that the correct version is sent to the client regardless of caching, and so
@@ -243,7 +243,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  * @since 2.5.0 bbPress (r5181)
  *
  * @param string      $handle    Name of the script.
- * @param string|bool $file      Relative path to the script. Example: '/js/myscript.js'.
+ * @param string|false $file     Relative path to the script, or false when unavailable. Example: '/js/myscript.js'.
  * @param array<int, string> $deps An array of registered handles this script depends on. Default empty array.
  * @param string|bool $ver       Optional. String specifying the script version number, if it has one. This parameter
  *                               is used to ensure that the correct version is sent to the client regardless of caching,
