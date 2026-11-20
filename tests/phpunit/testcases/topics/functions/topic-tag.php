@@ -142,6 +142,34 @@ class BBP_Tests_Topics_Functions_Topic_Tag extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_spam_topic_tags
+	 * @covers ::bbp_get_topic_tags
+	 * @covers ::bbp_get_topic_tag_names
+	 * @ticket 3794
+	 */
+	public function test_topic_tag_readers_ignore_term_errors() {
+		$topic_id = $this->factory->topic->create();
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		wp_set_object_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+
+		$error = static function( $terms, $post_id, $term_taxonomy ) use ( $topic_id, $taxonomy ) {
+			return ( $topic_id === $post_id && $taxonomy === $term_taxonomy )
+				? new WP_Error( 'bbp_test_topic_tag_read' )
+				: $terms;
+		};
+		add_filter( 'get_the_terms', $error, 10, 3 );
+
+		try {
+			$this->assertSame( array( $taxonomy => '' ), bbp_spam_topic_tags( $topic_id ) );
+			$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_spam_topic_tags' ) );
+			$this->assertSame( array(), bbp_get_topic_tags( $topic_id ) );
+			$this->assertSame( '', bbp_get_topic_tag_names( $topic_id ) );
+		} finally {
+			remove_filter( 'get_the_terms', $error, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_unspam_topic_tags
 	 */
 	public function test_bbp_unspam_topic_tags() {

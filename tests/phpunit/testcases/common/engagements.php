@@ -231,4 +231,30 @@ class BBP_Tests_Common_Engagements extends BBP_UnitTestCase {
 		$this->assertSame( array( $user_id ), $strategy->get_users_for_object( $topic_id, '_bbp_subscription' ) );
 		$this->assertTrue( $strategy->remove_object_from_all_users( $topic_id, '_bbp_engagement' ) );
 	}
+
+	/**
+	 * @covers BBP_User_Engagements_Term::get_users_for_object
+	 * @ticket 3794
+	 */
+	public function test_term_strategy_handles_failed_term_queries() {
+		$strategy = new BBP_User_Engagements_Term();
+		$user_id  = $this->factory->user->create();
+		$topic_id = $this->factory->topic->create();
+		$meta_key = '_bbp_engagement';
+
+		$this->assertNotFalse( $strategy->add_user_to_object( $topic_id, $user_id, $meta_key ) );
+
+		$error = static function() {
+			return new WP_Error( 'bbp_test_term_query' );
+		};
+		add_filter( 'get_terms', $error );
+
+		try {
+			$this->assertSame( array(), $strategy->get_users_for_object( $topic_id, $meta_key ) );
+		} finally {
+			remove_filter( 'get_terms', $error );
+		}
+
+		$this->assertSame( array( $user_id ), $strategy->get_users_for_object( $topic_id, $meta_key ) );
+	}
 }

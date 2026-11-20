@@ -3348,19 +3348,15 @@ function bbp_spam_topic_tags( $topic_id = 0 ) {
 	$term_names = array();
 
 	// Topic has tags
-	if ( ! empty( $terms ) ) {
+	if ( is_array( $terms ) && ! empty( $terms ) ) {
 
 		// Loop through and collect term names
 		foreach ( $terms as $term ) {
 			$term_names[] = $term->name;
 		}
 
-		// Topic terms have slugs
-		if ( ! empty( $term_names ) ) {
-
-			// Add the original post status as post meta for future restoration
-			add_post_meta( $topic_id, '_bbp_spam_topic_tags', $term_names );
-		}
+		// Add the original post status as post meta for future restoration
+		add_post_meta( $topic_id, '_bbp_spam_topic_tags', $term_names );
 	}
 
 	return array( bbp_get_topic_tag_tax_id() => '' );
@@ -4105,8 +4101,8 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
  */
 function bbp_get_topic_tags( $topic_id = 0 ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );
-	$terms      = (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
-	$topic_tags = array_filter( $terms );
+	$terms      = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
+	$topic_tags = is_array( $terms ) ? array_filter( $terms ) : array();
 
 	// Filter & return
 	return apply_filters( 'bbp_get_topic_tags', $topic_tags, $topic_id );

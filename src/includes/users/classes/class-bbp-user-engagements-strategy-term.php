@@ -256,6 +256,9 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 				'taxonomy'   => $tax_key
 			)
 		);
+		if ( ! is_array( $terms ) ) {
+			return array();
+		}
 
 		// Slug part to replace
 		$user_ids = array();
