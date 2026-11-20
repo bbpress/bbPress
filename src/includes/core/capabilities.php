@@ -220,9 +220,12 @@ function bbp_get_caps_for_role( $role = '' ) {
 function bbp_add_caps() {
 
 	// Loop through available roles and add caps
-	foreach ( bbp_get_wp_roles()->role_objects as $role ) {
-		foreach ( bbp_get_caps_for_role( $role->name ) as $cap => $value ) {
-			$role->add_cap( $cap, $value );
+	$roles = bbp_get_wp_roles();
+	if ( $roles instanceof WP_Roles ) {
+		foreach ( $roles->role_objects as $role ) {
+			foreach ( bbp_get_caps_for_role( $role->name ) as $cap => $value ) {
+				$role->add_cap( $cap, $value );
+			}
 		}
 	}
 
@@ -239,9 +242,12 @@ function bbp_add_caps() {
 function bbp_remove_caps() {
 
 	// Loop through available roles and remove caps
-	foreach ( bbp_get_wp_roles()->role_objects as $role ) {
-		foreach ( array_keys( bbp_get_caps_for_role( $role->name ) ) as $cap ) {
-			$role->remove_cap( $cap );
+	$roles = bbp_get_wp_roles();
+	if ( $roles instanceof WP_Roles ) {
+		foreach ( $roles->role_objects as $role ) {
+			foreach ( array_keys( bbp_get_caps_for_role( $role->name ) ) as $cap ) {
+				$role->remove_cap( $cap );
+			}
 		}
 	}
 

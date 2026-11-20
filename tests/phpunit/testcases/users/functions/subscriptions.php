@@ -826,4 +826,49 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 			$this->set_current_user( $old_user );
 		}
 	}
+
+	/**
+	 * @covers ::bbp_subscriptions_handler
+	 * @ticket 3794
+	 */
+	public function test_subscription_redirect_uses_forum_root_when_type_becomes_unavailable() {
+		$old_get     = $_GET;
+		$old_request = $_REQUEST;
+		$old_server  = $_SERVER;
+		$old_user    = get_current_user_id();
+		$old_errors  = bbpress()->errors;
+		$home_url    = wp_parse_url( home_url( '/' ) );
+		$user_id     = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$forum_id    = $this->factory->forum->create();
+		$topic_id    = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$remove_type = function( $success ) {
+			if ( $success ) {
+				add_filter( 'bbp_get_engagement_type', '__return_false' );
+			}
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+		$_SERVER['HTTP_HOST']   = $home_url['host'] . ( isset( $home_url['port'] ) ? ':' . $home_url['port'] : '' );
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
+		$_GET['object_id']      = $topic_id;
+		$_REQUEST['_wpnonce']   = wp_create_nonce( 'toggle-subscription_post_' . $topic_id );
+		bbpress()->errors       = new WP_Error();
+		add_action( 'bbp_subscriptions_handler', $remove_type, 100 );
+
+		try {
+			$redirect = $this->catch_bbp_redirect( function() {
+				bbp_subscriptions_handler( 'bbp_subscribe' );
+			} );
+			$this->assertSame( bbp_get_forums_url(), $redirect );
+		} finally {
+			remove_action( 'bbp_subscriptions_handler', $remove_type, 100 );
+			remove_filter( 'bbp_get_engagement_type', '__return_false' );
+			bbpress()->errors = $old_errors;
+			$_GET             = $old_get;
+			$_REQUEST         = $old_request;
+			$_SERVER          = $old_server;
+			$this->set_current_user( $old_user );
+		}
+	}
 }

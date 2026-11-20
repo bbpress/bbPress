@@ -298,7 +298,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		// Limit types without taxonomy queries to object IDs
 		$type = bbp_get_engagement_type( $meta_type );
 		if ( ! empty( $type ) && ! $type->supports_tax_query() ) {
-			return $this->get_object_ids_query( $args, $context_key, $tax_key, $user_key, $type );
+			return $this->get_object_ids_query( $type, $args, $context_key, $tax_key, $user_key );
 		}
 
 		// Backwards compat for pre-2.6.0
@@ -334,15 +334,15 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 *
 	 * @since 2.7.0 bbPress (r8318)
 	 *
-	 * @param array<string, mixed>|int|string                 $args        Query arguments, or a user ID.
-	 * @param string                    $context_key Context for parsing arguments.
-	 * @param string                    $tax_key     Relationship taxonomy.
-	 * @param string                    $user_key    User term slug prefix.
-	 * @param BBP_User_Engagements_Type $type        Engagement type.
+	 * @param BBP_User_Engagements_Type       $type        Engagement type.
+	 * @param array<string, mixed>|int|string $args        Query arguments, or a user ID.
+	 * @param string                          $context_key Context for parsing arguments.
+	 * @param string                          $tax_key     Relationship taxonomy.
+	 * @param string                          $user_key    User term slug prefix.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function get_object_ids_query( $args = array(), $context_key = '', $tax_key = '', $user_key = '', $type = null ) {
+	private function get_object_ids_query( $type, $args = array(), $context_key = '', $tax_key = '', $user_key = '' ) {
 
 		// Backwards compat for pre-2.6.0
 		$user_id = is_numeric( $args )

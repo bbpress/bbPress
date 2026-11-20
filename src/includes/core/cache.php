@@ -143,8 +143,8 @@ class BBP_Skip_Children {
  * @since 2.6.0 bbPress (r6053) Introduced the `$post_id` parameter.
  * @since 2.6.21 bbPress (r8133) Invalidate queries when a bbPress parent is missing.
  *
- * @param int     $post_id ID supplied by clean_post_cache. The post object supplies the ID used here.
- * @param WP_Post $post    Required post object supplied by clean_post_cache.
+ * @param int          $post_id ID supplied by clean_post_cache. The post object supplies the ID used here.
+ * @param WP_Post|null $post    Required post object supplied by clean_post_cache.
  * @return void
  */
 function bbp_clean_post_cache( $post_id = null, $post = null ) {
@@ -157,7 +157,7 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 	);
 
 	// Bail if not a bbPress post type
-	if ( ! in_array( $post->post_type, $post_types, true ) ) {
+	if ( ! ( $post instanceof WP_Post ) || ! in_array( $post->post_type, $post_types, true ) ) {
 		return;
 	}
 

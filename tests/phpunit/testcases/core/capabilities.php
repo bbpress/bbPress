@@ -344,6 +344,39 @@ class BBP_Tests_Core_Capabilities extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_add_caps
+	 * @covers ::bbp_remove_caps
+	 * @ticket 3794
+	 */
+	public function test_capability_hooks_run_without_roles_object() {
+		global $wp_roles;
+
+		$original_wp_roles = $wp_roles;
+		$added            = 0;
+		$removed          = 0;
+		$added_action     = function() use ( &$added ) {
+			++$added;
+		};
+		$removed_action   = function() use ( &$removed ) {
+			++$removed;
+		};
+
+		add_action( 'bbp_add_caps', $added_action );
+		add_action( 'bbp_remove_caps', $removed_action );
+		$wp_roles = null;
+		try {
+			bbp_add_caps();
+			bbp_remove_caps();
+			$this->assertSame( 1, $added );
+			$this->assertSame( 1, $removed );
+		} finally {
+			$wp_roles = $original_wp_roles;
+			remove_action( 'bbp_add_caps', $added_action );
+			remove_action( 'bbp_remove_caps', $removed_action );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_blog_roles
 	 * @covers ::bbp_filter_blog_editable_roles
 	 */

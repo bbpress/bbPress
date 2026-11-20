@@ -377,6 +377,27 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_clean_post_cache
+	 * @ticket 3794
+	 */
+	public function test_clean_post_cache_ignores_missing_post() {
+		$cleaned = 0;
+		$action  = function() use ( &$cleaned ) {
+			++$cleaned;
+		};
+
+		wp_cache_set( 'last_changed', 'before', 'bbpress_posts' );
+		add_action( 'bbp_clean_post_cache', $action );
+		try {
+			bbp_clean_post_cache( 123, null );
+			$this->assertSame( 0, $cleaned );
+			$this->assertSame( 'before', wp_cache_get( 'last_changed', 'bbpress_posts' ) );
+		} finally {
+			remove_action( 'bbp_clean_post_cache', $action );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_clean_post_cache
 	 */
 	public function test_clean_post_cache_fires_its_action_and_invalidates_root_queries() {
 		$post_id       = $this->factory->forum->create( array( 'post_parent' => 0 ) );

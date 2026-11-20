@@ -400,13 +400,13 @@ function bbp_destroy_user_sessions( $user_id ) {
  * @since 2.7.0 bbPress (r8131)
  *
  * @param int $user_id User ID.
- * @return string|bool Forum role, or false if no valid override exists.
+ * @return string|false Forum role, or false if no valid override exists.
  */
 function bbp_get_user_default_role_override( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
 	$role    = empty( $user_id ) ? false : get_user_meta( $user_id, '_bbp_default_role', true );
 
-	return bbp_is_valid_role( $role ) ? $role : false;
+	return is_string( $role ) && bbp_is_valid_role( $role ) ? $role : false;
 }
 
 /**
@@ -582,7 +582,7 @@ function bbp_set_user_role_on_sites( $user_id = 0, $new_role = false, $site_ids 
 	$retval      = array();
 	$remove_role = ( '' === $new_role );
 
-	if ( ! is_multisite() || empty( $user_id ) || ( ! $remove_role && ! bbp_is_valid_role( $new_role ) ) || isset( $running[ $key ] ) ) {
+	if ( ! is_multisite() || empty( $user_id ) || ( ! $remove_role && ( ! is_string( $new_role ) || ! bbp_is_valid_role( $new_role ) ) ) || isset( $running[ $key ] ) ) {
 		return $retval;
 	}
 
@@ -1055,7 +1055,10 @@ function bbp_set_current_user_default_role() {
 	/** Ready *****************************************************************/
 
 	// Load up bbPress once
-	$bbp         = bbpress();
+	$bbp = bbpress();
+	if ( ! ( $bbp->current_user instanceof WP_User ) ) {
+		return;
+	}
 
 	// Get whether or not to add a role to the user account
 	$add_to_site = bbp_allow_global_access();
@@ -1073,7 +1076,7 @@ function bbp_set_current_user_default_role() {
 	}
 
 	// A filtered empty role must not be interpreted as an explicit removal.
-	if ( ! bbp_is_valid_role( $new_role ) ) {
+	if ( ! is_string( $new_role ) || ! bbp_is_valid_role( $new_role ) ) {
 		return;
 	}
 

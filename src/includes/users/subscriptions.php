@@ -670,7 +670,10 @@ function bbp_subscriptions_handler( $action = '' ) {
 		} elseif ( is_single() || is_page() ) {
 			$redirect = get_permalink();
 		} else {
-			$redirect = bbp_get_engagement_type( $object_type )->get_url( $object_id );
+			$engagement_type = bbp_get_engagement_type( $object_type );
+			$redirect = $engagement_type
+				? $engagement_type->get_url( $object_id )
+				: false;
 		}
 
 		bbp_redirect( $redirect );

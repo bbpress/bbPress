@@ -9,6 +9,94 @@
 class BBP_Tests_Users_Functions_Capabilities extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_set_current_user_default_role
+	 * @ticket 3794
+	 */
+	public function test_default_role_skips_missing_bbpress_current_user() {
+		$previous_user = get_current_user_id();
+		$user_id       = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		wp_set_current_user( $user_id );
+		bbp_remove_user_role( $user_id );
+		$previous_bbp_user       = bbpress()->current_user;
+		bbpress()->current_user = false;
+		try {
+			$this->assertTrue( is_user_logged_in() );
+			bbp_set_current_user_default_role();
+			$this->assertFalse( bbp_get_user_role( $user_id ) );
+		} finally {
+			bbpress()->current_user = $previous_bbp_user;
+			wp_set_current_user( $previous_user );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_set_current_user_default_role
+	 * @ticket 3794
+	 */
+	public function test_default_role_rejects_boolean_filter_result() {
+		$previous_user = get_current_user_id();
+		$user_id       = $this->factory->user->create( array( 'role' => '' ) );
+
+		wp_set_current_user( $user_id );
+		bbp_remove_user_role( $user_id );
+		add_filter( 'bbp_get_default_role', '__return_true' );
+		add_filter( 'bbp_is_valid_role', '__return_true' );
+		try {
+			bbp_set_current_user_default_role();
+			$this->assertFalse( bbp_get_user_role( $user_id ) );
+		} finally {
+			remove_filter( 'bbp_get_default_role', '__return_true' );
+			remove_filter( 'bbp_is_valid_role', '__return_true' );
+			wp_set_current_user( $previous_user );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_user_default_role_override
+	 * @ticket 3794
+	 */
+	public function test_default_role_override_rejects_nonstring_metadata() {
+		$user_id = $this->factory->user->create();
+		$filter  = function( $value, $object_id, $meta_key ) use ( $user_id ) {
+			return $user_id === $object_id && '_bbp_default_role' === $meta_key
+				? true
+				: $value;
+		};
+
+		add_filter( 'get_user_metadata', $filter, 10, 3 );
+		add_filter( 'bbp_is_valid_role', '__return_true' );
+		try {
+			$this->assertFalse( bbp_get_user_default_role_override( $user_id ) );
+		} finally {
+			remove_filter( 'get_user_metadata', $filter, 10 );
+			remove_filter( 'bbp_is_valid_role', '__return_true' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_set_user_role_on_sites
+	 * @ticket 3794
+	 * @group multisite
+	 */
+	public function test_network_role_update_rejects_boolean_role() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'This test requires multisite.' );
+		}
+
+		$user_id = $this->factory->user->create();
+		$role    = bbp_get_participant_role();
+		bbp_set_user_role( $user_id, $role );
+		add_filter( 'bbp_is_valid_role', '__return_true' );
+		try {
+			$this->assertSame( array(), bbp_set_user_role_on_sites( $user_id, false, array( get_current_blog_id() ) ) );
+			$this->assertSame( $role, bbp_get_user_role( $user_id ) );
+		} finally {
+			remove_filter( 'bbp_is_valid_role', '__return_true' );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_valid_role
 	 */
 	public function test_only_registered_forum_roles_are_valid() {
