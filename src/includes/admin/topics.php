@@ -134,9 +134,13 @@ class BBP_Topics_Admin {
 	 * @return void
 	 */
 	public function edit_help() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
 
 		// Overview
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'overview',
 				'title'   => __( 'Overview', 'bbpress' ),
@@ -146,7 +150,7 @@ class BBP_Topics_Admin {
 		);
 
 		// Screen Content
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'screen-content',
 				'title'   => __( 'Screen Content', 'bbpress' ),
@@ -162,7 +166,7 @@ class BBP_Topics_Admin {
 		);
 
 		// Available Actions
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'action-links',
 				'title'   => __( 'Available Actions', 'bbpress' ),
@@ -182,7 +186,7 @@ class BBP_Topics_Admin {
 		);
 
 		// Bulk Actions
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'bulk-actions',
 				'title'   => __( 'Bulk Actions', 'bbpress' ),
@@ -193,7 +197,7 @@ class BBP_Topics_Admin {
 		);
 
 		// Help Sidebar
-		get_current_screen()->set_help_sidebar(
+		$screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',     'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',  'bbpress' ) . '</p>'
@@ -208,10 +212,14 @@ class BBP_Topics_Admin {
 	 * @return void
 	 */
 	public function new_help() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
 
 		$customize_display = '<p>' . __( 'The title field and the big topic editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'customize-display',
 				'title'   => __( 'Customizing This Display', 'bbpress' ),
@@ -219,7 +227,7 @@ class BBP_Topics_Admin {
 			)
 		);
 
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'title-topic-editor',
 				'title'   => __( 'Title and Topic Editor', 'bbpress' ),
@@ -235,7 +243,7 @@ class BBP_Topics_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'topic-attributes',
 				'title'   => __( 'Topic Attributes', 'bbpress' ),
@@ -248,7 +256,7 @@ class BBP_Topics_Admin {
 			)
 		);
 
-		get_current_screen()->add_help_tab(
+		$screen->add_help_tab(
 			array(
 				'id'      => 'publish-box',
 				'title'   => __( 'Publish Box', 'bbpress' ),
@@ -256,7 +264,7 @@ class BBP_Topics_Admin {
 			)
 		);
 
-		get_current_screen()->set_help_sidebar(
+		$screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'

@@ -229,6 +229,21 @@ class BBP_Tests_Admin_Topics extends BBP_UnitTestCase {
 	/**
 	 * @covers BBP_Topics_Admin::edit_help
 	 * @covers BBP_Topics_Admin::new_help
+	 * @ticket 3794
+	 */
+	public function test_help_methods_ignore_missing_screen() {
+		$admin = $this->get_admin_without_hooks();
+		unset( $GLOBALS['current_screen'] );
+
+		$this->assertNull( get_current_screen() );
+		$admin->edit_help();
+		$admin->new_help();
+		$this->assertNull( get_current_screen() );
+	}
+
+	/**
+	 * @covers BBP_Topics_Admin::edit_help
+	 * @covers BBP_Topics_Admin::new_help
 	 * @ticket 3706
 	 */
 	public function test_help_methods_add_expected_tabs_sidebar_and_thumbnail_guidance() {

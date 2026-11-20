@@ -135,6 +135,56 @@ class BBP_Tests_Admin_Replies extends BBP_UnitTestCase {
 		remove_action( 'load-post-new.php', array( $admin, 'new_help' ) );
 	}
 
+	/**
+	 * @covers BBP_Replies_Admin::edit_help
+	 * @covers BBP_Replies_Admin::new_help
+	 * @ticket 3794
+	 */
+	public function test_help_methods_ignore_missing_screen() {
+		$admin = $this->get_admin_without_hooks();
+		unset( $GLOBALS['current_screen'] );
+
+		$this->assertNull( get_current_screen() );
+		$admin->edit_help();
+		$admin->new_help();
+		$this->assertNull( get_current_screen() );
+	}
+
+	/**
+	 * @covers BBP_Replies_Admin::edit_help
+	 * @covers BBP_Replies_Admin::new_help
+	 * @ticket 3794
+	 */
+	public function test_help_methods_add_expected_tabs_and_sidebar() {
+		$admin        = $this->get_admin_without_hooks();
+		$edit_screen  = WP_Screen::get( 'edit-reply' );
+		$new_screen   = WP_Screen::get( 'reply' );
+		$edit_sidebar = $edit_screen->get_help_sidebar();
+		$new_sidebar  = $new_screen->get_help_sidebar();
+
+		try {
+			$GLOBALS['current_screen'] = $edit_screen;
+			$admin->edit_help();
+			$this->assertSame( array( 'overview', 'screen-content', 'action-links', 'bulk-actions' ), array_keys( $edit_screen->get_help_tabs() ) );
+			$this->assertStringContainsString( 'bbPress Documentation', $edit_screen->get_help_sidebar() );
+
+			$GLOBALS['current_screen'] = $new_screen;
+			$admin->new_help();
+			$this->assertSame( array( 'customize-display', 'title-reply-editor', 'reply-attributes', 'publish-box' ), array_keys( $new_screen->get_help_tabs() ) );
+			$this->assertStringContainsString( 'bbPress Support Forums', $new_screen->get_help_sidebar() );
+		} finally {
+			foreach ( array( 'overview', 'screen-content', 'action-links', 'bulk-actions' ) as $tab_id ) {
+				$edit_screen->remove_help_tab( $tab_id );
+			}
+			$edit_screen->set_help_sidebar( $edit_sidebar );
+
+			foreach ( array( 'customize-display', 'title-reply-editor', 'reply-attributes', 'publish-box' ) as $tab_id ) {
+				$new_screen->remove_help_tab( $tab_id );
+			}
+			$new_screen->set_help_sidebar( $new_sidebar );
+		}
+	}
+
 	/** @covers BBP_Replies_Admin::__construct @ticket 3706 */
 	public function test_constructor_registers_hooks_and_loaded_action() {
 		$loaded = null;
