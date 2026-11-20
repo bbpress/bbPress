@@ -56,9 +56,9 @@ abstract class BBP_Admin_Batch_Worker {
 	 * @since 2.7.0 bbPress (r8299)
 	 * @since 2.7.0 bbPress (r8338) Moved to the shared batch worker.
 	 *
-	 * @var array<string, mixed>|false
+	 * @var array<string, mixed>
 	 */
-	protected $state;
+	protected $state = array();
 
 	/**
 	 * Whether this run only previews changes.
@@ -158,6 +158,18 @@ abstract class BBP_Admin_Batch_Worker {
 			$result,
 			self::result_fields( $this->error, $complete )
 		);
+	}
+
+	/**
+	 * Set an active checkpoint, or clear it after initialization fails.
+	 *
+	 * @since 2.7.0 bbPress (r8564)
+	 *
+	 * @param array<string, mixed>|false $state New checkpoint, or false on failure.
+	 * @return void
+	 */
+	protected function set_state( $state ) {
+		$this->state = false === $state ? array() : $state;
 	}
 
 	/**

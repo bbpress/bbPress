@@ -143,7 +143,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 		if ( ! $read ) {
 			$this->fail( 'progress' );
 		} elseif ( false === $saved || $restarted ) {
-			$this->state = $this->new_state();
+			$this->set_state( $this->new_state() );
 			// Publish the generation before prepare can clean up an abandoned run.
 			if ( ! $this->error && ! $this->save() ) {
 				$this->fail( 'progress' );
@@ -174,7 +174,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 			if ( in_array( $this->error, array( 'ambiguous-mapping', 'verify' ), true ) ) {
 				// Rebuild invalid source plans. Previously written forum markers
 				// disambiguate partial upgrades when legacy and current IDs overlap.
-				$this->state = $this->new_state();
+				$this->set_state( $this->new_state() );
 			} elseif ( $this->async ) {
 				$preview_totals = array_merge( $this->counts, array( 'batches' => $this->batches ) );
 				bbp_admin_repair_tool_store_preview( $this->state, $preview_totals, array_keys( $preview_totals ), array( 'mapping_error' => (bool) $this->mapping_error ) );

@@ -194,7 +194,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			}
 			$initial         = false === $saved;
 			$this->persisted = ! $initial;
-			$this->state     = $initial ? $this->new_state() : $saved;
+			$this->set_state( $initial ? $this->new_state() : $saved );
 			if ( ! $this->error && $this->async ) {
 				$preview = array(
 					'initial'        => true,
@@ -243,7 +243,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 						$this->fail( 'source-invalid' );
 						break;
 					}
-					$this->state     = $this->new_state();
+					$this->set_state( $this->new_state() );
 					$this->nodes     = array();
 					$this->changed_ids = array();
 					$this->preview_repaired = 0;
@@ -270,7 +270,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 				++$batches;
 			}
 			if ( ! $this->dry_run || $this->async ) {
-				if ( $this->async && false !== $this->state ) {
+				if ( $this->async && ! empty( $this->state ) ) {
 					$preview = array(
 						'initial'        => $initial,
 						'batches'        => max( 1, $batches ),
@@ -281,7 +281,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 					$this->save_preview_state( $data );
 					bbp_admin_repair_tool_store_preview( $this->state, $preview, array_keys( $preview ), $data );
 				}
-				if ( false !== $this->state && ! $this->save( ! $this->error && $complete ) ) {
+				if ( ! empty( $this->state ) && ! $this->save( ! $this->error && $complete ) ) {
 					$this->fail( 'progress' );
 				}
 				if ( ! $this->dry_run && $total_work ) {
