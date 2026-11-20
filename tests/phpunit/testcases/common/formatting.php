@@ -310,6 +310,38 @@ class BBP_Tests_Common_Functions_Rel_Nofollow extends BBP_UnitTestCase {
 class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @covers ::bbp_encode_bad
+	 * @covers ::bbp_rel_nofollow
+	 * @covers ::bbp_rel_ugc
+	 * @covers ::bbp_make_clickable
+	 * @ticket 3794
+	 */
+	public function test_formatting_preserves_text_after_pcre_failure() {
+		$old_jit   = ini_get( 'pcre.jit' );
+		$old_limit = ini_get( 'pcre.backtrack_limit' );
+		$code      = '`' . str_repeat( 'x', 100 ) . '`';
+		$encoded   = '<code>' . str_repeat( 'x', 100 ) . '</code>';
+		$link      = '<a ' . str_repeat( 'x', 100 ) . '>';
+
+		try {
+			ini_set( 'pcre.jit', '0' );
+			ini_set( 'pcre.backtrack_limit', '1' );
+
+			$this->assertSame( $code, bbp_code_trick( $code ) );
+			$this->assertSame( $encoded, bbp_code_trick_reverse( $encoded ) );
+			$this->assertSame( $code, bbp_encode_bad( $code ) );
+			$this->assertSame( $link, bbp_rel_nofollow( $link ) );
+			$this->assertSame( $link, bbp_rel_ugc( $link ) );
+			$this->assertSame( $link, bbp_make_clickable( $link ) );
+		} finally {
+			ini_set( 'pcre.jit', $old_jit );
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_kses_allowed_tags
 	 * @covers ::bbp_filter_kses
 	 * @covers ::bbp_kses_data

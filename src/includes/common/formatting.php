@@ -213,7 +213,7 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 		return $content;
 	}
 	$processor = WP_HTML_Processor::create_fragment( $content );
-	if ( ! is_callable( array( $processor, 'serialize_token' ) ) || ! is_utf8_charset() ) {
+	if ( ! $processor || ! is_callable( array( $processor, 'serialize_token' ) ) || ! is_utf8_charset() ) {
 		return $content;
 	}
 	$excluded = array( 'UL', 'OL', 'MENU', 'DIR', 'PRE', 'CODE', 'LISTING' );
@@ -233,6 +233,9 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 	// Match concrete source tags while allowing implied parser elements.
 	$item_pattern = '/<\/?li(?=[\t\n\f\r \/>])/i';
 	$processor = WP_HTML_Processor::create_fragment( $content );
+	if ( ! $processor ) {
+		return $content;
+	}
 	// Mark candidates in a disposable copy, including end tags as openers.
 	// The tokenizer then discards lookalikes in attributes and opaque content.
 	// Put the offset first so existing attributes cannot override it.
@@ -327,8 +330,8 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
  */
 function bbp_code_trick( $content = '' ) {
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
-	$content = preg_replace_callback('|(`)(.*?)`|',      'bbp_encode_callback', $content );
-	$content = preg_replace_callback( "!(^|\n)`(.*?)`!s", 'bbp_encode_callback', $content );
+	$content = preg_replace_callback('|(`)(.*?)`|',      'bbp_encode_callback', $content ) ?? $content;
+	$content = preg_replace_callback( "!(^|\n)`(.*?)`!s", 'bbp_encode_callback', $content ) ?? $content;
 
 	return $content;
 }
@@ -346,7 +349,7 @@ function bbp_code_trick_reverse( $content = '' ) {
 
 	// Setup variables
 	$openers = array( '<p>', '<br />' );
-	$content = preg_replace_callback( '!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s', 'bbp_decode_callback', $content );
+	$content = preg_replace_callback( '!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s', 'bbp_decode_callback', $content ) ?? $content;
 
 	// Do the do
 	$content = str_replace( $openers,       '',       $content );
@@ -370,7 +373,11 @@ function bbp_encode_bad( $content = '' ) {
 
 	// Setup variables
 	$content = _wp_specialchars( $content, ENT_NOQUOTES );
-	$content = preg_split( '@(`[^`]*`)@m', $content, -1, PREG_SPLIT_NO_EMPTY + PREG_SPLIT_DELIM_CAPTURE );
+	$pieces  = preg_split( '@(`[^`]*`)@m', $content, -1, PREG_SPLIT_NO_EMPTY + PREG_SPLIT_DELIM_CAPTURE );
+	if ( false === $pieces ) {
+		return $content;
+	}
+	$content = $pieces;
 	$allowed = bbp_kses_allowed_tags();
 	$empty   = array(
 		'br'    => true,
@@ -421,7 +428,7 @@ function bbp_encode_callback( $matches = array() ) {
 	// Do some replacing
 	$content = htmlspecialchars( $content, ENT_QUOTES );
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
-	$content = preg_replace( "|\n\n\n+|", "\n\n", $content );
+	$content = preg_replace( "|\n\n\n+|", "\n\n", $content ) ?? $content;
 	$content = str_replace( '&amp;amp;', '&amp;', $content );
 	$content = str_replace( '&amp;lt;',  '&lt;',  $content );
 	$content = str_replace( '&amp;gt;',  '&gt;',  $content );
@@ -522,7 +529,7 @@ function bbp_encode_normal_callback( &$content = '', $key = 0, $preg = '' ) {
  * @return string Text with rel=nofollow added to any links.
  */
 function bbp_rel_nofollow( $text = '' ) {
-	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_nofollow_callback', $text );
+	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_nofollow_callback', $text ) ?? $text;
 }
 
 /**
@@ -547,7 +554,7 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
  * @return string Text with the ugc link relationship.
  */
 function bbp_rel_ugc( $text = '' ) {
-	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_ugc_callback', $text );
+	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_ugc_callback', $text ) ?? $text;
 }
 
 /**
@@ -582,6 +589,9 @@ function bbp_make_clickable( $text = '' ) {
 	$r               = '';
 	$textarr         = preg_split( '/(<[^<>]+>)/', $text, -1, PREG_SPLIT_DELIM_CAPTURE ); // split out HTML tags
 	$nested_code_pre = 0; // Keep track of how many levels link is nested inside <pre> or <code>
+	if ( false === $textarr ) {
+		return $text;
+	}
 
 	foreach ( $textarr as $piece ) {
 
@@ -615,7 +625,7 @@ function bbp_make_clickable( $text = '' ) {
 	}
 
 	// Cleanup of accidental links within links
-	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a>([^<]*)</a>#i', '$1$3$4</a>', $r );
+	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a>([^<]*)</a>#i', '$1$3$4</a>', $r ) ?? $r;
 }
 
 /**
@@ -643,7 +653,7 @@ function bbp_make_urls_clickable( $text = '' ) {
 
 	// The regex is a non-anchored pattern and does not have a single fixed starting character.
 	// Tell PCRE to spend more time optimizing since, when used on a page load, it will probably be used several times.
-	return preg_replace_callback( $url_clickable, '_make_url_clickable_cb', $text );
+	return preg_replace_callback( $url_clickable, '_make_url_clickable_cb', $text ) ?? $text;
 }
 
 /**
@@ -657,7 +667,7 @@ function bbp_make_urls_clickable( $text = '' ) {
  * @return string Content with FTP URLs linked.
  */
 function bbp_make_ftps_clickable( $text = '' ) {
-	return preg_replace_callback( '#([\s>])((www|ftp)\.[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]+)#is', '_make_web_ftp_clickable_cb', $text );
+	return preg_replace_callback( '#([\s>])((www|ftp)\.[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]+)#is', '_make_web_ftp_clickable_cb', $text ) ?? $text;
 }
 
 /**
@@ -671,7 +681,7 @@ function bbp_make_ftps_clickable( $text = '' ) {
  * @return string Content with email addresses linked.
  */
 function bbp_make_emails_clickable( $text = '' ) {
-	return preg_replace_callback( '#([\s>])([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})#i', '_make_email_clickable_cb', $text );
+	return preg_replace_callback( '#([\s>])([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})#i', '_make_email_clickable_cb', $text ) ?? $text;
 }
 
 /**
@@ -691,7 +701,7 @@ function bbp_make_mentions_clickable( $text = '' ) {
 		bbp_get_mention_pattern(),
 		'bbp_make_mentions_clickable_callback',
 		$text
-	);
+	) ?? $text;
 }
 
 /**
