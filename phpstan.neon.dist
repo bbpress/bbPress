@@ -17,6 +17,7 @@ parameters:
     scanFiles:
         - tests/phpstan/akismet-functions.php
         - tests/phpstan/runtime-constants.php
+        - tests/phpstan/wp-cli.php
     stubFiles:
         - tests/phpstan/wp-html-processor.stub
         - tests/phpstan/wp-post.stub
@@ -35,5 +36,4 @@ parameters:
         analyse:
             - src/includes/common/attachments.php
             - src/includes/extend/buddypress
-            - src/includes/admin/classes/class-bbp-tools-cli-command.php
     tmpDir: build/phpstan/cache

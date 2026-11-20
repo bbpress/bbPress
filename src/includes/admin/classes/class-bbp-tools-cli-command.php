@@ -105,7 +105,7 @@ class BBP_Tools_CLI_Command {
 
 		$tool   = $tools[ $tool_id ];
 		$type   = $tool['type'];
-		$action = isset( $assoc_args['dry-run'] ) ? 'dry-run' : 'run';
+		$action = \WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', false ) ? 'dry-run' : 'run';
 		if ( ! in_array( $type, array( 'repair', 'upgrade' ), true ) || ! current_user_can( 'bbp_tools_' . $type . '_page' ) ) {
 			WP_CLI::error( __( 'You are not allowed to run this forum tool. Use --user with a permitted account.', 'bbpress' ) );
 		}
@@ -280,10 +280,3 @@ class BBP_Tools_CLI_Command {
 		}
 	}
 }
-
-// Add only new subcommands without replacing an installed package's parent
-// command or its legacy subcommand registrations.
-$bbp_tools_cli_command = new BBP_Tools_CLI_Command();
-WP_CLI::add_command( 'bbp tool list',   array( $bbp_tools_cli_command, 'list_tools' ) );
-WP_CLI::add_command( 'bbp tool run',    array( $bbp_tools_cli_command, 'run' ) );
-WP_CLI::add_command( 'bbp tool status', array( $bbp_tools_cli_command, 'status' ) );

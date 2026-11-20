@@ -272,6 +272,76 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_reset_query_result
+	 */
+	public function test_bbp_admin_reset_query_result_reports_failure() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/reset.php';
+
+		$db              = bbp_db();
+		$old_suppression = $db->suppress_errors( true );
+		try {
+			$result = bbp_admin_reset_query_result(
+				array(
+					'query'   => 'SELECT * FROM bbp_missing_reset_result_table',
+					'message' => 'Reset: %s'
+				)
+			);
+			$this->assertSame( array( 'message' => 'Reset: Failed!', 'success' => false ), $result );
+		} finally {
+			$db->suppress_errors( $old_suppression );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_reset_database
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_bbp_admin_reset_database_uses_explicit_imported_user_option() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Imported user deletion is unavailable on multisite.' );
+		}
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/reset.php';
+
+		$user_id  = $this->factory->user->create();
+		$forum_id = bbp_insert_forum( array( 'post_title' => 'Reset forum' ) );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+
+		$old_post = $_POST;
+		$_POST['bbpress-delete-imported-users'] = '1';
+		try {
+			$result = bbp_admin_reset_database( false, false );
+		} finally {
+			$_POST = $old_post;
+		}
+
+		$this->assertTrue( $result['success'] );
+		$this->assertNotEmpty( $result['messages'] );
+		$this->assertFalse( bbp_is_forum( $forum_id ) );
+		$this->assertNotFalse( get_userdata( $user_id ) );
+		$this->assertEmpty( get_user_meta( $user_id, '_bbp_old_user_id', true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_reset_database
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_bbp_admin_reset_database_deletes_imported_users_when_requested() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Imported user deletion is unavailable on multisite.' );
+		}
+		require_once BBP_PLUGIN_DIR . 'includes/admin/tools/reset.php';
+
+		$user_id = $this->factory->user->create();
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+		$result = bbp_admin_reset_database( true, false );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertFalse( get_userdata( $user_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_list
 	 * @ticket 3695
 	 */

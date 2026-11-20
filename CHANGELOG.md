@@ -19,6 +19,10 @@ Development for the next bbPress release is in progress. See the active
   assignments.
 - Added `wp bbp tool` commands to list, run, preview, and resume registered
   forum repair and upgrade tools from WP-CLI.
+- Added WP-CLI commands to create and moderate forums, topics, and replies,
+  manage favorites, subscriptions, forum moderators, and user roles, and inspect
+  topic engagements.
+- Added a confirmed `wp bbp reset` command for keymasters to remove forum data.
 - Added BuddyPress group forum support for child forums. Forum parentage now
   determines group routes and member access to private or hidden children, and
   activity from those forums appears in the parent group's stream.

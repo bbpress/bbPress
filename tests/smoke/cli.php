@@ -66,5 +66,6 @@ if ( 1 !== bbp_get_topic_reply_count( $topic_id, true ) ) {
 
 require __DIR__ . '/mentions.php';
 require __DIR__ . '/tools.php';
+require __DIR__ . '/commands.php';
 
 echo esc_url_raw( bbp_get_forum_permalink( $forum_id ) );

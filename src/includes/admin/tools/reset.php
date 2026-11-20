@@ -100,7 +100,7 @@ function bbp_admin_reset_handler() {
 	check_admin_referer( 'bbpress-reset' );
 
 	// Reset all of bbPress
-	bbp_admin_reset_database();
+	bbp_admin_reset_database( ! empty( $_POST['bbpress-delete-imported-users'] ) );
 }
 
 /**
@@ -113,6 +113,19 @@ function bbp_admin_reset_handler() {
  * @return string Formatted reset query feedback.
  */
 function bbp_admin_reset_query_feedback( $args = array() ) {
+	$result = bbp_admin_reset_query_result( $args );
+	return $result['message'];
+}
+
+/**
+ * Run a reset query and return its result.
+ *
+ * @since 2.7.0 bbPress (r8552)
+ *
+ * @param array<string, mixed> $args Array of query, message, and possible responses.
+ * @return array{message:string,success:bool} Query feedback and success status.
+ */
+function bbp_admin_reset_query_result( $args = array() ) {
 	static $defaults = null;
 
 	// Only set defaults one time to avoid hitting the GetText API repeatedly
@@ -133,30 +146,37 @@ function bbp_admin_reset_query_feedback( $args = array() ) {
 
 	// Success/Failure based on query error
 	if ( ! empty( $r['query'] ) ) {
-		$query  = bbp_db()->query( $r['query'] );
-		$result = ( false !== $query ) && ! is_wp_error( $query )
-			? $r['responses']['success']
-			: $r['responses']['failure'];
+		$query   = bbp_db()->query( $r['query'] );
+		$success = ( false !== $query ) && ! is_wp_error( $query );
+		$status  = $success ? 'success' : 'failure';
 
 	// Skip if empty
 	} else {
-		$result = $r['responses']['skipped'];
+		$success = true;
+		$status  = 'skipped';
 	}
 
 	// Return feedback
-	return sprintf( $r['message'], $result );
+	return array(
+		'message' => sprintf( $r['message'], $r['responses'][ $status ] ),
+		'success' => $success
+	);
 }
 
 /**
  * Perform a bbPress database reset.
  *
  * @since 2.6.0 bbPress (r6750)
- * @return void
+ * @since 2.7.0 bbPress (r8552) Accept explicit options and return results for WP-CLI.
+ *
+ * @param bool $delete_imported_users Whether to delete previously imported users.
+ * @param bool $display_feedback      Whether to add admin notices.
+ * @return array{success:bool,messages:array<int,string>} Reset outcome and feedback.
  */
-function bbp_admin_reset_database() {
+function bbp_admin_reset_database( $delete_imported_users = false, $display_feedback = true ) {
 
 	// Define variables.
-	$messages = array();
+	$results  = array();
 	$sql_meta = array();
 	$bbp_db   = bbp_db();
 
@@ -181,7 +201,7 @@ function bbp_admin_reset_database() {
 		$sql_meta = implode( "', '", $sql_meta );
 
 		// Delete posts
-		$messages[] = bbp_admin_reset_query_feedback(
+		$results[] = bbp_admin_reset_query_result(
 			array(
 				'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')",
 				/* translators: %s: Status of the deletion process */
@@ -191,7 +211,7 @@ function bbp_admin_reset_database() {
 
 		/** Post Meta *********************************************************/
 
-		$messages[] = bbp_admin_reset_query_feedback(
+		$results[] = bbp_admin_reset_query_result(
 			array(
 				'query'   => "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')",
 				/* translators: %s: Status of the meta deletion process */
@@ -201,7 +221,7 @@ function bbp_admin_reset_database() {
 
 		/** Post Revisions ****************************************************/
 
-		$messages[] = bbp_admin_reset_query_feedback(
+		$results[] = bbp_admin_reset_query_result(
 			array(
 				'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'",
 				/* translators: %s: Status of the revision deletion process */
@@ -212,7 +232,7 @@ function bbp_admin_reset_database() {
 
 	// Topic Tags
 
-	$messages[] = bbp_admin_reset_query_feedback(
+	$results[] = bbp_admin_reset_query_result(
 		array(
 			'query'   => "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag'",
 			/* translators: %s: Status of the tag deletion process */
@@ -223,7 +243,7 @@ function bbp_admin_reset_database() {
 	// User
 
 	// First, if we're deleting previously imported users, delete them now
-	if ( ! is_multisite() && ! empty( $_POST['bbpress-delete-imported-users'] ) ) {
+	if ( ! is_multisite() && $delete_imported_users ) {
 		$sql_users = array_unique( array_map( 'intval', $bbp_db->get_col( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_old_user_id'" ) ) );
 
 		if ( ! empty( $sql_users ) ) {
@@ -235,10 +255,13 @@ function bbp_admin_reset_database() {
 				}
 			}
 
-			$messages[] = sprintf(
-				/* translators: %s: Status of the user deletion process */
-				esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' ),
-				$deleted ? esc_html__( 'Success!', 'bbpress' ) : esc_html__( 'Failed!', 'bbpress' )
+			$results[] = array(
+				'message' => sprintf(
+					/* translators: %s: Status of the user deletion process */
+					esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' ),
+					$deleted ? esc_html__( 'Success!', 'bbpress' ) : esc_html__( 'Failed!', 'bbpress' )
+				),
+				'success' => $deleted
 			);
 		}
 	}
@@ -251,7 +274,7 @@ function bbp_admin_reset_database() {
 		? $bbp_db->esc_like( $meta_key ) . '%'
 		: '%' . $bbp_db->esc_like( $meta_key ) . '%';
 
-	$messages[] = bbp_admin_reset_query_feedback(
+	$results[] = bbp_admin_reset_query_result(
 		array(
 			'query'   => $bbp_db->prepare( "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE %s", $like ),
 			/* translators: %s: Status of the user meta deletion process */
@@ -263,7 +286,7 @@ function bbp_admin_reset_database() {
 
 	$table_name = $bbp_db->prefix . 'bbp_converter_translator';
 	if ( $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
-		$messages[] = bbp_admin_reset_query_feedback(
+		$results[] = bbp_admin_reset_query_result(
 			array(
 				'query'   => "DROP TABLE {$table_name}",
 				/* translators: %s: Status of the table deletion process */
@@ -275,19 +298,31 @@ function bbp_admin_reset_database() {
 	// Options
 
 	bbp_delete_options();
-	$messages[] = esc_html__( 'Deleting Settings&hellip; Success!', 'bbpress' );
+	$results[] = array(
+		'message' => esc_html__( 'Deleting Settings&hellip; Success!', 'bbpress' ),
+		'success' => true
+	);
 
 	// Roles
 
 	bbp_remove_roles();
 	bbp_remove_caps();
-	$messages[] = esc_html__( 'Removing Roles and Capabilities&hellip; Success!', 'bbpress' );
+	$results[] = array(
+		'message' => esc_html__( 'Removing Roles and Capabilities&hellip; Success!', 'bbpress' ),
+		'success' => true
+	);
 
 	// Output
 
-	if ( count( $messages ) ) {
+	$messages = wp_list_pluck( $results, 'message' );
+	if ( $display_feedback ) {
 		foreach ( $messages as $message ) {
 			bbp_admin_tools_feedback( $message );
 		}
 	}
+
+	return array(
+		'success'  => ! in_array( false, wp_list_pluck( $results, 'success' ), true ),
+		'messages' => $messages
+	);
 }

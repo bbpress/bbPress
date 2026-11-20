@@ -462,7 +462,7 @@ final class bbPress {
 
 		// Command-line tools
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			require $this->includes_dir . 'admin/classes/class-bbp-tools-cli-command.php';
+			require $this->includes_dir . 'cli.php';
 		}
 	}
 
