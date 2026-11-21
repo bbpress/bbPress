@@ -356,7 +356,7 @@ function bbp_admin_repair_tool_row_actions( $tool = array() ) {
  * @param string|false    $class          Optional notice class, or false for the default.
  * @param bool            $is_dismissible Whether the notice can be dismissed.
  *
- * @return string The message HTML.
+ * @return false|null False for an invalid message, or null after adding the notice.
  */
 function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = true ) {
 	return bbp_admin()->add_notice( $message, $class, $is_dismissible );

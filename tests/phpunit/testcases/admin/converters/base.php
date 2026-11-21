@@ -420,6 +420,72 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Converter::process_callback
+	 * @covers BBP_Converter::setup_options
+	 * @ticket 3794
+	 */
+	public function test_invalid_converter_filter_result_is_reported() {
+		bbp_setup_converter();
+		$old_post     = $_POST;
+		$old_request  = $_REQUEST;
+		$old_platform = get_option( '_bbp_converter_platform', false );
+		$old_prefix   = get_option( '_bbp_converter_db_prefix', false );
+		$invalid      = function() {
+			return new stdClass();
+		};
+		$map_meta_cap = function( $caps, $cap ) {
+			return 'bbp_tools_import_page' === $cap ? array( 'exist' ) : $caps;
+		};
+		$wp_die_ajax_handler = function() {
+			return function() {
+				throw new BBP_Tests_Admin_Converters_Ajax_Response_Exception( 'AJAX response complete' );
+			};
+		};
+
+		remove_filter( 'map_meta_cap', 'bbp_map_meta_caps', 10 );
+		add_filter( 'map_meta_cap', $map_meta_cap, 10, 2 );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
+		add_filter( 'bbp_new_converter', $invalid );
+		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$_POST = array(
+			'_bbp_converter_db_prefix' => 'wp_',
+			'_bbp_converter_platform'  => 'MyBB',
+			'_ajax_nonce'             => wp_create_nonce( 'bbp_converter_process' ),
+		);
+		$_REQUEST = $_POST;
+
+		ob_start();
+		try {
+			( new BBP_Converter() )->process_callback();
+			$this->fail( 'Expected an invalid converter to stop the import.' );
+		} catch ( BBP_Tests_Admin_Converters_Ajax_Response_Exception $error ) {
+			$response = json_decode( ob_get_contents(), true );
+			$this->assertFalse( $response['success'] );
+			$this->assertSame( 'bbp_converter_unavailable', $response['data'][0]['code'] );
+		} finally {
+			ob_end_clean();
+			$_POST    = $old_post;
+			$_REQUEST = $old_request;
+			if ( false === $old_platform ) {
+				delete_option( '_bbp_converter_platform' );
+			} else {
+				update_option( '_bbp_converter_platform', $old_platform );
+			}
+			if ( false === $old_prefix ) {
+				delete_option( '_bbp_converter_db_prefix' );
+			} else {
+				update_option( '_bbp_converter_db_prefix', $old_prefix );
+			}
+			remove_filter( 'bbp_new_converter', $invalid );
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
+			remove_filter( 'map_meta_cap', $map_meta_cap, 10 );
+			add_filter( 'map_meta_cap', 'bbp_map_meta_caps', 10, 4 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_valid_converter_prefix
 	 * @covers ::bbp_new_converter
 	 */
@@ -840,6 +906,56 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 					$response = json_decode( ob_get_contents(), true );
 					$this->assertFalse( $response['success'] );
 					$this->assertSame( 'bbp_converter_source_query_failed', $response['data'][0]['code'] );
+				} finally {
+					ob_end_clean();
+				}
+			}
+		} finally {
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::require_query
+	 * @covers BBP_Converter_Base::get_row
+	 * @covers BBP_Converter_Base::get_results
+	 * @covers BBP_Converter_Base::query
+	 * @covers BBP_Converter_Base::count_rows_by_results
+	 * @ticket 3794
+	 */
+	public function test_unprepared_queries_stop_the_import() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$cases     = array(
+			array( 'get_row', array( null ) ),
+			array( 'get_results', array( '' ) ),
+			array( 'query', array( null ) ),
+			array( 'count_rows_by_results', array( null, 'SELECT 1' ) ),
+			array( 'count_rows_by_results', array( 'SELECT 1', null ) ),
+		);
+		$wp_die_ajax_handler = function() {
+			return function() {
+				throw new BBP_Tests_Admin_Converters_Ajax_Response_Exception( 'AJAX response complete' );
+			};
+		};
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter( 'wp_die_ajax_handler', $wp_die_ajax_handler );
+
+		try {
+			foreach ( $cases as $case ) {
+				$method = new ReflectionMethod( 'BBP_Converter_Base', $case[0] );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$method->setAccessible( true );
+				}
+
+				ob_start();
+				try {
+					$method->invokeArgs( $converter, $case[1] );
+					$this->fail( 'Expected an unprepared query to stop the import.' );
+				} catch ( BBP_Tests_Admin_Converters_Ajax_Response_Exception $error ) {
+					$response = json_decode( ob_get_contents(), true );
+					$this->assertFalse( $response['success'] );
+					$this->assertSame( 'bbp_converter_query_failed', $response['data'][0]['code'] );
 				} finally {
 					ob_end_clean();
 				}

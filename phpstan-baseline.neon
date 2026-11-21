@@ -7,9 +7,15 @@ parameters:
 			path: src/bbpress.php
 
 		-
-			message: '#^Action callback returns object but should not return anything\.$#'
+			message: '#^Action callback returns BBP_Admin but should not return anything\.$#'
 			identifier: return.void
-			count: 3
+			count: 1
+			path: src/includes/admin/actions.php
+
+		-
+			message: '#^Action callback returns BBP_Converter but should not return anything\.$#'
+			identifier: return.void
+			count: 2
 			path: src/includes/admin/actions.php
 
 		-

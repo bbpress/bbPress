@@ -1276,10 +1276,11 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query option and return results.
 	 *
-	 * @param string $query SQL query to run.
+	 * @param string|null $query SQL query to run.
 	 * @return stdClass|null Matching row, if found.
 	 */
 	private function get_row( $query = '' ) {
+		$query = $this->require_query( $query );
 		$this->update_query( $query );
 
 		return $this->wpdb->get_row( $query ); // phpcs:ignore
@@ -1288,11 +1289,12 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query option and return results.
 	 *
-	 * @param string $query SQL query to run.
+	 * @param string|null $query SQL query to run.
 	 * @param 'OBJECT'|'ARRAY_A' $output Result format. Defaults to OBJECT.
 	 * @return ($output is 'ARRAY_A' ? array<int, array<array-key, mixed>> : array<int, stdClass>) Query rows.
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
+		$query = $this->require_query( $query );
 		$this->update_query( $query );
 
 		return (array) $this->wpdb->get_results( $query, $output ); // phpcs:ignore
@@ -1301,10 +1303,11 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Update the last query option and do a general query.
 	 *
-	 * @param string $query SQL query to run.
+	 * @param string|null $query SQL query to run.
 	 * @return int|bool Number of rows, or false on error.
 	 */
 	private function query( $query = '' ) {
+		$query = $this->require_query( $query );
 		$this->update_query( $query );
 
 		return $this->wpdb->query( $query ); // phpcs:ignore
@@ -1321,8 +1324,24 @@ abstract class BBP_Converter_Base {
 	 */
 	private function update_password( $user_id, $password ) {
 		$query = $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $password, $user_id );
+		$query = $this->require_query( $query );
 
 		return $this->wpdb->query( $query ); // phpcs:ignore
+	}
+
+	/**
+	 * Stop an import when WordPress cannot prepare a database query.
+	 *
+	 * @param string|null $query Prepared SQL query.
+	 * @return string Prepared SQL query.
+	 */
+	private function require_query( $query ) {
+		if ( ! is_string( $query ) || '' === $query ) {
+			$error = new WP_Error( 'bbp_converter_query_failed', esc_html__( 'Could not prepare a database query.', 'bbpress' ) );
+			wp_send_json_error( $error );
+		}
+
+		return $query;
 	}
 
 	/**
@@ -1343,12 +1362,14 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r6681)
 	 * @since 2.6.20 bbPress (r7920) Count complete result sets across batches.
 	 *
-	 * @param string $query       The literal MySQL results query.
-	 * @param string $count_query The literal MySQL count query.
+	 * @param string|null $query       The literal MySQL results query.
+	 * @param string|null $count_query The literal MySQL count query.
 	 * @param int    $start       Current conversion offset.
 	 * @return array<int, stdClass> Rows returned for this conversion batch.
 	 */
 	private function count_rows_by_results( $query = '', $count_query = '', $start = 0 ) {
+		$query       = $this->require_query( $query );
+		$count_query = $this->require_query( $count_query );
 		$results      = $this->get_results( $query );
 		$saved_count  = (int) get_option( '_bbp_converter_rows_in_step', 0 );
 		$result_count = count( $results );

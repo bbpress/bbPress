@@ -128,7 +128,7 @@ class BBP_Admin {
 	/**
 	 * Converter admin.
 	 *
-	 * @var BBP_Converter
+	 * @var BBP_Converter|null
 	 */
 	public $converter = null;
 

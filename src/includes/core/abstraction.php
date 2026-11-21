@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0 bbPress (r6601)
  *
- * @return object Admin instance.
+ * @return BBP_Admin Admin instance.
  */
 function bbp_setup_admin() {
 	$bbp = bbpress();
@@ -37,9 +37,7 @@ function bbp_setup_admin() {
 		require_once $bbp->includes_dir . 'admin/classes/class-bbp-admin.php';
 
 		// Setup
-		$bbp->admin = class_exists( 'BBP_Admin' )
-			? new BBP_Admin()
-			: new stdClass();
+		$bbp->admin = new BBP_Admin();
 	}
 
 	// Return the admin object
@@ -55,7 +53,7 @@ function bbp_setup_admin() {
  *
  * @since 2.6.0 bbPress (r6601)
  *
- * @return object Converter instance.
+ * @return BBP_Converter Converter instance.
  */
 function bbp_setup_converter() {
 	$bbp_admin = bbp_setup_admin();
@@ -70,9 +68,7 @@ function bbp_setup_converter() {
 		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter-base.php';
 
 		// Setup
-		$bbp_admin->converter = class_exists( 'BBP_Converter' )
-			? new BBP_Converter()
-			: new stdClass();
+		$bbp_admin->converter = new BBP_Converter();
 	}
 
 	// Return the converter

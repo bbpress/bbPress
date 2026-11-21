@@ -27,7 +27,7 @@ function bbp_get_converters() {
 
 		// Open the converter directory
 		$converter = bbp_setup_converter();
-		$path      = isset( $converter->converters_dir ) && is_string( $converter->converters_dir )
+		$path      = is_string( $converter->converters_dir )
 			? $converter->converters_dir
 			: '';
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

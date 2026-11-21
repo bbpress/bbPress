@@ -181,6 +181,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Reported missing converters and failed query preparation during forum imports.
 - Avoided empty topic and reply admin links when WordPress cannot provide a
   destination, and converter failures when a source directory or database is
   unavailable.

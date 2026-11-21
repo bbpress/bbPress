@@ -244,9 +244,12 @@ class BBP_Converter {
 		}
 
 		// Bail if no converter
-		if ( ! empty( $this->converter ) ) {
-			$this->do_steps();
+		if ( ! ( $this->converter instanceof BBP_Converter_Base ) ) {
+			$error = new WP_Error( 'bbp_converter_unavailable', esc_html__( 'Could not load the selected converter.', 'bbpress' ) );
+			wp_send_json_error( $error );
 		}
+
+		$this->do_steps();
 	}
 
 	/**
@@ -471,7 +474,8 @@ class BBP_Converter {
 
 		// Maybe include the appropriate converter.
 		if ( ! empty( $this->platform ) ) {
-			$this->converter = bbp_new_converter( $this->platform );
+			$converter       = bbp_new_converter( $this->platform );
+			$this->converter = ( $converter instanceof BBP_Converter_Base ) ? $converter : null;
 		}
 	}
 
