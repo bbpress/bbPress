@@ -2160,13 +2160,14 @@ function bbp_notice_edit_user_success() {
  */
 function bbp_notice_edit_user_pending_email() {
 
-	// Bail if not on users own profile
-	if ( ! bbp_is_user_home_edit() ) {
+	$user_id = bbp_get_displayed_user_id();
+
+	// Show the notice only to users who may edit the email address
+	if ( ! bbp_is_user_home_edit() && ( ! bbp_is_single_user_edit() || ! bbp_current_user_can_edit_user_field( 'email', $user_id ) ) ) {
 		return;
 	}
 
 	// Check for pending email address change
-	$user_id   = bbp_get_displayed_user_id();
 	$key       = '_new_email';
 	$new_email = get_user_meta( $user_id, $key, true );
 

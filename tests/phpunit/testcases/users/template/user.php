@@ -766,6 +766,50 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3442
+	 * @covers ::bbp_notice_edit_user_pending_email
+	 */
+	public function test_bbp_notice_edit_user_pending_email_for_profile_editor() {
+		$user_id            = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$old_displayed_user = bbpress()->displayed_user;
+		$old_super_admins   = isset( $GLOBALS['super_admins'] ) ? $GLOBALS['super_admins'] : null;
+		$this->grant_super_admin( $this->keymaster_id );
+		bbpress()->displayed_user = get_userdata( $user_id );
+		update_user_meta( $user_id, '_new_email', array( 'newemail' => 'pending@example.org' ) );
+		add_filter( 'bbp_is_single_user_edit', '__return_true' );
+
+		try {
+			ob_start();
+			bbp_notice_edit_user_pending_email();
+			$output = ob_get_clean();
+			$this->assertStringContainsString( '<code>pending@example.org</code>', $output );
+			$this->assertStringContainsString( 'Cancel', $output );
+
+			$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+			ob_start();
+			bbp_notice_edit_user_pending_email();
+			$this->assertSame( '', ob_get_clean() );
+
+			$this->set_current_user( $this->keymaster_id );
+			add_filter( 'bbp_current_user_can_edit_user_field', '__return_false' );
+			ob_start();
+			bbp_notice_edit_user_pending_email();
+			$this->assertSame( '', ob_get_clean() );
+		} finally {
+			remove_filter( 'bbp_current_user_can_edit_user_field', '__return_false' );
+			remove_filter( 'bbp_is_single_user_edit', '__return_true' );
+			delete_user_meta( $user_id, '_new_email' );
+			bbpress()->displayed_user = $old_displayed_user;
+			$this->set_current_user( $this->keymaster_id );
+			if ( null === $old_super_admins ) {
+				unset( $GLOBALS['super_admins'] );
+			} else {
+				$GLOBALS['super_admins'] = $old_super_admins;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_notice_edit_user_is_super_admin
 	 */
 	public function test_bbp_notice_edit_user_is_super_admin() {

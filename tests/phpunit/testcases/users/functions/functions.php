@@ -464,6 +464,93 @@
 	}
 
 	/**
+	 * @ticket 3442
+	 * @covers ::bbp_user_email_change_handler
+	 */
+	public function test_bbp_user_email_change_handler_allows_email_editor_to_dismiss_only() {
+		$user_id          = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$editor_id        = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$old_user         = get_current_user_id();
+		$old_displayed    = bbpress()->displayed_user;
+		$old_get          = $_GET;
+		$old_request      = $_REQUEST;
+		$old_errors       = bbpress()->errors;
+		$old_super_admins = isset( $GLOBALS['super_admins'] ) ? $GLOBALS['super_admins'] : null;
+		$old_host         = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null;
+		$old_uri          = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$key              = '_new_email';
+		$pending          = array( 'hash' => 'valid-hash', 'newemail' => 'pending@example.org' );
+		$dismiss          = $user_id . $key;
+
+		$this->grant_super_admin( $editor_id );
+		bbpress()->displayed_user = get_userdata( $user_id );
+		bbpress()->errors         = new WP_Error();
+		$home_parts               = wp_parse_url( home_url() );
+		$_SERVER['HTTP_HOST']     = $home_parts['host'] . ( isset( $home_parts['port'] ) ? ':' . $home_parts['port'] : '' );
+		$_SERVER['REQUEST_URI']   = '/?bbp_user=' . $user_id . '&edit=1';
+		add_filter( 'bbp_is_single_user_edit', '__return_true' );
+		update_user_meta( $user_id, $key, $pending );
+
+		try {
+			$this->set_current_user( $editor_id );
+			$_GET = array( 'newuseremail' => 'valid-hash' );
+			bbp_user_email_change_handler( 'bbp-update-user-email' );
+			$this->assertSame( $pending, get_user_meta( $user_id, $key, true ) );
+			$this->assertNotSame( $pending['newemail'], get_userdata( $user_id )->user_email );
+
+			$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+			$_GET = array( 'dismiss' => $dismiss );
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'dismiss-' . $dismiss );
+			bbp_user_email_change_handler( 'bbp-update-user-email' );
+			$this->assertSame( $pending, get_user_meta( $user_id, $key, true ) );
+
+			$this->set_current_user( $editor_id );
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'dismiss-' . $dismiss );
+			add_filter( 'bbp_current_user_can_edit_user_field', '__return_false' );
+			bbp_user_email_change_handler( 'bbp-update-user-email' );
+			$this->assertSame( $pending, get_user_meta( $user_id, $key, true ) );
+			remove_filter( 'bbp_current_user_can_edit_user_field', '__return_false' );
+
+			$_REQUEST['_wpnonce'] = 'invalid';
+			bbp_user_email_change_handler( 'bbp-update-user-email' );
+			$this->assertContains( 'bbp_dismiss_new_email_nonce', bbpress()->errors->get_error_codes() );
+			$this->assertSame( $pending, get_user_meta( $user_id, $key, true ) );
+
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'dismiss-' . $dismiss );
+			$this->assertNotFalse( bbp_verify_nonce_request( 'dismiss-' . $dismiss ) );
+			$redirect = $this->catch_bbp_redirect( function () {
+				bbp_user_email_change_handler( 'bbp-update-user-email' );
+			} );
+			$this->assertSame( bbp_get_user_profile_edit_url( $user_id ), $redirect );
+			$this->assertSame( '', get_user_meta( $user_id, $key, true ) );
+		} finally {
+			remove_filter( 'bbp_current_user_can_edit_user_field', '__return_false' );
+			remove_filter( 'bbp_is_single_user_edit', '__return_true' );
+			delete_user_meta( $user_id, $key );
+			$this->set_current_user( $old_user );
+			bbpress()->displayed_user = $old_displayed;
+			bbpress()->errors         = $old_errors;
+			$_GET                     = $old_get;
+			$_REQUEST                 = $old_request;
+			if ( null === $old_super_admins ) {
+				unset( $GLOBALS['super_admins'] );
+			} else {
+				$GLOBALS['super_admins'] = $old_super_admins;
+			}
+			if ( null === $old_host ) {
+				unset( $_SERVER['HTTP_HOST'] );
+			} else {
+				$_SERVER['HTTP_HOST'] = $old_host;
+			}
+			if ( null === $old_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $old_uri;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_edit_user_email_send_notification
 	 */
 	public function test_bbp_edit_user_email_send_notification() {

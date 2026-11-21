@@ -181,6 +181,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Allowed authorized profile editors to see and cancel another user's pending
+  email address change.
 - Fixed forum moderator replacement and clearing with term or user engagement
   storage.
 - Marked failed topic and reply admin status changes as failures instead of

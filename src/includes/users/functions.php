@@ -425,18 +425,19 @@ function bbp_user_email_change_handler( $action = '' ) {
 		return;
 	}
 
-	// Bail if not on users own profile
-	if ( ! bbp_is_user_home_edit() ) {
-		return;
-	}
-
 	// Bail if not attempting to modify user email address
 	if ( empty( $_GET['newuseremail'] ) && empty( $_GET['dismiss'] ) ) {
 		return;
 	}
 
-	// Get the displayed user ID & option key
-	$user_id     = bbp_get_displayed_user_id();
+	// Get the displayed user ID
+	$user_id = bbp_get_displayed_user_id();
+
+	// Only the account owner may confirm a change; email editors may cancel it
+	if ( ! bbp_is_user_home_edit() && ( ! empty( $_GET['newuseremail'] ) || ! bbp_is_single_user_edit() || ! bbp_current_user_can_edit_user_field( 'email', $user_id ) ) ) {
+		return;
+	}
+
 	$key         = '_new_email';
 	$redirect_to = bbp_validate_url( bbp_get_user_profile_edit_url( $user_id ) );
 
