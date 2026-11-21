@@ -274,7 +274,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		}
 
 		// Return true if added, or false if not
-		return $retval;
+		return false !== $retval;
 	}
 
 	/**
@@ -313,7 +313,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		}
 
 		// Return true if removed, or false if not
-		return $retval;
+		return false !== $retval;
 	}
 
 	/**

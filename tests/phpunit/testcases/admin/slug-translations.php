@@ -172,6 +172,36 @@ class BBP_Tests_Admin_Slug_Translations extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @covers ::bbp_admin_slug_translation_panel
+	 */
+	public function test_panel_skips_a_proposal_that_cannot_be_encoded() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		get_user_by( 'id', $user_id )->add_cap( bbp_admin()->minimum_capability );
+		$this->set_current_user( $user_id );
+		$this->set_option( 'WPLANG', 'en_US' );
+		$this->set_option( '_bbp_root_slug', INF );
+		$this->set_option( '_bbp_slug_translation_prompt', array(
+			'locale'  => 'en_US',
+			'applied' => array( '_bbp_root_slug' => INF ),
+		) );
+
+		$filter = $this->translate_slugs( array( 'forums' => 'Foren' ) );
+		add_filter( 'gettext_with_context', $filter, 10, 4 );
+		try {
+			$suggestions = bbp_admin_slug_translation_suggestions( array( '_bbp_root_slug' => INF ) );
+			$this->assertArrayHasKey( '_bbp_root_slug', $suggestions );
+			$this->assertFalse( wp_json_encode( $suggestions ) );
+
+			ob_start();
+			bbp_admin_slug_translation_panel();
+			$this->assertSame( '', ob_get_clean() );
+		} finally {
+			remove_filter( 'gettext_with_context', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @ticket BBP2976
 	 * @covers ::bbp_admin_slug_translation_conflicts
 	 */

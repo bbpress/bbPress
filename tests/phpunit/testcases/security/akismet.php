@@ -7,6 +7,43 @@
  */
 class BBP_Tests_Security_Akismet extends BBP_UnitTestCase {
 
+	/**
+	 * @ticket BBP3794
+	 * @covers BBP_Akismet::http_post
+	 */
+	public function test_akismet_ignores_invalid_ip_overrides() {
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+		if ( ! defined( 'AKISMET_VERSION' ) ) {
+			define( 'AKISMET_VERSION', 'test' );
+		}
+
+		$requests  = array();
+		$intercept = function( $pre, $args, $url ) use ( &$requests ) {
+			$requests[] = $url;
+			return array( 'headers' => array(), 'body' => 'ok' );
+		};
+		add_filter( 'pre_http_request', $intercept, 10, 3 );
+
+		try {
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$method     = $reflection->getMethod( 'http_post' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+
+			$method->invoke( $akismet, 'body', 'example.invalid', '/check', 80, 'not-an-ip' );
+			$method->invoke( $akismet, 'body', 'example.invalid', '/check', 80, '192.0.2.5' );
+
+			$this->assertSame( array(
+				'https://example.invalid/check',
+				'https://192.0.2.5/check',
+			), $requests );
+		} finally {
+			remove_filter( 'pre_http_request', $intercept, 10 );
+		}
+	}
+
 	public function test_akismet_never_retries_over_http_after_https_errors() {
 		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
 

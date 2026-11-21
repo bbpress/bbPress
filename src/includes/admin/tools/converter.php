@@ -23,7 +23,7 @@ function bbp_get_converters() {
 	static $files = array();
 
 	// Only hit the file system one time per page load
-	if ( empty( $files ) ) {
+	if ( array() === $files ) {
 
 		// Open the converter directory
 		$converter = bbp_setup_converter();

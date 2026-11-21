@@ -94,6 +94,24 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @dataProvider data_strategies
+	 *
+	 * @covers BBP_User_Engagements_Meta::add_user_to_object
+	 * @covers BBP_User_Engagements_Term::remove_user_from_object
+	 * @covers BBP_User_Engagements_User::add_user_to_object
+	 */
+	public function test_strategy_add_and_remove_return_booleans( $class_name ) {
+		$strategy  = new $class_name();
+		$topic_id  = $this->factory->topic->create();
+		$user_id   = $this->factory->user->create();
+		$meta_key  = '_bbp_test_boolean_result';
+
+		$this->assertSame( true, $strategy->add_user_to_object( $topic_id, $user_id, $meta_key ) );
+		$this->assertSame( true, $strategy->remove_user_from_object( $topic_id, $user_id, $meta_key ) );
+	}
+
+	/**
 	 * @ticket BBP3785
 	 *
 	 * @dataProvider data_strategies_and_filter

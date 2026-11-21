@@ -517,6 +517,10 @@ class e107v1 extends BBP_Converter_Base {
 				mb_substitute_character( $substitute_character );
 			}
 
+			if ( false === $legacy_password ) {
+				return false;
+			}
+
 			return hash_equals( $pass_array['hash'], md5( $legacy_password ) );
 		}
 

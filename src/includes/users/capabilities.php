@@ -690,12 +690,12 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 
 	// User has roles so lets
 	if ( ! empty( $user->roles ) ) {
+		$blog_roles = bbp_get_blog_roles();
 
 		// Look for a non bbPress role
-		$roles = array_intersect(
-			array_values( $user->roles ),
-			array_keys( bbp_get_blog_roles() )
-		);
+		$roles = is_array( $blog_roles )
+			? array_intersect( array_values( $user->roles ), array_keys( $blog_roles ) )
+			: array();
 
 		// If there's a role in the array, use the first one. This isn't very
 		// smart, but since roles aren't exactly hierarchical, and WordPress

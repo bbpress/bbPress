@@ -188,6 +188,9 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 			}
 
 			$block_folders = glob( $blocks_dir . '/*', GLOB_ONLYDIR );
+			if ( empty( $block_folders ) ) {
+				return $blocks;
+			}
 
 			foreach ( $block_folders as $block_folder ) {
 				$block_json_file = $block_folder . '/block.json';
@@ -197,9 +200,13 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 				}
 
 				$json_content = file_get_contents( $block_json_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local block metadata.
+				if ( false === $json_content ) {
+					continue;
+				}
+
 				$block_data   = json_decode( $json_content, true );
 
-				if ( $block_data && ! empty( $block_data['name'] ) ) {
+				if ( is_array( $block_data ) && ! empty( $block_data['name'] ) ) {
 					$blocks[] = $block_data;
 				}
 			}

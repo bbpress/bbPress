@@ -34,7 +34,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * @param string $meta_key  The relationship key.
 	 * @param string $meta_type The relationship type (usually 'post').
 	 *
-	 * @return string Taxonomy name.
+	 * @return non-empty-string Taxonomy name.
 	 */
 	private function get_tax_key( $meta_key = '', $meta_type = 'post' ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
@@ -140,7 +140,9 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		$tax_key  = $this->get_tax_key( $meta_key, $meta_type );
 		$this->jit_taxonomy( $tax_key );
 
-		return wp_remove_object_terms( $object_id, $user_key, $tax_key );
+		$removed = wp_remove_object_terms( $object_id, $user_key, $tax_key );
+
+		return ! is_wp_error( $removed ) && $removed;
 	}
 
 	/**
@@ -166,7 +168,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 			return false;
 		}
 
-		return wp_delete_term( $term->term_id, $tax_key );
+		return true === wp_delete_term( $term->term_id, $tax_key );
 	}
 
 	/**
@@ -225,7 +227,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		foreach ( $term_ids as $term_id ) {
 			$deleted = wp_delete_term( $term_id, $tax_key );
 
-			if ( is_wp_error( $deleted ) ) {
+			if ( true !== $deleted ) {
 				return false;
 			}
 		}

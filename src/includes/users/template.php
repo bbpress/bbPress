@@ -2300,7 +2300,11 @@ function bbp_edit_user_blog_role() {
 	$user_role  = bbp_get_user_blog_role( bbp_get_displayed_user_id() );
 
 	// Get the blog roles
-	$blog_roles = bbp_get_blog_roles(); ?>
+	$blog_roles = bbp_get_blog_roles();
+	if ( ! is_array( $blog_roles ) ) {
+		$blog_roles = array();
+	}
+	?>
 
 	<select name="role" id="role">
 		<option value=""><?php esc_html_e( '&mdash; No role for this site &mdash;', 'bbpress' ); ?></option>

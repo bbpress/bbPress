@@ -425,7 +425,9 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 				// Fallback to edit_terms.
 				} else {
 					$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
-					$caps     = array( $taxonomy->cap->edit_terms );
+					$caps     = $taxonomy instanceof WP_Taxonomy
+						? array( $taxonomy->cap->edit_terms )
+						: array( 'do_not_allow' );
 				}
 			} else {
 				$caps = array( 'do_not_allow' );
@@ -461,7 +463,9 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 				// Fallback to delete_terms.
 				} else {
 					$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
-					$caps     = array( $taxonomy->cap->delete_terms );
+					$caps     = $taxonomy instanceof WP_Taxonomy
+						? array( $taxonomy->cap->delete_terms )
+						: array( 'do_not_allow' );
 				}
 			} else {
 				$caps = array( 'do_not_allow' );

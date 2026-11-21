@@ -42,7 +42,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
 
-		return add_metadata( $meta_type, $object_id, $storage_key, $user_id, $unique );
+		return false !== add_metadata( $meta_type, $object_id, $storage_key, $user_id, $unique );
 	}
 
 	/**

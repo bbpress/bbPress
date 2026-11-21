@@ -353,6 +353,10 @@ function bbp_admin_slug_translation_panel() {
 	if ( empty( $suggestions ) ) {
 		return;
 	}
+	$proposal_json = wp_json_encode( $suggestions );
+	if ( false === $proposal_json ) {
+		return;
+	}
 	$preview   = bbp_admin_slug_translation_preview( $suggestions );
 	$conflicts = bbp_admin_slug_translation_conflicts( $suggestions );
 	$prompt    = bbp_admin_slug_translation_prompt();
@@ -378,7 +382,7 @@ function bbp_admin_slug_translation_panel() {
 		<p id="bbp-slug-translation-description"><?php esc_html_e( 'Applying these suggestions changes forum URLs. Existing links may need redirects. Custom slugs are excluded.', 'bbpress' ); ?></p>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="bbp_slug_translation" />
-			<input type="hidden" name="proposal" value="<?php echo esc_attr( md5( wp_json_encode( $suggestions ) ) ); ?>" />
+			<input type="hidden" name="proposal" value="<?php echo esc_attr( md5( $proposal_json ) ); ?>" />
 			<?php wp_nonce_field( 'bbp_slug_translation' ); ?>
 			<div class="bbp-slug-translation-table">
 				<?php if ( $conflicts ) : ?>
@@ -483,7 +487,8 @@ function bbp_admin_slug_translation_handler() {
 		$proposal    = isset( $_POST['proposal'] ) && is_string( $_POST['proposal'] )
 			? sanitize_text_field( wp_unslash( $_POST['proposal'] ) )
 			: '';
-		if ( empty( $suggestions ) || ! hash_equals( md5( wp_json_encode( $suggestions ) ), $proposal ) ) {
+		$proposal_json = wp_json_encode( $suggestions );
+		if ( empty( $suggestions ) || false === $proposal_json || ! hash_equals( md5( $proposal_json ), $proposal ) ) {
 			wp_die( esc_html__( 'The suggested slugs changed. Review them again before updating.', 'bbpress' ) );
 		}
 		if ( ! bbp_admin_apply_slug_translations( $suggestions ) ) {

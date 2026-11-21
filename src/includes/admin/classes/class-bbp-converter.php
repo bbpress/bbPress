@@ -318,7 +318,10 @@ class BBP_Converter {
 		);
 
 		// Get disabled PHP functions (to avoid using them)
-		$disabled = explode( ',', @ini_get( 'disable_functions' ) ); // phpcs:ignore
+		$disabled_functions = @ini_get( 'disable_functions' ); // phpcs:ignore
+		$disabled = false === $disabled_functions
+			? array()
+			: explode( ',', $disabled_functions );
 
 		// Maybe avoid terminating when the client goes away (if function is not disabled)
 		if ( ! in_array( 'ignore_user_abort', $disabled, true ) ) {

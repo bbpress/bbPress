@@ -838,7 +838,8 @@ class BBP_Akismet {
 		$content_type = 'application/x-www-form-urlencoded; charset=' . $blog_charset;
 
 		// Use specific IP (if provided)
-		if ( ! empty( $ip ) && long2ip( ip2long( $ip ) ) ) {
+		$ip_number = ! empty( $ip ) ? ip2long( $ip ) : false;
+		if ( false !== $ip_number ) {
 			$http_host = $ip;
 		}
 

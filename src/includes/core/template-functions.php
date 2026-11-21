@@ -411,6 +411,9 @@ function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
 
 	// Get the output buffer contents
 	$retval = ob_get_clean();
+	if ( false === $retval ) {
+		$retval = '';
+	}
 
 	// Maybe display the output buffer contents
 	if ( true === $echo ) {
