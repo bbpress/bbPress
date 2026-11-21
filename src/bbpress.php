@@ -37,6 +37,51 @@ if ( ! class_exists( 'bbPress' ) ) :
  * "Word hard. Stay bumble."
  *
  * @since 2.0.0 bbPress (r2594)
+ * @property string $version Plugin version.
+ * @property string $db_version Database version.
+ * @property string $file Main plugin file.
+ * @property string $basename Plugin basename.
+ * @property string $basepath Path relative to the plugins directory.
+ * @property string $plugin_dir Plugin directory.
+ * @property string $plugin_url Plugin URL.
+ * @property string $includes_dir Directory containing bbPress includes.
+ * @property string $includes_url URL for bbPress includes.
+ * @property string $lang_base Relative language path.
+ * @property string $lang_dir Language directory.
+ * @property string $themes_dir Template directory.
+ * @property string $themes_url Template URL.
+ * @property string $topic_tag_tax_id Topic tag taxonomy.
+ * @property string $spam_status_id Spam status.
+ * @property string $closed_status_id Closed status.
+ * @property string $orphan_status_id Orphan status.
+ * @property string $public_status_id Public status.
+ * @property string $pending_status_id Pending status.
+ * @property string $private_status_id Private status.
+ * @property string $hidden_status_id Hidden status.
+ * @property string $trash_status_id Trash status.
+ * @property string $user_id User identifier.
+ * @property string $tops_id Topic identifier.
+ * @property string $reps_id Reply identifier.
+ * @property string $favs_id Favorites identifier.
+ * @property string $subs_id Subscriptions identifier.
+ * @property string $view_id View identifier.
+ * @property string $edit_id Edit identifier.
+ * @property string $paged_id Pagination identifier.
+ * @property string $search_id Search identifier.
+ * @property string $engagements_id Engagements identifier.
+ * @property string $mentions_id Mentions identifier.
+ * @property string $unsubscribe_id Unsubscribe identifier.
+ * @property int $current_forum_id Current forum ID.
+ * @property int $current_topic_id Current topic ID.
+ * @property int $current_reply_id Current reply ID.
+ * @property int $current_user_id Current user ID.
+ * @property stdClass $theme_compat Theme compatibility data.
+ * @property stdClass $filters Registered filter data.
+ * @property string $domain Text domain.
+ * @property WP_Error $errors Error queue.
+ * @property int $tab_index Default tab index.
+ * @property BBP_Shortcodes $shortcodes Shortcode handler.
+ * @property BBP_Blocks $blocks Block handler.
  */
 final class bbPress {
 
