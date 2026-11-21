@@ -271,6 +271,34 @@ class BBP_Tests_Core_Filters extends BBP_UnitTestCase {
 		$this->assertSame( 20, has_filter( $filter, 'bbp_code_trick' ) );
 		$this->assertSame( 30, has_filter( $filter, 'bbp_filter_kses' ) );
 		$this->assertSame( 40, has_filter( $filter, 'balanceTags' ) );
+		$this->assertSame( 50, has_filter( $filter, 'trim' ) );
+	}
+
+	/**
+	 * Surrounding whitespace is removed without changing whitespace in the content.
+	 *
+	 * @dataProvider get_content_sanitization_filters
+	 */
+	public function test_content_sanitization_filters_preserve_internal_whitespace( $filter ) {
+		$this->assertSame( "First  line\n\n  Second line", apply_filters( $filter, " \nFirst  line\n\n  Second line  \n " ) );
+	}
+
+	/**
+	 * Whitespace-only content must be empty before the handlers validate it.
+	 *
+	 * @dataProvider get_content_sanitization_filters
+	 */
+	public function test_content_sanitization_filters_reject_whitespace_only_content( $filter ) {
+		$this->assertSame( '', apply_filters( $filter, " \r\n\t " ) );
+	}
+
+	/**
+	 * Edit filters pass the post ID without using it as trim's character mask.
+	 */
+	public function test_edit_content_filters_trim_only_the_content() {
+		foreach ( array( 'bbp_edit_forum_pre_content', 'bbp_edit_topic_pre_content', 'bbp_edit_reply_pre_content' ) as $filter ) {
+			$this->assertSame( 'Version 123', apply_filters( $filter, "Version 123\n", 123 ) );
+		}
 	}
 
 	/**

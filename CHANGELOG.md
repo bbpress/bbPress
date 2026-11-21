@@ -181,6 +181,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented duplicate forums, topics, and replies caused by leading or trailing
+  whitespace, and rejected whitespace-only submitted content.
 - Reported missing converters and failed query preparation during forum imports.
 - Avoided empty topic and reply admin links when WordPress cannot provide a
   destination, and converter failures when a source directory or database is

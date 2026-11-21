@@ -1432,6 +1432,57 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 2950
+	 * @covers ::bbp_check_for_duplicate
+	 * @dataProvider get_duplicate_content_filters
+	 */
+	public function test_bbp_check_for_duplicate_ignores_surrounding_whitespace( $filter, $post_type ) {
+		$author_id = $this->factory->user->create( array(
+			'role' => bbp_get_participant_role(),
+		) );
+
+		// Existing post, submitted with a trailing return
+		$this->factory->post->create( array(
+			'post_author'  => $author_id,
+			'post_type'    => $post_type,
+			'post_content' => apply_filters( $filter, "Duplicate text\r\n" ),
+		) );
+
+		$contents = array(
+			'Duplicate text',
+			"Duplicate text\r\n",
+			"\r\nDuplicate text\r\n\r\n",
+			" Duplicate text\t",
+		);
+
+		foreach ( $contents as $content ) {
+			$post_data = array(
+				'post_author'  => $author_id,
+				'post_type'    => $post_type,
+				'post_content' => apply_filters( $filter, $content ),
+			);
+			$this->assertFalse( bbp_check_for_duplicate( $post_data ), wp_json_encode( $content ) );
+		}
+
+		$post_data['post_content'] = apply_filters( $filter, "Different text\r\n" );
+		$this->assertTrue( bbp_check_for_duplicate( $post_data ) );
+	}
+
+	/**
+	 * Data provider for the forum, topic, and reply content filters that run before
+	 * the duplicate check.
+	 *
+	 * @return array
+	 */
+	public function get_duplicate_content_filters() {
+		return array(
+			'forum' => array( 'bbp_new_forum_pre_content', bbp_get_forum_post_type() ),
+			'topic' => array( 'bbp_new_topic_pre_content', bbp_get_topic_post_type() ),
+			'reply' => array( 'bbp_new_reply_pre_content', bbp_get_reply_post_type() ),
+		);
+	}
+
+	/**
 	 * @covers ::bbp_check_for_flood
 	 */
 	public function test_bbp_check_for_flood() {

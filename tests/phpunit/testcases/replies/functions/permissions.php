@@ -101,6 +101,54 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 2950
+	 * @covers ::bbp_new_reply_handler
+	 */
+	public function test_new_reply_rejects_whitespace_only_content() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertFalse( $this->submit_reply( $topic_id, $forum_id, " \r\n\t " ) );
+		$this->assertContains( 'bbp_reply_content', bbpress()->errors->get_error_codes() );
+		$this->assertSame( array(), $this->get_reply_ids( $topic_id ) );
+	}
+
+	/**
+	 * @ticket 2950
+	 * @covers ::bbp_new_reply_handler
+	 * @covers ::bbp_check_for_duplicate
+	 */
+	public function test_new_reply_rejects_duplicate_with_surrounding_whitespace() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( $this->submit_reply( $topic_id, $forum_id, "Repeated reply\r\n" ) );
+		$reply_ids = $this->get_reply_ids( $topic_id );
+		$this->assertCount( 1, $reply_ids );
+		$this->assertSame( 'Repeated reply', get_post_field( 'post_content', $reply_ids[0] ) );
+
+		bbpress()->errors = new WP_Error();
+		$this->assertFalse( $this->submit_reply( $topic_id, $forum_id, 'Repeated reply' ) );
+		$this->assertContains( 'bbp_reply_duplicate', bbpress()->errors->get_error_codes() );
+		$this->assertSame( $reply_ids, $this->get_reply_ids( $topic_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_new_reply_handler
 	 */
 	public function test_frozen_stacks_reply_errors_before_insert() {
