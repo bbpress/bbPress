@@ -6,4 +6,13 @@
  *
  * @property-write bool $use_mysqli
  */
-class wpdb {}
+class wpdb {
+	/**
+	 * WordPress accepts query strings assembled with table names and placeholders.
+	 *
+	 * @param string $query SQL query with placeholders.
+	 * @param mixed  ...$args Values for the placeholders.
+	 * @return string|null Prepared query, or null when no query is supplied.
+	 */
+	public function prepare( $query, ...$args ) {}
+}
