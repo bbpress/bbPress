@@ -2248,6 +2248,80 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_password_protected_object_ids
+	 * @covers ::bbp_is_password_protected
+	 * @covers ::bbp_get_password_required_id
+	 */
+	public function test_bbp_get_password_protected_object_ids() {
+		$parent_forum_id = $this->factory->forum->create( array( 'post_password' => 'parent-secret' ) );
+		$forum_id = $this->factory->forum->create( array( 'post_parent' => $parent_forum_id ) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$post_id = $this->factory->post->create( array( 'post_password' => 'post-secret' ) );
+
+		$this->assertSame( array( $reply_id, $topic_id, $forum_id, $parent_forum_id ), bbp_get_password_protected_object_ids( $reply_id ) );
+		$this->assertSame( array( $reply_id, $topic_id, $forum_id, $parent_forum_id ), bbp_get_password_protected_object_ids( get_post( $reply_id ) ) );
+		$this->assertSame( array( $topic_id, $forum_id, $parent_forum_id, $reply_id ), bbp_get_password_protected_object_ids( array( $topic_id, 0, $reply_id, $topic_id ) ) );
+		$this->assertSame( array( $topic_id, $forum_id, $parent_forum_id ), bbp_get_password_protected_object_ids( $topic_id ) );
+		$this->assertSame( array( $forum_id, $parent_forum_id ), bbp_get_password_protected_object_ids( $forum_id ) );
+		$this->assertSame( array(), bbp_get_password_protected_object_ids( $post_id ) );
+		$this->assertSame( array(), bbp_get_password_protected_object_ids( 999999 ) );
+		$this->assertSame( array(), bbp_get_password_protected_object_ids( 123, 'term' ) );
+		$this->assertSame( $parent_forum_id, bbp_get_password_required_id( array( $topic_id, 0, $reply_id ) ) );
+
+		$old_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$GLOBALS['post'] = get_post( $reply_id );
+		try {
+			$this->assertSame( array(), bbp_get_password_protected_object_ids( array( 0 ) ) );
+			$this->assertSame( array( $reply_id, $topic_id, $forum_id, $parent_forum_id ), bbp_get_password_protected_object_ids( 0 ) );
+		} finally {
+			if ( null === $old_post ) {
+				unset( $GLOBALS['post'] );
+			} else {
+				$GLOBALS['post'] = $old_post;
+			}
+		}
+
+		$filter = function( $additional_ids, $object_id, $object_type ) use ( $topic_id ) {
+			return ( ( 123 === $object_id ) && ( 'term' === $object_type ) )
+				? array( 0, $topic_id, $topic_id )
+				: $additional_ids;
+		};
+		add_filter( 'bbp_get_additional_password_protected_object_ids', $filter, 10, 3 );
+
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+
+		try {
+			$this->assertSame( array( $topic_id, $forum_id, $parent_forum_id ), bbp_get_password_protected_object_ids( 123, 'term' ) );
+			$this->assertTrue( bbp_is_password_protected( 123, 'term' ) );
+			$this->assertSame( $parent_forum_id, bbp_get_password_required_id( 123, 'term' ) );
+
+			require_once ABSPATH . WPINC . '/class-phpass.php';
+			$hasher = new PasswordHash( 8, true );
+			$_COOKIE[ $cookie ] = $hasher->HashPassword( 'parent-secret' );
+
+			$this->assertTrue( bbp_is_password_protected( 123, 'term' ) );
+			$this->assertSame( 0, bbp_get_password_required_id( 123, 'term' ) );
+			$this->assertTrue( bbp_is_password_protected( $reply_id ) );
+			$this->assertSame( 0, bbp_get_password_required_id( array( $topic_id, 0, $reply_id ) ) );
+		} finally {
+			remove_filter( 'bbp_get_additional_password_protected_object_ids', $filter, 10 );
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_password_protected
 	 */
 	public function test_bbp_is_password_protected() {

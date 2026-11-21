@@ -806,6 +806,11 @@ class BBP_Topics_Widget extends WP_Widget {
 				break;
 		}
 
+		// Dates inspect the last activity and reply posts for passwords.
+		if ( ! empty( $settings['show_date'] ) ) {
+			$topics_query['update_post_meta_cache'] = true;
+		}
+
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_normalize_forum_visibility action and function.
 		$widget_query = new WP_Query( $topics_query );
@@ -813,6 +818,10 @@ class BBP_Topics_Widget extends WP_Widget {
 		// Bail if no topics are found
 		if ( ! $widget_query->have_posts() ) {
 			return;
+		}
+
+		if ( ! empty( $settings['show_date'] ) ) {
+			bbp_update_post_family_caches( $widget_query->posts );
 		}
 
 		// Start an output buffer
