@@ -20,6 +20,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Stopped sending subscription notifications to a placeholder no-reply
+  address when subscribers receive them by Bcc.
 - Fixed forum moderator replacement and removal with term and user engagement
   storage.
 - Fixed member profile and forum section links on child sites when BuddyPress is network active.

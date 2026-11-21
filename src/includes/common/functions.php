@@ -2041,6 +2041,10 @@ Login and visit the topic to unsubscribe from these emails.',
 	// Custom headers
 	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
 	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
+	// Honor custom recipients, but do not mail the default placeholder
+	if ( $no_reply === $to_email ) {
+		$to_email = array();
+	}
 
 	// Before
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
@@ -2246,6 +2250,10 @@ Login and visit the topic to unsubscribe from these emails.',
 	// Custom headers
 	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
 	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
+	// Honor custom recipients, but do not mail the default placeholder
+	if ( $no_reply === $to_email ) {
+		$to_email = array();
+	}
 
 	// Before
 	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );

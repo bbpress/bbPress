@@ -1833,8 +1833,27 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
 
 		$this->assertTrue( $result );
+		$this->assertSame( array(), $mail['to'] );
 		$this->assertContains( 'Bcc: moderator@example.org', $mail['headers'] );
 		$this->assertNotContains( 'Bcc: participant@example.org', $mail['headers'] );
+
+		$filter_input = null;
+		$custom_to    = function( $to ) use ( &$filter_input ) {
+			$filter_input = $to;
+			return 'archive@example.org';
+		};
+		add_filter( 'bbp_subscription_to_email', $custom_to );
+		add_filter( 'pre_wp_mail', $pre_wp_mail, 10, 2 );
+		try {
+			$result = bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, array(), $author_id );
+		} finally {
+			remove_filter( 'bbp_subscription_to_email', $custom_to );
+			remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertSame( bbp_get_do_not_reply_address(), $filter_input );
+		$this->assertSame( 'archive@example.org', $mail['to'] );
 	}
 
 	/**
@@ -1877,8 +1896,44 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
 
 		$this->assertTrue( $result );
+		$this->assertSame( array(), $mail['to'] );
 		$this->assertContains( 'Bcc: moderator@example.org', $mail['headers'] );
 		$this->assertNotContains( 'Bcc: participant@example.org', $mail['headers'] );
+	}
+
+	/**
+	 * @covers ::bbp_notify_forum_subscribers
+	 * @ticket 2671
+	 */
+	public function test_bbp_notify_forum_subscribers_sends_bcc_without_to() {
+		$subscriber_id = $this->factory->user->create( array( 'user_email' => 'subscriber@example.org' ) );
+		$author_id     = $this->factory->user->create();
+		bbp_set_user_role( $subscriber_id, bbp_get_participant_role() );
+		bbp_set_user_role( $author_id, bbp_get_keymaster_role() );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		bbp_add_user_forum_subscription( $subscriber_id, $forum_id );
+
+		$from_email = function() { return 'noreply@example.org'; };
+		add_filter( 'bbp_subscription_from_email', $from_email );
+		try {
+			$this->assertTrue( reset_phpmailer_instance() );
+			bbp_notify_forum_subscribers( $topic_id, $forum_id, array(), $author_id );
+			$mailer = tests_retrieve_phpmailer_instance();
+			$mail   = $mailer->get_sent();
+
+			$this->assertNotFalse( $mail, $mailer->ErrorInfo );
+			$this->assertSame( array(), $mail->to );
+			$this->assertCount( 1, $mail->bcc );
+			$this->assertSame( 'subscriber@example.org', $mail->bcc[0][0] );
+		} finally {
+			remove_filter( 'bbp_subscription_from_email', $from_email );
+			reset_phpmailer_instance();
+		}
 	}
 
 	/**
