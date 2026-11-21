@@ -1991,6 +1991,50 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 */
+	public function test_repair_scratch_reads_report_null_results_without_database_errors() {
+		$db = bbp_db();
+		$null_db = new class( $db ) {
+			public $options;
+			public $last_error = '';
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db      = $db;
+				$this->options = $db->options;
+			}
+
+			public function esc_like( $text ) {
+				return $this->db->esc_like( $text );
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_col( $query ) {
+				return null;
+			}
+		};
+		$filter = static function ( $object, $name ) use ( $null_db ) {
+			return 'wpdb' === $name ? $null_db : $object;
+		};
+		$created = array();
+		$cleaned = array();
+
+		add_filter( 'bbp_get_global_object', $filter, 10, 2 );
+		try {
+			$this->assertFalse( bbp_admin_repair_tool_scratch_values( 'bbp-test', str_repeat( 'a', 32 ), 'rows' ) );
+			$this->assertSame( array( false, 1, false ), bbp_admin_repair_tool_cleanup_options( 'bbp_test_', 1, false, $created, $cleaned ) );
+			$this->assertSame( array(), $created );
+			$this->assertSame( array(), $cleaned );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_forum_subforum_count
 	 * @covers ::bbp_admin_repair_forum_subforum_count_dry_run
 	 * @covers ::bbp_admin_repair_forum_subforum_count_get_status

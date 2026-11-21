@@ -605,7 +605,7 @@ function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$m
 			}
 			$previous = $id;
 		}
-		return array_slice( wp_parse_id_list( $ids ), 0, $args['number'] );
+		return array_values( array_slice( wp_parse_id_list( $ids ), 0, $args['number'] ) );
 	} finally {
 		remove_action( 'pre_user_query', $bound );
 	}
@@ -650,7 +650,7 @@ function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $rep
  * @since 2.7.0 bbPress (r8303) Verify serialized values and bounded deletions.
  *
  * @param string                $meta_type Metadata type: 'post' or 'user'.
- * @param object                $row       Source metadata row.
+ * @param stdClass              $row       Source metadata row.
  * @param string                $key       Canonical metadata key.
  * @param int|string|array<int|string, mixed>|null $value Repaired value, or null to remove the row.
  * @return int Zero on success, or a read, delete, or update error code.
@@ -1014,7 +1014,7 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
  *
  * @since 2.7.0 bbPress (r8281)
  *
- * @param array<int, object> $rows Selected metadata rows, including is_source flags.
+ * @param array<int, stdClass> $rows Selected metadata rows, including is_source flags.
  * @param string        $source Prepared source relationship query.
  * @param bool          $dry_run Whether to preview without writes or cache invalidation.
  * @param array<array<bool>> $planned Relationships already counted by a synchronous preview.
@@ -1055,8 +1055,8 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 			$cache_id = $is_source && ! empty( $relation ) ? $relation->post_id : $row->post_id;
 			wp_cache_delete( $cache_id, 'post_meta' );
 		}
-		if ( $is_source ) {
-			$first = ! empty( $relation ) && empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] );
+		if ( $is_source && ! empty( $relation ) ) {
+			$first = empty( $exists ) && ! isset( $planned[ $relation->post_id ][ $relation->user_id ] );
 			if ( $first && is_callable( $claim ) ) {
 				list( $saved, $first ) = call_user_func( $claim, (int) $relation->post_id, (int) $relation->user_id );
 				if ( ! $saved ) {
@@ -1080,7 +1080,7 @@ function bbp_admin_repair_engagement_rows( $rows, $source, $dry_run = false, &$p
 				$result['topics'][ (int) $relation->post_id ]        = true;
 				++$result['added'];
 			}
-		} elseif ( (int) $exists !== (int) $row->meta_id ) {
+		} elseif ( ! $is_source && (int) $exists !== (int) $row->meta_id ) {
 			if ( ! $dry_run ) {
 				if ( bbp_admin_repair_metadata_row( 'post', $row, '_bbp_engagement', null ) ) {
 					$result['code'] = 4;
@@ -1400,11 +1400,16 @@ function bbp_admin_repair_tool_scratch_values( $tool_id, $token, $collection ) {
 		return false;
 	}
 	$values = $db->get_col( $db->prepare( "SELECT option_value FROM {$db->options} WHERE option_name LIKE %s ORDER BY option_name", $db->esc_like( $prefix ) . '%' ) );
-	if ( ! empty( $db->last_error ) ) {
+	if ( ! is_array( $values ) || ! empty( $db->last_error ) ) {
 		return false;
 	}
 
-	return array_map( 'maybe_unserialize', $values );
+	return array_map(
+		static function ( $value ) {
+			return is_string( $value ) ? maybe_unserialize( $value ) : $value;
+		},
+		$values
+	);
 }
 
 /**
@@ -1967,7 +1972,7 @@ function bbp_admin_repair_user_meta_canonical_id_batch( $value, $offset, $limit 
  * @since 2.7.0 bbPress (r8347)
  * @access private
  *
- * @param object $row         User-meta source row.
+ * @param stdClass $row         User-meta source row.
  * @param bool   $include_key Whether to include the stored metadata key.
  * @return string MD5 row fingerprint.
  */
@@ -2097,7 +2102,7 @@ function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
 function bbp_admin_repair_tool_cleanup_options( $prefix, $limit, $dry_run, &$created, &$cleaned ) {
 	$db    = bbp_db();
 	$names = $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT %d", $db->esc_like( $prefix ) . '%', $limit + count( $cleaned ) + 1 ) );
-	if ( ! empty( $db->last_error ) ) {
+	if ( ! is_array( $names ) || ! empty( $db->last_error ) ) {
 		return array( false, 1, false );
 	}
 	$names = array_diff( array_unique( array_merge( $names, array_keys( $created ) ) ), array_keys( $cleaned ) );

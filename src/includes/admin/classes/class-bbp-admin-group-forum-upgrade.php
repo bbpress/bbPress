@@ -870,7 +870,12 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 		}
 		if ( $plan['update_group'] && (string) $value !== (string) $id ) {
 			if ( ! $this->dry_run ) {
-				$this->db->query( $this->db->prepare( "UPDATE `{$this->groupmeta_table}` SET `meta_value` = %d WHERE `group_id` = %d AND `meta_key` = %s AND BINARY `meta_value` = BINARY %s", $id, $group, 'forum_id', $expected ) );
+				$query = $this->db->prepare( "UPDATE `{$this->groupmeta_table}` SET `meta_value` = %d WHERE `group_id` = %d AND `meta_key` = %s AND BINARY `meta_value` = BINARY %s", $id, $group, 'forum_id', $expected );
+				if ( null === $query ) {
+					$this->fail( 'groupmeta-write' );
+					return;
+				}
+				$this->db->query( $query );
 				$failed = ! empty( $this->db->last_error );
 				wp_cache_delete( $group, 'group_meta' );
 				$stored = $this->read_group_forum_source( $group );
@@ -881,7 +886,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 			}
 			++$this->counts['groups'];
 		}
-		if ( $target && ! $this->visibility_matches( $id, $target, $current_visibility ) && ! $this->error ) {
+		if ( $target && ! $this->visibility_matches( $id, $target, $current_visibility ) && ! $this->error && null !== $current_visibility ) {
 			if ( ! $this->dry_run ) {
 				if ( bbp_get_public_status_id() === $target ) {
 					bbp_publicize_forum( $id, $current_visibility );

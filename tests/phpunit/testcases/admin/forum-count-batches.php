@@ -144,6 +144,49 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		$this->assertSame( 2, (int) get_post_meta( $forum, '_bbp_topic_count', true ) );
 	}
 
+	public function test_direct_counts_report_null_reads_without_database_errors() {
+		$db = bbp_db();
+		$null_db = new class( $db ) {
+			public $posts;
+			public $postmeta;
+			public $last_error = '';
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db       = $db;
+				$this->posts    = $db->posts;
+				$this->postmeta = $db->postmeta;
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_results( $query, $output = OBJECT ) {
+				return array();
+			}
+
+			public function get_var( $query ) {
+				return null;
+			}
+		};
+
+		foreach ( array( 'topics', 'replies' ) as $type ) {
+			$worker = new class( $type ) extends BBP_Admin_Forum_Counts {
+				public function read_direct( $db ) {
+					$this->db = $db;
+					return $this->values( 1, null );
+				}
+
+				public function read_error() {
+					return $this->error;
+				}
+			};
+			$this->assertSame( array(), $worker->read_direct( $null_db ) );
+			$this->assertSame( 'count-rows-read', $worker->read_error() );
+		}
+	}
+
 	/** @dataProvider tools */
 	public function test_one_item_batches_preview_exact_writes_through_deep_hierarchies( $type, $key, $total, $callback ) {
 		$db     = bbp_db();

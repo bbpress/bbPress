@@ -415,7 +415,7 @@ function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
  *
  * @param array{cursor:int, upper:int, complete?:bool} $state      Validated backfill progress.
  * @param int   $batch_size Maximum post rows to examine.
- * @return list<object>|WP_Error Post IDs and types, or a query error.
+ * @return list<stdClass>|WP_Error Post IDs and types, or a query error.
  */
 function bbp_get_mention_backfill_posts( $state, $batch_size ) {
 	$bbp_db = bbp_db();

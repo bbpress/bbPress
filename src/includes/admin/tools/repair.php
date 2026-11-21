@@ -2344,7 +2344,7 @@ function bbp_admin_repair_user_role( $user_id, $role, $dry_run = false, $planned
 				$result['code'] = 2;
 				return $result;
 			}
-			$caps = maybe_unserialize( $caps );
+			$caps = is_string( $caps ) ? maybe_unserialize( $caps ) : null;
 			if ( ! is_array( $caps ) || array_values( array_intersect( array_keys( $caps ), $dynamic ) ) !== $result['roles'] ) {
 				$result['code'] = 3;
 				return $result;
@@ -2423,8 +2423,13 @@ function bbp_admin_repair_user_roles_batch( $dry_run = false ) {
 		return $batch;
 	}
 	$default = bbp_get_default_role();
-	$roles   = array();
-	foreach ( array_keys( bbp_get_blog_roles() ) as $role ) {
+	$blog_roles = bbp_get_blog_roles();
+	if ( ! is_array( $blog_roles ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'source-invalid' );
+		return $batch;
+	}
+	$roles = array();
+	foreach ( array_keys( $blog_roles ) as $role ) {
 		$target = isset( $map[ $role ] ) ? $map[ $role ] : $default;
 		if ( bbp_is_valid_role( $target ) ) {
 			$roles[ $role ] = $target;

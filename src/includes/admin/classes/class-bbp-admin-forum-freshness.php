@@ -479,15 +479,11 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			$this->fail( 'metadata-read' );
 			return array_fill_keys( $this->meta_keys, '' );
 		}
-		return array_combine(
-			$this->meta_keys,
-			array_map(
-				static function ( $value ) {
-					return null === $value ? '' : (string) $value;
-				},
-				$row
-			)
-		);
+		$values = array();
+		foreach ( $this->meta_keys as $index => $key ) {
+			$values[ $key ] = null === $row[ $index ] ? '' : (string) $row[ $index ];
+		}
+		return $values;
 	}
 
 	/**
@@ -761,7 +757,10 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			return 0;
 		}
 
-		$this->forum_topics[ $id ] = $summary;
+		$this->forum_topics[ $id ] = array(
+			'id'   => $summary['id'],
+			'time' => $summary['time'],
+		);
 		return $summary['id'];
 	}
 
@@ -854,7 +853,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8299)
 	 *
 	 * @param int    $id      Post ID.
-	 * @param string $context Date context accepted by get_post_field().
+	 * @param 'raw'|'edit'|'db'|'display' $context Date context accepted by get_post_field().
 	 * @return string Post date, or an empty string when unavailable.
 	 */
 	private function post_date( $id, $context = 'display' ) {

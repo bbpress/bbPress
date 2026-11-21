@@ -496,6 +496,23 @@ class BBP_Tests_Admin_User_Role_Batches extends BBP_UnitTestCase {
 		$this->assert_roles( $ids );
 	}
 
+	public function test_missing_blog_roles_fail_without_discarding_progress() {
+		$ids = $this->fixture();
+		bbp_admin_repair_user_roles_batch();
+		$state = get_option( $this->option() );
+		add_filter( 'bbp_get_blog_roles', '__return_false', 20 );
+		try {
+			$result = bbp_admin_repair_user_roles_batch();
+			$this->assertSame( 'source-invalid', $result['error'] );
+			$this->assertFalse( $result['complete'] );
+			$this->assertSame( $state, get_option( $this->option() ) );
+		} finally {
+			remove_filter( 'bbp_get_blog_roles', '__return_false', 20 );
+		}
+		$this->finish();
+		$this->assert_roles( $ids );
+	}
+
 	/** @dataProvider read_failures */
 	public function test_read_failures_keep_the_scan_retryable( $point, $dry_run ) {
 		$db = bbp_db();

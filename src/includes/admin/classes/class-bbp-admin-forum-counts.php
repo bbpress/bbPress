@@ -127,19 +127,26 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			$hidden = 0;
 			if ( ! $this->error && ! empty( $this->context['hidden'] ) ) {
 				$slots  = implode( ', ', array_fill( 0, count( $this->context['hidden'] ), '%s' ) );
-				$hidden = (int) $this->db->get_var( $this->db->prepare( "SELECT COUNT(*) FROM {$this->db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$slots})", array_merge( array( $id, $this->context['topic'] ), $this->context['hidden'] ) ) );
-				if ( ! empty( $this->db->last_error ) ) {
+				$hidden = $this->db->get_var( $this->db->prepare( "SELECT COUNT(*) FROM {$this->db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$slots})", array_merge( array( $id, $this->context['topic'] ), $this->context['hidden'] ) ) );
+				if ( null === $hidden || ! empty( $this->db->last_error ) ) {
 					$this->fail( 'count-rows-read' );
+					return array();
 				}
+				$hidden = (int) $hidden;
 			}
-			return array_combine( $this->meta_keys, array( $public, $public, $hidden, $hidden ) );
+			return array(
+				'_bbp_topic_count'              => $public,
+				'_bbp_total_topic_count'        => $public,
+				'_bbp_topic_count_hidden'       => $hidden,
+				'_bbp_total_topic_count_hidden' => $hidden,
+			);
 		}
 		$forum_type = $this->db->get_var( $this->db->prepare( "SELECT meta_value FROM {$this->db->postmeta} WHERE post_id = %d AND BINARY meta_key = '_bbp_forum_type' ORDER BY meta_id LIMIT 1", $id ) );
 		if ( ! empty( $this->db->last_error ) ) {
 			$this->fail( $this->meta_error() );
 			return array();
 		}
-		$forum_type = maybe_unserialize( $forum_type );
+		$forum_type = is_string( $forum_type ) ? maybe_unserialize( $forum_type ) : '';
 		$forum_type = apply_filters( 'bbp_get_forum_type', empty( $forum_type ) ? 'forum' : $forum_type, $id );
 		$category   = (bool) apply_filters( 'bbp_is_forum_category', ! empty( $forum_type ) && ( 'category' === $forum_type ), $id );
 		$count    = 0;
@@ -154,13 +161,20 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 					WHERE topics.post_parent = %d AND topics.post_type = %s AND topics.post_status IN ({$topics}) AND replies.post_type = %s AND replies.post_status IN ({$replies})",
 					array_merge( array( $id, $this->context['topic'] ), $this->context['topics'], array( $this->context['reply'] ), $this->context['replies'] )
 				);
-				$count = bbp_number_not_negative( $this->db->get_var( $query ) );
-				if ( ! empty( $this->db->last_error ) ) {
+				$count = $this->db->get_var( $query );
+				if ( null === $count || ! empty( $this->db->last_error ) ) {
 					$this->fail( 'count-rows-read' );
+					return array();
 				}
+				$count = bbp_number_not_negative( $count );
 			}
 		}
-		return array_combine( $this->meta_keys, array( (int) $count, (int) $count ) );
+		$key = ( 'hidden-replies' === $this->type ) ? '_bbp_reply_count_hidden' : '_bbp_reply_count';
+		$total = ( 'hidden-replies' === $this->type ) ? '_bbp_total_reply_count_hidden' : '_bbp_total_reply_count';
+		return array(
+			$key   => (int) $count,
+			$total => (int) $count,
+		);
 	}
 
 	/**
