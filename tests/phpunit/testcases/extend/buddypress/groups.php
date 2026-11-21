@@ -110,6 +110,114 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_group_forum_route_forum_id
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 */
+	public function test_group_route_does_not_render_unreadable_child_forum_titles() {
+		$creator_id   = $this->factory->user->create();
+		$member_id    = $this->factory->user->create();
+		$outsider_id  = $this->factory->user->create();
+		$group_id     = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$root_id      = $this->factory->forum->create( array( 'post_title' => 'Public group forum' ) );
+		$private_id   = $this->factory->forum->create( array( 'post_parent' => $root_id, 'post_title' => 'Private child forum' ) );
+		$hidden_id    = $this->factory->forum->create( array( 'post_parent' => $root_id, 'post_title' => 'Hidden child forum' ) );
+		$nested_id    = $this->factory->forum->create( array( 'post_parent' => $private_id, 'post_title' => 'Nested child forum' ) );
+		$moderator_id = $this->factory->user->create();
+		$topic_id     = $this->factory->topic->create( array( 'post_parent' => $root_id, 'topic_meta' => array( 'forum_id' => $root_id ) ) );
+
+		foreach ( array( $creator_id, $member_id, $outsider_id ) as $user_id ) {
+			bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		}
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+
+		groups_join_group( $group_id, $member_id );
+		$this->attach_forum_to_group( $root_id, $group_id );
+		bbp_privatize_forum( $private_id );
+		bbp_hide_forum( $hidden_id );
+		$this->set_group_context( $group_id, $creator_id );
+
+		foreach ( array( $private_id, $hidden_id, $nested_id ) as $forum_id ) {
+			$_GET['bbp_group_forum_id'] = (string) $forum_id;
+			$title = get_post_field( 'post_title', $forum_id );
+
+			foreach ( array( 0, $outsider_id ) as $user_id ) {
+				$this->set_current_user( $user_id );
+				$this->assertFalse( current_user_can( 'read_forum', $forum_id ) );
+
+				foreach ( array( $this->group_extension->topic_slug, $this->group_extension->reply_slug ) as $action ) {
+					buddypress()->action_variables = array( $action, 'missing-group-post' );
+					ob_start();
+					$this->group_extension->display_forums();
+					$html = ob_get_clean();
+
+					$this->assertStringNotContainsString( $title, $html );
+				}
+
+				// A valid topic in another forum must not reveal this forum's title.
+				buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $topic_id ) );
+				ob_start();
+				$this->group_extension->display_forums();
+				$html = ob_get_clean();
+				$this->assertStringNotContainsString( $title, $html );
+			}
+
+			foreach ( array( $member_id, $moderator_id ) as $user_id ) {
+				$this->set_current_user( $user_id );
+				$this->assertTrue( current_user_can( 'read_forum', $forum_id ) );
+				$this->assertSame( $forum_id, bbp_get_group_forum_route_forum_id() );
+			}
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_group_forum_route_forum_id
+	 */
+	public function test_group_route_preserves_public_and_authorized_forum_access() {
+		$creator_id  = $this->factory->user->create();
+		$roleless_id = $this->factory->user->create();
+		$group_id    = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$root_id     = $this->factory->forum->create();
+		$public_id   = $this->factory->forum->create( array( 'post_parent' => $root_id ) );
+		$password_id = $this->factory->forum->create( array( 'post_parent' => $root_id, 'post_password' => 'test-password' ) );
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		bbp_remove_user_role( $roleless_id );
+		$this->attach_forum_to_group( $root_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+		$this->set_current_user( $roleless_id );
+		unset( $_GET['bbp_group_forum_id'] );
+		$this->assertSame( $root_id, bbp_get_group_forum_route_forum_id() );
+
+		$_GET['bbp_group_forum_id'] = (string) $public_id;
+		$this->assertSame( $public_id, bbp_get_group_forum_route_forum_id() );
+
+		$this->set_current_user( 0 );
+		$_GET['bbp_group_forum_id'] = (string) $password_id;
+		$this->assertTrue( post_password_required( $password_id ) );
+		$this->assertSame( $password_id, bbp_get_group_forum_route_forum_id() );
+		$password_topic_id = $this->factory->topic->create( array( 'post_parent' => $password_id, 'post_content' => 'Protected forum topic body', 'topic_meta' => array( 'forum_id' => $password_id ) ) );
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $password_topic_id ) );
+		ob_start();
+		$this->group_extension->display_forums();
+		$html = ob_get_clean();
+		$this->assertStringNotContainsString( 'Protected forum topic body', $html );
+
+		foreach ( array( 'private', 'hidden' ) as $status ) {
+			$restricted_group_id = $this->bp_factory->group->create( array( 'creator_id' => $creator_id, 'status' => $status ) );
+			$restricted_root_id  = $this->factory->forum->create();
+			$this->attach_forum_to_group( $restricted_root_id, $restricted_group_id );
+			bbp_privatize_forum( $restricted_root_id );
+			$this->set_group_context( $restricted_group_id, $creator_id );
+			unset( $_GET['bbp_group_forum_id'] );
+
+			$this->set_current_user( 0 );
+			$this->assertSame( 0, bbp_get_group_forum_route_forum_id() );
+			$this->set_current_user( $creator_id );
+			$this->assertSame( $restricted_root_id, bbp_get_group_forum_route_forum_id() );
+		}
+	}
+
+	/**
 	 * @ticket BBP2191
 	 * @covers ::BBP_Forums_Group_Extension::map_reply_url_to_group
 	 * @covers ::BBP_Forums_Group_Extension::map_topic_edit_url_to_group

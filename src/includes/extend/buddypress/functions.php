@@ -637,7 +637,8 @@ function bbp_get_group_forum_ids_with_descendants( $group_id = 0 ) {
  * Return the forum selected by a BuddyPress group forum URL.
  *
  * A route without a forum ID continues to select the group's first forum.
- * A child ID must belong to the group through its forum parentage.
+ * A child ID must belong to the group through its forum parentage. The
+ * selected forum must be readable by the current user.
  *
  * @since 2.7.0 bbPress (r8409)
  *
@@ -656,13 +657,12 @@ function bbp_get_group_forum_route_forum_id( $group_id = 0 ) {
 		}
 	}
 
-	if ( ! isset( $_GET['bbp_group_forum_id'] ) ) {
-		return $root_id;
-	}
-
-	$forum_id = absint( wp_unslash( $_GET['bbp_group_forum_id'] ) );
+	$forum_id = isset( $_GET['bbp_group_forum_id'] )
+		? absint( wp_unslash( $_GET['bbp_group_forum_id'] ) )
+		: $root_id;
 
 	return bbp_is_forum_in_group( $forum_id, $group_id )
+		&& ! bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() )
 		? $forum_id
 		: 0;
 }
