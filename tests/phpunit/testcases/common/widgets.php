@@ -759,7 +759,7 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 				$this->assertSame( $expected['meta_query'], $captured_query['meta_query'] ?? null );
 				$this->assertTrue( $captured_query['no_found_rows'] );
 				$this->assertFalse( $captured_query['update_post_term_cache'] );
-				$this->assertFalse( $captured_query['update_post_meta_cache'] );
+				$this->assertTrue( $captured_query['update_post_meta_cache'] );
 				$this->assertStringStartsWith( '<section class="before-widget"><h2>Filtered topics title</h2>', $html );
 				$this->assertStringEndsWith( '</section>', $html );
 				$this->assertStringContainsString( '<ul class="bbp-topics-widget ' . $mode . '">', $html );
@@ -790,6 +790,7 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 
 			$this->assertSame( 'date', $captured_query['orderby'] );
 			$this->assertArrayNotHasKey( 'meta_query', $captured_query );
+			$this->assertFalse( $captured_query['update_post_meta_cache'] );
 			$this->assertStringContainsString( '<ul class="bbp-topics-widget ">', $default_html );
 			$this->assertStringContainsString( 'Newest Widget Topic', $default_html );
 			$this->assertStringNotContainsString( '<span class="topic-author">', $default_html );

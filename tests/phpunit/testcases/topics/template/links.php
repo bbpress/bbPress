@@ -134,6 +134,157 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * A public topic must not expose its latest reply's protected title.
+	 *
+	 * @covers ::bbp_get_topic_freshness_link
+	 * @covers ::bbp_get_topic_last_active_time
+	 */
+	public function test_password_protected_reply_topic_freshness_requires_password() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$public_reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_title'  => 'Public reply marker',
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$this->assertSame( $public_reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertStringContainsString( 'Public reply marker', bbp_get_topic_freshness_link( $topic_id ) );
+
+		$author_id = $this->factory->user->create( array( 'display_name' => 'Protected author marker' ) );
+		$protected_reply_id = $this->factory->reply->create( array(
+			'post_parent'   => $topic_id,
+			'post_title'    => 'Protected reply marker',
+			'post_content'  => 'Protected body marker',
+			'post_author'   => $author_id,
+			'post_password' => 'reply-secret',
+			'reply_meta'    => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$this->assertSame( $protected_reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $protected_reply_id, bbp_get_topic_last_active_id( $topic_id ) );
+
+		$participant_id = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		foreach ( array( 0, $participant_id, $keymaster_id ) as $user_id ) {
+			wp_set_current_user( $user_id );
+			$this->assertSame( $protected_reply_id, bbp_get_password_required_id( $protected_reply_id ) );
+			$this->assertSame( '-', bbp_get_topic_freshness_link( $topic_id ) );
+			$this->assertSame( '', bbp_get_topic_last_active_time( $topic_id ) );
+			$this->assertStringNotContainsString( 'Protected body marker', bbp_get_reply_content( $protected_reply_id ) );
+			if ( $keymaster_id !== $user_id ) {
+				$this->assertStringNotContainsString( 'Protected author marker', bbp_get_author_link( $protected_reply_id ) );
+			}
+		}
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher = new PasswordHash( 8, true );
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'reply-secret' );
+
+		try {
+			foreach ( array( 0, $participant_id, $keymaster_id ) as $user_id ) {
+				wp_set_current_user( $user_id );
+				$this->assertSame( 0, bbp_get_password_required_id( $protected_reply_id ) );
+				$this->assertStringContainsString( 'Protected reply marker', bbp_get_topic_freshness_link( $topic_id ) );
+				$this->assertNotSame( '', bbp_get_topic_last_active_time( $topic_id ) );
+			}
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * A nested forum inherits its parent's password for topic activity.
+	 *
+	 * @covers ::bbp_get_topic_freshness_link
+	 * @covers ::bbp_get_topic_last_active_time
+	 */
+	public function test_nested_forum_password_hides_topic_freshness() {
+		$public_forum_id = $this->factory->forum->create();
+		$protected_forum_id = $this->factory->forum->create( array(
+			'post_parent'   => $public_forum_id,
+			'post_password' => 'forum-secret',
+		) );
+		$nested_forum_id = $this->factory->forum->create( array( 'post_parent' => $protected_forum_id ) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $nested_forum_id,
+			'topic_meta'  => array( 'forum_id' => $nested_forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_title'  => 'Nested reply marker',
+			'reply_meta'  => array( 'forum_id' => $nested_forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		wp_set_current_user( 0 );
+		$this->assertSame( $protected_forum_id, bbp_get_password_required_id( $reply_id ) );
+		$this->assertSame( '-', bbp_get_topic_freshness_link( $topic_id ) );
+		$this->assertSame( '', bbp_get_topic_last_active_time( $topic_id ) );
+
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher = new PasswordHash( 8, true );
+		$cookie = 'wp-postpass_' . COOKIEHASH;
+		$old_cookie = isset( $_COOKIE[ $cookie ] ) ? $_COOKIE[ $cookie ] : null;
+		$_COOKIE[ $cookie ] = $hasher->HashPassword( 'forum-secret' );
+
+		try {
+			$this->assertStringContainsString( 'Nested reply marker', bbp_get_topic_freshness_link( $topic_id ) );
+			$this->assertNotSame( '', bbp_get_topic_last_active_time( $topic_id ) );
+		} finally {
+			if ( null === $old_cookie ) {
+				unset( $_COOKIE[ $cookie ] );
+			} else {
+				$_COOKIE[ $cookie ] = $old_cookie;
+			}
+		}
+	}
+
+	/**
+	 * Stale topic metadata cannot select a protected reply's title or time.
+	 *
+	 * @covers ::bbp_get_topic_freshness_link
+	 * @covers ::bbp_get_topic_last_active_time
+	 */
+	public function test_topic_freshness_checks_both_activity_ids() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$public_reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+		$protected_reply_id = $this->factory->reply->create( array(
+			'post_parent'   => $topic_id,
+			'post_title'    => 'Protected reply marker',
+			'post_password' => 'reply-secret',
+			'reply_meta'    => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		wp_set_current_user( 0 );
+		update_post_meta( $topic_id, '_bbp_last_active_id', $public_reply_id );
+		$this->assertSame( '-', bbp_get_topic_freshness_link( $topic_id ) );
+		$this->assertSame( '', bbp_get_topic_last_active_time( $topic_id ) );
+
+		update_post_meta( $topic_id, '_bbp_last_active_id', $protected_reply_id );
+		update_post_meta( $topic_id, '_bbp_last_reply_id', $public_reply_id );
+		$this->assertSame( '-', bbp_get_topic_freshness_link( $topic_id ) );
+		$this->assertSame( '', bbp_get_topic_last_active_time( $topic_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_get_topic_freshness_link
 	 */
 	public function test_bbp_get_topic_freshness_link_with_unpublished_replies() {

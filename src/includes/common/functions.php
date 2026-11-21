@@ -230,6 +230,183 @@ function bbp_password_protected_search_where( $where = '', $posts_query = null )
 	return $where;
 }
 
+/** Password Protection *******************************************************/
+
+/**
+ * Return posts whose passwords may restrict a bbPress object.
+ *
+ * The post path includes the object, its containing topic and forum, and forum
+ * ancestors. Other object types may add related posts through a filter.
+ *
+ * @since 2.6.23 bbPress (r8582)
+ *
+ * @param int|WP_Post|array<int|WP_Post> $object_id Optional. One or more objects. Defaults to the current post.
+ * @param string $object_type Optional. Object type. Defaults to 'post'.
+ * @return int[] Post IDs to inspect, from the object outward.
+ */
+function bbp_get_password_protected_object_ids( $object_id = 0, $object_type = 'post' ) {
+	$post_ids        = array();
+	$objects         = array();
+	$seen_object_ids = array();
+	$seen_forum_ids  = array();
+
+	if ( 'post' === $object_type ) {
+		if ( is_array( $object_id ) ) {
+			$objects = array_filter( $object_id );
+		} else {
+			$objects[] = $object_id;
+		}
+	}
+
+	/**
+	 * Add post roots that may restrict another object type.
+	 *
+	 * These roots are appended to the built-in bbPress roots, then each root's
+	 * bbPress ancestry is traversed. Extensions cannot remove built-in roots.
+	 *
+	 * @since 2.6.23 bbPress (r8582)
+	 *
+	 * @param int[] $additional_ids Related bbPress post IDs.
+	 * @param int|WP_Post|array<int|WP_Post> $object_id Source object or objects.
+	 * @param string $object_type Source object type.
+	 */
+	$additional_ids = (array) apply_filters( 'bbp_get_additional_password_protected_object_ids', array(), $object_id, $object_type );
+	$objects        = array_merge( $objects, array_filter( $additional_ids ) );
+
+	foreach ( $objects as $object ) {
+		$post     = get_post( $object );
+		$forum_id = 0;
+
+		if ( ! empty( $post ) && bbp_is_custom_post_type( $post ) ) {
+			$post_id = $post->ID;
+			if ( isset( $seen_object_ids[ $post_id ] ) ) {
+				continue;
+			}
+
+			$seen_object_ids[ $post_id ] = true;
+			$post_ids[] = $post_id;
+
+			if ( bbp_is_reply( $post_id ) ) {
+				$post_ids[] = bbp_get_reply_topic_id( $post_id );
+				$forum_id   = bbp_get_reply_forum_id( $post_id );
+			} elseif ( bbp_is_topic( $post_id ) ) {
+				$forum_id = bbp_get_topic_forum_id( $post_id );
+			} elseif ( bbp_is_forum( $post_id ) ) {
+				$forum_id = $post_id;
+			}
+
+			if ( ! empty( $forum_id ) && ! isset( $seen_forum_ids[ $forum_id ] ) ) {
+				$seen_forum_ids[ $forum_id ] = true;
+				$post_ids[] = $forum_id;
+				$post_ids   = array_merge( $post_ids, bbp_get_forum_ancestors( $forum_id ) );
+			}
+		}
+	}
+
+	$post_ids = wp_parse_id_list( $post_ids );
+	$post_ids = array_filter( $post_ids );
+
+	return array_values( $post_ids );
+}
+
+/**
+ * Check if a bbPress object or any of its parents is password protected.
+ *
+ * @since 2.6.17 bbPress (r7501)
+ * @since 2.6.23 bbPress (r8582) Accept multiple post IDs.
+ *
+ * @param int|WP_Post|array<int|WP_Post> $object_id Optional. One or more objects. Defaults to the current post.
+ * @param string $object_type Optional. Object type. Defaults to 'post'.
+ * @return bool True if the object is password protected, otherwise false.
+ */
+function bbp_is_password_protected( $object_id = 0, $object_type = 'post' ) {
+	$retval   = false;
+	$post_ids = bbp_get_password_protected_object_ids( $object_id, $object_type );
+
+	// Preserve the normalized ID passed to the existing result filter.
+	if ( ( 'post' === $object_type ) && ! is_array( $object_id ) && ! empty( $post_ids ) ) {
+		$post = get_post( $object_id );
+		if ( ! empty( $post ) && bbp_is_custom_post_type( $post ) ) {
+			$object_id = $post->ID;
+		}
+	}
+
+	foreach ( $post_ids as $post_id ) {
+		if ( ! empty( get_post_field( 'post_password', $post_id ) ) ) {
+			$retval = true;
+			break;
+		}
+	}
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_password_protected', $retval, $object_id, $object_type );
+}
+
+/**
+ * Get the bbPress object or ancestor whose password is still required.
+ *
+ * @since 2.6.19 bbPress (r7669)
+ * @since 2.6.23 bbPress (r8582) Accept multiple objects and object types.
+ *
+ * @param int|WP_Post|array<int|WP_Post> $object_id Optional. One or more objects. Defaults to the current post.
+ * @param string $object_type Optional. Object type. Defaults to 'post'.
+ * @return int Protected post ID, or zero if all passwords are satisfied.
+ */
+function bbp_get_password_required_id( $object_id = 0, $object_type = 'post' ) {
+	static $checking_ids = array();
+
+	$post = null;
+	if ( ( 'post' === $object_type ) && ! is_array( $object_id ) ) {
+		$post = get_post( $object_id );
+	}
+
+	// Avoid recursion while checking this post's own password.
+	if ( ! empty( $post ) && isset( $checking_ids[ $post->ID ] ) ) {
+		return 0;
+	}
+
+	// Check the object and its parents
+	foreach ( bbp_get_password_protected_object_ids( $object_id, $object_type ) as $post_id ) {
+		if ( isset( $checking_ids[ $post_id ] ) ) {
+			continue;
+		}
+		$checking_ids[ $post_id ] = true;
+
+		try {
+			$required = post_password_required( $post_id );
+		} finally {
+			unset( $checking_ids[ $post_id ] );
+		}
+
+		if ( $required ) {
+			return $post_id;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Require passwords inherited from bbPress parent topics and forums.
+ *
+ * WordPress checks only the current post. Extend that check for bbPress posts
+ * so Core content and excerpt rendering preserves the same password boundary
+ * as bbPress templates.
+ *
+ * @since 2.6.21 bbPress (r8057)
+ *
+ * @param bool         $required Whether the current post requires a password.
+ * @param WP_Post|null $post     Post object.
+ * @return bool Whether the post or a bbPress ancestor requires a password.
+ */
+function bbp_filter_post_password_required( $required, $post = null ) {
+	if ( $required || ! ( $post instanceof WP_Post ) || ! bbp_is_custom_post_type( $post ) ) {
+		return $required;
+	}
+
+	return ( 0 !== bbp_get_password_required_id( $post ) );
+}
+
 /** URLs **********************************************************************/
 
 /**

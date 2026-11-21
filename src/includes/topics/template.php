@@ -1870,12 +1870,19 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
  * @return string Topic freshness.
  */
 function bbp_get_topic_last_active_time( $topic_id = 0 ) {
-	$topic_id = bbp_get_topic_id( $topic_id );
+	$topic_id     = bbp_get_topic_id( $topic_id );
+	$active_id    = bbp_get_topic_last_active_id( $topic_id );
+	$reply_id     = bbp_get_topic_last_reply_id( $topic_id );
+	$activity_ids = array( $topic_id, $active_id, $reply_id );
+
+	// Topic metadata may point to activity that still requires a password.
+	if ( ! empty( $topic_id ) && bbp_get_password_required_id( $activity_ids ) ) {
+		return apply_filters( 'bbp_get_topic_last_active', '', $topic_id );
+	}
 
 	// Try to get the most accurate freshness time possible
 	$last_active = get_post_meta( $topic_id, '_bbp_last_active_time', true );
 	if ( empty( $last_active ) ) {
-		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 		if ( ! empty( $reply_id ) ) {
 			$last_active = get_post_field( 'post_date', $reply_id );
 		} else {
@@ -2158,7 +2165,16 @@ function bbp_topic_freshness_link( $topic_id = 0 ) {
  * @return string Topic freshness link.
  */
 function bbp_get_topic_freshness_link( $topic_id = 0 ) {
-	$topic_id   = bbp_get_topic_id( $topic_id );
+	$topic_id     = bbp_get_topic_id( $topic_id );
+	$active_id    = bbp_get_topic_last_active_id( $topic_id );
+	$reply_id     = bbp_get_topic_last_reply_id( $topic_id );
+	$activity_ids = array( $topic_id, $active_id, $reply_id );
+
+	// Check the activity record and the reply used to build the link.
+	if ( ! empty( $topic_id ) && bbp_get_password_required_id( $activity_ids ) ) {
+		return apply_filters( 'bbp_get_topic_freshness_link', '-', $topic_id, '', '', '' );
+	}
+
 	$link_url   = bbp_get_topic_last_reply_url( $topic_id );
 	$title      = bbp_get_topic_last_reply_title( $topic_id );
 	$time_since = bbp_get_topic_last_active_time( $topic_id );
