@@ -2050,9 +2050,10 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Check time and use current if empty
+	// Use the last active post's date when one exists
 	if ( empty( $new_time ) ) {
-		$new_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $forum_id ) );
+		$active_id = bbp_get_forum_last_active_id( $forum_id );
+		$new_time  = ! empty( $active_id ) ? get_post_field( 'post_date', $active_id ) : '';
 	}
 
 	// Update only if there is a time
@@ -2549,7 +2550,9 @@ function bbp_update_forum( $args = array() ) {
 
 	// If no active time was passed, get it from the last_active_id
 	if ( empty( $r['last_active_time'] ) ) {
-		$r['last_active_time'] = get_post_field( 'post_date', $r['last_active_id'] );
+		$r['last_active_time'] = ! empty( $r['last_active_id'] )
+			? get_post_field( 'post_date', $r['last_active_id'] )
+			: '';
 	}
 
 	if ( bbp_get_public_status_id() === $r['last_active_status'] ) {

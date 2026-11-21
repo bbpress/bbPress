@@ -1086,7 +1086,8 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 					// Get the last active time if none was passed
 					$topic_last_active_time = $last_active_time;
 					if ( empty( $last_active_time ) ) {
-						$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
+						$topic_active_id        = bbp_get_topic_last_active_id( $ancestor );
+						$topic_last_active_time = ! empty( $topic_active_id ) ? get_post_field( 'post_date', $topic_active_id ) : '';
 					}
 
 					bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
@@ -1115,7 +1116,8 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 					// Get the last active time if none was passed
 					$forum_last_active_time = $last_active_time;
 					if ( empty( $last_active_time ) ) {
-						$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
+						$forum_active_id        = bbp_get_forum_last_active_id( $ancestor );
+						$forum_last_active_time = ! empty( $forum_active_id ) ? get_post_field( 'post_date', $forum_active_id ) : '';
 					}
 
 					bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
@@ -1558,7 +1560,7 @@ function bbp_move_reply_handler( $action = '' ) {
 		// Update destination topic
 		wp_update_post(
 			array(
-				'ID'            => $destination_topic_id,
+				'ID'            => $destination_topic->ID,
 				'post_date'     => $destination_post_date,
 				'post_date_gmt' => get_gmt_from_date( $destination_post_date )
 			)

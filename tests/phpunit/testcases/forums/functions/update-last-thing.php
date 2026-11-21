@@ -385,4 +385,31 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 		$this->assertSame( $r2_time_raw, $time );
 		$this->assertSame( $r2_time_raw, get_post_meta( $f1, '_bbp_last_active_time', true ) );
 	}
+
+	/**
+	 * @ticket BBP3794
+	 * @covers ::bbp_update_forum_last_active_time
+	 */
+	public function test_empty_forum_does_not_use_the_global_post_date_for_freshness() {
+		$forum_id = $this->factory->forum->create( array(
+			'post_date' => '2020-01-01 00:00:00',
+		) );
+		$other_id = $this->factory->post->create( array(
+			'post_date' => '2021-01-01 00:00:00',
+		) );
+		delete_post_meta( $forum_id, '_bbp_last_active_id' );
+		delete_post_meta( $forum_id, '_bbp_last_active_time' );
+
+		global $post;
+		$previous_post = $post;
+		$post          = get_post( $other_id );
+		try {
+			$this->assertSame( '', bbp_update_forum_last_active_time( $forum_id ) );
+			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_last_active_time' ) );
+			bbp_update_forum( array( 'forum_id' => $forum_id ) );
+			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_last_active_time' ) );
+		} finally {
+			$post = $previous_post;
+		}
+	}
 }

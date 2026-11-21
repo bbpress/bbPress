@@ -1702,7 +1702,7 @@ function bbp_split_topic_handler( $action = '' ) {
 		// Update destination topic
 		wp_update_post(
 			array(
-				'ID'            => $destination_topic_id,
+				'ID'            => $destination_topic->ID,
 				'post_date'     => $destination_post_date,
 				'post_date_gmt' => get_gmt_from_date( $destination_post_date )
 			)
@@ -2947,9 +2947,11 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 		? bbp_get_reply_topic_id( $topic_id )
 		: bbp_get_topic_id( $topic_id );
 
-	// Check time and use current if empty
+	// Use the last reply's date, or the topic's own date
 	if ( empty( $new_time ) ) {
-		$new_time = get_post_field( 'post_date', bbp_get_public_child_last_id( $topic_id, bbp_get_reply_post_type() ) );
+		$active_id = bbp_get_public_child_last_id( $topic_id, bbp_get_reply_post_type() );
+		$active_id = ! empty( $active_id ) ? $active_id : $topic_id;
+		$new_time  = ! empty( $active_id ) ? get_post_field( 'post_date', $active_id ) : '';
 	}
 
 	// Update only if published

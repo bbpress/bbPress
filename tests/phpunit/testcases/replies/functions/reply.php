@@ -378,6 +378,38 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @covers ::bbp_update_reply_walker
+	 */
+	public function test_reply_walker_does_not_use_the_global_post_when_activity_is_unavailable() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$other_id = $this->factory->post->create();
+		delete_post_meta( $forum_id, '_bbp_last_active_time' );
+		delete_post_meta( $topic_id, '_bbp_last_active_time' );
+
+		$no_activity = function() {
+			return 0;
+		};
+
+		global $post;
+		$previous_post = $post;
+		$post          = get_post( $other_id );
+		add_filter( 'bbp_get_forum_last_active_id', $no_activity );
+		add_filter( 'bbp_get_topic_last_active_id', $no_activity );
+		try {
+			bbp_update_reply_walker( $reply_id, '', $forum_id, $topic_id, false );
+			$this->assertFalse( metadata_exists( 'post', $forum_id, '_bbp_last_active_time' ) );
+			$this->assertSame( get_post_field( 'post_date', $reply_id ), get_post_meta( $topic_id, '_bbp_last_active_time', true ) );
+		} finally {
+			remove_filter( 'bbp_get_forum_last_active_id', $no_activity );
+			remove_filter( 'bbp_get_topic_last_active_id', $no_activity );
+			$post = $previous_post;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_update_reply
 	 * @covers ::bbp_update_reply_walker
 	 */

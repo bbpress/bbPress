@@ -105,6 +105,32 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @covers ::bbp_update_topic_last_active_time
+	 */
+	public function test_topic_without_replies_uses_its_own_date_for_freshness() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_date'   => '2020-01-01 00:00:00',
+		) );
+		$other_id = $this->factory->post->create( array(
+			'post_date' => '2021-01-01 00:00:00',
+		) );
+
+		global $post;
+		$previous_post = $post;
+		$post          = get_post( $other_id );
+		try {
+			$topic_date = get_post_field( 'post_date', $topic_id );
+			$this->assertSame( $topic_date, bbp_update_topic_last_active_time( $topic_id ) );
+			$this->assertSame( $topic_date, get_post_meta( $topic_id, '_bbp_last_active_time', true ) );
+		} finally {
+			$post = $previous_post;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_update_topic_last_reply_id
 	 */
 	public function test_bbp_update_topic_last_reply_id() {
