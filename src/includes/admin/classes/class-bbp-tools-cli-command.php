@@ -32,8 +32,9 @@ class BBP_Tools_CLI_Command {
 	 *
 	 * @since 2.7.0 bbPress (r8411)
 	 *
-	 * @param array $args       Positional arguments.
-	 * @param array $assoc_args Named arguments.
+	 * @param array<int, string>   $args       Positional arguments.
+	 * @param array<string, mixed> $assoc_args Named arguments.
+	 * @return void
 	 */
 	public function list_tools( $args, $assoc_args ) {
 		$this->load_tools();
@@ -92,8 +93,9 @@ class BBP_Tools_CLI_Command {
 	 *
 	 * @since 2.7.0 bbPress (r8411)
 	 *
-	 * @param array $args       Positional arguments.
-	 * @param array $assoc_args Named arguments.
+	 * @param array<int, string>   $args       Positional arguments.
+	 * @param array<string, mixed> $assoc_args Named arguments.
+	 * @return void
 	 */
 	public function run( $args, $assoc_args ) {
 		$this->load_tools();
@@ -199,8 +201,9 @@ class BBP_Tools_CLI_Command {
 	 *
 	 * @since 2.7.0 bbPress (r8411)
 	 *
-	 * @param array $args       Positional arguments.
-	 * @param array $assoc_args Named arguments.
+	 * @param array<int, string>   $args       Positional arguments.
+	 * @param array<string, mixed> $assoc_args Named arguments.
+	 * @return void
 	 */
 	public function status( $args, $assoc_args ) {
 		$this->load_tools();
@@ -239,6 +242,7 @@ class BBP_Tools_CLI_Command {
 	 *
 	 * @since 2.7.0 bbPress (r8411)
 	 * @access private
+	 * @return void
 	 */
 	private function load_tools() {
 		require_once bbpress()->includes_dir . 'admin/actions.php';
@@ -252,7 +256,7 @@ class BBP_Tools_CLI_Command {
 	 * @since 2.7.0 bbPress (r8411)
 	 * @access private
 	 *
-	 * @param array $assoc_args Named arguments.
+	 * @param array<string, mixed> $assoc_args Named arguments.
 	 * @return string Repair, upgrade, or an empty string.
 	 */
 	private function get_type( $assoc_args ) {
@@ -270,6 +274,7 @@ class BBP_Tools_CLI_Command {
 	 * @access private
 	 *
 	 * @param string $type Repair, upgrade, or an empty string for both.
+	 * @return void
 	 */
 	private function require_permission( $type ) {
 		$allowed = $type
