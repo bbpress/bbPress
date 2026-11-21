@@ -181,6 +181,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Avoided empty topic and reply admin links when WordPress cannot provide a
+  destination, and converter failures when a source directory or database is
+  unavailable.
 - Allowed authorized profile editors to see and cancel another user's pending
   email address change.
 - Fixed forum moderator replacement and clearing with term or user engagement

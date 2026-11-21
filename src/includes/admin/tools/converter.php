@@ -26,8 +26,12 @@ function bbp_get_converters() {
 	if ( empty( $files ) ) {
 
 		// Open the converter directory
-		$path   = bbp_setup_converter()->converters_dir;
-		$curdir = opendir( $path );
+		$converter = bbp_setup_converter();
+		$path      = isset( $converter->converters_dir ) && is_string( $converter->converters_dir )
+			? $converter->converters_dir
+			: '';
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$curdir = '' !== $path ? @opendir( $path ) : false;
 
 		// Look for the converter file in the converters directory
 		if ( false !== $curdir ) {
@@ -36,15 +40,13 @@ function bbp_get_converters() {
 			while ( $file = readdir( $curdir ) ) {
 				if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === false ) {
 					$name = preg_replace( '/.php/', '', $file );
-					if ( 'Example' !== $name ) {
+					if ( is_string( $name ) && 'Example' !== $name ) {
 						$files[ $name ] = $path . $file;
 					}
 				}
 			}
+			closedir( $curdir );
 		}
-
-		// Close the directory
-		closedir( $curdir );
 
 		// Sort keys alphabetically, ignoring upper/lower casing
 		if ( ! empty( $files ) ) {

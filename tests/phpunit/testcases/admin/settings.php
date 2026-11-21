@@ -890,6 +890,23 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_converters
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_converter_list_handles_missing_directory() {
+		$converter = bbp_setup_converter();
+		$original  = $converter->converters_dir;
+		$converter->converters_dir = trailingslashit( sys_get_temp_dir() ) . 'bbpress-missing-converters-' . wp_generate_uuid4();
+
+		try {
+			$this->assertSame( array(), bbp_get_converters() );
+		} finally {
+			$converter->converters_dir = $original;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_converter_setting_callback_dbserver
 	 * @covers ::bbp_converter_setting_callback_dbport
 	 * @covers ::bbp_converter_setting_callback_dbuser

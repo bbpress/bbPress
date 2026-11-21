@@ -540,6 +540,21 @@ class BBP_Tests_Admin_Converters_PHPWind extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers PHPWind::callback_user_pass
+	 * @ticket BBP3691
+	 */
+	public function test_completed_import_hash_survives_missing_source_database() {
+		$token   = '073d73ef8d98047f1e3556faba272160';
+		$user_id = $this->create_completed_import_user( $token );
+		update_user_meta( $user_id, '_bbp_old_user_id', 42 );
+
+		$this->converter->callback_user_pass( get_userdata( $user_id ), 'Correct Horse Battery Staple' );
+
+		$this->assertSame( $token, get_userdata( $user_id )->user_pass );
+		$this->assertFalse( get_transient( 'bbp_phpwind_source_connection_failed' ) );
+	}
+
+	/**
 	 * @covers ::bbp_user_maybe_convert_pass
 	 * @covers PHPWind::callback_user_pass
 	 * @ticket BBP3691

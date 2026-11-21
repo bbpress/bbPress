@@ -185,8 +185,11 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 		// Prepend `edit` link
 		if ( current_user_can( 'edit_reply', $item->ID ) ) {
-			$actions['edit'] = '<a href="' . esc_url( get_edit_post_link( $item->ID ) ) . '">' . esc_html__( 'Edit', 'bbpress' ) . '</a>';
-			$actions         = array_reverse( $actions );
+			$edit_url = get_edit_post_link( $item->ID );
+			if ( is_string( $edit_url ) && ( '' !== $edit_url ) ) {
+				$actions['edit'] = '<a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'bbpress' ) . '</a>';
+				$actions         = array_reverse( $actions );
+			}
 		}
 
 		// Filter the reply content
@@ -273,7 +276,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		);
 
 		// Set list table items to queried posts
-		$this->items = $reply_query->posts;
+		$this->items = is_array( $reply_query->posts ) ? $reply_query->posts : array();
 
 		// Set the pagination arguments
 		$this->set_pagination_args(

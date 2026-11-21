@@ -37,6 +37,7 @@ class BBP_Tests_Admin_Topic_Replies_List_Table extends BBP_UnitTestCase {
 		remove_filter( 'bbp_get_reply_author_email', array( $this, 'unsafe_email' ) );
 		remove_filter( 'bbp_get_reply_url', array( $this, 'unsafe_url' ) );
 		remove_filter( 'get_edit_post_link', array( $this, 'unsafe_url' ) );
+		remove_filter( 'get_edit_post_link', '__return_null' );
 		remove_filter( 'found_posts', array( $this, 'filter_large_reply_count' ), 10 );
 		$GLOBALS['current_screen'] = $this->screen;
 		if ( null === $this->hook_suffix ) {
@@ -116,6 +117,19 @@ class BBP_Tests_Admin_Topic_Replies_List_Table extends BBP_UnitTestCase {
 
 		$this->assertSame( 2, substr_count( $output, 'href=""' ) );
 		$this->assertStringNotContainsString( 'javascript:', $output );
+	}
+
+	/**
+	 * @covers BBP_Topic_Replies_List_Table::column_bbp_reply_content
+	 */
+	public function test_missing_edit_url_does_not_render_an_empty_link() {
+		$this->assertTrue( current_user_can( 'edit_reply', $this->reply->ID ) );
+		add_filter( 'get_edit_post_link', '__return_null' );
+
+		$output = ( new BBP_Topic_Replies_List_Table() )->column_bbp_reply_content( $this->reply );
+
+		$this->assertStringContainsString( '>View</a>', $output );
+		$this->assertStringNotContainsString( '>Edit</a>', $output );
 	}
 
 	/**

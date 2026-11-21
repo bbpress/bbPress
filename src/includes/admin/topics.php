@@ -1278,13 +1278,21 @@ class BBP_Topics_Admin {
 
 			if ( bbp_get_trash_status_id() === $topic->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . '</a>';
+				if ( $post_type_object ) {
+					$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . '</a>';
+				}
 			} elseif ( ! empty( $trash_days ) ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . '</a>';
+				$trash_url = get_delete_post_link( $topic->ID );
+				if ( is_string( $trash_url ) && ( '' !== $trash_url ) ) {
+					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( $trash_url ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . '</a>';
+				}
 			}
 
 			if ( ( bbp_get_trash_status_id() === $topic->post_status ) || empty( $trash_days ) ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . '</a>';
+				$delete_url = get_delete_post_link( $topic->ID, '', true );
+				if ( is_string( $delete_url ) && ( '' !== $delete_url ) ) {
+					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( $delete_url ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . '</a>';
+				}
 			}
 		}
 

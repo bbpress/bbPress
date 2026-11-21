@@ -450,6 +450,26 @@ class BBP_Tests_Admin_Replies extends BBP_UnitTestCase {
 
 	/**
 	 * @covers BBP_Replies_Admin::row_actions
+	 */
+	public function test_row_actions_skip_unavailable_delete_link() {
+		$admin    = $this->get_admin_without_hooks();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$this->create_keymaster();
+		add_filter( 'get_delete_post_link', '__return_null' );
+
+		try {
+			$actions = $admin->row_actions( array( 'edit' => 'Edit' ), get_post( $reply_id ) );
+			$this->assertArrayNotHasKey( 'trash', $actions );
+			$this->assertArrayNotHasKey( 'delete', $actions );
+		} finally {
+			remove_filter( 'get_delete_post_link', '__return_null' );
+		}
+	}
+
+	/**
+	 * @covers BBP_Replies_Admin::row_actions
 	 * @covers BBP_Replies_Admin::filter_dropdown
 	 * @covers BBP_Replies_Admin::updated_messages
 	 * @covers ::bbp_admin_replies
