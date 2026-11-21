@@ -143,6 +143,27 @@ class BBP_Shortcodes {
 		wp_reset_postdata();
 	}
 
+	/**
+	 * Parse a positive post ID from a shortcode attribute.
+	 *
+	 * @since 2.7.0 bbPress (r8569)
+	 *
+	 * @param mixed $value Attribute value.
+	 * @return int Post ID, or zero when invalid.
+	 */
+	private function parse_post_id( $value ) {
+		if ( is_int( $value ) ) {
+			return max( 0, $value );
+		}
+
+		if ( ! is_string( $value ) ) {
+			return 0;
+		}
+
+		$value = trim( $value );
+		return ctype_digit( $value ) ? absint( $value ) : 0;
+	}
+
 	/** Output Buffers ********************************************************/
 
 	/**
@@ -233,14 +254,15 @@ class BBP_Shortcodes {
 	 * @return string Forum markup or supplied content.
 	 */
 	public function display_forum( $attr, $content = '' ) {
+		$forum_id = $this->parse_post_id( isset( $attr['id'] ) ? $attr['id'] : 0 );
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || empty( $forum_id ) ) {
 			return $content;
 		}
 
 		// Set passed attribute to $forum_id for clarity
-		$forum_id = bbpress()->current_forum_id = $attr['id'];
+		bbpress()->current_forum_id = $forum_id;
 
 		// Bail if ID passed is not a forum
 		if ( ! bbp_is_forum( $forum_id ) ) {
@@ -324,9 +346,10 @@ class BBP_Shortcodes {
 	 * @return string Topic markup or supplied content.
 	 */
 	public function display_topic( $attr, $content = '' ) {
+		$topic_id = $this->parse_post_id( isset( $attr['id'] ) ? $attr['id'] : 0 );
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || empty( $topic_id ) ) {
 			return $content;
 		}
 
@@ -334,7 +357,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Set passed attribute to $forum_id for clarity
-		$topic_id = bbpress()->current_topic_id = $attr['id'];
+		bbpress()->current_topic_id = $topic_id;
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Bail if ID passed is not a topic
@@ -394,9 +417,10 @@ class BBP_Shortcodes {
 	 * @return string Topic form markup.
 	 */
 	public function display_topic_form( $attr = array(), $content = '' ) {
+		$forum_id = ! empty( $attr['forum_id'] ) ? $this->parse_post_id( $attr['forum_id'] ) : 0;
 
 		// Sanity check supplied info
-		if ( ! empty( $content ) || ( ! empty( $attr['forum_id'] ) && ( ! is_numeric( $attr['forum_id'] ) || ! bbp_is_forum( $attr['forum_id'] ) ) ) ) {
+		if ( ! empty( $content ) || ( ! empty( $attr['forum_id'] ) && ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) ) ) {
 			return $content;
 		}
 
@@ -404,10 +428,10 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// If forum id is set, use the 'bbp_single_forum' query name
-		if ( ! empty( $attr['forum_id'] ) ) {
+		if ( ! empty( $forum_id ) ) {
 
 			// Set the global current_forum_id for future requests
-			bbpress()->current_forum_id = $forum_id = bbp_get_forum_id( $attr['forum_id'] );
+			bbpress()->current_forum_id = $forum_id = bbp_get_forum_id( $forum_id );
 
 			// Start output buffer
 			$this->start( 'bbp_single_forum' );
@@ -448,9 +472,10 @@ class BBP_Shortcodes {
 	 * @return string Reply markup or supplied content.
 	 */
 	public function display_reply( $attr, $content = '' ) {
+		$reply_id = $this->parse_post_id( isset( $attr['id'] ) ? $attr['id'] : 0 );
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || empty( $reply_id ) ) {
 			return $content;
 		}
 
@@ -458,7 +483,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Set passed attribute to $reply_id for clarity
-		$reply_id = bbpress()->current_reply_id = $attr['id'];
+		bbpress()->current_reply_id = $reply_id;
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
 		// Bail if ID passed is not a reply

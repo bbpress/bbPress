@@ -108,6 +108,36 @@ class BBP_Tests_Search_Template_Search extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_search_terms
+	 * @covers ::bbp_search_terms
+	 * @covers ::bbp_get_search_results_url
+	 * @dataProvider non_string_search_terms_provider
+	 */
+	public function test_non_string_filtered_search_terms_are_unavailable( $filtered_terms ) {
+		$filter = static function() use ( $filtered_terms ) {
+			return $filtered_terms;
+		};
+		add_filter( 'bbp_get_search_terms', $filter );
+
+		try {
+			$this->assertFalse( bbp_get_search_terms( 'Sample Query' ) );
+			ob_start();
+			bbp_search_terms( 'Sample Query' );
+			$this->assertSame( '', ob_get_clean() );
+			$this->assertIsString( bbp_get_search_results_url() );
+		} finally {
+			remove_filter( 'bbp_get_search_terms', $filter );
+		}
+	}
+
+	public function non_string_search_terms_provider() {
+		return array(
+			'array' => array( array( 'unexpected' ) ),
+			'true'  => array( true ),
+		);
+	}
+
+	/**
 	 * @covers ::bbp_get_search_pagination_base
 	 */
 	public function test_bbp_get_search_pagination_base_with_ugly_permalinks() {

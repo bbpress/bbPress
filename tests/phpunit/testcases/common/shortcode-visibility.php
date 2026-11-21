@@ -37,6 +37,42 @@ class BBP_Tests_Common_Shortcode_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Shortcodes::display_forum
+	 * @covers BBP_Shortcodes::display_topic
+	 * @covers BBP_Shortcodes::display_reply
+	 * @covers BBP_Shortcodes::display_topic_form
+	 */
+	public function test_single_item_shortcodes_reject_non_integer_ids() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+			)
+		);
+
+		$shortcodes = bbpress()->shortcodes;
+		bbpress()->current_forum_id = 0;
+		bbpress()->current_topic_id = 0;
+		bbpress()->current_reply_id = 0;
+		foreach ( array( '.0', 'e0' ) as $suffix ) {
+			$this->assertSame( '', $shortcodes->display_forum( array( 'id' => $forum_id . $suffix ) ) );
+			$this->assertSame( '', $shortcodes->display_topic( array( 'id' => $topic_id . $suffix ) ) );
+			$this->assertSame( '', $shortcodes->display_reply( array( 'id' => $reply_id . $suffix ) ) );
+			$this->assertSame( '', $shortcodes->display_topic_form( array( 'forum_id' => $forum_id . $suffix ) ) );
+		}
+		$this->assertSame( 0, bbpress()->current_forum_id );
+		$this->assertSame( 0, bbpress()->current_topic_id );
+		$this->assertSame( 0, bbpress()->current_reply_id );
+	}
+
+	/**
 	 * @covers BBP_Shortcodes::display_reply
 	 */
 	public function test_single_reply_shortcode_hides_pending_reply_from_anonymous_user() {

@@ -271,7 +271,7 @@ function bbp_get_search_results_url() {
 	} else {
 		$url = add_query_arg(
 			array(
-				bbp_get_search_rewrite_id() => urlencode( $search_terms )
+				bbp_get_search_rewrite_id() => ( false !== $search_terms ) ? urlencode( $search_terms ) : ''
 			),
 			home_url( '/' )
 		);
@@ -290,7 +290,10 @@ function bbp_get_search_results_url() {
  * @return void
  */
 function bbp_search_terms( $search_terms = '' ) {
-	echo esc_attr( bbp_get_search_terms( $search_terms ) );
+	$search_terms = bbp_get_search_terms( $search_terms );
+	if ( false !== $search_terms ) {
+		echo esc_attr( $search_terms );
+	}
 }
 
 /**
@@ -302,7 +305,7 @@ function bbp_search_terms( $search_terms = '' ) {
  * search rewrite id query var.
  *
  * @param string $passed_terms Optional. Search terms.
- * @return bool|string Search terms on success, false on failure.
+ * @return string|false Search terms on success, false on failure.
  */
 function bbp_get_search_terms( $passed_terms = '' ) {
 
@@ -353,7 +356,8 @@ function bbp_get_search_terms( $passed_terms = '' ) {
 		: false;
 
 	// Filter & return
-	return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
+	$search_terms = apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
+	return is_string( $search_terms ) ? $search_terms : false;
 }
 
 /** Pagination ****************************************************************/
