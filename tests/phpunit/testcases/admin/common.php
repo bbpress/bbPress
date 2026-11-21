@@ -273,6 +273,24 @@ class BBP_Tests_Admin_Common extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_sanitize_slug
+	 * @ticket 3794
+	 */
+	public function test_sanitize_slug_returns_empty_after_pcre_failure() {
+		$old_jit   = ini_get( 'pcre.jit' );
+		$old_limit = ini_get( 'pcre.backtrack_limit' );
+
+		try {
+			ini_set( 'pcre.jit', '0' );
+			ini_set( 'pcre.backtrack_limit', '1' );
+			$this->assertSame( '', bbp_sanitize_slug( str_repeat( '/', 100 ) ) );
+		} finally {
+			ini_set( 'pcre.jit', $old_jit );
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_do_uninstall
 	 */
 	public function test_do_uninstall_removes_site_options_and_restores_the_current_site() {

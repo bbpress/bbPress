@@ -368,6 +368,31 @@ class BBP_Tests_Core_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_mention_filter
+	 * @ticket 3794
+	 */
+	public function test_mention_filter_preserves_text_after_pcre_failure() {
+		self::factory()->user->create( array( 'user_login' => 'pcre-failure-user' ) );
+		$old_jit   = ini_get( 'pcre.jit' );
+		$old_limit = ini_get( 'pcre.backtrack_limit' );
+		$content   = str_repeat( 'x', 100 ) . ' @pcre-failure-user';
+		$mentions  = static function() {
+			return array( 'pcre-failure-user' );
+		};
+
+		add_filter( 'bbp_find_mentions', $mentions );
+		try {
+			ini_set( 'pcre.jit', '0' );
+			ini_set( 'pcre.backtrack_limit', '1' );
+			$this->assertSame( $content, bbp_mention_filter( $content ) );
+		} finally {
+			ini_set( 'pcre.jit', $old_jit );
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+			remove_filter( 'bbp_find_mentions', $mentions );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_public_status_id
 	 * @covers ::bbp_get_pending_status_id
 	 * @covers ::bbp_get_private_status_id

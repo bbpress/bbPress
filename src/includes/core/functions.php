@@ -434,7 +434,7 @@ function bbp_mention_filter( $content = '' ) {
 		$pattern      = "/(@{$username}\b)/";
 
 		// Replace name in content
-		$content = preg_replace( $pattern, $no_followed, $content );
+		$content = preg_replace( $pattern, $no_followed, $content ) ?? $content;
 	}
 
 	// Return modified content

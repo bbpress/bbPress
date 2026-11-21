@@ -513,7 +513,7 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
 	if ( ! empty( $pagination_links ) ) {
 		$retval = bbp_use_pretty_urls()
 			? str_replace( bbp_get_paged_slug() . '/1/', '', $pagination_links )
-			: preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $pagination_links );
+			: ( preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $pagination_links ) ?? $pagination_links );
 	}
 
 	// Filter & return

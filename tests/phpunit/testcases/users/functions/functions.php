@@ -184,6 +184,34 @@
 	}
 
 	/**
+	 * @covers ::bbp_current_author_ip
+	 * @ticket 3794
+	 */
+	public function test_bbp_current_author_ip_handles_invalid_input_and_pcre_failure() {
+		$old_address = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+		$old_jit     = ini_get( 'pcre.jit' );
+		$old_limit   = ini_get( 'pcre.backtrack_limit' );
+
+		try {
+			$_SERVER['REMOTE_ADDR'] = array( '2001:db8::1' );
+			$this->assertSame( '127.0.0.1', bbp_current_author_ip() );
+
+			$_SERVER['REMOTE_ADDR'] = str_repeat( 'x', 100 );
+			ini_set( 'pcre.jit', '0' );
+			ini_set( 'pcre.backtrack_limit', '1' );
+			$this->assertSame( '', bbp_current_author_ip() );
+		} finally {
+			ini_set( 'pcre.jit', $old_jit );
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+			if ( null === $old_address ) {
+				unset( $_SERVER['REMOTE_ADDR'] );
+			} else {
+				$_SERVER['REMOTE_ADDR'] = $old_address;
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_current_author_ua
 	 */
 	public function test_bbp_current_author_ua() {

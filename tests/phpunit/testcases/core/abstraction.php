@@ -604,6 +604,29 @@ class BBP_Tests_Core_Abstraction extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_make_first_page_canonical
+	 * @ticket 3794
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_bbp_make_first_page_canonical_preserves_links_after_pcre_failure() {
+		$old_jit   = ini_get( 'pcre.jit' );
+		$old_limit = ini_get( 'pcre.backtrack_limit' );
+		$links     = str_repeat( 'x', 100 ) . '&#038;paged=1&';
+
+		add_filter( 'bbp_pretty_urls', '__return_false' );
+		try {
+			ini_set( 'pcre.jit', '0' );
+			ini_set( 'pcre.backtrack_limit', '1' );
+			$this->assertSame( $links, bbp_make_first_page_canonical( $links ) );
+		} finally {
+			ini_set( 'pcre.jit', $old_jit );
+			ini_set( 'pcre.backtrack_limit', $old_limit );
+			remove_filter( 'bbp_pretty_urls', '__return_false' );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_paginate_links
 	 */
 	public function test_bbp_paginate_links_returns_requested_link_type() {

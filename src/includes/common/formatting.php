@@ -1068,7 +1068,10 @@ function bbp_format_user_display_name( $display_name = '' ) {
 	// Fallback to mbstring library if extension is loaded
 	} elseif ( function_exists( 'mb_check_encoding' ) ) {
 		if ( ! mb_check_encoding( $display_name, 'UTF-8' ) ) {
-			$retval = mb_convert_encoding( $display_name, 'UTF-8', 'ISO-8859-1' );
+			$converted = mb_convert_encoding( $display_name, 'UTF-8', 'ISO-8859-1' );
+			if ( false !== $converted ) {
+				$retval = $converted;
+			}
 		}
 
 	// Fallback to deprecated WordPress & PHP functions

@@ -191,7 +191,7 @@ function bbp_term_subscriptions_field( $term, $taxonomy ) {
 function bbp_sanitize_slug( $slug = '' ) {
 
 	// Don't allow multiple slashes in a row
-	$value = preg_replace( '#/+#', '/', str_replace( '#', '', $slug ) );
+	$value = preg_replace( '#/+#', '/', str_replace( '#', '', $slug ) ) ?? '';
 
 	// Strip out unsafe or unusable chars
 	$value = esc_url_raw( $value );
