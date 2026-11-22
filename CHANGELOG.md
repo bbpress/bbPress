@@ -15,6 +15,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added choices to save mapped forum roles, grant them without saving, or do
+  nothing when a user without a forum role visits. The default role for
+  sign-ups is unchanged.
 - Added `bbp_remove_all_moderators()` to clear an object's moderator
   assignments.
 - Added `wp bbp tool` commands to list, run, preview, and resume registered

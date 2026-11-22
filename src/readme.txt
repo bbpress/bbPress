@@ -43,6 +43,16 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * You may want to customize the register/activation/sign-in/lost-password flows, to better suit your site. bbPress comes with a bevy of shortcodes to make this possible, listed here: https://codex.bbpress.org/shortcodes/
 * bbPress also comes with built-in support for Akismet and BuddyPress, two very popular and very powerful WordPress plugins. If you're using either, visit your Forum Settings page and ensure that integration appears correct.
 
+== Frequently Asked Questions ==
+
+= How does bbPress assign forum roles? =
+
+Under Settings > Forums > Roles, choose what happens when a registered user without a forum role visits. Saving stores the mapped forum role on the user account. Granting the role without saving it gives forum capabilities for each request. Do nothing leaves visitors without a forum role unchanged. Users with an assigned forum role keep that role in every mode. By default, new sign-ups receive the selected forum role.
+
+By default, WordPress administrators map to Keymaster. Editors, authors, contributors, subscribers, and WordPress users without a mapped role get the selected forum role. Selecting Moderator as that role also gives Moderator to all of these users. Plugins may change the mappings. Changing the choice does not remove roles already assigned to users. The user who activates bbPress is made a Keymaster independently of this setting.
+
+Existing sites keep their previous behavior: the former checked Auto Role setting saves mapped forum roles, and the former unchecked setting grants them dynamically. Choose do nothing to skip role assignment on visits for users who do not already have a forum role. If that choice would remove your access to forum settings, bbPress keeps the previous setting and shows an error.
+
 == Developer Notes ==
 
 = Count updates in 2.6.17 =

@@ -8,6 +8,84 @@
 class BBP_Tests_Admin_Settings_Sanitization extends BBP_UnitTestCase {
 
 	/**
+	 * @ticket BBP3020
+	 * @covers ::bbp_admin_sanitize_global_access
+	 */
+	public function test_auto_role_choices_preserve_legacy_values_and_reject_invalid_input() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+
+		delete_option( '_bbp_allow_global_access' );
+		add_filter( 'sanitize_option__bbp_allow_global_access', 'bbp_admin_sanitize_global_access' );
+
+		try {
+			// Adding a missing option sanitizes twice; both passes must retain 2.
+			update_option( '_bbp_allow_global_access', '2' );
+			$this->assertSame( 2, (int) get_option( '_bbp_allow_global_access' ) );
+			$this->assertSame( 'none', bbp_get_auto_role_mode() );
+
+			update_option( '_bbp_allow_global_access', 'invalid' );
+			$this->assertSame( 'none', bbp_get_auto_role_mode() );
+			update_option( '_bbp_allow_global_access', '3' );
+			$this->assertSame( 'none', bbp_get_auto_role_mode() );
+
+			update_option( '_bbp_allow_global_access', '0' );
+			$this->assertSame( 0, (int) get_option( '_bbp_allow_global_access' ) );
+			$this->assertSame( 'dynamic', bbp_get_auto_role_mode() );
+
+			update_option( '_bbp_allow_global_access', '1' );
+			$this->assertSame( 1, (int) get_option( '_bbp_allow_global_access' ) );
+			$this->assertSame( 'save', bbp_get_auto_role_mode() );
+
+			update_option( '_bbp_allow_global_access', false );
+			$this->assertSame( 'dynamic', bbp_get_auto_role_mode() );
+			update_option( '_bbp_allow_global_access', true );
+			$this->assertSame( 'save', bbp_get_auto_role_mode() );
+		} finally {
+			remove_filter( 'sanitize_option__bbp_allow_global_access', 'bbp_admin_sanitize_global_access' );
+		}
+	}
+
+	/**
+	 * @ticket BBP3020
+	 * @covers ::bbp_admin_sanitize_global_access
+	 */
+	public function test_do_nothing_cannot_remove_current_users_dynamic_keymaster_access() {
+		require_once BBP_PLUGIN_DIR . 'includes/admin/settings.php';
+		$old_user = get_current_user_id();
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		bbp_remove_user_role( $admin_id );
+		update_option( '_bbp_allow_global_access', 0 );
+		wp_set_current_user( 0 );
+		wp_set_current_user( $admin_id );
+		add_filter( 'sanitize_option__bbp_allow_global_access', 'bbp_admin_sanitize_global_access' );
+
+		try {
+			$this->assertFalse( bbp_get_user_role( $admin_id ) );
+			$this->assertTrue( current_user_can( 'keep_gate' ) );
+			$this->assertFalse( user_can( new WP_User( $admin_id ), 'keep_gate' ) );
+
+			update_option( '_bbp_allow_global_access', '2' );
+			$this->assertSame( 'dynamic', bbp_get_auto_role_mode() );
+			$errors = get_settings_errors( '_bbp_allow_global_access' );
+			$this->assertCount( 1, $errors );
+			$this->assertSame( 'bbp_auto_role_self_lockout', $errors[0]['code'] );
+			$this->assertSame( 'error', $errors[0]['type'] );
+			wp_set_current_user( 0 );
+			wp_set_current_user( $admin_id );
+			$this->assertTrue( current_user_can( 'keep_gate' ) );
+
+			bbp_set_user_role( $admin_id, bbp_get_keymaster_role() );
+			$this->assertTrue( user_can( new WP_User( $admin_id ), 'keep_gate' ) );
+			update_option( '_bbp_allow_global_access', '2' );
+			$this->assertSame( 'none', bbp_get_auto_role_mode() );
+		} finally {
+			remove_filter( 'sanitize_option__bbp_allow_global_access', 'bbp_admin_sanitize_global_access' );
+			wp_set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @ticket BBP3262
 	 * @covers ::bbp_admin_sanitize_user_block_actions
 	 */

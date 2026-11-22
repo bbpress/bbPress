@@ -91,6 +91,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$this->assertSame( 'bbp_admin_sanitize_forums_status', $fields['bbp_settings_status']['_bbp_forums_status']['sanitize_callback'] );
 		$this->assertSame( array( 'label_for' => '_bbp_forums_status' ), $fields['bbp_settings_status']['_bbp_forums_status']['args'] );
 		$this->assertSame( 'bbp_admin_setting_callback_moderation_links', $fields['bbp_settings_users']['_bbp_moderation_links']['callback'] );
+		$this->assertSame( 'bbp_admin_sanitize_global_access', $fields['bbp_settings_users']['_bbp_allow_global_access']['sanitize_callback'] );
 		$this->assertSame( array(), $fields['bbp_settings_users']['_bbp_moderation_links']['args'] );
 		$this->assertSame( 'intval', $fields['bbp_settings_users']['_bbp_allow_moderation_links']['sanitize_callback'] );
 		$this->assertSame( 'bbp_admin_setting_callback_user_block_actions', $fields['bbp_settings_users']['_bbp_user_block_actions']['callback'] );
@@ -712,26 +713,41 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_setting_callback_global_access
 	 */
-	public function test_global_access_callback_outputs_default_role_choices() {
+	public function test_auto_role_mode_callback_outputs_two_selects_and_coherent_labels() {
 		$this->set_option( '_bbp_allow_global_access', 1 );
 		$this->set_option( '_bbp_default_role', bbp_get_moderator_role() );
 		$output = $this->capture_callback( 'bbp_admin_setting_callback_global_access' );
 
+		$this->assertSame( 2, substr_count( $output, '<select ' ) );
 		$this->assertStringContainsString( 'name="_bbp_allow_global_access"', $output );
+		$this->assertStringContainsString( 'For users without a forum role,', $output );
+		$this->assertStringContainsString( 'when they visit.', $output );
+		$this->assertStringContainsString( 'save one to their account', $output );
+		$this->assertStringContainsString( 'grant one without saving', $output );
+		$this->assertStringContainsString( 'do nothing', $output );
+		$this->assertStringContainsString( 'as the default forum role for non-administrators and sign-ups.', $output );
+		$this->assertStringContainsString( 'Plugins may change these role mappings.', $output );
+		$this->assertMatchesRegularExpression( '/value="1"\s+selected=\'selected\'/', $output );
 		$this->assertStringContainsString( 'name="_bbp_default_role"', $output );
 		foreach ( array_keys( bbp_get_dynamic_roles() ) as $role ) {
 			$this->assertStringContainsString( 'value="' . $role . '"', $output );
 		}
 		$this->assertMatchesRegularExpression( '/selected=\'selected\' value="' . bbp_get_moderator_role() . '"/', $output );
-		$this->assertStringContainsString( " checked='checked'", $output );
 		$this->assertSame( 0, substr_count( $output, "disabled='disabled'" ) );
 
 		$this->set_option( '_bbp_allow_global_access', 0 );
-		$this->assertStringNotContainsString( " checked='checked'", $this->capture_callback( 'bbp_admin_setting_callback_global_access' ) );
+		$this->assertMatchesRegularExpression( '/value="0"\s+selected=\'selected\'/', $this->capture_callback( 'bbp_admin_setting_callback_global_access' ) );
+
+		$this->set_option( '_bbp_allow_global_access', 2 );
+		$this->assertMatchesRegularExpression( '/value="2"\s+selected=\'selected\'/', $this->capture_callback( 'bbp_admin_setting_callback_global_access' ) );
 
 		bbpress()->options['_bbp_allow_global_access'] = 1;
 		bbpress()->options['_bbp_default_role']        = bbp_get_moderator_role();
 		$this->assertSame( 2, substr_count( $this->capture_callback( 'bbp_admin_setting_callback_global_access' ), "disabled='disabled'" ) );
+
+		unset( bbpress()->options['_bbp_allow_global_access'], bbpress()->options['_bbp_default_role'] );
+		bbpress()->options['_bbp_allow_global_access'] = 2;
+		$this->assertSame( 1, substr_count( $this->capture_callback( 'bbp_admin_setting_callback_global_access' ), "disabled='disabled'" ) );
 	}
 
 	/**

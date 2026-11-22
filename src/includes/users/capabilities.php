@@ -1052,6 +1052,12 @@ function bbp_set_current_user_default_role() {
 		return;
 	}
 
+	// Leave users without an explicit forum role alone when requested.
+	$auto_role_mode = bbp_get_auto_role_mode();
+	if ( 'none' === $auto_role_mode ) {
+		return;
+	}
+
 	/** Ready *****************************************************************/
 
 	// Load up bbPress once
@@ -1061,7 +1067,7 @@ function bbp_set_current_user_default_role() {
 	}
 
 	// Get whether or not to add a role to the user account
-	$add_to_site = bbp_allow_global_access();
+	$add_to_site = 'save' === $auto_role_mode;
 
 	/** Forum Role ************************************************************/
 

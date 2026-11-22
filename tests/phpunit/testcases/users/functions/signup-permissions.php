@@ -109,6 +109,28 @@ class BBP_Tests_Users_Functions_Signup_Permissions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3020
+	 * @covers ::bbp_user_add_role_on_register
+	 */
+	public function test_do_nothing_on_visit_still_assigns_default_role_during_registration() {
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$user    = get_userdata( $user_id );
+		$role    = bbp_get_user_role( $user_id );
+		if ( $role ) {
+			$user->remove_role( $role );
+		}
+		$this->assertFalse( bbp_get_user_role( $user_id ) );
+
+		update_option( '_bbp_allow_global_access', 2 );
+		update_option( '_bbp_default_role', bbp_get_moderator_role() );
+		unset( $_POST['bbp-forums-role'] );
+
+		$this->assertSame( 'none', bbp_get_auto_role_mode() );
+		bbp_user_add_role_on_register( $user_id );
+		$this->assertSame( bbp_get_moderator_role(), bbp_get_user_role( $user_id ) );
+	}
+
+	/**
 	 * @ticket BBP3262
 	 * @covers ::bbp_user_add_role_on_register
 	 * @covers ::bbp_user_add_role_on_activate

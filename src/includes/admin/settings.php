@@ -140,11 +140,11 @@ function bbp_admin_get_settings_fields() {
 					'args'              => array()
 				),
 
-				// Allow global access
+				// Automatic forum role behavior
 				'_bbp_allow_global_access' => array(
 					'title'             => esc_html__( 'Roles', 'bbpress' ),
 					'callback'          => 'bbp_admin_setting_callback_global_access',
-					'sanitize_callback' => 'intval',
+					'sanitize_callback' => 'bbp_admin_sanitize_global_access',
 					'args'              => array()
 				),
 
@@ -698,6 +698,45 @@ function bbp_admin_sanitize_default_role( $role ) {
 }
 
 /**
+ * Keep the automatic forum role choice within its three supported values.
+ *
+ * @since 2.7.0 bbPress (r8585)
+ *
+ * @param mixed $mode Submitted mode.
+ * @return int Valid option value.
+ */
+function bbp_admin_sanitize_global_access( $mode ) {
+	if ( is_bool( $mode ) ) {
+		$mode = (int) $mode;
+	}
+
+	if ( is_scalar( $mode ) && ctype_digit( (string) $mode ) ) {
+		$mode = (int) $mode;
+
+		if ( in_array( $mode, array( 0, 1, 2 ), true ) ) {
+			// Compare current access with a fresh user that has only stored caps.
+			if (
+				( 2 === $mode )
+				&& current_user_can( 'keep_gate' )
+				&& ! user_can( new WP_User( bbp_get_current_user_id() ), 'keep_gate' )
+			) {
+				add_settings_error(
+					'_bbp_allow_global_access',
+					'bbp_auto_role_self_lockout',
+					__( 'Do nothing was not saved because it would remove your access to forum settings. Have a user with an assigned Keymaster role save this change.', 'bbpress' )
+				);
+
+				return (int) get_option( '_bbp_allow_global_access', 1 );
+			}
+
+			return $mode;
+		}
+	}
+
+	return (int) get_option( '_bbp_allow_global_access', 1 );
+}
+
+/**
  * Check whether a blocking action can appear in the settings field.
  *
  * @since 2.7.0 bbPress (r8131)
@@ -1122,7 +1161,7 @@ function bbp_admin_setting_callback_anonymous() {
 }
 
 /**
- * Allow global access setting field.
+ * Automatic forum role setting field.
  *
  * @since 2.0.0 bbPress (r3378)
  *
@@ -1130,36 +1169,55 @@ function bbp_admin_setting_callback_anonymous() {
  */
 function bbp_admin_setting_callback_global_access() {
 
-	// Get the default role once rather than loop repeatedly below
+	// Get the selected mode and default role once.
+	$mode         = bbp_get_auto_role_mode();
 	$default_role = bbp_get_default_role();
 	$roles        = bbp_get_dynamic_roles();
 
-	// Start the output buffer for the select dropdown
-	ob_start(); ?>
+	// Keep both sentences translatable around their selects.
+	ob_start();
+	?>
+	<select name="_bbp_allow_global_access" id="_bbp_allow_global_access" <?php bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?>>
+		<option value="1" <?php selected( $mode, 'save' ); ?>><?php esc_html_e( 'save one to their account', 'bbpress' ); ?></option>
+		<option value="0" <?php selected( $mode, 'dynamic' ); ?>><?php esc_html_e( 'grant one without saving', 'bbpress' ); ?></option>
+		<option value="2" <?php selected( $mode, 'none' ); ?>><?php esc_html_e( 'do nothing', 'bbpress' ); ?></option>
+	</select>
+	<?php
+	$mode_select = ob_get_clean();
 
-	</label>
-	<label for="_bbp_default_role">
-		<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
-		<?php foreach ( $roles as $role => $details ) : ?>
-
-			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
-
-		<?php endforeach; ?>
-		</select>
-
-	<?php $select = ob_get_clean(); ?>
-
-	<label for="_bbp_allow_global_access">
-		<input name="_bbp_allow_global_access" id="_bbp_allow_global_access" type="checkbox" value="1" <?php checked( bbp_allow_global_access( true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
-		<?php
-		printf(
-			/* translators: %s: Default role name */
-			esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ),
-			$select
-		);
-		?>
-	</label>
-	<p class="description"><?php esc_html_e( 'Uncheck this to manually assign all user access to your forums.', 'bbpress' ); ?></p>
+	ob_start();
+	?>
+	<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
+	<?php foreach ( $roles as $role => $details ) : ?>
+		<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
+	<?php endforeach; ?>
+	</select>
+	<?php
+	$role_select = ob_get_clean();
+	?>
+	<p>
+		<label for="_bbp_allow_global_access">
+			<?php
+			printf(
+				/* translators: %s: Automatic forum role behavior selector. */
+				esc_html__( 'For users without a forum role, %s when they visit.', 'bbpress' ),
+				$mode_select
+			);
+			?>
+		</label>
+	</p>
+	<p>
+		<label for="_bbp_default_role">
+			<?php
+			printf(
+				/* translators: %s: Default forum role selector. */
+				esc_html__( 'Use %s as the default forum role for non-administrators and sign-ups.', 'bbpress' ),
+				$role_select
+			);
+			?>
+		</label>
+	</p>
+	<p class="description"><?php esc_html_e( 'Existing forum roles stay in place. Plugins may change these role mappings.', 'bbpress' ); ?></p>
 
 <?php
 }

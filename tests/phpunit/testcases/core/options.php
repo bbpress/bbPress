@@ -69,6 +69,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 
 		$this->assertSame( 0, $options['_bbp_db_version'] );
 		$this->assertSame( bbp_get_participant_role(), $options['_bbp_default_role'] );
+		$this->assertSame( 1, $options['_bbp_allow_global_access'] );
 		$this->assertSame( array(), $options['_bbp_user_block_actions'] );
 		$this->assertSame( 1, $options['_bbp_allow_moderation_links'] );
 		$this->assertFalse( $options['_bbp_moderation_links'] );
@@ -482,6 +483,28 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 			unregister_taxonomy( $taxonomy );
 			unregister_post_type( $post_type );
 		}
+	}
+
+	/**
+	 * @ticket BBP3020
+	 * @covers ::bbp_get_auto_role_mode
+	 * @covers ::bbp_allow_global_access
+	 * @covers ::bbp_is_auto_role_disabled
+	 */
+	public function test_auto_role_mode_preserves_existing_global_access_values() {
+		$this->set_option( '_bbp_allow_global_access', 1 );
+		$this->assertSame( 'save', bbp_get_auto_role_mode() );
+		$this->assertFalse( bbp_is_auto_role_disabled() );
+
+		$this->set_option( '_bbp_allow_global_access', 0 );
+		$this->assertSame( 'dynamic', bbp_get_auto_role_mode() );
+		$this->assertFalse( bbp_is_auto_role_disabled( '0' ) );
+
+		$this->set_option( '_bbp_allow_global_access', 2 );
+		$this->assertSame( 'none', bbp_get_auto_role_mode() );
+		$this->assertTrue( bbp_is_auto_role_disabled() );
+		$this->assertTrue( bbp_is_auto_role_disabled( '2' ) );
+		$this->assertFalse( bbp_allow_global_access() );
 	}
 
 	/**

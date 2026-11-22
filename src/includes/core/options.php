@@ -50,7 +50,7 @@ function bbp_get_default_options() {
 			'_bbp_allow_topic_tags'       => 1,         // Allow topic tagging
 			'_bbp_allow_search'           => 1,         // Allow forum-wide search
 			'_bbp_allow_forum_mods'       => 1,         // Allow per-forum moderation
-			'_bbp_allow_global_access'    => 1,         // Allow users from all sites to post
+			'_bbp_allow_global_access'    => 1,         // Save, grant, or skip automatic forum roles
 			'_bbp_allow_anonymous'        => 0,         // Allow anonymous posting
 			'_bbp_allow_super_mods'       => 0,         // Allow mods to edit users
 			'_bbp_allow_threaded_replies' => 0,         // Allow threaded replies
@@ -889,6 +889,22 @@ function bbp_allow_anonymous( $default = 0 ) {
 }
 
 /**
+ * Is automatic forum role assignment disabled by the Do nothing choice?
+ *
+ * @since 2.7.0 bbPress (r8585)
+ *
+ * @param mixed $setting Optional. Global-access option value. Defaults to the saved option.
+ * @return bool Whether automatic forum role assignment is disabled.
+ */
+function bbp_is_auto_role_disabled( $setting = null ) {
+	if ( null === $setting ) {
+		$setting = get_option( '_bbp_allow_global_access', 1 );
+	}
+
+	return 2 === (int) $setting;
+}
+
+/**
  * Is this forum available to all users on all sites in this installation?
  *
  * @since 2.0.0 bbPress (r3378)
@@ -899,7 +915,28 @@ function bbp_allow_anonymous( $default = 0 ) {
 function bbp_allow_global_access( $default = 1 ) {
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
+	$setting = get_option( '_bbp_allow_global_access', $default );
+	$allowed = ! bbp_is_auto_role_disabled( $setting ) && (bool) $setting;
+
+	return (bool) apply_filters( 'bbp_allow_global_access', $allowed );
+}
+
+/**
+ * Return how forum roles are automatically given to users without one.
+ *
+ * The existing option values 1 and 0 retain their save and dynamic meanings.
+ * Value 2 skips automatic forum roles without changing the legacy values.
+ *
+ * @since 2.7.0 bbPress (r8585)
+ *
+ * @return string "save", "dynamic", or "none".
+ */
+function bbp_get_auto_role_mode() {
+	if ( bbp_is_auto_role_disabled() ) {
+		return 'none';
+	}
+
+	return bbp_allow_global_access() ? 'save' : 'dynamic';
 }
 
 /**

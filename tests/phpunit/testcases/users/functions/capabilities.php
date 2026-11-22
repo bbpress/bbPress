@@ -9,6 +9,75 @@
 class BBP_Tests_Users_Functions_Capabilities extends BBP_UnitTestCase {
 
 	/**
+	 * @ticket BBP3020
+	 * @covers ::bbp_set_current_user_default_role
+	 */
+	public function test_auto_role_modes_save_grant_or_skip_without_changing_explicit_roles() {
+		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$old_user = get_current_user_id();
+		bbp_remove_user_role( $user_id );
+
+		try {
+			update_option( '_bbp_allow_global_access', 1 );
+			wp_set_current_user( 0 );
+			wp_set_current_user( $user_id );
+			$this->assertSame( bbp_get_participant_role(), bbp_get_user_role( $user_id ) );
+			$this->assertTrue( current_user_can( 'participate' ) );
+
+			bbp_remove_user_role( $user_id );
+			update_option( '_bbp_allow_global_access', 0 );
+			wp_set_current_user( 0 );
+			wp_set_current_user( $user_id );
+			$this->assertFalse( bbp_get_user_role( $user_id ) );
+			$this->assertTrue( current_user_can( 'participate' ) );
+
+			update_option( '_bbp_allow_global_access', 2 );
+			wp_set_current_user( 0 );
+			wp_set_current_user( $user_id );
+			$this->assertFalse( bbp_get_user_role( $user_id ) );
+			$this->assertFalse( current_user_can( 'spectate' ) );
+			$this->assertFalse( current_user_can( 'participate' ) );
+
+			bbp_set_user_role( $user_id, bbp_get_spectator_role() );
+			wp_set_current_user( 0 );
+			wp_set_current_user( $user_id );
+			$this->assertSame( bbp_get_spectator_role(), bbp_get_user_role( $user_id ) );
+			$this->assertTrue( current_user_can( 'spectate' ) );
+			$this->assertFalse( current_user_can( 'participate' ) );
+		} finally {
+			wp_set_current_user( $old_user );
+		}
+	}
+
+	/**
+	 * @ticket BBP3020
+	 * @covers ::bbp_set_current_user_default_role
+	 * @group multisite
+	 */
+	public function test_do_nothing_does_not_add_network_user_to_site() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'This test requires multisite.' );
+		}
+
+		$user_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$site_id  = $this->factory->blog->create();
+		$old_user = get_current_user_id();
+
+		switch_to_blog( $site_id );
+		try {
+			update_option( '_bbp_allow_global_access', 2 );
+			wp_set_current_user( 0 );
+			wp_set_current_user( $user_id );
+			$this->assertFalse( bbp_get_user_role( $user_id ) );
+			$this->assertFalse( current_user_can( 'spectate' ) );
+			$this->assertFalse( is_user_member_of_blog( $user_id, $site_id ) );
+		} finally {
+			wp_set_current_user( $old_user );
+			restore_current_blog();
+		}
+	}
+
+	/**
 	 * @covers ::bbp_set_current_user_default_role
 	 * @ticket 3794
 	 */
