@@ -171,7 +171,9 @@ jobs:
 
       - name: Run PHPUnit
         working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
-        run: composer test
+        run: |
+          composer test -- --testsuite "bbPress Admin Core Users"
+          composer test -- --testsuite "bbPress Other"
 
   integration:
     name: ${{ matrix.name }} / PHP 8.4 / WP trunk

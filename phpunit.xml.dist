@@ -7,8 +7,16 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite name="bbPress Test Suite">
+		<testsuite name="bbPress Admin Core Users">
+			<directory suffix=".php">tests/phpunit/testcases/admin/</directory>
+			<directory suffix=".php">tests/phpunit/testcases/core/</directory>
+			<directory suffix=".php">tests/phpunit/testcases/users/</directory>
+		</testsuite>
+		<testsuite name="bbPress Other">
 			<directory suffix=".php">tests/phpunit/testcases/</directory>
+			<exclude>tests/phpunit/testcases/admin/</exclude>
+			<exclude>tests/phpunit/testcases/core/</exclude>
+			<exclude>tests/phpunit/testcases/users/</exclude>
 		</testsuite>
 	</testsuites>
 	<groups>
