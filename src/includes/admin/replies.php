@@ -514,7 +514,7 @@ class BBP_Replies_Admin {
 			? $accepted_move['new']
 			: bbp_get_reply_topic_id( $reply_id );
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
-		$reply_to = ! empty( $_POST['bbp_reply_to'] ) ? bbp_validate_reply_to( (int) $_POST['bbp_reply_to'], $reply_id ) : 0;
+		$reply_to = ! empty( $_POST['bbp_reply_to'] ) ? bbp_validate_reply_to( $_POST['bbp_reply_to'], $reply_id ) : 0;
 		if ( ! empty( $reply_to ) && ( bbp_get_reply_topic_id( $reply_to ) !== $topic_id || ! current_user_can( 'read_reply', $reply_to ) ) ) {
 			$reply_to = 0;
 		}

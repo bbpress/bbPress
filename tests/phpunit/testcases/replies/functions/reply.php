@@ -1039,10 +1039,15 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 		$other_id  = $this->factory->reply->create( array( 'post_parent' => $topic_ids[1] ) );
 
 		$this->assertSame( $parent_id, bbp_validate_reply_to( $parent_id, $reply_id ) );
+		$this->assertSame( $parent_id, bbp_validate_reply_to( (string) $parent_id, $reply_id ) );
 		$this->assertSame( 0, bbp_validate_reply_to( $reply_id, $reply_id ) );
 		$this->assertSame( 0, bbp_validate_reply_to( (string) $reply_id, $reply_id ) );
 		$this->assertSame( 0, bbp_validate_reply_to( $other_id, $reply_id ) );
 		$this->assertSame( $other_id, bbp_validate_reply_to( $other_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( -$parent_id, $reply_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( $parent_id . '.5', $reply_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( $parent_id . 'e0', $reply_id ) );
+		$this->assertSame( 0, bbp_validate_reply_to( array( $parent_id ), $reply_id ) );
 	}
 
 	/**

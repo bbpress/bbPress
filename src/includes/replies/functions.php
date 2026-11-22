@@ -330,7 +330,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	/** Reply To **************************************************************/
 
 	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
-	if ( isset( $_REQUEST['bbp_reply_to'] ) && is_numeric( $_REQUEST['bbp_reply_to'] ) ) {
+	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
 		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 	}
 
@@ -695,9 +695,9 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	$reply_to = bbp_get_reply_to( $reply_id );
 
-	// Maybe sanitize Reply To, using $_REQUEST for non-JS submissions
+	// Use numeric $_REQUEST data for non-JS submissions
 	if ( isset( $_REQUEST['bbp_reply_to'] ) && is_numeric( $_REQUEST['bbp_reply_to'] ) ) {
-		$reply_to = intval( $_REQUEST['bbp_reply_to'] );
+		$reply_to = $_REQUEST['bbp_reply_to'];
 	}
 
 	// Validate Reply To
@@ -2786,7 +2786,8 @@ function bbp_list_replies( $args = array() ) {
 /**
  * Validate a `reply_to` field for hierarchical replies.
  *
- * Checks for 3 scenarios:
+ * Checks for 4 scenarios:
+ * -- The reply to ID is a positive integer or decimal integer string
  * -- The reply to ID is actually a reply
  * -- The reply to ID does not match the current reply
  * -- The reply to ID belongs to the same topic as the current reply
@@ -2796,12 +2797,19 @@ function bbp_list_replies( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5378)
  *
- * @param int $reply_to Parent reply ID to validate.
+ * @param int|string $reply_to Parent reply ID to validate.
  * @param int $reply_id Current reply ID.
  *
  * @return int Validated parent reply ID.
  */
 function bbp_validate_reply_to( $reply_to = 0, $reply_id = 0 ) {
+	// The parent reply ID must be a positive whole number
+	if ( ! is_int( $reply_to ) && ( ! is_string( $reply_to ) || ! ctype_digit( $reply_to ) ) ) {
+		return 0;
+	}
+	if ( (int) $reply_to < 1 ) {
+		return 0;
+	}
 
 	// The parent reply must actually be a reply
 	if ( ! bbp_is_reply( $reply_to ) ) {
