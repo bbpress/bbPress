@@ -2113,7 +2113,7 @@ function bbp_get_quicktags_settings( $settings = array() ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string|int $view Optional. View ID.
+ * @param string|int|false $view Optional. View ID, or false to use the current view.
  * @return void
  */
 function bbp_view_id( $view = '' ) {
@@ -2128,7 +2128,7 @@ function bbp_view_id( $view = '' ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string|int $view Optional. View ID.
+ * @param string|int|false $view Optional. View ID, or false to use the current view.
  *
  * @return string View ID, or empty string if none is set.
  */

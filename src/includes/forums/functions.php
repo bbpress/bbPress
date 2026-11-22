@@ -1500,7 +1500,7 @@ function bbp_decrease_forum_topic_count_hidden( $forum_id = 0 ) {
  * @since 2.6.17 bbPress (r7467) Use atomic metadata writes and non-negative counts.
  *
  * @param int  $forum_id         Forum ID.
- * @param int  $difference       Count adjustment. Defaults to 1.
+ * @param int|false $difference  Count adjustment, or false for no change. Defaults to 1.
  * @param bool $update_ancestors Whether to update ancestor counts. Defaults to true.
  *
  * @return int|false Forum reply count. False if there is no count change.
@@ -1559,7 +1559,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
  * @since 2.6.17 bbPress (r7467) Use atomic metadata writes and non-negative counts.
  *
  * @param int  $forum_id         Forum ID.
- * @param int  $difference       Count adjustment. Defaults to 1.
+ * @param int|false $difference  Count adjustment, or false for no change. Defaults to 1.
  * @param bool $update_ancestors Whether to update ancestor counts. Defaults to true.
  *
  * @return int|false Forum hidden reply count. False if there is no count change.
@@ -3200,7 +3200,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Get forums to exclude.
-	$forum_ids = bbp_exclude_forum_ids( 'array' );
+	$forum_ids = wp_parse_id_list( bbp_exclude_forum_ids( 'array' ) );
 
 	/**
 	 * Search matches and sitemap URLs must not reveal password-protected content.

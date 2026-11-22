@@ -384,6 +384,49 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
 	 */
+	public function test_forum_queries_parse_filtered_exclusion_id_strings() {
+		$posts   = $this->create_visibility_test_posts();
+		$post_id = $this->factory->post->create();
+		$filter  = function( $excluded, $ids, $type ) {
+			return ( 'array' === $type ) ? implode( ',', $ids ) : $excluded;
+		};
+
+		$this->set_current_user( 0 );
+		add_filter( 'bbp_exclude_forum_ids', $filter, 10, 3 );
+
+		try {
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				'post__in'  => array( $posts['public_forum'], $posts['private_forum'], $posts['hidden_forum'] ),
+				'fields'    => 'ids',
+			) );
+			$this->assertSame( array( $posts['public_forum'] ), $query->posts );
+
+			$query = new WP_Query( array(
+				'post_type'   => array( bbp_get_forum_post_type(), 'post' ),
+				'post_status' => array( bbp_get_public_status_id(), bbp_get_hidden_status_id() ),
+				'post__in'    => array( $post_id, $posts['public_forum'], $posts['hidden_forum'] ),
+				'fields'      => 'ids',
+			) );
+			$this->assertEqualSets( array( $post_id, $posts['public_forum'] ), $query->posts );
+
+			$keymaster_id = $this->factory->user->create();
+			bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+			$this->set_current_user( $keymaster_id );
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				'post__in'  => array( $posts['public_forum'], $posts['private_forum'], $posts['hidden_forum'] ),
+				'fields'    => 'ids',
+			) );
+			$this->assertEqualSets( array( $posts['public_forum'], $posts['private_forum'], $posts['hidden_forum'] ), $query->posts );
+		} finally {
+			remove_filter( 'bbp_exclude_forum_ids', $filter, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
 	public function test_forum_post_in_query_returns_no_restricted_forums() {
 		$posts = $this->create_visibility_test_posts();
 		$this->set_current_user( 0 );

@@ -520,7 +520,7 @@ function bbp_topic_id( $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2485)
  *
- * @param int|string $topic_id Optional. Topic ID.
+ * @param int|float|string|false $topic_id Optional. Topic ID, or false to use the current topic.
  * @return int The topic id.
  */
 function bbp_get_topic_id( $topic_id = 0 ) {

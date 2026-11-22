@@ -873,7 +873,7 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  *
  * @since 2.0.0 bbPress (r2544)
  *
- * @param string|int       $older_date Unix timestamp from which the difference begins.
+ * @param string|int|false $older_date Unix timestamp from which the difference begins.
  * @param string|int|false $newer_date Optional. Unix timestamp from which the
  *                                     difference ends. False for current time.
  * @param bool             $gmt Optional. Whether to use GMT timezone. Defaults to false.
@@ -888,7 +888,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
  *
  * @since 2.0.0 bbPress (r2544)
  *
- * @param string|int       $older_date Unix timestamp from which the difference begins.
+ * @param string|int|false $older_date Unix timestamp from which the difference begins.
  * @param string|int|false $newer_date Optional. Unix timestamp from which the
  *                                     difference ends. False for current time.
  * @param bool             $gmt Optional. Whether to use GMT timezone. Defaults to false.

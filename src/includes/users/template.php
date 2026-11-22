@@ -543,9 +543,9 @@ function bbp_the_term() {
  *
  * @since 2.0.0 bbPress (r2729)
  *
- * @param int|string $user_id                 Optional user ID.
- * @param bool       $displayed_user_fallback Whether to use the displayed user.
- * @param bool       $current_user_fallback   Whether to use the current user.
+ * @param int|float|string|false $user_id                 Optional user ID, or false to use a fallback.
+ * @param bool                   $displayed_user_fallback Whether to use the displayed user.
+ * @param bool                   $current_user_fallback   Whether to use the current user.
  * @return void
  */
 function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
@@ -557,9 +557,9 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
  *
  * @since 2.0.0 bbPress (r2729)
  *
- * @param int|string $user_id                 Optional user ID.
- * @param bool       $displayed_user_fallback Whether to use the displayed user.
- * @param bool       $current_user_fallback   Whether to use the current user.
+ * @param int|float|string|false $user_id                 Optional user ID, or false to use a fallback.
+ * @param bool                   $displayed_user_fallback Whether to use the displayed user.
+ * @param bool                   $current_user_fallback   Whether to use the current user.
  * @return int Validated user id.
  */
 function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {

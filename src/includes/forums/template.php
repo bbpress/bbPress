@@ -241,7 +241,7 @@ function bbp_forum_id( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2464)
  *
- * @param int|string $forum_id Optional. Forum ID.
+ * @param int|float|string|false $forum_id Optional. Forum ID, or false to use the current forum.
  * @return int The forum id.
  */
 function bbp_get_forum_id( $forum_id = 0 ) {

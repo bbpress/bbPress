@@ -14,3 +14,13 @@ function esc_attr( $text ) {}
  * @return string Escaped text.
  */
 function esc_html( $text ) {}
+
+/**
+ * WordPress converts false to an empty string during URL cleanup.
+ *
+ * @param string|false $url URL to escape, or false when unavailable.
+ * @param array<int, string>|null $protocols Allowed protocols.
+ * @param string $_context Escaping context.
+ * @return string Escaped URL.
+ */
+function esc_url( $url, $protocols = null, $_context = 'display' ) {}

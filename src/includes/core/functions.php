@@ -110,7 +110,7 @@ function bbp_get_db_version_raw() {
  * @since 2.0.0 bbPress (r3181)
  *
  * @param int $post_id  The post to update.
- * @param int $forum_id The forum id.
+ * @param int|string $forum_id The forum ID.
  * @return int Filtered forum ID passed to the post meta update.
  */
 function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
