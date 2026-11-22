@@ -394,9 +394,9 @@ class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
 		$this->assertSame( '`<coded_p>x<coded_br />y</coded_p>`', bbp_decode_callback( array( '<code><p>x<br />y</p></code>', '<code>', '<p>x<br />y</p>', '</code>' ) ) );
 
 		$block_source  = "`\n  indented\n\n\n\nline\n`";
-		$block_encoded = "\n<pre><code>\n  indented\n\nline\n</code></pre>\n";
+		$block_encoded = "\n<pre><code>\n  indented\n\n\n\nline\n</code></pre>\n";
 		$this->assertSame( $block_encoded, bbp_code_trick( $block_source ) );
-		$this->assertSame( "\n`\n  indented\n\nline\n`\n", bbp_code_trick_reverse( $block_encoded ) );
+		$this->assertSame( "\n`\n  indented\n\n\n\nline\n`\n", bbp_code_trick_reverse( $block_encoded ) );
 
 		$content = '&lt;img src="x"&gt;';
 		bbp_encode_empty_callback( $content, 0, 'img(?:\s.*?)?' );
@@ -407,6 +407,26 @@ class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
 
 		$bad = '<strong>yes</strong><img src="x"><a href="https://example.com">link</a><script>no</script> `<em>code</em>`';
 		$this->assertSame( '<strong>yes</strong><img src="x" /><a href="https://example.com">link</a>&lt;script&gt;no&lt;/script&gt; `&lt;em&gt;code&lt;/em&gt;`', bbp_encode_bad( $bad ) );
+	}
+
+	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @ticket 2693
+	 */
+	public function test_code_blocks_preserve_leading_and_trailing_blank_lines() {
+		$source   = "`\n\n\n<!DOCTYPE html>\n\n\n`";
+		$expected = "\n<pre><code>\n\n\n&lt;!DOCTYPE html&gt;\n\n\n</code></pre>\n";
+
+		$this->assertSame( $expected, bbp_code_trick( $source ) );
+		$this->assertSame( "\n{$source}\n", bbp_code_trick_reverse( $expected ) );
+
+		foreach ( array( 'forum', 'topic', 'reply' ) as $type ) {
+			$this->assertSame( trim( $expected ), trim( apply_filters( "bbp_new_{$type}_pre_content", $source ) ) );
+			$this->assertSame( trim( $expected ), trim( apply_filters( "bbp_edit_{$type}_pre_content", bbp_code_trick_reverse( $expected ) ) ) );
+		}
+
+		$this->assertStringContainsString( "<pre><code>\n\n\n&lt;!DOCTYPE html&gt;\n\n\n</code></pre>", wpautop( $expected ) );
 	}
 
 	/**

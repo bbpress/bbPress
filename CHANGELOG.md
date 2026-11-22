@@ -184,6 +184,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved blank lines within code blocks in forum, topic, and reply content.
 - Prevented duplicate forums, topics, and replies caused by leading or trailing
   whitespace, and rejected whitespace-only submitted content.
 - Reported missing converters and failed query preparation during forum imports.

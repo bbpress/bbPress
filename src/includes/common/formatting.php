@@ -428,7 +428,6 @@ function bbp_encode_callback( $matches = array() ) {
 	// Do some replacing
 	$content = htmlspecialchars( $content, ENT_QUOTES );
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
-	$content = preg_replace( "|\n\n\n+|", "\n\n", $content ) ?? $content;
 	$content = str_replace( '&amp;amp;', '&amp;', $content );
 	$content = str_replace( '&amp;lt;',  '&lt;',  $content );
 	$content = str_replace( '&amp;gt;',  '&gt;',  $content );
