@@ -213,8 +213,8 @@ class BBP_Shortcodes {
 		 *
 		 * @since 2.6.0 bbPress (r6438)
 		 *
-		 * @param string $output     The contents of the output buffer.
-		 * @param string $query_name The query name used for this output.
+		 * @param string|false $output     The contents of the output buffer, or false on failure.
+		 * @param string       $query_name The query name used for this output.
 		 */
 		return apply_filters( 'bbp_display_shortcode', $output, $query_name );
 	}

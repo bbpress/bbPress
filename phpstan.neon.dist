@@ -23,6 +23,7 @@ parameters:
         - tests/phpstan/wp-html-processor.stub
         - tests/phpstan/wp-post.stub
         - tests/phpstan/wp-query.stub
+        - tests/phpstan/wp-user.stub
         - tests/phpstan/wpdb.stub
     dynamicConstantNames:
         - DB_HOST

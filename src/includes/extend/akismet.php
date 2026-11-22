@@ -366,12 +366,12 @@ class BBP_Akismet {
 		$post_data['reporter_ip']  = bbp_current_author_ip();
 
 		// Add some reporter info
-		if ( is_object( $current_user ) ) {
+		if ( $current_user instanceof WP_User ) {
 			$post_data['reporter'] = $current_user->user_login;
 		}
 
 		// Add the current site domain
-		if ( is_object( $current_site ) ) {
+		if ( $current_site instanceof WP_Network ) {
 			$post_data['site_domain'] = $current_site->domain;
 		}
 

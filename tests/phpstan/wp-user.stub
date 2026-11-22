@@ -1,0 +1,23 @@
+<?php
+
+class WP_User {}
+
+/**
+ * WordPress resolves string user IDs through get_userdata().
+ *
+ * @phpstan-param int|string|WP_User $user
+ * @param string $capability
+ * @param mixed ...$args
+ * @return bool
+ */
+function user_can( $user, $capability, ...$args ) {}
+
+/**
+ * WordPress parses string query arguments in prepare_query().
+ */
+class WP_User_Query {
+	/**
+	 * @phpstan-param array<string, mixed>|string|null $query
+	 */
+	public function __construct( $query = null ) {}
+}

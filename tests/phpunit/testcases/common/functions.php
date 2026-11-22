@@ -296,6 +296,8 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	public function test_bbp_number_format() {
 		$this->assertSame( '1,234', bbp_number_format( 1234 ) );
 		$this->assertSame( '1 234,50', bbp_number_format( 1234.5, 2, ',', ' ' ) );
+		$this->assertSame( '1,234.50', bbp_number_format( '1234.5', 2 ) );
+		$this->assertSame( '1,234', bbp_number_format( '1234', false ) );
 		$this->assertSame( '0', bbp_number_format( 'not a number' ) );
 	}
 
@@ -304,6 +306,8 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_number_format_i18n() {
 		$this->assertSame( number_format_i18n( 1234.5, 2 ), bbp_number_format_i18n( 1234.5, 2 ) );
+		$this->assertSame( number_format_i18n( 1234.5, 2 ), bbp_number_format_i18n( '1234.5', 2 ) );
+		$this->assertSame( number_format_i18n( 1234.5 ), bbp_number_format_i18n( '1234.5', false ) );
 		$this->assertSame( number_format_i18n( 0 ), bbp_number_format_i18n( 'not a number' ) );
 	}
 

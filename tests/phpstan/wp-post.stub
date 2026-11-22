@@ -8,7 +8,28 @@ class WP_Error {}
  *
  * @property int $reply_to Reply parent ID.
  */
-class WP_Post {}
+class WP_Post {
+	/**
+	 * WordPress declares this field as string; filtered bbPress statuses may be empty.
+	 *
+	 * @var string
+	 */
+	public $post_status;
+}
+
+/**
+ * WordPress accepts post-like objects and arbitrary filter contexts here.
+ *
+ * @phpstan-param int|numeric-string|object|false|null $post
+ * @phpstan-param 'OBJECT'|'ARRAY_A'|'ARRAY_N' $output
+ * @phpstan-param string $filter
+ * @phpstan-return (
+ *     $output is 'ARRAY_A' ? non-empty-array<string, mixed>|null : (
+ *         $output is 'ARRAY_N' ? non-empty-array<int, mixed>|null : WP_Post|null
+ *     )
+ * )
+ */
+function get_post( $post = null, $output = OBJECT, $filter = 'raw' ) {}
 
 /**
  * WordPress accepts escaped post arrays and unescaped post objects. bbPress

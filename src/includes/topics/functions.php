@@ -4197,7 +4197,7 @@ function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $us
  * @since 2.6.0 bbPress (r6254)
  *
  * @param array<int, int|string> $terms    List of Term taxonomy IDs.
- * @param object $taxonomy Current taxonomy object of terms.
+ * @param WP_Taxonomy            $taxonomy Current taxonomy object of terms.
  *
  * @return void
  */

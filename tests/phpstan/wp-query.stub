@@ -29,3 +29,13 @@
  * @property int $posts_per_page
  */
 class WP_Query {}
+
+/**
+ * WordPress parses string query arguments in parse_query().
+ */
+class WP_Term_Query {
+	/**
+	 * @phpstan-param array<string, mixed>|string|null $query
+	 */
+	public function __construct( $query = '' ) {}
+}

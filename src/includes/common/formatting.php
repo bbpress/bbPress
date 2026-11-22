@@ -257,7 +257,11 @@ function bbp_wrap_orphan_list_items( $content = '', $post_id = 0 ) {
 		if ( null === $processor->class_list() ) {
 			continue;
 		}
-		$tags->change_parsing_namespace( $processor->get_namespace() );
+		$namespace = $processor->get_namespace();
+		if ( ! in_array( $namespace, array( 'html', 'math', 'svg' ), true ) ) {
+			return $content;
+		}
+		$tags->change_parsing_namespace( $namespace );
 		if ( ! $tags->next_tag( $query ) || $tags->get_tag() !== $processor->get_tag() || ( 'LI' !== $tags->get_tag() && $tags->is_tag_closer() !== $processor->is_tag_closer() ) ) {
 			return $content;
 		}
@@ -814,9 +818,11 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
 	if ( ! is_numeric( $number ) ) {
 		$number = 0;
 	}
+	$format_number   = (float) $number;
+	$format_decimals = (int) $decimals;
 
 	// Filter & return
-	return apply_filters( 'bbp_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
+	return apply_filters( 'bbp_number_format', number_format( $format_number, $format_decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
 }
 
 /**
@@ -835,9 +841,11 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 	if ( ! is_numeric( $number ) ) {
 		$number = 0;
 	}
+	$format_number   = (float) $number;
+	$format_decimals = (int) $decimals;
 
 	// Filter & return
-	return apply_filters( 'bbp_number_format_i18n', number_format_i18n( $number, $decimals ), $number, $decimals );
+	return apply_filters( 'bbp_number_format_i18n', number_format_i18n( $format_number, $format_decimals ), $number, $decimals );
 }
 
 /** Dates *********************************************************************/
@@ -971,23 +979,25 @@ function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 		}
 
 		// If $i iterates all the way to $j, then the event happened 0 seconds ago
-		if ( ! isset( $chunks[ $i ] ) ) {
+		$chunk = isset( $chunks[ $i ] ) ? $chunks[ $i ] : null;
+		if ( null === $chunk ) {
 			$output = $right_now_text;
 
 		} else {
 
 			// Set output var
-			$output = sprintf( translate_nooped_plural( $chunks[ $i ][1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
+			$output = sprintf( translate_nooped_plural( $chunk[1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
 
 			// Step two: the second chunk
-			if ( $i + 2 < $j ) {
-				$seconds2 = $chunks[ $i + 1 ][0];
-				$count2   = (int) floor( ( $since - ( $chunks[ $i ][0] * $count ) ) / $seconds2 );
+			if ( ( $i + 2 < $j ) && isset( $chunks[ $i + 1 ] ) ) {
+				$next_chunk = $chunks[ $i + 1 ];
+				$seconds2   = $next_chunk[0];
+				$count2     = (int) floor( ( $since - ( $chunk[0] * $count ) ) / $seconds2 );
 
 				// Add to output var
 				if ( ! empty( $count2 ) ) {
 					$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
-					$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
+					$output .= sprintf( translate_nooped_plural( $next_chunk[1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 				}
 			}
 		}

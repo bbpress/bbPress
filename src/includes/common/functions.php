@@ -2501,9 +2501,9 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
  *
  * @since 2.7.0 bbPress (r8358)
  *
- * @param array<int, array<string, mixed>> $contexts        Subscription object data keyed by user ID.
- * @param array<int, string>               $email_addresses Recipient email addresses.
- * @return array<int, array<string, mixed>> Subscription object data keyed by user ID.
+ * @param array<int|string, array<string, mixed>> $contexts        Subscription object data keyed by user ID.
+ * @param array<int, string>                       $email_addresses Recipient email addresses.
+ * @return array<int|string, array<string, mixed>> Subscription object data keyed by user ID.
  */
 function bbp_get_subscription_email_contexts( $contexts = array(), $email_addresses = array() ) {
 
@@ -2573,7 +2573,7 @@ function bbp_get_subscription_email_receipt( $user_id = 0, $object_id = 0, $obje
  * @param string                           $subject         Email subject.
  * @param string                           $message         Email message.
  * @param array<int, string>               $headers         Email headers.
- * @param array<int, array<string, mixed>> $subscriptions   Subscription object data keyed by user ID.
+ * @param array<int|string, array<string, mixed>> $subscriptions   Subscription object data keyed by user ID.
  * @return bool Whether any email was sent.
  */
 function bbp_send_subscription_emails( $email_addresses = array(), $subject = '', $message = '', $headers = array(), $subscriptions = array() ) {
@@ -3179,7 +3179,7 @@ Topic Link: %3$s
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}).
  * @param int   $reply_author ID of the reply author.
  *
- * @return bool True on success, false on failure.
+ * @return bool|null Whether the notice was sent, or null when the filtered message or subject is empty.
  */
 function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 	return bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
@@ -3612,7 +3612,7 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 		 *
 		 * @since 2.6.21 bbPress (r8055)
 		 *
-		 * @param string       $query      Prepared SQL query.
+		 * @param string|null  $query      Prepared SQL query, or null on failure.
 		 * @param int          $parent_id  Parent post ID.
 		 * @param string|false $post_type  Parent post type, or false if unknown.
 		 */
