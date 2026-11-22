@@ -178,6 +178,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$old_suppression = $wpdb->suppress_errors( true );
 		update_post_meta( $forum_id, '_bbp_old_forum_id', '42' );
 		$wpdb->query( "DROP TEMPORARY TABLE `{$this->groupmeta_table}`" );
+		// Keep a temporary table in front of any persistent BuddyPress table.
+		$wpdb->query( "CREATE TEMPORARY TABLE `{$this->groupmeta_table}` ( `group_id` bigint(20) unsigned NOT NULL, `meta_key` varchar(100) NOT NULL )" );
 
 		try {
 			$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
@@ -208,6 +210,8 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		update_post_meta( $forum_id, '_bbp_old_forum_id', '42' );
 		$wpdb->insert( $this->groupmeta_table, array( 'group_id' => 7, 'meta_key' => 'forum_id', 'meta_value' => '42' ) );
 		$wpdb->query( "DROP TEMPORARY TABLE `{$this->groups_table}`" );
+		// Keep a temporary table in front of any persistent BuddyPress table.
+		$wpdb->query( "CREATE TEMPORARY TABLE `{$this->groups_table}` ( `id` bigint(20) unsigned NOT NULL, PRIMARY KEY (`id`) )" );
 
 		try {
 			$result = bbp_admin_upgrade_group_forum_relationships_dry_run();
