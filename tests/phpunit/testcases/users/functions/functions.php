@@ -67,6 +67,14 @@
 	}
 
 	/**
+	 * @covers ::bbp_current_anonymous_user_data
+	 */
+	public function test_bbp_current_anonymous_user_data_does_not_echo_array() {
+		$this->expectOutputString( '' );
+		bbp_current_anonymous_user_data();
+	}
+
+	/**
 	 * @covers ::bbp_get_current_anonymous_user_data
 	 */
 	public function test_bbp_get_current_anonymous_user_data() {

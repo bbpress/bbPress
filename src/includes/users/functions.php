@@ -64,7 +64,10 @@ function bbp_is_anonymous() {
  * @return void
  */
 function bbp_current_anonymous_user_data( $key = '' ) {
-	echo esc_attr( bbp_get_current_anonymous_user_data( $key ) );
+	$data = bbp_get_current_anonymous_user_data( $key );
+	if ( is_string( $data ) ) {
+		echo esc_attr( $data );
+	}
 }
 
 /**

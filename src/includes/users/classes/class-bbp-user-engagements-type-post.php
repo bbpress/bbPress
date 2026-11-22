@@ -51,7 +51,7 @@ class BBP_User_Engagements_Type_Post extends BBP_User_Engagements_Type {
 	 */
 	public function cleanup_deleted_post( $post_id = 0 ) {
 		$post_type = get_post_type( $post_id );
-		$type      = get_post_type_object( $post_type );
+		$type      = $post_type ? get_post_type_object( $post_type ) : null;
 
 		if ( ( $type instanceof WP_Post_Type )
 			&& ! empty( $type->bbp_subscriptions )

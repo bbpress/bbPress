@@ -603,7 +603,7 @@ function bbp_admin_repair_tool_delete_batch_state( $tools, $run_id, $action, $ty
 			$sql    .= ' ORDER BY option_name LIMIT %d';
 			$args[] = $remaining + 1;
 			$names  = $db->get_col( $db->prepare( $sql, $args ) );
-			if ( ! empty( $db->last_error ) ) {
+			if ( ! is_array( $names ) || in_array( null, $names, true ) || ! empty( $db->last_error ) ) {
 				$success = false;
 				break;
 			}

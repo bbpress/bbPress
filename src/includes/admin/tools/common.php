@@ -2102,7 +2102,7 @@ function bbp_admin_repair_tool_save_option( $option, $value, $delete = false ) {
 function bbp_admin_repair_tool_cleanup_options( $prefix, $limit, $dry_run, &$created, &$cleaned ) {
 	$db    = bbp_db();
 	$names = $db->get_col( $db->prepare( "SELECT option_name FROM {$db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT %d", $db->esc_like( $prefix ) . '%', $limit + count( $cleaned ) + 1 ) );
-	if ( ! is_array( $names ) || ! empty( $db->last_error ) ) {
+	if ( ! is_array( $names ) || in_array( null, $names, true ) || ! empty( $db->last_error ) ) {
 		return array( false, 1, false );
 	}
 	$names = array_diff( array_unique( array_merge( $names, array_keys( $created ) ) ), array_keys( $cleaned ) );

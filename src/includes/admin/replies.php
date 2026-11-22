@@ -1334,7 +1334,8 @@ function bbp_ajax_reply_topic_forum() {
 	}
 
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
-	if ( ! bbp_user_can_move_reply_to_topic( bbp_get_reply( $reply_id ), $topic_id, $forum_id ) ) {
+	$reply = bbp_get_reply( $reply_id );
+	if ( ! $reply || ! bbp_user_can_move_reply_to_topic( $reply, $topic_id, $forum_id ) ) {
 		wp_send_json_error( array( 'message' => __( 'You cannot move this reply.', 'bbpress' ) ), 403 );
 	}
 

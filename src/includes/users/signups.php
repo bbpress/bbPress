@@ -166,7 +166,7 @@ function bbp_user_add_role_on_register( $user_id = '' ) {
 
 	// Set only a valid role; an empty filtered value must not remove one.
 	if ( bbp_is_valid_role( $valid_role ) ) {
-		bbp_set_user_role( $user_id, $valid_role );
+		bbp_set_user_role( (int) $user_id, $valid_role );
 	}
 }
 

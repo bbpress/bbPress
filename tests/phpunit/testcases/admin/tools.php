@@ -1998,6 +1998,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$null_db = new class( $db ) {
 			public $options;
 			public $last_error = '';
+			public $rows = null;
 			private $db;
 
 			public function __construct( $db ) {
@@ -2014,7 +2015,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			}
 
 			public function get_col( $query ) {
-				return null;
+				return $this->rows;
 			}
 		};
 		$filter = static function ( $object, $name ) use ( $null_db ) {
@@ -2026,6 +2027,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		add_filter( 'bbp_get_global_object', $filter, 10, 2 );
 		try {
 			$this->assertFalse( bbp_admin_repair_tool_scratch_values( 'bbp-test', str_repeat( 'a', 32 ), 'rows' ) );
+			$this->assertSame( array( false, 1, false ), bbp_admin_repair_tool_cleanup_options( 'bbp_test_', 1, false, $created, $cleaned ) );
+			$null_db->rows = array( null );
 			$this->assertSame( array( false, 1, false ), bbp_admin_repair_tool_cleanup_options( 'bbp_test_', 1, false, $created, $cleaned ) );
 			$this->assertSame( array(), $created );
 			$this->assertSame( array(), $cleaned );

@@ -325,7 +325,7 @@ function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 
 	$topics  = bbp_get_user_topic_count( $user_id, true );
 	$replies = bbp_get_user_reply_count( $user_id, true );
-	$count   = $topics + $replies;
+	$count   = (int) $topics + (int) $replies;
 	$filter  = ( true === $integer )
 		? 'bbp_get_user_post_count_int'
 		: 'bbp_get_user_post_count';

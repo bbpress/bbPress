@@ -241,7 +241,7 @@ function bbp_delete_options_with_prefix( $prefix = '' ) {
 	$pattern = $bbp_db->esc_like( $prefix ) . '%';
 	do {
 		$names = $bbp_db->get_col( $bbp_db->prepare( "SELECT option_name FROM {$bbp_db->options} WHERE option_name LIKE %s ORDER BY option_name LIMIT 100", $pattern ) );
-		if ( ! empty( $bbp_db->last_error ) ) {
+		if ( ! is_array( $names ) || in_array( null, $names, true ) || ! empty( $bbp_db->last_error ) ) {
 			return false;
 		}
 		foreach ( $names as $name ) {

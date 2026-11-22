@@ -101,6 +101,17 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 		$double_count = bbp_get_user_post_count( $u, true );
 		$this->assertSame( $double_value, $double_count );
 
+		$filtered_topics  = static function() { return '4'; };
+		$filtered_replies = static function() { return false; };
+		add_filter( 'bbp_get_user_topic_count_int', $filtered_topics );
+		add_filter( 'bbp_get_user_reply_count_int', $filtered_replies );
+		try {
+			$this->assertSame( 4, bbp_get_user_post_count( $u, true ) );
+		} finally {
+			remove_filter( 'bbp_get_user_topic_count_int', $filtered_topics );
+			remove_filter( 'bbp_get_user_reply_count_int', $filtered_replies );
+		}
+
 		// Output
 		$double_formatted_value = bbp_number_format( $double_value );
 		$this->expectOutputString( $double_formatted_value );

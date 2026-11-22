@@ -253,6 +253,53 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_delete_options_with_prefix
+	 */
+	public function test_bbp_delete_options_with_prefix_rejects_missing_or_invalid_rows() {
+		$option = '_bbp_tool_batch_test_missing_rows';
+		$this->set_option( $option, 'keep' );
+		$db = bbp_db();
+		$test_db = new class( $db ) {
+			public $options;
+			public $last_error = '';
+			public $rows;
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db      = $db;
+				$this->options = $db->options;
+			}
+
+			public function esc_like( $text ) {
+				return $this->db->esc_like( $text );
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_col( $query ) {
+				return $this->rows;
+			}
+		};
+		$filter = static function ( $object, $name ) use ( $test_db ) {
+			return ( 'wpdb' === $name ) ? $test_db : $object;
+		};
+
+		add_filter( 'bbp_get_global_object', $filter, 10, 2 );
+		try {
+			foreach ( array( null, array( $option, null ) ) as $rows ) {
+				$test_db->rows = $rows;
+				$this->assertFalse( bbp_delete_options_with_prefix( '_bbp_tool_batch_' ) );
+				$this->assertSame( 'keep', get_option( $option ) );
+			}
+		} finally {
+			remove_filter( 'bbp_get_global_object', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_setup_option_filters
 	 */
 	public function test_bbp_setup_option_filters_supports_custom_defaults() {

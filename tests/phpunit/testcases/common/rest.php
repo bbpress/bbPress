@@ -376,6 +376,18 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers BBP_REST_Posts_Controller::check_read_permission
+	 */
+	public function test_read_permission_rejects_unregistered_post_type() {
+		$post            = get_post( $this->factory->topic->create() );
+		$post->post_type = 'bbp_missing_post_type';
+		$controller      = new BBP_REST_Posts_Controller( bbp_get_topic_post_type() );
+
+		$this->assertFalse( $controller->check_read_permission( $post ) );
+	}
+
+	/**
 	 * Public forum content inherits a password from its forum ancestors.
 	 *
 	 * @covers BBP_REST_Posts_Controller::check_read_permission

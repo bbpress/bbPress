@@ -2480,7 +2480,8 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 	// Get post ancestors
 	if ( is_singular() || bbp_is_forum_edit() || bbp_is_topic_edit() || bbp_is_reply_edit() ) {
-		$ancestors = array_reverse( (array) get_post_ancestors( get_the_ID() ) );
+		$post_id   = get_the_ID();
+		$ancestors = $post_id ? array_reverse( (array) get_post_ancestors( $post_id ) ) : array();
 	}
 
 	// Do we want to include a link to home?

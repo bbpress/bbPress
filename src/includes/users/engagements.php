@@ -763,7 +763,7 @@ function bbp_get_user_object_ids( $args = array() ) {
  *
  * @param int $user_id User id.
  *
- * @return list<int> Return array of forum ids, or empty array.
+ * @return array<int, int|WP_Post> Forum IDs, or posts when query fields are overridden.
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
@@ -783,7 +783,7 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return list<int> Return array of topic ids, or empty array.
+ * @return array<int, int|WP_Post> Topic IDs, or posts when query fields are overridden.
  */
 function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(

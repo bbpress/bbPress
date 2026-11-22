@@ -3254,7 +3254,7 @@ function bbp_chunk_emails( $args = array() ) {
 	$bcc_headers = preg_grep( $match, $args['headers'] );
 
 	// Bail if less than $max_num recipients
-	if ( empty( $bcc_headers ) || ( count( $bcc_headers ) < $max_num ) ) {
+	if ( false === $old_headers || empty( $bcc_headers ) || ( count( $bcc_headers ) < $max_num ) ) {
 		return $args;
 	}
 

@@ -695,7 +695,7 @@ function bbp_subscriptions_handler( $action = '' ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array<int|string, int|string> Return array of subscribed forum ids, or empty array.
+ * @return array<int, int|WP_Post> Forum IDs, or posts when query fields are overridden.
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
@@ -715,7 +715,7 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id.
  *
- * @return array<int|string, int|string> Return array of subscribed topic ids, or empty array.
+ * @return array<int, int|WP_Post> Topic IDs, or posts when query fields are overridden.
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids(
