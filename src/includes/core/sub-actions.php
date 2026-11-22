@@ -824,6 +824,15 @@ function bbp_filter_oembed_request_post_id( $post_id = 0 ) {
  * @return int Canonical redirect post ID, or zero when none was requested.
  */
 function bbp_get_canonical_redirect_post_id( $requested_url = '' ) {
+
+	// Explicitly trust an existing 404 post ID.
+	if ( is_404() ) {
+		$post_id = max( 0, (int) get_query_var( 'p' ), (int) get_query_var( 'page_id' ), (int) get_query_var( 'attachment_id' ) );
+		if ( $post_id ) {
+			return $post_id;
+		}
+	}
+
 	$query = wp_parse_url( $requested_url, PHP_URL_QUERY );
 	if ( empty( $query ) ) {
 		return 0;
