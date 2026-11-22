@@ -2,6 +2,12 @@
 
 // PHPStan requires referenced classes in the stub file itself.
 class WP_Error {}
+
+/**
+ * bbPress adds a reply parent ID when preparing reply rows for display.
+ *
+ * @property int $reply_to Reply parent ID.
+ */
 class WP_Post {}
 
 /**

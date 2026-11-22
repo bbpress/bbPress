@@ -49,6 +49,13 @@ class BBP_Tests_Replies_Template_Links extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_reply_to_link
+	 */
+	public function test_bbp_get_reply_to_link_with_missing_reply() {
+		$this->assertNull( bbp_get_reply_to_link( array( 'id' => 999999 ) ) );
+	}
+
+	/**
 	 * @covers ::bbp_cancel_reply_to_link
 	 * @covers ::bbp_get_cancel_reply_to_link
 	 */

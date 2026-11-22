@@ -233,7 +233,7 @@ function bbp_has_topics( $args = array() ) {
 	$bbp->topic_query = new WP_Query( $r );
 
 	// Maybe prime last active posts
-	if ( ! empty( $r['update_post_family_cache'] ) ) {
+	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->topic_query->posts ) ) {
 		bbp_update_post_family_caches( $bbp->topic_query->posts );
 	}
 
@@ -387,8 +387,16 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 	// Default sticky posts array
 	$sticky_topics = array();
 
+	// A posts filter may leave no rows for the sticky pass.
+	if ( ! is_array( $query->posts ) ) {
+		return;
+	}
+
 	// Loop through posts
 	foreach ( $query->posts as $key => $post ) {
+		if ( ! ( $post instanceof WP_Post ) ) {
+			continue;
+		}
 
 		// Looking for stickies in this query loop, and stash & unset them
 		if ( in_array( $post->ID, $stickies, true ) ) {
@@ -478,6 +486,9 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 
 	// Separate supers from forums
 	foreach ( $sticky_topics as $post ) {
+		if ( ! ( $post instanceof WP_Post ) ) {
+			continue;
+		}
 		if ( in_array( $post->ID, $super_stickies, true ) ) {
 			$ordered_stickies['supers'][] = $post;
 		} elseif ( in_array( $post->ID, $forum_stickies, true ) ) {
@@ -698,7 +709,9 @@ function bbp_get_topic_archive_title( $title = '' ) {
 		// Default to topic post type name label
 		} else {
 			$tto   = get_post_type_object( bbp_get_topic_post_type() );
-			$title = $tto->labels->name;
+			if ( $tto instanceof WP_Post_Type ) {
+				$title = $tto->labels->name;
+			}
 		}
 	}
 
@@ -890,7 +903,8 @@ function bbp_get_topic_pagination( $args = array() ) {
 	);
 
 	// Slug must be checked for topics that have never been approved/published
-	$has_slug = bbp_get_topic( $r['topic_id'] )->post_name;
+	$topic    = bbp_get_topic( $r['topic_id'] );
+	$has_slug = ( $topic instanceof WP_Post ) ? $topic->post_name : '';
 
 	// Get the topic permalink
 	$topic_permalink = bbp_get_topic_permalink( $r['topic_id'] );

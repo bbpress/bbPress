@@ -611,7 +611,10 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			<?php while ( $widget_query->have_posts() ) :
 
-				$widget_query->the_post(); ?>
+				$widget_query->the_post();
+				if ( ! ( $widget_query->post instanceof WP_Post ) ) {
+					continue;
+				} ?>
 
 				<li <?php echo ( bbp_get_forum_id() === $widget_query->post->ID ? ' class="bbp-forum-widget-current-forum"' : '' ); ?>>
 					<a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>">
@@ -870,7 +873,7 @@ class BBP_Topics_Widget extends WP_Widget {
 			return;
 		}
 
-		if ( ! empty( $settings['show_date'] ) ) {
+		if ( ! empty( $settings['show_date'] ) && is_array( $widget_query->posts ) ) {
 			bbp_update_post_family_caches( $widget_query->posts );
 		}
 
@@ -888,6 +891,9 @@ class BBP_Topics_Widget extends WP_Widget {
 			<?php while ( $widget_query->have_posts() ) :
 
 				$widget_query->the_post();
+				if ( ! ( $widget_query->post instanceof WP_Post ) ) {
+					continue;
+				}
 				$topic_id    = bbp_get_topic_id( $widget_query->post->ID );
 				$author_link = '';
 
@@ -1272,6 +1278,9 @@ class BBP_Replies_Widget extends WP_Widget {
 			<?php while ( $widget_query->have_posts() ) :
 
 				$widget_query->the_post();
+				if ( ! ( $widget_query->post instanceof WP_Post ) ) {
+					continue;
+				}
 				$reply_id = bbp_get_reply_id( $widget_query->post->ID );
 				$topic_id = bbp_get_reply_topic_id( $reply_id );
 

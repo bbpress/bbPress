@@ -146,7 +146,7 @@ function bbp_ajax_headers() {
  * @param string $content Response content.
  * @param int    $status  Response status code. Defaults to -1.
  * @param array<string, mixed> $extras Additional response fields.
- * @return void
+ * @return never
  */
 function bbp_ajax_response( $success = false, $content = '', $status = -1, $extras = array() ) {
 

@@ -2887,9 +2887,8 @@ function bbp_get_user_languages_dropdown( $args = array() ) {
 		: bbp_get_displayed_user_id();
 
 	// Get user locale
-	$user_locale = ! empty( $user_id )
-		? get_userdata( $user_id )->locale
-		: 'site-default';
+	$user        = ! empty( $user_id ) ? get_userdata( $user_id ) : false;
+	$user_locale = ( $user instanceof WP_User ) ? $user->locale : 'site-default';
 
 	// Get all languages
 	$languages = get_available_languages();

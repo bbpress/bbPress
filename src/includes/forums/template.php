@@ -183,7 +183,7 @@ function bbp_has_forums( $args = array() ) {
 	$bbp->forum_query = new WP_Query( $r );
 
 	// Maybe prime last active posts
-	if ( ! empty( $r['update_post_family_cache'] ) ) {
+	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->forum_query->posts ) ) {
 		bbp_update_post_family_caches( $bbp->forum_query->posts );
 	}
 
@@ -465,7 +465,9 @@ function bbp_get_forum_archive_title( $title = '' ) {
 		// Default to forum post type name label
 		} else {
 			$fto    = get_post_type_object( bbp_get_forum_post_type() );
-			$title  = $fto->labels->name;
+			if ( $fto instanceof WP_Post_Type ) {
+				$title = $fto->labels->name;
+			}
 		}
 	}
 

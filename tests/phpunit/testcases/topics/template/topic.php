@@ -368,6 +368,13 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_topic_pagination
+	 */
+	public function test_bbp_get_topic_pagination_with_missing_topic() {
+		$this->assertNull( bbp_get_topic_pagination( array( 'topic_id' => 999999 ) ) );
+	}
+
+	/**
 	 * @covers ::bbp_topic_forum_title
 	 * @covers ::bbp_get_topic_forum_title
 	 */

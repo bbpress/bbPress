@@ -145,18 +145,6 @@ parameters:
 			path: src/includes/forums/template.php
 
 		-
-			message: '#^Access to an undefined property WP_Post\:\:\$reply_to\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
-			message: '#^Cannot access property \$reply_to on int\|WP_Post\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: src/includes/replies/template.php
-
-		-
 			message: '#^Variable \$parent_id in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1

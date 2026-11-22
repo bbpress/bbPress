@@ -1990,6 +1990,24 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_title
+	 */
+	public function test_title_with_missing_profile_user() {
+		$user_id = function() { return 999999; };
+		add_filter( 'bbp_is_single_user', '__return_true' );
+		add_filter( 'bbp_is_single_user_topics', '__return_true' );
+		add_filter( 'bbp_get_user_id', $user_id );
+
+		try {
+			$this->assertSame( 'Original', bbp_title( 'Original' ) );
+		} finally {
+			remove_filter( 'bbp_is_single_user', '__return_true' );
+			remove_filter( 'bbp_is_single_user_topics', '__return_true' );
+			remove_filter( 'bbp_get_user_id', $user_id );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_no_title_status_hints
 	 */
 	public function test_no_title_status_hints_only_removes_bbpress_prefixes() {

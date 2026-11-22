@@ -212,7 +212,7 @@ function bbp_has_replies( $args = array() ) {
 	$bbp->reply_query = new WP_Query( $r );
 
 	// Maybe prime the post author caches
-	if ( ! empty( $r['update_post_family_cache'] ) ) {
+	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->reply_query->posts ) ) {
 		bbp_update_post_family_caches( $bbp->reply_query->posts );
 	}
 
@@ -229,10 +229,13 @@ function bbp_has_replies( $args = array() ) {
 	}
 
 	// Only add reply to if query returned results
-	if ( ! empty( $bbp->reply_query->found_posts ) ) {
+	if ( ! empty( $bbp->reply_query->found_posts ) && is_array( $bbp->reply_query->posts ) ) {
 
 		// Get reply to for each reply
 		foreach ( $bbp->reply_query->posts as &$post ) {
+			if ( ! ( $post instanceof WP_Post ) ) {
+				continue;
+			}
 
 			// Check for reply post type
 			if ( bbp_get_reply_post_type() === $post->post_type ) {
@@ -250,7 +253,7 @@ function bbp_has_replies( $args = array() ) {
 	}
 
 	// Only add pagination if query returned results
-	if ( ! empty( $bbp->reply_query->found_posts ) && ! empty( $bbp->reply_query->posts_per_page ) ) {
+	if ( ! empty( $bbp->reply_query->found_posts ) && ! empty( $bbp->reply_query->posts_per_page ) && is_array( $bbp->reply_query->posts ) ) {
 
 		// Figure out total pages
 		if ( true === $r['hierarchical'] ) {
@@ -1738,12 +1741,15 @@ function bbp_get_reply_to_link( $args = array() ) {
 		'get_reply_to_link'
 	);
 
-	// Get the reply to use it's ID and post_parent
-	$reply    = bbp_get_reply( $r['id'] );
+	// Get the reply and its topic ID
+	$reply = bbp_get_reply( $r['id'] );
+	if ( ! ( $reply instanceof WP_Post ) ) {
+		return null;
+	}
 	$topic_id = bbp_get_reply_topic_id( $reply->ID );
 
-	// Bail if no reply or user cannot reply
-	if ( empty( $reply ) || empty( $topic_id ) || bbp_is_single_reply() || ! bbp_current_user_can_access_create_reply_form() ) {
+	// Bail if no topic or user cannot reply
+	if ( empty( $topic_id ) || bbp_is_single_reply() || ! bbp_current_user_can_access_create_reply_form() ) {
 		return null;
 	}
 

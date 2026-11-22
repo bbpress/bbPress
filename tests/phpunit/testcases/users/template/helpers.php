@@ -172,6 +172,25 @@ class BBP_Tests_Users_Template_Helpers extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_user_languages_dropdown
+	 */
+	public function test_user_language_dropdown_with_missing_user() {
+		$selected = null;
+		$filter   = function( $retval, $args ) use ( &$selected ) {
+			$selected = $args['selected'];
+			return $retval;
+		};
+		add_filter( 'bbp_get_user_languages_dropdown', $filter, 10, 2 );
+
+		try {
+			bbp_get_user_languages_dropdown( array( 'user_id' => 999999 ) );
+			$this->assertSame( 'site-default', $selected );
+		} finally {
+			remove_filter( 'bbp_get_user_languages_dropdown', $filter, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_user_profile_form_post_request
 	 */
 	public function test_user_profile_request_requires_post_and_valid_nonce() {

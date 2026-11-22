@@ -2891,6 +2891,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	} elseif ( bbp_is_single_user() ) {
 		// Is user viewing their own profile?
 		$is_user_home = bbp_is_user_home();
+		$user         = ( true === $is_user_home ) ? false : get_userdata( bbp_get_user_id() );
 
 		// User mention history
 		if ( bbp_is_single_user_mentions() ) {
@@ -2900,8 +2901,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		} elseif ( bbp_is_single_user_topics() ) {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Topics', 'bbpress' );
-			} else {
-				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+			} elseif ( $user instanceof WP_User ) {
+				$new_title['text'] = $user->display_name;
 				/* translators: user's display name */
 				$new_title['format'] = esc_attr__( "%s's Topics", 'bbpress' );
 			}
@@ -2910,8 +2911,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		} elseif ( bbp_is_single_user_replies() ) {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Replies', 'bbpress' );
-			} else {
-				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+			} elseif ( $user instanceof WP_User ) {
+				$new_title['text'] = $user->display_name;
 				/* translators: user's display name */
 				$new_title['format'] = esc_attr__( "%s's Replies", 'bbpress' );
 			}
@@ -2920,8 +2921,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		} elseif ( bbp_is_favorites() ) {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Favorites', 'bbpress' );
-			} else {
-				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+			} elseif ( $user instanceof WP_User ) {
+				$new_title['text'] = $user->display_name;
 				/* translators: user's display name */
 				$new_title['format'] = esc_attr__( "%s's Favorites", 'bbpress' );
 			}
@@ -2930,8 +2931,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		} elseif ( bbp_is_subscriptions() ) {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Subscriptions', 'bbpress' );
-			} else {
-				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+			} elseif ( $user instanceof WP_User ) {
+				$new_title['text'] = $user->display_name;
 				/* translators: user's display name */
 				$new_title['format'] = esc_attr__( "%s's Subscriptions", 'bbpress' );
 			}
@@ -2941,8 +2942,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		} else {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Profile', 'bbpress' );
-			} else {
-				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+			} elseif ( $user instanceof WP_User ) {
+				$new_title['text'] = $user->display_name;
 				/* translators: user's display name */
 				$new_title['format'] = esc_attr__( "%s's Profile", 'bbpress' );
 			}
@@ -2956,9 +2957,12 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
 		// Other user
 		} else {
-			$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
-			/* translators: %s: User's display name */
-			$new_title['format'] = esc_attr__( "Edit %s's Profile", 'bbpress' );
+			$user = get_userdata( bbp_get_user_id() );
+			if ( $user instanceof WP_User ) {
+				$new_title['text'] = $user->display_name;
+				/* translators: %s: User's display name */
+				$new_title['format'] = esc_attr__( "Edit %s's Profile", 'bbpress' );
+			}
 		}
 
 	/* Views **************************************************************** */
