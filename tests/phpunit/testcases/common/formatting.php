@@ -238,6 +238,26 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 class BBP_Tests_Common_Formatting extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_code_trick
+	 * @covers ::bbp_code_trick_reverse
+	 * @ticket 2693
+	 */
+	public function test_code_blocks_preserve_blank_lines() {
+		$source   = "`\n\n\n<!DOCTYPE html>\n\n\nInside\n\n\n`";
+		$expected = "\n<pre><code>\n\n\n&lt;!DOCTYPE html&gt;\n\n\nInside\n\n\n</code></pre>\n";
+
+		$this->assertSame( $expected, bbp_code_trick( $source ) );
+		$this->assertSame( "\n{$source}\n", bbp_code_trick_reverse( $expected ) );
+
+		foreach ( array( 'forum', 'topic', 'reply' ) as $type ) {
+			$this->assertSame( trim( $expected ), trim( apply_filters( "bbp_new_{$type}_pre_content", $source ) ) );
+			$this->assertSame( trim( $expected ), trim( apply_filters( "bbp_edit_{$type}_pre_content", bbp_code_trick_reverse( $expected ) ) ) );
+		}
+
+		$this->assertStringContainsString( "<pre><code>\n\n\n&lt;!DOCTYPE html&gt;\n\n\nInside\n\n\n</code></pre>", wpautop( $expected ) );
+	}
+
+	/**
 	 * Edit-content filters that remove KSES for users with unfiltered HTML.
 	 *
 	 * @return array

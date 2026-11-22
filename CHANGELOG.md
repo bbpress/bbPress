@@ -20,6 +20,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Preserved blank lines within code blocks in forum, topic, and reply content.
 - Stopped sending subscription notifications to a placeholder no-reply
   address when subscribers receive them by Bcc.
 - Fixed forum moderator replacement and removal with term and user engagement
