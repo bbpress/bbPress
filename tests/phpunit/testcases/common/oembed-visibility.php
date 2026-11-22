@@ -823,6 +823,93 @@ class BBP_Tests_Common_Oembed_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_canonical_redirect_post_id
+	 * @covers ::bbp_do_not_redirect_restricted_posts
+	 */
+	public function test_numeric_permalink_canonical_redirects_respect_forum_visibility() {
+		$this->set_permalink_structure( '/archives/%post_id%' );
+
+		$public_forum_id  = $this->factory->forum->create();
+		$private_forum_id = $this->factory->forum->create();
+		$hidden_forum_id  = $this->factory->forum->create();
+		$child_forum_id   = $this->factory->forum->create( array( 'post_parent' => $private_forum_id ) );
+		$hidden_child_id  = $this->factory->forum->create( array( 'post_parent' => $hidden_forum_id ) );
+		$post_id          = self::factory()->post->create();
+		$participant_id   = self::factory()->user->create();
+		$keymaster_id     = self::factory()->user->create();
+		$topics           = array();
+		$replies          = array();
+
+		bbp_privatize_forum( $private_forum_id, bbp_get_public_status_id() );
+		bbp_hide_forum( $hidden_forum_id, bbp_get_public_status_id() );
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+
+		foreach ( array( $public_forum_id, $private_forum_id, $hidden_forum_id, $child_forum_id, $hidden_child_id ) as $forum_id ) {
+			$topic_id          = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+			$topics[ $forum_id ] = $topic_id;
+			$replies[ $forum_id ] = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'reply_meta' => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ) ) );
+		}
+
+		foreach ( array( 0 => array( $private_forum_id, $hidden_forum_id, $child_forum_id, $hidden_child_id ), $participant_id => array( $hidden_forum_id, $hidden_child_id ) ) as $user_id => $restricted_forums ) {
+			$this->set_current_user( $user_id );
+			foreach ( $restricted_forums as $forum_id ) {
+				foreach ( array( $topics[ $forum_id ], $replies[ $forum_id ] ) as $restricted_id ) {
+					$url = home_url( '/archives/' . $restricted_id );
+					$this->go_to( $url );
+					$this->assertTrue( is_404() );
+					$this->assertSame( $restricted_id, (int) get_query_var( 'p' ) );
+					$this->assertSame( $restricted_id, bbp_get_canonical_redirect_post_id( $url ) );
+					$this->assertNull( redirect_canonical( $url, false ) );
+				}
+			}
+		}
+
+		$this->set_current_user( 0 );
+		foreach ( array( $private_forum_id, $hidden_forum_id ) as $forum_id ) {
+			foreach ( array( $topics[ $forum_id ], $replies[ $forum_id ] ) as $restricted_id ) {
+				$url = home_url( '/archives/' . $restricted_id . '?source=lab' );
+				$this->go_to( $url );
+				$this->assertNull( redirect_canonical( $url, false ) );
+			}
+		}
+
+		foreach ( array( $topics[ $public_forum_id ], $replies[ $public_forum_id ] ) as $public_id ) {
+			$url = home_url( '/archives/' . $public_id );
+			$this->go_to( $url );
+			$this->assertSame( get_permalink( $public_id ), redirect_canonical( $url, false ) );
+		}
+		$url = home_url( '/?p=' . $post_id );
+		$this->go_to( $url );
+		$this->assertSame( get_permalink( $post_id ), redirect_canonical( $url, false ) );
+
+		$this->set_current_user( $participant_id );
+		foreach ( array( $topics[ $private_forum_id ], $replies[ $private_forum_id ], $topics[ $child_forum_id ], $replies[ $child_forum_id ] ) as $private_id ) {
+			$url = home_url( '/archives/' . $private_id );
+			$this->go_to( $url );
+			$this->assertSame( get_permalink( $private_id ), redirect_canonical( $url, false ) );
+		}
+
+		$this->set_current_user( $keymaster_id );
+		foreach ( array( $topics[ $hidden_forum_id ], $replies[ $hidden_forum_id ] ) as $hidden_id ) {
+			$url = home_url( '/archives/' . $hidden_id );
+			$this->go_to( $url );
+			$this->assertSame( get_permalink( $hidden_id ), redirect_canonical( $url, false ) );
+		}
+
+		// The literal base of a numeric permalink does not affect visibility.
+		$this->set_permalink_structure( '/entries/%post_id%' );
+		$this->set_current_user( 0 );
+		foreach ( array( $topics[ $private_forum_id ], $replies[ $private_forum_id ], $topics[ $hidden_forum_id ], $replies[ $hidden_forum_id ] ) as $restricted_id ) {
+			$url = home_url( '/entries/' . $restricted_id );
+			$this->go_to( $url );
+			$this->assertTrue( is_404() );
+			$this->assertSame( $restricted_id, (int) get_query_var( 'p' ) );
+			$this->assertNull( redirect_canonical( $url, false ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_reply_title_fallback
 	 */
 	public function test_reply_title_fallback_does_not_reveal_unreadable_topic_title() {
