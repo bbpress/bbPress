@@ -589,7 +589,7 @@ function bbp_get_unique_array_values( $array = array() ) {
  *
  * @param mixed $arr Value or array to get string values of.
  *
- * @return list<string> Non-empty string values.
+ * @return list<non-empty-string> Non-empty string values.
  */
 function bbp_get_string_array_values( $arr = array() ) {
 	$retval = array();

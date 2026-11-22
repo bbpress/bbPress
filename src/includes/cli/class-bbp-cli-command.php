@@ -116,11 +116,11 @@ abstract class BBP_CLI_Command {
 	protected function change( $value, $post_type, $cap, $callback, $success, $state_check = '' ) {
 		$id = $this->post_id( $value, $post_type );
 		$this->require_cap( $cap, $id );
-		if ( $state_check && ! call_user_func( $state_check, $id ) ) {
+		if ( $state_check && ( ! is_callable( $state_check ) || ! call_user_func( $state_check, $id ) ) ) {
 			WP_CLI::error( __( 'The forum item is not in a valid state for this command.', 'bbpress' ) );
 		}
 
-		if ( ! call_user_func( $callback, $id ) ) {
+		if ( ! is_callable( $callback ) || ! call_user_func( $callback, $id ) ) {
 			WP_CLI::error( __( 'The forum item could not be changed, or is already in that state.', 'bbpress' ) );
 		}
 

@@ -1946,7 +1946,8 @@ function bbp_get_the_content( $args = array() ) {
 	}
 
 	// Assume we are not editing
-	$post_content = call_user_func( 'bbp_get_form_' . $r['context'] . '_content' );
+	$content_callback = 'bbp_get_form_' . $r['context'] . '_content';
+	$post_content     = is_callable( $content_callback ) ? call_user_func( $content_callback ) : '';
 
 	// Start an output buffor
 	ob_start();

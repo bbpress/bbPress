@@ -210,6 +210,9 @@ function bbp_urlize_enqueueable( $file = '' ) {
  * @return string|false The style URL if located, false otherwise.
  */
 function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = false, $media = 'all' ) {
+	if ( '' === $handle ) {
+		return false;
+	}
 
 	// Attempt to locate an enqueueable
 	$located = bbp_locate_enqueueable( $file );
@@ -224,6 +227,10 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
 
 		// Make path to file relative to site URL
 		$located = bbp_urlize_enqueueable( $located );
+		if ( '' === $located ) {
+			return false;
+		}
+		$deps = bbp_get_string_array_values( $deps );
 
 		// Register the style
 		wp_register_style( $handle, $located, $deps, $ver, $media );
@@ -254,6 +261,9 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  * @return string|false The script URL if located, false otherwise.
  */
 function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = false ) {
+	if ( '' === $handle ) {
+		return false;
+	}
 
 	// Attempt to locate an enqueueable
 	$located = bbp_locate_enqueueable( $file );
@@ -268,11 +278,15 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
 
 		// Make path to file relative to site URL
 		$located = bbp_urlize_enqueueable( $located );
+		if ( '' === $located ) {
+			return false;
+		}
+		$deps = bbp_get_string_array_values( $deps );
 
-		// Register the style
+		// Register the script
 		wp_register_script( $handle, $located, $deps, $ver, $in_footer );
 
-		// Enqueue the style
+		// Enqueue the script
 		wp_enqueue_script( $handle );
 	}
 

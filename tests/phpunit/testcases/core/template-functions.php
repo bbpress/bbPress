@@ -266,6 +266,31 @@ class BBP_Tests_Core_Template_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_enqueue_style
 	 * @covers ::bbp_enqueue_script
 	 */
+	public function test_enqueue_helpers_reject_empty_handles_and_dependencies() {
+		$callback = $this->register_fixture_template_stack();
+		$style    = 'bbp-test-clean-deps-style';
+		$script   = 'bbp-test-clean-deps-script';
+
+		try {
+			$this->assertFalse( bbp_enqueue_style( '', 'assets/probe.css' ) );
+			$this->assertFalse( bbp_enqueue_script( '', 'assets/probe.js' ) );
+			$this->assertIsString( bbp_enqueue_style( $style, 'assets/probe.css', array( '', 'dashicons' ) ) );
+			$this->assertIsString( bbp_enqueue_script( $script, 'assets/probe.js', array( '', 'jquery' ) ) );
+			$this->assertSame( array( 'dashicons' ), wp_styles()->registered[ $style ]->deps );
+			$this->assertSame( array( 'jquery' ), wp_scripts()->registered[ $script ]->deps );
+		} finally {
+			wp_dequeue_style( $style );
+			wp_deregister_style( $style );
+			wp_dequeue_script( $script );
+			wp_deregister_script( $script );
+			bbp_deregister_template_stack( $callback, -100 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_enqueue_style
+	 * @covers ::bbp_enqueue_script
+	 */
 	public function test_enqueue_helpers_return_false_for_missing_assets() {
 		$this->assertFalse( bbp_enqueue_style( 'bbp-missing-style', 'missing.css' ) );
 		$this->assertFalse( wp_style_is( 'bbp-missing-style', 'registered' ) );

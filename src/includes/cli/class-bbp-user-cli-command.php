@@ -116,7 +116,7 @@ class BBP_User_CLI_Command extends BBP_CLI_Command {
 		}
 		WP_CLI::confirm( __( 'This may change all of the user\'s forum posts across their sites. Continue?', 'bbpress' ), $assoc_args );
 
-		if ( ! call_user_func( $callback, $user_id ) ) {
+		if ( ! is_callable( $callback ) || ! call_user_func( $callback, $user_id ) ) {
 			WP_CLI::error( __( 'The forum posts could not be changed.', 'bbpress' ) );
 		}
 		WP_CLI::success( $success );

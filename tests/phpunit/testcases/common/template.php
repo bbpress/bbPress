@@ -1305,6 +1305,21 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_the_content
+	 */
+	public function test_the_content_handles_an_unregistered_context() {
+		add_filter( 'bbp_use_wp_editor', '__return_false' );
+
+		try {
+			$html = bbp_get_the_content( array( 'context' => 'unregistered' ) );
+			$this->assertStringContainsString( 'name="bbp_unregistered_content"', $html );
+			$this->assertStringContainsString( '></textarea>', $html );
+		} finally {
+			remove_filter( 'bbp_use_wp_editor', '__return_false' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_the_content
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
