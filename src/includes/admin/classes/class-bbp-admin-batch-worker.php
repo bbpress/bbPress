@@ -99,7 +99,7 @@ abstract class BBP_Admin_Batch_Worker {
 	 * @access private
 	 *
 	 * @param string $error  Current failure reason, passed by reference.
-	 * @param string $reason Candidate semantic failure reason.
+	 * @param int|string $reason Candidate semantic failure reason.
 	 * @return bool Whether this call recorded the failure.
 	 */
 	public static function record_failure( &$error, $reason ) {

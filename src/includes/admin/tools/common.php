@@ -1575,7 +1575,7 @@ function bbp_admin_repair_tool_batch_status( $fields = array() ) {
  * @access private
  *
  * @param array<string, mixed> $batch  Current worker result.
- * @param string $reason Semantic failure reason.
+ * @param int|string $reason Semantic failure reason.
  * @return false Always false after recording the failure.
  */
 function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
@@ -2614,8 +2614,8 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 		: 'priority';
 
 	// Order
-	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
-		? strtoupper( $_GET['order'] )
+	$order = ! empty( $_GET['order'] ) && ( 'desc' === strtolower( $_GET['order'] ) )
+		? 'DESC'
 		: 'ASC';
 
 	// Overhead filter

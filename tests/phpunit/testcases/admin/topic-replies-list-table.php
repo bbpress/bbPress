@@ -90,6 +90,24 @@ class BBP_Tests_Admin_Topic_Replies_List_Table extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket BBP3794
+	 * @covers BBP_Topic_Replies_List_Table::single_row
+	 */
+	public function test_single_row_without_a_reply_post_returns_empty_output() {
+		$list_table = new BBP_Topic_Replies_List_Table();
+
+		ob_start();
+		try {
+			$this->assertNull( $list_table->single_row( new stdClass() ) );
+			$output = ob_get_contents();
+		} finally {
+			ob_end_clean();
+		}
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
 	 * @covers BBP_Topic_Replies_List_Table::column_bbp_topic_reply_author
 	 */
 	public function test_author_name_and_email_are_escaped() {

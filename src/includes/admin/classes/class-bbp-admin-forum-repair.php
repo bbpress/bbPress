@@ -719,7 +719,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 				4 => 'metadata-write',
 				5 => 'metadata-verify'
 			);
-			$this->fail( $codes[ $result['code'] ] );
+			$this->fail( isset( $codes[ $result['code'] ] ) ? $codes[ $result['code'] ] : 'metadata-write' );
 			return $result['work'];
 		}
 		if ( $result['changed'] ) {

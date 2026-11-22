@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * WordPress converts scalar and null values to strings in wp_check_invalid_utf8().
+ * Keep the original input available to the esc_attr() and esc_html() filters.
+ *
+ * @param scalar|null $text Value to escape.
+ * @return string Escaped text.
+ */
+function esc_attr( $text ) {}
+
+/**
+ * @param scalar|null $text Value to escape.
+ * @return string Escaped text.
+ */
+function esc_html( $text ) {}

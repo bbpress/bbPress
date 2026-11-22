@@ -372,6 +372,9 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function single_row( $item ) {
+		if ( ! ( $item instanceof WP_Post ) ) {
+			return;
+		}
 
 		// Author
 		$classes = 'author-' . ( get_current_user_id() === (int) $item->post_author

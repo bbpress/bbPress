@@ -814,15 +814,19 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @since 2.7.0 bbPress (r8299)
 	 * @since 2.7.0 bbPress (r8331) Read browser Dry Run values from calculated topics.
 	 *
-	 * @param int $id Topic ID.
+	 * @param int|string|null $id Topic ID, or an unavailable saved value.
 	 * @return string Topic activity time.
 	 * @phpstan-impure
 	 */
 	private function topic_time( $id ) {
+		if ( ! is_int( $id ) || ( $id <= 0 ) ) {
+			return '';
+		}
+
 		if ( $this->dry_run && isset( $this->topic_times[ $id ] ) ) {
 			return $this->topic_times[ $id ];
 		}
-		if ( $this->dry_run && $this->async && $id ) {
+		if ( $this->dry_run && $this->async ) {
 			$post = $this->db->get_row( $this->db->prepare( "SELECT ID, post_parent, post_status, post_type, post_date FROM {$this->db->posts} WHERE ID = %d AND post_type = %s", $id, $this->context['topic'] ) );
 			if ( ! empty( $this->db->last_error ) ) {
 				$this->fail( 'source-read' );
@@ -838,7 +842,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 				return $this->topic_times[ $id ];
 			}
 		}
-		$time = $id ? get_post_meta( $id, '_bbp_last_active_time', true ) : '';
+		$time = get_post_meta( $id, '_bbp_last_active_time', true );
 		if ( ! empty( $this->db->last_error ) ) {
 			wp_cache_delete( $id, 'post_meta' );
 			$this->fail( 'metadata-read' );
@@ -962,7 +966,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 				return;
 			}
 		}
-		if ( ! $this->async && $count ) {
+		if ( ! $this->async && $count && isset( $this->totals[ $node['kind'] ] ) ) {
 			++$this->totals[ $node['kind'] ];
 		}
 	}
@@ -990,7 +994,9 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 	 * @param array<string, mixed> $node Completed traversal node.
 	 */
 	protected function leaving_node( $node ) {
-		++$this->totals[ $node['kind'] ];
+		if ( isset( $this->totals[ $node['kind'] ] ) ) {
+			++$this->totals[ $node['kind'] ];
+		}
 	}
 
 	/**
@@ -1006,9 +1012,15 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			return false;
 		}
 		$totals = $data['totals'];
-		return array_keys( $totals ) === array_keys( $this->totals )
-			&& count( array_filter( $totals, 'is_int' ) ) === count( $totals )
-			&& min( $totals ) >= 0;
+		if ( array_keys( $totals ) !== array_keys( $this->totals ) ) {
+			return false;
+		}
+		foreach ( $totals as $count ) {
+			if ( ! is_int( $count ) || ( $count < 0 ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

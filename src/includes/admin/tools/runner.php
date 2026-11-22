@@ -1384,7 +1384,7 @@ function bbp_admin_repair_tool_process_batch( $type, $action, $tool_id, $run_id 
 		bbp_admin_repair_tool_unlock( $active_lock ? $active_lock : $lock );
 	}
 
-	if ( false !== $error ) {
+	if ( ( false !== $error ) || ( false === $normalized ) ) {
 		return array(
 			'success' => false,
 			'data'    => $error,

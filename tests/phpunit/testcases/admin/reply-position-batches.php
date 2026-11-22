@@ -333,6 +333,24 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_child_filter_with_named_keys_uses_list_positions() {
+		list( $topic, $ids ) = $this->fixture();
+		$named = static function ( $children, $parent, $type ) use ( $topic ) {
+			if ( ( $parent !== $topic ) || ( $type !== bbp_get_reply_post_type() ) ) {
+				return $children;
+			}
+
+			return array_combine( array( 'first', 'second', 'third' ), $children );
+		};
+		add_filter( 'bbp_get_all_child_ids', $named, 10, 3 );
+		try {
+			$this->finish();
+			$this->assertSame( array( 1, 2, 3 ), $this->positions( $ids ) );
+		} finally {
+			remove_filter( 'bbp_get_all_child_ids', $named, 10 );
+		}
+	}
+
 	public function test_complete_reply_filter_lists_have_an_explicit_bound() {
 		$this->fixture();
 		$children = static function ( $ids ) {

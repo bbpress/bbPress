@@ -3876,7 +3876,7 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 			$error = 'source-limit';
 			return false;
 		}
-		$children = (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() );
+		$children = array_values( (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() ) );
 		if ( count( $children ) > $limit ) {
 			$error = 'source-limit';
 			return false;
