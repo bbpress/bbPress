@@ -121,7 +121,7 @@ jobs:
           tools: composer:v2
           coverage: none
           extensions: mysqli, mbstring, intl, curl, dom, json, libxml, xml, zip
-          ini-values: error_reporting=E_ALL, display_errors=On
+          ini-values: error_reporting=E_ALL, display_errors=On, memory_limit=512M
 
       - name: Get composer cache directory
         id: composer-cache
