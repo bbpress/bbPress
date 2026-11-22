@@ -299,8 +299,8 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @param int $user_id User id.
- * @param int $forum_id Forum id.
+ * @param int|float|string $user_id User id.
+ * @param int|string       $forum_id Forum id.
  *
  * @return bool Return true if user is moderator of forum.
  */

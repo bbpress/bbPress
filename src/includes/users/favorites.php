@@ -54,8 +54,8 @@ function bbp_get_user_favorites( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2652)
  *
- * @param int $user_id Optional. User id.
- * @param int $topic_id Optional. Topic id.
+ * @param int|float|string $user_id Optional. User id.
+ * @param int|string       $topic_id Optional. Topic id.
  *
  * @return bool True if the topic is in user's favorites, otherwise false.
  */
@@ -76,8 +76,8 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2652)
  *
- * @param int $user_id Optional. User id.
- * @param int $topic_id Optional. Topic id.
+ * @param int|float|string $user_id Optional. User id.
+ * @param int|string       $topic_id Optional. Topic id.
  *
  * @return bool True if the topic was added to user's favorites, otherwise false.
  */

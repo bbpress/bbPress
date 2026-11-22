@@ -235,8 +235,8 @@ function bbp_is_subscribable( $object_id = 0, $object_type = '' ) {
  *
  * @since 2.0.0 bbPress (r2668)
  *
- * @param int    $user_id   Optional. User ID.
- * @param int    $object_id Optional. Object ID.
+ * @param int|float|string $user_id   Optional. User ID.
+ * @param int|string       $object_id Optional. Object ID.
  * @param string $type      Object metadata type. Defaults to post.
  *
  * @return bool True if the object (forum or topic) is in user's subscriptions, otherwise false.
@@ -254,8 +254,8 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) 
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6544) Added $type parameter
  *
- * @param int    $user_id   Optional. User id.
- * @param int    $object_id Optional. Object id.
+ * @param int|float|string $user_id   Optional. User id.
+ * @param int|string       $object_id Optional. Object id.
  * @param string $type      Optional. Type of object being subscribed to.
  *
  * @return bool True if the object was added to user subscriptions, otherwise false.

@@ -155,8 +155,8 @@ function bbp_object_supports_engagement( $object_id = 0, $object_type = 'post', 
  *
  * @since 2.6.0 bbPress (r6109)
  *
- * @param int    $object_id The object id.
- * @param int    $user_id   The user id.
+ * @param int|float|string $object_id The object id.
+ * @param int|float|string $user_id   The user id.
  * @param string $rel_key   The relationship key.
  * @param string $rel_type  The relationship type (usually 'post').
  * @param bool   $unique    Whether meta key should be unique to the object.
@@ -270,8 +270,8 @@ function bbp_get_users_for_object( $object_id = 0, $rel_key = '', $rel_type = 'p
  *
  * @since 2.6.0 bbPress (r6109)
  *
- * @param int    $object_id The object id.
- * @param int    $user_id   The user id.
+ * @param int|float|string $object_id The object id.
+ * @param int|float|string $user_id   The user id.
  * @param string $rel_key   The relationship key.
  * @param string $rel_type  The relationship type (usually 'post').
  *
