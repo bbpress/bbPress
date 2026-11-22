@@ -2640,6 +2640,8 @@ function bbp_admin_settings_help() {
 		'<p>' . esc_html__( 'Forum User Settings include:', 'bbpress' ) . '</p>' .
 		'<ul>' .
 			'<li>' . esc_html__( 'Automatic forum roles, posting limits, editing, and anonymous posting.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'For users without a forum role, automatic assignment can save a role to their account, grant one for a visit without saving, or do nothing.', 'bbpress' ) . '</li>' .
+			'<li>' . esc_html__( 'The selected default role is normally assigned to non-administrators without a forum role when automatic roles are enabled, and is preselected in sign-up forms.', 'bbpress' ) . '</li>' .
 			'<li>' . esc_html__( 'Blocking removes forum access. Selected actions run when a user is assigned the Blocked forum role.', 'bbpress' ) . '</li>' .
 			'<li>' . esc_html__( 'Plugins may add blocking actions with their own effects and reversal behavior.', 'bbpress' ) . '</li>';
 
@@ -2664,6 +2666,15 @@ function bbp_admin_settings_help() {
 		)
 	);
 
+	// Forum Features
+	$current_screen->add_help_tab(
+		array(
+			'id'      => 'features',
+			'title'   => esc_html__( 'Forum Features', 'bbpress' ),
+			'content' => '<p>' . esc_html__( 'When enabled, revisions save previous versions of topics and replies when they are edited.', 'bbpress' ) . '</p>'
+		)
+	);
+
 	// Theme Package
 	$current_screen->add_help_tab(
 		array(
@@ -2671,13 +2682,11 @@ function bbp_admin_settings_help() {
 			'title'   => esc_html__( 'Theme Packages', 'bbpress' ),
 			'content' =>
 						'<p>' . esc_html__( 'The "Theme Packages" section allows you to choose which theme package should be used.', 'bbpress' ) . '</p>' .
-						'<p>' .
 							'<ul>' .
 								'<li>' . esc_html__( 'The "bbPress Default" package is installed by default.',      'bbpress' ) . '</li>' .
 								'<li>' . esc_html__( 'Some themes may choose to ignore this setting entirely.',     'bbpress' ) . '</li>' .
 								'<li>' . esc_html__( 'Packages can be stacked to allow for intelligent fallbacks.', 'bbpress' ) . '</li>' .
-							'</ul>' .
-						'</p>'
+							'</ul>'
 		)
 	);
 
@@ -2691,8 +2700,7 @@ function bbp_admin_settings_help() {
 							'<ul>' .
 								'<li>' . esc_html__( 'This is comparable to the WordPress "Reading Settings" page, where you can set the number of posts that should show on blog pages and in feeds.', 'bbpress' ) . '</li>' .
 								'<li>' . esc_html__( 'These are broken up into two separate groups: one for what appears in your theme, another for RSS feeds.',                                        'bbpress' ) . '</li>' .
-							'</ul>' .
-						'<p>'
+							'</ul>'
 		)
 	);
 

@@ -339,6 +339,10 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			$this->assertStringContainsString( 'Frozen stops new topics and replies', $tabs['forum_status']['content'] );
 			$this->assertSame( 'Forum User Settings', $tabs['main_settings']['title'] );
 			$this->assertStringContainsString( '<ul><li>Automatic forum roles', $tabs['main_settings']['content'] );
+			$this->assertStringContainsString( 'grant one for a visit without saving', $tabs['main_settings']['content'] );
+			$this->assertStringContainsString( 'preselected in sign-up forms', $tabs['main_settings']['content'] );
+			$this->assertArrayHasKey( 'features', $tabs );
+			$this->assertStringContainsString( 'revisions save previous versions of topics and replies', $tabs['features']['content'] );
 			$this->assertStringContainsString( '<li>Blocking removes forum access.', $tabs['main_settings']['content'] );
 			$this->assertStringContainsString( '<li>Plugins may add blocking actions', $tabs['main_settings']['content'] );
 			$this->assertStringContainsString( '</ul><p>Click Save Changes', $tabs['main_settings']['content'] );
