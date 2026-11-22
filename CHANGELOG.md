@@ -184,6 +184,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Generated passwords for imported users when the source provides no usable
+  password. These users can use password reset to sign in.
 - Preserved blank lines within code blocks in forum, topic, and reply content.
 - Prevented duplicate forums, topics, and replies caused by leading or trailing
   whitespace, and rejected whitespace-only submitted content.

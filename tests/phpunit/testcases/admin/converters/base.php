@@ -753,6 +753,51 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Converter_Base::convert_table
+	 * @ticket 2913
+	 */
+	public function test_imported_user_without_source_password_gets_generated_password() {
+		global $wpdb;
+
+		$source_table = $wpdb->prefix . 'bbp_converter_fixture';
+		$old_prefix   = get_option( '_bbp_converter_db_prefix', false );
+		$password     = 'generated-import-password';
+		$filter       = static function() use ( $password ) {
+			return $password;
+		};
+
+		update_option( '_bbp_converter_db_prefix', $wpdb->prefix );
+		add_filter( 'random_password', $filter );
+
+		try {
+			$converter                = new BBP_Tests_Admin_Converters_Base_Import_Converter();
+			$converter->convert_users = true;
+			$this->assertNotFalse( $converter->source_query( "CREATE TABLE {$source_table} (author_id bigint(20), user_login varchar(60), user_email varchar(100), user_pass varchar(255))" ), $converter->get_source_error() );
+			$this->assertNotFalse( $converter->source_insert( $source_table, array(
+				'author_id' => 43,
+				'user_login' => 'bbp_import_without_password',
+				'user_email' => 'bbp-import-no-password@example.org',
+				'user_pass'  => ''
+			) ), $converter->get_source_error() );
+			$this->assertFalse( $converter->convert_table( 'user', 0 ) );
+
+			$user_id = username_exists( 'bbp_import_without_password' );
+			$this->assertNotFalse( $user_id );
+			$this->assertTrue( wp_check_password( $password, get_userdata( $user_id )->user_pass, $user_id ) );
+			$this->assertFalse( wp_check_password( '', get_userdata( $user_id )->user_pass, $user_id ) );
+			$this->assertFalse( metadata_exists( 'user', $user_id, '_bbp_password' ) );
+		} finally {
+			remove_filter( 'random_password', $filter );
+			$converter->source_query( "DROP TABLE IF EXISTS {$source_table}" );
+			if ( false === $old_prefix ) {
+				delete_option( '_bbp_converter_db_prefix' );
+			} else {
+				update_option( '_bbp_converter_db_prefix', $old_prefix );
+			}
+		}
+	}
+
+	/**
 	 * @covers BBP_Converter_Base::__construct
 	 */
 	public function test_single_site_account_import_is_opt_in() {

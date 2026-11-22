@@ -603,7 +603,7 @@ abstract class BBP_Converter_Base {
 								}
 
 								if ( empty( $insert_post['user_pass'] ) ) {
-									$insert_post['user_pass'] = '';
+									$insert_post['user_pass'] = wp_generate_password();
 								}
 
 								// Internally re-calls _exists() checks above.
