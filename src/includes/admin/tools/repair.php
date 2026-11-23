@@ -3831,13 +3831,13 @@ function bbp_admin_repair_reply_menu_order_dry_run() {
  * Get a reply's native position without loading an unfiltered child list.
  *
  * Preserve the complete child-list filter contract when a callback is present.
- * Default ordering is ascending ID, excluding drafts and scheduled replies.
- * Reuse counted prefixes within this batch until native source caches change.
+ * Public replies follow display date and ID order. Filtered child lists retain
+ * their custom order, and nonpublic replies have no public position.
  *
  * @since 2.7.0 bbPress (r8305)
  *
  * @param stdClass $reply Current reply row.
- * @param array<int, array<string, mixed>> $ranks Ranks shared within this batch, keyed by topic ID.
+ * @param array<int, array<string, mixed>> $ranks Legacy batch cache, retained for compatibility.
  * @param array<string, mixed>|null $preview Read-only window context, or null for Run.
  * @param string     $error   Optional semantic failure reason, passed by reference.
  * @return int|false Position, or false after a read failure.
@@ -3859,12 +3859,11 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 	} else {
 		wp_cache_delete( $topic_id, 'post_meta' );
 	}
+	if ( ! bbp_is_reply_public( $reply->ID ) ) {
+		return 0;
+	}
 	if ( has_filter( 'bbp_get_all_child_ids' ) ) {
-		$count = bbp_get_topic_reply_count( $topic_id, false );
-		if ( ! empty( $db->last_error ) ) {
-			return false;
-		}
-		if ( empty( $topic_id ) || (int) $reply->ID === $topic_id || empty( $count ) || (int) $reply->post_parent !== $topic_id ) {
+		if ( empty( $topic_id ) || (int) $reply->ID === $topic_id || (int) $reply->post_parent !== $topic_id ) {
 			return 0;
 		}
 		$limit    = bbp_admin_repair_tool_filter_limit( 'bbp_get_all_child_ids', $topic_id, 'bbp-sync-all-reply-positions' );
@@ -3876,7 +3875,7 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 			$error = 'source-limit';
 			return false;
 		}
-		$children = array_values( (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() ) );
+		$children = array_values( array_filter( (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() ), 'bbp_is_reply_public' ) );
 		if ( count( $children ) > $limit ) {
 			$error = 'source-limit';
 			return false;
@@ -3885,58 +3884,46 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 		return false === $position ? 0 : $position + 1;
 	}
 	$topic_id = ! empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply->ID );
-	$count    = bbp_get_topic_reply_count( $topic_id, false );
-	if ( ! empty( $db->last_error ) ) {
-		return false;
-	}
-	if ( empty( $topic_id ) || (int) $reply->ID === $topic_id || empty( $count ) || (int) $reply->post_parent !== $topic_id ) {
+	if ( empty( $topic_id ) || (int) $reply->ID === $topic_id || (int) $reply->post_parent !== $topic_id ) {
 		return 0;
 	}
 	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
-	$cursor = 0;
-	$prefix = 0;
-	if ( isset( $ranks[ $topic_id ] ) && $ranks[ $topic_id ]['last_changed'] === $last_changed
-		&& $ranks[ $topic_id ]['cursor'] < (int) $reply->ID ) {
-		$cursor = $ranks[ $topic_id ]['cursor'];
-		$prefix = $ranks[ $topic_id ]['position'];
-	}
-	$position = $db->get_row( bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $reply->ID, $reply->ID ) );
+	$position     = $db->get_row( bbp_admin_repair_reply_menu_order_query( $topic_id, 0, $reply->ID, $reply->ID, $reply->post_date ) );
 	if ( ! empty( $db->last_error ) || ! $position || wp_cache_get_last_changed( 'bbpress_posts' ) !== $last_changed ) {
 		unset( $ranks[ $topic_id ] );
 		return false;
 	}
-	$prefix += (int) $position->reply_position;
-	$ranks[ $topic_id ] = array(
-		'cursor'       => (int) $reply->ID,
-		'position'     => $prefix,
-		'last_changed' => $last_changed,
-	);
-	return $position->included ? $prefix : 0;
+	return $position->included ? (int) $position->reply_position : 0;
 }
 
 /**
- * Build the native, bounded reply-position count query.
+ * Build the public reply-position count query in display order.
  *
  * @since 2.7.0 bbPress (r8331)
  * @access private
  *
  * @param int $topic_id Topic ID.
- * @param int $cursor Lower reply ID, excluded.
- * @param int $upper_id Upper reply ID, included.
+ * @param int $cursor Legacy lower reply ID, unused.
+ * @param int $upper_id Legacy upper reply ID, unused.
  * @param int $reply_id Reply whose inclusion should be checked.
+ * @param string $post_date Reply date, or empty to read it.
  * @return string Prepared query.
  */
-function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id, $reply_id = 0 ) {
-	$db = bbp_db();
-	return $db->prepare( "SELECT COUNT(*) AS reply_position, MAX(ID = %d) AS included FROM {$db->posts} WHERE post_parent = %d AND post_type = %s AND post_status NOT IN ('draft', 'future') AND ID > %d AND ID <= %d", $reply_id, $topic_id, bbp_get_reply_post_type(), $cursor, $upper_id );
+function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id, $reply_id = 0, $post_date = '' ) {
+	$db        = bbp_db();
+	$statuses  = bbp_get_public_reply_statuses();
+	$slots     = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+	$post_date = ! empty( $post_date ) ? $post_date : get_post_field( 'post_date', $reply_id );
+	$args      = array_merge( array( $reply_id, $topic_id, bbp_get_reply_post_type() ), $statuses, array( $post_date, $post_date, $reply_id ) );
+	return $db->prepare( "SELECT COUNT(*) AS reply_position, MAX(ID = %d) AS included FROM {$db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ( {$slots} ) AND ( post_date < %s OR ( post_date = %s AND ID <= %d ) )", $args );
 }
 
 /**
  * Prepare a bounded, read-only source and cache window for reply positions.
  *
- * Retain ranks only for this window's parents. Every selected reply still runs
- * through the same native position helper as Run. The window only bounds source
- * rows and WordPress object-cache memory during a complete Dry Run.
+ * Every selected reply still runs through the same native position helper as
+ * Run. The window bounds source rows and WordPress object-cache memory during
+ * a complete Dry Run.
  *
  * @since 2.7.0 bbPress (r8331)
  * @access private
@@ -3960,7 +3947,7 @@ function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$rank
 		$preview['error'] = is_array( $preview['rows'] ) && empty( $db->last_error ) ? '' : 'metadata-read';
 		return;
 	}
-	$preview['rows'] = $db->get_results( $db->prepare( "SELECT ID, post_parent, post_status, menu_order FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT %d", $state['context'], $state['cursor'], $state['upper_id'], $size ) );
+	$preview['rows'] = $db->get_results( $db->prepare( "SELECT ID, post_parent, post_status, menu_order, post_date FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT %d", $state['context'], $state['cursor'], $state['upper_id'], $size ) );
 	if ( ! is_array( $preview['rows'] ) || ! empty( $db->last_error ) ) {
 		$preview['error'] = 'source-read';
 		return;
@@ -4104,7 +4091,7 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 					$state['meta_cursor'] = (int) $row->meta_id;
 					continue;
 				}
-				$reply = $dry_run ? array_shift( $preview['rows'] ) : $db->get_row( $db->prepare( "SELECT ID, post_parent, post_status, menu_order FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $state['context'], $state['cursor'], $state['upper_id'] ) );
+				$reply = $dry_run ? array_shift( $preview['rows'] ) : $db->get_row( $db->prepare( "SELECT ID, post_parent, post_status, menu_order, post_date FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $state['context'], $state['cursor'], $state['upper_id'] ) );
 				if ( ! empty( $db->last_error ) ) {
 					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 					break;

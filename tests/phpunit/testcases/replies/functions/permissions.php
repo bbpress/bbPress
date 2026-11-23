@@ -894,6 +894,58 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_new_reply_handler
+	 * @ticket BBP2732
+	 */
+	public function test_moderated_reply_has_no_published_position() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$old_keys = get_option( 'moderation_keys' );
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		update_option( 'moderation_keys', 'needsreview' );
+
+		try {
+			$this->assertFalse( $this->submit_reply( $topic_id, $forum_id, 'needsreview' ) );
+			$reply_ids = $this->get_reply_ids( $topic_id );
+			$this->assertCount( 1, $reply_ids );
+			$this->assertSame( bbp_get_pending_status_id(), bbp_get_reply_status( $reply_ids[0] ) );
+			$this->assertSame( 0, (int) get_post_field( 'menu_order', $reply_ids[0] ) );
+		} finally {
+			update_option( 'moderation_keys', $old_keys );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
+	 * @ticket BBP2732
+	 */
+	public function test_filtered_spam_reply_has_no_published_position() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$spam = static function( $reply_data ) {
+			$reply_data['post_status'] = bbp_get_spam_status_id();
+			return $reply_data;
+		};
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+		add_filter( 'bbp_new_reply_pre_insert', $spam );
+		try {
+			$this->assertTrue( $this->submit_reply( $topic_id, $forum_id, 'filtered spam' ) );
+			$reply_ids = get_posts( array( 'fields' => 'ids', 'post_parent' => $topic_id, 'post_status' => bbp_get_spam_status_id(), 'post_type' => bbp_get_reply_post_type() ) );
+			$this->assertCount( 1, $reply_ids );
+			$this->assertSame( bbp_get_spam_status_id(), bbp_get_reply_status( $reply_ids[0] ) );
+			$this->assertSame( 0, (int) get_post_field( 'menu_order', $reply_ids[0] ) );
+		} finally {
+			remove_filter( 'bbp_new_reply_pre_insert', $spam );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
 	 */
 	public function test_new_reply_rejects_invalid_redundant_forum_ids_consistently() {
 		$forum_id = $this->factory->forum->create();

@@ -3330,6 +3330,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 				bbp_suspend_reply_walker( $topic_id, $previous );
 				if ( ! $previous ) {
 					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+					bbp_update_topic_reply_positions( $topic_id );
 				}
 			}
 		}
@@ -3478,6 +3479,7 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
 				bbp_suspend_reply_walker( $topic_id, $previous );
 				if ( ! $previous ) {
 					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+					bbp_update_topic_reply_positions( $topic_id );
 				}
 			}
 		}
@@ -3902,6 +3904,7 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 				bbp_suspend_reply_walker( $topic_id, $previous );
 				if ( ! $previous ) {
 					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+					bbp_update_topic_reply_positions( $topic_id );
 				}
 			}
 		}
@@ -3979,6 +3982,7 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 				bbp_suspend_reply_walker( $topic_id, $previous );
 				if ( ! $previous ) {
 					bbp_update_reply_walker( 0, '', bbp_get_topic_forum_id( $topic_id ), $topic_id );
+					bbp_update_topic_reply_positions( $topic_id );
 				}
 			}
 		}

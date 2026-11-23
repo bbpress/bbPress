@@ -7191,6 +7191,30 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_reply_menu_order
+	 * @ticket BBP2732
+	 */
+	public function test_bbp_admin_repair_reply_menu_order_preserves_public_date_order() {
+		$topic_id = $this->factory->topic->create();
+		$first_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00' ) );
+		$draft_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => 'draft', 'post_date' => '2025-01-01 11:00:00' ) );
+		$last_id  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 12:00:00' ) );
+		$pending  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id() ) );
+
+		wp_update_post( array( 'ID' => $draft_id, 'post_status' => bbp_get_public_status_id() ) );
+		bbp_update_reply_position( $last_id, 7 );
+
+		$this->assertSame( 0, (int) get_post_field( 'menu_order', $pending ) );
+		$this->assertSame( 3, bbp_get_reply_position_raw( $draft_id, $topic_id ) );
+		$this->assertSame( 0, bbp_get_reply_position_raw( $pending, $topic_id ) );
+		$this->assertSame( 0, bbp_admin_repair_reply_menu_order()[0] );
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $first_id ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $last_id ) );
+		$this->assertSame( 3, (int) get_post_field( 'menu_order', $draft_id ) );
+		$this->assertSame( 0, (int) get_post_field( 'menu_order', $pending ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_reply_menu_order
 	 * @covers ::bbp_admin_repair_reply_menu_order_dry_run
 	 * @covers ::bbp_admin_repair_reply_menu_order_process
 	 */

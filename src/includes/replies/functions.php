@@ -24,6 +24,7 @@ defined( 'ABSPATH' ) || exit;
  * @return int|false Reply ID on success, false on failure.
  */
 function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
+	$has_menu_order = array_key_exists( 'menu_order', $reply_data );
 
 	// Parse arguments against default values
 	$reply_data = bbp_parse_args(
@@ -44,6 +45,11 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	// Possibly override status based on parent topic
 	if ( ! empty( $reply_data['post_parent'] ) && empty( $reply_data['post_status'] ) ) {
 		$reply_data['post_status'] = bbp_get_topic_status( $reply_data['post_parent'] );
+	}
+
+	// Nonpublic replies do not occupy a published reply position.
+	if ( ! $has_menu_order && ! empty( $reply_data['post_status'] ) && ! in_array( $reply_data['post_status'], bbp_get_public_reply_statuses(), true ) ) {
+		$reply_data['menu_order'] = 0;
 	}
 
 	// Defer moderation notifications until the reply metadata is saved.
@@ -436,6 +442,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// Add the content of the form to $reply_data as an array
 	// Just in time manipulation of reply data before being created
+	$initial_menu_order = ( bbp_get_pending_status_id() === $reply_status ) ? 0 : bbp_get_topic_reply_count( $topic_id, true ) + 1;
 	$reply_data = apply_filters(
 		'bbp_new_reply_pre_insert',
 		array(
@@ -446,9 +453,12 @@ function bbp_new_reply_handler( $action = '' ) {
 			'post_parent'    => $topic_id,
 			'post_type'      => bbp_get_reply_post_type(),
 			'comment_status' => 'closed',
-			'menu_order'     => bbp_get_topic_reply_count( $topic_id, true ) + 1
+			'menu_order'     => $initial_menu_order
 		)
 	);
+	if ( ! empty( $reply_data['post_status'] ) && isset( $reply_data['menu_order'] ) && ! in_array( $reply_data['post_status'], bbp_get_public_reply_statuses(), true ) && $initial_menu_order === $reply_data['menu_order'] ) {
+		$reply_data['menu_order'] = 0;
+	}
 
 	// Defer moderation notifications until the reply metadata is saved.
 	bbp_suspend_moderation_notifications();
@@ -1845,6 +1855,11 @@ function bbp_toggle_reply( $args = array() ) {
 			break;
 	}
 
+	// Use the destination status position for successful reply redirects.
+	if ( ! empty( $retval['status'] ) && ! is_wp_error( $retval['status'] ) && get_post_status( $r['id'] ) ) {
+		$retval['redirect_to'] = bbp_get_reply_url( $r['id'], bbp_get_redirect_to() );
+	}
+
 	// Add view all if needed
 	if ( ! empty( $retval['view_all'] ) ) {
 		$retval['redirect_to'] = bbp_add_view_all( $retval['redirect_to'], true );
@@ -2590,6 +2605,91 @@ function bbp_check_reply_edit() {
 /** Reply Position ************************************************************/
 
 /**
+ * Update published reply positions when a reply changes public status.
+ *
+ * Recalculate positions in the public reply loop's date order so reply URLs
+ * continue to point to the correct page after moderation or restoration.
+ *
+ * @since 2.7.0 bbPress (r8609)
+ *
+ * @param string  $new_status New post status.
+ * @param string  $old_status Previous post status.
+ * @param WP_Post $post       Updated post.
+ * @return void
+ */
+function bbp_update_reply_positions_on_status_change( $new_status, $old_status, $post ) {
+	if ( bbp_get_reply_post_type() !== $post->post_type || 'new' === $old_status || $new_status === $old_status || empty( $post->post_parent ) ) {
+		return;
+	}
+
+	$public_statuses = bbp_get_public_reply_statuses();
+	$was_public      = in_array( $old_status, $public_statuses, true );
+	$is_public       = in_array( $new_status, $public_statuses, true );
+	if ( $was_public === $is_public ) {
+		return;
+	}
+
+	if ( $was_public ) {
+		bbp_update_reply_position( $post->ID, 0 );
+	}
+
+	// Topic spam and trash actions refresh their replies once after the batch.
+	$bulk_topic_action = doing_action( 'bbp_spam_topic' )
+		|| doing_action( 'bbp_unspam_topic' )
+		|| doing_action( 'bbp_trash_topic' )
+		|| doing_action( 'bbp_untrash_topic' );
+	if ( $bulk_topic_action && bbp_suspend_reply_walker( $post->post_parent ) ) {
+		return;
+	}
+
+	bbp_update_topic_reply_positions( $post->post_parent );
+}
+
+/**
+ * Recalculate public reply positions for a topic in display order.
+ *
+ * @since 2.7.0 bbPress (r8609)
+ *
+ * @param int $topic_id Topic ID.
+ * @return void
+ */
+function bbp_update_topic_reply_positions( $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$public_statuses = bbp_get_public_reply_statuses();
+	if ( empty( $topic_id ) || empty( $public_statuses ) ) {
+		return;
+	}
+
+	$bbp_db      = bbp_db();
+	$statuses    = implode( ', ', array_fill( 0, count( $public_statuses ), '%s' ) );
+	$query_args  = array_merge( array( $topic_id, bbp_get_reply_post_type() ), $public_statuses );
+	$query       = $bbp_db->prepare(
+		"SELECT ID, menu_order FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ( {$statuses} ) ORDER BY post_date ASC, ID ASC",
+		$query_args
+	);
+	$replies = $bbp_db->get_results( $query );
+	if ( ! empty( $bbp_db->last_error ) ) {
+		return;
+	}
+
+	$positions = array_fill_keys( wp_list_pluck( $replies, 'ID' ), 0 );
+	$reply_ids = has_filter( 'bbp_get_all_child_ids' )
+		? array_values( array_filter( array_reverse( bbp_get_all_child_ids( $topic_id, bbp_get_reply_post_type() ) ), 'bbp_is_reply_public' ) )
+		: array_keys( $positions );
+	foreach ( $reply_ids as $index => $reply_id ) {
+		if ( isset( $positions[ $reply_id ] ) ) {
+			$positions[ $reply_id ] = $index + 1;
+		}
+	}
+
+	foreach ( $replies as $reply ) {
+		if ( (int) $reply->menu_order !== $positions[ $reply->ID ] ) {
+			bbp_update_reply_position( (int) $reply->ID, $positions[ $reply->ID ] );
+		}
+	}
+}
+
+/**
  * Update the position of the reply.
  *
  * The reply position is stored in the menu_order column of the posts table.
@@ -2653,47 +2753,52 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
  * of a given topic.
  *
  * @since 2.1.0 bbPress (r3934)
+ * @since 2.7.0 bbPress (r8609) Added the view-all position option.
  *
  * @param int $reply_id Reply ID.
  * @param int $topic_id Topic ID.
+ * @param bool $view_all Whether to include moderator-visible replies.
  * @return int Reply position.
  */
-function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
+function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0, $view_all = false ) {
 
 	// Get required data
-	$reply_position = 0;
 	$reply_id       = bbp_get_reply_id( $reply_id );
 	$topic_id       = ! empty( $topic_id )
 		? bbp_get_topic_id( $topic_id )
 		: bbp_get_reply_topic_id( $reply_id );
 
-	// If reply is actually the first post in a topic, return 0
-	if ( $reply_id !== $topic_id ) {
-
-		// Make sure the topic has replies before running another query
-		$reply_count = bbp_get_topic_reply_count( $topic_id, false );
-		if ( ! empty( $reply_count ) ) {
-
-			// Get reply id's
-			$topic_replies = bbp_get_all_child_ids( $topic_id, bbp_get_reply_post_type() );
-			if ( ! empty( $topic_replies ) ) {
-
-				// Reverse replies array and search for current reply position
-				$topic_replies  = array_reverse( $topic_replies );
-				$reply_position = array_search( $reply_id, $topic_replies, true );
-
-				// Bump the position to compensate for the lead topic post,
-				// or reset to 0 if the reply was not found in the children list.
-				if ( false !== $reply_position ) {
-					++$reply_position;
-				} else {
-					$reply_position = 0;
-				}
-			}
-		}
+	$statuses = $view_all ? array_keys( bbp_get_topic_statuses() ) : bbp_get_public_reply_statuses();
+	if ( $view_all && current_user_can( 'read_private_replies' ) ) {
+		$statuses[] = bbp_get_private_status_id();
 	}
 
-	return (int) $reply_position;
+	// Only replies visible in this context have a position.
+	if ( $reply_id === $topic_id || empty( $topic_id ) || (int) get_post_field( 'post_parent', $reply_id ) !== $topic_id || ! in_array( get_post_status( $reply_id ), $statuses, true ) ) {
+		return 0;
+	}
+
+	// Keep the child-list filter's ordering contract when it is in use.
+	if ( has_filter( 'bbp_get_all_child_ids' ) ) {
+		$is_visible = static function ( $id ) use ( $statuses ) {
+			return in_array( get_post_status( $id ), $statuses, true );
+		};
+		$topic_replies = bbp_get_all_child_ids( $topic_id, bbp_get_reply_post_type() );
+		$topic_replies = array_values( array_filter( array_reverse( $topic_replies ), $is_visible ) );
+		$position      = array_search( $reply_id, $topic_replies, true );
+		return false === $position ? 0 : $position + 1;
+	}
+
+	// Match the public reply loop's date order, with ID as a stable tie-breaker.
+	$bbp_db   = bbp_db();
+	$date     = get_post_field( 'post_date', $reply_id );
+	$slots    = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+	$args     = array_merge( array( $topic_id, bbp_get_reply_post_type() ), $statuses, array( $date, $date, $reply_id ) );
+	$query    = $bbp_db->prepare(
+		"SELECT COUNT(*) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ( {$slots} ) AND ( post_date < %s OR ( post_date = %s AND ID <= %d ) )",
+		$args
+	);
+	return (int) $bbp_db->get_var( $query );
 }
 
 /** Hierarchical Replies ******************************************************/

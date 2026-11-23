@@ -211,21 +211,19 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		}
 	}
 
-	public function test_interleaved_topics_count_each_prefix_once_per_batch() {
+	public function test_interleaved_topics_count_each_date_rank_once_per_reply() {
 		$topics = $this->factory->topic->create_many( 2 );
 		$ids = array();
 		for ( $i = 0; $i < 8; ++$i ) {
 			$ids[] = $this->factory->reply->create( array( 'post_parent' => $topics[ $i % 2 ], 'menu_order' => 99 ) );
 		}
 		$this->size = 1000;
-		$prefixes = array();
-		$record = static function ( $query ) use ( &$prefixes ) {
+		$rank_queries = array();
+		$record = static function ( $query ) use ( &$rank_queries ) {
 			if ( 0 === strpos( $query, 'SELECT COUNT(*) AS reply_position' ) ) {
-				preg_match( '/post_parent = (\d+)/', $query, $parent );
-				preg_match( '/AND ID > (\d+)/', $query, $lower );
-				if ( empty( $lower[1] ) ) {
-					$id = (int) $parent[1];
-					$prefixes[ $id ] = isset( $prefixes[ $id ] ) ? $prefixes[ $id ] + 1 : 1;
+				if ( preg_match( '/MAX\(ID = (\d+)\)/', $query, $reply ) ) {
+					$id = (int) $reply[1];
+					$rank_queries[ $id ] = isset( $rank_queries[ $id ] ) ? $rank_queries[ $id ] + 1 : 1;
 				}
 			}
 			return $query;
@@ -236,7 +234,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		} finally {
 			remove_filter( 'query', $record );
 		}
-		$this->assertSame( array_fill_keys( $topics, 1 ), $prefixes );
+		$this->assertSame( array_fill_keys( $ids, 1 ), $rank_queries );
 		foreach ( $ids as $id ) {
 			$this->assertSame( array( bbp_get_reply_position_raw( $id ) ), $this->positions( array( $id ) ) );
 		}
@@ -326,6 +324,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		add_filter( 'bbp_get_all_child_ids', $reverse, 10, 3 );
 		try {
 			$this->assertSame( 3, bbp_get_reply_position_raw( $ids[0], $topic ) );
+			bbp_update_topic_reply_positions( $topic );
+			$this->assertSame( array( 3, 2, 1 ), $this->positions( $ids ) );
 			$this->finish();
 			$this->assertSame( array( 3, 2, 1 ), $this->positions( $ids ) );
 		} finally {
@@ -373,7 +373,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		}
 	}
 
-	public function test_statuses_and_zero_reply_count_preserve_native_position_rules() {
+	public function test_statuses_and_zero_reply_count_follow_public_positions() {
 		list( $topic, $ids ) = $this->fixture();
 		foreach ( array( 'pending', 'spam', 'trash', 'draft', 'future' ) as $status ) {
 			$ids[] = $this->factory->reply->create( array( 'post_parent' => $topic, 'post_status' => $status, 'post_date' => '2030-01-01 00:00:00', 'menu_order' => 7 ) );
@@ -387,7 +387,7 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		$this->assertSame( $expected, $this->positions( $ids ) );
 		update_post_meta( $topic, '_bbp_reply_count', 0 );
 		$this->finish();
-		$this->assertSame( array_fill( 0, count( $ids ), 0 ), $this->positions( $ids ) );
+		$this->assertSame( $expected, $this->positions( $ids ) );
 	}
 
 	public function test_failed_progress_save_replays_the_first_reply_and_keeps_the_last_duplicate_reachable() {
@@ -414,6 +414,8 @@ class BBP_Tests_Admin_Reply_Position_Batches extends BBP_UnitTestCase {
 		$db = bbp_db();
 		$db->update( $db->posts, array( 'post_status' => 'DRAFT' ), array( 'ID' => $ids[2] ) );
 		$db->update( $db->posts, array( 'post_type' => strtoupper( bbp_get_reply_post_type() ) ), array( 'ID' => $ids[1] ) );
+		clean_post_cache( $ids[1] );
+		clean_post_cache( $ids[2] );
 		wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 		$expected = array();
 		foreach ( $ids as $id ) {

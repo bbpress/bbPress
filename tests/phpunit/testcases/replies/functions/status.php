@@ -428,6 +428,133 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_insert_reply
+	 * @covers ::bbp_approve_reply
+	 * @ticket BBP2732
+	 */
+	public function test_pending_reply_does_not_duplicate_published_positions() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$meta     = array( 'forum_id' => $forum_id, 'topic_id' => $topic_id );
+		$first_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00', 'reply_meta' => $meta ) );
+		$pending  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id(), 'post_date' => '2025-01-01 11:00:00', 'reply_meta' => $meta ) );
+		$last_id  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 12:00:00', 'reply_meta' => $meta ) );
+
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $first_id ) );
+		$this->assertSame( 0, (int) get_post_field( 'menu_order', $pending ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $last_id ) );
+		bbp_get_reply_position( $pending );
+		$this->assertSame( 0, (int) get_post_field( 'menu_order', $pending ) );
+
+		$per_page = static function() {
+			return 3;
+		};
+		add_filter( 'bbp_get_replies_per_page', $per_page );
+		try {
+			$this->assertStringNotContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+			bbp_approve_reply( $pending );
+			$this->assertStringContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+		} finally {
+			remove_filter( 'bbp_get_replies_per_page', $per_page );
+		}
+
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $first_id ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $pending ) );
+		$this->assertSame( 3, (int) get_post_field( 'menu_order', $last_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_insert_reply
+	 * @covers ::bbp_update_reply_positions_on_status_change
+	 * @ticket BBP2732
+	 */
+	public function test_publishing_draft_reply_updates_published_positions() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$meta     = array( 'forum_id' => $forum_id, 'topic_id' => $topic_id );
+		$first_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00', 'reply_meta' => $meta ) );
+		$draft_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => 'draft', 'post_date' => '2025-01-01 11:00:00', 'reply_meta' => $meta ) );
+		$last_id  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 12:00:00', 'reply_meta' => $meta ) );
+
+		$this->assertSame( 0, (int) get_post_field( 'menu_order', $draft_id ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $last_id ) );
+
+		wp_update_post( array( 'ID' => $draft_id, 'post_status' => bbp_get_public_status_id(), 'post_date' => '2025-01-01 11:00:00', 'post_date_gmt' => '2025-01-01 11:00:00' ) );
+
+		// WordPress dates a newly published draft at publication time.
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $first_id ) );
+		$this->assertSame( 2, (int) get_post_field( 'menu_order', $last_id ) );
+		$this->assertSame( 3, (int) get_post_field( 'menu_order', $draft_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_unapprove_reply
+	 * @covers ::bbp_approve_reply
+	 * @covers ::bbp_update_reply_positions_on_status_change
+	 * @ticket BBP2732
+	 */
+	public function test_unapproving_reply_compacts_public_positions() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+		$meta     = array( 'forum_id' => $forum_id, 'topic_id' => $topic_id );
+		$first_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00', 'reply_meta' => $meta ) );
+		$middle   = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 11:00:00', 'reply_meta' => $meta ) );
+		$last_id  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 12:00:00', 'reply_meta' => $meta ) );
+
+		$per_page = static function() {
+			return 3;
+		};
+		add_filter( 'bbp_get_replies_per_page', $per_page );
+		try {
+			$this->assertStringContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+			bbp_unapprove_reply( $middle );
+			$this->assertSame( 0, (int) get_post_field( 'menu_order', $middle ) );
+			$this->assertSame( 1, (int) get_post_field( 'menu_order', $first_id ) );
+			$this->assertSame( 2, (int) get_post_field( 'menu_order', $last_id ) );
+			$this->assertStringNotContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+
+			bbp_approve_reply( $middle );
+			$this->assertSame( 2, (int) get_post_field( 'menu_order', $middle ) );
+			$this->assertSame( 3, (int) get_post_field( 'menu_order', $last_id ) );
+			$this->assertStringContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+		} finally {
+			remove_filter( 'bbp_get_replies_per_page', $per_page );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_reply_url
+	 * @covers ::bbp_get_reply_position
+	 * @ticket BBP2732
+	 */
+	public function test_public_reply_url_uses_view_all_position_for_moderators() {
+		$topic_id = $this->factory->topic->create();
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00' ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id(), 'post_date' => '2025-01-01 11:00:00' ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 12:00:00' ) );
+		$user_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$old_get  = $_GET;
+		$old_user = get_current_user_id();
+		$per_page = static function() {
+			return 3;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		add_filter( 'bbp_get_replies_per_page', $per_page );
+		try {
+			$this->assertStringNotContainsString( 'paged=2', bbp_get_reply_url( $reply_id ) );
+			$this->set_current_user( $user_id );
+			$_GET['view'] = 'all';
+			$this->assertStringContainsString( 'paged=2', bbp_get_reply_url( $reply_id ) );
+			$this->assertSame( 2, (int) get_post_field( 'menu_order', $reply_id ) );
+		} finally {
+			remove_filter( 'bbp_get_replies_per_page', $per_page );
+			$_GET = $old_get;
+			$this->set_current_user( $old_user );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_approve_reply
 	 */
 	public function test_bbp_approve_reply_preserves_existing_gmt_date() {

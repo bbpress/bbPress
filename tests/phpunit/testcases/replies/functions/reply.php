@@ -797,6 +797,37 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_toggle_reply
+	 * @ticket BBP2732
+	 */
+	public function test_approving_reply_redirects_to_its_new_public_page() {
+		$topic_id = $this->factory->topic->create();
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00' ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id(), 'post_date' => '2025-01-01 11:00:00' ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_status' => bbp_get_pending_status_id(), 'post_date' => '2025-01-01 12:00:00' ) );
+		$this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 13:00:00' ) );
+		$old_request = $_REQUEST;
+		$per_page = static function() {
+			return 3;
+		};
+
+		add_filter( 'bbp_get_replies_per_page', $per_page );
+		try {
+			$this->assertSame( 0, (int) get_post_field( 'menu_order', $reply_id ) );
+			$this->assertStringContainsString( 'paged=2', bbp_get_reply_url( $reply_id ) );
+			$_REQUEST['_wpnonce'] = wp_create_nonce( 'approve-' . bbp_get_reply_post_type() . '_' . $reply_id );
+			$result = bbp_toggle_reply( array( 'id' => $reply_id, 'action' => 'bbp_toggle_reply_approve' ) );
+			$this->assertSame( $reply_id, $result['status'] );
+			$this->assertSame( 2, (int) get_post_field( 'menu_order', $reply_id ) );
+			$this->assertStringNotContainsString( 'paged=2', $result['redirect_to'] );
+			$this->assertSame( bbp_get_reply_url( $reply_id ), $result['redirect_to'] );
+		} finally {
+			remove_filter( 'bbp_get_replies_per_page', $per_page );
+			$_REQUEST = $old_request;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_delete_reply
 	 */
 	public function test_bbp_delete_reply() {

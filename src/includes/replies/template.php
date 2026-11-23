@@ -485,6 +485,7 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 		$topic    = bbp_get_topic( $topic_id );
 		$reply_id = $topic_id;
 	}
+	$view_all = bbp_get_view_all_for_object( 'edit_others_replies', $topic_id );
 
 	// Hierarchical reply page
 	if ( bbp_thread_replies() ) {
@@ -492,7 +493,7 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 
 	// Standard reply page
 	} else {
-		$reply_page = ceil( (int) bbp_get_reply_position( $reply_id, $topic_id ) / (int) bbp_get_replies_per_page() );
+		$reply_page = ceil( (int) bbp_get_reply_position( $reply_id, $topic_id, $view_all ) / (int) bbp_get_replies_per_page() );
 	}
 
 	// Get links & URLS
@@ -533,7 +534,7 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 	}
 
 	// Add topic view query arg back to end if it is set
-	if ( bbp_get_view_all_for_object( 'edit_others_replies', $topic_id ) ) {
+	if ( $view_all ) {
 		$url = bbp_add_view_all( $url, true );
 	}
 
@@ -1850,16 +1851,18 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
  * Return the numeric position of a reply within a topic.
  *
  * @since 2.0.0 bbPress (r2984)
+ * @since 2.7.0 bbPress (r8609) Added the view-all position option.
  *
  * @param int $reply_id Optional. Reply id.
  * @param int $topic_id Optional. Topic id.
+ * @param bool $view_all Whether to rank among moderator-visible replies.
  * @return int Reply position.
  */
-function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
+function bbp_get_reply_position( $reply_id = 0, $topic_id = 0, $view_all = false ) {
 
 	// Get required data
 	$reply_id       = bbp_get_reply_id( $reply_id );
-	$reply_position = get_post_field( 'menu_order', $reply_id );
+	$reply_position = $view_all ? 0 : get_post_field( 'menu_order', $reply_id );
 
 	// Reply doesn't have a position so get the raw value
 	if ( empty( $reply_position ) ) {
@@ -1871,11 +1874,12 @@ function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 		// Post is not the topic
 		if ( $reply_id !== $topic_id ) {
-			$reply_position = bbp_get_reply_position_raw( $reply_id, $topic_id );
+			$is_public      = bbp_is_reply_public( $reply_id );
+			$reply_position = bbp_get_reply_position_raw( $reply_id, $topic_id, $view_all || ! $is_public );
 
 			// Update the reply position in the posts table so we'll never have
 			// to hit the DB again.
-			if ( ! empty( $reply_position ) ) {
+			if ( ! empty( $reply_position ) && ! $view_all && $is_public ) {
 				bbp_update_reply_position( $reply_id, $reply_position );
 			}
 

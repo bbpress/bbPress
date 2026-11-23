@@ -172,6 +172,36 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_topic_reply_positions
+	 * @ticket BBP2732
+	 */
+	public function test_topic_spam_and_restore_reindex_replies_once_per_batch() {
+		$topic_id = $this->factory->topic->create();
+		$reply_ids = $this->factory->reply->create_many( 3, array( 'post_parent' => $topic_id ) );
+		$queries = 0;
+		$count_query = static function( $query ) use ( &$queries ) {
+			if ( 0 === strpos( $query, 'SELECT ID, menu_order FROM ' ) ) {
+				++$queries;
+			}
+			return $query;
+		};
+
+		add_filter( 'query', $count_query );
+		try {
+			bbp_spam_topic( $topic_id );
+			$this->assertSame( 1, $queries );
+			$this->assertSame( array( 0, 0, 0 ), array_map( 'intval', wp_list_pluck( array_map( 'get_post', $reply_ids ), 'menu_order' ) ) );
+
+			$queries = 0;
+			bbp_unspam_topic( $topic_id );
+			$this->assertSame( 1, $queries );
+			$this->assertSame( array( 1, 2, 3 ), array_map( 'intval', wp_list_pluck( array_map( 'get_post', $reply_ids ), 'menu_order' ) ) );
+		} finally {
+			remove_filter( 'query', $count_query );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_close_topic
 	 * @covers ::bbp_open_topic
 	 */
