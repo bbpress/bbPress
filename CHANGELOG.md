@@ -187,6 +187,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Restored media embeds in ordinary posts shown by theme widgets on bbPress
+  pages, including Twenty Fourteen's Ephemera widget.
 - Prevented sticky topics promoted to the first page from appearing again on
   later topic pages.
 - Kept nonpublic replies out of published reply positions and corrected reply

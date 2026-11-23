@@ -957,10 +957,9 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * the proper content, we need to intercept the_content, replace the
 	 * output, and display ours instead.
 	 *
-	 * To do this, we first remove all filters from 'the_content' and hook
-	 * our own function into it, which runs a series of checks to determine
-	 * the context, and then uses the shortcodes API to output the correct
-	 * results from inside an output buffer.
+	 * To do this, we remove filters from 'the_content' for the generated
+	 * bbPress post. Ordinary posts rendered by theme widgets retain WordPress
+	 * embed processing.
 	 *
 	 * Uses bbp_get_theme_compat_template() to provide fall-backs that
 	 * should be coded without superfluous mark-up and logic (prev/next
@@ -974,6 +973,11 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 */
 	if ( bbp_is_theme_compat_active() ) {
 		bbp_remove_all_filters( 'the_content' );
+
+		// Keep WordPress embeds working for ordinary posts in theme widgets.
+		if ( isset( bbpress()->filters->wp_filter['the_content'] ) ) {
+			add_filter( 'the_content', 'bbp_theme_compat_embed_content', 8 );
+		}
 
 		// Block themes
 		if ( wp_is_block_theme() ) {
@@ -1093,6 +1097,46 @@ function bbp_do_not_redirect_paginations( $redirect_url = '' ) {
 }
 
 /** Filters *******************************************************************/
+
+/**
+ * Process embeds in ordinary posts displayed alongside theme-compat content.
+ *
+ * WordPress themes may render posts in widgets through the_content(). The
+ * original content filters are removed for bbPress's generated page, but the
+ * current post in a widget is different from that generated post.
+ *
+ * @since 2.7.0 bbPress (r8618)
+ *
+ * @global WP_Embed $wp_embed WordPress Embed object.
+ *
+ * @param string $content Post content.
+ * @return string
+ */
+function bbp_theme_compat_embed_content( $content ) {
+	global $wp_embed;
+
+	$post     = get_post();
+	$bbp      = bbpress();
+	$original = isset( $bbp->filters->wp_filter['the_content'] )
+		? $bbp->filters->wp_filter['the_content']
+		: null;
+
+	if ( ( $post instanceof WP_Post ) &&
+		( $wp_embed instanceof WP_Embed ) &&
+		( $original instanceof WP_Hook ) &&
+		isset( $bbp->theme_compat->post ) &&
+		( $post !== $bbp->theme_compat->post ) ) {
+		if ( false !== $original->has_filter( 'the_content', array( $wp_embed, 'run_shortcode' ) ) ) {
+			$content = $wp_embed->run_shortcode( $content );
+		}
+
+		if ( false !== $original->has_filter( 'the_content', array( $wp_embed, 'autoembed' ) ) ) {
+			$content = $wp_embed->autoembed( $content );
+		}
+	}
+
+	return $content;
+}
 
 /**
  * Removes all filters from a WordPress filter, and stashes them in the bbPress

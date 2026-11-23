@@ -157,6 +157,77 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 2602
+	 * @covers ::bbp_theme_compat_embed_content
+	 */
+	public function test_theme_compat_embeds_widget_posts_but_not_generated_content() {
+		$url            = 'https://example.com/bbp-ephemera-video';
+		$embed          = '<iframe data-bbp-ephemera="video"></iframe>';
+		$original_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$original_query = $GLOBALS['wp_query'];
+		$widget_post    = get_post( $this->factory->post->create( array( 'post_content' => $url ) ) );
+
+		wp_embed_register_handler( 'bbp-ephemera-test', '#^https://example\.com/bbp-ephemera-video$#', function() use ( $embed ) {
+			return $embed;
+		}, 1 );
+
+		try {
+			$GLOBALS['wp_query'] = new WP_Query();
+			bbp_theme_compat_reset_post( array( 'post_content' => $url ) );
+			bbp_template_include_theme_compat( '/original-template.php' );
+
+			$GLOBALS['post'] = $GLOBALS['wp_query']->post;
+			$this->assertSame( $url, apply_filters( 'the_content', $url ) );
+
+			$GLOBALS['post'] = $widget_post;
+			$this->assertSame( $embed, apply_filters( 'the_content', $url ) );
+			$this->assertSame( $embed, apply_filters( 'the_content', '[embed]' . $url . '[/embed]' ) );
+		} finally {
+			wp_embed_unregister_handler( 'bbp-ephemera-test', 1 );
+			$GLOBALS['wp_query'] = $original_query;
+			$GLOBALS['post']     = $original_post;
+		}
+	}
+
+	/**
+	 * @ticket 2602
+	 * @covers ::bbp_template_include_theme_compat
+	 */
+	public function test_theme_compat_does_not_add_embed_filter_without_original_content_filters() {
+		$bbp            = bbpress();
+		$original_hook  = isset( $GLOBALS['wp_filter']['the_content'] ) ? $GLOBALS['wp_filter']['the_content'] : null;
+		$original_saved = isset( $bbp->filters->wp_filter['the_content'] ) ? $bbp->filters->wp_filter['the_content'] : null;
+		$original_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$original_query = $GLOBALS['wp_query'];
+
+		unset( $GLOBALS['wp_filter']['the_content'], $bbp->filters->wp_filter['the_content'] );
+
+		try {
+			$GLOBALS['wp_query'] = new WP_Query();
+			bbp_theme_compat_reset_post( array( 'post_content' => 'Generated bbPress content' ) );
+			bbp_template_include_theme_compat( '/original-template.php' );
+			bbp_restore_all_filters( 'the_content' );
+
+			$this->assertFalse( has_filter( 'the_content', 'bbp_theme_compat_embed_content' ) );
+		} finally {
+			if ( null !== $original_hook ) {
+				$GLOBALS['wp_filter']['the_content'] = $original_hook;
+			} else {
+				unset( $GLOBALS['wp_filter']['the_content'] );
+			}
+
+			if ( null !== $original_saved ) {
+				$bbp->filters->wp_filter['the_content'] = $original_saved;
+			} else {
+				unset( $bbp->filters->wp_filter['the_content'] );
+			}
+
+			$GLOBALS['wp_query'] = $original_query;
+			$GLOBALS['post']     = $original_post;
+		}
+	}
+
+	/**
 	 * @covers BBP_Theme_Compat
 	 */
 	public function test_theme_compat_package_exposes_registered_properties() {
