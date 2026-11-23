@@ -67,10 +67,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$this->name          = esc_html__( 'Forum', 'bbpress' );
 		$this->nav_item_name = esc_html__( 'Forum', 'bbpress' );
 
-		// Component slugs (hardcoded to match bbPress 1.x functionality)
-		$this->slug          = 'forum';
-		$this->topic_slug    = 'topic';
-		$this->reply_slug    = 'reply';
+		// Group routes use the configured slugs without the bbPress root.
+		$this->slug          = get_option( '_bbp_forum_slug', 'forum' );
+		$this->topic_slug    = get_option( '_bbp_topic_slug', 'topic' );
+		$this->reply_slug    = get_option( '_bbp_reply_slug', 'reply' );
 
 		// Forum component is visible
 		$this->visibility = 'public';

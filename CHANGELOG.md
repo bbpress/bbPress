@@ -184,6 +184,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Applied the configured forum, topic, and reply slugs to BuddyPress group
+  forum URLs.
 - Loaded forum styles and scripts from plugin and must-use plugin directories
   defined outside the WordPress content directory. Plugin assets now use
   `plugins_url` rather than `content_url`.

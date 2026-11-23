@@ -33,6 +33,77 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 	protected $template_parts = array();
 
 	/**
+	 * @ticket BBP2704
+	 * @covers ::BBP_Forums_Group_Extension::map_forum_permalink_to_group
+	 * @covers ::BBP_Forums_Group_Extension::map_topic_permalink_to_group
+	 * @covers ::BBP_Forums_Group_Extension::map_reply_edit_url_to_group
+	 * @covers ::BBP_Forums_Group_Extension::display_forums
+	 */
+	public function test_group_forum_routes_use_configured_slugs_without_the_forum_root() {
+		update_option( '_bbp_root_slug', 'forums' );
+		update_option( '_bbp_include_root', 1 );
+		update_option( '_bbp_forum_slug', 'board' );
+		update_option( '_bbp_topic_slug', 'discussion' );
+		update_option( '_bbp_reply_slug', 'response' );
+
+		$this->group_extension = new BBP_Forums_Group_Extension();
+
+		$creator_id = $this->factory->user->create();
+		$group_id   = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$forum_id   = $this->factory->forum->create();
+		$topic_id   = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'post_title'  => 'Configured group topic',
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id   = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_title'  => 'Configured group reply',
+			'reply_meta'  => array( 'forum_id' => $forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->set_group_context( $group_id, $creator_id );
+
+		$route = function( $url ) {
+			$parts = wp_parse_url( html_entity_decode( $url ) );
+			if ( isset( $parts['query'] ) ) {
+				parse_str( $parts['query'], $query );
+				if ( isset( $query['bp_group_action'] ) ) {
+					$variables = isset( $query['bp_group_action_variables'] ) ? $query['bp_group_action_variables'] : array();
+					return '/' . $query['bp_group_action'] . '/' . implode( '/', $variables ) . '/';
+				}
+				if ( isset( $query['bp_group'] ) ) {
+					return '/' . $query['bp_group'];
+				}
+			}
+			return $parts['path'];
+		};
+
+		$forum_url = $this->group_extension->map_forum_permalink_to_group( 'https://example.org/forum/', $forum_id );
+		$topic_url = $this->group_extension->map_topic_permalink_to_group( 'https://example.org/topic/', $topic_id );
+		$reply_url = $this->group_extension->map_reply_edit_url_to_group( 'https://example.org/reply/', $reply_id );
+
+		$this->assertStringEndsWith( '/board/', $route( $forum_url ) );
+		$this->assertStringEndsWith( '/board/discussion/' . get_post_field( 'post_name', $topic_id ) . '/', $route( $topic_url ) );
+		$this->assertStringEndsWith( '/board/response/' . get_post_field( 'post_name', $reply_id ) . '/' . bbp_get_edit_slug() . '/', $route( $reply_url ) );
+
+		buddypress()->is_single_item   = true;
+		buddypress()->current_action   = $this->group_extension->slug;
+		buddypress()->action_variables = array( $this->group_extension->topic_slug, get_post_field( 'post_name', $topic_id ) );
+		ob_start();
+		$this->group_extension->display_forums();
+		$topic_html = ob_get_clean();
+		$this->assertStringContainsString( 'Configured group topic', $topic_html );
+
+		buddypress()->action_variables = array( $this->group_extension->reply_slug, get_post_field( 'post_name', $reply_id ) );
+		ob_start();
+		$this->group_extension->display_forums();
+		$reply_html = ob_get_clean();
+		$this->assertStringContainsString( 'Configured group reply', $reply_html );
+	}
+
+	/**
 	 * @ticket BBP2191
 	 * @covers ::BBP_Forums_Group_Extension::display_forums
 	 * @covers ::BBP_Forums_Group_Extension::map_topic_permalink_to_group
