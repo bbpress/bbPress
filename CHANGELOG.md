@@ -184,6 +184,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Loaded forum styles and scripts from plugin and must-use plugin directories
+  defined outside the WordPress content directory. Plugin assets now use
+  `plugins_url` rather than `content_url`.
 - Kept mention email links on the site where the topic or reply was saved
   when a Multisite request processes posts from more than one site.
 - Generated passwords for imported users when the source provides no usable

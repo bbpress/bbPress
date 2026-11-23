@@ -175,19 +175,23 @@ function bbp_locate_enqueueable( $file = '' ) {
  */
 function bbp_urlize_enqueueable( $file = '' ) {
 
-	// Get DIR and URL
-	$content_dir = constant( 'WP_CONTENT_DIR' );
-	$content_url = content_url();
+	// Normalize paths before checking their directory boundaries.
+	$file        = wp_normalize_path( $file );
+	$plugin_dir  = wp_normalize_path( WP_PLUGIN_DIR );
+	$mu_dir      = wp_normalize_path( WPMU_PLUGIN_DIR );
+	$content_dir = wp_normalize_path( WP_CONTENT_DIR );
 
-	// IIS (Windows) here
-	// Replace back slashes with forward slash
-	if ( false !== strpos( $file, '\\' ) ) {
-		$file        = str_replace( '\\', '/', $file        );
-		$content_dir = str_replace( '\\', '/', $content_dir );
+	// Plugin directories may live outside the content directory.
+	if ( ( 0 === strpos( $file, $plugin_dir . '/' ) ) || ( 0 === strpos( $file, $mu_dir . '/' ) ) ) {
+		return plugins_url( basename( $file ), $file );
 	}
 
-	// Return path to file relative to site URL
-	return str_replace( $content_dir, $content_url, $file );
+	// Preserve theme and custom template-stack assets inside the content directory.
+	if ( 0 === strpos( $file, $content_dir . '/' ) ) {
+		return content_url() . substr( $file, strlen( $content_dir ) );
+	}
+
+	return $file;
 }
 
 /**

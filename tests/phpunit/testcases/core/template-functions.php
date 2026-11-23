@@ -202,11 +202,41 @@ class BBP_Tests_Core_Template_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_urlize_enqueueable
 	 */
 	public function test_urlize_enqueueable_converts_content_paths_and_windows_slashes() {
-		$path = WP_CONTENT_DIR . '/plugins/example/asset.css';
-		$this->assertSame( content_url( '/plugins/example/asset.css' ), bbp_urlize_enqueueable( $path ) );
+		$plugin_path = WP_CONTENT_DIR . '/plugins/example/asset.css';
+		$this->assertSame( content_url( '/plugins/example/asset.css' ), bbp_urlize_enqueueable( $plugin_path ) );
+
+		$path = WP_CONTENT_DIR . '/themes/example/asset.css';
+		$this->assertSame( content_url( '/themes/example/asset.css' ), bbp_urlize_enqueueable( $path ) );
 
 		$windows_path = str_replace( '/', '\\', $path );
-		$this->assertSame( content_url( '/plugins/example/asset.css' ), bbp_urlize_enqueueable( $windows_path ) );
+		$this->assertSame( content_url( '/themes/example/asset.css' ), bbp_urlize_enqueueable( $windows_path ) );
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @ticket 3255
+	 */
+	public function test_urlize_enqueueable_uses_plugin_urls_for_plugin_and_mu_plugin_paths() {
+		$plugin_path = WP_PLUGIN_DIR . '/example/asset.css';
+		$mu_path     = WPMU_PLUGIN_DIR . '/example/asset.css';
+		$nested_path = WP_PLUGIN_DIR . '/example/templates/default/css/asset.css';
+
+		$this->assertSame( plugins_url( 'example/asset.css' ), bbp_urlize_enqueueable( $plugin_path ) );
+		$this->assertSame( set_url_scheme( WPMU_PLUGIN_URL ) . '/example/asset.css', bbp_urlize_enqueueable( $mu_path ) );
+		$this->assertSame( plugins_url( 'example/templates/default/css/asset.css' ), bbp_urlize_enqueueable( $nested_path ) );
+
+		$filter = function( $url, $path, $plugin ) {
+			return 'https://assets.example.test/' . basename( dirname( $plugin ) ) . '/' . $path;
+		};
+
+		add_filter( 'plugins_url', $filter, 10, 3 );
+		try {
+			$this->assertSame( 'https://assets.example.test/example/asset.css', bbp_urlize_enqueueable( $plugin_path ) );
+			$this->assertSame( 'https://assets.example.test/example/asset.css', bbp_urlize_enqueueable( $mu_path ) );
+			$this->assertSame( 'https://assets.example.test/example/asset.css', bbp_urlize_enqueueable( str_replace( '/', '\\', $plugin_path ) ) );
+		} finally {
+			remove_filter( 'plugins_url', $filter, 10 );
+		}
 	}
 
 	/**
