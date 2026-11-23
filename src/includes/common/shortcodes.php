@@ -219,7 +219,8 @@ class BBP_Shortcodes {
 		 * @param string|false $output     The contents of the output buffer, or false on failure.
 		 * @param string       $query_name The query name used for this output.
 		 */
-		return apply_filters( 'bbp_display_shortcode', $output, $query_name );
+		$output = apply_filters( 'bbp_display_shortcode', $output, $query_name );
+		return is_string( $output ) ? $output : '';
 	}
 
 	/** Forum shortcodes ******************************************************/

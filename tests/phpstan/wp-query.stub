@@ -25,7 +25,7 @@
  * @property string $bbp_search_terms
  * @property bool $bbp_show_topics_on_root
  * @property int $paged
- * @property string|null $pagination_links
+ * @property string|list<string>|null $pagination_links
  * @property int $posts_per_page
  */
 class WP_Query {}

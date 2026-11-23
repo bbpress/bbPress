@@ -582,6 +582,7 @@ function bbp_get_user_mentions( $user_id = 0 ) {
 					'update_post_term_cache' => false
 				)
 			);
+			/** @var int[] $forums WordPress casts fields=ids results to integers. */
 			$forums = $forums_query->query( $forum_args );
 			$readers = array_unique( array( $user_id, get_current_user_id() ) );
 

@@ -2797,7 +2797,7 @@ function bbp_list_replies( $args = array() ) {
  *
  * @since 2.6.0 bbPress (r5378)
  *
- * @param int|string $reply_to Parent reply ID to validate.
+ * @param int|float|string $reply_to Parent reply ID to validate.
  * @param int $reply_id Current reply ID.
  *
  * @return int Validated parent reply ID.
@@ -2810,6 +2810,7 @@ function bbp_validate_reply_to( $reply_to = 0, $reply_id = 0 ) {
 	if ( (int) $reply_to < 1 ) {
 		return 0;
 	}
+	$reply_to = (int) $reply_to;
 
 	// The parent reply must actually be a reply
 	if ( ! bbp_is_reply( $reply_to ) ) {

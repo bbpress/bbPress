@@ -127,6 +127,9 @@ class BBP_Tests_Replies_Template_Links extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_reply_edit_url() {
 		$this->assertNull( bbp_get_reply_edit_url( $this->nonexistent_post_id() ) );
+		ob_start();
+		bbp_reply_edit_url( $this->nonexistent_post_id() );
+		$this->assertSame( '', ob_get_clean() );
 		$this->with_keymaster_reply( function ( $reply_id ) {
 			$url = bbp_get_reply_edit_url( $reply_id );
 			$this->assertNotEmpty( $url );

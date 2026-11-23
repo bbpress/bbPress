@@ -11,6 +11,10 @@
  */
 class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 
+	public function return_invalid_term_link() {
+		return new WP_Error( 'invalid_term_link' );
+	}
+
 	/**
 	 * @ticket BBP2989
 	 */
@@ -156,6 +160,22 @@ class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 		$this->assertSame( '', bbp_get_topic_tag_link( 'missing-tag' ) );
 		$this->expectOutputString( esc_url( $url ) );
 		bbp_topic_tag_link( 'alpha' );
+	}
+
+	/**
+	 * @covers ::bbp_get_topic_tag_link
+	 * @ticket 3794
+	 */
+	public function test_topic_tag_link_ignores_wordpress_errors() {
+		$term = wp_insert_term( 'Broken link', bbp_get_topic_tag_tax_id() );
+		$this->assertFalse( is_wp_error( $term ) );
+
+		add_filter( 'term_link', array( $this, 'return_invalid_term_link' ) );
+		try {
+			$this->assertSame( '', bbp_get_topic_tag_link( 'broken-link' ) );
+		} finally {
+			remove_filter( 'term_link', array( $this, 'return_invalid_term_link' ) );
+		}
 	}
 
 	/**

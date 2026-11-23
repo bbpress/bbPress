@@ -3426,7 +3426,7 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
 	 *
 	 * @since 2.6.15 bbPress (r7415)
 	 *
-	 * @param string   $visibility_where Forum visibility SQL clause.
+	 * @param string|null $visibility_where Forum visibility SQL clause.
 	 * @param WP_Query $posts_query      WordPress posts query.
 	 * @param string[] $post_types       bbPress post types protected by the clause.
 	 * @param int[]    $forum_ids        Forum IDs excluded from the query.

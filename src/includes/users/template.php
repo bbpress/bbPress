@@ -530,10 +530,10 @@ function bbp_terms() {
  *
  * @since 2.7.0 bbPress (r8335)
  *
- * @return WP_Term Current term.
+ * @return void
  */
 function bbp_the_term() {
-	return bbpress()->term_query->the_term();
+	bbpress()->term_query->the_term();
 }
 
 /** Users *********************************************************************/

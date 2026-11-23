@@ -20,6 +20,14 @@ class BBP_Tests_Search_Template_Search extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_has_search_results
+	 * @ticket 3794
+	 */
+	public function test_empty_search_has_no_post_family_cache_to_prime() {
+		$this->assertFalse( bbp_has_search_results( array( 's' => '', 'update_post_family_cache' => true ) ) );
+	}
+
+	/**
 	 * @covers ::bbp_search_results
 	 */
 	public function test_bbp_search_results() {

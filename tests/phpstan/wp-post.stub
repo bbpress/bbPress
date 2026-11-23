@@ -2,6 +2,7 @@
 
 // PHPStan requires referenced classes in the stub file itself.
 class WP_Error {}
+class WP_Post_Type {}
 
 /**
  * bbPress adds a reply parent ID when preparing reply rows for display.
@@ -16,6 +17,26 @@ class WP_Post {
 	 */
 	public $post_status;
 }
+
+/**
+ * WordPress sanitizes the post type key and rejects an empty or long result.
+ *
+ * @phpstan-param string $post_type
+ * @phpstan-param array<string, mixed>|object|string $args
+ * @return WP_Post_Type|WP_Error
+ */
+function register_post_type( $post_type, $args = array() ) {}
+
+/**
+ * WordPress accepts a string context and leaves unknown contexts unformatted.
+ *
+ * @param string $field
+ * @param mixed $value
+ * @param int $post_id
+ * @phpstan-param string $context
+ * @return mixed
+ */
+function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {}
 
 /**
  * WordPress accepts post-like objects and arbitrary filter contexts here.

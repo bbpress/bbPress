@@ -455,6 +455,9 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_topic_edit_url() {
 		$this->assertNull( bbp_get_topic_edit_url( $this->nonexistent_post_id() ) );
+		ob_start();
+		bbp_topic_edit_url( $this->nonexistent_post_id() );
+		$this->assertSame( '', ob_get_clean() );
 		$this->with_keymaster_topic( function( $topic_id ) {
 			$url = bbp_get_topic_edit_url( $topic_id );
 			if ( false === strpos( bbp_get_topic_permalink( $topic_id ), '?' ) ) {

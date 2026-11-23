@@ -143,7 +143,7 @@ function bbp_ajax_headers() {
  * @since 2.3.0 bbPress (r4543)
  *
  * @param bool   $success Whether the request succeeded.
- * @param string $content Response content.
+ * @param string|false|null $content Response content.
  * @param int    $status  Response status code. Defaults to -1.
  * @param array<string, mixed> $extras Additional response fields.
  * @return never

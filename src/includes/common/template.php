@@ -2553,8 +2553,12 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 	// Edit topic tag
 	} elseif ( bbp_is_topic_tag_edit() ) {
+		$term_link = get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() );
 		/* translators: %s: Topic Tag name */
-		$crumbs[] = '<a href="' . esc_url( get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
+		$term_name = sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() );
+		$crumbs[]  = is_wp_error( $term_link )
+			? $term_name
+			: '<a href="' . esc_url( $term_link ) . '" class="bbp-breadcrumb-topic-tag">' . $term_name . '</a>';
 
 	// Search
 	} elseif ( bbp_is_search() && bbp_get_search_terms() ) {

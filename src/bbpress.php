@@ -75,6 +75,8 @@ if ( ! class_exists( 'bbPress' ) ) :
  * @property int $current_topic_id Current topic ID.
  * @property int $current_reply_id Current reply ID.
  * @property int $current_user_id Current user ID.
+ * @property WP_Query $search_query Main search query.
+ * @property BBP_Term_Query $term_query Main term query.
  * @property stdClass $theme_compat Theme compatibility data.
  * @property stdClass $filters Registered filter data.
  * @property string $domain Text domain.

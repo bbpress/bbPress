@@ -307,7 +307,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
  *
  * @since 2.2.0 bbPress (r4324)
  *
- * @param callable|string $location_callback Callback that returns a template location.
+ * @param mixed $location_callback Callback that returns a template location.
  * @param int             $priority          Filter priority.
  * @return bool Whether the location was registered.
  */
@@ -327,7 +327,7 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
  *
  * @since 2.3.0 bbPress (r4653)
  *
- * @param callable|string $location_callback Callback that returns a template location.
+ * @param mixed $location_callback Callback that returns a template location.
  * @param int             $priority          Filter priority.
  * @return bool Whether stack was removed.
  */

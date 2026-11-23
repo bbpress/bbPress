@@ -1978,6 +1978,25 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_breadcrumb
+	 * @ticket 3794
+	 */
+	public function test_topic_tag_breadcrumb_keeps_name_when_term_link_fails() {
+		add_filter( 'bbp_no_breadcrumb', '__return_false' );
+		add_filter( 'bbp_is_topic_tag_edit', '__return_true' );
+		add_filter( 'bbp_get_topic_tag_id', '__return_zero' );
+		try {
+			$html = bbp_get_breadcrumb( array( 'include_home' => false, 'include_root' => false ) );
+			$this->assertStringContainsString( 'Topic Tag:', $html );
+			$this->assertStringNotContainsString( 'bbp-breadcrumb-topic-tag', $html );
+		} finally {
+			remove_filter( 'bbp_get_topic_tag_id', '__return_zero' );
+			remove_filter( 'bbp_is_topic_tag_edit', '__return_true' );
+			remove_filter( 'bbp_no_breadcrumb', '__return_false' );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_title
 	 */
 	public function test_title_formats_filters_and_positions_separator() {

@@ -2689,7 +2689,8 @@ function bbp_get_topic_edit_link( $args = array() ) {
  * @return void
  */
 function bbp_topic_edit_url( $topic_id = 0 ) {
-	echo esc_url( bbp_get_topic_edit_url( $topic_id ) );
+	$url = bbp_get_topic_edit_url( $topic_id ) ?? '';
+	echo esc_url( $url );
 }
 
 /**
@@ -4037,9 +4038,12 @@ function bbp_get_topic_tag_link( $tag = '' ) {
 	}
 
 	// Get the term link
-	$retval = ! empty( $term->term_id )
+	$retval = ( $term instanceof WP_Term )
 		? get_term_link( $term, bbp_get_topic_tag_tax_id() )
 		: '';
+	if ( is_wp_error( $retval ) ) {
+		$retval = '';
+	}
 
 	// Filter & return
 	return apply_filters( 'bbp_get_topic_tag_link', $retval, $tag, $term );

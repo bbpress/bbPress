@@ -2064,7 +2064,8 @@ function bbp_get_reply_edit_link( $args = array() ) {
  * @return void
  */
 function bbp_reply_edit_url( $reply_id = 0 ) {
-	echo esc_url( bbp_get_reply_edit_url( $reply_id ) );
+	$url = bbp_get_reply_edit_url( $reply_id ) ?? '';
+	echo esc_url( $url );
 }
 
 /**

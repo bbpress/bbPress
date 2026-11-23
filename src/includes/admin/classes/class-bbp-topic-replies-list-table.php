@@ -346,9 +346,9 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5930)
 	 *
-	 * @param string $which Whether to display top or bottom navigation.
+	 * @param 'top'|'bottom' $which Whether to display top or bottom navigation.
 	 */
-	protected function display_tablenav( $which = '' ) {
+	protected function display_tablenav( $which ) {
 		?>
 
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">

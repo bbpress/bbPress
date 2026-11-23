@@ -7,6 +7,19 @@
  * @group shortcodes
  */
 class BBP_Tests_Common_Shortcode_Registration extends BBP_UnitTestCase {
+	/**
+	 * @covers BBP_Shortcodes::display_forum_index
+	 * @ticket 3794
+	 */
+	public function test_shortcodes_return_a_string_after_a_false_output_filter() {
+		add_filter( 'bbp_display_shortcode', '__return_false' );
+		try {
+			$this->assertSame( '', do_shortcode( '[bbp-forum-index]' ) );
+		} finally {
+			remove_filter( 'bbp_display_shortcode', '__return_false' );
+		}
+	}
+
 	public function filter_shortcodes() {
 		return array(
 			''          => '__return_empty_string',

@@ -1751,7 +1751,7 @@ function bbp_split_topic_handler( $action = '' ) {
 		// Get the source topic tags
 		$source_topic_tags = wp_get_post_terms( $source_topic->ID, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) );
 
-		if ( ! empty( $source_topic_tags ) ) {
+		if ( is_array( $source_topic_tags ) && ! empty( $source_topic_tags ) ) {
 			wp_set_post_terms( $destination_topic->ID, $source_topic_tags, bbp_get_topic_tag_tax_id(), true );
 		}
 	}

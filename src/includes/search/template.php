@@ -78,7 +78,7 @@ function bbp_has_search_results( $args = array() ) {
 	}
 
 	// Maybe prime last active posts
-	if ( ! empty( $r['update_post_family_cache'] ) ) {
+	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->search_query->posts ) ) {
 		bbp_update_post_family_caches( $bbp->search_query->posts );
 	}
 
