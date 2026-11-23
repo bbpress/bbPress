@@ -50,13 +50,13 @@ class BBP_Tests_Topics_Template_Topic_Loop extends BBP_UnitTestCase {
 		$this->assertTrue( bbp_has_topics( array_merge( $args, array( 'paged' => 1 ) ) ) );
 		$this->assertSame( array( $topic_ids[1], $topic_ids[4], $topic_ids[3] ), wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
 		$this->assertSame( 5, bbpress()->topic_query->found_posts );
-		$this->assertSame( 2, bbpress()->topic_query->max_num_pages );
+		$this->assertSame( 2, (int) bbpress()->topic_query->max_num_pages );
 		$this->assertStringContainsString( '1 through 3 (of 5 total)', bbp_get_forum_pagination_count() );
 
 		$this->assertTrue( bbp_has_topics( array_merge( $args, array( 'paged' => 2 ) ) ) );
 		$this->assertSame( array( $topic_ids[2], $topic_ids[0] ), wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
 		$this->assertSame( 5, bbpress()->topic_query->found_posts );
-		$this->assertSame( 2, bbpress()->topic_query->max_num_pages );
+		$this->assertSame( 2, (int) bbpress()->topic_query->max_num_pages );
 		$this->assertStringContainsString( '4 through 5 (of 5 total)', bbp_get_forum_pagination_count() );
 	}
 
@@ -89,7 +89,7 @@ class BBP_Tests_Topics_Template_Topic_Loop extends BBP_UnitTestCase {
 		$this->assertTrue( bbp_has_topics( array_merge( $args, array( 'paged' => 2 ) ) ) );
 		$this->assertSame( array( $topic_ids[1] ), wp_list_pluck( bbpress()->topic_query->posts, 'ID' ) );
 		$this->assertSame( 3, bbpress()->topic_query->found_posts );
-		$this->assertSame( 2, bbpress()->topic_query->max_num_pages );
+		$this->assertSame( 2, (int) bbpress()->topic_query->max_num_pages );
 	}
 
 	/**
