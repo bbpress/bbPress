@@ -421,6 +421,27 @@ class BBP_Tests_Core_Sub_Actions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_nav_menu_objects
+	 */
+	public function test_nav_menu_objects_forwards_menu_arguments() {
+		$args     = (object) array( 'theme_location' => 'primary' );
+		$received = null;
+		$filter   = function( $menu_items, $menu_args ) use ( &$received ) {
+			$received = $menu_args;
+			return $menu_items;
+		};
+
+		add_filter( 'bbp_nav_menu_objects', $filter, 20, 2 );
+
+		try {
+			$this->assertSame( array(), bbp_nav_menu_objects( array(), $args ) );
+			$this->assertSame( $args, $received );
+		} finally {
+			remove_filter( 'bbp_nav_menu_objects', $filter, 20 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_allowed_themes
 	 * @covers ::bbp_map_meta_caps
 	 * @covers ::bbp_redirect_canonical

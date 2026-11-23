@@ -184,6 +184,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Fixed classic navigation menu highlighting on the forum index and individual
+  forums, topics, and replies, including menus nested beneath another page.
 - Applied the configured forum, topic, and reply slugs to BuddyPress group
   forum URLs.
 - Loaded forum styles and scripts from plugin and must-use plugin directories

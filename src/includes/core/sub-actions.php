@@ -622,6 +622,21 @@ function bbp_request( $query_vars = array() ) {
 }
 
 /**
+ * Piggy back filter for WordPress's 'wp_nav_menu_objects' filter.
+ *
+ * @since 2.7.0 bbPress (r8608)
+ *
+ * @param array<array-key, WP_Post> $menu_items Sorted navigation menu items.
+ * @param stdClass|null $args Navigation menu arguments.
+ * @return array<array-key, WP_Post> Filtered navigation menu items.
+ */
+function bbp_nav_menu_objects( $menu_items = array(), $args = null ) {
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_nav_menu_objects', $menu_items, $args );
+}
+
+/**
  * The main filter used for theme compatibility and displaying custom bbPress
  * theme files.
  *

@@ -42,12 +42,16 @@ add_filter( 'template_include',        'bbp_template_include',   10    );
 add_filter( 'wp_mail',                 'bbp_mail',               10, 1 );
 add_filter( 'wp_title',                'bbp_title',              10, 3 );
 add_filter( 'body_class',              'bbp_body_class',         10, 2 );
+add_filter( 'wp_nav_menu_objects',     'bbp_nav_menu_objects',   10, 2 );
 add_filter( 'map_meta_cap',            'bbp_map_meta_caps',      10, 4 );
 add_filter( 'allowed_themes',          'bbp_allowed_themes',     10    );
 add_filter( 'redirect_canonical',      'bbp_redirect_canonical', 10, 2 );
 add_filter( 'login_redirect',          'bbp_redirect_login',     2,  3 );
 add_filter( 'logout_url',              'bbp_logout_url',         2,  2 );
 add_filter( 'plugin_locale',           'bbp_plugin_locale',      10, 2 );
+
+// Set forum root navigation menu classes on forum pages.
+add_filter( 'bbp_nav_menu_objects', 'bbp_set_forum_nav_menu_classes' );
 
 // Apply bbPress shortcode policy to forum, topic, and reply content.
 add_filter( 'pre_do_shortcode_tag',     'bbp_pre_do_shortcode_tag', 10, 4 );

@@ -61,6 +61,134 @@ function bbp_get_topics_url( $path = '/' ) {
 	return home_url( bbp_get_topic_archive_slug() . $path );
 }
 
+/** Navigation ****************************************************************/
+
+/**
+ * Mark the forum root and its menu ancestors while viewing forum content.
+ *
+ * A forum archive query does not identify a Page at the forum root as current.
+ * WordPress also does not treat the archive as the parent of individual forums,
+ * topics, and replies.
+ *
+ * @since 2.7.0 bbPress (r8608)
+ *
+ * @param array $menu_items Sorted navigation menu items.
+ * @return array Navigation menu items with forum parent classes.
+ */
+function bbp_set_forum_nav_menu_classes( $menu_items ) {
+	$is_archive = bbp_is_forum_archive();
+
+	if ( ! $is_archive && ! bbp_is_single_forum() && ! bbp_is_single_topic() && ! bbp_is_single_reply() ) {
+		return $menu_items;
+	}
+
+	$root_slug     = bbp_get_root_slug();
+	$root_page     = ( '' !== $root_slug ) ? bbp_get_page_by_path( $root_slug ) : null;
+	$root_page_id  = $root_page ? (int) $root_page->ID : 0;
+	$posts_page_id = (int) get_option( 'page_for_posts' );
+	$menu_keys     = array();
+	$root_keys     = array();
+	$root_urls     = array();
+
+	if ( '' !== $root_slug ) {
+		$forum_urls = array( bbp_get_forums_url(), get_post_type_archive_link( bbp_get_forum_post_type() ) );
+
+		if ( $root_page ) {
+			$forum_urls[] = get_permalink( $root_page );
+		}
+
+		foreach ( array_filter( $forum_urls ) as $forum_url ) {
+			$root_url    = untrailingslashit( set_url_scheme( $forum_url ) );
+			$root_urls[] = $root_url;
+			$root_urls[] = untrailingslashit( wp_make_link_relative( $root_url ) );
+		}
+	}
+
+	foreach ( $menu_items as $key => $item ) {
+		$menu_keys[ (int) $item->db_id ] = $key;
+
+		$is_page = ( 'post_type' === $item->type ) && ( 'page' === $item->object );
+
+		// The posts page is not the parent of forum content.
+		if ( $is_page && $posts_page_id && ( $posts_page_id === (int) $item->object_id ) && ! in_array( 'current-menu-parent', (array) $item->classes, true ) ) {
+			$menu_items[ $key ]->classes = array_diff( (array) $item->classes, array( 'current_page_parent' ) );
+		}
+
+		$is_root_page    = $is_page && $root_page_id && ( $root_page_id === (int) $item->object_id );
+		$is_root_archive = ( 'post_type_archive' === $item->type ) && ( bbp_get_forum_post_type() === $item->object );
+		$is_root_link    = false;
+
+		if ( ( 'custom' === $item->type ) && ! empty( $item->url ) ) {
+			$url          = explode( '#', $item->url, 2 );
+			$menu_url     = untrailingslashit( set_url_scheme( $url[0] ) );
+			$is_root_link = in_array( $menu_url, $root_urls, true );
+		}
+
+		if ( ! $is_root_page && ! $is_root_archive && ! $is_root_link ) {
+			continue;
+		}
+
+		$classes = (array) $menu_items[ $key ]->classes;
+
+		if ( $is_archive ) {
+			$classes[] = 'current-menu-item';
+			$menu_items[ $key ]->current = true;
+
+			if ( $is_root_page ) {
+				$classes[] = 'page_item';
+				$classes[] = 'page-item-' . $item->object_id;
+				$classes[] = 'current_page_item';
+			}
+		} else {
+			$classes = array_merge( $classes, array( 'current-menu-parent', 'current-menu-ancestor' ) );
+
+			if ( $is_root_page ) {
+				$classes = array_merge( $classes, array( 'current_page_parent', 'current_page_ancestor' ) );
+			}
+
+			$menu_items[ $key ]->current_item_parent   = true;
+			$menu_items[ $key ]->current_item_ancestor = true;
+		}
+
+		$menu_items[ $key ]->classes = array_unique( $classes );
+		$root_keys[] = $key;
+	}
+
+	// A parent menu item also needs a class when Forums is nested beneath it.
+	foreach ( $root_keys as $key ) {
+		$parent_id = (int) $menu_items[ $key ]->menu_item_parent;
+		$seen      = array();
+		$depth     = 0;
+
+		while ( $parent_id && isset( $menu_keys[ $parent_id ] ) && ! isset( $seen[ $parent_id ] ) ) {
+			$seen[ $parent_id ] = true;
+			$parent_key         = $menu_keys[ $parent_id ];
+			$parent             = $menu_items[ $parent_key ];
+			$classes            = array_merge( (array) $parent->classes, array( 'current-menu-ancestor' ) );
+
+			if ( $is_archive && ( 0 === $depth ) ) {
+				$classes[]                   = 'current-menu-parent';
+				$parent->current_item_parent = true;
+			}
+
+			if ( ( 'post_type' === $parent->type ) && ( 'page' === $parent->object ) ) {
+				$classes[] = 'current_page_ancestor';
+
+				if ( $is_archive && ( 0 === $depth ) ) {
+					$classes[] = 'current_page_parent';
+				}
+			}
+
+			$parent->classes               = array_unique( $classes );
+			$parent->current_item_ancestor = true;
+			$parent_id                     = (int) $parent->menu_item_parent;
+			++$depth;
+		}
+	}
+
+	return $menu_items;
+}
+
 /** Add-on Actions ************************************************************/
 
 /**
