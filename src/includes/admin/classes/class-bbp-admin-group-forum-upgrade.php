@@ -139,7 +139,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	public function run() {
 		list( $read, $saved ) = bbp_admin_repair_tool_get_checkpoint( $this->tool_id, $this->dry_run );
 		$complete  = false;
-		$restarted = false !== $saved && ! $this->valid_state( $saved );
+		$restarted = false !== $saved && ( ! is_array( $saved ) || ! $this->valid_state( $saved ) );
 		if ( ! $read ) {
 			$this->fail( 'progress' );
 		} elseif ( false === $saved || $restarted ) {
@@ -513,7 +513,8 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 			if ( $this->error ) {
 				return 1;
 			}
-			if ( ! $this->valid_plan( $plan, $id ) ) {
+			$plan = $this->validate_plan( $plan, $id );
+			if ( false === $plan ) {
 				$this->fail( 'verify' );
 			} elseif ( in_array( $phase, array( 'plan', 'verify' ), true ) && ! $this->source_matches( $plan ) ) {
 				$this->fail( 'verify' );
@@ -557,9 +558,9 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 *
 	 * @param mixed $plan Possible forum migration plan.
 	 * @param int   $id   Expected forum ID.
-	 * @return bool Whether the plan is valid.
+	 * @return array<string, mixed>|false The validated plan, or false when it is invalid.
 	 */
-	private function valid_plan( $plan, $id ) {
+	private function validate_plan( $plan, $id ) {
 		if ( ! is_array( $plan ) || ! isset( $plan['id'], $plan['legacy'], $plan['groups'], $plan['legacy_field'], $plan['groups_field'], $plan['skip'], $plan['owner'] )
 			|| $id !== $plan['id'] || ! is_string( $plan['legacy'] ) || ! is_bool( $plan['skip'] ) || ! is_bool( $plan['owner'] )
 			|| ! is_array( $plan['groups'] ) || $this->parse_id_list( $plan['groups'] ) !== $plan['groups'] ) {
@@ -589,10 +590,12 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 					return false;
 				}
 			}
-			return in_array( $plan['scan'], array( 'legacy', 'current' ), true )
-				&& isset( $plan['candidate_cursor'] ) && is_int( $plan['candidate_cursor'] ) && $plan['candidate_cursor'] >= 0;
+			if ( ! in_array( $plan['scan'], array( 'legacy', 'current' ), true )
+				|| ! isset( $plan['candidate_cursor'] ) || ! is_int( $plan['candidate_cursor'] ) || ( $plan['candidate_cursor'] < 0 ) ) {
+				return false;
+			}
 		}
-		return true;
+		return $plan;
 	}
 
 	/**
@@ -605,7 +608,8 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 	 */
 	private function index_forum( $id ) {
 		$plan = $this->state['group_marker_offset'] ? $this->read_plan( 'forum_' . $id ) : $this->read_forum_source( $id );
-		if ( ! $this->valid_plan( $plan, $id ) || $this->state['group_marker_offset'] > count( $plan['groups'] ) ) {
+		$plan = $this->validate_plan( $plan, $id );
+		if ( false === $plan || $this->state['group_marker_offset'] > count( $plan['groups'] ) ) {
 			$this->fail( 'verify' );
 			return;
 		}

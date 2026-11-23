@@ -41,7 +41,7 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 	}
 
 	public function malformed_nodes() {
-		return array( array( 'topics', 'values' ), array( 'topics', 'type' ), array( 'topics', 'key' ), array( 'topics', 'missing' ), array( 'count', 'values' ), array( 'count', 'type' ) );
+		return array( array( 'topics', 'values' ), array( 'topics', 'type' ), array( 'topics', 'key' ), array( 'topics', 'missing' ), array( 'count', 'values' ), array( 'count', 'type' ), array( 'count', 'non-array' ) );
 	}
 
 	public function checkpoint_failures() {
@@ -1045,6 +1045,8 @@ class BBP_Tests_Admin_Freshness_Batches extends BBP_UnitTestCase {
 		$node = 'topics' === $phase ? $state['topic_node'] : get_option( $name );
 		if ( 'missing' === $field ) {
 			$node = false;
+		} elseif ( 'non-array' === $field ) {
+			$node = 'invalid';
 		} elseif ( 'values' === $field ) {
 			$node['values'] = array( 'invalid' => 10 );
 		} elseif ( 'key' === $field ) {

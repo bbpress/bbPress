@@ -1225,18 +1225,27 @@ class BBP_Tests_Admin_Upgrade_SQL extends BBP_UnitTestCase {
 		$this->assertTrue( $this->run_batch()['complete'] );
 	}
 
-	public function test_missing_preflight_plan_cannot_be_treated_as_an_unrelated_forum() {
+	/** @dataProvider invalid_preflight_plans */
+	public function test_invalid_preflight_plan_cannot_be_treated_as_an_unrelated_forum( $stored ) {
 		$forums     = $this->fixture();
 		$this->size = 1;
 		$state      = $this->until_phase( 'apply' );
 		$name       = $this->checkpoint() . '_groups_' . $state['token'] . '_forum_' . $forums[0];
-		delete_option( $name );
+		if ( false === $stored ) {
+			delete_option( $name );
+		} else {
+			update_option( $name, $stored );
+		}
 		$result = $this->run_batch();
 		$this->assertSame( 2, $result['code'] );
 		$this->assertSame( 'verify', $result['error'] );
 		$this->assertSame( array(), get_post_meta( $forums[0], '_bbp_group_ids', false ) );
 		$this->size = 1000;
 		$this->assertTrue( $this->run_batch()['complete'] );
+	}
+
+	public function invalid_preflight_plans() {
+		return array( array( false ), array( 'invalid' ) );
 	}
 
 	public function test_group_write_verification_rejects_false_success_and_clears_native_cache() {

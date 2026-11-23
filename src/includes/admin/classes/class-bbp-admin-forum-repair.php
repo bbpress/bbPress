@@ -188,7 +188,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 					false
 				);
 			}
-			if ( ( false !== $saved ) && ! $this->valid_state( $saved ) ) {
+			if ( ( false !== $saved ) && ( ! is_array( $saved ) || ! $this->valid_state( $saved ) ) ) {
 				$saved           = false;
 				$this->restarted = true;
 			}
@@ -395,7 +395,11 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 		}
 		$node = $this->nodes[ $id ];
 		if ( false !== $node ) {
-			$valid = is_array( $node ) && isset( $node['phase'], $node['values'], $node['counted'], $node['children'], $node['changed'] );
+			if ( ! is_array( $node ) ) {
+				$this->corrupt = true;
+				return false;
+			}
+			$valid = isset( $node['phase'], $node['values'], $node['counted'], $node['children'], $node['changed'] );
 			foreach ( array( 'id', 'parent', 'depth', 'next', 'await', 'edge', 'key' ) as $field ) {
 				$valid = $valid && isset( $node[ $field ] ) && is_int( $node[ $field ] ) && ( $node[ $field ] >= 0 );
 			}
