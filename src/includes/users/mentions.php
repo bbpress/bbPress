@@ -287,11 +287,17 @@ function bbp_save_post_mentions( $post_id, $post, $update, $post_before ) {
 
 	$new_ids = bbp_claim_mention_notification_recipients( $post_id, $new_ids, $old_ids );
 	if ( $active && $public && ! empty( $new_ids ) ) {
+		$bbp     = bbpress();
 		$blog_id = get_current_blog_id();
-		$queue   = (array) bbpress()->mention_notification_queue;
+		$queue   = (array) $bbp->mention_notification_queue;
+		$urls    = (array) $bbp->mention_notification_urls;
 		$queued  = isset( $queue[ $blog_id ][ $post_id ] ) ? $queue[ $blog_id ][ $post_id ] : array();
 		$queue[ $blog_id ][ $post_id ] = wp_parse_id_list( array_merge( $queued, $new_ids ) );
-		bbpress()->mention_notification_queue = $queue;
+
+		// Shutdown may run after another site has changed the rewrite state.
+		$urls[ $blog_id ][ $post_id ]  = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
+		$bbp->mention_notification_queue = $queue;
+		$bbp->mention_notification_urls  = $urls;
 	}
 }
 
@@ -379,9 +385,12 @@ function bbp_record_mention_subscription_recipients( $post_id, $parent_id, $user
  * @return void
  */
 function bbp_send_mention_notifications() {
-	$queue = (array) bbpress()->mention_notification_queue;
-	$sent  = (array) bbpress()->mention_subscription_recipients;
-	bbpress()->mention_notification_queue = array();
+	$bbp   = bbpress();
+	$queue = (array) $bbp->mention_notification_queue;
+	$urls  = (array) $bbp->mention_notification_urls;
+	$sent  = (array) $bbp->mention_subscription_recipients;
+	$bbp->mention_notification_queue = array();
+	$bbp->mention_notification_urls  = array();
 
 	foreach ( $queue as $blog_id => $posts ) {
 		$switched = is_multisite() && ( get_current_blog_id() !== (int) $blog_id );
@@ -409,7 +418,11 @@ function bbp_send_mention_notifications() {
 				}
 
 				$switched_locale = switch_to_locale( get_user_locale( $user ) );
-				$link         = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
+				if ( isset( $urls[ $blog_id ][ $post_id ] ) ) {
+					$link = $urls[ $blog_id ][ $post_id ];
+				} else {
+					$link = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
+				}
 				$settings_url = bbp_validate_url( apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id ) );
 				/* translators: %s: Site name */
 				$subject = sprintf( __( '[%s] You were mentioned in a forum discussion', 'bbpress' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );

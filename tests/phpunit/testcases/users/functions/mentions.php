@@ -23,6 +23,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->author = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$this->forum = $this->factory->forum->create();
 		bbpress()->mention_notification_queue = array();
+		bbpress()->mention_notification_urls = array();
 		bbpress()->mention_subscription_recipients = array();
 		add_filter( 'pre_wp_mail', array( $this, 'capture_mail' ), 10, 2 );
 	}
@@ -30,6 +31,7 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 	public function tearDown(): void {
 		remove_filter( 'pre_wp_mail', array( $this, 'capture_mail' ), 10 );
 		bbpress()->mention_notification_queue = array();
+		bbpress()->mention_notification_urls = array();
 		bbpress()->mention_subscription_recipients = array();
 		bbpress()->search_query = $this->old_search_query;
 		bbpress()->displayed_user = $this->old_displayed_user;
@@ -936,6 +938,27 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		wp_update_post( array( 'ID' => $topic, 'post_status' => bbp_get_public_status_id() ) );
 		bbp_send_mention_notifications();
 		$this->assertCount( 0, $this->mail );
+	}
+
+	public function test_queued_link_uses_rewrite_state_from_when_the_post_was_saved() {
+		$old_rewrite = $GLOBALS['wp_rewrite'];
+		$GLOBALS['wp_rewrite'] = clone $old_rewrite;
+
+		try {
+			$GLOBALS['wp_rewrite']->add_permastruct( bbp_get_topic_post_type(), 'forums/topic/%topic%', array( 'with_front' => false ) );
+			$GLOBALS['wp_rewrite']->permalink_structure = '';
+			$topic = $this->topic( array( 'post_content' => 'No mentions.' ) );
+			wp_update_post( array( 'ID' => $topic, 'post_content' => '@mention-user' ) );
+			$url = bbp_get_topic_permalink( $topic );
+
+			$GLOBALS['wp_rewrite']->permalink_structure = '/%year%/%monthnum%/%day%/%postname%/';
+			$this->assertNotSame( $url, bbp_get_topic_permalink( $topic ) );
+			bbp_send_mention_notifications();
+			$this->assertCount( 1, $this->mail );
+			$this->assertStringContainsString( $url, $this->mail[0]['message'] );
+		} finally {
+			$GLOBALS['wp_rewrite'] = $old_rewrite;
+		}
 	}
 
 	/**

@@ -184,6 +184,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Kept mention email links on the site where the topic or reply was saved
+  when a Multisite request processes posts from more than one site.
 - Generated passwords for imported users when the source provides no usable
   password. These users can use password reset to sign in.
 - Preserved blank lines within code blocks in forum, topic, and reply content.
