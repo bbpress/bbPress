@@ -573,9 +573,10 @@ function bbp_filter_use_block_editor_for_post_type( $using = false, $post_type =
  * @since 2.6.0 bbPress (r6481)
  * @since 2.6.22 bbPress (r8341) Return values with consecutive numeric keys.
  *
- * @param array<array-key, mixed> $array Array to get values of.
+ * @template TValue
+ * @param array<array-key, TValue> $array Array to get values of.
  *
- * @return list<mixed> Unique non-empty values.
+ * @return list<TValue> Unique non-empty values.
  */
 // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.arrayFound -- Preserve the public parameter name for PHP 8 named arguments.
 function bbp_get_unique_array_values( $array = array() ) {

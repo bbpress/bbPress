@@ -147,7 +147,7 @@ function bbp_admin_repair_tool_run_state_option_name( $type = '', $action = 'run
  * @param string $type     Repair tool type.
  * @param bool   $filtered Whether to apply native option view filters.
  * @param string $action   Tool action.
- * @return array{bool, array<string, mixed>|false} Read success and normalized internal state.
+ * @return array{bool, array{id:string, preview_id:string, tools:list<string>, status:string, started:bool, updated:int}|false} Read success and normalized internal state.
  */
 function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $action = 'run' ) {
 	$action = sanitize_key( $action );
@@ -156,28 +156,54 @@ function bbp_admin_repair_tool_read_run_state( $type = '', $filtered = false, $a
 		return array( false, false );
 	}
 	list( $read, $state ) = bbp_admin_repair_get_option( $option, array(), $filtered );
-	if ( ! $read || ! is_array( $state ) || empty( $state['id'] ) || empty( $state['tools'] ) ) {
+	if ( ! $read || ! is_array( $state ) || empty( $state['id'] ) || empty( $state['tools'] ) || ! is_scalar( $state['id'] ) ) {
 		return array( $read, false );
 	}
-	$tools = bbp_get_unique_array_values( array_map( 'sanitize_key', (array) $state['tools'] ) );
+	$id = (string) $state['id'];
+	$id = sanitize_text_field( $id );
+	if ( '' === $id ) {
+		return array( true, false );
+	}
+	$tools = array();
+	foreach ( (array) $state['tools'] as $tool ) {
+		if ( is_scalar( $tool ) ) {
+			$tool    = (string) $tool;
+			$tools[] = sanitize_key( $tool );
+		}
+	}
+	$tools = bbp_get_unique_array_values( $tools );
 	if ( empty( $tools ) ) {
 		return array( true, false );
 	}
-	$status     = isset( $state['status'] ) ? sanitize_key( $state['status'] ) : 'running';
+	$status = 'running';
+	if ( isset( $state['status'] ) ) {
+		if ( is_scalar( $state['status'] ) ) {
+			$status = (string) $state['status'];
+			$status = sanitize_key( $status );
+		} else {
+			$status = 'error';
+		}
+	}
 	$started    = ! empty( $state['started'] );
-	$preview_id = ( 'dry-run' === $action ) && ! empty( $state['preview_id'] )
-		? sanitize_text_field( $state['preview_id'] )
-		: sanitize_text_field( $state['id'] );
+	$preview_id = $id;
+	if ( ( 'dry-run' === $action ) && ! empty( $state['preview_id'] ) && is_scalar( $state['preview_id'] ) ) {
+		$preview_id = (string) $state['preview_id'];
+		$preview_id = sanitize_text_field( $preview_id );
+	}
+	$updated = 0;
+	if ( isset( $state['updated'] ) && is_numeric( $state['updated'] ) ) {
+		$updated = (int) $state['updated'];
+	}
 
 	return array(
 		true,
 		array(
-			'id'         => sanitize_text_field( $state['id'] ),
+			'id'         => $id,
 			'preview_id' => $preview_id,
 			'tools'      => $tools,
 			'status'     => in_array( $status, array( 'running', 'paused', 'discarding', 'error' ), true ) ? $status : 'error',
 			'started'    => $started,
-			'updated'    => isset( $state['updated'] ) ? (int) $state['updated'] : 0,
+			'updated'    => $updated,
 		)
 	);
 }

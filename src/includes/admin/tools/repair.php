@@ -3342,6 +3342,14 @@ function bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context
 	}
 	if ( isset( $state['_preview_state'] ) ) {
 		$evaluated = $state['_preview_state']['data']['evaluated'];
+		if ( ! is_array( $evaluated ) ) {
+			return false;
+		}
+		foreach ( $evaluated as $status ) {
+			if ( ! is_string( $status ) ) {
+				return false;
+			}
+		}
 		if ( bbp_get_unique_array_values( $evaluated ) !== $evaluated || array_diff( $evaluated, array( 'private', 'hidden' ) ) ) {
 			return false;
 		}

@@ -1022,6 +1022,7 @@ function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = fa
 	// Repair both authors after the transition callback targeted the new author
 	} else {
 		foreach ( bbp_get_unique_array_values( array( $post_before->post_author, $post_after->post_author ) ) as $user_id ) {
+			$user_id = (int) $user_id;
 			if ( $is_topic ) {
 				bbp_update_user_topic_count( $user_id, bbp_get_user_topic_count_raw( $user_id ) );
 			} else {

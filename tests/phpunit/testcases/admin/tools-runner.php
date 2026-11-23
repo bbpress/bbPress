@@ -33,6 +33,25 @@ class BBP_Tests_Admin_Tools_Runner extends BBP_UnitTestCase {
 	private $registration_calls = 0;
 	private $calls = array();
 
+	public function test_run_state_reader_rejects_malformed_saved_values() {
+		$option = bbp_admin_repair_tool_run_state_option_name( 'upgrade' );
+		update_option( $option, array( 'id' => array( 'bad' ), 'tools' => array( 'bbp-test-batch-one' ) ) );
+		$this->assertSame( array( true, false ), bbp_admin_repair_tool_read_run_state( 'upgrade' ) );
+
+		update_option( $option, array(
+			'id'      => 'owner',
+			'tools'   => array( 'bbp-test-batch-one', array( 'bad' ), 'bbp-test-batch-one' ),
+			'status'  => array( 'bad' ),
+			'updated' => array( 'bad' ),
+		) );
+		list( $read, $state ) = bbp_admin_repair_tool_read_run_state( 'upgrade' );
+		$this->assertTrue( $read );
+		$this->assertSame( 'owner', $state['id'] );
+		$this->assertSame( array( 'bbp-test-batch-one' ), $state['tools'] );
+		$this->assertSame( 'error', $state['status'] );
+		$this->assertSame( 0, $state['updated'] );
+	}
+
 	public function setUp(): void {
 		parent::setUp();
 

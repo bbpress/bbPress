@@ -56,6 +56,28 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		return array( array( 'phase', -1 ), array( 'phase', 5 ), array( 'cursor', 'past-bound' ), array( 'sources', false ), array( 'changed', 'yes' ), array( 'context', array() ) );
 	}
 
+	public function test_malformed_preview_statuses_are_rejected() {
+		$context = array(
+			'forum'    => bbp_get_forum_post_type(),
+			'statuses' => array( bbp_get_private_status_id(), bbp_get_hidden_status_id() ),
+		);
+		$state = array(
+			'cursor'         => 0,
+			'upper_id'       => 0,
+			'phase'          => 0,
+			'context'        => $context,
+			'sources'        => array( 'private' => md5( '' ), 'hidden' => md5( '' ) ),
+			'changed'        => false,
+			'_preview_state' => array(
+				'totals' => array( 'private' => 0, 'hidden' => 0, 'checked' => 0, 'batches' => 0, 'changed' => false ),
+				'data'   => array( 'evaluated' => array( array( 'private' ) ) ),
+			),
+		);
+		$this->assertFalse( bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) );
+		$state['_preview_state']['data']['evaluated'] = array( 'private' );
+		$this->assertTrue( bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) );
+	}
+
 	private function option() {
 		return bbp_admin_repair_tool_batch_option_name( 'bbp-sync-forum-visibility' );
 	}
