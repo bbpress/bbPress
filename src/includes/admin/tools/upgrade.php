@@ -642,6 +642,10 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 		$batch['found']   = $batch['found'] || ! empty( $rows );
 		$statuses         = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
 		$source           = bbp_admin_repair_get_engagements_query( $statuses, $statuses, true );
+		if ( null === $source ) {
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+			return $batch;
+		}
 		$claim            = $dry_run && bbp_admin_repair_tool_is_async_dry_run()
 			? static function ( $topic_id, $user_id ) use ( $tool_id, $state ) {
 				return bbp_admin_repair_tool_scratch_claim( $tool_id, $state['token'], 'relationships', array( $topic_id, $user_id ) );

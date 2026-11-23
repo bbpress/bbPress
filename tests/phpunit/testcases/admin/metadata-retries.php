@@ -129,6 +129,52 @@ class BBP_Tests_Admin_Metadata_Retries extends BBP_UnitTestCase {
 		$this->assertSame( $before, $db->get_results( "SELECT * FROM {$db->postmeta} ORDER BY meta_id", ARRAY_A ) );
 	}
 
+	/**
+	 * @covers ::bbp_admin_repair_get_engagements_query
+	 * @covers ::bbp_admin_repair_topic_voice_count_batch
+	 * @covers ::bbp_admin_upgrade_user_engagements_batch
+	 * @ticket 3794
+	 */
+	public function test_engagement_batches_report_failed_query_preparation() {
+		$db = bbp_db();
+		$null_db = new class( $db ) {
+			public $last_error = '';
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db = $db;
+			}
+
+			public function __get( $name ) {
+				return $this->db->$name;
+			}
+
+			public function __call( $name, $args ) {
+				return $this->db->$name( ...$args );
+			}
+
+			public function prepare( $query, ...$args ) {
+				if ( false !== strpos( $query, 'SELECT topics.ID AS post_id' ) ) {
+					return null;
+				}
+
+				return $this->db->prepare( $query, ...$args );
+			}
+		};
+		$filter = static function ( $object, $name ) use ( $null_db ) {
+			return 'wpdb' === $name ? $null_db : $object;
+		};
+
+		add_filter( 'bbp_get_global_object', $filter, 10, 2 );
+		try {
+			$this->assertNull( bbp_admin_repair_get_engagements_query() );
+			$this->assertSame( 'source-read', bbp_admin_repair_topic_voice_count_batch( true )['error'] );
+			$this->assertSame( 'source-read', bbp_admin_upgrade_user_engagements_batch( true )['error'] );
+		} finally {
+			remove_filter( 'bbp_get_global_object', $filter, 10 );
+		}
+	}
+
 	public function alias_keys() {
 		return array( array( '_BBP_STICKY_TOPICS' ), array( '_bbp_sticky_topics ' ) );
 	}

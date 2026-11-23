@@ -516,6 +516,10 @@ function bbp_admin_repair_topic_voice_count_batch( $dry_run = false ) {
 	do {
 		$work   = 0;
 		$source = bbp_admin_repair_get_engagements_query( $context[2], $context[3] );
+		if ( null === $source ) {
+			bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
+			return $batch;
+		}
 		if ( 'prepare' === $state['phase'] ) {
 			list( $success, $cleanup_work, $complete ) = bbp_admin_repair_tool_cleanup_scratch( $tool_id, $size );
 			if ( ! $success ) {
@@ -4066,7 +4070,11 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 			}
 			for ( $work = 0; $work < $size && $state['phase'] < 2; ++$work ) {
 				if ( 0 === $state['phase'] ) {
-					$row = $dry_run ? array_shift( $preview['rows'] ) : $db->get_row( $db->prepare( "SELECT meta_id, post_id, (post_id = meta_value) AS self_reference FROM {$db->postmeta} WHERE meta_key = '_bbp_reply_to' AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT 1", $state['meta_cursor'], $state['meta_upper'] ) );
+					if ( $dry_run ) {
+						$row = isset( $preview['rows'] ) ? array_shift( $preview['rows'] ) : null;
+					} else {
+						$row = $db->get_row( $db->prepare( "SELECT meta_id, post_id, (post_id = meta_value) AS self_reference FROM {$db->postmeta} WHERE meta_key = '_bbp_reply_to' AND meta_id > %d AND meta_id <= %d ORDER BY meta_id LIMIT 1", $state['meta_cursor'], $state['meta_upper'] ) );
+					}
 					if ( ! empty( $db->last_error ) ) {
 						bbp_admin_repair_tool_batch_fail( $batch, 'metadata-read' );
 						break;
@@ -4096,7 +4104,11 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
 					$state['meta_cursor'] = (int) $row->meta_id;
 					continue;
 				}
-				$reply = $dry_run ? array_shift( $preview['rows'] ) : $db->get_row( $db->prepare( "SELECT ID, post_parent, post_status, menu_order, post_date FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $state['context'], $state['cursor'], $state['upper_id'] ) );
+				if ( $dry_run ) {
+					$reply = isset( $preview['rows'] ) ? array_shift( $preview['rows'] ) : null;
+				} else {
+					$reply = $db->get_row( $db->prepare( "SELECT ID, post_parent, post_status, menu_order, post_date FROM {$db->posts} WHERE post_type = %s AND ID > %d AND ID <= %d ORDER BY ID LIMIT 1", $state['context'], $state['cursor'], $state['upper_id'] ) );
+				}
 				if ( ! empty( $db->last_error ) ) {
 					bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 					break;

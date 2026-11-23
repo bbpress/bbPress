@@ -619,7 +619,7 @@ function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$m
  * @param list<string> $topic_statuses Countable topic statuses.
  * @param list<string> $reply_statuses Countable reply statuses.
  * @param bool  $anonymous      Whether to retain anonymous authors.
- * @return string Prepared relationship query.
+ * @return string|null Prepared relationship query, or null when preparation fails.
  */
 function bbp_admin_repair_get_engagements_query( $topic_statuses = array(), $reply_statuses = array(), $anonymous = false ) {
 	$bbp_db         = bbp_db();
