@@ -200,8 +200,9 @@ Development for the next bbPress release is in progress. See the active
 - Loaded forum styles and scripts from plugin and must-use plugin directories
   defined outside the WordPress content directory. Plugin assets now use
   `plugins_url` rather than `content_url`.
-- Resolved asset URLs for symlinked plugin and theme directories, and allowed
-  custom template-stack directories to provide their public URLs.
+- Resolved asset URLs for symlinked plugin and theme directories, including
+  individual plugin symlinks, and allowed custom template-stack directories to
+  provide their public URLs.
 - Kept mention email links on the site where the topic or reply was saved
   when a Multisite request processes posts from more than one site.
 - Generated passwords for imported users when the source provides no usable

@@ -174,6 +174,7 @@ function bbp_locate_enqueueable( $file = '' ) {
  * @return string
  */
 function bbp_urlize_enqueueable( $file = '' ) {
+	global $wp_plugin_paths;
 
 	// Normalize paths before checking their directory boundaries.
 	$file        = wp_normalize_path( $file );
@@ -231,6 +232,17 @@ function bbp_urlize_enqueueable( $file = '' ) {
 		'url'       => get_template_directory_uri(),
 	);
 
+	// Map individually symlinked plugins to their logical WordPress paths.
+	foreach ( (array) $wp_plugin_paths as $logical_dir => $real_dir ) {
+		if ( is_string( $logical_dir ) && is_string( $real_dir ) && ( '' !== $logical_dir ) && ( '' !== $real_dir ) ) {
+			$locations[] = array(
+				'directory' => $real_dir,
+				'logical'   => $logical_dir,
+				'type'      => 'plugin',
+			);
+		}
+	}
+
 	// WordPress plugin URLs retain their existing filters for configured and symlinked paths.
 	$locations[] = array(
 		'directory' => $plugin_dir,
@@ -262,12 +274,17 @@ function bbp_urlize_enqueueable( $file = '' ) {
 			continue;
 		}
 
-		if ( isset( $location['url'] ) ) {
+		if ( array_key_exists( 'url', $location ) ) {
+			if ( ! is_string( $location['url'] ) || ( '' === $location['url'] ) ) {
+				continue;
+			}
+
 			return trailingslashit( $location['url'] ) . $relative;
 		}
 
 		if ( 'plugin' === $location['type'] ) {
-			$logical_file = trailingslashit( $location['directory'] ) . $relative;
+			$logical_dir  = isset( $location['logical'] ) ? $location['logical'] : $location['directory'];
+			$logical_file = trailingslashit( $logical_dir ) . $relative;
 			return plugins_url( basename( $logical_file ), $logical_file );
 		}
 
@@ -289,6 +306,10 @@ function bbp_urlize_enqueueable( $file = '' ) {
  * @return string|false Relative path if matched, otherwise false.
  */
 function bbp_get_enqueueable_relative_path( $file, $real_file, $directory ) {
+	if ( ! is_string( $directory ) || ( '' === $directory ) ) {
+		return false;
+	}
+
 	$directory = trailingslashit( wp_normalize_path( $directory ) );
 	if ( 0 === strpos( $file, $directory ) ) {
 		return substr( $file, strlen( $directory ) );

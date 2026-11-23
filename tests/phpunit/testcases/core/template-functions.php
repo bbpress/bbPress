@@ -243,6 +243,93 @@ class BBP_Tests_Core_Template_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_urlize_enqueueable
 	 * @ticket BBP3048
 	 */
+	public function test_urlize_enqueueable_uses_registered_plugin_realpaths() {
+		global $wp_plugin_paths;
+
+		$original_paths = $wp_plugin_paths;
+		$root           = sys_get_temp_dir() . '/bbpress-3048-plugin-' . wp_generate_uuid4();
+		$real_dir       = $root . '/release';
+		$logical_dir    = WP_PLUGIN_DIR . '/bbpress-3048-mapped-' . wp_generate_uuid4();
+		$file           = $real_dir . '/assets/probe.css';
+		$observed       = array();
+
+		$this->assertTrue( wp_mkdir_p( $real_dir . '/assets' ) );
+		$this->assertNotFalse( file_put_contents( $file, '' ) );
+
+		$filter = function( $url, $path, $plugin ) use ( &$observed ) {
+			$observed = array( $path, wp_normalize_path( $plugin ) );
+			return str_replace( '://', '://filtered.', $url );
+		};
+
+		try {
+			$wp_plugin_paths[ wp_normalize_path( $logical_dir ) ] = wp_normalize_path( $real_dir );
+			$expected = plugins_url( 'assets/probe.css', $logical_dir . '/plugin.php' );
+			add_filter( 'plugins_url', $filter, 10, 3 );
+
+			$this->assertSame( str_replace( '://', '://filtered.', $expected ), bbp_urlize_enqueueable( $file ) );
+			$this->assertSame( array( 'probe.css', wp_normalize_path( $logical_dir . '/assets/probe.css' ) ), $observed );
+			$this->assertSame( $real_dir . '-other/assets/probe.css', bbp_urlize_enqueueable( $real_dir . '-other/assets/probe.css' ) );
+		} finally {
+			remove_filter( 'plugins_url', $filter, 10 );
+			$wp_plugin_paths = $original_paths;
+			unlink( $file );
+			rmdir( $real_dir . '/assets' );
+			rmdir( $real_dir );
+			rmdir( $root );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @covers ::bbp_get_enqueueable_relative_path
+	 * @ticket BBP3048
+	 */
+	public function test_urlize_enqueueable_ignores_empty_theme_directory() {
+		$filter = function() {
+			return '';
+		};
+		add_filter( 'stylesheet_directory', $filter );
+
+		try {
+			$file = WP_PLUGIN_DIR . '/example/asset.css';
+			$this->assertSame( plugins_url( 'example/asset.css' ), bbp_urlize_enqueueable( $file ) );
+			$this->assertFalse( bbp_get_enqueueable_relative_path( $file, $file, '' ) );
+		} finally {
+			remove_filter( 'stylesheet_directory', $filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @ticket BBP3048
+	 */
+	public function test_urlize_enqueueable_ignores_invalid_theme_urls() {
+		$directory  = sys_get_temp_dir() . '/bbpress-3048-invalid-url-' . wp_generate_uuid4();
+		$file       = $directory . '/asset.css';
+		$url        = null;
+		$dir_filter = function() use ( $directory ) {
+			return $directory;
+		};
+		$url_filter = function() use ( &$url ) {
+			return $url;
+		};
+		add_filter( 'stylesheet_directory', $dir_filter );
+		add_filter( 'stylesheet_directory_uri', $url_filter );
+
+		try {
+			$this->assertSame( $file, bbp_urlize_enqueueable( $file ) );
+			$url = '';
+			$this->assertSame( $file, bbp_urlize_enqueueable( $file ) );
+		} finally {
+			remove_filter( 'stylesheet_directory', $dir_filter );
+			remove_filter( 'stylesheet_directory_uri', $url_filter );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @ticket BBP3048
+	 */
 	public function test_urlize_enqueueable_keeps_directory_boundaries_and_symlink_targets() {
 		$outside = WP_CONTENT_DIR . '-other/asset.css';
 		$this->assertSame( $outside, bbp_urlize_enqueueable( $outside ) );
