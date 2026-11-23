@@ -180,15 +180,29 @@ function bbp_has_forums( $args = array() ) {
 
 	// Run the query
 	$bbp              = bbpress();
-	$bbp->forum_query = new WP_Query( $r );
-
-	// Maybe prime last active posts
-	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->forum_query->posts ) ) {
-		bbp_update_post_family_caches( $bbp->forum_query->posts );
-	}
+	$bbp->forum_query = bbp_get_forum_loop_query( $r );
 
 	// Filter & return
 	return apply_filters( 'bbp_has_forums', $bbp->forum_query->have_posts(), $bbp->forum_query );
+}
+
+/**
+ * Query forums for a forum loop.
+ *
+ * @since 2.7.0 bbPress (r8610)
+ *
+ * @param array<string, mixed> $args Parsed forum query arguments.
+ * @return WP_Query Forum loop query.
+ */
+function bbp_get_forum_loop_query( $args ) {
+	$query = new WP_Query( $args );
+
+	// Maybe prime last active posts
+	if ( ! empty( $args['update_post_family_cache'] ) && is_array( $query->posts ) ) {
+		bbp_update_post_family_caches( $query->posts );
+	}
+
+	return $query;
 }
 
 /**

@@ -230,12 +230,7 @@ function bbp_has_topics( $args = array() ) {
 	$bbp = bbpress();
 
 	// Call the query
-	$bbp->topic_query = new WP_Query( $r );
-
-	// Maybe prime last active posts
-	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->topic_query->posts ) ) {
-		bbp_update_post_family_caches( $bbp->topic_query->posts );
-	}
+	$bbp->topic_query = bbp_get_topic_loop_query( $r );
 
 	// Set post_parent back to 0 if originally set to 'any'
 	if ( 'any' === $r['post_parent'] ) {
@@ -245,13 +240,6 @@ function bbp_has_topics( $args = array() ) {
 	// Limited the number of pages shown
 	if ( ! empty( $r['max_num_pages'] ) ) {
 		$bbp->topic_query->max_num_pages = (int) $r['max_num_pages'];
-	}
-
-	/** Stickies **************************************************************/
-
-	// Put sticky posts at the top of the posts array
-	if ( ! empty( $r['show_stickies'] ) && ( $r['paged'] <= 1 ) ) {
-		bbp_add_sticky_topics( $bbp->topic_query, $r );
 	}
 
 	// If no limit to posts per page, set it to the current post_count
@@ -272,9 +260,20 @@ function bbp_has_topics( $args = array() ) {
 		}
 
 		// Total topics for pagination boundaries
-		$total_pages = ( $bbp->topic_query->posts_per_page === $bbp->topic_query->found_posts )
-			? 1
-			: ceil( $bbp->topic_query->found_posts / $bbp->topic_query->posts_per_page );
+		if ( ! empty( $r['show_stickies'] ) ) {
+			$bbp->topic_query->query_vars['bbp_topic_page'] = bbp_get_topic_page_counts(
+				$bbp->topic_query->found_posts,
+				$bbp->topic_query->query_vars['bbp_sticky_count'],
+				$bbp->topic_query->post_count,
+				$bbp->topic_query->posts_per_page,
+				$bbp->topic_query->paged
+			);
+			$total_pages = $bbp->topic_query->query_vars['bbp_topic_page']['pages'];
+		} else {
+			$total_pages = ( $bbp->topic_query->posts_per_page === $bbp->topic_query->found_posts )
+				? 1
+				: ceil( $bbp->topic_query->found_posts / $bbp->topic_query->posts_per_page );
+		}
 
 		// Maybe add view-all args
 		$add_args = $view_all
@@ -302,6 +301,103 @@ function bbp_has_topics( $args = array() ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_has_topics', $bbp->topic_query->have_posts(), $bbp->topic_query );
+}
+
+/**
+ * Query topics for a topic loop.
+ *
+ * @since 2.7.0 bbPress (r8610)
+ *
+ * @param array<string, mixed> $args Parsed topic query arguments.
+ * @return WP_Query Topic loop query.
+ */
+function bbp_get_topic_loop_query( $args ) {
+	if ( empty( $args['show_stickies'] ) ) {
+		$query = new WP_Query( $args );
+	} else {
+		$query = bbp_get_sticky_topic_loop_query( $args );
+	}
+
+	// Maybe prime last active posts
+	if ( ! empty( $args['update_post_family_cache'] ) && is_array( $query->posts ) ) {
+		bbp_update_post_family_caches( $query->posts );
+	}
+
+	return $query;
+}
+
+/**
+ * Query regular topics and add visible stickies for a topic loop.
+ *
+ * @since 2.7.0 bbPress (r8610)
+ *
+ * @param array<string, mixed> $args Parsed topic query arguments.
+ * @return WP_Query Topic loop query.
+ */
+function bbp_get_sticky_topic_loop_query( $args ) {
+	$forum_stickies = is_numeric( $args['post_parent'] ) && ( (int) $args['post_parent'] > 0 )
+		? bbp_get_stickies( (int) $args['post_parent'] )
+		: array();
+	$sticky_ids = array_merge( bbp_get_super_stickies(), $forum_stickies );
+	$query_args = $args;
+
+	// WordPress ignores post__not_in when post__in is set.
+	if ( ! empty( $args['post__in'] ) ) {
+		$post_in = array_diff( wp_parse_id_list( $args['post__in'] ), $sticky_ids );
+		$query_args['post__in'] = ! empty( $post_in ) ? $post_in : array( 0 );
+	} else {
+		$query_args['post__not_in'] = array_unique( array_merge( (array) ( $args['post__not_in'] ?? array() ), $sticky_ids ) );
+	}
+
+	$query              = new WP_Query( $query_args );
+	$regular_page_count = $query->post_count;
+
+	// Sticky queries use 0 for the archive's 'any' parent.
+	if ( 'any' === $args['post_parent'] ) {
+		$args['post_parent'] = 0;
+	}
+
+	// Count visible stickies on every page, but show them only on the first.
+	bbp_add_sticky_topics( $query, $args );
+	$sticky_count = max( 0, $query->post_count - $regular_page_count );
+	$query->query_vars['bbp_sticky_count'] = $sticky_count;
+
+	if ( ( $args['paged'] > 1 ) && ( $sticky_count > 0 ) && is_array( $query->posts ) ) {
+		$query->posts      = array_slice( $query->posts, $sticky_count );
+		$query->post_count = $regular_page_count;
+	}
+
+	return $query;
+}
+
+/**
+ * Calculate the page count and displayed range for a topic loop with stickies.
+ *
+ * Sticky topics are extra rows on page 1. Regular topics fill each page.
+ *
+ * @since 2.7.0 bbPress (r8610)
+ *
+ * @param int $total_count  Total visible topics, including stickies.
+ * @param int $sticky_count Visible stickies promoted to page 1.
+ * @param int $page_count   Topics displayed on this page.
+ * @param int $per_page     Regular topics per page.
+ * @param int $paged        Current page number.
+ * @return array<string, int> Total pages and displayed topic range.
+ */
+function bbp_get_topic_page_counts( $total_count, $sticky_count, $page_count, $per_page, $paged ) {
+	$regular_count = max( 0, $total_count - $sticky_count );
+	$pages         = ( $per_page > 0 ) ? (int) ceil( $regular_count / $per_page ) : 0;
+	$pages         = ( $sticky_count > 0 ) ? max( 1, $pages ) : $pages;
+	$from          = ( ( $paged - 1 ) * $per_page ) + 1;
+	$from          = ( $paged > 1 ) ? $from + $sticky_count : $from;
+	$to            = min( $total_count, $from + $page_count - 1 );
+
+	return array(
+		'pages' => $pages,
+		'from'  => $from,
+		'to'    => $to,
+		'total' => $total_count,
+	);
 }
 
 /**
@@ -3343,19 +3439,24 @@ function bbp_get_forum_pagination_count() {
 
 		// Set pagination values
 		$count_int = intval( $bbp->topic_query->post_count );
-		$start_num = intval( ( $bbp->topic_query->paged - 1 ) * $bbp->topic_query->posts_per_page ) + 1;
-		$total_int = ! empty( $bbp->topic_query->found_posts )
-			? (int) $bbp->topic_query->found_posts
-			: $count_int;
+		$page      = $bbp->topic_query->query_vars['bbp_topic_page'] ?? array();
+		if ( ! empty( $page ) ) {
+			$start_num = $page['from'];
+			$to_int    = $page['to'];
+			$total_int = $page['total'];
+		} else {
+			$start_num = intval( ( $bbp->topic_query->paged - 1 ) * $bbp->topic_query->posts_per_page ) + 1;
+			$total_int = ! empty( $bbp->topic_query->found_posts )
+				? (int) $bbp->topic_query->found_posts
+				: $count_int;
+			$to_int = min( $start_num + $bbp->topic_query->posts_per_page - 1, $bbp->topic_query->found_posts );
+		}
 
 		// Format numbers for display
 		$count_num = bbp_number_format( $count_int );
 		$from_num  = bbp_number_format( $start_num );
 		$total     = bbp_number_format( $total_int );
-		$to_num    = bbp_number_format( ( $start_num + ( $bbp->topic_query->posts_per_page - 1 ) > $bbp->topic_query->found_posts )
-			? $bbp->topic_query->found_posts
-			: $start_num + ( $bbp->topic_query->posts_per_page - 1 )
-		);
+		$to_num = bbp_number_format( $to_int );
 
 		// Several topics in a forum with a single page
 		if ( empty( $to_num ) ) {

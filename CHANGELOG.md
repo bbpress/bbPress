@@ -184,6 +184,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Prevented sticky topics promoted to the first page from appearing again on
+  later topic pages.
 - Kept nonpublic replies out of published reply positions and corrected reply
   pagination after status changes, including position repairs.
 - Fixed classic navigation menu highlighting on the forum index and individual

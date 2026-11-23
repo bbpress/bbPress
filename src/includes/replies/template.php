@@ -209,12 +209,7 @@ function bbp_has_replies( $args = array() ) {
 	$bbp = bbpress();
 
 	// Call the query
-	$bbp->reply_query = new WP_Query( $r );
-
-	// Maybe prime the post author caches
-	if ( ! empty( $r['update_post_family_cache'] ) && is_array( $bbp->reply_query->posts ) ) {
-		bbp_update_post_family_caches( $bbp->reply_query->posts );
-	}
+	$bbp->reply_query = bbp_get_reply_loop_query( $r );
 
 	// Add pagination values to query object
 	$bbp->reply_query->posts_per_page = (int) $replies_per_page;
@@ -289,6 +284,25 @@ function bbp_has_replies( $args = array() ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_has_replies', $bbp->reply_query->have_posts(), $bbp->reply_query );
+}
+
+/**
+ * Query replies for a reply loop.
+ *
+ * @since 2.7.0 bbPress (r8610)
+ *
+ * @param array<string, mixed> $args Parsed reply query arguments.
+ * @return WP_Query Reply loop query.
+ */
+function bbp_get_reply_loop_query( $args ) {
+	$query = new WP_Query( $args );
+
+	// Maybe prime the post author caches
+	if ( ! empty( $args['update_post_family_cache'] ) && is_array( $query->posts ) ) {
+		bbp_update_post_family_caches( $query->posts );
+	}
+
+	return $query;
 }
 
 /**
