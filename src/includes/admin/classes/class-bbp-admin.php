@@ -878,6 +878,7 @@ class BBP_Admin {
 			case 'bbp_settings_users'                      : // Settings - Users
 			case 'bbp_settings_moderation_notifications'   : // Settings - Moderation notifications
 			case 'bbp_settings_features'                   : // Settings - Features
+			case 'bbp_settings_topic_tags'                 : // Settings - Topic tags
 			case 'bbp_settings_theme_compat'               : // Settings - Theme compat
 			case 'bbp_settings_root_slugs'                 : // Settings - Root slugs
 			case 'bbp_settings_single_slugs'               : // Settings - Single slugs

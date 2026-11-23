@@ -720,6 +720,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			$this->set_current_user( $user->ID );
 			BBP_Admin::register_admin_settings();
 			$this->assertArrayHasKey( 'bbp_settings_features', $GLOBALS['wp_settings_sections']['bbpress'] );
+			$this->assertArrayHasKey( 'bbp_settings_topic_tags', $GLOBALS['wp_settings_sections']['bbpress'] );
 			$this->assertArrayNotHasKey( '_bbp_allow_super_mods', $GLOBALS['wp_settings_fields']['bbpress']['bbp_settings_features'] );
 			$this->assertNotContains( '_bbp_allow_super_mods', $GLOBALS['new_allowed_options']['bbpress'] );
 
@@ -972,6 +973,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 			'bbp_settings_users',
 			'bbp_settings_moderation_notifications',
 			'bbp_settings_features',
+			'bbp_settings_topic_tags',
 			'bbp_settings_theme_compat',
 			'bbp_settings_root_slugs',
 			'bbp_settings_single_slugs',

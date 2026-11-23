@@ -72,6 +72,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			$sections = bbp_admin_get_settings_sections();
 			$this->assertArrayHasKey( 'bbp_settings_status', $sections );
 			$this->assertArrayHasKey( 'bbp_settings_users', $sections );
+			$this->assertArrayHasKey( 'bbp_settings_topic_tags', $sections );
 			$this->assertArrayHasKey( 'bbp_converter_connection', $sections );
 			$this->assertSame( 'discussion', $sections['bbp_settings_status']['page'] );
 			$this->assertSame( 'bbp_admin_setting_callback_status_section', $sections['bbp_settings_status']['callback'] );
@@ -103,6 +104,10 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			array_search( '_bbp_user_block_actions', array_keys( $fields['bbp_settings_users'] ), true )
 		);
 		$this->assertSame( 'bbp_admin_setting_callback_moderation_notification_recipient_types', $fields['bbp_settings_moderation_notifications']['_bbp_moderation_notification_recipient_types']['callback'] );
+		$this->assertArrayNotHasKey( '_bbp_allow_topic_tags', $fields['bbp_settings_features'] );
+		$this->assertSame( 'bbp_admin_setting_callback_topic_tags', $fields['bbp_settings_topic_tags']['_bbp_allow_topic_tags']['callback'] );
+		$this->assertSame( 'bbp_admin_setting_callback_topic_tag_edit_scope', $fields['bbp_settings_topic_tags']['_bbp_topic_tag_edit_scope']['callback'] );
+		$this->assertSame( 'bbp_admin_sanitize_topic_tag_edit_scope', $fields['bbp_settings_topic_tags']['_bbp_topic_tag_edit_scope']['sanitize_callback'] );
 		$this->assertSame( 'intval', $fields['bbp_converter_options']['_bbp_converter_clean']['sanitize_callback'] );
 	}
 
@@ -456,6 +461,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 	 * @covers ::bbp_admin_setting_callback_status_section
 	 * @covers ::bbp_admin_setting_callback_user_section
 	 * @covers ::bbp_admin_setting_callback_features_section
+	 * @covers ::bbp_admin_setting_callback_topic_tags_section
 	 * @covers ::bbp_admin_setting_callback_moderation_notifications_section
 	 * @covers ::bbp_admin_setting_callback_subtheme_section
 	 * @covers ::bbp_admin_setting_callback_per_page_section
@@ -477,6 +483,7 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			'forum status'  => array( 'bbp_admin_setting_callback_status_section', 'Control posting and editing across all forums.' ),
 			'users'         => array( 'bbp_admin_setting_callback_user_section', 'Setting time limits and other user posting capabilities' ),
 			'features'      => array( 'bbp_admin_setting_callback_features_section', 'Forum features that can be toggled on and off' ),
+			'topic tags'    => array( 'bbp_admin_setting_callback_topic_tags_section', 'Control topic tags and who can change them on existing topics.' ),
 			'notifications' => array( 'bbp_admin_setting_callback_moderation_notifications_section', 'Choose who receives an email when a new topic or reply is held for moderation.' ),
 			'theme package' => array( 'bbp_admin_setting_callback_subtheme_section', 'How your forum content is displayed' ),
 			'per page'      => array( 'bbp_admin_setting_callback_per_page_section', 'How many topics and replies to show per page' ),
@@ -540,6 +547,39 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 			'group forums'  => array( 'bbp_admin_setting_callback_group_forums', '_bbp_enable_group_forums', 'BuddyPress Groups' ),
 			'Akismet'       => array( 'bbp_admin_setting_callback_akismet', '_bbp_enable_akismet', 'prevent forum spam' ),
 		);
+	}
+
+	/**
+	 * @ticket 2970
+	 * @covers ::bbp_admin_setting_callback_topic_tag_edit_scope
+	 */
+	public function test_topic_tag_permission_choices_show_default_and_moderator_override() {
+		$this->set_option( '_bbp_topic_tag_edit_scope', 'all_participants' );
+		$output = $this->capture_callback( 'bbp_admin_setting_callback_topic_tag_edit_scope' );
+
+		$this->assertStringContainsString( 'All participants', $output );
+		$this->assertStringContainsString( 'Topic authors', $output );
+		$this->assertStringContainsString( 'When topic tags are enabled, moderators can always add or remove them on a topic.', $output );
+		$this->assertMatchesRegularExpression( '/value="all_participants"[^>]*checked/', $output );
+
+		$this->set_option( '_bbp_topic_tag_edit_scope', 'authors_only' );
+		$this->assertMatchesRegularExpression( '/value="authors_only"[^>]*checked/', $this->capture_callback( 'bbp_admin_setting_callback_topic_tag_edit_scope' ) );
+
+		bbpress()->options['_bbp_topic_tag_edit_scope'] = 'authors_only';
+		$this->assertStringContainsString( " disabled='disabled'", $this->capture_callback( 'bbp_admin_setting_callback_topic_tag_edit_scope' ) );
+	}
+
+	/**
+	 * @ticket 2970
+	 * @covers ::bbp_admin_sanitize_topic_tag_edit_scope
+	 */
+	public function test_topic_tag_edit_scope_sanitizer_preserves_current_choice() {
+		$this->set_option( '_bbp_topic_tag_edit_scope', 'authors_only' );
+
+		$this->assertSame( 'all_participants', bbp_admin_sanitize_topic_tag_edit_scope( 'all_participants' ) );
+		$this->assertSame( 'authors_only', bbp_admin_sanitize_topic_tag_edit_scope( 'authors_only' ) );
+		$this->assertSame( 'authors_only', bbp_admin_sanitize_topic_tag_edit_scope( 'no_updates' ) );
+		$this->assertSame( 'authors_only', bbp_admin_sanitize_topic_tag_edit_scope( array( 'all_participants' ) ) );
 	}
 
 	/**

@@ -4172,7 +4172,7 @@ function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $us
 	} else {
 		$tag_names = sanitize_text_field( $tag_names );
 		$tag_names = array_filter( array_map( 'trim', explode( ',', $tag_names ) ) );
-		$retval    = user_can( $user_id, 'assign_topic_tags', $topic_id )
+		$retval    = user_can( $user_id, 'assign_topic_tags', $topic_id, 'topic' )
 			? $tag_names
 			: array();
 

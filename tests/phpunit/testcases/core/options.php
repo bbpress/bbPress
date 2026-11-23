@@ -77,6 +77,7 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 		$this->assertSame( 'forums', $options['_bbp_root_slug'] );
 		$this->assertSame( 'unsubscribe', $options['_bbp_unsubscribe_slug'] );
 		$this->assertSame( 'meta', $options['_bbp_engagements_strategy'] );
+		$this->assertSame( 'all_participants', $options['_bbp_topic_tag_edit_scope'] );
 
 		$filter = function( $defaults ) {
 			$defaults['_bbp_test_option'] = 'filtered';
@@ -450,6 +451,41 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 			$this->assertFalse( $function() );
 		} finally {
 			remove_filter( $filter, $callback );
+		}
+	}
+
+	/**
+	 * @ticket 2970
+	 * @covers ::bbp_topic_tag_edit_scope
+	 */
+	public function test_topic_tag_edit_scope_uses_supported_values() {
+		$this->delete_option( '_bbp_topic_tag_edit_scope' );
+		$this->assertSame( 'all_participants', bbp_topic_tag_edit_scope() );
+
+		$this->set_option( '_bbp_topic_tag_edit_scope', 'authors_only' );
+		$this->assertSame( 'authors_only', bbp_topic_tag_edit_scope() );
+
+		$this->set_option( '_bbp_topic_tag_edit_scope', 'no_updates' );
+		$this->assertSame( 'all_participants', bbp_topic_tag_edit_scope() );
+
+		$filter = function() {
+			return 'authors_only';
+		};
+		add_filter( 'bbp_topic_tag_edit_scope', $filter );
+		try {
+			$this->assertSame( 'authors_only', bbp_topic_tag_edit_scope() );
+		} finally {
+			remove_filter( 'bbp_topic_tag_edit_scope', $filter );
+		}
+
+		$filter = function() {
+			return 'no_updates';
+		};
+		add_filter( 'bbp_topic_tag_edit_scope', $filter );
+		try {
+			$this->assertSame( 'all_participants', bbp_topic_tag_edit_scope() );
+		} finally {
+			remove_filter( 'bbp_topic_tag_edit_scope', $filter );
 		}
 	}
 

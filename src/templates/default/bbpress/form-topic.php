@@ -108,7 +108,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 					<?php bbp_get_template_part( 'form', 'allowed-tags' ); ?>
 
-					<?php if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', bbp_get_topic_id() ) ) : ?>
+					<?php if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', bbp_get_topic_id(), 'topic' ) ) : ?>
 
 						<?php do_action( 'bbp_theme_before_topic_form_tags' ); ?>
 

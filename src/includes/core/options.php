@@ -121,6 +121,10 @@ function bbp_get_default_options() {
 			'_bbp_title_max_length'     => 80,          // Title Max Length
 			'_bbp_super_sticky_topics'  => '',          // Super stickies
 
+			/** Topic Tags ********************************************************/
+
+			'_bbp_topic_tag_edit_scope'   => 'all_participants', // Who can change existing topic tags
+
 			/** Forums ************************************************************/
 
 			'_bbp_private_forums'           => '',      // Private forums
@@ -783,6 +787,32 @@ function bbp_allow_topic_tags( $default = 1 ) {
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
+}
+
+/**
+ * Who may change existing topic tags, in addition to moderators.
+ *
+ * @since 2.7.0 bbPress (r8615)
+ *
+ * @param string $default Optional. Default value 'all_participants'.
+ * @return string Valid topic tag edit scope.
+ */
+function bbp_topic_tag_edit_scope( $default = 'all_participants' ) {
+	$scopes = array( 'all_participants', 'authors_only' );
+	$scope  = get_option( '_bbp_topic_tag_edit_scope', $default );
+
+	// Fall back to the longstanding behavior for an invalid stored value
+	if ( ! in_array( $scope, $scopes, true ) ) {
+		$scope = 'all_participants';
+	}
+
+	// Filter the scope
+	$scope = apply_filters( 'bbp_topic_tag_edit_scope', $scope, $default );
+
+	// Return a valid scope
+	return in_array( $scope, $scopes, true )
+		? $scope
+		: 'all_participants';
 }
 
 /**

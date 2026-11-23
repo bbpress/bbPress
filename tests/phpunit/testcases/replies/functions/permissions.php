@@ -1157,7 +1157,7 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->set_current_user( 0 );
 		bbpress()->errors = new WP_Error();
 
-		$this->assertFalse( current_user_can( 'assign_topic_tags', $topic_id ) );
+		$this->assertFalse( current_user_can( 'assign_topic_tags', $topic_id, 'topic' ) );
 		$this->assertFalse( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
 		$this->assertFalse( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[1] ) );
 		$this->assertSame( array( 'alpha', 'beta' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
@@ -1216,11 +1216,14 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	 * @covers ::bbp_new_reply_handler
 	 * @covers ::bbp_get_topic_tag_names_for_update
 	 */
-	public function test_participant_can_remove_topic_tags_when_replying() {
+	public function test_topic_author_can_remove_topic_tags_when_replying() {
+		update_option( '_bbp_topic_tag_edit_scope', 'authors_only' );
+
 		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create(
 			array(
+				'post_author' => $user_id,
 				'post_parent' => $forum_id,
 				'topic_meta'  => array(
 					'forum_id' => $forum_id,
@@ -1234,7 +1237,7 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->set_current_user( $user_id );
 		bbpress()->errors = new WP_Error();
 
-		$this->assertTrue( current_user_can( 'assign_topic_tags', $topic_id ) );
+		$this->assertTrue( current_user_can( 'assign_topic_tags', $topic_id, 'topic' ) );
 		$this->assertTrue( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
 
 		$did_redirect = $this->submit_reply(
@@ -1247,6 +1250,53 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
 		$this->assertCount( 1, $this->get_reply_ids( $topic_id ) );
 		$this->assertSame( array(), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @ticket 2970
+	 * @covers ::bbp_new_reply_handler
+	 * @covers ::bbp_get_topic_tag_names_for_update
+	 * @covers ::bbp_map_topic_tag_meta_caps
+	 */
+	public function test_other_participant_cannot_change_topic_tags_when_replying() {
+		$author_id = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$tag_ids  = wp_set_post_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'assign_topic_tags', $topic_id, 'topic' ) );
+		$this->assertTrue( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
+		$this->assertTrue( $this->submit_reply( $topic_id, $forum_id, 'A reply using the default topic-tag permissions.', array( 'bbp_topic_tags' => 'beta, gamma' ) ) );
+		$this->assertSame( array( 'beta', 'gamma' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+
+		wp_set_post_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+		update_option( '_bbp_topic_tag_edit_scope', 'authors_only' );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertFalse( current_user_can( 'assign_topic_tags', $topic_id, 'topic' ) );
+		$this->assertFalse( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
+
+		$did_redirect = $this->submit_reply(
+			$topic_id,
+			$forum_id,
+			'A participant reply with forged topic tags.',
+			array( 'bbp_topic_tags' => 'beta, gamma' )
+		);
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertCount( 2, $this->get_reply_ids( $topic_id ) );
+		$this->assertSame( array( 'alpha', 'beta' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
 		$this->assertTrue( $did_redirect );
 	}
 
@@ -1279,12 +1329,16 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	 * @covers ::bbp_edit_reply_handler
 	 * @covers ::bbp_get_topic_tag_names_for_update
 	 * @covers ::bbp_map_topic_tag_meta_caps
+	 * @dataProvider topic_tag_permission_modes
 	 */
-	public function test_topic_tag_removal_can_be_filtered_per_term() {
+	public function test_topic_tag_removal_can_be_filtered_per_term( $scope ) {
+		update_option( '_bbp_topic_tag_edit_scope', $scope );
+
 		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
 		$forum_id = $this->factory->forum->create();
 		$topic_id = $this->factory->topic->create(
 			array(
+				'post_author' => $user_id,
 				'post_parent' => $forum_id,
 				'topic_meta'  => array(
 					'forum_id' => $forum_id,
@@ -1324,5 +1378,12 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertSame( 'A participant edit with a filtered topic-tag removal.', get_post_field( 'post_content', $reply_id ) );
 		$this->assertSame( array( 'beta', 'gamma' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
 		$this->assertTrue( $did_redirect );
+	}
+
+	public static function topic_tag_permission_modes() {
+		return array(
+			'all participants' => array( 'all_participants' ),
+			'topic author'     => array( 'authors_only' ),
+		);
 	}
 }

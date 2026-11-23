@@ -322,6 +322,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  *
  * @since 2.2.0 bbPress (r4244)
  * @since 2.6.19 bbPress (r7741) Keep term IDs separate from post moderation.
+ * @since 2.7.0 bbPress (r8615) Optionally restrict existing topic tag changes.
  *
  * @param list<string> $caps Capabilities for meta capability.
  * @param string $cap Capability name.
@@ -339,20 +340,30 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 
 		case 'assign_topic_tags' :
 
-			// Get post
-			$_post   = ! empty( $args[0] ) ? get_post( $args[0] ) : null;
-			$post_id = ! empty( $_post ) ? $_post->ID : 0;
+			// WordPress also passes term IDs here; only bbPress passes a topic context
+			$is_topic_context = isset( $args[1] ) && ( 'topic' === $args[1] );
+			$has_post         = ! empty( $args[0] );
+			$_post            = $has_post ? get_post( $args[0] ) : null;
+			$post_id          = $_post ? $_post->ID : 0;
 
 			// Add 'do_not_allow' cap if user is spam or deleted
 			if ( bbp_is_user_inactive( $user_id ) ) {
 				$caps = array( 'do_not_allow' );
 
+			// A supplied topic context must identify an existing topic
+			} elseif ( $is_topic_context && $has_post && ! bbp_is_topic( $post_id ) ) {
+				$caps = array( 'do_not_allow' );
+
 			// Moderators can always assign
 			} elseif ( user_can( $user_id, 'moderate', $post_id ) ) {
-				$caps = array( 'moderate' );
+				$caps = array( $is_topic_context && ! user_can( $user_id, 'moderate' ) ? 'spectate' : 'moderate' );
 
 			// Do not allow if topic tags are disabled
 			} elseif ( ! bbp_allow_topic_tags() ) {
+				$caps = array( 'do_not_allow' );
+
+			// Optionally limit existing topic tags to the author
+			} elseif ( $is_topic_context && $has_post && ( 'authors_only' === bbp_topic_tag_edit_scope() ) && (int) $user_id !== (int) $_post->post_author ) {
 				$caps = array( 'do_not_allow' );
 			}
 
@@ -377,11 +388,13 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 
 			// Moderators can always remove
 			} elseif ( user_can( $user_id, 'moderate', $topic_id ) ) {
-				$caps = array( 'moderate' );
+				$caps = array( user_can( $user_id, 'moderate' ) ? 'moderate' : 'spectate' );
 
-			// Fallback to assigning topic tags
+			// Restrict removal to users who may assign tags to this topic
 			} else {
-				$caps = array( 'assign_topic_tags' );
+				$caps = user_can( $user_id, 'assign_topic_tags', $topic_id, 'topic' )
+					? array( 'assign_topic_tags' )
+					: array( 'do_not_allow' );
 			}
 
 			break;

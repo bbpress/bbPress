@@ -47,6 +47,11 @@ function bbp_admin_get_settings_sections() {
 				'callback' => 'bbp_admin_setting_callback_features_section',
 				'page'     => 'discussion'
 			),
+			'bbp_settings_topic_tags' => array(
+				'title'    => esc_html__( 'Topic Tags', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_topic_tags_section',
+				'page'     => 'discussion'
+			),
 			'bbp_settings_theme_compat' => array(
 				'title'    => esc_html__( 'Forum Theme Packages', 'bbpress' ),
 				'callback' => 'bbp_admin_setting_callback_subtheme_section',
@@ -276,15 +281,7 @@ function bbp_admin_get_settings_fields() {
 					'args'              => array()
 				),
 
-				// Allow topic tags
-				'_bbp_allow_topic_tags' => array(
-					'title'             => esc_html__( 'Topic tags', 'bbpress' ),
-					'callback'          => 'bbp_admin_setting_callback_topic_tags',
-					'sanitize_callback' => 'intval',
-					'args'              => array()
-				),
-
-				// Allow topic tags
+				// Allow search
 				'_bbp_allow_search' => array(
 					'title'             => esc_html__( 'Search', 'bbpress' ),
 					'callback'          => 'bbp_admin_setting_callback_search',
@@ -521,6 +518,23 @@ function bbp_admin_get_settings_fields() {
 					'callback'          => 'bbp_admin_setting_callback_user_engagements_slug',
 					'sanitize_callback' => 'bbp_sanitize_slug',
 					'args'              => array( 'label_for' => '_bbp_user_engs_slug' )
+				)
+			),
+
+			/** Topic Tags ***************************************************/
+
+			'bbp_settings_topic_tags' => array(
+				'_bbp_allow_topic_tags' => array(
+					'title'             => esc_html__( 'Enable', 'bbpress' ),
+					'callback'          => 'bbp_admin_setting_callback_topic_tags',
+					'sanitize_callback' => 'intval',
+					'args'              => array()
+				),
+				'_bbp_topic_tag_edit_scope' => array(
+					'title'             => esc_html__( 'Tag Changes', 'bbpress' ),
+					'callback'          => 'bbp_admin_setting_callback_topic_tag_edit_scope',
+					'sanitize_callback' => 'bbp_admin_sanitize_topic_tag_edit_scope',
+					'args'              => array()
 				)
 			),
 
@@ -873,6 +887,20 @@ function bbp_admin_sanitize_forums_status( $status ) {
 	}
 
 	return bbp_get_forums_status();
+}
+
+/**
+ * Keep the topic tag edit scope within its supported values.
+ *
+ * @since 2.7.0 bbPress (r8615)
+ *
+ * @param mixed $scope Submitted scope.
+ * @return string Valid topic tag edit scope.
+ */
+function bbp_admin_sanitize_topic_tag_edit_scope( $scope ) {
+	return in_array( $scope, array( 'all_participants', 'authors_only' ), true )
+		? $scope
+		: bbp_topic_tag_edit_scope();
 }
 
 /**
@@ -1240,6 +1268,21 @@ function bbp_admin_setting_callback_features_section() {
 }
 
 /**
+ * Topic Tags settings section description.
+ *
+ * @since 2.7.0 bbPress (r8615)
+ *
+ * @return void
+ */
+function bbp_admin_setting_callback_topic_tags_section() {
+?>
+
+	<p><?php esc_html_e( 'Control topic tags and who can change them on existing topics.', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
  * Moderation notification settings section description.
  *
  * @since 2.7.0 bbPress (r8089)
@@ -1359,6 +1402,32 @@ function bbp_admin_setting_callback_topic_tags() {
 
 	<input name="_bbp_allow_topic_tags" id="_bbp_allow_topic_tags" type="checkbox" value="1" <?php checked( bbp_allow_topic_tags( true ) ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_allow_topic_tags' ); ?> />
 	<label for="_bbp_allow_topic_tags"><?php esc_html_e( 'Allow topics to have tags', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Existing topic tag permissions setting field.
+ *
+ * @since 2.7.0 bbPress (r8615)
+ *
+ * @return void
+ */
+function bbp_admin_setting_callback_topic_tag_edit_scope() {
+?>
+
+	<fieldset>
+		<legend class="screen-reader-text"><?php esc_html_e( 'Who can add or remove tags on existing topics?', 'bbpress' ); ?></legend>
+		<label for="_bbp_topic_tag_edit_scope_all">
+			<input name="_bbp_topic_tag_edit_scope" id="_bbp_topic_tag_edit_scope_all" type="radio" value="all_participants" <?php checked( bbp_topic_tag_edit_scope(), 'all_participants' ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_topic_tag_edit_scope' ); ?> />
+			<?php esc_html_e( 'All participants', 'bbpress' ); ?>
+		</label><br />
+		<label for="_bbp_topic_tag_edit_scope_author">
+			<input name="_bbp_topic_tag_edit_scope" id="_bbp_topic_tag_edit_scope_author" type="radio" value="authors_only" <?php checked( bbp_topic_tag_edit_scope(), 'authors_only' ); ?><?php bbp_maybe_admin_setting_disabled( '_bbp_topic_tag_edit_scope' ); ?> />
+			<?php esc_html_e( 'Topic authors', 'bbpress' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( 'When topic tags are enabled, moderators can always add or remove them on a topic.', 'bbpress' ); ?></p>
+	</fieldset>
 
 <?php
 }

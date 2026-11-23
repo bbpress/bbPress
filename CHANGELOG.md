@@ -91,6 +91,9 @@ Development for the next bbPress release is in progress. See the active
 - Added RSS feeds for a user's topics started and replies created at their
   profile's `topics/feed/` and `replies/feed/` URLs, which previously returned
   an empty comments feed.
+- Added an optional setting to limit changes to existing topic tags to the
+  topic author and moderators. The existing all-participants behavior remains
+  the default.
 
 ### Changed
 
