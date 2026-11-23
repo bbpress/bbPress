@@ -903,7 +903,9 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 	);
 	$stored_value = is_array( $value ) ? maybe_serialize( $value ) : (string) $value;
 	$signature    = md5( maybe_serialize( array( $meta_type, $object_id, $key, $value ) ) );
-	$resuming     = $dry_run && is_array( $preview ) && isset( $preview['signature'] ) && $signature === $preview['signature'];
+	$resuming     = $dry_run && is_array( $preview )
+		&& isset( $preview['signature'], $preview['keep_id'], $preview['replace'], $preview['replaced'], $preview['delete_cursor'], $preview['changed'] )
+		&& $signature === $preview['signature'];
 	$keep_id      = $resuming ? (int) $preview['keep_id'] : 0;
 	$replace      = $resuming ? ! empty( $preview['replace'] ) : false;
 	if ( ! $resuming && null !== $value ) {
@@ -996,7 +998,7 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 	$result['work']     = max( 1, $result['work'] );
 	$result['complete'] = count( $extra_ids ) <= $remaining;
 	if ( $dry_run ) {
-		$preview['changed'] = $preview['changed'] || $result['changed'];
+		$preview['changed'] = ! empty( $preview['changed'] ) || $result['changed'];
 		$result['changed']  = $result['complete'] && $preview['changed'];
 	} else {
 		$result['changed'] = $result['complete'] && $result['changed'];

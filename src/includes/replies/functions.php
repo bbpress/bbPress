@@ -2508,13 +2508,14 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 		<?php if ( bbp_is_single_topic() ) : ?>
 			<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
-				<?php if ( bbp_show_lead_topic() ) : ?>
+				<?php if ( bbp_show_lead_topic() ) :
+					$post_time = (string) get_post_time( 'Y-m-d H:i:s', true ); ?>
 
 					<item>
 						<guid><?php bbp_topic_permalink(); ?></guid>
 						<title><?php echo apply_filters( 'the_title_rss', bbp_get_topic_title() ); ?></title>
 						<link><?php bbp_topic_permalink(); ?></link>
-						<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
+						<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', $post_time, false ); ?></pubDate>
 						<dc:creator><?php bbp_topic_author_display_name(); ?></dc:creator>
 
 						<description>
@@ -2545,13 +2546,14 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		<?php if ( bbp_has_replies( $replies_query ) ) : ?>
 			<?php while ( bbp_replies() ) :
 
-				bbp_the_reply(); ?>
+				bbp_the_reply();
+				$post_time = (string) get_post_time( 'Y-m-d H:i:s', true ); ?>
 
 				<item>
 					<guid><?php bbp_reply_url(); ?></guid>
 					<title><?php echo apply_filters( 'the_title_rss', bbp_get_reply_title() ); ?></title>
 					<link><?php bbp_reply_url(); ?></link>
-					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
+					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', $post_time, false ); ?></pubDate>
 					<dc:creator><?php bbp_reply_author_display_name(); ?></dc:creator>
 
 					<description>
@@ -2668,7 +2670,7 @@ function bbp_update_topic_reply_positions( $topic_id = 0 ) {
 		$query_args
 	);
 	$replies = $bbp_db->get_results( $query );
-	if ( ! empty( $bbp_db->last_error ) ) {
+	if ( ! is_array( $replies ) || ! empty( $bbp_db->last_error ) ) {
 		return;
 	}
 

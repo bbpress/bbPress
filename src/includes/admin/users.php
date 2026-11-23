@@ -346,6 +346,7 @@ class BBP_Users_Admin {
 
 		// Make sure role columns are next to each other
 		$role_pos = array_search( 'role', array_keys( $columns ), true );
+		$role_pos = ( false === $role_pos ) ? 0 : $role_pos;
 		$result   = array_slice( $columns, 0, $role_pos + 1 );
 		$result   = array_merge( $result, $bbp_user_role );
 

@@ -3888,7 +3888,12 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 		return 0;
 	}
 	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
-	$position     = $db->get_row( bbp_admin_repair_reply_menu_order_query( $topic_id, 0, $reply->ID, $reply->ID, $reply->post_date ) );
+	$query        = bbp_admin_repair_reply_menu_order_query( $topic_id, 0, $reply->ID, $reply->ID, $reply->post_date );
+	if ( null === $query ) {
+		unset( $ranks[ $topic_id ] );
+		return false;
+	}
+	$position = $db->get_row( $query );
 	if ( ! empty( $db->last_error ) || ! $position || wp_cache_get_last_changed( 'bbpress_posts' ) !== $last_changed ) {
 		unset( $ranks[ $topic_id ] );
 		return false;
@@ -3907,7 +3912,7 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
  * @param int $upper_id Legacy upper reply ID, unused.
  * @param int $reply_id Reply whose inclusion should be checked.
  * @param string $post_date Reply date, or empty to read it.
- * @return string Prepared query.
+ * @return string|null Prepared query, or null if WordPress cannot prepare it.
  */
 function bbp_admin_repair_reply_menu_order_query( $topic_id, $cursor, $upper_id, $reply_id = 0, $post_date = '' ) {
 	$db        = bbp_db();

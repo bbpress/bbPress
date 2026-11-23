@@ -493,7 +493,10 @@ function bbp_user_email_change_handler( $action = '' ) {
 					// For Multisite & BuddyPress compatibility
 					$bbp_db = bbp_db();
 					if ( ! empty( $bbp_db->signups ) && $bbp_db->get_var( $bbp_db->prepare( "SELECT user_login FROM {$bbp_db->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
-						$bbp_db->query( $bbp_db->prepare( "UPDATE {$bbp_db->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
+						$query = $bbp_db->prepare( "UPDATE {$bbp_db->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) );
+						if ( null !== $query ) {
+							$bbp_db->query( $query );
+						}
 					}
 
 					delete_user_meta( $user_id, $key );

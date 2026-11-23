@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * WordPress passes metadata through sanitize_meta() and maybe_serialize().
+ * Non-scalar values are accepted when they can be serialized.
+ *
+ * @param string $meta_type Metadata type.
+ * @param int $meta_id Metadata row ID.
+ * @param mixed $meta_value Metadata value.
+ * @param string|false $meta_key Optional replacement key.
+ * @return bool Whether the row was updated.
+ */
+function update_metadata_by_mid( $meta_type, $meta_id, $meta_value, $meta_key = false ) {}

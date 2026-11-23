@@ -479,7 +479,8 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @return array<string, mixed> Query arguments. An empty array means callers must not run a query.
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
-		$user_id    = bbp_get_user_id( $args, true, true );
+		$user_arg   = is_array( $args ) ? 0 : $args;
+		$user_id    = bbp_get_user_id( $user_arg, true, true );
 		$option_key = $this->get_user_option_key( $meta_key, $meta_type, 0, false, $context_key );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 

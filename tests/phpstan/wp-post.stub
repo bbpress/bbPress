@@ -6,8 +6,19 @@ class WP_Post_Type {}
 
 /**
  * bbPress adds a reply parent ID when preparing reply rows for display.
+ * WordPress adds menu item fields when preparing posts for navigation menus.
  *
  * @property int $reply_to Reply parent ID.
+ * @property int $db_id Navigation menu item ID.
+ * @property string $type Navigation menu item type.
+ * @property string $object Navigation menu object type.
+ * @property int|string $object_id Navigation menu object ID.
+ * @property array<string>|string $classes Navigation menu classes.
+ * @property string $url Navigation menu URL.
+ * @property int|string $menu_item_parent Parent navigation menu item ID.
+ * @property bool $current Whether the menu item is current.
+ * @property bool $current_item_parent Whether the menu item is a current parent.
+ * @property bool $current_item_ancestor Whether the menu item is a current ancestor.
  */
 class WP_Post {
 	/**

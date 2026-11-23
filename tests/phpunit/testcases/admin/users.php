@@ -436,6 +436,10 @@ class BBP_Tests_Admin_Users extends BBP_UnitTestCase {
 		$this->assertSame( array( 'username', 'name', 'role', 'bbp_user_role', 'posts' ), array_keys( $columns ) );
 		$this->assertSame( 'Site Role', $columns['role'] );
 		$this->assertSame( 'Forum Role', $columns['bbp_user_role'] );
+		$this->assertSame(
+			array( 'username', 'name', 'posts', 'role', 'bbp_user_role' ),
+			array_keys( BBP_Users_Admin::user_role_column( array( 'username' => 'Username', 'name' => 'Name', 'posts' => 'Posts' ) ) )
+		);
 
 		$user_id = $this->factory->user->create();
 		get_userdata( $user_id )->remove_role( bbp_get_participant_role() );

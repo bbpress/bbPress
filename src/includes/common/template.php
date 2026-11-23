@@ -72,8 +72,8 @@ function bbp_get_topics_url( $path = '/' ) {
  *
  * @since 2.7.0 bbPress (r8608)
  *
- * @param array $menu_items Sorted navigation menu items.
- * @return array Navigation menu items with forum parent classes.
+ * @param array<WP_Post> $menu_items Sorted navigation menu items.
+ * @return array<WP_Post> Navigation menu items with forum parent classes.
  */
 function bbp_set_forum_nav_menu_classes( $menu_items ) {
 	$is_archive = bbp_is_forum_archive();

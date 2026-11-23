@@ -8,6 +8,18 @@
  * @group status
  */
 class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
+	private $empty_query_hit = false;
+
+	/**
+	 * Simulate a failed reply-position query without a database error string.
+	 */
+	public function empty_reply_position_query( $query ) {
+		if ( 0 === strpos( $query, 'SELECT ID, menu_order FROM ' ) ) {
+			$this->empty_query_hit = true;
+			return '';
+		}
+		return $query;
+	}
 
 	/**
 	 * @covers ::bbp_get_topic_statuses
@@ -169,6 +181,26 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 		$this->assertSame( $topic_id, bbp_unspam_topic( $topic_id ) );
 		$this->assertTrue( has_term( 'tagged', $taxonomy, $topic_id ) );
 		$this->assertSame( "A quoted 'topic'", get_post_field( 'post_content', $topic_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_topic_reply_positions
+	 * @ticket BBP3794
+	 */
+	public function test_reply_position_recount_skips_missing_query_results() {
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+		$position = (int) get_post_field( 'menu_order', $reply_id );
+
+		add_filter( 'query', array( $this, 'empty_reply_position_query' ) );
+		try {
+			bbp_update_topic_reply_positions( $topic_id );
+		} finally {
+			remove_filter( 'query', array( $this, 'empty_reply_position_query' ) );
+		}
+
+		$this->assertTrue( $this->empty_query_hit );
+		$this->assertSame( $position, (int) get_post_field( 'menu_order', $reply_id ) );
 	}
 
 	/**
