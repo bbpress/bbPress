@@ -1296,7 +1296,8 @@ class BBP_Replies_Widget extends WP_Widget {
 					// Verify the reply ID
 					$reply_link = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . esc_html( bbp_get_reply_topic_title( $reply_id ) ) . '</a>';
 					$time       = get_the_time( 'U', $reply_id );
-					$show_date  = '<time datetime="' . gmdate( 'Y-m-d H:i:s', $time ) . '">' . esc_html( bbp_get_time_since( $time ) ) . '</time>';
+					$timestamp  = (int) $time; // gmdate() needs an integer; keep the original value for bbp_get_time_since().
+					$show_date  = '<time datetime="' . gmdate( 'Y-m-d H:i:s', $timestamp ) . '">' . esc_html( bbp_get_time_since( $time ) ) . '</time>';
 
 					// Only query user if showing them
 					if ( ! empty( $settings['show_user'] ) ) :

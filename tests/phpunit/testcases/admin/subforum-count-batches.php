@@ -7,6 +7,11 @@
  * @group tool-batches
  */
 class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
+	private $read_db;
+
+	public function filter_test_db( $object, $name ) {
+		return ( 'wpdb' === $name ) ? $this->read_db : $object;
+	}
 
 	public function setUp(): void {
 		parent::setUp();
@@ -463,6 +468,55 @@ class BBP_Tests_Admin_Subforum_Count_Batches extends BBP_UnitTestCase {
 		}
 		$this->finish();
 		$this->assert_counts( $ids );
+	}
+
+	/**
+	 * @covers BBP_Admin_Forum_Repair::child_ids
+	 * @ticket 3794
+	 */
+	public function test_child_ids_reports_missing_database_rows() {
+		$db      = bbp_db();
+		$read_db = new class( $db ) {
+			public $posts;
+			public $last_error = '';
+			public $rows;
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db    = $db;
+				$this->posts = $db->posts;
+			}
+
+			public function prepare( $query, $args ) {
+				return $this->db->prepare( $query, $args );
+			}
+
+			public function get_col( $query ) {
+				return $this->rows;
+			}
+		};
+		$this->read_db = $read_db;
+		add_filter( 'bbp_get_global_object', array( $this, 'filter_test_db' ), 10, 2 );
+		try {
+			foreach ( array( null, array( null ), array( '2' ) ) as $rows ) {
+				$read_db->rows = $rows;
+				$worker = new class( 'topics' ) extends BBP_Admin_Forum_Counts {
+					public function read_children() {
+						$this->state['upper_id'] = 10;
+						return $this->child_ids( 1 );
+					}
+
+					public function read_error() {
+						return $this->error;
+					}
+				};
+				$this->assertSame( ( array( '2' ) === $rows ) ? array( '2' ) : array(), $worker->read_children() );
+				$this->assertSame( ( array( '2' ) === $rows ) ? '' : 'source-read', $worker->read_error() );
+			}
+		} finally {
+			remove_filter( 'bbp_get_global_object', array( $this, 'filter_test_db' ), 10 );
+			$this->read_db = null;
+		}
 	}
 
 	public function test_current_blog_counts_and_checkpoints_stay_isolated() {

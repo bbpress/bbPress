@@ -1309,9 +1309,8 @@ function bbp_admin_setting_callback_subscriptions() {
 	$selected    = bbp_get_subscription_subtypes();
 	$labels      = bbp_get_subscription_subtype_labels();
 	$stored      = get_option( '_bbp_enable_subscriptions', array() );
-	$unavailable = is_array( $stored )
-		? array_diff( bbp_admin_sanitize_subscription_subtypes( $stored ), array_keys( $labels ) )
-		: array();
+	$sanitized   = is_array( $stored ) ? bbp_admin_sanitize_subscription_subtypes( $stored ) : array();
+	$unavailable = is_array( $sanitized ) ? array_diff( $sanitized, array_keys( $labels ) ) : array();
 ?>
 
 	<fieldset>

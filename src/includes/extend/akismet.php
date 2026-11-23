@@ -962,7 +962,8 @@ class BBP_Akismet {
 	public function history_metabox() {
 
 		// Post ID
-		$history = $this->get_post_history( get_the_ID() ); ?>
+		$post_id = get_the_ID();
+		$history = $this->get_post_history( $post_id ? $post_id : 0 ); ?>
 
 		<div class="akismet-history" style="margin: 13px 0;">
 

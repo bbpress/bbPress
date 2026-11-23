@@ -590,8 +590,9 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 			$args[] = max( 1, (int) $limit );
 		}
 		$ids = $this->db->get_col( $this->db->prepare( $sql, $args ) );
-		if ( ! empty( $this->db->last_error ) ) {
+		if ( ! is_array( $ids ) || in_array( null, $ids, true ) || ! empty( $this->db->last_error ) ) {
 			$this->fail( 'source-read' );
+			return array();
 		}
 		return $ids;
 	}

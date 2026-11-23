@@ -1614,6 +1614,9 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 				$bbp_db->posts,
 				'ID'
 			);
+			if ( false === $clauses ) {
+				return false;
+			}
 
 			// Set clauses
 			$join  = $clauses['join'];
@@ -3366,7 +3369,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  *
  * @since 2.1.0 bbPress (r3840)
  *
- * @param string|array<array-key, mixed>|object $args Value to merge with $defaults.
+ * @param string|int|array<array-key, mixed>|object $args Value to merge with $defaults.
  * @param array<array-key, mixed>|string       $defaults Array of defaults, or an empty string for none.
  * @param string              $filter_key String to key the filters from.
  * @return array<array-key, mixed> Merged user defined values with defaults.
@@ -3379,7 +3382,8 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 	} elseif ( is_array( $args ) ) {
 		$r =& $args;
 	} else {
-		wp_parse_str( $args, $r );
+		$input = (string) $args;
+		wp_parse_str( $input, $r );
 	}
 
 	// Passively filter the args before the parse

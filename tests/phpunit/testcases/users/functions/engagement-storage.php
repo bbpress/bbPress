@@ -7,6 +7,11 @@
  * @group engagements
  */
 class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
+	private $read_db;
+
+	public function filter_test_db( $object, $name ) {
+		return ( 'wpdb' === $name ) ? $this->read_db : $object;
+	}
 
 	/**
 	 * The strategy active before each test.
@@ -522,5 +527,53 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 
 		$this->assertTrue( $type->supports_tax_query() );
 		$this->assertSame( array( 'post__in' => array( 1, 2 ) ), $type->get_query_args( array( 1, 2 ) ) );
+	}
+
+	/**
+	 * @covers BBP_User_Engagements_User::get_users_for_object
+	 * @ticket 3794
+	 */
+	public function test_legacy_user_strategy_retries_missing_database_results() {
+		$db      = bbp_db();
+		$read_db = new class( $db ) {
+			public $usermeta;
+			public $rows = null;
+			public $reads = 0;
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db       = $db;
+				$this->usermeta = $db->usermeta;
+			}
+
+			public function get_blog_prefix() {
+				return $this->db->get_blog_prefix();
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_col( $query ) {
+				++$this->reads;
+				return $this->rows;
+			}
+		};
+		$this->read_db = $read_db;
+		add_filter( 'bbp_get_global_object', array( $this, 'filter_test_db' ), 10, 2 );
+		try {
+			$strategy = new BBP_User_Engagements_User();
+			$this->assertSame( array(), $strategy->get_users_for_object( 7777, '_bbp_subscription', 'term' ) );
+			$read_db->rows = array( '7' );
+			$this->assertSame( array( 7 ), $strategy->get_users_for_object( 7777, '_bbp_subscription', 'term' ) );
+			$this->assertSame( 2, $read_db->reads );
+
+			$read_db->rows = array( null, 9 );
+			$this->assertSame( array( 9 ), $strategy->get_users_for_object( 7778, '_bbp_subscription', 'term' ) );
+			$this->assertSame( 3, $read_db->reads );
+		} finally {
+			remove_filter( 'bbp_get_global_object', array( $this, 'filter_test_db' ), 10 );
+			$this->read_db = null;
+		}
 	}
 }

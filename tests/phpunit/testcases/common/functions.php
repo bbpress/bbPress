@@ -11,6 +11,12 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	protected $old_current_user;
 	protected $moderator_id;
 	protected $keymaster_id;
+	private $original_parse_args;
+
+	public function capture_integer_parse_args( $parsed, $args ) {
+		$this->original_parse_args = $args;
+		return $parsed;
+	}
 
 	/**
 	 * Throw when WordPress attempts to insert a revision.
@@ -1436,6 +1442,25 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_check_for_duplicate
+	 */
+	public function test_bbp_check_for_duplicate_rejects_failed_anonymous_meta_query() {
+		$post_data = array(
+			'post_author'    => 0,
+			'post_type'      => bbp_get_topic_post_type(),
+			'post_content'   => 'Anonymous topic',
+			'anonymous_data' => array( 'bbp_anonymous_email' => 'visitor@example.org' ),
+		);
+		add_filter( 'get_meta_sql', '__return_false' );
+		try {
+			$this->assertFalse( bbp_check_for_duplicate( $post_data ) );
+		} finally {
+			remove_filter( 'get_meta_sql', '__return_false' );
+		}
+	}
+
+	/**
 	 * @ticket 2950
 	 * @covers ::bbp_check_for_duplicate
 	 * @dataProvider get_duplicate_content_filters
@@ -2629,6 +2654,15 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$defaults = array( 'count' => 1, 'order' => 'ASC' );
 		$this->assertSame( array( 'count' => 2, 'order' => 'ASC' ), bbp_parse_args( array( 'count' => 2 ), $defaults ) );
 		$this->assertSame( array( 'count' => '3', 'order' => 'DESC' ), bbp_parse_args( 'count=3&order=DESC', $defaults ) );
+
+		$this->original_parse_args = null;
+		add_filter( 'bbp_before_integer_parse_args', array( $this, 'capture_integer_parse_args' ), 10, 2 );
+		try {
+			$this->assertSame( array( 'count' => 1, 'order' => 'ASC', 0 => '' ), bbp_parse_args( 42, $defaults, 'integer' ) );
+			$this->assertSame( 42, $this->original_parse_args );
+		} finally {
+			remove_filter( 'bbp_before_integer_parse_args', array( $this, 'capture_integer_parse_args' ), 10 );
+		}
 
 		$before = function( $args ) {
 			$args['count'] = 4;

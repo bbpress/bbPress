@@ -112,6 +112,9 @@ class BBP_Shortcodes {
 	 */
 	private function add_shortcodes() {
 		foreach ( (array) $this->codes as $code => $function ) {
+			if ( '' === $code ) {
+				continue;
+			}
 			add_shortcode( $code, $function );
 		}
 	}

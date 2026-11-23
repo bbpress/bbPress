@@ -1746,9 +1746,8 @@ abstract class BBP_Converter_Base {
 	 */
 	protected function callback_datetime( $field ) {
 		// phpcs:disable WordPress.DateTime.RestrictedFunctions.date_date
-		return is_numeric( $field )
-			? date( 'Y-m-d H:i:s', $field )
-			: date( 'Y-m-d H:i:s', strtotime( $field ) );
+		$timestamp = is_numeric( $field ) ? (int) $field : (int) strtotime( $field );
+		return date( 'Y-m-d H:i:s', $timestamp );
 		// phpcs:enable
 	}
 }

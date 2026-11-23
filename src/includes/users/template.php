@@ -3127,9 +3127,12 @@ function bbp_get_author_link( $args = array() ) {
 	if ( ! empty( $r['post_id'] ) || ! empty( $r['user_id'] ) ) {
 
 		// Get some useful author information
-		$user_id    = ! empty( $r['user_id'] )
-			? (int) $r['user_id']
-			: get_post_field( 'post_author', $r['post_id'] );
+		if ( ! empty( $r['user_id'] ) ) {
+			$user_id = (int) $r['user_id'];
+		} else {
+			$post_author = get_post_field( 'post_author', $r['post_id'] );
+			$user_id     = (int) $post_author;
+		}
 		$author_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
 		$anonymous  = empty( $r['user_id'] ) && ! empty( $r['post_id'] ) && bbp_is_reply_anonymous( $r['post_id'] );
 

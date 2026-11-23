@@ -446,8 +446,18 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			$option_key = $this->get_user_option_key( $meta_key, $meta_type, $object_id, true );
 			$bbp_db     = bbp_db();
 			$user_ids   = $bbp_db->get_col( $bbp_db->prepare( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = %s AND FIND_IN_SET( %d, meta_value ) > 0", $option_key, $object_id ) );
+			if ( ! is_array( $user_ids ) ) {
+				return array();
+			}
+			$valid_user_ids = array();
+			foreach ( $user_ids as $user_id ) {
+				if ( is_int( $user_id ) || is_string( $user_id ) ) {
+					$valid_user_ids[] = $user_id;
+				}
+			}
+			$user_ids = $valid_user_ids;
 
-			// Always cache results (even if empty, to prevent multiple misses)
+			// Cache successful reads, even when empty, to prevent multiple misses.
 			$this->cache_set( $meta_key, $meta_type, $object_id, $user_ids );
 		}
 

@@ -389,7 +389,10 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 			}
 
 			// Use visible forum choices so cached visibility IDs cannot expose tags.
-			$forum_ids = array_filter( wp_parse_id_list( wp_list_pluck( self::get_localize_script_data( 'forums' ), 'value' ) ) );
+			$forum_choices = self::get_localize_script_data( 'forums' );
+			$forum_ids     = is_array( $forum_choices )
+				? array_filter( wp_parse_id_list( wp_list_pluck( $forum_choices, 'value' ) ) )
+				: array();
 			if ( empty( $forum_ids ) ) {
 				return array();
 			}
