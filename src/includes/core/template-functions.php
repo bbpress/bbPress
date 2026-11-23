@@ -180,18 +180,128 @@ function bbp_urlize_enqueueable( $file = '' ) {
 	$plugin_dir  = wp_normalize_path( WP_PLUGIN_DIR );
 	$mu_dir      = wp_normalize_path( WPMU_PLUGIN_DIR );
 	$content_dir = wp_normalize_path( WP_CONTENT_DIR );
+	$bbp         = bbpress();
+	$real_file   = realpath( $file );
+	$real_file   = ( false !== $real_file ) ? wp_normalize_path( $real_file ) : $file;
+	$locations   = array();
 
-	// Plugin directories may live outside the content directory.
-	if ( ( 0 === strpos( $file, $plugin_dir . '/' ) ) || ( 0 === strpos( $file, $mu_dir . '/' ) ) ) {
-		return plugins_url( basename( $file ), $file );
+	/**
+	 * Filters custom directory and URL pairs for enqueued assets.
+	 *
+	 * Keys are template-stack directories and values are their public base URLs.
+	 * Place more specific directories before broader directories.
+	 *
+	 * @since 2.7.0 bbPress (r8617)
+	 *
+	 * @param array<string, string> $directories Directory paths keyed to base URLs.
+	 * @param string                $file        Asset file path.
+	 */
+	$custom_dirs = (array) apply_filters( 'bbp_enqueueable_directory_urls', array(), $file );
+	foreach ( $custom_dirs as $directory => $url ) {
+		if ( is_string( $directory ) && is_string( $url ) && ( '' !== $directory ) && ( '' !== $url ) ) {
+			$locations[] = array(
+				'directory' => $directory,
+				'url'       => $url,
+			);
+		}
+	}
+
+	// Resolve physical symlink targets before configured plugin paths.
+	if ( ! empty( $bbp->plugin_dir ) && ! empty( $bbp->plugin_url ) ) {
+		$bbp_dir      = trailingslashit( wp_normalize_path( $bbp->plugin_dir ) );
+		$bbp_real_dir = realpath( $bbp_dir );
+		if ( false !== $bbp_real_dir ) {
+			$bbp_real_dir = trailingslashit( wp_normalize_path( $bbp_real_dir ) );
+			if ( $bbp_real_dir !== $bbp_dir ) {
+				$locations[] = array(
+					'directory' => $bbp_real_dir,
+					'url'       => $bbp->plugin_url,
+				);
+			}
+		}
+	}
+
+	// Use the active themes' configured URLs for external or symlinked directories.
+	$locations[] = array(
+		'directory' => get_stylesheet_directory(),
+		'url'       => get_stylesheet_directory_uri(),
+	);
+	$locations[] = array(
+		'directory' => get_template_directory(),
+		'url'       => get_template_directory_uri(),
+	);
+
+	// WordPress plugin URLs retain their existing filters for configured and symlinked paths.
+	$locations[] = array(
+		'directory' => $plugin_dir,
+		'type'      => 'plugin',
+	);
+	$locations[] = array(
+		'directory' => $mu_dir,
+		'type'      => 'plugin',
+	);
+
+	// Honor a configured bbPress URL for paths outside the plugin directories.
+	if ( ! empty( $bbp->plugin_dir ) && ! empty( $bbp->plugin_url ) ) {
+		$locations[] = array(
+			'directory' => $bbp_dir,
+			'url'       => $bbp->plugin_url,
+		);
 	}
 
 	// Preserve theme and custom template-stack assets inside the content directory.
-	if ( 0 === strpos( $file, $content_dir . '/' ) ) {
-		return content_url() . substr( $file, strlen( $content_dir ) );
+	$locations[] = array(
+		'directory' => $content_dir,
+		'type'      => 'content',
+	);
+
+	foreach ( $locations as $location ) {
+		$relative = bbp_get_enqueueable_relative_path( $file, $real_file, $location['directory'] );
+		if ( false === $relative ) {
+			continue;
+		}
+
+		if ( isset( $location['url'] ) ) {
+			return trailingslashit( $location['url'] ) . $relative;
+		}
+
+		if ( 'plugin' === $location['type'] ) {
+			$logical_file = trailingslashit( $location['directory'] ) . $relative;
+			return plugins_url( basename( $logical_file ), $logical_file );
+		}
+
+		return content_url() . '/' . $relative;
 	}
 
 	return $file;
+}
+
+/**
+ * Get an asset path relative to a configured directory or its symlink target.
+ *
+ * @since 2.7.0 bbPress (r8617)
+ * @access private
+ *
+ * @param string $file      Normalized asset path.
+ * @param string $real_file Resolved asset path, if available.
+ * @param string $directory Directory path to match.
+ * @return string|false Relative path if matched, otherwise false.
+ */
+function bbp_get_enqueueable_relative_path( $file, $real_file, $directory ) {
+	$directory = trailingslashit( wp_normalize_path( $directory ) );
+	if ( 0 === strpos( $file, $directory ) ) {
+		return substr( $file, strlen( $directory ) );
+	}
+
+	$real_dir = realpath( $directory );
+	if ( false !== $real_dir ) {
+		$real_dir = trailingslashit( wp_normalize_path( $real_dir ) );
+		if ( 0 === strpos( $real_file, $real_dir ) ) {
+			return substr( $real_file, strlen( $real_dir ) );
+		}
+	}
+
+	return false;
 }
 
 /**

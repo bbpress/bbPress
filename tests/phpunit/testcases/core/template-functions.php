@@ -240,6 +240,256 @@ class BBP_Tests_Core_Template_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @ticket BBP3048
+	 */
+	public function test_urlize_enqueueable_keeps_directory_boundaries_and_symlink_targets() {
+		$outside = WP_CONTENT_DIR . '-other/asset.css';
+		$this->assertSame( $outside, bbp_urlize_enqueueable( $outside ) );
+
+		$bbp                 = bbpress();
+		$original_plugin_dir = $bbp->plugin_dir;
+		$original_plugin_url = $bbp->plugin_url;
+		$bbp->plugin_dir    = WP_CONTENT_DIR . '/release/bbpress/';
+		$bbp->plugin_url    = content_url( '/plugins/bbpress/' );
+
+		try {
+			$this->assertSame(
+				content_url( '/plugins/bbpress/assets/asset.css' ),
+				bbp_urlize_enqueueable( WP_CONTENT_DIR . '/release/bbpress/assets/asset.css' )
+			);
+		} finally {
+			$bbp->plugin_dir = $original_plugin_dir;
+			$bbp->plugin_url = $original_plugin_url;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @ticket BBP3048
+	 */
+	public function test_urlize_enqueueable_uses_theme_urls_for_external_and_symlinked_directories() {
+		if ( ! function_exists( 'symlink' ) ) {
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$root       = sys_get_temp_dir() . '/bbpress-3048-theme-' . wp_generate_uuid4();
+		$real_dir   = $root . '/release';
+		$linked_dir = $root . '/linked';
+		$this->assertTrue( wp_mkdir_p( $real_dir ) );
+		$this->assertNotFalse( file_put_contents( $real_dir . '/asset.css', '' ) );
+
+		if ( ! @symlink( $real_dir, $linked_dir ) ) {
+			unlink( $real_dir . '/asset.css' );
+			rmdir( $real_dir );
+			rmdir( $root );
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$stylesheet_dir = function() use ( $linked_dir ) {
+			return $linked_dir;
+		};
+		$stylesheet_uri = function() {
+			return 'https://assets.example.test/child';
+		};
+		$template_dir = function() use ( $root ) {
+			return $root . '/parent';
+		};
+		$template_uri = function() {
+			return 'https://assets.example.test/parent';
+		};
+
+		add_filter( 'stylesheet_directory', $stylesheet_dir );
+		add_filter( 'stylesheet_directory_uri', $stylesheet_uri );
+		add_filter( 'template_directory', $template_dir );
+		add_filter( 'template_directory_uri', $template_uri );
+
+		try {
+			$this->assertSame( 'https://assets.example.test/child/asset.css', bbp_urlize_enqueueable( $real_dir . '/asset.css' ) );
+			$this->assertSame( 'https://assets.example.test/parent/asset.css', bbp_urlize_enqueueable( $root . '/parent/asset.css' ) );
+		} finally {
+			remove_filter( 'stylesheet_directory', $stylesheet_dir );
+			remove_filter( 'stylesheet_directory_uri', $stylesheet_uri );
+			remove_filter( 'template_directory', $template_dir );
+			remove_filter( 'template_directory_uri', $template_uri );
+			unlink( $real_dir . '/asset.css' );
+			unlink( $linked_dir );
+			rmdir( $real_dir );
+			rmdir( $root );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @ticket BBP3048
+	 */
+	public function test_urlize_enqueueable_prefers_symlink_url_inside_plugin_directory() {
+		$bbp                 = bbpress();
+		$original_plugin_dir = $bbp->plugin_dir;
+		$original_plugin_url = $bbp->plugin_url;
+		$real_dir            = realpath( $original_plugin_dir );
+
+		if ( ( false === $real_dir ) || ( 0 !== strpos( wp_normalize_path( $real_dir ), wp_normalize_path( WP_PLUGIN_DIR ) . '/' ) ) ) {
+			$this->markTestSkipped( 'The bbPress source is not inside the plugin directory.' );
+		}
+
+		$link = sys_get_temp_dir() . '/bbpress-3048-' . wp_generate_uuid4();
+		if ( ! function_exists( 'symlink' ) || ! @symlink( $real_dir, $link ) ) {
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$bbp->plugin_dir = trailingslashit( $link );
+		$bbp->plugin_url = content_url( '/plugins/bbpress-symlink/' );
+
+		try {
+			$this->assertSame(
+				content_url( '/plugins/bbpress-symlink/assets/probe.css' ),
+				bbp_urlize_enqueueable( $real_dir . '/assets/probe.css' )
+			);
+		} finally {
+			$bbp->plugin_dir = $original_plugin_dir;
+			$bbp->plugin_url = $original_plugin_url;
+			unlink( $link );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @covers ::bbp_enqueue_style
+	 * @covers ::bbp_enqueue_script
+	 * @ticket BBP3048
+	 */
+	public function test_enqueue_helpers_urlize_assets_in_a_symlinked_plugin_directory() {
+		if ( ! function_exists( 'symlink' ) ) {
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$root      = sys_get_temp_dir() . '/bbpress-3048-' . wp_generate_uuid4();
+		$directory = $root . '/release';
+		$link      = $root . '/linked';
+		$alias     = $root . '/alias';
+		$this->assertTrue( wp_mkdir_p( $directory . '/assets' ) );
+
+		if ( ! @symlink( $directory, $link ) || ! @symlink( $directory, $alias ) ) {
+			if ( is_link( $link ) ) {
+				unlink( $link );
+			}
+			rmdir( $directory . '/assets' );
+			rmdir( $directory );
+			rmdir( $root );
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$bbp                 = bbpress();
+		$original_plugin_dir = $bbp->plugin_dir;
+		$original_plugin_url = $bbp->plugin_url;
+		$bbp->plugin_dir    = trailingslashit( $link );
+		$bbp->plugin_url    = content_url( '/plugins/bbpress/' );
+		$callback           = function() use ( $alias ) {
+			return $alias;
+		};
+		$style_handle       = 'bbp-test-symlink-style';
+		$script_handle      = 'bbp-test-symlink-script';
+
+		bbp_register_template_stack( $callback, -100 );
+
+		try {
+			$this->assertNotFalse( file_put_contents( $directory . '/assets/probe.css', '' ) );
+			$this->assertNotFalse( file_put_contents( $directory . '/assets/probe.js', '' ) );
+			$style_url  = content_url( '/plugins/bbpress/assets/probe.css' );
+			$script_url = content_url( '/plugins/bbpress/assets/probe.js' );
+
+			$this->assertSame( $style_url, bbp_enqueue_style( $style_handle, 'assets/probe.css' ) );
+			$this->assertSame( $script_url, bbp_enqueue_script( $script_handle, 'assets/probe.js' ) );
+			$this->assertSame( $style_url, bbp_urlize_enqueueable( $directory . '/assets/probe.css' ) );
+			$this->assertSame( $style_url, wp_styles()->registered[ $style_handle ]->src );
+			$this->assertSame( $script_url, wp_scripts()->registered[ $script_handle ]->src );
+		} finally {
+			wp_dequeue_style( $style_handle );
+			wp_deregister_style( $style_handle );
+			wp_dequeue_script( $script_handle );
+			wp_deregister_script( $script_handle );
+			bbp_deregister_template_stack( $callback, -100 );
+			$bbp->plugin_dir = $original_plugin_dir;
+			$bbp->plugin_url = $original_plugin_url;
+			unlink( $directory . '/assets/probe.css' );
+			unlink( $directory . '/assets/probe.js' );
+			unlink( $link );
+			unlink( $alias );
+			rmdir( $directory . '/assets' );
+			rmdir( $directory );
+			rmdir( $root );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_urlize_enqueueable
+	 * @covers ::bbp_enqueue_style
+	 * @covers ::bbp_enqueue_script
+	 * @ticket BBP3048
+	 */
+	public function test_enqueue_helpers_use_custom_template_stack_directory_url() {
+		if ( ! function_exists( 'symlink' ) ) {
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$root      = sys_get_temp_dir() . '/bbpress-3048-custom-' . wp_generate_uuid4();
+		$directory = $root . '/release';
+		$link      = $root . '/linked';
+		$this->assertTrue( wp_mkdir_p( $directory . '/assets' ) );
+
+		if ( ! @symlink( $directory, $link ) ) {
+			rmdir( $directory . '/assets' );
+			rmdir( $directory );
+			rmdir( $root );
+			$this->markTestSkipped( 'The test environment cannot create symlinks.' );
+		}
+
+		$callback      = function() use ( $directory ) {
+			return $directory;
+		};
+		$filter        = function( $directories ) use ( $link ) {
+			$directories[ $link ] = 'https://assets.example.test/bbpress-templates/';
+			return $directories;
+		};
+		$style_handle  = 'bbp-test-custom-stack-style';
+		$script_handle = 'bbp-test-custom-stack-script';
+
+		bbp_register_template_stack( $callback, -100 );
+
+		try {
+			$this->assertNotFalse( file_put_contents( $directory . '/assets/probe.css', '' ) );
+			$this->assertNotFalse( file_put_contents( $directory . '/assets/probe.js', '' ) );
+			$style_path = $directory . '/assets/probe.css';
+			$style_url  = 'https://assets.example.test/bbpress-templates/assets/probe.css';
+			$script_url = 'https://assets.example.test/bbpress-templates/assets/probe.js';
+
+			$this->assertSame( $style_path, bbp_urlize_enqueueable( $style_path ) );
+			add_filter( 'bbp_enqueueable_directory_urls', $filter );
+
+			$this->assertSame( $style_url, bbp_enqueue_style( $style_handle, 'assets/probe.css' ) );
+			$this->assertSame( $script_url, bbp_enqueue_script( $script_handle, 'assets/probe.js' ) );
+			$this->assertSame( $style_url, wp_styles()->registered[ $style_handle ]->src );
+			$this->assertSame( $script_url, wp_scripts()->registered[ $script_handle ]->src );
+			$this->assertSame( $style_url, bbp_urlize_enqueueable( $link . '/assets/probe.css' ) );
+			$this->assertSame( $directory . '-other/assets/probe.css', bbp_urlize_enqueueable( $directory . '-other/assets/probe.css' ) );
+		} finally {
+			remove_filter( 'bbp_enqueueable_directory_urls', $filter );
+			bbp_deregister_template_stack( $callback, -100 );
+			wp_dequeue_style( $style_handle );
+			wp_deregister_style( $style_handle );
+			wp_dequeue_script( $script_handle );
+			wp_deregister_script( $script_handle );
+			unlink( $directory . '/assets/probe.css' );
+			unlink( $directory . '/assets/probe.js' );
+			unlink( $link );
+			rmdir( $directory . '/assets' );
+			rmdir( $directory );
+			rmdir( $root );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_enqueue_style
 	 */
 	public function test_enqueue_style_registers_the_located_asset() {
