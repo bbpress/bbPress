@@ -479,10 +479,10 @@ function bbp_users() {
  *
  * @since 2.6.0 bbPress (r6332)
  *
- * @return null Sets up the current user and returns null.
+ * @return void
  */
 function bbp_the_user() {
-	return bbpress()->user_query->the_user();
+	bbpress()->user_query->the_user();
 }
 
 /** Term Loop *****************************************************************/

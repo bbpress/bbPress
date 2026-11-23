@@ -732,4 +732,25 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		$this->expectOutputString( $count );
 		bbp_topic_pagination_count();
 	}
+
+	/**
+	 * @covers ::bbp_get_topic_pagination_count
+	 */
+	public function test_bbp_get_topic_pagination_count_without_reply_posts() {
+		$bbp       = bbpress();
+		$old_query = $bbp->reply_query;
+		$bbp->reply_query = new WP_Query();
+		add_filter( 'bbp_thread_replies', '__return_true' );
+
+		try {
+			$bbp->reply_query->posts = null;
+			$this->assertStringContainsString( 'Viewing 0 reply threads', bbp_get_topic_pagination_count() );
+
+			$bbp->reply_query->posts = array();
+			$this->assertStringContainsString( 'Viewing 0 reply threads', bbp_get_topic_pagination_count() );
+		} finally {
+			remove_filter( 'bbp_thread_replies', '__return_true' );
+			$bbp->reply_query = $old_query;
+		}
+	}
 }

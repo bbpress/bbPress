@@ -50,6 +50,9 @@ if ( ! class_exists( 'bbPress' ) ) :
  * @property string $lang_dir Language directory.
  * @property string $themes_dir Template directory.
  * @property string $themes_url Template URL.
+ * @property string $forum_post_type Forum post type.
+ * @property string $topic_post_type Topic post type.
+ * @property string $reply_post_type Reply post type.
  * @property string $topic_tag_tax_id Topic tag taxonomy.
  * @property string $spam_status_id Spam status.
  * @property string $closed_status_id Closed status.
@@ -75,7 +78,11 @@ if ( ! class_exists( 'bbPress' ) ) :
  * @property int $current_topic_id Current topic ID.
  * @property int $current_reply_id Current reply ID.
  * @property int $current_user_id Current user ID.
+ * @property WP_Query $forum_query Main forum query.
+ * @property WP_Query $topic_query Main topic query.
+ * @property WP_Query $reply_query Main reply query.
  * @property WP_Query $search_query Main search query.
+ * @property BBP_User_Query $user_query Main user query.
  * @property BBP_Term_Query $term_query Main term query.
  * @property stdClass $theme_compat Theme compatibility data.
  * @property stdClass $filters Registered filter data.

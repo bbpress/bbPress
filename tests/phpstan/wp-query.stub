@@ -27,6 +27,7 @@
  * @property int $paged
  * @property string|list<string>|null $pagination_links
  * @property int $posts_per_page
+ * @property int $reply_depth
  */
 class WP_Query {}
 

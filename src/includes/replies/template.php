@@ -2648,8 +2648,11 @@ function bbp_get_topic_pagination_count() {
 
 	// We are threading replies
 	if ( bbp_thread_replies() ) {
+		$posts   = $bbp->reply_query->posts;
 		$walker  = new BBP_Walker_Reply();
-		$threads = absint( $walker->get_number_of_root_elements( $bbp->reply_query->posts ) - 1 );
+		$threads = is_array( $posts )
+			? max( 0, $walker->get_number_of_root_elements( $posts ) - 1 )
+			: 0;
 		/* translators: %s: Number of reply threads */
 		$retstr  = sprintf( _n( 'Viewing %1$s reply thread', 'Viewing %1$s reply threads', $threads, 'bbpress' ), bbp_number_format( $threads ) );
 
