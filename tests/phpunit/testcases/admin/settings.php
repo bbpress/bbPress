@@ -1124,6 +1124,11 @@ class BBP_Tests_Admin_Settings extends BBP_UnitTestCase {
 		$converter = bbp_admin()->converter;
 
 		try {
+			bbp_admin()->converter = null;
+			$output = $this->capture_callback( 'bbp_converter_settings_page' );
+			$this->assertInstanceOf( 'BBP_Converter', bbp_admin()->converter );
+			$this->assertStringContainsString( 'id="bbp-converter-status">Ready', $output );
+
 			bbp_admin()->converter            = new stdClass();
 			bbp_admin()->converter->max_steps = 9;
 			$this->set_option( '_bbp_converter_step', 0 );

@@ -2589,7 +2589,7 @@ function bbp_converter_settings_page() {
 
 	// Status
 	$step = (int) get_option( '_bbp_converter_step', 0 );
-	$max  = (int) bbp_admin()->converter->max_steps;
+	$max  = (int) bbp_setup_converter()->max_steps;
 
 	// Starting or continuing?
 	$status_text = ! empty( $step )

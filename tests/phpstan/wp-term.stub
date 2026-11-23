@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * WordPress accepts an empty taxonomy name and reports it as a WP_Error.
+ *
+ * @param int $term
+ * @param string $taxonomy
+ * @param array<string, mixed>|string $args
+ * @return bool|int|WP_Error
+ */
+function wp_delete_term( $term, $taxonomy, $args = array() ) {}

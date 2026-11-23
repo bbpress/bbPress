@@ -65,12 +65,16 @@ class BBP_Tests_Topics_Functions_Topic_Tag extends BBP_UnitTestCase {
 		$update      = wp_insert_term( 'Original', $taxonomy );
 		$merge_from  = wp_insert_term( 'Merge from', $taxonomy );
 		$merge_to    = wp_insert_term( 'Merge to', $taxonomy );
+		$number_from = wp_insert_term( 'Numeric merge from', $taxonomy );
+		$number_to   = wp_insert_term( '900000', $taxonomy );
 		$delete      = wp_insert_term( 'Delete me', $taxonomy );
 		$topic_id    = $this->factory->topic->create();
 
 		$this->assertFalse( is_wp_error( $update ) );
 		$this->assertFalse( is_wp_error( $merge_from ) );
 		$this->assertFalse( is_wp_error( $merge_to ) );
+		$this->assertFalse( is_wp_error( $number_from ) );
+		$this->assertFalse( is_wp_error( $number_to ) );
 		$this->assertFalse( is_wp_error( $delete ) );
 		wp_set_object_terms( $topic_id, $merge_from['term_id'], $taxonomy );
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
@@ -97,6 +101,16 @@ class BBP_Tests_Topics_Functions_Topic_Tag extends BBP_UnitTestCase {
 			$this->assertSame( get_term_link( $updated, $taxonomy ), $redirect );
 
 			$_POST = array(
+				'tag-id'            => $update['term_id'],
+				'tag-existing-name' => 'Renamed',
+			);
+			$_REQUEST = array( '_wpnonce' => wp_create_nonce( 'merge-tag_' . $update['term_id'] ) );
+			$this->assertNull( bbp_edit_topic_tag_handler( 'bbp-merge-topic-tag' ) );
+			$this->assertSame( 'bbp_manage_topic_tag_merge_same', bbpress()->errors->get_error_code() );
+			bbpress()->errors->remove( 'bbp_manage_topic_tag_merge_same' );
+			$this->assertSame( 'Renamed', get_term( $update['term_id'], $taxonomy )->name );
+
+			$_POST = array(
 				'tag-id'            => $merge_from['term_id'],
 				'tag-existing-name' => 'Merge to',
 			);
@@ -107,6 +121,32 @@ class BBP_Tests_Topics_Functions_Topic_Tag extends BBP_UnitTestCase {
 			$this->assertNull( get_term( $merge_from['term_id'], $taxonomy ) );
 			$this->assertSame( array( $merge_to['term_id'] ), wp_get_object_terms( $topic_id, $taxonomy, array( 'fields' => 'ids' ) ) );
 			$this->assertSame( get_term_link( $merge_to['term_id'], $taxonomy ), $redirect );
+
+			$_POST = array(
+				'tag-id'            => $number_from['term_id'],
+				'tag-existing-name' => 900000,
+			);
+			$_REQUEST = array( '_wpnonce' => wp_create_nonce( 'merge-tag_' . $number_from['term_id'] ) );
+			add_filter( 'bbp_get_topic_tag_tax_id', '__return_empty_string' );
+			try {
+				$this->assertNull( bbp_edit_topic_tag_handler( 'bbp-merge-topic-tag' ) );
+				$this->assertSame( 'bbp_manage_topic_tag_merge_error', bbpress()->errors->get_error_code() );
+			} finally {
+				remove_filter( 'bbp_get_topic_tag_tax_id', '__return_empty_string' );
+				bbpress()->errors->remove( 'bbp_manage_topic_tag_merge_error' );
+			}
+			$this->assertSame( 'Numeric merge from', get_term( $number_from['term_id'], $taxonomy )->name );
+
+			$_POST = array(
+				'tag-id'            => $number_from['term_id'],
+				'tag-existing-name' => 900000,
+			);
+			$_REQUEST = array( '_wpnonce' => wp_create_nonce( 'merge-tag_' . $number_from['term_id'] ) );
+			$redirect = $this->catch_bbp_redirect( static function () {
+				bbp_edit_topic_tag_handler( 'bbp-merge-topic-tag' );
+			} );
+			$this->assertNull( get_term( $number_from['term_id'], $taxonomy ) );
+			$this->assertSame( get_term_link( $number_to['term_id'], $taxonomy ), $redirect );
 
 			$_POST    = array( 'tag-id' => $delete['term_id'] );
 			$_REQUEST = array( '_wpnonce' => wp_create_nonce( 'delete-tag_' . $delete['term_id'] ) );

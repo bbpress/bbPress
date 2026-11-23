@@ -1967,7 +1967,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Attempt to update the tag
-			$name        = $_POST['tag-name'];
+			$name        = (string) $_POST['tag-name'];
 			$slug        = ! empty( $_POST['tag-slug']        ) ? $_POST['tag-slug'] : '';
 			$description = ! empty( $_POST['tag-description'] ) ? $_POST['tag-description'] : '';
 			$tag         = wp_update_term(
@@ -2017,7 +2017,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Unsanitized name of existing tag
-			$name = $_POST['tag-existing-name'];
+			$name = (string) $_POST['tag-existing-name'];
 
 			// If term does not exist, create it
 			$tag = term_exists( $name, bbp_get_topic_tag_tax_id() );
@@ -2033,11 +2033,17 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Merging in to...
-			$to_tag = $tag['term_id'];
+			$to_tag = is_array( $tag ) ? (int) $tag['term_id'] : 0;
+			if ( 0 === $to_tag ) {
+				bbp_add_error( 'bbp_manage_topic_tag_merge_error', __( '<strong>Error</strong>: The destination tag could not be found.', 'bbpress' ) );
+			}
 
 			// Attempting to merge a tag into itself
 			if ( $tag_id === $to_tag ) {
 				bbp_add_error( 'bbp_manage_topic_tag_merge_same', __( '<strong>Error</strong>: The tags which are being merged can not be the same.', 'bbpress' ) );
+			}
+
+			if ( bbp_has_errors() ) {
 				return;
 			}
 
