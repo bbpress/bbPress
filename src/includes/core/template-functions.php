@@ -243,6 +243,7 @@ function bbp_urlize_enqueueable( $file = '' ) {
 
 	// Honor a configured bbPress URL for paths outside the plugin directories.
 	if ( ! empty( $bbp->plugin_dir ) && ! empty( $bbp->plugin_url ) ) {
+		$bbp_dir = trailingslashit( wp_normalize_path( $bbp->plugin_dir ) );
 		$locations[] = array(
 			'directory' => $bbp_dir,
 			'url'       => $bbp->plugin_url,
