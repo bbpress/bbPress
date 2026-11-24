@@ -187,6 +187,88 @@ class BBP_Tests_Admin_Forum_Count_Batches extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @covers BBP_Admin_Forum_Counts::child_count
+	 * @ticket 3794
+	 */
+	public function test_child_counts_report_malformed_query_rows_and_filtered_lists() {
+		$db = bbp_db();
+		$rows_db = new class( $db ) {
+			public $posts;
+			public $last_error = '';
+			public $rows = array();
+			private $db;
+
+			public function __construct( $db ) {
+				$this->db    = $db;
+				$this->posts = $db->posts;
+			}
+
+			public function prepare( $query, ...$args ) {
+				return $this->db->prepare( $query, ...$args );
+			}
+
+			public function get_results( $query, $output = OBJECT ) {
+				return $this->rows;
+			}
+		};
+		$topic_type = bbp_get_topic_post_type();
+		$read = function () use ( $rows_db, $topic_type ) {
+			$worker = new class( 'topics' ) extends BBP_Admin_Forum_Counts {
+				public function read_children( $db, $type ) {
+					$this->db = $db;
+					return $this->child_count( 1, $type, array( bbp_get_public_status_id() ), false );
+				}
+
+				public function read_error() {
+					return $this->error;
+				}
+			};
+			$this->assertSame( 0, $worker->read_children( $rows_db, $topic_type ) );
+			$this->assertSame( 'public-topic-count-read', $worker->read_error() );
+		};
+
+		$rows_db->rows = array( array( 'type' => array(), 'status' => 'publish', 'count' => '1' ) );
+		$read();
+
+		$rows_db->rows = array( array( 'type' => $topic_type, 'status' => 'publish', 'count' => array() ) );
+		$read();
+
+		$rows_db->rows = array( array( 'type' => $topic_type, 'status' => bbp_get_public_status_id(), 'count' => '1' ) );
+		$counts_filter = static function ( $counts ) use ( $topic_type ) {
+			$counts[ $topic_type ] = false;
+			return $counts;
+		};
+		add_filter( 'bbp_get_child_counts', $counts_filter );
+		try {
+			$read();
+		} finally {
+			remove_filter( 'bbp_get_child_counts', $counts_filter );
+		}
+
+		$list_filter = static function ( $counts ) use ( $topic_type ) {
+			$counts[ $topic_type ] = false;
+			return $counts;
+		};
+		add_filter( 'bbp_filter_child_counts_list', $list_filter );
+		try {
+			$read();
+		} finally {
+			remove_filter( 'bbp_filter_child_counts_list', $list_filter );
+		}
+
+		$nested_filter = static function ( $counts ) use ( $topic_type ) {
+			$counts[ $topic_type ] = array( 'publish' => array( 1 ) );
+			return $counts;
+		};
+		add_filter( 'bbp_filter_child_counts_list', $nested_filter );
+		try {
+			$read();
+		} finally {
+			remove_filter( 'bbp_filter_child_counts_list', $nested_filter );
+		}
+	}
+
 	/** @dataProvider tools */
 	public function test_one_item_batches_preview_exact_writes_through_deep_hierarchies( $type, $key, $total, $callback ) {
 		$db     = bbp_db();

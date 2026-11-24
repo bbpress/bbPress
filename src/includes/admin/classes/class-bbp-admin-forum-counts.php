@@ -74,6 +74,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 	 * @return int Filtered child count.
 	 */
 	protected function child_count( $id, $type, $statuses, $hidden ) {
+		$read_error = $hidden ? 'hidden-reply-count-read' : 'public-topic-count-read';
 		$sql = "SELECT p.post_type AS type, p.post_status AS status, COUNT(*) AS count
 			FROM {$this->db->posts} AS p WHERE p.post_parent = %d AND p.post_type IN (%s, %s)
 			GROUP BY p.post_status, p.post_type UNION ALL
@@ -85,16 +86,18 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		$query = apply_filters( 'bbp_get_child_counts_query', $query, $id, $this->context['forum'] );
 		$rows  = $this->db->get_results( $query, ARRAY_A );
 		if ( ! is_array( $rows ) || ! empty( $this->db->last_error ) ) {
-			$this->fail(
-				$hidden
-					? 'hidden-reply-count-read'
-					: 'public-topic-count-read'
-			);
+			$this->fail( $read_error );
 			return 0;
 		}
-		$counts = wp_list_pluck( $rows, 'type', 'type' );
+		$counts = array();
 		foreach ( $rows as $row ) {
-			if ( ! is_array( $counts[ $row['type'] ] ) ) {
+			if ( ! is_array( $row ) || ! isset( $row['type'], $row['status'], $row['count'] )
+				|| ! is_string( $row['type'] ) || ! is_string( $row['status'] )
+				|| ( ! is_int( $row['count'] ) && ! is_float( $row['count'] ) && ! is_string( $row['count'] ) ) ) {
+				$this->fail( $read_error );
+				return 0;
+			}
+			if ( ! isset( $counts[ $row['type'] ] ) ) {
 				$counts[ $row['type'] ] = array_fill_keys( get_post_stati(), 0 );
 			}
 			$counts[ $row['type'] ][ $row['status'] ] = bbp_number_not_negative( $row['count'] );
@@ -106,11 +109,27 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		$filtered = array();
 		foreach ( $counts as $key => $values ) {
 			if ( isset( $types[ $key ] ) ) {
+				if ( ! is_array( $values ) ) {
+					$this->fail( $read_error );
+					return 0;
+				}
 				$filtered[ $key ] = empty( $lookup ) ? $values : array_intersect_key( $values, $lookup );
 			}
 		}
 		/** This filter is documented in src/includes/common/functions.php. */
 		$filtered = (array) apply_filters( 'bbp_filter_child_counts_list', $filtered, $id, $types, $lookup );
+		if ( isset( $filtered[ $type ] ) ) {
+			if ( ! is_array( $filtered[ $type ] ) ) {
+				$this->fail( $read_error );
+				return 0;
+			}
+			foreach ( $filtered[ $type ] as $value ) {
+				if ( null !== $value && ! is_scalar( $value ) ) {
+					$this->fail( $read_error );
+					return 0;
+				}
+			}
+		}
 		$count    = isset( $filtered[ $type ] ) ? bbp_number_not_negative( array_sum( array_values( $filtered[ $type ] ) ) ) : 0;
 		/** These filters are documented in src/includes/common/functions.php. */
 		return (int) apply_filters( $hidden ? 'bbp_get_non_public_child_count' : 'bbp_get_public_child_count', $count, $id, $type );
