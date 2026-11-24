@@ -108,6 +108,13 @@ function bbp_do_ajax( $action = '' ) {
 	bbp_set_200();
 
 	// Execute custom bbPress AJAX action
+	/**
+	 * Fires for a specific bbPress AJAX request action.
+	 *
+	 * The dynamic hook name is `bbp_ajax_{$action}`.
+	 *
+	 * @since 2.3.0 bbPress (r4543)
+	 */
 	do_action( $key );
 
 	// All done

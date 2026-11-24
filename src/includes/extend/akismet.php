@@ -92,6 +92,13 @@ class BBP_Akismet {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the Akismet extension is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_extend_akismet_loaded', array( &$this ) );
 	}
 
@@ -459,6 +466,16 @@ class BBP_Akismet {
 			}
 		}
 
+		/**
+		 * Fires after Akismet processes a submitted post.
+		 *
+		 * The dynamic hook name is `bbp_akismet_submit_{$request_type}_post`.
+		 *
+		 * @since 2.0.0 bbPress (r3308)
+		 *
+		 * @param int    $post_id Post ID.
+		 * @param string $result  Akismet's spam check result.
+		 */
 		do_action( 'bbp_akismet_submit_' . $request_type . '_post', $post_id, $post_data['bbp_akismet_result'] );
 	}
 
@@ -1123,6 +1140,8 @@ class BBP_Akismet {
 				 * Maybe we should run the bbp_delete_topic or bbp_delete_reply
 				 * actions here, too?
 				 *
+					 * @since 2.6.7 bbPress (r7203)
+					 *
 				 * @param string            $function The current function.
 				 * @param int|string|object $item     Topic/reply ID or spam meta row.
 				 */
@@ -1147,6 +1166,8 @@ class BBP_Akismet {
 			/**
 			 * Single action that encompasses all topic/reply IDs after the
 			 * delete queries have been run.
+			 *
+			 * @since 2.6.7 bbPress (r7203)
 			 *
 			 * @param int   $count    Count of topic/reply IDs.
 			 * @param array $spam_ids Topic/reply IDs.
@@ -1207,6 +1228,8 @@ class BBP_Akismet {
 				 * Perform a single action on the single topic/reply ID for
 				 * simpler batch processing.
 				 *
+				 * @since 2.6.7 bbPress (r7203)
+				 *
 				 * @param string            $function The current function.
 				 * @param int|string|object $item     Topic/reply ID or spam meta row.
 				 */
@@ -1216,6 +1239,8 @@ class BBP_Akismet {
 			/**
 			 * Single action that encompasses all topic/reply IDs after the
 			 * delete queries have been run.
+			 *
+			 * @since 2.6.7 bbPress (r7203)
 			 *
 			 * @param int   $count    Count of topic/reply IDs.
 			 * @param array $spam_ids Topic/reply IDs.
@@ -1288,6 +1313,8 @@ class BBP_Akismet {
 				/**
 				 * Perform a single action for the current spam meta row.
 				 *
+				 * @since 2.6.7 bbPress (r7203)
+				 *
 				 * @param string            $function The current function.
 				 * @param int|string|object $item     Topic/reply ID or spam meta row.
 				 */
@@ -1300,6 +1327,8 @@ class BBP_Akismet {
 			/**
 			 * Single action that encompasses all topic/reply IDs after the
 			 * delete queries have been run.
+			 *
+			 * @since 2.6.7 bbPress (r7203)
 			 *
 			 * @param int   $count         Count of spam meta IDs.
 			 * @param array $spam_meta_ids Spam meta IDs.

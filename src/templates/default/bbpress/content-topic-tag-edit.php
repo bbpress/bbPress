@@ -16,7 +16,9 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_breadcrumb(); ?>
 
-	<?php do_action( 'bbp_template_before_topic_tag_description' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/bbpress/content-archive-topic.php. */
+	do_action( 'bbp_template_before_topic_tag_description' ); ?>
 
 	<?php bbp_topic_tag_description(
 		array(
@@ -25,12 +27,26 @@ defined( 'ABSPATH' ) || exit;
 		)
 	); ?>
 
-	<?php do_action( 'bbp_template_after_topic_tag_description' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/bbpress/content-archive-topic.php. */
+	do_action( 'bbp_template_after_topic_tag_description' ); ?>
 
-	<?php do_action( 'bbp_template_before_topic_tag_edit' ); ?>
+	<?php
+	/**
+	 * Fires before the topic tag edit template section.
+	 *
+	 * @since 2.0.0 bbPress (r3348)
+	 */
+	do_action( 'bbp_template_before_topic_tag_edit' ); ?>
 
 	<?php bbp_get_template_part( 'form', 'topic-tag' ); ?>
 
-	<?php do_action( 'bbp_template_after_topic_tag_edit' ); ?>
+	<?php
+	/**
+	 * Fires after the topic tag edit template section.
+	 *
+	 * @since 2.0.0 bbPress (r3348)
+	 */
+	do_action( 'bbp_template_after_topic_tag_edit' ); ?>
 
 </div>

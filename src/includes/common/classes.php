@@ -128,6 +128,13 @@ class BBP_Component {
 	 * @return void
 	 */
 	private function includes() {
+		/**
+		 * Fires when a component includes its required files.
+		 *
+		 * The dynamic hook name is `bbp_{$this->name}includes`.
+		 *
+		 * @since 2.0.0 bbPress (r3376)
+		 */
 		do_action( 'bbp_' . $this->name . 'includes' );
 	}
 
@@ -147,6 +154,13 @@ class BBP_Component {
 		add_action( 'bbp_generate_rewrite_rules', array( $this, 'generate_rewrite_rules' ), 10, 1 ); // Generate rewrite rules
 
 		// Additional actions can be attached here
+		/**
+		 * Fires when a component sets up its actions.
+		 *
+		 * The dynamic hook name is `bbp_{$this->name}setup_actions`.
+		 *
+		 * @since 2.0.0 bbPress (r3376)
+		 */
 		do_action( 'bbp_' . $this->name . 'setup_actions' );
 	}
 
@@ -158,6 +172,13 @@ class BBP_Component {
 	 * @return void
 	 */
 	public function register_post_types() {
+		/**
+		 * Fires when a component registers its post types.
+		 *
+		 * The dynamic hook name is `bbp_{$this->name}_register_post_types`.
+		 *
+		 * @since 2.0.0 bbPress (r2700)
+		 */
 		do_action( 'bbp_' . $this->name . '_register_post_types' );
 	}
 
@@ -169,6 +190,13 @@ class BBP_Component {
 	 * @return void
 	 */
 	public function register_taxonomies() {
+		/**
+		 * Fires when a component registers its taxonomies.
+		 *
+		 * The dynamic hook name is `bbp_{$this->name}_register_taxonomies`.
+		 *
+		 * @since 2.0.0 bbPress (r2700)
+		 */
 		do_action( 'bbp_' . $this->name . '_register_taxonomies' );
 	}
 
@@ -180,6 +208,13 @@ class BBP_Component {
 	 * @return void
 	 */
 	public function add_rewrite_tags() {
+		/**
+		 * Fires when a component adds rewrite tags.
+		 *
+		 * The dynamic hook name is `bbp_{$this->name}_add_rewrite_tags`.
+		 *
+		 * @since 2.0.0 bbPress (r2700)
+		 */
 		do_action( 'bbp_' . $this->name . '_add_rewrite_tags' );
 	}
 
@@ -192,6 +227,15 @@ class BBP_Component {
 	 * @return void
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
+		/**
+		 * Fires when a component generates rewrite rules.
+		 *
+		 * The dynamic hook name is `bbp_{$this->name}_generate_rewrite_rules`.
+		 *
+		 * @since 2.0.0 bbPress (r2700)
+		 *
+		 * @param WP_Rewrite $wp_rewrite The WordPress rewrite object.
+		 */
 		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', array( &$wp_rewrite ) );
 	}
 }

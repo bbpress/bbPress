@@ -177,6 +177,14 @@ function bbp_term_subscriptions_field( $term, $taxonomy ) {
 
 	<?php
 
+	/**
+	 * Fires while rendering a term subscriptions field.
+	 *
+	 * @since 2.7.0 bbPress (r8330)
+	 *
+	 * @param WP_Term $term The term being edited.
+	 * @param string $taxonomy The taxonomy.
+	 */
 	do_action( 'bbp_term_subscriptions_field', $term, $taxonomy );
 }
 

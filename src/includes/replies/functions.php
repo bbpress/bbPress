@@ -447,6 +447,14 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	/**
+	 * Fires before saving additional data for a new reply.
+	 *
+	 * @since 2.0.0 bbPress (r3179)
+	 *
+	 * @param int $topic_id The topic ID.
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_new_reply_pre_extras', $topic_id, $forum_id );
 
 	// Bail if errors
@@ -577,10 +585,30 @@ function bbp_new_reply_handler( $action = '' ) {
 		// Validate the parent now that the new reply has a topic
 		$reply_to = bbp_validate_reply_to( $reply_to, $reply_id );
 
+		/**
+		 * Fires after a new reply is created.
+		 *
+		 * @since 2.0.0 bbPress (r2574)
+		 *
+		 * @param int $reply_id The reply ID.
+		 * @param int $topic_id The topic ID.
+		 * @param int $forum_id The forum ID.
+		 * @param array $anonymous_data The anonymous data.
+		 * @param int $author_id The post author ID.
+		 * @param bool $is_edit Whether this is an edit.
+		 * @param int $reply_to The parent reply ID.
+		 */
 		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_data['post_author'], false, $reply_to );
 
 		/** Additional Actions (After Save) ***********************************/
 
+		/**
+		 * Fires after saving additional data for a new reply.
+		 *
+		 * @since 2.1.0 bbPress (r3680)
+		 *
+		 * @param int $reply_id The reply ID.
+		 */
 		do_action( 'bbp_new_reply_post_extras', $reply_id );
 
 		/** Pending ***********************************************************/
@@ -854,6 +882,13 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	/**
+	 * Fires before saving additional data for an edited reply.
+	 *
+	 * @since 2.0.0 bbPress (r3179)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_edit_reply_pre_extras', $reply_id );
 
 	// A previously issued edit nonce does not satisfy a new password requirement.
@@ -939,6 +974,19 @@ function bbp_edit_reply_handler( $action = '' ) {
 		}
 
 		// Update counts, etc...
+		/**
+		 * Fires after a reply is edited.
+		 *
+		 * @since 2.0.0 bbPress (r2753)
+		 *
+		 * @param int $reply_id The reply ID.
+		 * @param int $topic_id The topic ID.
+		 * @param int $forum_id The forum ID.
+		 * @param array $anonymous_data The anonymous data.
+		 * @param int $author_id The post author ID.
+		 * @param bool $is_edit Whether this is an edit.
+		 * @param int $reply_to The parent reply ID.
+		 */
 		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_data['post_author'], true, $reply_to );
 
 		/** Revisions *********************************************************/
@@ -965,6 +1013,13 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 		/** Additional Actions (After Save) ***********************************/
 
+		/**
+		 * Fires after saving additional data for an edited reply.
+		 *
+		 * @since 2.0.0 bbPress (r3179)
+		 *
+		 * @param int $reply_id The reply ID.
+		 */
 		do_action( 'bbp_edit_reply_post_extras', $reply_id );
 
 		/** Redirect **********************************************************/
@@ -1683,6 +1738,15 @@ function bbp_move_reply_handler( $action = '' ) {
 	/** No Errors - Clean Up **************************************************/
 
 	// Update counts, etc...
+	/**
+	 * Fires before a reply is moved to another topic.
+	 *
+	 * @since 2.3.0 bbPress (r4522)
+	 *
+	 * @param int $move_reply_id The move reply ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $destination_topic_id The destination topic ID.
+	 */
 	do_action( 'bbp_pre_move_reply', $move_reply->ID, $source_topic->ID, $destination_topic->ID );
 
 	/** Date Check ************************************************************/
@@ -1750,6 +1814,15 @@ function bbp_move_reply_handler( $action = '' ) {
 	/** Successful Move ******************************************************/
 
 	// Update counts, etc...
+	/**
+	 * Fires after a reply is moved to another topic.
+	 *
+	 * @since 2.3.0 bbPress (r4522)
+	 *
+	 * @param int $move_reply_id The move reply ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $destination_topic_id The destination topic ID.
+	 */
 	do_action( 'bbp_post_move_reply', $move_reply->ID, $source_topic->ID, $destination_topic->ID );
 
 	// Redirect back to the topic
@@ -1808,6 +1881,15 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
 	bbp_update_topic_voice_count( $source_topic_id      );
 	bbp_update_topic_voice_count( $destination_topic_id );
 
+	/**
+	 * Fires while updating reply counts after a move.
+	 *
+	 * @since 2.3.0 bbPress (r4522)
+	 *
+	 * @param int $move_reply_id The move reply ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $destination_topic_id The destination topic ID.
+	 */
 	do_action( 'bbp_move_reply_count', $move_reply_id, $source_topic_id, $destination_topic_id );
 }
 
@@ -1873,6 +1955,15 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	);
 
 	// Do additional reply toggle actions
+	/**
+	 * Fires after a reply moderation action is handled.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param mixed $retval The moderation result.
+	 * @param array $post_data The post data.
+	 * @param string $action The action.
+	 */
 	do_action( 'bbp_toggle_reply_handler', $retval['status'], $post_data, $action );
 
 	// Redirect back to reply
@@ -2137,6 +2228,13 @@ function bbp_spam_reply( $reply_id = 0 ) {
 	}
 
 	// Execute pre spam code
+	/**
+	 * Fires before a reply is marked as spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_spam_reply', $reply_id );
 
 	// Add the original post status as post meta for future restoration
@@ -2152,6 +2250,13 @@ function bbp_spam_reply( $reply_id = 0 ) {
 	$reply_id = wp_update_post( $reply );
 
 	// Execute post spam code
+	/**
+	 * Fires after a reply is marked as spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_spammed_reply', $reply_id );
 
 	// Return reply_id
@@ -2180,6 +2285,13 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 	}
 
 	// Execute pre unspam code
+	/**
+	 * Fires before a reply is removed from spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_unspam_reply', $reply_id );
 
 	// Get pre spam status
@@ -2200,6 +2312,13 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 	$reply_id = wp_update_post( $reply );
 
 	// Execute post unspam code
+	/**
+	 * Fires after a reply is removed from spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_unspammed_reply', $reply_id );
 
 	// Return reply_id
@@ -2231,6 +2350,13 @@ function bbp_approve_reply( $reply_id = 0 ) {
 	}
 
 	// Execute pre pending code
+	/**
+	 * Fires before a reply is approved.
+	 *
+	 * @since 2.6.0 bbPress (r5506)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_approve_reply', $reply_id );
 
 	// Set publish status
@@ -2248,6 +2374,13 @@ function bbp_approve_reply( $reply_id = 0 ) {
 	$reply_id = wp_update_post( $reply );
 
 	// Execute post pending code
+	/**
+	 * Fires after a reply is approved.
+	 *
+	 * @since 2.6.0 bbPress (r5506)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_approved_reply', $reply_id );
 
 	// Return reply_id
@@ -2279,6 +2412,13 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
 	}
 
 	// Execute pre open code
+	/**
+	 * Fires before a reply is unapproved.
+	 *
+	 * @since 2.6.0 bbPress (r5506)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_unapprove_reply', $reply_id );
 
 	// Set pending status
@@ -2291,6 +2431,13 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
 	$reply_id = wp_update_post( $reply );
 
 	// Execute post open code
+	/**
+	 * Fires after a reply is unapproved.
+	 *
+	 * @since 2.6.0 bbPress (r5506)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_unapproved_reply', $reply_id );
 
 	// Return reply_id
@@ -2313,6 +2460,13 @@ function bbp_delete_reply( $reply_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a reply is deleted.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_delete_reply', $reply_id );
 
 	return null;
@@ -2332,6 +2486,13 @@ function bbp_trash_reply( $reply_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a reply is trashed.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_trash_reply', $reply_id );
 
 	return null;
@@ -2351,6 +2512,13 @@ function bbp_untrash_reply( $reply_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a reply is restored from the trash.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_untrash_reply', $reply_id );
 
 	return null;
@@ -2372,6 +2540,13 @@ function bbp_deleted_reply( $reply_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a reply is deleted.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_deleted_reply', $reply_id );
 
 	return null;
@@ -2391,6 +2566,13 @@ function bbp_trashed_reply( $reply_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a reply is trashed.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_trashed_reply', $reply_id );
 
 	return null;
@@ -2410,6 +2592,13 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a reply is restored from the trash.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id The reply ID.
+	 */
 	do_action( 'bbp_untrashed_reply', $reply_id );
 
 	return null;
@@ -2666,7 +2855,13 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		xmlns:dc="http://purl.org/dc/elements/1.1/"
 		xmlns:atom="http://www.w3.org/2005/Atom"
 
-		<?php do_action( 'bbp_feed' ); ?>
+		<?php
+		/**
+		 * Fires in a bbPress feed.
+		 *
+		 * @since 2.0.0 bbPress (r3171)
+		 */
+		do_action( 'bbp_feed' ); ?>
 	>
 
 	<channel>
@@ -2679,7 +2874,13 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		<generator><?php echo esc_url_raw( 'https://bbpress.org/?v=' . convert_chars( bbp_get_version() ) ); ?></generator>
 		<language><?php bloginfo_rss( 'language' ); ?></language>
 
-		<?php do_action( 'bbp_feed_head' ); ?>
+		<?php
+		/**
+		 * Fires in the header of a bbPress feed.
+		 *
+		 * @since 2.0.0 bbPress (r3171)
+		 */
+		do_action( 'bbp_feed_head' ); ?>
 
 		<?php if ( bbp_is_single_topic() ) : ?>
 			<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
@@ -2710,7 +2911,13 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 						<?php rss_enclosure(); ?>
 
-						<?php do_action( 'bbp_feed_item' ); ?>
+						<?php
+						/**
+						 * Fires for each item in a bbPress feed.
+						 *
+						 * @since 2.0.0 bbPress (r3171)
+						 */
+						do_action( 'bbp_feed_item' ); ?>
 
 					</item>
 
@@ -2739,14 +2946,22 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 					<?php rss_enclosure(); ?>
 
-					<?php do_action( 'bbp_feed_item' ); ?>
+					<?php
+					/** This action is documented in src/includes/replies/functions.php. */
+					do_action( 'bbp_feed_item' ); ?>
 
 				</item>
 
 			<?php endwhile; ?>
 		<?php endif; ?>
 
-		<?php do_action( 'bbp_feed_footer' ); ?>
+		<?php
+		/**
+		 * Fires in the footer of a bbPress feed.
+		 *
+		 * @since 2.0.0 bbPress (r3171)
+		 */
+		do_action( 'bbp_feed_footer' ); ?>
 
 	</channel>
 	</rss>

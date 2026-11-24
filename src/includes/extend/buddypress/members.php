@@ -112,6 +112,13 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6808)
 	 */
 	private function fully_loaded() {
+		/**
+		 * Fires after the BuddyPress members component is loaded.
+		 *
+		 * @since 2.6.0 bbPress (r6808)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_buddypress_members_loaded', array( $this ) );
 	}
 

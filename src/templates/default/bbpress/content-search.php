@@ -20,7 +20,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_set_query_name( bbp_get_search_rewrite_id() ); ?>
 
-	<?php do_action( 'bbp_template_before_search' ); ?>
+	<?php
+	/**
+	 * Fires before the search template section.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 */
+	do_action( 'bbp_template_before_search' ); ?>
 
 	<?php if ( bbp_has_search_results() ) : ?>
 
@@ -36,7 +42,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_after_search_results' ); ?>
+	<?php
+	/**
+	 * Fires after the search results template section.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 */
+	do_action( 'bbp_template_after_search_results' ); ?>
 
 </div>
 

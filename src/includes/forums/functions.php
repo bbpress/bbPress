@@ -314,6 +314,13 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	/**
+	 * Fires before saving additional data for a new forum.
+	 *
+	 * @since 2.1.0 bbPress (r3654)
+	 *
+	 * @param int $forum_parent_id The forum parent ID.
+	 */
 	do_action( 'bbp_new_forum_pre_extras', $forum_parent_id );
 
 	// Bail if errors
@@ -378,6 +385,13 @@ function bbp_new_forum_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
+		/**
+		 * Fires after a new forum is created.
+		 *
+		 * @since 2.1.0 bbPress (r3654)
+		 *
+		 * @param array $data The action data.
+		 */
 		do_action(
 			'bbp_new_forum',
 			array(
@@ -394,6 +408,13 @@ function bbp_new_forum_handler( $action = '' ) {
 
 		/** Additional Actions (After Save) ***********************************/
 
+		/**
+		 * Fires after saving additional data for a new forum.
+		 *
+		 * @since 2.1.0 bbPress (r3679)
+		 *
+		 * @param int $forum_id The forum ID.
+		 */
 		do_action( 'bbp_new_forum_post_extras', $forum_id );
 
 		/** Redirect **********************************************************/
@@ -604,6 +625,13 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	/**
+	 * Fires before saving additional data for an edited forum.
+	 *
+	 * @since 2.1.0 bbPress (r3654)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_edit_forum_pre_extras', $forum_id );
 
 	// Bail if errors
@@ -643,6 +671,13 @@ function bbp_edit_forum_handler( $action = '' ) {
 	if ( ! is_wp_error( $forum_id ) ) {
 
 		// Update counts, etc...
+		/**
+		 * Fires after a forum is edited.
+		 *
+		 * @since 2.1.0 bbPress (r3654)
+		 *
+		 * @param array $data The action data.
+		 */
 		do_action(
 			'bbp_edit_forum',
 			array(
@@ -691,6 +726,13 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 		/** Additional Actions (After Save) ***********************************/
 
+		/**
+		 * Fires after saving additional data for an edited forum.
+		 *
+		 * @since 2.1.0 bbPress (r3654)
+		 *
+		 * @param int $forum_id The forum ID.
+		 */
 		do_action( 'bbp_edit_forum_post_extras', $forum_id );
 
 		/** Redirect **********************************************************/
@@ -906,10 +948,24 @@ function bbp_close_forum( $forum_id = 0 ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	/**
+	 * Fires before a forum is closed.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_close_forum',  $forum_id );
 
 	update_post_meta( $forum_id, '_bbp_status', 'closed' );
 
+	/**
+	 * Fires after a forum is closed.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_closed_forum', $forum_id );
 
 	return $forum_id;
@@ -927,10 +983,24 @@ function bbp_open_forum( $forum_id = 0 ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	/**
+	 * Fires before a forum is opened.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_open_forum',   $forum_id );
 
 	update_post_meta( $forum_id, '_bbp_status', 'open' );
 
+	/**
+	 * Fires after a forum is opened.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_opened_forum', $forum_id );
 
 	return $forum_id;
@@ -950,10 +1020,24 @@ function bbp_categorize_forum( $forum_id = 0 ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	/**
+	 * Fires before a forum is categorized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_categorize_forum',  $forum_id );
 
 	update_post_meta( $forum_id, '_bbp_forum_type', 'category' );
 
+	/**
+	 * Fires after a forum is categorized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_categorized_forum', $forum_id );
 
 	return $forum_id;
@@ -971,10 +1055,24 @@ function bbp_normalize_forum( $forum_id = 0 ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	/**
+	 * Fires before a forum is normalized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_normalize_forum',  $forum_id );
 
 	update_post_meta( $forum_id, '_bbp_forum_type', 'forum' );
 
+	/**
+	 * Fires after a forum is normalized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_normalized_forum', $forum_id );
 
 	return $forum_id;
@@ -1122,6 +1220,13 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 		return $forum_id;
 	}
 
+	/**
+	 * Fires before a forum is publicized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_publicize_forum',  $forum_id );
 
 	// Update forum visibility options
@@ -1138,6 +1243,13 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 		clean_post_cache( $forum_id );
 	}
 
+	/**
+	 * Fires after a forum is publicized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_publicized_forum', $forum_id );
 
 	return $forum_id;
@@ -1159,6 +1271,13 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 		return $forum_id;
 	}
 
+	/**
+	 * Fires before a forum is privatized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_privatize_forum',  $forum_id );
 
 	// Update forum visibility options
@@ -1177,6 +1296,13 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 		clean_post_cache( $forum_id );
 	}
 
+	/**
+	 * Fires after a forum is privatized.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_privatized_forum', $forum_id );
 
 	return $forum_id;
@@ -1198,6 +1324,13 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 		return $forum_id;
 	}
 
+	/**
+	 * Fires before a forum is hidden.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_hide_forum', $forum_id );
 
 	// Update forum visibility options
@@ -1216,6 +1349,13 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 		clean_post_cache( $forum_id );
 	}
 
+	/**
+	 * Fires after a forum is hidden.
+	 *
+	 * @since 2.0.0 bbPress (r2996)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_hid_forum',  $forum_id );
 
 	return $forum_id;
@@ -4296,6 +4436,13 @@ function bbp_delete_forum( $forum_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a forum is deleted.
+	 *
+	 * @since 2.1.0 bbPress (r3669)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_delete_forum', $forum_id );
 
 	return null;
@@ -4319,6 +4466,13 @@ function bbp_trash_forum( $forum_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a forum is trashed.
+	 *
+	 * @since 2.1.0 bbPress (r3669)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_trash_forum', $forum_id );
 
 	return null;
@@ -4338,6 +4492,13 @@ function bbp_untrash_forum( $forum_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a forum is restored from the trash.
+	 *
+	 * @since 2.1.0 bbPress (r3669)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_untrash_forum', $forum_id );
 
 	return null;
@@ -4369,6 +4530,14 @@ function bbp_deleted_forum( $forum_id = 0, $forum = false ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a forum is deleted.
+	 *
+	 * @since 2.1.0 bbPress (r3669)
+	 *
+	 * @param int $forum_id The forum ID.
+	 * @param WP_Post|false $forum The deleted forum post, if available.
+	 */
 	do_action( 'bbp_deleted_forum', $forum_id, $forum );
 
 	return null;
@@ -4388,6 +4557,13 @@ function bbp_trashed_forum( $forum_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a forum is trashed.
+	 *
+	 * @since 2.1.0 bbPress (r3669)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_trashed_forum', $forum_id );
 
 	return null;
@@ -4407,6 +4583,13 @@ function bbp_untrashed_forum( $forum_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a forum is restored from the trash.
+	 *
+	 * @since 2.1.0 bbPress (r3669)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_untrashed_forum', $forum_id );
 
 	return null;

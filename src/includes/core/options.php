@@ -190,6 +190,11 @@ function bbp_add_options() {
 	}
 
 	// Allow previously activated plugins to append their own options.
+	/**
+	 * Fires when bbPress adds default options.
+	 *
+	 * @since 2.0.0 bbPress (r2786)
+	 */
 	do_action( 'bbp_add_options' );
 }
 
@@ -229,6 +234,11 @@ function bbp_delete_options() {
 	bbp_delete_options_with_prefix( '_bbp_tool_lock_' );
 
 	// Allow previously activated plugins to append their own options.
+	/**
+	 * Fires when bbPress deletes its options.
+	 *
+	 * @since 2.0.0 bbPress (r3421)
+	 */
 	do_action( 'bbp_delete_options' );
 }
 
@@ -288,6 +298,11 @@ function bbp_setup_option_filters() {
 	}
 
 	// Allow previously activated plugins to append their own options.
+	/**
+	 * Fires when bbPress sets up option filters.
+	 *
+	 * @since 2.0.0 bbPress (r3452)
+	 */
 	do_action( 'bbp_setup_option_filters' );
 }
 

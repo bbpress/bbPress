@@ -5091,6 +5091,11 @@ function bbp_get_form_topic_content() {
  * @return void
  */
 function bbp_topic_row_actions() {
+	/**
+	 * Fires while rendering topic row actions.
+	 *
+	 * @since 2.1.0 bbPress (r3654)
+	 */
 	do_action( 'bbp_topic_row_actions' );
 }
 

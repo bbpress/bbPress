@@ -846,6 +846,13 @@ final class bbPress {
 		}
 
 		// All bbPress actions are setup (includes bbp-core-hooks.php)
+		/**
+		 * Fires after bbPress actions are set up.
+		 *
+		 * @since 2.1.0 bbPress (r3692)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_after_setup_actions', array( &$this ) );
 	}
 

@@ -126,6 +126,13 @@ if ( ! class_exists( 'BBP_Blocks' ) ) :
 			add_filter( 'block_categories_all', array( $this, 'register_block_category' ), 10, 2 );
 
 			// Allow plugins to modify these actions
+			/**
+			 * Fires after the blocks component is loaded.
+			 *
+			 * @since 2.7.0 bbPress (r7383)
+			 *
+			 * @param object $instance The component instance.
+			 */
 			do_action_ref_array( 'bbp_blocks_loaded', array( &$this ) );
 		}
 

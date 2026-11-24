@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the replies loop template section.
+ *
+ * @since 2.0.0 bbPress (r3311)
+ */
 do_action( 'bbp_template_before_replies_loop' ); ?>
 
 <ul id="topic-<?php bbp_topic_id(); ?>-replies" class="forums bbp-replies">
@@ -49,4 +54,10 @@ do_action( 'bbp_template_before_replies_loop' ); ?>
 	</li><!-- .bbp-footer -->
 </ul><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
 
-<?php do_action( 'bbp_template_after_replies_loop' );
+<?php
+/**
+ * Fires after the replies loop template section.
+ *
+ * @since 2.0.0 bbPress (r3311)
+ */
+do_action( 'bbp_template_after_replies_loop' );

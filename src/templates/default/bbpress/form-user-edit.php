@@ -16,12 +16,24 @@ defined( 'ABSPATH' ) || exit;
 
 	<h2 class="entry-title"><?php esc_html_e( 'Name', 'bbpress' ); ?></h2>
 
-	<?php do_action( 'bbp_user_edit_before' ); ?>
+	<?php
+	/**
+	 * Fires before the user edit form fields.
+	 *
+	 * @since 2.0.0 bbPress (r2833)
+	 */
+	do_action( 'bbp_user_edit_before' ); ?>
 
 	<fieldset class="bbp-form">
 		<legend><?php esc_html_e( 'Name', 'bbpress' ); ?></legend>
 
-		<?php do_action( 'bbp_user_edit_before_name' ); ?>
+		<?php
+		/**
+		 * Fires before the name fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_before_name' ); ?>
 
 		<div>
 			<label for="first_name"><?php esc_html_e( 'First Name', 'bbpress' ); ?></label>
@@ -45,7 +57,13 @@ defined( 'ABSPATH' ) || exit;
 
 		</div>
 
-		<?php do_action( 'bbp_user_edit_after_name' ); ?>
+		<?php
+		/**
+		 * Fires after the name fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_after_name' ); ?>
 
 	</fieldset>
 
@@ -54,7 +72,13 @@ defined( 'ABSPATH' ) || exit;
 	<fieldset class="bbp-form">
 		<legend><?php esc_html_e( 'Contact Info', 'bbpress' ); ?></legend>
 
-		<?php do_action( 'bbp_user_edit_before_contact' ); ?>
+		<?php
+		/**
+		 * Fires before the contact fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_before_contact' ); ?>
 
 		<div>
 			<label for="url"><?php esc_html_e( 'Website', 'bbpress' ); ?></label>
@@ -70,7 +94,13 @@ defined( 'ABSPATH' ) || exit;
 
 		<?php endforeach; ?>
 
-		<?php do_action( 'bbp_user_edit_after_contact' ); ?>
+		<?php
+		/**
+		 * Fires after the contact fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_after_contact' ); ?>
 
 	</fieldset>
 
@@ -85,14 +115,26 @@ defined( 'ABSPATH' ) || exit;
 			: esc_html_e( 'About the user', 'bbpress' );
 		?></legend>
 
-		<?php do_action( 'bbp_user_edit_before_about' ); ?>
+		<?php
+		/**
+		 * Fires before the about fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_before_about' ); ?>
 
 		<div>
 			<label for="description"><?php esc_html_e( 'Biographical Info', 'bbpress' ); ?></label>
 			<textarea name="description" id="description" rows="5" cols="30"><?php bbp_displayed_user_field( 'description', 'edit' ); ?></textarea>
 		</div>
 
-		<?php do_action( 'bbp_user_edit_after_about' ); ?>
+		<?php
+		/**
+		 * Fires after the about fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_after_about' ); ?>
 
 	</fieldset>
 
@@ -101,7 +143,13 @@ defined( 'ABSPATH' ) || exit;
 	<fieldset class="bbp-form">
 		<legend><?php esc_html_e( 'Account', 'bbpress' ); ?></legend>
 
-		<?php do_action( 'bbp_user_edit_before_account' ); ?>
+		<?php
+		/**
+		 * Fires before the account fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_before_account' ); ?>
 
 		<div>
 			<label for="user_login"><?php esc_html_e( 'Username', 'bbpress' ); ?></label>
@@ -122,7 +170,13 @@ defined( 'ABSPATH' ) || exit;
 
 		</div>
 
-		<?php do_action( 'bbp_user_edit_after_account' ); ?>
+		<?php
+		/**
+		 * Fires after the account fields in the user edit form.
+		 *
+		 * @since 2.0.0 bbPress (r2833)
+		 */
+		do_action( 'bbp_user_edit_after_account' ); ?>
 
 	</fieldset>
 
@@ -135,7 +189,13 @@ defined( 'ABSPATH' ) || exit;
 		<fieldset class="bbp-form">
 			<legend><?php esc_html_e( 'User Role', 'bbpress' ); ?></legend>
 
-			<?php do_action( 'bbp_user_edit_before_role' ); ?>
+			<?php
+			/**
+			 * Fires before the role fields in the user edit form.
+			 *
+			 * @since 2.2.0 bbPress (r4330)
+			 */
+			do_action( 'bbp_user_edit_before_role' ); ?>
 
 			<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
 
@@ -152,13 +212,25 @@ defined( 'ABSPATH' ) || exit;
 
 			<?php bbp_get_template_part( 'form', 'user-roles' ); ?>
 
-			<?php do_action( 'bbp_user_edit_after_role' ); ?>
+			<?php
+			/**
+			 * Fires after the role fields in the user edit form.
+			 *
+			 * @since 2.2.0 bbPress (r4330)
+			 */
+			do_action( 'bbp_user_edit_after_role' ); ?>
 
 		</fieldset>
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_user_edit_after' ); ?>
+	<?php
+	/**
+	 * Fires after the user edit form fields.
+	 *
+	 * @since 2.0.0 bbPress (r2833)
+	 */
+	do_action( 'bbp_user_edit_after' ); ?>
 
 	<fieldset class="submit">
 		<legend><?php esc_html_e( 'Save Changes', 'bbpress' ); ?></legend>

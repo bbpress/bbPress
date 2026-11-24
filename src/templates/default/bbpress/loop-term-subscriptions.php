@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the term subscriptions loop template section.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ */
 do_action( 'bbp_template_before_term_subscriptions_loop' ); ?>
 
 <ul id="bbp-term-subscriptions-<?php bbp_term_subscription_taxonomy_id(); ?>" class="bbp-term-subscriptions">
@@ -22,4 +27,10 @@ do_action( 'bbp_template_before_term_subscriptions_loop' ); ?>
 
 </ul>
 
-<?php do_action( 'bbp_template_after_term_subscriptions_loop' );
+<?php
+/**
+ * Fires after the term subscriptions loop template section.
+ *
+ * @since 2.7.0 bbPress (r8335)
+ */
+do_action( 'bbp_template_after_term_subscriptions_loop' );

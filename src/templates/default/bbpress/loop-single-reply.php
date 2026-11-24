@@ -27,11 +27,23 @@ defined( 'ABSPATH' ) || exit;
 
 		<a href="<?php bbp_reply_url(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
 
-		<?php do_action( 'bbp_theme_before_reply_admin_links' ); ?>
+		<?php
+		/**
+		 * Fires before the reply admin links in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_reply_admin_links' ); ?>
 
 		<?php bbp_reply_admin_links(); ?>
 
-		<?php do_action( 'bbp_theme_after_reply_admin_links' ); ?>
+		<?php
+		/**
+		 * Fires after the reply admin links in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_reply_admin_links' ); ?>
 
 	</div><!-- .bbp-meta -->
 </div><!-- #post-<?php bbp_reply_id(); ?> -->
@@ -39,31 +51,43 @@ defined( 'ABSPATH' ) || exit;
 <div <?php bbp_reply_class(); ?>>
 	<div class="bbp-reply-author">
 
-		<?php do_action( 'bbp_theme_before_reply_author_details' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-reply.php. */
+		do_action( 'bbp_theme_before_reply_author_details' ); ?>
 
 		<?php bbp_reply_author_link( array( 'show_role' => true ) ); ?>
 
 		<?php if ( current_user_can( 'moderate', bbp_get_reply_id() ) ) : ?>
 
-			<?php do_action( 'bbp_theme_before_reply_author_admin_details' ); ?>
+			<?php
+			/** This action is documented in src/templates/default/bbpress/loop-search-reply.php. */
+			do_action( 'bbp_theme_before_reply_author_admin_details' ); ?>
 
 			<div class="bbp-reply-ip"><?php bbp_author_ip( bbp_get_reply_id() ); ?></div>
 
-			<?php do_action( 'bbp_theme_after_reply_author_admin_details' ); ?>
+			<?php
+			/** This action is documented in src/templates/default/bbpress/loop-search-reply.php. */
+			do_action( 'bbp_theme_after_reply_author_admin_details' ); ?>
 
 		<?php endif; ?>
 
-		<?php do_action( 'bbp_theme_after_reply_author_details' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-reply.php. */
+		do_action( 'bbp_theme_after_reply_author_details' ); ?>
 
 	</div><!-- .bbp-reply-author -->
 
 	<div class="bbp-reply-content">
 
-		<?php do_action( 'bbp_theme_before_reply_content' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-reply.php. */
+		do_action( 'bbp_theme_before_reply_content' ); ?>
 
 		<?php bbp_reply_content(); ?>
 
-		<?php do_action( 'bbp_theme_after_reply_content' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-reply.php. */
+		do_action( 'bbp_theme_after_reply_content' ); ?>
 
 	</div><!-- .bbp-reply-content -->
 </div><!-- .reply -->

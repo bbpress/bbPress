@@ -13,6 +13,11 @@ if ( ! bbp_current_user_can_view_mentions() ) {
 	return;
 }
 
+/**
+ * Fires before the user mentions template section.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ */
 do_action( 'bbp_template_before_user_mentions' ); ?>
 
 <div id="bbp-user-mentions" class="bbp-user-mentions">
@@ -28,4 +33,10 @@ do_action( 'bbp_template_before_user_mentions' ); ?>
 	</div>
 </div>
 
-<?php do_action( 'bbp_template_after_user_mentions' );
+<?php
+/**
+ * Fires after the user mentions template section.
+ *
+ * @since 2.7.0 bbPress (r8264)
+ */
+do_action( 'bbp_template_after_user_mentions' );

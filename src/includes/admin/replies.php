@@ -104,6 +104,13 @@ class BBP_Replies_Admin {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the admin replies component is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_admin_replies_loaded', array( &$this ) );
 	}
 
@@ -532,7 +539,25 @@ class BBP_Replies_Admin {
 		}
 
 		// Allow other fun things to happen
+		/**
+		 * Fires when saving the reply attributes metabox.
+		 *
+		 * @since 2.0.0 bbPress (r2746)
+		 *
+		 * @param int $reply_id The reply ID.
+		 * @param int $topic_id The topic ID.
+		 * @param int $forum_id The forum ID.
+		 * @param int $reply_to The parent reply ID.
+		 */
 		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $topic_id, $forum_id, $reply_to );
+		/**
+		 * Fires when saving the author metabox.
+		 *
+		 * @since 2.0.0 bbPress (r3120)
+		 *
+		 * @param int $post_id The topic or reply ID.
+		 * @param array $anonymous_data The anonymous data.
+		 */
 		do_action( 'bbp_author_metabox_save',           $reply_id, $anonymous_data                 );
 
 		return $reply_id;
@@ -693,6 +718,16 @@ class BBP_Replies_Admin {
 		$retval = apply_filters( 'bbp_toggle_reply_action_admin', $retval, $reply_id, $action );
 
 		// Do additional reply toggle actions (admin side)
+		/**
+		 * Fires after a reply moderation action in the admin.
+		 *
+		 * @since 2.0.0 bbPress (r2740)
+		 *
+		 * @param int|false|null $success The updated reply ID, false on failure, or null when no action ran.
+		 * @param array $post_data The post data.
+		 * @param string $action The action.
+		 * @param array<string, string|int> $retval The admin notice arguments.
+		 */
 		do_action( 'bbp_toggle_reply_admin', $success, $post_data, $action, $retval );
 
 		// Redirect back to the reply
@@ -990,6 +1025,14 @@ class BBP_Replies_Admin {
 
 			// Do action for anything else
 			default :
+				/**
+				 * Fires while rendering data in an admin replies column.
+				 *
+				 * @since 2.0.0 bbPress (r2577)
+				 *
+				 * @param string $column The column.
+				 * @param int $reply_id The reply ID.
+				 */
 				do_action( 'bbp_admin_replies_column_data', $column, $reply_id );
 				break;
 		}

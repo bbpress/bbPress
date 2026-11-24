@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user details template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
 do_action( 'bbp_template_before_user_details' ); ?>
 
 <div id="bbp-single-user-details">
@@ -30,7 +35,13 @@ do_action( 'bbp_template_before_user_details' ); ?>
 		</span>
 	</div>
 
-	<?php do_action( 'bbp_template_before_user_details_menu_items' ); ?>
+	<?php
+	/**
+	 * Fires before the user details menu items template section.
+	 *
+	 * @since 2.6.0 bbPress (r5854)
+	 */
+	do_action( 'bbp_template_before_user_details_menu_items' ); ?>
 
 	<div id="bbp-user-navigation">
 		<ul>
@@ -151,9 +162,21 @@ do_action( 'bbp_template_before_user_details' ); ?>
 
 		</ul>
 
-		<?php do_action( 'bbp_template_after_user_details_menu_items' ); ?>
+		<?php
+		/**
+		 * Fires after the user details menu items template section.
+		 *
+		 * @since 2.6.0 bbPress (r5854)
+		 */
+		do_action( 'bbp_template_after_user_details_menu_items' ); ?>
 
 	</div>
 </div>
 
-<?php do_action( 'bbp_template_after_user_details' );
+<?php
+/**
+ * Fires after the user details template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
+do_action( 'bbp_template_after_user_details' );

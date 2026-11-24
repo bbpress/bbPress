@@ -151,6 +151,20 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	 */
 	$retval = apply_filters( $filter, $value, $action_item_count, $text, $topic_link );
 
+	/**
+	 * Fires while formatting bbPress notifications for BuddyPress.
+	 *
+	 * @since 2.5.0 bbPress (r5155)
+	 *
+	 * @param string $component_action_name The component action name.
+	 * @param int $item_id The item ID.
+	 * @param int $secondary_item_id The secondary item ID.
+	 * @param int $action_item_count The action item count.
+	 * @param string $format The format.
+	 * @param string $component_action_name_again The component action name, repeated for compatibility.
+	 * @param string $component_name The component name.
+	 * @param int $id The notification ID.
+	 */
 	do_action( 'bbp_format_buddypress_notifications', $component_action_name, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id );
 
 	// Return
@@ -292,6 +306,16 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 		}
 
 		// Do additional subscriptions actions
+		/**
+		 * Fires after BuddyPress notifications are marked read or unread.
+		 *
+		 * @since 2.5.0 bbPress (r5192)
+		 *
+		 * @param bool $marked Whether marked.
+		 * @param int $user_id The user ID.
+		 * @param int $topic_id The topic ID.
+		 * @param string $action The action.
+		 */
 		do_action( 'bbp_notifications_handler', $marked, $user_id, $topic_id, $action );
 	}
 

@@ -19,11 +19,29 @@ defined( 'ABSPATH' ) || exit;
 	<fieldset class="bbp-form" id="bbp-user-notifications">
 		<legend><?php esc_html_e( 'Notifications', 'bbpress' ); ?></legend>
 
-		<?php do_action( 'bbp_user_edit_before_notifications' ); ?>
+		<?php
+		/**
+		 * Fires before the notifications fields in the user edit form.
+		 *
+		 * @since 2.7.0 bbPress (r8264)
+		 */
+		do_action( 'bbp_user_edit_before_notifications' ); ?>
 
-		<?php do_action( 'bbp_user_edit_notifications' ); ?>
+		<?php
+		/**
+		 * Fires in the notifications section of the user edit form.
+		 *
+		 * @since 2.7.0 bbPress (r8264)
+		 */
+		do_action( 'bbp_user_edit_notifications' ); ?>
 
-		<?php do_action( 'bbp_user_edit_after_notifications' ); ?>
+		<?php
+		/**
+		 * Fires after the notifications fields in the user edit form.
+		 *
+		 * @since 2.7.0 bbPress (r8264)
+		 */
+		do_action( 'bbp_user_edit_after_notifications' ); ?>
 
 	</fieldset>
 

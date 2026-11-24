@@ -10,6 +10,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/** This action is documented in src/templates/default/bbpress/pagination-replies.php. */
 do_action( 'bbp_template_before_pagination_loop' ); ?>
 
 <div class="bbp-pagination">
@@ -17,4 +18,6 @@ do_action( 'bbp_template_before_pagination_loop' ); ?>
 	<div class="bbp-pagination-links"><?php bbp_forum_pagination_links(); ?></div>
 </div>
 
-<?php do_action( 'bbp_template_after_pagination_loop' );
+<?php
+/** This action is documented in src/templates/default/bbpress/pagination-replies.php. */
+do_action( 'bbp_template_after_pagination_loop' );

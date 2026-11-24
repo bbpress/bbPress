@@ -143,6 +143,13 @@ class BBP_Converter {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the admin converter component is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_admin_converter_loaded', array( &$this ) );
 	}
 

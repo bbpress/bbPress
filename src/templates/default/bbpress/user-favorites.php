@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user favorites template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
 do_action( 'bbp_template_before_user_favorites' ); ?>
 
 <div id="bbp-user-favorites" class="bbp-user-favorites">
@@ -36,4 +41,10 @@ do_action( 'bbp_template_before_user_favorites' ); ?>
 	</div>
 </div><!-- #bbp-user-favorites -->
 
-<?php do_action( 'bbp_template_after_user_favorites' );
+<?php
+/**
+ * Fires after the user favorites template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
+do_action( 'bbp_template_after_user_favorites' );

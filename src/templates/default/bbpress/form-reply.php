@@ -24,7 +24,13 @@ if ( bbp_is_reply_edit() ) : ?>
 
 		<form id="new-post" name="new-post" method="post">
 
-			<?php do_action( 'bbp_theme_before_reply_form' ); ?>
+			<?php
+			/**
+			 * Fires before the reply form in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_before_reply_form' ); ?>
 
 			<fieldset class="bbp-form">
 			<legend>
@@ -52,7 +58,13 @@ if ( bbp_is_reply_edit() ) : ?>
 				?>
 			</legend>
 
-				<?php do_action( 'bbp_theme_before_reply_form_notices' ); ?>
+				<?php
+				/**
+				 * Fires before the reply form notices in the bbPress theme.
+				 *
+				 * @since 2.0.0 bbPress (r3417)
+				 */
+				do_action( 'bbp_theme_before_reply_form_notices' ); ?>
 
 				<?php if ( ! bbp_is_topic_open() && ! bbp_is_reply_edit() ) : ?>
 
@@ -84,36 +96,68 @@ if ( bbp_is_reply_edit() ) : ?>
 
 				<?php endif; ?>
 
-				<?php do_action( 'bbp_template_notices', 'reply' ); ?>
+				<?php
+				/** This action is documented in src/templates/default/bbpress/form-forum.php. */
+				do_action( 'bbp_template_notices', 'reply' ); ?>
 
 				<div>
 
 					<?php bbp_get_template_part( 'form', 'anonymous' ); ?>
 
-					<?php do_action( 'bbp_theme_before_reply_form_content' ); ?>
+					<?php
+					/**
+					 * Fires before the reply form content in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_before_reply_form_content' ); ?>
 
 					<?php bbp_the_content( array( 'context' => 'reply' ) ); ?>
 
-					<?php do_action( 'bbp_theme_after_reply_form_content' ); ?>
+					<?php
+					/**
+					 * Fires after the reply form content in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_after_reply_form_content' ); ?>
 
 					<?php bbp_get_template_part( 'form', 'allowed-tags' ); ?>
 
 					<?php if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', bbp_get_topic_id(), 'topic' ) ) : ?>
 
-						<?php do_action( 'bbp_theme_before_reply_form_tags' ); ?>
+						<?php
+						/**
+						 * Fires before the reply form tags in the bbPress theme.
+						 *
+						 * @since 2.0.0 bbPress (r3417)
+						 */
+						do_action( 'bbp_theme_before_reply_form_tags' ); ?>
 
 						<p>
 							<label for="bbp_topic_tags"><?php esc_html_e( 'Tags:', 'bbpress' ); ?></label><br />
 							<input type="text" value="<?php bbp_form_topic_tags(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" <?php disabled( bbp_is_topic_spam() ); ?> />
 						</p>
 
-						<?php do_action( 'bbp_theme_after_reply_form_tags' ); ?>
+						<?php
+						/**
+						 * Fires after the reply form tags in the bbPress theme.
+						 *
+						 * @since 2.0.0 bbPress (r3417)
+						 */
+						do_action( 'bbp_theme_after_reply_form_tags' ); ?>
 
 					<?php endif; ?>
 
 					<?php if ( bbp_is_subscription_subtype_active( 'post', bbp_get_topic_post_type() ) && ! bbp_is_anonymous() && ( ! bbp_is_reply_edit() || ( bbp_is_reply_edit() && ! bbp_is_reply_anonymous() ) ) ) : ?>
 
-						<?php do_action( 'bbp_theme_before_reply_form_subscription' ); ?>
+						<?php
+						/**
+						 * Fires before the reply form subscription in the bbPress theme.
+						 *
+						 * @since 2.0.0 bbPress (r3417)
+						 */
+						do_action( 'bbp_theme_before_reply_form_subscription' ); ?>
 
 						<p>
 
@@ -131,7 +175,13 @@ if ( bbp_is_reply_edit() ) : ?>
 
 						</p>
 
-						<?php do_action( 'bbp_theme_after_reply_form_subscription' ); ?>
+						<?php
+						/**
+						 * Fires after the reply form subscription in the bbPress theme.
+						 *
+						 * @since 2.0.0 bbPress (r3417)
+						 */
+						do_action( 'bbp_theme_after_reply_form_subscription' ); ?>
 
 					<?php endif; ?>
 
@@ -139,29 +189,59 @@ if ( bbp_is_reply_edit() ) : ?>
 
 						<?php if ( current_user_can( 'moderate', bbp_get_reply_id() ) ) : ?>
 
-							<?php do_action( 'bbp_theme_before_reply_form_reply_to' ); ?>
+							<?php
+							/**
+							 * Fires before the reply form reply to in the bbPress theme.
+							 *
+							 * @since 2.6.0 bbPress (r5396)
+							 */
+							do_action( 'bbp_theme_before_reply_form_reply_to' ); ?>
 
 							<p class="form-reply-to">
 								<label for="bbp_reply_to"><?php esc_html_e( 'Reply To:', 'bbpress' ); ?></label><br />
 								<?php bbp_reply_to_dropdown(); ?>
 							</p>
 
-							<?php do_action( 'bbp_theme_after_reply_form_reply_to' ); ?>
+							<?php
+							/**
+							 * Fires after the reply form reply to in the bbPress theme.
+							 *
+							 * @since 2.6.0 bbPress (r5396)
+							 */
+							do_action( 'bbp_theme_after_reply_form_reply_to' ); ?>
 
-							<?php do_action( 'bbp_theme_before_reply_form_status' ); ?>
+							<?php
+							/**
+							 * Fires before the reply form status in the bbPress theme.
+							 *
+							 * @since 2.6.0 bbPress (r5495)
+							 */
+							do_action( 'bbp_theme_before_reply_form_status' ); ?>
 
 							<p>
 								<label for="bbp_reply_status"><?php esc_html_e( 'Reply Status:', 'bbpress' ); ?></label><br />
 								<?php bbp_form_reply_status_dropdown(); ?>
 							</p>
 
-							<?php do_action( 'bbp_theme_after_reply_form_status' ); ?>
+							<?php
+							/**
+							 * Fires after the reply form status in the bbPress theme.
+							 *
+							 * @since 2.6.0 bbPress (r5495)
+							 */
+							do_action( 'bbp_theme_after_reply_form_status' ); ?>
 
 						<?php endif; ?>
 
 						<?php if ( bbp_allow_revisions() ) : ?>
 
-							<?php do_action( 'bbp_theme_before_reply_form_revisions' ); ?>
+							<?php
+							/**
+							 * Fires before the reply form revisions in the bbPress theme.
+							 *
+							 * @since 2.0.0 bbPress (r3417)
+							 */
+							do_action( 'bbp_theme_before_reply_form_revisions' ); ?>
 
 							<fieldset class="bbp-form">
 								<legend>
@@ -175,27 +255,57 @@ if ( bbp_is_reply_edit() ) : ?>
 								</div>
 							</fieldset>
 
-							<?php do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
+							<?php
+							/**
+							 * Fires after the reply form revisions in the bbPress theme.
+							 *
+							 * @since 2.0.0 bbPress (r3417)
+							 */
+							do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
 
 						<?php endif; ?>
 
 					<?php endif; ?>
 
-					<?php do_action( 'bbp_theme_before_reply_form_submit_wrapper' ); ?>
+					<?php
+					/**
+					 * Fires before the reply form submit wrapper in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_before_reply_form_submit_wrapper' ); ?>
 
 					<div class="bbp-submit-wrapper">
 
-						<?php do_action( 'bbp_theme_before_reply_form_submit_button' ); ?>
+						<?php
+						/**
+						 * Fires before the reply form submit button in the bbPress theme.
+						 *
+						 * @since 2.0.0 bbPress (r3417)
+						 */
+						do_action( 'bbp_theme_before_reply_form_submit_button' ); ?>
 
 						<?php bbp_cancel_reply_to_link(); ?>
 
 						<button type="submit" id="bbp_reply_submit" name="bbp_reply_submit" class="button submit"><?php esc_html_e( 'Submit', 'bbpress' ); ?></button>
 
-						<?php do_action( 'bbp_theme_after_reply_form_submit_button' ); ?>
+						<?php
+						/**
+						 * Fires after the reply form submit button in the bbPress theme.
+						 *
+						 * @since 2.0.0 bbPress (r3417)
+						 */
+						do_action( 'bbp_theme_after_reply_form_submit_button' ); ?>
 
 					</div>
 
-					<?php do_action( 'bbp_theme_after_reply_form_submit_wrapper' ); ?>
+					<?php
+					/**
+					 * Fires after the reply form submit wrapper in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_after_reply_form_submit_wrapper' ); ?>
 
 				</div>
 
@@ -203,7 +313,13 @@ if ( bbp_is_reply_edit() ) : ?>
 
 			</fieldset>
 
-			<?php do_action( 'bbp_theme_after_reply_form' ); ?>
+			<?php
+			/**
+			 * Fires after the reply form in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_after_reply_form' ); ?>
 
 		</form>
 	</div>

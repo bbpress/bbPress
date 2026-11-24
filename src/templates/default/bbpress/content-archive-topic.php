@@ -28,7 +28,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_before_topic_tag_description' ); ?>
+	<?php
+	/**
+	 * Fires before the topic tag description template section.
+	 *
+	 * @since 2.6.0 bbPress (r5310)
+	 */
+	do_action( 'bbp_template_before_topic_tag_description' ); ?>
 
 	<?php if ( bbp_is_topic_tag() ) : ?>
 
@@ -41,9 +47,21 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_after_topic_tag_description' ); ?>
+	<?php
+	/**
+	 * Fires after the topic tag description template section.
+	 *
+	 * @since 2.6.0 bbPress (r5310)
+	 */
+	do_action( 'bbp_template_after_topic_tag_description' ); ?>
 
-	<?php do_action( 'bbp_template_before_topics_index' ); ?>
+	<?php
+	/**
+	 * Fires before the topics index template section.
+	 *
+	 * @since 2.0.0 bbPress (r3115)
+	 */
+	do_action( 'bbp_template_before_topics_index' ); ?>
 
 	<?php if ( bbp_has_topics() ) : ?>
 
@@ -59,6 +77,12 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_after_topics_index' ); ?>
+	<?php
+	/**
+	 * Fires after the topics index template section.
+	 *
+	 * @since 2.0.0 bbPress (r3115)
+	 */
+	do_action( 'bbp_template_after_topics_index' ); ?>
 
 </div>

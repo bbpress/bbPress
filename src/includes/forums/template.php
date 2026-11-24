@@ -608,6 +608,11 @@ function bbp_get_forum_content( $forum_id = 0 ) {
  * @return void
  */
 function bbp_forum_row_actions() {
+	/**
+	 * Fires while rendering forum row actions.
+	 *
+	 * @since 2.1.0 bbPress (r3654)
+	 */
 	do_action( 'bbp_forum_row_actions' );
 }
 

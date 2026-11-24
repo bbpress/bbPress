@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the alert topic lock in the bbPress theme.
+ *
+ * @since 2.6.0 bbPress (r6344)
+ */
 do_action( 'bbp_theme_before_alert_topic_lock' ); ?>
 
 <?php if ( bbp_show_topic_lock_alert() ) : ?>
@@ -26,4 +31,9 @@ do_action( 'bbp_theme_before_alert_topic_lock' ); ?>
 
 <?php endif;
 
+/**
+ * Fires after the alert topic lock in the bbPress theme.
+ *
+ * @since 2.6.0 bbPress (r6344)
+ */
 do_action( 'bbp_theme_after_alert_topic_lock' );

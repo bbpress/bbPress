@@ -21,7 +21,13 @@ defined( 'ABSPATH' ) || exit;
 
 				<span class="bbp-row-actions">
 
-					<?php do_action( 'bbp_theme_before_topic_favorites_action' ); ?>
+					<?php
+					/**
+					 * Fires before the topic favorites action in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_before_topic_favorites_action' ); ?>
 
 					<?php bbp_topic_favorite_link(
 						array(
@@ -31,7 +37,13 @@ defined( 'ABSPATH' ) || exit;
 						)
 					); ?>
 
-					<?php do_action( 'bbp_theme_after_topic_favorites_action' ); ?>
+					<?php
+					/**
+					 * Fires after the topic favorites action in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_after_topic_favorites_action' ); ?>
 
 				</span>
 
@@ -39,7 +51,13 @@ defined( 'ABSPATH' ) || exit;
 
 				<span class="bbp-row-actions">
 
-					<?php do_action( 'bbp_theme_before_topic_subscription_action' ); ?>
+					<?php
+					/**
+					 * Fires before the topic subscription action in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_before_topic_subscription_action' ); ?>
 
 					<?php bbp_topic_subscription_link(
 						array(
@@ -49,7 +67,13 @@ defined( 'ABSPATH' ) || exit;
 						)
 					); ?>
 
-					<?php do_action( 'bbp_theme_after_topic_subscription_action' ); ?>
+					<?php
+					/**
+					 * Fires after the topic subscription action in the bbPress theme.
+					 *
+					 * @since 2.0.0 bbPress (r3417)
+					 */
+					do_action( 'bbp_theme_after_topic_subscription_action' ); ?>
 
 				</span>
 
@@ -57,19 +81,35 @@ defined( 'ABSPATH' ) || exit;
 
 		<?php endif; ?>
 
-		<?php do_action( 'bbp_theme_before_topic_title' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-topic.php. */
+		do_action( 'bbp_theme_before_topic_title' ); ?>
 
 		<a class="bbp-topic-permalink" href="<?php bbp_topic_permalink(); ?>"><?php bbp_topic_title(); ?></a>
 
-		<?php do_action( 'bbp_theme_after_topic_title' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-topic.php. */
+		do_action( 'bbp_theme_after_topic_title' ); ?>
 
 		<?php bbp_topic_pagination(); ?>
 
-		<?php do_action( 'bbp_theme_before_topic_meta' ); ?>
+		<?php
+		/**
+		 * Fires before the topic meta in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_topic_meta' ); ?>
 
 		<p class="bbp-topic-meta">
 
-			<?php do_action( 'bbp_theme_before_topic_started_by' ); ?>
+			<?php
+			/**
+			 * Fires before the topic started by in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_before_topic_started_by' ); ?>
 
 			<span class="bbp-topic-started-by">
 				<?php
@@ -81,11 +121,23 @@ defined( 'ABSPATH' ) || exit;
 				?>
 			</span>
 
-			<?php do_action( 'bbp_theme_after_topic_started_by' ); ?>
+			<?php
+			/**
+			 * Fires after the topic started by in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_after_topic_started_by' ); ?>
 
 			<?php if ( ! bbp_is_single_forum() || ( bbp_get_topic_forum_id() !== bbp_get_forum_id() ) ) : ?>
 
-				<?php do_action( 'bbp_theme_before_topic_started_in' ); ?>
+				<?php
+				/**
+				 * Fires before the topic started in in the bbPress theme.
+				 *
+				 * @since 2.0.0 bbPress (r3417)
+				 */
+				do_action( 'bbp_theme_before_topic_started_in' ); ?>
 
 				<span class="bbp-topic-started-in">
 					<?php
@@ -96,13 +148,25 @@ defined( 'ABSPATH' ) || exit;
 					);
 					?>
 				</span>
-				<?php do_action( 'bbp_theme_after_topic_started_in' ); ?>
+				<?php
+				/**
+				 * Fires after the topic started in in the bbPress theme.
+				 *
+				 * @since 2.0.0 bbPress (r3417)
+				 */
+				do_action( 'bbp_theme_after_topic_started_in' ); ?>
 
 			<?php endif; ?>
 
 		</p>
 
-		<?php do_action( 'bbp_theme_after_topic_meta' ); ?>
+		<?php
+		/**
+		 * Fires after the topic meta in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_topic_meta' ); ?>
 
 		<?php bbp_topic_row_actions(); ?>
 
@@ -114,15 +178,33 @@ defined( 'ABSPATH' ) || exit;
 
 	<li class="bbp-topic-freshness">
 
-		<?php do_action( 'bbp_theme_before_topic_freshness_link' ); ?>
+		<?php
+		/**
+		 * Fires before the topic freshness link in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_topic_freshness_link' ); ?>
 
 		<?php bbp_topic_freshness_link(); ?>
 
-		<?php do_action( 'bbp_theme_after_topic_freshness_link' ); ?>
+		<?php
+		/**
+		 * Fires after the topic freshness link in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_topic_freshness_link' ); ?>
 
 		<p class="bbp-topic-meta">
 
-			<?php do_action( 'bbp_theme_before_topic_freshness_author' ); ?>
+			<?php
+			/**
+			 * Fires before the topic freshness author in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_before_topic_freshness_author' ); ?>
 
 			<span class="bbp-topic-freshness-author"><?php bbp_author_link(
 				array(
@@ -131,7 +213,13 @@ defined( 'ABSPATH' ) || exit;
 				)
 			); ?></span>
 
-			<?php do_action( 'bbp_theme_after_topic_freshness_author' ); ?>
+			<?php
+			/**
+			 * Fires after the topic freshness author in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_after_topic_freshness_author' ); ?>
 
 		</p>
 	</li>

@@ -276,6 +276,13 @@ class BBP_Admin {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the admin component is loaded.
+		 *
+		 * @since 2.1.0 bbPress (r3731)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_admin_loaded', array( &$this ) );
 	}
 
@@ -1849,7 +1856,21 @@ class BBP_Admin {
 							bbp_restore_current_site();
 
 							// Do some actions to allow plugins to do things too
+							/**
+							 * Fires after bbPress upgrades a site in the network admin.
+							 *
+							 * @since 2.1.0 bbPress (r3731)
+							 *
+							 * @param array|WP_Error $response The updater HTTP response or error.
+							 */
 							do_action( 'after_bbpress_upgrade', $response           );
+							/**
+							 * Fires after bbPress upgrades a network site.
+							 *
+							 * @since 2.1.0 bbPress (r3731)
+							 *
+							 * @param int $blog_id The network site ID.
+							 */
 							do_action( 'bbp_upgrade_site',      $details['blog_id'] );
 
 						endforeach; ?>

@@ -28,12 +28,24 @@ defined( 'ABSPATH' ) || exit;
 
 	<div class="bbp-forum-title">
 
-		<?php do_action( 'bbp_theme_before_forum_title' ); ?>
+		<?php
+		/**
+		 * Fires before the forum title in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_forum_title' ); ?>
 
 		<h3><?php esc_html_e( 'Forum:', 'bbpress' ); ?>
 		<a href="<?php bbp_forum_permalink(); ?>"><?php bbp_forum_title(); ?></a></h3>
 
-		<?php do_action( 'bbp_theme_after_forum_title' ); ?>
+		<?php
+		/**
+		 * Fires after the forum title in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_forum_title' ); ?>
 
 	</div><!-- .bbp-forum-title -->
 </div><!-- .bbp-forum-header -->
@@ -41,11 +53,23 @@ defined( 'ABSPATH' ) || exit;
 <div id="post-<?php bbp_forum_id(); ?>" <?php bbp_forum_class(); ?>>
 	<div class="bbp-forum-content">
 
-		<?php do_action( 'bbp_theme_before_forum_content' ); ?>
+		<?php
+		/**
+		 * Fires before the forum content in the bbPress theme.
+		 *
+		 * @since 2.3.0 bbPress (r4579)
+		 */
+		do_action( 'bbp_theme_before_forum_content' ); ?>
 
 		<?php bbp_forum_content(); ?>
 
-		<?php do_action( 'bbp_theme_after_forum_content' ); ?>
+		<?php
+		/**
+		 * Fires after the forum content in the bbPress theme.
+		 *
+		 * @since 2.3.0 bbPress (r4579)
+		 */
+		do_action( 'bbp_theme_after_forum_content' ); ?>
 
 	</div><!-- .bbp-forum-content -->
 </div><!-- #post-<?php bbp_forum_id(); ?> -->

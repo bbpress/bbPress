@@ -216,6 +216,13 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.2.0 bbPress (r4394)
 	 */
 	private function fully_loaded() {
+		/**
+		 * Fires after the BuddyPress activity component is loaded.
+		 *
+		 * @since 2.2.0 bbPress (r4394)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_buddypress_activity_loaded', array( $this ) );
 	}
 

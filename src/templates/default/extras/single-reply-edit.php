@@ -9,7 +9,9 @@
 
 get_header(); ?>
 
-	<?php do_action( 'bbp_before_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_before_main_content' ); ?>
 
 	<?php while ( have_posts() ) : the_post(); ?>
 
@@ -24,7 +26,9 @@ get_header(); ?>
 
 	<?php endwhile; ?>
 
-	<?php do_action( 'bbp_after_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_after_main_content' ); ?>
 
 <?php get_sidebar(); ?>
 <?php get_footer();

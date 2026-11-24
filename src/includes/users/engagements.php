@@ -602,6 +602,14 @@ function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a user engagement is added.
+	 *
+	 * @since 2.6.0 bbPress (r6311)
+	 *
+	 * @param int $user_id The user ID.
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_add_user_engagement', $user_id, $topic_id );
 
 	return true;
@@ -635,6 +643,14 @@ function bbp_remove_user_engagement( $user_id = 0, $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a user engagement is removed.
+	 *
+	 * @since 2.6.0 bbPress (r6311)
+	 *
+	 * @param int $user_id The user ID.
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_remove_user_engagement', $user_id, $topic_id );
 
 	return true;

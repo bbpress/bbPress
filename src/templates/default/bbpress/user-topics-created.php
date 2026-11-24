@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user topics created template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
 do_action( 'bbp_template_before_user_topics_created' ); ?>
 
 <div id="bbp-user-topics-started" class="bbp-user-topics-started">
@@ -36,4 +41,10 @@ do_action( 'bbp_template_before_user_topics_created' ); ?>
 	</div>
 </div><!-- #bbp-user-topics-started -->
 
-<?php do_action( 'bbp_template_after_user_topics_created' );
+<?php
+/**
+ * Fires after the user topics created template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
+do_action( 'bbp_template_after_user_topics_created' );

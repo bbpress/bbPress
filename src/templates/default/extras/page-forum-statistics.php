@@ -9,9 +9,13 @@
 
 get_header(); ?>
 
-	<?php do_action( 'bbp_before_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_before_main_content' ); ?>
 
-	<?php do_action( 'bbp_template_notices' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/bbpress/form-forum.php. */
+	do_action( 'bbp_template_notices' ); ?>
 
 	<?php while ( have_posts() ) : the_post(); ?>
 
@@ -25,7 +29,13 @@ get_header(); ?>
 
 					<?php bbp_get_template_part( 'content', 'statistics' ); ?>
 
-					<?php do_action( 'bbp_before_popular_topics' ); ?>
+					<?php
+					/**
+					 * Fires before the popular topics.
+					 *
+					 * @since 2.0.0 bbPress (r3009)
+					 */
+					do_action( 'bbp_before_popular_topics' ); ?>
 
 					<?php bbp_set_query_name( 'bbp_popular_topics' ); ?>
 
@@ -43,7 +53,13 @@ get_header(); ?>
 
 					<?php bbp_reset_query_name(); ?>
 
-					<?php do_action( 'bbp_after_popular_topics' ); ?>
+					<?php
+					/**
+					 * Fires after the popular topics.
+					 *
+					 * @since 2.0.0 bbPress (r3009)
+					 */
+					do_action( 'bbp_after_popular_topics' ); ?>
 
 				</div>
 			</div>
@@ -51,7 +67,9 @@ get_header(); ?>
 
 	<?php endwhile; ?>
 
-	<?php do_action( 'bbp_after_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_after_main_content' ); ?>
 
 <?php get_sidebar(); ?>
 

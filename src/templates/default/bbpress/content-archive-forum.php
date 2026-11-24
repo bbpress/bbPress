@@ -20,7 +20,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_get_template_part( 'form', 'search' ); ?>
 
-	<?php do_action( 'bbp_template_before_forums_index' ); ?>
+	<?php
+	/**
+	 * Fires before the forums index template section.
+	 *
+	 * @since 2.0.0 bbPress (r3115)
+	 */
+	do_action( 'bbp_template_before_forums_index' ); ?>
 
 	<?php if ( bbp_has_forums() ) : ?>
 
@@ -32,6 +38,12 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_after_forums_index' ); ?>
+	<?php
+	/**
+	 * Fires after the forums index template section.
+	 *
+	 * @since 2.0.0 bbPress (r3115)
+	 */
+	do_action( 'bbp_template_after_forums_index' ); ?>
 
 </div>

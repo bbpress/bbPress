@@ -199,6 +199,11 @@ function bbp_set_forum_nav_menu_classes( $menu_items ) {
  * @return void
  */
 function bbp_head() {
+	/**
+	 * Fires in the document head for bbPress content.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_head' );
 }
 
@@ -210,6 +215,11 @@ function bbp_head() {
  * @return void
  */
 function bbp_footer() {
+	/**
+	 * Fires in the document footer for bbPress content.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_footer' );
 }
 

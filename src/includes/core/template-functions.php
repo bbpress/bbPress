@@ -102,11 +102,22 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	}
 
 	/**
+	 * Fires after locating a bbPress template.
+	 *
 	 * This action exists only to follow the standard bbPress coding convention,
 	 * and should not be used to short-circuit any part of the template locator.
 	 *
 	 * If you want to override a specific template part, please either filter
 	 * 'bbp_get_template_part' or add a new location to the template stack.
+	 *
+	 * @since 2.3.0 bbPress (r4820)
+	 *
+	 * @param string|false $located The located template path, or false if none was found.
+	 * @param string $template_name The template name.
+	 * @param string|array $template_names The template name or ordered names.
+	 * @param array $template_locations The template locations.
+	 * @param bool $load Whether load.
+	 * @param bool $require_once Whether require once.
 	 */
 	do_action( 'bbp_locate_template', $located, $template_name, $template_names, $template_locations, $load, $require_once );
 

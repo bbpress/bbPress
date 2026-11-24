@@ -60,6 +60,13 @@ function bbp_add_user_options( $user_id = 0 ) {
 	}
 
 	// Allow previously activated plugins to append their own user options.
+	/**
+	 * Fires after a user options is added.
+	 *
+	 * @since 2.1.0 bbPress (r3911)
+	 *
+	 * @param int $user_id The user ID.
+	 */
 	do_action( 'bbp_add_user_options', $user_id );
 }
 
@@ -88,6 +95,13 @@ function bbp_delete_user_options( $user_id = 0 ) {
 	}
 
 	// Allow previously activated plugins to append their own options.
+	/**
+	 * Fires after bbPress deletes user options.
+	 *
+	 * @since 2.1.0 bbPress (r3911)
+	 *
+	 * @param int $user_id The user ID.
+	 */
 	do_action( 'bbp_delete_user_options', $user_id );
 }
 
@@ -106,6 +120,11 @@ function bbp_setup_user_option_filters() {
 	}
 
 	// Allow previously activated plugins to append their own options.
+	/**
+	 * Fires when bbPress sets up user option filters.
+	 *
+	 * @since 2.1.0 bbPress (r3911)
+	 */
 	do_action( 'bbp_setup_user_option_filters' );
 }
 

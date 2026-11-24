@@ -9,9 +9,13 @@
 
 get_header(); ?>
 
-	<?php do_action( 'bbp_before_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_before_main_content' ); ?>
 
-	<?php do_action( 'bbp_template_notices' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/bbpress/form-forum.php. */
+	do_action( 'bbp_template_notices' ); ?>
 
 	<div id="topic-tag" class="bbp-topic-tag">
 		<h1 class="entry-title">
@@ -31,7 +35,9 @@ get_header(); ?>
 		</div>
 	</div><!-- #topic-tag -->
 
-	<?php do_action( 'bbp_after_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_after_main_content' ); ?>
 
 <?php get_sidebar(); ?>
 <?php get_footer();

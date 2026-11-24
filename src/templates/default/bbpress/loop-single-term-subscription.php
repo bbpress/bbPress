@@ -17,7 +17,13 @@ defined( 'ABSPATH' ) || exit;
 
 		<span class="bbp-row-actions">
 
-			<?php do_action( 'bbp_theme_before_term_subscription_action' ); ?>
+			<?php
+			/**
+			 * Fires before the term subscription action in the bbPress theme.
+			 *
+			 * @since 2.7.0 bbPress (r8335)
+			 */
+			do_action( 'bbp_theme_before_term_subscription_action' ); ?>
 
 			<?php
 			bbp_term_subscription_toggle_link(
@@ -30,13 +36,25 @@ defined( 'ABSPATH' ) || exit;
 			);
 			?>
 
-			<?php do_action( 'bbp_theme_after_term_subscription_action' ); ?>
+			<?php
+			/**
+			 * Fires after the term subscription action in the bbPress theme.
+			 *
+			 * @since 2.7.0 bbPress (r8335)
+			 */
+			do_action( 'bbp_theme_after_term_subscription_action' ); ?>
 
 		</span>
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_theme_before_term_subscription_name' ); ?>
+	<?php
+	/**
+	 * Fires before the term subscription name in the bbPress theme.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 */
+	do_action( 'bbp_theme_before_term_subscription_name' ); ?>
 
 	<?php if ( bbp_get_term_subscription_permalink() ) : ?>
 		<a href="<?php bbp_term_subscription_permalink(); ?>"><?php bbp_term_subscription_name(); ?></a>
@@ -44,5 +62,11 @@ defined( 'ABSPATH' ) || exit;
 		<?php bbp_term_subscription_name(); ?>
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_theme_after_term_subscription_name' ); ?>
+	<?php
+	/**
+	 * Fires after the term subscription name in the bbPress theme.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 */
+	do_action( 'bbp_theme_after_term_subscription_name' ); ?>
 </li>

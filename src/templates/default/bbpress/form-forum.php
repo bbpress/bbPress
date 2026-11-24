@@ -26,7 +26,13 @@ if ( bbp_is_forum_edit() ) : ?>
 
 		<form id="new-post" name="new-post" method="post">
 
-			<?php do_action( 'bbp_theme_before_forum_form' ); ?>
+			<?php
+			/**
+			 * Fires before the forum form in the bbPress theme.
+			 *
+			 * @since 2.1.0 bbPress (r3552)
+			 */
+			do_action( 'bbp_theme_before_forum_form' ); ?>
 
 			<fieldset class="bbp-form">
 				<legend>
@@ -45,7 +51,13 @@ if ( bbp_is_forum_edit() ) : ?>
 
 				</legend>
 
-				<?php do_action( 'bbp_theme_before_forum_form_notices' ); ?>
+				<?php
+				/**
+				 * Fires before the forum form notices in the bbPress theme.
+				 *
+				 * @since 2.1.0 bbPress (r3552)
+				 */
+				do_action( 'bbp_theme_before_forum_form_notices' ); ?>
 
 				<?php if ( ! bbp_is_forum_edit() && bbp_is_forum_closed() ) : ?>
 
@@ -67,11 +79,25 @@ if ( bbp_is_forum_edit() ) : ?>
 
 				<?php endif; ?>
 
-				<?php do_action( 'bbp_template_notices', 'forum' ); ?>
+				<?php
+				/**
+				 * Fires where bbPress notices are displayed in a template.
+				 *
+				 * @since 2.0.0 bbPress (r2688)
+				 *
+				 * @param string $type The content type.
+				 */
+				do_action( 'bbp_template_notices', 'forum' ); ?>
 
 				<div>
 
-					<?php do_action( 'bbp_theme_before_forum_form_title' ); ?>
+					<?php
+					/**
+					 * Fires before the forum form title in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_before_forum_form_title' ); ?>
 
 					<p>
 						<label for="bbp_forum_title">
@@ -86,57 +112,129 @@ if ( bbp_is_forum_edit() ) : ?>
 						<input type="text" id="bbp_forum_title" value="<?php bbp_form_forum_title(); ?>" size="40" name="bbp_forum_title" maxlength="<?php bbp_title_max_length(); ?>" />
 					</p>
 
-					<?php do_action( 'bbp_theme_after_forum_form_title' ); ?>
+					<?php
+					/**
+					 * Fires after the forum form title in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_after_forum_form_title' ); ?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
+					<?php
+					/**
+					 * Fires before the forum form content in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_before_forum_form_content' ); ?>
 
 					<?php bbp_the_content( array( 'context' => 'forum' ) ); ?>
 
-					<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
+					<?php
+					/**
+					 * Fires after the forum form content in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_after_forum_form_content' ); ?>
 
 					<?php bbp_get_template_part( 'form', 'allowed-tags' ); ?>
 
 					<?php if ( bbp_allow_forum_mods() && current_user_can( 'assign_moderators' ) ) : ?>
 
-						<?php do_action( 'bbp_theme_before_forum_form_mods' ); ?>
+						<?php
+						/**
+						 * Fires before the forum form mods in the bbPress theme.
+						 *
+						 * @since 2.6.0 bbPress (r5836)
+						 */
+						do_action( 'bbp_theme_before_forum_form_mods' ); ?>
 
 						<p>
 							<label for="bbp_moderators"><?php esc_html_e( 'Forum Moderators:', 'bbpress' ); ?></label><br />
 							<input type="text" value="<?php bbp_form_forum_moderators(); ?>" size="40" name="bbp_moderators" id="bbp_moderators" />
 						</p>
 
-						<?php do_action( 'bbp_theme_after_forum_form_mods' ); ?>
+						<?php
+						/**
+						 * Fires after the forum form mods in the bbPress theme.
+						 *
+						 * @since 2.6.0 bbPress (r5836)
+						 */
+						do_action( 'bbp_theme_after_forum_form_mods' ); ?>
 
 					<?php endif; ?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_type' ); ?>
+					<?php
+					/**
+					 * Fires before the forum form type in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3564)
+					 */
+					do_action( 'bbp_theme_before_forum_form_type' ); ?>
 
 					<p>
 						<label for="bbp_forum_type"><?php esc_html_e( 'Forum Type:', 'bbpress' ); ?></label><br />
 						<?php bbp_form_forum_type_dropdown(); ?>
 					</p>
 
-					<?php do_action( 'bbp_theme_after_forum_form_type' ); ?>
+					<?php
+					/**
+					 * Fires after the forum form type in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3564)
+					 */
+					do_action( 'bbp_theme_after_forum_form_type' ); ?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
+					<?php
+					/**
+					 * Fires before the forum form status in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3564)
+					 */
+					do_action( 'bbp_theme_before_forum_form_status' ); ?>
 
 					<p>
 						<label for="bbp_forum_status"><?php esc_html_e( 'Status:', 'bbpress' ); ?></label><br />
 						<?php bbp_form_forum_status_dropdown(); ?>
 					</p>
 
-					<?php do_action( 'bbp_theme_after_forum_form_status' ); ?>
+					<?php
+					/**
+					 * Fires after the forum form status in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3564)
+					 */
+					do_action( 'bbp_theme_after_forum_form_status' ); ?>
 
-					<?php do_action( 'bbp_theme_before_forum_visibility_status' ); ?>
+					<?php
+					/**
+					 * Fires before the forum visibility status in the bbPress theme.
+					 *
+					 * @since 2.6.0 bbPress (r5319)
+					 */
+					do_action( 'bbp_theme_before_forum_visibility_status' ); ?>
 
 					<p>
 						<label for="bbp_forum_visibility"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></label><br />
 						<?php bbp_form_forum_visibility_dropdown(); ?>
 					</p>
 
-					<?php do_action( 'bbp_theme_after_forum_visibility_status' ); ?>
+					<?php
+					/**
+					 * Fires after the forum visibility status in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3564)
+					 */
+					do_action( 'bbp_theme_after_forum_visibility_status' ); ?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_parent' ); ?>
+					<?php
+					/**
+					 * Fires before the forum form parent in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_before_forum_form_parent' ); ?>
 
 					<p>
 						<label for="bbp_forum_parent_id"><?php esc_html_e( 'Parent Forum:', 'bbpress' ); ?></label><br />
@@ -153,21 +251,51 @@ if ( bbp_is_forum_edit() ) : ?>
 						?>
 					</p>
 
-					<?php do_action( 'bbp_theme_after_forum_form_parent' ); ?>
+					<?php
+					/**
+					 * Fires after the forum form parent in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_after_forum_form_parent' ); ?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_submit_wrapper' ); ?>
+					<?php
+					/**
+					 * Fires before the forum form submit wrapper in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_before_forum_form_submit_wrapper' ); ?>
 
 					<div class="bbp-submit-wrapper">
 
-						<?php do_action( 'bbp_theme_before_forum_form_submit_button' ); ?>
+						<?php
+						/**
+						 * Fires before the forum form submit button in the bbPress theme.
+						 *
+						 * @since 2.1.0 bbPress (r3552)
+						 */
+						do_action( 'bbp_theme_before_forum_form_submit_button' ); ?>
 
 						<button type="submit" id="bbp_forum_submit" name="bbp_forum_submit" class="button submit"><?php esc_html_e( 'Submit', 'bbpress' ); ?></button>
 
-						<?php do_action( 'bbp_theme_after_forum_form_submit_button' ); ?>
+						<?php
+						/**
+						 * Fires after the forum form submit button in the bbPress theme.
+						 *
+						 * @since 2.1.0 bbPress (r3552)
+						 */
+						do_action( 'bbp_theme_after_forum_form_submit_button' ); ?>
 
 					</div>
 
-					<?php do_action( 'bbp_theme_after_forum_form_submit_wrapper' ); ?>
+					<?php
+					/**
+					 * Fires after the forum form submit wrapper in the bbPress theme.
+					 *
+					 * @since 2.1.0 bbPress (r3552)
+					 */
+					do_action( 'bbp_theme_after_forum_form_submit_wrapper' ); ?>
 
 				</div>
 
@@ -175,7 +303,13 @@ if ( bbp_is_forum_edit() ) : ?>
 
 			</fieldset>
 
-			<?php do_action( 'bbp_theme_after_forum_form' ); ?>
+			<?php
+			/**
+			 * Fires after the forum form in the bbPress theme.
+			 *
+			 * @since 2.1.0 bbPress (r3552)
+			 */
+			do_action( 'bbp_theme_after_forum_form' ); ?>
 
 		</form>
 	</div>

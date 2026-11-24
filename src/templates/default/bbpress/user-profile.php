@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user profile template section.
+ *
+ * @since 2.2.0 bbPress (r4228)
+ */
 do_action( 'bbp_template_before_user_profile' ); ?>
 
 <div id="bbp-user-profile" class="bbp-user-profile">
@@ -90,4 +95,10 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 	</div>
 </div><!-- #bbp-author-topics-started -->
 
-<?php do_action( 'bbp_template_after_user_profile' );
+<?php
+/**
+ * Fires after the user profile template section.
+ *
+ * @since 2.2.0 bbPress (r4228)
+ */
+do_action( 'bbp_template_after_user_profile' );

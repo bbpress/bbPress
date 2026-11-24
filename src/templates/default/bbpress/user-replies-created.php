@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user replies template section.
+ *
+ * @since 2.2.0 bbPress (r4228)
+ */
 do_action( 'bbp_template_before_user_replies' ); ?>
 
 <div id="bbp-user-replies-created" class="bbp-user-replies-created">
@@ -36,4 +41,10 @@ do_action( 'bbp_template_before_user_replies' ); ?>
 	</div>
 </div><!-- #bbp-user-replies-created -->
 
-<?php do_action( 'bbp_template_after_user_replies' );
+<?php
+/**
+ * Fires after the user replies template section.
+ *
+ * @since 2.2.0 bbPress (r4228)
+ */
+do_action( 'bbp_template_after_user_replies' );

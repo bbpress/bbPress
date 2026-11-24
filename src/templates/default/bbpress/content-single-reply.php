@@ -16,7 +16,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_breadcrumb(); ?>
 
-	<?php do_action( 'bbp_template_before_single_reply' ); ?>
+	<?php
+	/**
+	 * Fires before the single reply template section.
+	 *
+	 * @since 2.1.0 bbPress (r3634)
+	 */
+	do_action( 'bbp_template_before_single_reply' ); ?>
 
 	<?php if ( post_password_required( bbp_get_reply_id() ) ) : ?>
 
@@ -28,6 +34,12 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_after_single_reply' ); ?>
+	<?php
+	/**
+	 * Fires after the single reply template section.
+	 *
+	 * @since 2.1.0 bbPress (r3634)
+	 */
+	do_action( 'bbp_template_after_single_reply' ); ?>
 
 </div>

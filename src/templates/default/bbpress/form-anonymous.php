@@ -12,12 +12,24 @@ defined( 'ABSPATH' ) || exit;
 
 if ( bbp_current_user_can_access_anonymous_user_form() ) : ?>
 
-	<?php do_action( 'bbp_theme_before_anonymous_form' ); ?>
+	<?php
+	/**
+	 * Fires before the anonymous form in the bbPress theme.
+	 *
+	 * @since 2.0.0 bbPress (r3417)
+	 */
+	do_action( 'bbp_theme_before_anonymous_form' ); ?>
 
 	<fieldset class="bbp-form">
 		<legend><?php ( bbp_is_topic_edit() || bbp_is_reply_edit() ) ? esc_html_e( 'Author Information', 'bbpress' ) : esc_html_e( 'Your information:', 'bbpress' ); ?></legend>
 
-		<?php do_action( 'bbp_theme_anonymous_form_extras_top' ); ?>
+		<?php
+		/**
+		 * Fires at the top of the anonymous author form fields.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_anonymous_form_extras_top' ); ?>
 
 		<p>
 			<label for="bbp_anonymous_author"><?php esc_html_e( 'Name (required):', 'bbpress' ); ?></label><br />
@@ -34,10 +46,22 @@ if ( bbp_current_user_can_access_anonymous_user_form() ) : ?>
 			<input type="text" id="bbp_anonymous_website" value="<?php bbp_author_url(); ?>" size="40" maxlength="200" name="bbp_anonymous_website" />
 		</p>
 
-		<?php do_action( 'bbp_theme_anonymous_form_extras_bottom' ); ?>
+		<?php
+		/**
+		 * Fires at the bottom of the anonymous author form fields.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_anonymous_form_extras_bottom' ); ?>
 
 	</fieldset>
 
-	<?php do_action( 'bbp_theme_after_anonymous_form' ); ?>
+	<?php
+	/**
+	 * Fires after the anonymous form in the bbPress theme.
+	 *
+	 * @since 2.0.0 bbPress (r3417)
+	 */
+	do_action( 'bbp_theme_after_anonymous_form' ); ?>
 
 <?php endif;

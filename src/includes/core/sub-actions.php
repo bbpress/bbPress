@@ -30,6 +30,11 @@
  * @return void
  */
 function bbp_activation() {
+	/**
+	 * Fires during bbPress activation.
+	 *
+	 * @since 2.0.0 bbPress (r2509)
+	 */
 	do_action( 'bbp_activation' );
 }
 
@@ -41,6 +46,11 @@ function bbp_activation() {
  * @return void
  */
 function bbp_deactivation() {
+	/**
+	 * Fires during bbPress deactivation.
+	 *
+	 * @since 2.0.0 bbPress (r2509)
+	 */
 	do_action( 'bbp_deactivation' );
 }
 
@@ -52,6 +62,11 @@ function bbp_deactivation() {
  * @return void
  */
 function bbp_uninstall() {
+	/**
+	 * Fires during bbPress uninstall.
+	 *
+	 * @since 2.0.0 bbPress (r2509)
+	 */
 	do_action( 'bbp_uninstall' );
 }
 
@@ -65,6 +80,11 @@ function bbp_uninstall() {
  * @return void
  */
 function bbp_loaded() {
+	/**
+	 * Fires after bbPress has loaded.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_loaded' );
 }
 
@@ -76,6 +96,11 @@ function bbp_loaded() {
  * @return void
  */
 function bbp_constants() {
+	/**
+	 * Fires when bbPress defines its constants.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_constants' );
 }
 
@@ -87,6 +112,11 @@ function bbp_constants() {
  * @return void
  */
 function bbp_boot_strap_globals() {
+	/**
+	 * Fires when bbPress initializes its global state.
+	 *
+	 * @since 2.0.0 bbPress (r2596)
+	 */
 	do_action( 'bbp_boot_strap_globals' );
 }
 
@@ -98,6 +128,11 @@ function bbp_boot_strap_globals() {
  * @return void
  */
 function bbp_includes() {
+	/**
+	 * Fires when bbPress loads its required files.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_includes' );
 }
 
@@ -109,6 +144,11 @@ function bbp_includes() {
  * @return void
  */
 function bbp_setup_globals() {
+	/**
+	 * Fires when bbPress sets up its globals.
+	 *
+	 * @since 2.0.0 bbPress (r2596)
+	 */
 	do_action( 'bbp_setup_globals' );
 }
 
@@ -120,6 +160,11 @@ function bbp_setup_globals() {
  * @return void
  */
 function bbp_register() {
+	/**
+	 * Fires when bbPress registers its components.
+	 *
+	 * @since 2.2.0 bbPress (r4181)
+	 */
 	do_action( 'bbp_register' );
 }
 
@@ -131,6 +176,11 @@ function bbp_register() {
  * @return void
  */
 function bbp_init() {
+	/**
+	 * Fires during bbPress initialization.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_init' );
 }
 
@@ -142,6 +192,11 @@ function bbp_init() {
  * @return void
  */
 function bbp_rest_api_init() {
+	/**
+	 * Fires when the REST API is initialized for bbPress.
+	 *
+	 * @since 2.6.16 bbPress (r7481)
+	 */
 	do_action( 'bbp_rest_api_init' );
 }
 
@@ -157,6 +212,15 @@ function bbp_rest_api_init() {
  * @return void
  */
 function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
+	/**
+	 * Fires for a bbPress XML-RPC method call.
+	 *
+	 * @since 2.6.16 bbPress (r7485)
+	 *
+	 * @param string $method The method.
+	 * @param array $args The args.
+	 * @param wp_xmlrpc_server|null $server The XML-RPC server.
+	 */
 	do_action( 'bbp_xmlrpc_call', $method, $args, $server );
 }
 
@@ -170,6 +234,13 @@ function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
  * @return void
  */
 function bbp_roles_init( $wp_roles ) {
+	/**
+	 * Fires when bbPress roles are initialized.
+	 *
+	 * @since 2.5.12 bbPress (r6106)
+	 *
+	 * @param WP_Roles $wp_roles The WordPress roles object.
+	 */
 	do_action( 'bbp_roles_init', $wp_roles );
 }
 
@@ -181,6 +252,11 @@ function bbp_roles_init( $wp_roles ) {
  * @return void
  */
 function bbp_widgets_init() {
+	/**
+	 * Fires when bbPress widgets are initialized.
+	 *
+	 * @since 2.0.0 bbPress (r3391)
+	 */
 	do_action( 'bbp_widgets_init' );
 }
 
@@ -195,6 +271,11 @@ function bbp_widgets_init() {
  * @return void
  */
 function bbp_setup_current_user() {
+	/**
+	 * Fires while bbPress sets up the current user.
+	 *
+	 * @since 2.0.0 bbPress (r2697)
+	 */
 	do_action( 'bbp_setup_current_user' );
 }
 
@@ -206,6 +287,11 @@ function bbp_setup_current_user() {
  * @return void
  */
 function bbp_setup_engagements() {
+	/**
+	 * Fires while bbPress sets up the engagement strategy.
+	 *
+	 * @since 2.6.0 bbPress (r6876)
+	 */
 	do_action( 'bbp_setup_engagements' );
 }
 
@@ -217,6 +303,11 @@ function bbp_setup_engagements() {
  * @return void
  */
 function bbp_shutdown() {
+	/**
+	 * Fires before PHP shuts down.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 */
 	do_action( 'bbp_shutdown' );
 }
 
@@ -230,6 +321,11 @@ function bbp_shutdown() {
  * @return void
  */
 function bbp_load_textdomain() {
+	/**
+	 * Fires when bbPress loads translations.
+	 *
+	 * @since 2.0.0 bbPress (r2508)
+	 */
 	do_action( 'bbp_load_textdomain' );
 }
 
@@ -241,6 +337,11 @@ function bbp_load_textdomain() {
  * @return void
  */
 function bbp_register_post_types() {
+	/**
+	 * Fires when bbPress registers post types.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_register_post_types' );
 }
 
@@ -252,6 +353,11 @@ function bbp_register_post_types() {
  * @return void
  */
 function bbp_register_post_statuses() {
+	/**
+	 * Fires when bbPress registers post statuses.
+	 *
+	 * @since 2.0.0 bbPress (r2727)
+	 */
 	do_action( 'bbp_register_post_statuses' );
 }
 
@@ -263,6 +369,11 @@ function bbp_register_post_statuses() {
  * @return void
  */
 function bbp_register_taxonomies() {
+	/**
+	 * Fires when bbPress registers taxonomies.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_register_taxonomies' );
 }
 
@@ -274,6 +385,11 @@ function bbp_register_taxonomies() {
  * @return void
  */
 function bbp_register_views() {
+	/**
+	 * Fires when bbPress registers views.
+	 *
+	 * @since 2.0.0 bbPress (r2789)
+	 */
 	do_action( 'bbp_register_views' );
 }
 
@@ -286,6 +402,11 @@ function bbp_register_views() {
  * @return void
  */
 function bbp_register_engagements() {
+	/**
+	 * Fires when bbPress registers engagements.
+	 *
+	 * @since 2.7.0 bbPress (r8306)
+	 */
 	do_action( 'bbp_register_engagements' );
 }
 
@@ -297,6 +418,11 @@ function bbp_register_engagements() {
  * @return void
  */
 function bbp_register_shortcodes() {
+	/**
+	 * Fires when bbPress registers shortcodes.
+	 *
+	 * @since 2.0.0 bbPress (r3032)
+	 */
 	do_action( 'bbp_register_shortcodes' );
 }
 
@@ -308,6 +434,11 @@ function bbp_register_shortcodes() {
  * @return void
  */
 function bbp_register_blocks() {
+	/**
+	 * Fires when bbPress registers blocks.
+	 *
+	 * @since 2.7.0 bbPress (r7383)
+	 */
 	do_action( 'bbp_register_blocks' );
 }
 
@@ -319,6 +450,11 @@ function bbp_register_blocks() {
  * @return void
  */
 function bbp_register_meta() {
+	/**
+	 * Fires when bbPress registers meta.
+	 *
+	 * @since 2.6.0 bbPress (r6302)
+	 */
 	do_action( 'bbp_register_meta' );
 }
 
@@ -330,6 +466,11 @@ function bbp_register_meta() {
  * @return void
  */
 function bbp_enqueue_scripts() {
+	/**
+	 * Fires when bbPress enqueues scripts and styles.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_enqueue_scripts' );
 }
 
@@ -341,6 +482,11 @@ function bbp_enqueue_scripts() {
  * @return void
  */
 function bbp_add_rewrite_tags() {
+	/**
+	 * Fires when bbPress adds rewrite tags.
+	 *
+	 * @since 2.0.0 bbPress (r2753)
+	 */
 	do_action( 'bbp_add_rewrite_tags' );
 }
 
@@ -352,6 +498,11 @@ function bbp_add_rewrite_tags() {
  * @return void
  */
 function bbp_add_rewrite_rules() {
+	/**
+	 * Fires when bbPress adds rewrite rules.
+	 *
+	 * @since 2.4.0 bbPress (r4918)
+	 */
 	do_action( 'bbp_add_rewrite_rules' );
 }
 
@@ -363,6 +514,11 @@ function bbp_add_rewrite_rules() {
  * @return void
  */
 function bbp_add_permastructs() {
+	/**
+	 * Fires when bbPress adds permastructs.
+	 *
+	 * @since 2.4.0 bbPress (r4918)
+	 */
 	do_action( 'bbp_add_permastructs' );
 }
 
@@ -374,6 +530,11 @@ function bbp_add_permastructs() {
  * @return void
  */
 function bbp_login_form_login() {
+	/**
+	 * Fires in the bbPress login form.
+	 *
+	 * @since 2.1.0 bbPress (r4072)
+	 */
 	do_action( 'bbp_login_form_login' );
 }
 
@@ -403,6 +564,15 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
 	}
 
 	// Do the action
+	/**
+	 * Fires when a bbPress post changes status.
+	 *
+	 * @since 2.6.0 bbPress (r6792)
+	 *
+	 * @param string $new_status The new status.
+	 * @param string $old_status The old status.
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_transition_post_status', $new_status, $old_status, $post );
 }
 
@@ -431,6 +601,15 @@ function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = fal
 	}
 
 	// Do the action
+	/**
+	 * Fires after a bbPress post is updated.
+	 *
+	 * @since 2.6.16 bbPress (r7453)
+	 *
+	 * @param int $post_id The post ID.
+	 * @param WP_Post $post_after The post object after the update.
+	 * @param WP_Post $post_before The post object before the update.
+	 */
 	do_action( 'bbp_post_updated', $post_id, $post_after, $post_before );
 }
 
@@ -447,6 +626,14 @@ function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = fal
  * @return void
  */
 function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
+	/**
+	 * Fires after a user profile is updated.
+	 *
+	 * @since 2.2.0 bbPress (r4305)
+	 *
+	 * @param int $user_id The user ID.
+	 * @param array|WP_User $old_user_data The user data before the update.
+	 */
 	do_action( 'bbp_profile_update', $user_id, $old_user_data );
 }
 
@@ -460,6 +647,13 @@ function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
  * @return void
  */
 function bbp_user_register( $user_id = 0 ) {
+	/**
+	 * Fires after a user is registered.
+	 *
+	 * @since 2.2.0 bbPress (r4305)
+	 *
+	 * @param int $user_id The user ID.
+	 */
 	do_action( 'bbp_user_register', $user_id );
 }
 
@@ -473,6 +667,11 @@ function bbp_user_register( $user_id = 0 ) {
  * @return void
  */
 function bbp_ready() {
+	/**
+	 * Fires when bbPress is ready.
+	 *
+	 * @since 2.0.0 bbPress (r2618)
+	 */
 	do_action( 'bbp_ready' );
 }
 
@@ -487,6 +686,11 @@ function bbp_ready() {
  * @return void
  */
 function bbp_template_redirect() {
+	/**
+	 * Fires during bbPress template redirection.
+	 *
+	 * @since 2.0.2 bbPress (r3605)
+	 */
 	do_action( 'bbp_template_redirect' );
 }
 
@@ -500,6 +704,11 @@ function bbp_template_redirect() {
  * @return void
  */
 function bbp_register_theme_packages() {
+	/**
+	 * Fires when bbPress registers theme packages.
+	 *
+	 * @since 2.1.0 bbPress (r3830)
+	 */
 	do_action( 'bbp_register_theme_packages' );
 }
 
@@ -511,6 +720,11 @@ function bbp_register_theme_packages() {
  * @return void
  */
 function bbp_setup_theme() {
+	/**
+	 * Fires when bbPress sets up theme compatibility.
+	 *
+	 * @since 2.1.0 bbPress (r3754)
+	 */
 	do_action( 'bbp_setup_theme' );
 }
 
@@ -522,6 +736,11 @@ function bbp_setup_theme() {
  * @return void
  */
 function bbp_after_setup_theme() {
+	/**
+	 * Fires after bbPress sets up theme compatibility.
+	 *
+	 * @since 2.1.0 bbPress (r3733)
+	 */
 	do_action( 'bbp_after_setup_theme' );
 }
 
@@ -549,9 +768,23 @@ function bbp_post_request() {
 
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
+	/**
+	 * Fires for a specific bbPress POST request action.
+	 *
+	 * The dynamic hook name is `bbp_post_request_{$action}`.
+	 *
+	 * @since 2.4.0 bbPress (r5023)
+	 */
 	do_action( 'bbp_post_request_' . $action );
 
 	// Use this static action if you don't mind checking the 'action' yourself.
+	/**
+	 * Fires after a bbPress POST request is dispatched.
+	 *
+	 * @since 2.3.0 bbPress (r4551)
+	 *
+	 * @param string $action The action.
+	 */
 	do_action( 'bbp_post_request',   $action );
 }
 
@@ -584,9 +817,23 @@ function bbp_get_request() {
 
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
+	/**
+	 * Fires for a specific bbPress GET request action.
+	 *
+	 * The dynamic hook name is `bbp_get_request_{$action}`.
+	 *
+	 * @since 2.4.0 bbPress (r5023)
+	 */
 	do_action( 'bbp_get_request_' . $action );
 
 	// Use this static action if you don't mind checking the 'action' yourself.
+	/**
+	 * Fires after a bbPress GET request is dispatched.
+	 *
+	 * @since 2.3.0 bbPress (r4551)
+	 *
+	 * @param string $action The action.
+	 */
 	do_action( 'bbp_get_request',   $action );
 }
 
@@ -689,6 +936,13 @@ function bbp_template_include( $template = '' ) {
  * @return void
  */
 function bbp_generate_rewrite_rules( $wp_rewrite ) {
+	/**
+	 * Fires while generating bbPress rewrite rules.
+	 *
+	 * @since 2.0.0 bbPress (r2688)
+	 *
+	 * @param WP_Rewrite $wp_rewrite The WordPress rewrite object.
+	 */
 	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
 }
 

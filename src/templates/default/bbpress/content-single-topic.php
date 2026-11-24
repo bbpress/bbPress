@@ -20,7 +20,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_topic_favorite_link(); ?>
 
-	<?php do_action( 'bbp_template_before_single_topic' ); ?>
+	<?php
+	/**
+	 * Fires before the single topic template section.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 */
+	do_action( 'bbp_template_before_single_topic' ); ?>
 
 	<?php if ( post_password_required( bbp_get_topic_id() ) ) : ?>
 
@@ -54,6 +60,12 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_get_template_part( 'alert', 'topic-lock' ); ?>
 
-	<?php do_action( 'bbp_template_after_single_topic' ); ?>
+	<?php
+	/**
+	 * Fires after the single topic template section.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 */
+	do_action( 'bbp_template_after_single_topic' ); ?>
 
 </div>

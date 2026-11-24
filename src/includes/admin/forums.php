@@ -81,6 +81,13 @@ class BBP_Forums_Admin {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the admin forums component is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_admin_forums_loaded', array( &$this ) );
 	}
 
@@ -390,6 +397,13 @@ class BBP_Forums_Admin {
 			)
 		);
 
+		/**
+		 * Fires when saving the forum attributes metabox.
+		 *
+		 * @since 2.0.0 bbPress (r2746)
+		 *
+		 * @param int $forum_id The forum ID.
+		 */
 		do_action( 'bbp_forum_attributes_metabox_save', $forum_id );
 
 		return $forum_id;
@@ -473,6 +487,16 @@ class BBP_Forums_Admin {
 		$retval = apply_filters( 'bbp_toggle_forum_action_admin', $retval, $forum_id, $action );
 
 		// Do additional forum toggle actions (admin side)
+		/**
+		 * Fires after a forum moderation action in the admin.
+		 *
+		 * @since 2.6.0 bbPress (r5254)
+		 *
+		 * @param int|false $success The updated forum ID, or false on failure.
+		 * @param array $post_data The post data.
+		 * @param string $action The action.
+		 * @param array<string, string|int> $retval The admin notice arguments.
+		 */
 		do_action( 'bbp_toggle_forum_admin', $success, $post_data, $action, $retval );
 
 		// Redirect back to the forum
@@ -726,6 +750,14 @@ class BBP_Forums_Admin {
 				break;
 
 			default:
+				/**
+				 * Fires while rendering data in an admin forums column.
+				 *
+				 * @since 2.0.0 bbPress (r2565)
+				 *
+				 * @param string $column The column.
+				 * @param int $forum_id The forum ID.
+				 */
 				do_action( 'bbp_admin_forums_column_data', $column, $forum_id );
 				break;
 		}

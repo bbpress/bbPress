@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user engagements template section.
+ *
+ * @since 2.6.0 bbPress (r6320)
+ */
 do_action( 'bbp_template_before_user_engagements' ); ?>
 
 <div id="bbp-user-engagements" class="bbp-user-engagements">
@@ -36,4 +41,10 @@ do_action( 'bbp_template_before_user_engagements' ); ?>
 	</div>
 </div><!-- #bbp-user-engagements -->
 
-<?php do_action( 'bbp_template_after_user_engagements' );
+<?php
+/**
+ * Fires after the user engagements template section.
+ *
+ * @since 2.6.0 bbPress (r6320)
+ */
+do_action( 'bbp_template_after_user_engagements' );

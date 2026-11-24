@@ -124,6 +124,14 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a user favorite is added.
+	 *
+	 * @since 2.0.0 bbPress (r2652)
+	 *
+	 * @param int $user_id The user ID.
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_add_user_favorite', $user_id, $topic_id );
 
 	return true;
@@ -158,6 +166,14 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a user favorite is removed.
+	 *
+	 * @since 2.0.0 bbPress (r2652)
+	 *
+	 * @param int $user_id The user ID.
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_remove_user_favorite', $user_id, $topic_id );
 
 	return true;
@@ -232,6 +248,16 @@ function bbp_favorites_handler( $action = '' ) {
 	}
 
 	// Do additional favorites actions
+	/**
+	 * Fires after a favorite action is handled.
+	 *
+	 * @since 2.0.0 bbPress (r2660)
+	 *
+	 * @param bool $success Whether success.
+	 * @param int $user_id The user ID.
+	 * @param int $topic_id The topic ID.
+	 * @param string $action The action.
+	 */
 	do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
 
 	// Success!

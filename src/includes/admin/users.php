@@ -71,6 +71,13 @@ class BBP_Users_Admin {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the admin users component is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_admin_users_loaded', array( &$this ) );
 	}
 

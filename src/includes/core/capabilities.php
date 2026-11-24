@@ -236,6 +236,11 @@ function bbp_add_caps() {
 		}
 	}
 
+	/**
+	 * Fires when bbPress adds capabilities to roles.
+	 *
+	 * @since 2.0.0 bbPress (r2741)
+	 */
 	do_action( 'bbp_add_caps' );
 }
 
@@ -258,6 +263,11 @@ function bbp_remove_caps() {
 		}
 	}
 
+	/**
+	 * Fires when bbPress removes capabilities from roles.
+	 *
+	 * @since 2.0.0 bbPress (r2741)
+	 */
 	do_action( 'bbp_remove_caps' );
 }
 

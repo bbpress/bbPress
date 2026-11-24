@@ -14,9 +14,17 @@ defined( 'ABSPATH' ) || exit;
 
 <div id="bbpress-forums" class="bbpress-wrapper">
 
-	<?php do_action( 'bbp_template_notices' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/bbpress/form-forum.php. */
+	do_action( 'bbp_template_notices' ); ?>
 
-	<?php do_action( 'bbp_template_before_user_wrapper' ); ?>
+	<?php
+	/**
+	 * Fires before the user wrapper template section.
+	 *
+	 * @since 2.6.0 bbPress (r5854)
+	 */
+	do_action( 'bbp_template_before_user_wrapper' ); ?>
 
 	<div id="bbp-user-wrapper">
 
@@ -61,6 +69,12 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 	</div>
 
-	<?php do_action( 'bbp_template_after_user_wrapper' ); ?>
+	<?php
+	/**
+	 * Fires after the user wrapper template section.
+	 *
+	 * @since 2.6.0 bbPress (r5854)
+	 */
+	do_action( 'bbp_template_after_user_wrapper' ); ?>
 
 </div>

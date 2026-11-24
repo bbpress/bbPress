@@ -108,6 +108,13 @@ class BBP_Topics_Admin {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the admin topics component is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_admin_topics_loaded', array( &$this ) );
 	}
 
@@ -653,7 +660,16 @@ class BBP_Topics_Admin {
 		}
 
 		// Allow other fun things to happen
+		/**
+		 * Fires when saving the topic attributes metabox.
+		 *
+		 * @since 2.0.0 bbPress (r2746)
+		 *
+		 * @param int $topic_id The topic ID.
+		 * @param int $forum_id The forum ID.
+		 */
 		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $forum_id       );
+		/** This action is documented in src/includes/admin/replies.php. */
 		do_action( 'bbp_author_metabox_save',           $topic_id, $anonymous_data );
 
 		return $topic_id;
@@ -856,6 +872,16 @@ class BBP_Topics_Admin {
 		$retval = apply_filters( 'bbp_toggle_topic_action_admin', $retval, $topic_id, $action );
 
 		// Do additional topic toggle actions (admin side)
+		/**
+		 * Fires after a topic moderation action in the admin.
+		 *
+		 * @since 2.0.0 bbPress (r2727)
+		 *
+		 * @param bool|int|null $success The moderation result, or null when no action ran.
+		 * @param array $post_data The post data.
+		 * @param string $action The action.
+		 * @param array<string, string|int> $retval The admin notice arguments.
+		 */
 		do_action( 'bbp_toggle_topic_admin', $success, $post_data, $action, $retval );
 
 		// Redirect back to the topic
@@ -1199,6 +1225,14 @@ class BBP_Topics_Admin {
 
 			// Do an action for anything else
 			default :
+				/**
+				 * Fires while rendering data in an admin topics column.
+				 *
+				 * @since 2.0.0 bbPress (r2565)
+				 *
+				 * @param string $column The column.
+				 * @param int $topic_id The topic ID.
+				 */
 				do_action( 'bbp_admin_topics_column_data', $column, $topic_id );
 				break;
 		}

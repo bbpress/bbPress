@@ -1760,6 +1760,13 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// Dupe found
 	if ( $bbp_db->get_var( $dupe ) ) {
+		/**
+		 * Fires when bbPress detects duplicate post content.
+		 *
+		 * @since 2.0.0 bbPress (r2763)
+		 *
+		 * @param array $post_data The post data.
+		 */
 		do_action( 'bbp_check_for_duplicate_trigger', $post_data );
 		return false;
 	}
@@ -2366,8 +2373,26 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before sending moderation recipients notification email.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param int $post_id The post ID.
+	 * @param int $forum_id The forum ID.
+	 * @param array $user_ids The user IDs.
+	 */
 	do_action( 'bbp_pre_notify_moderation_recipients', $post_id, $forum_id, $user_ids );
 	$retval = wp_mail( $to, $subject, $message, $headers );
+	/**
+	 * Fires after sending moderation recipients notification email.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param int $post_id The post ID.
+	 * @param int $forum_id The forum ID.
+	 * @param array $user_ids The user IDs.
+	 */
 	do_action( 'bbp_post_notify_moderation_recipients', $post_id, $forum_id, $user_ids );
 
 	// Allow a later path to retry when WordPress could not send the email.
@@ -3128,12 +3153,30 @@ Post Link: %3$s
 	}
 
 	// Before
+	/**
+	 * Fires before sending subscribers notification email.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param int $reply_id The reply ID.
+	 * @param int $topic_id The topic ID.
+	 * @param array $user_ids The user IDs.
+	 */
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
 	// Send notification emails
 	bbp_send_subscription_emails( $email_addresses, $subject, $message, $headers, $subscriptions );
 
 	// After
+	/**
+	 * Fires after sending subscribers notification email.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param int $reply_id The reply ID.
+	 * @param int $topic_id The topic ID.
+	 * @param array $user_ids The user IDs.
+	 */
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
 	// Restore previously removed filters
@@ -3406,12 +3449,30 @@ Topic Link: %3$s
 	}
 
 	// Before
+	/**
+	 * Fires before sending forum subscribers notification email.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param int $topic_id The topic ID.
+	 * @param int $forum_id The forum ID.
+	 * @param array $user_ids The user IDs.
+	 */
 	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	// Send notification emails
 	bbp_send_subscription_emails( $email_addresses, $subject, $message, $headers, $subscriptions );
 
 	// After
+	/**
+	 * Fires after sending forum subscribers notification email.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param int $topic_id The topic ID.
+	 * @param int $forum_id The forum ID.
+	 * @param array $user_ids The user IDs.
+	 */
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	// Restore previously removed filters

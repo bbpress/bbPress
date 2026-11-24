@@ -346,6 +346,15 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0, $type = 'post'
 		return false;
 	}
 
+	/**
+	 * Fires after a user subscription is added.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param int|float|string $user_id The user ID passed by the caller.
+	 * @param int|string $object_id The object ID passed by the caller.
+	 * @param string $type The type.
+	 */
 	do_action( 'bbp_add_user_subscription', $user_id, $object_id, $type );
 
 	return true;
@@ -380,6 +389,15 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'po
 		return false;
 	}
 
+	/**
+	 * Fires after a user subscription is removed.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param int $user_id The user ID.
+	 * @param int $object_id The object ID.
+	 * @param string $type The type.
+	 */
 	do_action( 'bbp_remove_user_subscription', $user_id, $object_id, $type );
 
 	return true;
@@ -602,6 +620,17 @@ function bbp_subscription_unsubscribe_handler() {
 	$success = ! bbp_is_user_subscribed( $user_id, $object_id, $object_type )
 		|| bbp_remove_user_subscription( $user_id, $object_id, $object_type );
 
+	/**
+	 * Fires after a subscription action is handled.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param bool $success Whether success.
+	 * @param int $user_id The user ID.
+	 * @param int $object_id The object ID.
+	 * @param string $type The content type.
+	 * @param string $object_type The object type.
+	 */
 	do_action( 'bbp_subscriptions_handler', $success, $user_id, $object_id, 'bbp_unsubscribe', $object_type );
 
 	if ( empty( $success ) ) {
@@ -750,6 +779,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 	}
 
 	// Do additional subscriptions actions
+	/** This action is documented in src/includes/users/subscriptions.php. */
 	do_action( 'bbp_subscriptions_handler', $success, $user_id, $object_id, $action, $object_type );
 
 	// Success!

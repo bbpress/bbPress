@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the topics loop template section.
+ *
+ * @since 2.0.0 bbPress (r3311)
+ */
 do_action( 'bbp_template_before_topics_loop' ); ?>
 
 <ul id="bbp-forum-<?php bbp_forum_id(); ?>" class="bbp-topics">
@@ -44,4 +49,10 @@ do_action( 'bbp_template_before_topics_loop' ); ?>
 	</li>
 </ul><!-- #bbp-forum-<?php bbp_forum_id(); ?> -->
 
-<?php do_action( 'bbp_template_after_topics_loop' );
+<?php
+/**
+ * Fires after the topics loop template section.
+ *
+ * @since 2.0.0 bbPress (r3311)
+ */
+do_action( 'bbp_template_after_topics_loop' );

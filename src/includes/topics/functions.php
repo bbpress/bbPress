@@ -366,6 +366,13 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	/**
+	 * Fires before saving additional data for a new topic.
+	 *
+	 * @since 2.0.0 bbPress (r3135)
+	 *
+	 * @param int $forum_id The forum ID.
+	 */
 	do_action( 'bbp_new_topic_pre_extras', $forum_id );
 
 	// Bail if errors
@@ -445,10 +452,27 @@ function bbp_new_topic_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
+		/**
+		 * Fires after a new topic is created.
+		 *
+		 * @since 2.0.0 bbPress (r2574)
+		 *
+		 * @param int $topic_id The topic ID.
+		 * @param int $forum_id The forum ID.
+		 * @param array $anonymous_data The anonymous data.
+		 * @param int $author_id The post author ID.
+		 */
 		do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_data['post_author'] );
 
 		/** Additional Actions (After Save) ***********************************/
 
+		/**
+		 * Fires after saving additional data for a new topic.
+		 *
+		 * @since 2.1.0 bbPress (r3680)
+		 *
+		 * @param int $topic_id The topic ID.
+		 */
 		do_action( 'bbp_new_topic_post_extras', $topic_id );
 
 		/** Pending ***********************************************************/
@@ -749,6 +773,13 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	/**
+	 * Fires before saving additional data for an edited topic.
+	 *
+	 * @since 2.0.0 bbPress (r3135)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_edit_topic_pre_extras', $topic_id );
 
 	// A previously issued edit nonce does not satisfy a new password requirement.
@@ -813,6 +844,17 @@ function bbp_edit_topic_handler( $action = '' ) {
 	if ( ! is_wp_error( $topic_id ) ) {
 
 		// Update counts, etc...
+		/**
+		 * Fires after a topic is edited.
+		 *
+		 * @since 2.0.0 bbPress (r2753)
+		 *
+		 * @param int $topic_id The topic ID.
+		 * @param int $forum_id The forum ID.
+		 * @param array $anonymous_data The anonymous data.
+		 * @param int $author_id The post author ID.
+		 * @param bool $is_edit Whether this is an edit.
+		 */
 		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_data['post_author'], true /* Is edit */ );
 
 		/** Revisions *********************************************************/
@@ -848,6 +890,13 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 		/** Additional Actions (After Save) ***********************************/
 
+		/**
+		 * Fires after saving additional data for an edited topic.
+		 *
+		 * @since 2.0.0 bbPress (r3135)
+		 *
+		 * @param int $topic_id The topic ID.
+		 */
 		do_action( 'bbp_edit_topic_post_extras', $topic_id );
 
 		/** Redirect **********************************************************/
@@ -1347,6 +1396,14 @@ function bbp_merge_topic_handler( $action = '' ) {
 	/** No Errors *************************************************************/
 
 	// Update counts, etc...
+	/**
+	 * Fires before two topics are merged.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param int $destination_topic_id The destination topic ID.
+	 * @param int $source_topic_id The source topic ID.
+	 */
 	do_action( 'bbp_merge_topic', $destination_topic->ID, $source_topic->ID );
 
 	/** Date Check ************************************************************/
@@ -1489,6 +1546,14 @@ function bbp_merge_topic_handler( $action = '' ) {
 			bbp_update_reply_position( $reply->ID );
 
 			// Do additional actions per merged reply
+			/**
+			 * Fires after a reply is moved during a topic merge.
+			 *
+			 * @since 2.0.0 bbPress (r2989)
+			 *
+			 * @param int $reply_id The reply ID.
+			 * @param int $destination_topic_id The destination topic ID.
+			 */
 			do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
 		}
 	}
@@ -1519,6 +1584,15 @@ function bbp_merge_topic_handler( $action = '' ) {
 	// Send the post parent of the source topic as it has been shifted
 	// (possibly to a new forum) so we need to update the counts of the
 	// old forum as well as the new one
+	/**
+	 * Fires after two topics are merged.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param int $destination_topic_id The destination topic ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $source_topic The source topic ID.
+	 */
 	do_action( 'bbp_merged_topic', $destination_topic->ID, $source_topic->ID, $source_topic->post_parent );
 
 	// Redirect back to new topic
@@ -1574,6 +1648,15 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
 		bbp_bump_user_reply_count( $user_id, 1 );
 	}
 
+	/**
+	 * Fires while updating counts after a topic merge.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param int $destination_topic_id The destination topic ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $source_topic_forum_id The source topic forum ID.
+	 */
 	do_action( 'bbp_merge_topic_count', $destination_topic_id, $source_topic_id, $source_topic_forum_id );
 }
 
@@ -1759,6 +1842,15 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** No Errors - Do the Spit ***********************************************/
 
 	// Update counts, etc...
+	/**
+	 * Fires before a topic is split.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param int $from_reply_id The from reply ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $destination_topic_id The destination topic ID.
+	 */
 	do_action( 'bbp_pre_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
 
 	/** Date Check ************************************************************/
@@ -1879,6 +1971,14 @@ function bbp_split_topic_handler( $action = '' ) {
 			}
 
 			// Do additional actions per split reply
+			/**
+			 * Fires after a reply is moved during a topic split.
+			 *
+			 * @since 2.0.0 bbPress (r2993)
+			 *
+			 * @param int $reply_id The reply ID.
+			 * @param int $destination_topic_id The destination topic ID.
+			 */
 			do_action( 'bbp_split_topic_reply', $reply->ID, $destination_topic->ID );
 		}
 
@@ -1913,6 +2013,15 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** Successful Split ******************************************************/
 
 	// Update counts, etc...
+	/**
+	 * Fires after a topic is split.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param int $from_reply_id The from reply ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $destination_topic_id The destination topic ID.
+	 */
 	do_action( 'bbp_post_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
 
 	// Redirect back to the topic
@@ -1971,6 +2080,15 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 	bbp_update_topic_voice_count( $source_topic_id      );
 	bbp_update_topic_voice_count( $destination_topic_id );
 
+	/**
+	 * Fires while updating counts after a topic split.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param int $from_reply_id The from reply ID.
+	 * @param int $source_topic_id The source topic ID.
+	 * @param int $destination_topic_id The destination topic ID.
+	 */
 	do_action( 'bbp_split_topic_count', $from_reply_id, $source_topic_id, $destination_topic_id );
 }
 
@@ -2062,6 +2180,17 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			$redirect = get_term_link( $tag_id, bbp_get_topic_tag_tax_id() );
 
 			// Update counts, etc...
+			/**
+			 * Fires after a topic tag is updated.
+			 *
+			 * @since 2.0.0 bbPress (r2768)
+			 *
+			 * @param int $tag_id The tag ID.
+			 * @param mixed $tag The result of updating the topic tag.
+			 * @param string $name The name.
+			 * @param string $slug The slug.
+			 * @param string $description The description.
+			 */
 			do_action( 'bbp_update_topic_tag', $tag_id, $tag, $name, $slug, $description );
 
 			break;
@@ -2139,6 +2268,15 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			$redirect = get_term_link( (int) $to_tag, bbp_get_topic_tag_tax_id() );
 
 			// Update counts, etc...
+			/**
+			 * Fires after a topic tag is merged.
+			 *
+			 * @since 2.0.0 bbPress (r2768)
+			 *
+			 * @param int $tag_id The tag ID.
+			 * @param int $to_tag The destination topic tag ID.
+			 * @param mixed $tag The result of deleting the source tag.
+			 */
 			do_action( 'bbp_merge_topic_tag', $tag_id, $to_tag, $tag );
 
 			break;
@@ -2172,6 +2310,14 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			$redirect = bbp_get_forums_url();
 
 			// Update counts, etc...
+			/**
+			 * Fires after a topic tag is deleted.
+			 *
+			 * @since 2.0.0 bbPress (r2768)
+			 *
+			 * @param int $tag_id The tag ID.
+			 * @param mixed $tag The result of deleting the topic tag.
+			 */
 			do_action( 'bbp_delete_topic_tag', $tag_id, $tag );
 
 			break;
@@ -2459,6 +2605,15 @@ function bbp_toggle_topic_handler( $action = '' ) {
 	);
 
 	// Do additional topic toggle actions
+	/**
+	 * Fires after a topic moderation action is handled.
+	 *
+	 * @since 2.0.0 bbPress (r2727)
+	 *
+	 * @param mixed $retval The moderation result.
+	 * @param array $post_data The post data.
+	 * @param string $action The action.
+	 */
 	do_action( 'bbp_toggle_topic_handler', $retval['status'], $post_data, $action );
 
 	// No errors
@@ -3350,6 +3505,13 @@ function bbp_close_topic( $topic_id = 0 ) {
 	$topic_status = $topic->post_status;
 
 	// Execute pre close code
+	/**
+	 * Fires before a topic is closed.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_close_topic', $topic_id );
 
 	// Add pre close status
@@ -3374,6 +3536,13 @@ function bbp_close_topic( $topic_id = 0 ) {
 	}
 
 	// Execute post close code
+	/**
+	 * Fires after a topic is closed.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_closed_topic', $topic_id );
 
 	// Return topic_id
@@ -3404,6 +3573,13 @@ function bbp_open_topic( $topic_id = 0 ) {
 	}
 
 	// Execute pre open code
+	/**
+	 * Fires before a topic is opened.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_open_topic', $topic_id );
 
 	// Get previous status
@@ -3436,6 +3612,13 @@ function bbp_open_topic( $topic_id = 0 ) {
 	}
 
 	// Execute post open code
+	/**
+	 * Fires after a topic is opened.
+	 *
+	 * @since 2.0.0 bbPress (r2753)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_opened_topic', $topic_id );
 
 	// Return topic_id
@@ -3470,6 +3653,13 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic->post_status );
 
 	// Execute pre spam code
+	/**
+	 * Fires before a topic is marked as spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_spam_topic', $topic_id );
 
 	// Set post status to spam
@@ -3486,6 +3676,13 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	$topic_id = wp_update_post( (object) $topic_data );
 
 	// Execute post spam code
+	/**
+	 * Fires after a topic is marked as spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_spammed_topic', $topic_id );
 
 	// Return topic_id
@@ -3607,6 +3804,13 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	}
 
 	// Execute pre unspam code
+	/**
+	 * Fires before a topic is removed from spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_unspam_topic', $topic_id );
 
 	// Get pre spam status
@@ -3632,6 +3836,13 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	$topic_id = wp_update_post( (object) $topic_data );
 
 	// Execute post unspam code
+	/**
+	 * Fires after a topic is removed from spam.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_unspammed_topic', $topic_id );
 
 	// Return topic_id
@@ -3747,6 +3958,14 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a topic is made sticky.
+	 *
+	 * @since 2.0.0 bbPress (r2754)
+	 *
+	 * @param int $topic_id The topic ID.
+	 * @param bool $super Whether super.
+	 */
 	do_action( 'bbp_stick_topic', $topic_id, $super );
 
 	// Maybe get the forum ID if not getting supers
@@ -3778,6 +3997,15 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 		? update_option( '_bbp_super_sticky_topics', $stickies )
 		: update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
 
+	/**
+	 * Fires after a topic is made sticky.
+	 *
+	 * @since 2.6.0 bbPress (r5408)
+	 *
+	 * @param int $topic_id The topic ID.
+	 * @param bool $super Whether super.
+	 * @param bool|int $success Whether the topic was made sticky, or the updated topic ID.
+	 */
 	do_action( 'bbp_stuck_topic', $topic_id, $super, $success );
 
 	return (bool) $success;
@@ -3809,6 +4037,13 @@ function bbp_approve_topic( $topic_id = 0 ) {
 	}
 
 	// Execute pre pending code
+	/**
+	 * Fires before a topic is approved.
+	 *
+	 * @since 2.6.0 bbPress (r5503)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_approve_topic', $topic_id );
 
 	// Set publish status
@@ -3826,6 +4061,13 @@ function bbp_approve_topic( $topic_id = 0 ) {
 	$topic_id = wp_update_post( $topic );
 
 	// Execute post pending code
+	/**
+	 * Fires after a topic is approved.
+	 *
+	 * @since 2.6.0 bbPress (r5503)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_approved_topic', $topic_id );
 
 	// Return topic_id
@@ -3858,6 +4100,13 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
 	}
 
 	// Execute pre open code
+	/**
+	 * Fires before a topic is unapproved.
+	 *
+	 * @since 2.6.0 bbPress (r5503)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_unapprove_topic', $topic_id );
 
 	// Set pending status
@@ -3870,6 +4119,13 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
 	$topic_id = wp_update_post( $topic );
 
 	// Execute post open code
+	/**
+	 * Fires after a topic is unapproved.
+	 *
+	 * @since 2.6.0 bbPress (r5503)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_unapproved_topic', $topic_id );
 
 	// Return topic_id
@@ -3894,6 +4150,13 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 	$stickies = bbp_get_stickies( $forum_id );
 	$offset   = array_search( $topic_id, $stickies, true );
 
+	/**
+	 * Fires before a topic is unstuck.
+	 *
+	 * @since 2.0.0 bbPress (r2754)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_unstick_topic', $topic_id );
 
 	// Nothing to unstick
@@ -3923,6 +4186,14 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 		}
 	}
 
+	/**
+	 * Fires after a topic is unstuck.
+	 *
+	 * @since 2.6.0 bbPress (r5408)
+	 *
+	 * @param int $topic_id The topic ID.
+	 * @param bool|int $success Whether the topic was unstuck, or the updated topic ID.
+	 */
 	do_action( 'bbp_unstuck_topic', $topic_id, $success );
 
 	return (bool) $success;
@@ -3951,6 +4222,13 @@ function bbp_delete_topic( $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a topic is deleted.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_delete_topic', $topic_id );
 
 	return null;
@@ -4061,6 +4339,13 @@ function bbp_trash_topic( $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a topic is trashed.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_trash_topic', $topic_id );
 
 	return null;
@@ -4135,6 +4420,13 @@ function bbp_untrash_topic( $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires before a topic is restored from the trash.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_untrash_topic', $topic_id );
 
 	return null;
@@ -4220,6 +4512,13 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a topic is deleted.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_deleted_topic', $topic_id );
 
 	return null;
@@ -4240,6 +4539,13 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a topic is trashed.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_trashed_topic', $topic_id );
 
 	return null;
@@ -4260,6 +4566,13 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
 		return false;
 	}
 
+	/**
+	 * Fires after a topic is restored from the trash.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $topic_id The topic ID.
+	 */
 	do_action( 'bbp_untrashed_topic', $topic_id );
 
 	return null;
@@ -4549,7 +4862,9 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 		xmlns:dc="http://purl.org/dc/elements/1.1/"
 		xmlns:atom="http://www.w3.org/2005/Atom"
 
-		<?php do_action( 'bbp_feed' ); ?>
+		<?php
+		/** This action is documented in src/includes/replies/functions.php. */
+		do_action( 'bbp_feed' ); ?>
 	>
 
 	<channel>
@@ -4562,7 +4877,9 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 		<generator><?php echo esc_url_raw( 'https://bbpress.org/?v=' . convert_chars( bbp_get_version() ) ); ?></generator>
 		<language><?php bloginfo_rss( 'language' ); ?></language>
 
-		<?php do_action( 'bbp_feed_head' ); ?>
+		<?php
+		/** This action is documented in src/includes/replies/functions.php. */
+		do_action( 'bbp_feed_head' ); ?>
 
 		<?php if ( bbp_has_topics( $topics_query ) ) : ?>
 
@@ -4598,14 +4915,18 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 					<?php endif; ?>
 
-					<?php do_action( 'bbp_feed_item' ); ?>
+					<?php
+					/** This action is documented in src/includes/replies/functions.php. */
+					do_action( 'bbp_feed_item' ); ?>
 
 				</item>
 
 				<?php endwhile; ?>
 			<?php endif; ?>
 
-		<?php do_action( 'bbp_feed_footer' ); ?>
+		<?php
+		/** This action is documented in src/includes/replies/functions.php. */
+		do_action( 'bbp_feed_footer' ); ?>
 
 	</channel>
 	</rss>

@@ -15,7 +15,13 @@ $stats = bbp_get_statistics(); ?>
 
 <dl role="main" class="bbp-stats">
 
-	<?php do_action( 'bbp_before_statistics' ); ?>
+	<?php
+	/**
+	 * Fires before the forum statistics.
+	 *
+	 * @since 2.0.0 bbPress (r3009)
+	 */
+	do_action( 'bbp_before_statistics' ); ?>
 
 	<dt><?php esc_html_e( 'Registered Users', 'bbpress' ); ?></dt>
 	<dd>
@@ -73,7 +79,13 @@ $stats = bbp_get_statistics(); ?>
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_after_statistics' ); ?>
+	<?php
+	/**
+	 * Fires after the forum statistics.
+	 *
+	 * @since 2.0.0 bbPress (r3009)
+	 */
+	do_action( 'bbp_after_statistics' ); ?>
 
 </dl>
 

@@ -19,7 +19,13 @@ defined( 'ABSPATH' ) || exit;
 
 			<span class="bbp-row-actions">
 
-				<?php do_action( 'bbp_theme_before_forum_subscription_action' ); ?>
+				<?php
+				/**
+				 * Fires before the forum subscription action in the bbPress theme.
+				 *
+				 * @since 2.5.0 bbPress (r5156)
+				 */
+				do_action( 'bbp_theme_before_forum_subscription_action' ); ?>
 
 				<?php bbp_forum_subscription_link(
 					array(
@@ -29,29 +35,63 @@ defined( 'ABSPATH' ) || exit;
 					)
 				); ?>
 
-				<?php do_action( 'bbp_theme_after_forum_subscription_action' ); ?>
+				<?php
+				/**
+				 * Fires after the forum subscription action in the bbPress theme.
+				 *
+				 * @since 2.5.0 bbPress (r5156)
+				 */
+				do_action( 'bbp_theme_after_forum_subscription_action' ); ?>
 
 			</span>
 
 		<?php endif; ?>
 
-		<?php do_action( 'bbp_theme_before_forum_title' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-forum.php. */
+		do_action( 'bbp_theme_before_forum_title' ); ?>
 
 		<a class="bbp-forum-title" href="<?php bbp_forum_permalink(); ?>"><?php bbp_forum_title(); ?></a>
 
-		<?php do_action( 'bbp_theme_after_forum_title' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/loop-search-forum.php. */
+		do_action( 'bbp_theme_after_forum_title' ); ?>
 
-		<?php do_action( 'bbp_theme_before_forum_description' ); ?>
+		<?php
+		/**
+		 * Fires before the forum description in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_forum_description' ); ?>
 
 		<div class="bbp-forum-content"><?php bbp_forum_content(); ?></div>
 
-		<?php do_action( 'bbp_theme_after_forum_description' ); ?>
+		<?php
+		/**
+		 * Fires after the forum description in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_forum_description' ); ?>
 
-		<?php do_action( 'bbp_theme_before_forum_sub_forums' ); ?>
+		<?php
+		/**
+		 * Fires before the forum sub forums in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_forum_sub_forums' ); ?>
 
 		<?php bbp_list_forums(); ?>
 
-		<?php do_action( 'bbp_theme_after_forum_sub_forums' ); ?>
+		<?php
+		/**
+		 * Fires after the forum sub forums in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_forum_sub_forums' ); ?>
 
 		<?php bbp_forum_row_actions(); ?>
 
@@ -63,15 +103,33 @@ defined( 'ABSPATH' ) || exit;
 
 	<li class="bbp-forum-freshness">
 
-		<?php do_action( 'bbp_theme_before_forum_freshness_link' ); ?>
+		<?php
+		/**
+		 * Fires before the forum freshness link in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_forum_freshness_link' ); ?>
 
 		<?php bbp_forum_freshness_link(); ?>
 
-		<?php do_action( 'bbp_theme_after_forum_freshness_link' ); ?>
+		<?php
+		/**
+		 * Fires after the forum freshness link in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_forum_freshness_link' ); ?>
 
 		<p class="bbp-topic-meta">
 
-			<?php do_action( 'bbp_theme_before_topic_author' ); ?>
+			<?php
+			/**
+			 * Fires before the topic author in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_before_topic_author' ); ?>
 
 			<span class="bbp-topic-freshness-author"><?php bbp_author_link(
 				array(
@@ -80,7 +138,13 @@ defined( 'ABSPATH' ) || exit;
 				)
 			); ?></span>
 
-			<?php do_action( 'bbp_theme_after_topic_author' ); ?>
+			<?php
+			/**
+			 * Fires after the topic author in the bbPress theme.
+			 *
+			 * @since 2.0.0 bbPress (r3417)
+			 */
+			do_action( 'bbp_theme_after_topic_author' ); ?>
 
 		</p>
 	</li>

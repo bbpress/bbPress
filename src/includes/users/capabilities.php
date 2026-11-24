@@ -387,6 +387,16 @@ function bbp_run_user_block_actions( $new_role, $old_role, $user ) {
 			}
 
 			call_user_func( $actions[ $action_id ]['callback'], $user_id, $old_role, $user );
+			/**
+			 * Fires during a user block or unblock action.
+			 *
+			 * @since 2.7.0 bbPress (r8131)
+			 *
+	 * @param string $action_id The block action name.
+			 * @param int $user_id The user ID.
+	 * @param bool|string $old_role The previous user role, or a boolean state when none was assigned.
+			 * @param WP_User $user The affected user.
+			 */
 			do_action( 'bbp_user_block_action', $action_id, $user_id, $old_role, $user );
 		}
 	} finally {

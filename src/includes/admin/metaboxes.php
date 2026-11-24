@@ -202,7 +202,13 @@ function bbp_dashboard_widget_right_now() {
 
 			<?php endif; ?>
 
-			<?php do_action( 'bbp_dashboard_widget_right_now_content_table_end' ); ?>
+			<?php
+			/**
+			 * Fires after the content table in the bbPress dashboard widget.
+			 *
+			 * @since 2.0.0 bbPress (r2770)
+			 */
+			do_action( 'bbp_dashboard_widget_right_now_content_table_end' ); ?>
 
 		</table>
 
@@ -299,13 +305,25 @@ function bbp_dashboard_widget_right_now() {
 
 			<?php endif; ?>
 
-			<?php do_action( 'bbp_dashboard_widget_right_now_discussion_table_end' ); ?>
+			<?php
+			/**
+			 * Fires after the discussion table in the bbPress dashboard widget.
+			 *
+			 * @since 2.0.0 bbPress (r2770)
+			 */
+			do_action( 'bbp_dashboard_widget_right_now_discussion_table_end' ); ?>
 
 		</table>
 
 	</div>
 
-	<?php do_action( 'bbp_dashboard_widget_right_now_table_end' ); ?>
+	<?php
+	/**
+	 * Fires after the tables in the bbPress dashboard widget.
+	 *
+	 * @since 2.0.0 bbPress (r2770)
+	 */
+	do_action( 'bbp_dashboard_widget_right_now_table_end' ); ?>
 
 	<div class="versions">
 
@@ -325,6 +343,11 @@ function bbp_dashboard_widget_right_now() {
 
 	<?php
 
+	/**
+	 * Fires at the end of the bbPress dashboard widget.
+	 *
+	 * @since 2.0.0 bbPress (r2770)
+	 */
 	do_action( 'bbp_dashboard_widget_right_now_end' );
 }
 
@@ -423,6 +446,13 @@ function bbp_forum_metabox( $post ) {
 
 	<?php
 	wp_nonce_field( 'bbp_forum_metabox_save', 'bbp_forum_metabox' );
+	/**
+	 * Fires while rendering the forum metabox.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_forum_metabox', $post );
 }
 
@@ -505,6 +535,13 @@ function bbp_topic_metabox( $post ) {
 
 	<?php
 	wp_nonce_field( 'bbp_topic_metabox_save', 'bbp_topic_metabox' );
+	/**
+	 * Fires while rendering the topic metabox.
+	 *
+	 * @since 2.0.0 bbPress (r2479)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_topic_metabox', $post );
 }
 
@@ -600,6 +637,13 @@ function bbp_reply_metabox( $post ) {
 
 	<?php
 	wp_nonce_field( 'bbp_reply_metabox_save', 'bbp_reply_metabox' );
+	/**
+	 * Fires while rendering the reply metabox.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_reply_metabox', $post );
 }
 
@@ -693,6 +737,13 @@ function bbp_author_metabox( $post ) {
 
 	<?php
 
+	/**
+	 * Fires while rendering the author metabox.
+	 *
+	 * @since 2.0.0 bbPress (r3120)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_author_metabox', $post );
 }
 
@@ -719,6 +770,13 @@ function bbp_moderator_assignment_metabox( $post ) {
 
 	<?php
 
+	/**
+	 * Fires while rendering the moderator assignment metabox.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_moderator_assignment_metabox', $post );
 }
 
@@ -754,6 +812,13 @@ function bbp_topic_engagements_metabox( $post ) {
 
 	?></p><?php
 
+	/**
+	 * Fires while rendering the topic engagements metabox.
+	 *
+	 * @since 2.6.0 bbPress (r6334)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_topic_engagements_metabox', $post );
 }
 
@@ -790,6 +855,13 @@ function bbp_mentions_metabox( $post ) {
 
 	?></p><?php
 
+	/**
+	 * Fires while rendering the mentions metabox.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_mentions_metabox', $post );
 }
 
@@ -826,6 +898,13 @@ function bbp_topic_favorites_metabox( $post ) {
 
 	?></p><?php
 
+	/**
+	 * Fires while rendering the favorites metabox.
+	 *
+	 * @since 2.6.0 bbPress (r6197)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_favorites_metabox', $post );
 }
 
@@ -862,6 +941,13 @@ function bbp_topic_subscriptions_metabox( $post ) {
 
 	?></p><?php
 
+	/**
+	 * Fires while rendering the subscriptions metabox.
+	 *
+	 * @since 2.6.0 bbPress (r6197)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_subscriptions_metabox', $post );
 }
 
@@ -898,6 +984,13 @@ function bbp_forum_subscriptions_metabox( $post ) {
 
 	?></p><?php
 
+	/**
+	 * Fires while rendering the forum subscriptions metabox.
+	 *
+	 * @since 2.6.0 bbPress (r6197)
+	 *
+	 * @param WP_Post $post The post object.
+	 */
 	do_action( 'bbp_forum_subscriptions_metabox', $post );
 }
 

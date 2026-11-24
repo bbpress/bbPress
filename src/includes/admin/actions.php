@@ -170,6 +170,18 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 	bbp_switch_to_site( $blog_id );
 
 	// Do the bbPress activation routine
+	/**
+	 * Fires after bbPress initializes a new network site.
+	 *
+	 * @since 2.0.0 bbPress (r3284)
+	 *
+	 * @param int $blog_id The blog ID.
+	 * @param int $user_id The user ID.
+	 * @param string $domain The domain.
+	 * @param string $path The path.
+	 * @param int $site_id The site ID.
+	 * @param array $meta The meta.
+	 */
 	do_action( 'bbp_new_site', $blog_id, $user_id, $domain, $path, $site_id, $meta );
 
 	// Restore original site
@@ -271,6 +283,11 @@ function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
  * @return void
  */
 function bbp_admin_load_tools_repair_upgrade() {
+	/**
+	 * Fires when the admin repair and upgrade tools load.
+	 *
+	 * @since 2.7.0 bbPress (r8252)
+	 */
 	do_action( 'bbp_admin_load_tools_repair_upgrade' );
 }
 
@@ -281,6 +298,11 @@ function bbp_admin_load_tools_repair_upgrade() {
  * @return void
  */
 function bbp_admin_init() {
+	/**
+	 * Fires during bbPress admin initialization.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 */
 	do_action( 'bbp_admin_init' );
 }
 
@@ -291,6 +313,11 @@ function bbp_admin_init() {
  * @return void
  */
 function bbp_admin_menu() {
+	/**
+	 * Fires when bbPress builds its admin menu.
+	 *
+	 * @since 2.1.0 bbPress (r3766)
+	 */
 	do_action( 'bbp_admin_menu' );
 }
 
@@ -301,6 +328,11 @@ function bbp_admin_menu() {
  * @return void
  */
 function bbp_admin_head() {
+	/**
+	 * Fires in the head of bbPress admin screens.
+	 *
+	 * @since 2.0.0 bbPress (r2479)
+	 */
 	do_action( 'bbp_admin_head' );
 }
 
@@ -311,6 +343,11 @@ function bbp_admin_head() {
  * @return void
  */
 function bbp_admin_notices() {
+	/**
+	 * Fires when bbPress renders admin notices.
+	 *
+	 * @since 2.1.0 bbPress (r3766)
+	 */
 	do_action( 'bbp_admin_notices' );
 }
 
@@ -321,6 +358,11 @@ function bbp_admin_notices() {
  * @return void
  */
 function bbp_register_importers() {
+	/**
+	 * Fires when bbPress registers importers.
+	 *
+	 * @since 2.0.0 bbPress (r3194)
+	 */
 	do_action( 'bbp_register_importers' );
 }
 
@@ -355,6 +397,11 @@ function bbp_register_admin_styles() {
  * @return void
  */
 function bbp_register_admin_scripts() {
+	/**
+	 * Fires when bbPress registers admin scripts.
+	 *
+	 * @since 2.6.0 bbPress (r6913)
+	 */
 	do_action( 'bbp_register_admin_scripts' );
 }
 
@@ -365,6 +412,11 @@ function bbp_register_admin_scripts() {
  * @return void
  */
 function bbp_register_admin_settings() {
+	/**
+	 * Fires when bbPress registers admin settings.
+	 *
+	 * @since 2.0.0 bbPress (r2737)
+	 */
 	do_action( 'bbp_register_admin_settings' );
 }
 
@@ -375,6 +427,11 @@ function bbp_register_admin_settings() {
  * @return void
  */
 function bbp_admin_tool_box() {
+	/**
+	 * Fires in the bbPress admin tool box.
+	 *
+	 * @since 2.6.0 bbPress (r6274)
+	 */
 	do_action( 'bbp_admin_tool_box' );
 }
 
@@ -387,5 +444,12 @@ function bbp_admin_tool_box() {
  * @return void
  */
 function bbp_current_screen( $current_screen = '' ) {
+	/**
+	 * Fires when the current admin screen changes.
+	 *
+	 * @since 2.6.0 bbPress (r6186)
+	 *
+	 * @param WP_Screen|string $current_screen The current admin screen, or an empty string when omitted.
+	 */
 	do_action( 'bbp_current_screen', $current_screen );
 }

@@ -162,6 +162,13 @@ class BBP_Forums_Component extends BP_Component {
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
+		/**
+		 * Fires after the BuddyPress extension is loaded.
+		 *
+		 * @since 2.7.0 bbPress (r7382)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_extend_buddypress_loaded', array( &$this ) );
 
 		parent::setup_actions();
@@ -195,6 +202,13 @@ class BBP_Forums_Component extends BP_Component {
 	 * @since 2.6.0 bbPress (r5271)
 	 */
 	private function fully_loaded() {
+		/**
+		 * Fires after the BuddyPress component is loaded.
+		 *
+		 * @since 2.1.0 bbPress (r3904)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_buddypress_loaded', array( $this ) );
 	}
 

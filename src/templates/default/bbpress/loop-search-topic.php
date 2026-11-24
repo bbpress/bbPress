@@ -20,7 +20,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<div class="bbp-topic-title">
 
-		<?php do_action( 'bbp_theme_before_topic_title' ); ?>
+		<?php
+		/**
+		 * Fires before the topic title in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_before_topic_title' ); ?>
 
 		<h3><?php esc_html_e( 'Topic:', 'bbpress' ); ?>
 		<a href="<?php bbp_topic_permalink(); ?>"><?php bbp_topic_title(); ?></a></h3>
@@ -41,7 +47,13 @@ defined( 'ABSPATH' ) || exit;
 
 		</div><!-- .bbp-topic-title-meta -->
 
-		<?php do_action( 'bbp_theme_after_topic_title' ); ?>
+		<?php
+		/**
+		 * Fires after the topic title in the bbPress theme.
+		 *
+		 * @since 2.0.0 bbPress (r3417)
+		 */
+		do_action( 'bbp_theme_after_topic_title' ); ?>
 
 	</div><!-- .bbp-topic-title -->
 
@@ -50,31 +62,43 @@ defined( 'ABSPATH' ) || exit;
 <div id="post-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
 	<div class="bbp-topic-author">
 
-		<?php do_action( 'bbp_theme_before_topic_author_details' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/content-single-topic-lead.php. */
+		do_action( 'bbp_theme_before_topic_author_details' ); ?>
 
 		<?php bbp_topic_author_link( array( 'show_role' => true ) ); ?>
 
 		<?php if ( bbp_is_user_keymaster() ) : ?>
 
-			<?php do_action( 'bbp_theme_before_topic_author_admin_details' ); ?>
+			<?php
+			/** This action is documented in src/templates/default/bbpress/content-single-topic-lead.php. */
+			do_action( 'bbp_theme_before_topic_author_admin_details' ); ?>
 
 			<div class="bbp-reply-ip"><?php bbp_author_ip( bbp_get_topic_id() ); ?></div>
 
-			<?php do_action( 'bbp_theme_after_topic_author_admin_details' ); ?>
+			<?php
+			/** This action is documented in src/templates/default/bbpress/content-single-topic-lead.php. */
+			do_action( 'bbp_theme_after_topic_author_admin_details' ); ?>
 
 		<?php endif; ?>
 
-		<?php do_action( 'bbp_theme_after_topic_author_details' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/content-single-topic-lead.php. */
+		do_action( 'bbp_theme_after_topic_author_details' ); ?>
 
 	</div><!-- .bbp-topic-author -->
 
 	<div class="bbp-topic-content">
 
-		<?php do_action( 'bbp_theme_before_topic_content' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/content-single-topic-lead.php. */
+		do_action( 'bbp_theme_before_topic_content' ); ?>
 
 		<?php bbp_topic_content(); ?>
 
-		<?php do_action( 'bbp_theme_after_topic_content' ); ?>
+		<?php
+		/** This action is documented in src/templates/default/bbpress/content-single-topic-lead.php. */
+		do_action( 'bbp_theme_after_topic_content' ); ?>
 
 	</div><!-- .bbp-topic-content -->
 </div><!-- #post-<?php bbp_topic_id(); ?> -->

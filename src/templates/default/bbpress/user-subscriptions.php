@@ -10,6 +10,11 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Fires before the user subscriptions template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
 do_action( 'bbp_template_before_user_subscriptions' ); ?>
 
 <?php if ( bbp_is_subscriptions_active() ) : ?>
@@ -62,11 +67,23 @@ do_action( 'bbp_template_before_user_subscriptions' ); ?>
 
 			<?php endif; ?>
 
-			<?php do_action( 'bbp_template_user_subscriptions' ); ?>
+			<?php
+			/**
+			 * Fires in the user subscriptions template section.
+			 *
+			 * @since 2.7.0 bbPress (r8330)
+			 */
+			do_action( 'bbp_template_user_subscriptions' ); ?>
 		</div><!-- #bbp-user-subscriptions -->
 
 	<?php endif; ?>
 
 <?php endif; ?>
 
-<?php do_action( 'bbp_template_after_user_subscriptions' );
+<?php
+/**
+ * Fires after the user subscriptions template section.
+ *
+ * @since 2.1.0 bbPress (r3807)
+ */
+do_action( 'bbp_template_after_user_subscriptions' );

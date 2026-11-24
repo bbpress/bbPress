@@ -18,7 +18,13 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php bbp_forum_subscription_link(); ?>
 
-	<?php do_action( 'bbp_template_before_single_forum' ); ?>
+	<?php
+	/**
+	 * Fires before the single forum template section.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 */
+	do_action( 'bbp_template_before_single_forum' ); ?>
 
 	<?php if ( post_password_required( bbp_get_forum_id() ) ) : ?>
 
@@ -54,6 +60,12 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_template_after_single_forum' ); ?>
+	<?php
+	/**
+	 * Fires after the single forum template section.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 */
+	do_action( 'bbp_template_after_single_forum' ); ?>
 
 </div>

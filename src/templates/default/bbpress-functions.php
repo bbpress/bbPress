@@ -87,6 +87,13 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		/** Override **********************************************************/
 
+		/**
+		 * Fires after theme compatibility actions are set up.
+		 *
+		 * @since 2.1.0 bbPress (r3734)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_theme_compat_actions', array( &$this ) );
 	}
 

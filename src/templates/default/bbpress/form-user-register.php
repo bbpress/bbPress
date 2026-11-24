@@ -16,7 +16,13 @@ defined( 'ABSPATH' ) || exit;
 	<fieldset class="bbp-form">
 		<legend><?php esc_html_e( 'Create an Account', 'bbpress' ); ?></legend>
 
-		<?php do_action( 'bbp_template_before_register_fields' ); ?>
+		<?php
+		/**
+		 * Fires before the register fields template section.
+		 *
+		 * @since 2.6.0 bbPress (r5303)
+		 */
+		do_action( 'bbp_template_before_register_fields' ); ?>
 
 		<div class="bbp-template-notice">
 			<ul>
@@ -45,7 +51,13 @@ defined( 'ABSPATH' ) || exit;
 
 		</div>
 
-		<?php do_action( 'bbp_template_after_register_fields' ); ?>
+		<?php
+		/**
+		 * Fires after the register fields template section.
+		 *
+		 * @since 2.6.0 bbPress (r5303)
+		 */
+		do_action( 'bbp_template_after_register_fields' ); ?>
 
 	</fieldset>
 </form>

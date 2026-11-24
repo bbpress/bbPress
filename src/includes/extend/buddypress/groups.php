@@ -543,6 +543,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.6.0 bbPress (r6808)
 	 */
 	private function fully_loaded() {
+		/**
+		 * Fires after the BuddyPress groups component is loaded.
+		 *
+		 * @since 2.6.0 bbPress (r6808)
+		 *
+		 * @param object $instance The component instance.
+		 */
 		do_action_ref_array( 'bbp_buddypress_groups_loaded', array( $this ) );
 	}
 
@@ -1489,6 +1496,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function display_forums( $offset = 0 ) {
 
 		// Allow actions immediately before group forum output
+		/**
+		 * Fires before a BuddyPress group forum is displayed.
+		 *
+		 * @since 2.2.0 bbPress (r4435)
+		 */
 		do_action( 'bbp_before_group_forum_display' );
 
 		// Load up bbPress once
@@ -1508,6 +1520,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				echo '<div id="bbpress-forums" class="bbpress-wrapper"><div id="message" class="info"><p>' . esc_html__( 'This group does not currently have a forum.', 'bbpress' ) . '</p></div></div>';
 			}
 
+			/**
+			 * Fires after a BuddyPress group forum is displayed.
+			 *
+			 * @since 2.2.0 bbPress (r4435)
+			 */
 			do_action( 'bbp_after_group_forum_display' );
 			return;
 		}
@@ -1744,6 +1761,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		<?php
 
 		// Allow actions immediately after group forum output
+		/** This action is documented in src/includes/extend/buddypress/groups.php. */
 		do_action( 'bbp_after_group_forum_display' );
 	}
 

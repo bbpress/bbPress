@@ -9,9 +9,13 @@
 
 get_header(); ?>
 
-	<?php do_action( 'bbp_before_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_before_main_content' ); ?>
 
-	<?php do_action( 'bbp_template_notices' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/bbpress/form-forum.php. */
+	do_action( 'bbp_template_notices' ); ?>
 
 	<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_reply_forum_id() ) ) ) : ?>
 
@@ -34,7 +38,9 @@ get_header(); ?>
 
 	<?php endif; ?>
 
-	<?php do_action( 'bbp_after_main_content' ); ?>
+	<?php
+	/** This action is documented in src/templates/default/extras/archive-forum.php. */
+	do_action( 'bbp_after_main_content' ); ?>
 
 <?php get_sidebar(); ?>
 <?php get_footer();
