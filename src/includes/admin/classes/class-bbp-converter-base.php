@@ -552,7 +552,7 @@ abstract class BBP_Converter_Base {
 									if ( ( 'callback_userid' === $row['callback_method'] ) && ( false === $this->convert_users ) ) {
 										$insert_post[ $row['to_fieldname'] ] = 0;
 									} else {
-										$insert_post[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
+										$insert_post[ $row['to_fieldname'] ] = $this->call_field_callback( $row['callback_method'], $forum[ $row['from_fieldname'] ], $forum );
 									}
 
 								// Maps the field from the old forum.
@@ -573,7 +573,7 @@ abstract class BBP_Converter_Base {
 									if ( ( 'callback_userid' === $row['callback_method'] ) && ( false === $this->convert_users ) ) {
 										$insert_postmeta[ $row['to_fieldname'] ] = 0;
 									} else {
-										$insert_postmeta[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
+										$insert_postmeta[ $row['to_fieldname'] ] = $this->call_field_callback( $row['callback_method'], $forum[ $row['from_fieldname'] ], $forum );
 									}
 
 								// Maps the field from the old forum.
@@ -767,6 +767,25 @@ abstract class BBP_Converter_Base {
 		}
 
 		return ! $has_insert;
+	}
+
+	/**
+	 * Call a field-map callback with its source value and row.
+	 *
+	 * @since 2.7.0 bbPress (r8625)
+	 *
+	 * @param mixed $method Callback method name.
+	 * @param mixed $value Source field value.
+	 * @param array<string, mixed> $row Source row.
+	 * @return mixed Callback result.
+	 */
+	private function call_field_callback( $method, $value, $row ) {
+		$callback = array( $this, $method );
+		if ( ! is_callable( $callback ) ) {
+			throw new BadMethodCallException( 'Invalid converter field callback.' );
+		}
+
+		return call_user_func_array( $callback, array( $value, $row ) );
 	}
 
 	/**

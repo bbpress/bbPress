@@ -22,24 +22,24 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 			printf(
 				/* translators: %s: Registration date in "time ago" format */
 				esc_html__( 'Registered: %s', 'bbpress' ),
-				bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ), false, true )
+				bbp_get_time_since( bbp_get_displayed_user_field_text( 'user_registered' ), false, true )
 			);
 			?>
 		</p>
 
-		<?php if ( bbp_get_displayed_user_field( 'description' ) ) : ?>
+		<?php if ( bbp_get_displayed_user_field_text( 'description' ) ) : ?>
 			<p class="bbp-user-description">
-				<?php echo bbp_rel_nofollow( bbp_get_displayed_user_field( 'description' ) ); ?>
+				<?php echo bbp_rel_nofollow( bbp_get_displayed_user_field_text( 'description' ) ); ?>
 			</p>
 		<?php endif; ?>
 
-		<?php if ( bbp_get_displayed_user_field( 'user_url' ) ) : ?>
+		<?php if ( bbp_get_displayed_user_field_text( 'user_url' ) ) : ?>
 			<p class="bbp-user-website">
 				<?php
 				printf(
 					/* translators: %s: User's website URL */
 					esc_html__( 'Website: %s', 'bbpress' ),
-					bbp_rel_nofollow( bbp_make_clickable( bbp_get_displayed_user_field( 'user_url' ) ) )
+					bbp_rel_nofollow( bbp_make_clickable( bbp_get_displayed_user_field_text( 'user_url' ) ) )
 				);
 				?>
 			</p>

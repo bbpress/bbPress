@@ -3,7 +3,7 @@ includes:
     - phpstan-baseline.neon
 
 parameters:
-    level: 5
+    level: 8
     phpVersion: 70400
     # Public helpers validate values supplied by themes and other plugins.
     # PHPDoc describes intended types, not guaranteed runtime values.

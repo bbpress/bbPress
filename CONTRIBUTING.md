@@ -129,7 +129,7 @@ npx grunt checktextdomain
 php tests/ci/check-versions.php
 ```
 
-PHPStan checks source code at level 5 against PHP 7.4. Its baseline records
+PHPStan checks source code at level 8 against PHP 7.4. Its baseline records
 existing diagnostics; new errors should be fixed instead of added to the baseline.
 The initial exclusions are documented in `phpstan.neon.dist`. To reach level 9,
 add symbols for the optional integrations, resolve the conditional Gutenberg

@@ -306,6 +306,21 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers BBP_Converter_Base::call_field_callback
+	 */
+	public function test_field_callback_accepts_protected_methods_and_rejects_missing_methods() {
+		$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+		$method    = new ReflectionMethod( 'BBP_Converter_Base', 'call_field_callback' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( 0, $method->invoke( $converter, 'callback_negative', -5, array() ) );
+		$this->expectException( BadMethodCallException::class );
+		$method->invoke( $converter, 'missing_callback', -5, array() );
+	}
+
+	/**
 	 * @covers BBP_Converter_Base::callback_html
 	 * @ticket 3706
 	 */

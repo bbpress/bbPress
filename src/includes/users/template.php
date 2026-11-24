@@ -693,6 +693,21 @@ function bbp_get_displayed_user_field( $field = '', $filter = 'display' ) {
 }
 
 /**
+ * Return a displayed user field as text for template output.
+ *
+	 * @since 2.7.0 bbPress (r8625)
+ *
+ * @param string $field Field to get.
+ * @param string $filter How to filter the field value (null|raw|db|display|edit).
+ * @return string Field value as text, or an empty string if unavailable.
+ */
+function bbp_get_displayed_user_field_text( $field = '', $filter = 'display' ) {
+	$value = bbp_get_displayed_user_field( $field, $filter );
+
+	return is_scalar( $value ) ? (string) $value : '';
+}
+
+/**
  * Output name of current user.
  *
  * @since 2.0.0 bbPress (r2574)

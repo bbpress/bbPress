@@ -576,6 +576,19 @@ class BBP_Converter {
 	}
 
 	/**
+	 * Check whether a converter is ready for the current step.
+	 *
+	 * @since 2.7.0 bbPress (r8625)
+	 *
+	 * @phpstan-assert-if-true BBP_Converter_Base $this->converter
+	 *
+	 * @return bool Whether the converter is ready.
+	 */
+	private function validate_converter() {
+		return ( $this->converter instanceof BBP_Converter_Base );
+	}
+
+	/**
 	 * Do the converter step
 	 *
 	 * @since 2.6.0 bbPress (r6460)
@@ -625,6 +638,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_sync_table() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( true === $this->converter->clean ) {
 			if ( $this->converter->clean() ) {
 				$this->bump_step();
@@ -645,7 +662,9 @@ class BBP_Converter {
 				);
 			}
 
-			$this->converter->clean = false;
+			if ( $this->validate_converter() ) {
+				$this->converter->clean = false;
+			}
 		} else {
 			$this->bump_step();
 			$this->sync_table( false );
@@ -661,6 +680,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_users() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( true === $this->converter->convert_users ) {
 			if ( $this->converter->convert_users( $this->start ) ) {
 				$this->bump_step();
@@ -687,6 +710,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_passwords() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( true === $this->converter->convert_users ) {
 			if ( $this->converter->clean_passwords( $this->start ) ) {
 				$this->bump_step();
@@ -713,6 +740,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_forums() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_forums( $this->start ) ) {
 			$this->bump_step();
 
@@ -734,6 +765,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_forum_hierarchy() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_forum_parents( $this->start ) ) {
 			$this->bump_step();
 
@@ -755,6 +790,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_forum_subscriptions() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_forum_subscriptions( $this->start ) ) {
 			$this->bump_step();
 
@@ -776,6 +815,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_topics() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_topics( $this->start ) ) {
 			$this->bump_step();
 
@@ -797,6 +840,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_topics_authors() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_anonymous_topic_authors( $this->start ) ) {
 			$this->bump_step();
 
@@ -818,6 +865,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_stickies() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_topic_stickies( $this->start ) ) {
 			$this->bump_step();
 
@@ -839,6 +890,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_super_stickies() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_topic_super_stickies( $this->start ) ) {
 			$this->bump_step();
 
@@ -860,6 +915,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_closed_topics() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_topic_closed_topics( $this->start ) ) {
 			$this->bump_step();
 
@@ -881,6 +940,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_topic_tags() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_tags( $this->start ) ) {
 			$this->bump_step();
 
@@ -902,6 +965,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_topic_subscriptions() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_topic_subscriptions( $this->start ) ) {
 			$this->bump_step();
 
@@ -923,6 +990,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_topic_favorites() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_favorites( $this->start ) ) {
 			$this->bump_step();
 
@@ -944,6 +1015,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_replies() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_replies( $this->start ) ) {
 			$this->bump_step();
 
@@ -965,6 +1040,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_reply_authors() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_anonymous_reply_authors( $this->start ) ) {
 			$this->bump_step();
 
@@ -986,6 +1065,10 @@ class BBP_Converter {
 	 * @return void
 	 */
 	private function step_reply_hierarchy() {
+		if ( ! $this->validate_converter() ) {
+			return;
+		}
+
 		if ( $this->converter->convert_reply_to_parents( $this->start ) ) {
 			$this->bump_step();
 

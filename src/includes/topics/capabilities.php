@@ -351,7 +351,7 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps = array( 'do_not_allow' );
 
 			// A supplied topic context must identify an existing topic
-			} elseif ( $is_topic_context && $has_post && ! bbp_is_topic( $post_id ) ) {
+		} elseif ( $is_topic_context && $has_post && ( ! $_post || ! bbp_is_topic( $post_id ) ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Moderators can always assign
@@ -363,7 +363,7 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps = array( 'do_not_allow' );
 
 			// Optionally limit existing topic tags to the author
-			} elseif ( $is_topic_context && $has_post && ( 'authors_only' === bbp_topic_tag_edit_scope() ) && (int) $user_id !== (int) $_post->post_author ) {
+		} elseif ( $is_topic_context && $has_post && ( 'authors_only' === bbp_topic_tag_edit_scope() ) && ( ! $_post || ( (int) $user_id !== (int) $_post->post_author ) ) ) {
 				$caps = array( 'do_not_allow' );
 			}
 

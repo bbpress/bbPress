@@ -95,6 +95,33 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_displayed_user_field_text
+	 */
+	public function test_displayed_user_field_text_preserves_the_raw_getter() {
+		$old_displayed_user       = bbpress()->displayed_user;
+		bbpress()->displayed_user = $this->keymaster_userdata;
+		add_filter( 'bbp_get_displayed_user_field', array( $this, 'filter_profile_field_values' ), 10, 2 );
+
+		try {
+			$this->assertTrue( bbp_get_displayed_user_field( 'description' ) );
+			$this->assertSame( '1', bbp_get_displayed_user_field_text( 'description' ) );
+			$this->assertSame( '', bbp_get_displayed_user_field_text( 'user_url' ) );
+			$this->assertSame( bbp_get_displayed_user_field( 'user_registered' ), bbp_get_displayed_user_field_text( 'user_registered' ) );
+		} finally {
+			remove_filter( 'bbp_get_displayed_user_field', array( $this, 'filter_profile_field_values' ), 10 );
+			bbpress()->displayed_user = $old_displayed_user;
+		}
+	}
+
+	public function filter_profile_field_values( $value, $field ) {
+		if ( 'description' === $field ) {
+			return true;
+		}
+
+		return ( 'user_url' === $field ) ? array( 'invalid' ) : $value;
+	}
+
+	/**
 	 * @coversNothing
 	 */
 	public function test_user_profile_registration_time_uses_gmt() {
