@@ -120,6 +120,30 @@ class BBP_Tests_Admin_Post_Reference_Batches extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_browser_dry_run_restarts_after_invalid_saved_totals() {
+		$this->objects( 'topic' );
+		bbp_admin_repair_tool_execution_context( 'dry-run', wp_generate_uuid4() );
+		try {
+			$option = $this->option( 'topic' );
+			$first = $this->batch( 'topic', true );
+			$this->assertSame( 0, $first['code'], $first['error'] );
+			$this->assertFalse( $first['complete'] );
+
+			$state = get_option( $option );
+			$this->assertIsArray( $state );
+			$this->assertArrayHasKey( '_preview_state', $state );
+			$this->assertArrayHasKey( 'topics', $state['_preview_state']['totals'] );
+			$state['_preview_state']['totals']['topics'] = array( 1 );
+			update_option( $option, $state, false );
+
+			$restarted = $this->batch( 'topic', true );
+			$this->assertTrue( $restarted['restarted'] );
+			$this->assertSame( $first['topics'], $restarted['topics'] );
+		} finally {
+			bbp_admin_repair_tool_execution_context( 'run', '' );
+		}
+	}
+
 	/**
 	 * @dataProvider boundary_sizes
 	 */

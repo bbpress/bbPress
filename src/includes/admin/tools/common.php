@@ -1612,7 +1612,7 @@ function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
  * @return bool Whether the checkpoint was read successfully.
  */
 function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false ) {
-	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator, $context, $dry_run );
+	list( $read, $state, $batch['restarted'] ) = bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator, $context, $dry_run, $batch );
 	if ( ! $read ) {
 		return bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
 	}
@@ -1752,16 +1752,53 @@ function bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run = false ) {
  * @param callable $validator Checkpoint validator, accepting state and context.
  * @param mixed    $context   Validator context or extra integer field names.
  * @param bool     $dry_run   Whether to start a fresh, read-only preview.
+ * @param array<string, mixed>|null $batch Initial procedural worker result fields.
  * @return array{bool, mixed, bool} Read success, usable checkpoint or false, and restart flag.
  */
-function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false ) {
+function bbp_admin_repair_tool_load_checkpoint( $tool_id, $validator = 'bbp_admin_repair_tool_is_valid_checkpoint', $context = array(), $dry_run = false, $batch = null ) {
 	if ( ! is_callable( $validator ) ) {
 		return array( false, false, false );
 	}
 	list( $read, $state ) = bbp_admin_repair_tool_get_checkpoint( $tool_id, $dry_run );
-	$preview_valid = bbp_admin_repair_tool_is_valid_preview_state( $state );
+	$preview_valid = bbp_admin_repair_tool_is_valid_preview_state( $state )
+		&& ( null === $batch || bbp_admin_repair_tool_is_valid_preview_totals( $state, $batch ) );
 	$restarted = $read && false !== $state && ( ! $preview_valid || ! call_user_func( $validator, $state, $context ) );
 	return array( $read, $restarted ? false : $state, $restarted );
+}
+
+/**
+ * Check saved procedural totals against their initial result fields.
+ *
+ * @since 2.7.0 bbPress (r8630)
+ * @access private
+ *
+ * @param mixed $state Saved worker checkpoint.
+ * @param array<string, mixed> $batch Initial worker result fields.
+ * @return bool Whether saved totals have the expected value types.
+ */
+function bbp_admin_repair_tool_is_valid_preview_totals( $state, $batch ) {
+	if ( ! is_array( $state ) || ! isset( $state['_preview_state'] ) ) {
+		return true;
+	}
+
+	$preview = $state['_preview_state'];
+	if ( ! is_array( $preview ) || ! isset( $preview['totals'] ) ) {
+		return false;
+	}
+	$totals = $preview['totals'];
+	if ( ! is_array( $totals ) ) {
+		return false;
+	}
+
+	foreach ( $totals as $field => $value ) {
+		if ( ! array_key_exists( $field, $batch )
+			|| ( gettype( $value ) !== gettype( $batch[ $field ] ) )
+			|| ( is_int( $value ) && ( $value < 0 ) ) ) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**
