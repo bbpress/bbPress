@@ -103,7 +103,7 @@ class BBP_Tests_Admin_Upgrade_List extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_list
 	 */
-	public function test_repair_tools_keep_their_existing_order() {
+	public function test_pending_repair_tools_appear_first() {
 		$tools = bbp_admin()->tools;
 		foreach ( $tools as &$tool ) {
 			$tool['type'] = 'repair';
@@ -111,7 +111,15 @@ class BBP_Tests_Admin_Upgrade_List extends BBP_UnitTestCase {
 		unset( $tool );
 		bbp_admin()->tools = $tools;
 
-		$this->assertSame( array( 10, 20, 30, 40 ), array_keys( bbp_admin_repair_list( 'repair' ) ) );
+		$this->assertSame( array( 20, 40, 10, 30 ), array_keys( bbp_admin_repair_list( 'repair' ) ) );
+		$this->assertStringContainsString( 'Repair Forums <span class="awaiting-mod bbp-menu-count count-2"', bbp_get_tools_admin_tabs( 'bbp-repair' ) );
+
+		$_GET['page'] = 'bbp-repair';
+		ob_start();
+		bbp_admin_repair_page();
+		$html = ob_get_clean();
+		$this->assertSame( 2, substr_count( $html, 'class="bbp-repair-tools inactive status-pending"' ) );
+		$this->assertSame( 2, substr_count( $html, '<span class="post-state">&mdash; Pending</span>' ) );
 	}
 
 	/**

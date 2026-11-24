@@ -2760,8 +2760,8 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 		}
 	}
 
-	// Show pending upgrades first unless a specific order was requested.
-	if ( ( 'upgrade' === $type ) && empty( $_GET['orderby'] ) && empty( $_GET['order'] ) ) {
+	// Show pending tools first unless a specific order was requested.
+	if ( empty( $_GET['orderby'] ) && empty( $_GET['order'] ) ) {
 		$orderby = array(
 			'pending'  => 'DESC',
 			'priority' => 'ASC'

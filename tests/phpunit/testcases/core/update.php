@@ -86,6 +86,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 				bbp_get_pending_upgrades()
 			);
 			$this->assertSame( 4, bbp_get_pending_upgrade_count() );
+			$this->assertStringContainsString( '4 pending forum maintenance tasks', bbp_maybe_append_pending_upgrade_count( 'Tools' ) );
 			$this->assertSame(
 				array( 'upgrade-one', 'upgrade-two' ),
 				array_values( bbp_get_pending_upgrades( 'upgrade' ) )
@@ -99,7 +100,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 				bbp_maybe_append_pending_upgrade_count( 'Updates', 'upgrade' )
 			);
 			$this->assertSame(
-				'Repairs <span class="awaiting-mod bbp-menu-count count-1"><span class="pending-count" aria-hidden="true">1</span><span class="screen-reader-text">1 pending upgrade</span></span>',
+				'Repairs <span class="awaiting-mod bbp-menu-count count-1"><span class="pending-count" aria-hidden="true">1</span><span class="screen-reader-text">1 pending repair</span></span>',
 				bbp_maybe_append_pending_upgrade_count( 'Repairs', 'repair' )
 			);
 			$this->assertSame( 'Updates', bbp_maybe_append_pending_upgrade_count( 'Updates', 'missing-type' ) );
@@ -1004,14 +1005,18 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 			remove_filter( 'bbp_is_large_install', $size );
 		}
 		$this->assertSame( $pending, in_array( 'bbp-user-mentions', bbp_get_pending_upgrades(), true ) );
-		$this->assertSame( 270, (int) bbp_get_db_version_raw() );
-		$this->assertStringNotContainsString( bbp_db()->posts, implode( "\n", $queries ) );
+		$this->assertSame( 271, (int) bbp_get_db_version_raw() );
+		if ( ( 0 === $version ) || ( $version >= 271 ) ) {
+			$this->assertStringNotContainsString( bbp_db()->posts, implode( "\n", $queries ) );
+		} else {
+			$this->assertStringNotContainsString( 'SELECT ID, post_type FROM ' . bbp_db()->posts, implode( "\n", $queries ) );
+		}
 		$this->assertStringNotContainsString( bbp_db()->users, implode( "\n", $queries ) );
 		if ( ! $complete ) {
 			$this->assertSame( array(), get_option( '_bbp_mention_backfill', array() ) );
 		}
 		bbp_version_updater();
-		$this->assertSame( $pending ? 1 : 0, count( bbp_get_pending_upgrades() ) );
+		$this->assertSame( $pending ? 2 : 0, count( bbp_get_pending_upgrades() ) );
 	}
 
 	public static function mention_upgrade_installations() {
@@ -1019,9 +1024,75 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 			'large installation'    => array( 264, false, true, true ),
 			'completed backfill'    => array( 264, true, false, false ),
 			'fresh installation'    => array( 0, false, false, false ),
-			'already upgraded'      => array( 270, false, false, false ),
+			'already upgraded'      => array( 271, false, false, false ),
 		);
 	}
+
+	/**
+	 * @covers ::bbp_version_updater
+	 * @ticket BBP3503
+	 */
+	public function test_reply_position_upgrade_repairs_old_hidden_positions_on_small_sites() {
+		$topic_id = $this->factory->topic->create();
+		$first_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 10:00:00' ) );
+		$hidden   = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 11:00:00' ) );
+		$last_id  = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_date' => '2025-01-01 12:00:00' ) );
+		$db       = bbp_db();
+		$db->update( $db->posts, array( 'post_status' => bbp_get_pending_status_id() ), array( 'ID' => $hidden ) );
+		clean_post_cache( $hidden );
+		update_option( '_bbp_db_version', 270 );
+		delete_option( '_bbp_db_pending_upgrades' );
+
+		$per_page = static function() { return 3; };
+		add_filter( 'bbp_is_large_install', '__return_false' );
+		add_filter( 'bbp_get_replies_per_page', $per_page );
+		add_filter( 'bbp_show_lead_topic', '__return_false' );
+		try {
+			$this->assertSame( 3, (int) get_post_field( 'menu_order', $last_id ) );
+			$this->assertStringContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+			$this->assertNull( bbp_version_updater() );
+			$this->assertSame( 271, (int) bbp_get_db_version_raw() );
+			$this->assertSame( 1, (int) get_post_field( 'menu_order', $first_id ) );
+			$this->assertSame( 0, (int) get_post_field( 'menu_order', $hidden ) );
+			$this->assertSame( 2, (int) get_post_field( 'menu_order', $last_id ) );
+			$this->assertStringNotContainsString( 'paged=2', bbp_get_reply_url( $last_id ) );
+			$this->assertNotContains( 'bbp-sync-all-reply-positions', bbp_get_pending_upgrades() );
+		} finally {
+			remove_filter( 'bbp_show_lead_topic', '__return_false' );
+			remove_filter( 'bbp_get_replies_per_page', $per_page );
+			remove_filter( 'bbp_is_large_install', '__return_false' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_version_updater
+	 * @ticket BBP3503
+	 */
+	public function test_reply_position_upgrade_queues_large_sites_on_repair_tab() {
+		if ( ! function_exists( 'bbp_admin' ) ) {
+			require_once BBP_PLUGIN_DIR . 'includes/admin/actions.php';
+		}
+		bbp_admin();
+		$tools = bbp_admin()->tools;
+		bbp_register_default_repair_tools();
+		update_option( '_bbp_db_version', 270 );
+		delete_option( '_bbp_db_pending_upgrades' );
+
+		add_filter( 'bbp_is_large_install', '__return_true' );
+		try {
+			$this->assertNull( bbp_version_updater() );
+			$this->assertSame( 271, (int) bbp_get_db_version_raw() );
+			$this->assertSame( array( 'bbp-sync-all-reply-positions' ), array_values( bbp_get_pending_upgrades( 'repair' ) ) );
+			$this->assertSame( 1, bbp_get_pending_upgrade_count( 'repair' ) );
+			$pages = bbp_get_tools_admin_pages();
+			$this->assertStringContainsString( 'awaiting-mod bbp-menu-count count-1', $pages[0]['name'] );
+			$this->assertStringContainsString( '1 pending repair', $pages[0]['name'] );
+		} finally {
+			remove_filter( 'bbp_is_large_install', '__return_true' );
+			bbp_admin()->tools = $tools;
+		}
+	}
+
 	public function test_pending_mutations_serialize_interleaved_add_and_remove_requests() {
 		delete_option( '_bbp_db_pending_upgrades' );
 		$interleaved = null;

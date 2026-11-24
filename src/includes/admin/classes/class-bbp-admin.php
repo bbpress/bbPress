@@ -240,7 +240,7 @@ class BBP_Admin {
 
 		/** Notices ***********************************************************/
 
-		add_action( 'bbp_admin_init',    array( $this, 'setup_notices'  ) );
+		add_action( 'bbp_admin_notices', array( $this, 'setup_notices'  ), 9 );
 		add_action( 'bbp_admin_init',    array( $this, 'hide_notices'   ) );
 		add_action( 'bbp_admin_notices', array( $this, 'output_notices' ) );
 
@@ -305,65 +305,121 @@ class BBP_Admin {
 			? sanitize_key( $_GET['page'] )
 			: false;
 
-		// Pending database upgrades!
-		if ( ( 'bbp-upgrade' !== $page ) && bbp_get_pending_upgrades() && current_user_can( 'bbp_tools_upgrade_page' ) ) {
+		$pending = bbp_get_pending_upgrades();
+		if ( empty( $pending ) || wp_doing_ajax() || ( ! current_user_can( 'bbp_tools_repair_page' ) && ! current_user_can( 'bbp_tools_upgrade_page' ) ) ) {
+			return;
+		}
 
-			// Link to upgrade page
+		// Register only when queued work needs to be classified by tool type.
+		bbp_maybe_register_repair_tools();
+
+		$pending_by_type = array(
+			'repair'  => bbp_get_pending_upgrades( 'repair' ),
+			'upgrade' => bbp_get_pending_upgrades( 'upgrade' )
+		);
+
+		// Keep unavailable tools out of the Repair and Upgrade notices.
+		$unclassified = array_diff( $pending, $pending_by_type['repair'], $pending_by_type['upgrade'] );
+		$hidden       = get_user_option( '_bbp_hidden_pending_tool_notices', get_current_user_id() );
+		$hidden       = is_array( $hidden ) ? $hidden : array();
+		$is_hidden    = static function ( $type, $ids ) use ( $hidden ) {
+			return isset( $hidden[ $type ]['pending'], $hidden[ $type ]['until'] )
+				&& is_array( $hidden[ $type ]['pending'] )
+				&& is_int( $hidden[ $type ]['until'] )
+				&& ( $hidden[ $type ]['until'] > time() )
+				&& ! array_diff( $ids, $hidden[ $type ]['pending'] );
+		};
+
+		foreach ( $pending_by_type as $type => $ids ) {
+			$tools_page = 'bbp-' . $type;
+			$capability = 'bbp_tools_' . $type . '_page';
+			if ( empty( $ids ) || ( $tools_page === $page ) || $is_hidden( $type, $ids ) || ! current_user_can( $capability ) ) {
+				continue;
+			}
+
 			$args = array(
-				'page'   => 'bbp-upgrade',
+				'page'   => $tools_page,
 				'status' => 'pending'
 			);
-			$upgrade_url  = add_query_arg( $args, admin_url( 'tools.php' ) );
-			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-upgrades' ) ), 'bbp-hide-notice' );
-			$upgrade_link = '<a href="' . esc_url( $upgrade_url ) . '">' . esc_html__( 'Learn More',   'bbpress' ) . '</a>';
+			$tools_url    = add_query_arg( $args, admin_url( 'tools.php' ) );
+			$tools_link   = '<a href="' . esc_url( $tools_url ) . '">' . esc_html__( 'Learn More', 'bbpress' ) . '</a>';
+			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-' . $type . 's' ) ), 'bbp-hide-notice' );
 			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';
 			$bbp_dashicon = '<span class="bbpress-logo-icon"></span>';
-			$message      = $bbp_dashicon . sprintf(
-				/* translators: 1: "Learn More" link, 2: "Hide For Now" link */
-				esc_html__( 'bbPress requires a manual database upgrade. %1$s or %2$s.', 'bbpress' ),
-				$upgrade_link,
+			if ( 'repair' === $type ) {
+				$message = $bbp_dashicon . sprintf(
+					/* translators: 1: "Learn More" link, 2: "Hide For Now" link. */
+					esc_html( _n( 'bbPress has a pending forum repair. %1$s or %2$s.', 'bbPress has pending forum repairs. %1$s or %2$s.', count( $ids ), 'bbpress' ) ),
+					$tools_link,
+					$dismiss_link
+				);
+			} else {
+				$message = $bbp_dashicon . sprintf(
+					/* translators: 1: "Learn More" link, 2: "Hide For Now" link. */
+					esc_html__( 'bbPress requires a manual database upgrade. %1$s or %2$s.', 'bbpress' ),
+					$tools_link,
+					$dismiss_link
+				);
+			}
+
+			$this->add_notice( $message, 'notice-bbpress', false );
+		}
+
+		if ( $unclassified && ! $is_hidden( 'unclassified', $unclassified ) ) {
+			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-unclassified' ) ), 'bbp-hide-notice' );
+			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';
+			$message      = '<span class="bbpress-logo-icon"></span>' . sprintf(
+				/* translators: %s: "Hide For Now" link. */
+				esc_html__( 'bbPress has pending forum maintenance that could not be matched to a Repair or Upgrade tool on this screen. %s', 'bbpress' ),
 				$dismiss_link
 			);
-
-			// Add tools feedback
 			$this->add_notice( $message, 'notice-bbpress', false );
 		}
 	}
 
 	/**
-	 * Handle hiding of general admin area notices.
+	 * Hide pending tool notices for the current user without clearing the work.
 	 *
 	 * @since 2.6.0 bbPress (r6705)
 	 *
 	 * @return void
 	 */
 	public function hide_notices() {
-
-		// Hiding a notice?
-		$hiding_notice = ! empty( $_GET['bbp-hide-notice'] )
-			? sanitize_key( $_GET['bbp-hide-notice'] )
-			: false;
-
-		// Bail if not hiding a notice
-		if ( empty( $hiding_notice ) ) {
+		$action = isset( $_GET['bbp-hide-notice'] ) && is_string( $_GET['bbp-hide-notice'] )
+			? sanitize_key( wp_unslash( $_GET['bbp-hide-notice'] ) )
+			: '';
+		$types = array(
+			'bbp-skip-repairs'      => 'repair',
+			'bbp-skip-upgrades'     => 'upgrade',
+			'bbp-skip-unclassified' => 'unclassified'
+		);
+		if ( ! isset( $types[ $action ] ) ) {
 			return;
 		}
 
-		// Bail if user cannot visit upgrade page (cannot clear notice either!)
-		if ( ! current_user_can( 'bbp_tools_upgrade_page' ) ) {
+		$type = $types[ $action ];
+		$can_hide = 'unclassified' === $type
+			? ( current_user_can( 'bbp_tools_repair_page' ) || current_user_can( 'bbp_tools_upgrade_page' ) )
+			: current_user_can( 'bbp_tools_' . $type . '_page' );
+		if ( ! $can_hide ) {
 			return;
 		}
 
-		// Check the admin referer
 		check_admin_referer( 'bbp-hide-notice' );
+		$pending = bbp_get_pending_upgrades();
+		if ( empty( $pending ) ) {
+			return;
+		}
 
-		// Maybe delete notices
-		switch ( $hiding_notice ) {
-
-			// Skipped upgrade notice
-			case 'bbp-skip-upgrades' :
-				bbp_clear_pending_upgrades();
-				break;
+		$hidden = get_user_option( '_bbp_hidden_pending_tool_notices', get_current_user_id() );
+		$hidden = is_array( $hidden ) ? $hidden : array();
+		$hidden[ $type ] = array(
+			'pending' => array_values( $pending ),
+			'until'   => time() + DAY_IN_SECONDS
+		);
+		update_user_option( get_current_user_id(), '_bbp_hidden_pending_tool_notices', $hidden );
+		if ( wp_safe_redirect( remove_query_arg( array( 'bbp-hide-notice', '_wpnonce' ) ) ) ) {
+			exit;
 		}
 	}
 

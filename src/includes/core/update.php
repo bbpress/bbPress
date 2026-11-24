@@ -476,6 +476,12 @@ function bbp_version_updater() {
 				}
 			}
 		}
+
+		// Recalculate stored reply positions left by older hidden replies.
+		if ( $raw_db_version < 271 ) {
+			$callback     = bbp_is_large_install() ? '' : 'bbp_admin_repair_reply_menu_order';
+			$safe_to_bump = bbp_run_required_upgrade( 'bbp-sync-all-reply-positions', $callback ) && $safe_to_bump;
+		}
 	}
 
 	/** All done! *************************************************************/
@@ -769,8 +775,16 @@ function bbp_maybe_append_pending_upgrade_count( $string = '', $type = '' ) {
 	// Append the count to the string
 	if ( ! empty( $count ) ) {
 		$count_i18n = bbp_number_format_i18n( $count );
-		/* translators: %s: Number of pending upgrades. */
-		$text        = sprintf( _n( '%s pending upgrade', '%s pending upgrades', $count, 'bbpress' ), $count_i18n );
+		if ( 'repair' === $type ) {
+			/* translators: %s: Number of pending repairs. */
+			$text = sprintf( _n( '%s pending repair', '%s pending repairs', $count, 'bbpress' ), $count_i18n );
+		} elseif ( 'upgrade' === $type ) {
+			/* translators: %s: Number of pending upgrades. */
+			$text = sprintf( _n( '%s pending upgrade', '%s pending upgrades', $count, 'bbpress' ), $count_i18n );
+		} else {
+			/* translators: %s: Number of pending forum maintenance tasks. */
+			$text = sprintf( _n( '%s pending forum maintenance task', '%s pending forum maintenance tasks', $count, 'bbpress' ), $count_i18n );
+		}
 		$suffix      = ' <span class="awaiting-mod bbp-menu-count count-' . absint( $count ) . '"><span class="pending-count" aria-hidden="true">' . esc_html( $count_i18n ) . '</span><span class="screen-reader-text">' . esc_html( $text ) . '</span></span>';
 		$string      = "{$string}{$suffix}";
 	}

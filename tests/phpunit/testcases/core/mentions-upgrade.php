@@ -128,7 +128,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 	public function test_version_update_completes_small_site_batches_without_email() {
 		bbp_version_updater();
 		$this->assertGreaterThan( 1, count( $this->scans ) );
-		$this->assertSame( 270, (int) bbp_get_db_version_raw() );
+		$this->assertSame( 271, (int) bbp_get_db_version_raw() );
 		$this->assert_completed_without_email();
 		$this->scans = array();
 		$state = $this->status();
@@ -157,7 +157,7 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		$this->assertLessThan( $state['upper'], $state['cursor'] );
 		$this->assertArrayNotHasKey( 'token', $state );
 		$this->assertContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
-		$this->assertSame( 270, (int) bbp_get_db_version_raw() );
+		$this->assertSame( 271, (int) bbp_get_db_version_raw() );
 		$this->scans = array();
 		$this->resume_in_tools();
 		$this->assertStringContainsString( 'WHERE ID > ' . $state['cursor'] . ' ', $this->scans[0] );
@@ -201,6 +201,6 @@ class BBP_Tests_Core_Mentions_Upgrade extends BBP_UnitTestCase {
 		$this->assertSame( $state, $this->status() );
 		$this->assertSame( array(), $this->scans );
 		$this->assertContains( 'bbp-user-mentions', bbp_get_pending_upgrades() );
-		$this->assertSame( 270, (int) bbp_get_db_version_raw() );
+		$this->assertSame( 271, (int) bbp_get_db_version_raw() );
 	}
 }

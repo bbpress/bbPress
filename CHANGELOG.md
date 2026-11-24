@@ -192,7 +192,9 @@ Development for the next bbPress release is in progress. See the active
 - Prevented sticky topics promoted to the first page from appearing again on
   later topic pages.
 - Kept nonpublic replies out of published reply positions and corrected reply
-  pagination after status changes, including position repairs.
+  pagination after status changes. Recalculated older positions during upgrade
+  and queued the Repair tool for larger sites. Pending repairs now alert admins
+  like upgrades.
 - Fixed classic navigation menu highlighting on the forum index and individual
   forums, topics, and replies, including menus nested beneath another page.
 - Applied the configured forum, topic, and reply slugs to BuddyPress group

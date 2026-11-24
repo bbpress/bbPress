@@ -161,7 +161,7 @@ function bbp_admin_tools_repair_upgrade_page( $type = 'repair' ) {
 
 							?>
 
-							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive<?php echo $is_upgrade && ! empty( $item['pending'] ) ? ' status-pending' : ''; ?>">
+							<tr id="bbp-repair-tool-<?php echo esc_attr( $item_html_id ); ?>" class="bbp-repair-tools inactive<?php echo ! empty( $item['pending'] ) ? ' status-pending' : ''; ?>">
 								<th scope="row" class="check-column">
 									<label class="screen-reader-text" for="<?php echo esc_attr( $select_id ); ?>">
 										<?php
@@ -177,7 +177,7 @@ function bbp_admin_tools_repair_upgrade_page( $type = 'repair' ) {
 								<td class="bbp-tool-title column-primary column-description" data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
 									<strong>
 										<?php echo esc_html( $item['title'] ); ?>
-										<?php if ( $is_upgrade && ! empty( $item['pending'] ) ) : ?>
+										<?php if ( ! empty( $item['pending'] ) ) : ?>
 											<span class="post-state">&mdash; <?php esc_html_e( 'Pending', 'bbpress' ); ?></span>
 										<?php endif; ?>
 									</strong><?php

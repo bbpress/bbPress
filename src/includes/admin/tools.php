@@ -170,6 +170,18 @@ function bbp_register_repair_tools() {
 }
 
 /**
+ * Ensure repair and upgrade tools are registered for this request.
+ *
+ * @since 2.7.0 bbPress (r8632)
+ * @return void
+ */
+function bbp_maybe_register_repair_tools() {
+	if ( ! did_action( 'bbp_register_repair_tools' ) || empty( bbp_admin()->tools ) ) {
+		bbp_register_repair_tools();
+	}
+}
+
+/**
  * Describe one built-in legacy user-relationship family.
  *
  * Repair, migration, and cleanup share these identities and stored keys.

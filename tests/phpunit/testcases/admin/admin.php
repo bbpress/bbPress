@@ -155,7 +155,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$this->assertSame( 10, has_action( 'bbp_admin_head', array( $admin, 'admin_head' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_styles' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_scripts' ) ) );
-		$this->assertSame( 10, has_action( 'bbp_admin_init', array( $admin, 'setup_notices' ) ) );
+		$this->assertSame( 9, has_action( 'bbp_admin_notices', array( $admin, 'setup_notices' ) ) );
 		$this->assertSame( 10, has_action( 'bbp_admin_init', array( $admin, 'hide_notices' ) ) );
 		$this->assertSame( 10, has_action( 'bbp_admin_init', array( $admin, 'add_upgrade_count' ) ) );
 		$this->assertSame( 10, has_action( 'bbp_register_admin_styles', array( $admin, 'register_admin_styles' ) ) );
@@ -208,30 +208,63 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 	 * @covers BBP_Admin::hide_notices
 	 * @ticket 3706
 	 */
-	public function test_pending_upgrade_notice_can_be_displayed_and_dismissed() {
+	public function test_pending_upgrade_notice_can_be_hidden_without_clearing_work() {
 		$admin = bbp_admin();
+		$tools = $admin->tools;
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null;
+		$redirect = null;
+		$cancel_redirect = static function( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			return false;
+		};
+		add_filter( 'wp_redirect', $cancel_redirect );
+		bbp_register_default_repair_tools();
 		$this->create_administrator();
-		update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-upgrade' ) );
-		$_GET = array();
-		$admin->notices = 'invalid';
-		$admin->setup_notices();
-		$this->assertCount( 1, $admin->notices );
-		$this->assertStringContainsString( 'manual database upgrade', $admin->notices[0] );
-		$this->assertStringContainsString( 'notice-bbpress', $admin->notices[0] );
+		try {
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-user-mentions' ) );
+			$_GET = array();
+			$admin->notices = 'invalid';
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'manual database upgrade', $admin->notices[0] );
+			$this->assertStringContainsString( 'notice-bbpress', $admin->notices[0] );
+			$this->assertStringContainsString( 'page=bbp-upgrade', $admin->notices[0] );
+			$this->assertStringContainsString( 'Hide For Now', $admin->notices[0] );
 
-		$_GET = array(
-			'bbp-hide-notice' => 'bbp-skip-upgrades',
-			'_wpnonce'        => wp_create_nonce( 'bbp-hide-notice' ),
-		);
-		$_REQUEST = $_GET;
-		$admin->hide_notices();
-		$this->assertSame( array(), bbp_get_pending_upgrades() );
+			$_GET = array(
+				'bbp-hide-notice' => 'bbp-skip-upgrades',
+				'_wpnonce'        => wp_create_nonce( 'bbp-hide-notice' ),
+			);
+			$_REQUEST = $_GET;
+			$_SERVER['REQUEST_URI'] = '/wp-admin/index.php?' . http_build_query( $_GET );
+			$admin->hide_notices();
+			$this->assertSame( array( 'bbp-user-mentions' ), bbp_get_pending_upgrades() );
+			$this->assertSame( 1, bbp_get_pending_upgrade_count( 'upgrade' ) );
+			$this->assertStringNotContainsString( 'bbp-hide-notice', $redirect );
+			$this->assertStringNotContainsString( '_wpnonce', $redirect );
 
-		update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-upgrade' ) );
-		$_GET = array( 'page' => 'bbp-upgrade' );
-		$admin->notices = array();
-		$admin->setup_notices();
-		$this->assertSame( array(), $admin->notices );
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( array(), $admin->notices );
+
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-user-mentions', 'bbp-user-topic-engagements-move' ) );
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+
+			$_GET = array( 'page' => 'bbp-upgrade' );
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( array(), $admin->notices );
+		} finally {
+			remove_filter( 'wp_redirect', $cancel_redirect );
+			if ( null === $request_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $request_uri;
+			}
+			$admin->tools = $tools;
+		}
 	}
 
 	/**
@@ -297,7 +330,7 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 		$this->assertSame( array( 'manage_options', 'tools.php' ), array_slice( $GLOBALS['menu'][1], 1 ) );
 		$this->assertStringContainsString( 'awaiting-mod bbp-menu-count count-2', $GLOBALS['menu'][1][0] );
 		$this->assertStringContainsString( 'pending-count" aria-hidden="true">2</span>', $GLOBALS['menu'][1][0] );
-		$this->assertStringContainsString( '2 pending upgrades', $GLOBALS['menu'][1][0] );
+		$this->assertStringContainsString( '2 pending forum maintenance tasks', $GLOBALS['menu'][1][0] );
 	}
 
 	/**
@@ -641,6 +674,206 @@ class BBP_Tests_Admin_Admin extends BBP_UnitTestCase {
 					$GLOBALS[ $global ] = $before[ $global ];
 				}
 			}
+		}
+	}
+
+	/**
+	 * @covers BBP_Admin::setup_notices
+	 * @covers BBP_Admin::hide_notices
+	 * @ticket BBP3503
+	 */
+	public function test_pending_repair_and_upgrade_notices_follow_registered_tool_types() {
+		$admin = bbp_admin();
+		$tools = $admin->tools;
+		$registered = 0;
+		$register = static function() use ( &$registered ) {
+			++$registered;
+			bbp_register_repair_tool( array(
+				'id'       => 'bbp-test-repair',
+				'type'     => 'repair',
+				'title'    => 'Test repair',
+				'priority' => 10,
+				'callback' => '__return_true'
+			) );
+			bbp_register_repair_tool( array(
+				'id'       => 'bbp-test-upgrade',
+				'type'     => 'upgrade',
+				'title'    => 'Test upgrade',
+				'priority' => 20,
+				'callback' => '__return_true'
+			) );
+			bbp_register_repair_tool( array(
+				'id'       => 'bbp-test-upgrade-two',
+				'type'     => 'upgrade',
+				'title'    => 'Test second upgrade',
+				'priority' => 30,
+				'callback' => '__return_true'
+			) );
+		};
+		$deny_upgrade = static function( $caps, $cap ) {
+			return 'bbp_tools_upgrade_page' === $cap ? array( 'do_not_allow' ) : $caps;
+		};
+		add_action( 'bbp_register_repair_tools', $register );
+		add_filter( 'wp_redirect', '__return_false' );
+		$this->create_administrator();
+		try {
+			$admin->tools = array();
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-repair', 'bbp-test-upgrade' ) );
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( 1, $registered );
+			bbp_maybe_register_repair_tools();
+			$this->assertSame( 1, $registered );
+			$this->assertArrayHasKey( 'bbp-test-repair', $admin->tools );
+			$this->assertSame( array( 'bbp-test-repair' ), array_values( bbp_get_pending_upgrades( 'repair' ) ) );
+			$this->assertCount( 2, $admin->notices );
+			$this->assertStringContainsString( 'page=bbp-repair', $admin->notices[0] );
+			$this->assertStringContainsString( 'status=pending', $admin->notices[0] );
+			$this->assertStringContainsString( 'page=bbp-upgrade', $admin->notices[1] );
+			$this->assertSame( 2, substr_count( $admin->notices[0] . $admin->notices[1], 'Hide For Now' ) );
+			$tabs = bbp_get_tools_admin_tabs( 'bbp-repair' );
+			$this->assertStringContainsString( '1 pending repair', $tabs );
+			$this->assertStringContainsString( '1 pending upgrade', $tabs );
+
+			// On a tools page, registration happens before notices are built.
+			$admin->tools = array();
+			$registered = 0;
+			bbp_register_repair_tools();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( 1, $registered );
+			$this->assertCount( 2, $admin->notices );
+
+			add_filter( 'bbp_map_settings_meta_caps', $deny_upgrade, 10, 2 );
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'page=bbp-repair', $admin->notices[0] );
+			remove_filter( 'bbp_map_settings_meta_caps', $deny_upgrade, 10 );
+
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-repair' ) );
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'pending forum repair', $admin->notices[0] );
+			$this->assertStringNotContainsString( 'page=bbp-upgrade', $admin->notices[0] );
+			$this->assertStringContainsString( 'Hide For Now', $admin->notices[0] );
+			$this->assertStringContainsString( '1 pending forum maintenance task', bbp_maybe_append_pending_upgrade_count( 'Tools' ) );
+
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-repair', 'bbp-test-upgrade' ) );
+			add_filter( 'wp_doing_ajax', '__return_true' );
+			$admin->notices = array();
+			$admin->setup_notices();
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			$this->assertSame( array(), $admin->notices );
+
+			$_GET = array( 'page' => 'bbp-repair' );
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'page=bbp-upgrade', $admin->notices[0] );
+
+			$_GET = array( 'page' => 'bbp-upgrade' );
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'page=bbp-repair', $admin->notices[0] );
+
+			$_GET = array(
+				'bbp-hide-notice' => 'bbp-skip-upgrades',
+				'_wpnonce'        => wp_create_nonce( 'bbp-hide-notice' ),
+			);
+			$_REQUEST = $_GET;
+			$admin->hide_notices();
+			$this->assertSame( array( 'bbp-test-repair', 'bbp-test-upgrade' ), bbp_get_pending_upgrades() );
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-upgrade' ) );
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( array(), $admin->notices );
+
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-repair', 'bbp-test-upgrade' ) );
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'page=bbp-repair', $admin->notices[0] );
+
+			$_GET = array(
+				'bbp-hide-notice' => 'bbp-skip-repairs',
+				'_wpnonce'        => wp_create_nonce( 'bbp-hide-notice' ),
+			);
+			$_REQUEST = $_GET;
+			$admin->hide_notices();
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( array(), $admin->notices );
+			$this->assertSame( array( 'bbp-test-repair', 'bbp-test-upgrade' ), bbp_get_pending_upgrades() );
+
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-repair', 'bbp-test-upgrade', 'bbp-test-upgrade-two' ) );
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'page=bbp-upgrade', $admin->notices[0] );
+		} finally {
+			remove_filter( 'wp_redirect', '__return_false' );
+			remove_filter( 'bbp_map_settings_meta_caps', $deny_upgrade, 10 );
+			remove_filter( 'wp_doing_ajax', '__return_true' );
+			remove_action( 'bbp_register_repair_tools', $register );
+			$admin->tools = $tools;
+		}
+	}
+
+	/**
+	 * @covers BBP_Admin::setup_notices
+	 * @covers BBP_Admin::hide_notices
+	 * @ticket BBP3503
+	 */
+	public function test_unclassified_pending_tool_has_a_neutral_notice_and_is_not_skipped() {
+		$admin = bbp_admin();
+		$tools = $admin->tools;
+		add_filter( 'wp_redirect', '__return_false' );
+		$this->create_administrator();
+		try {
+			bbp_register_default_repair_tools();
+			update_option( '_bbp_db_pending_upgrades', array( 'bbp-test-late-repair', 'bbp-user-mentions' ) );
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 2, $admin->notices );
+			$this->assertStringContainsString( 'manual database upgrade', $admin->notices[0] );
+			$this->assertStringContainsString( 'Hide For Now', $admin->notices[0] );
+			$this->assertStringContainsString( 'Hide For Now', $admin->notices[1] );
+			$this->assertStringContainsString( 'could not be matched to a Repair or Upgrade tool', $admin->notices[1] );
+			$this->assertStringNotContainsString( 'page=bbp-upgrade', $admin->notices[1] );
+
+			$_GET = array(
+				'bbp-hide-notice' => 'bbp-skip-upgrades',
+				'_wpnonce'        => wp_create_nonce( 'bbp-hide-notice' ),
+			);
+			$_REQUEST = $_GET;
+			$admin->hide_notices();
+			$this->assertSame( array( 'bbp-test-late-repair', 'bbp-user-mentions' ), bbp_get_pending_upgrades() );
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertCount( 1, $admin->notices );
+			$this->assertStringContainsString( 'could not be matched to a Repair or Upgrade tool', $admin->notices[0] );
+
+			$_GET = array(
+				'bbp-hide-notice' => 'bbp-skip-unclassified',
+				'_wpnonce'        => wp_create_nonce( 'bbp-hide-notice' ),
+			);
+			$_REQUEST = $_GET;
+			$admin->hide_notices();
+			$_GET = array();
+			$admin->notices = array();
+			$admin->setup_notices();
+			$this->assertSame( array(), $admin->notices );
+		} finally {
+			remove_filter( 'wp_redirect', '__return_false' );
+			$admin->tools = $tools;
 		}
 	}
 
