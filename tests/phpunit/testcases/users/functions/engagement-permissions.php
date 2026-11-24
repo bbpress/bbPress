@@ -581,4 +581,24 @@ class BBP_Tests_Users_Functions_Engagement_Permissions extends BBP_UnitTestCase 
 		$this->assertTrue( $this->submit_toggle( 'bbp_favorite_remove' ) );
 		$this->assertFalse( bbp_is_user_favorite( $user_id, $topic_id ) );
 	}
+
+	/**
+	 * @covers ::bbp_get_user_favorites_link
+	 * @covers ::bbp_get_user_subscribe_link
+	 * @ticket 3794
+	 */
+	public function test_engagement_links_ignore_malformed_redirect_arguments() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id, 'topic_meta' => array( 'forum_id' => $forum_id ) ) );
+
+		$this->set_current_user( $user_id );
+		$favorite = bbp_get_user_favorites_link( array( 'object_id' => $topic_id, 'redirect_to' => array( 'bad' ) ) );
+		$subscribe = bbp_get_user_subscribe_link( array( 'object_id' => $forum_id, 'redirect_to' => array( 'bad' ) ) );
+
+		$this->assertIsString( $favorite );
+		$this->assertIsString( $subscribe );
+		$this->assertStringNotContainsString( 'redirect_to=', $favorite );
+		$this->assertStringNotContainsString( 'redirect_to=', $subscribe );
+	}
 }

@@ -743,6 +743,29 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_list_forums
+	 * @ticket 3794
+	 */
+	public function test_list_forums_keeps_query_arguments_and_skips_malformed_wrappers() {
+		$parent_id = $this->factory->forum->create();
+		$this->factory->forum->create( array( 'post_parent' => $parent_id, 'post_title' => 'Visible child' ) );
+		bbp_update_forum_subforum_count( $parent_id );
+
+		$html = bbp_list_forums( array(
+			'forum_id'         => array( 'post_parent' => $parent_id ),
+			'before'           => array( 'bad' ),
+			'link_before'      => array( 'bad' ),
+			'show_topic_count' => false,
+			'show_reply_count' => false,
+			'echo'             => false
+		) );
+
+		$this->assertStringContainsString( 'Visible child', $html );
+		$this->assertStringNotContainsString( '<ul', $html );
+		$this->assertStringNotContainsString( 'Array', $html );
+	}
+
+	/**
 	 * @covers ::bbp_forum_subscription_link
 	 * @covers ::bbp_get_forum_subscription_link
 	 */

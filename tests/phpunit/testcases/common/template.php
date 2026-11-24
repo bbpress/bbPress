@@ -1981,6 +1981,26 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_breadcrumb
 	 * @ticket 3794
 	 */
+	public function test_breadcrumb_ignores_malformed_separator_arguments() {
+		$html = bbp_get_breadcrumb( array(
+			'include_home'    => true,
+			'include_root'    => false,
+			'include_current' => true,
+			'home_text'       => 'Start',
+			'current_text'    => 'Current',
+			'sep'             => array( 'bad' ),
+			'pad_sep'         => array( 'bad' )
+		) );
+
+		$this->assertStringContainsString( '>Start</a>', $html );
+		$this->assertStringContainsString( '>Current</span>', $html );
+		$this->assertStringNotContainsString( 'Array', $html );
+	}
+
+	/**
+	 * @covers ::bbp_get_breadcrumb
+	 * @ticket 3794
+	 */
 	public function test_topic_tag_breadcrumb_keeps_name_when_term_link_fails() {
 		add_filter( 'bbp_no_breadcrumb', '__return_false' );
 		add_filter( 'bbp_is_topic_tag_edit', '__return_true' );

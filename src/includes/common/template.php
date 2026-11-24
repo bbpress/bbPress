@@ -10,6 +10,55 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/** Template Arguments ********************************************************/
+
+/**
+ * Get a string argument for template output.
+ *
+ * Parsed arguments can be changed by filters. Keep scalar and stringable values
+ * for rendering, and ignore values that cannot be rendered as strings.
+ *
+ * @since 2.7.0 bbPress (r8634)
+ * @access private
+ *
+ * @param array<string, mixed> $args Parsed template arguments.
+ * @param string               $key  Argument name.
+ * @return string Renderable argument value.
+ */
+function bbp_get_template_string_arg( $args, $key ) {
+	$value = isset( $args[ $key ] ) ? $args[ $key ] : '';
+
+	if ( is_scalar( $value ) || ( is_object( $value ) && method_exists( $value, '__toString' ) ) ) {
+		return (string) $value;
+	}
+
+	return '';
+}
+
+/**
+ * Keep renderable links from a filtered admin-link list.
+ *
+ * @since 2.7.0 bbPress (r8634)
+ * @access private
+ *
+ * @param mixed $links Filtered links.
+ * @return array<array-key, string> Renderable links.
+ */
+function bbp_get_admin_link_array( $links ) {
+	if ( ! is_array( $links ) ) {
+		return array();
+	}
+
+	$retval = array();
+	foreach ( $links as $key => $link ) {
+		if ( is_scalar( $link ) || ( is_object( $link ) && method_exists( $link, '__toString' ) ) ) {
+			$retval[ $key ] = (string) $link;
+		}
+	}
+
+	return $retval;
+}
+
 /** URLs **********************************************************************/
 
 /**
@@ -2026,6 +2075,10 @@ function bbp_get_dropdown( $args = array() ) {
 		'get_dropdown'
 	);
 
+	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$disabled_key = bbp_get_template_string_arg( $r, 'disabled' );
+
 	// Fallback to our walker
 	if ( empty( $r['walker'] ) ) {
 		$r['walker'] = new BBP_Walker_Dropdown();
@@ -2039,12 +2092,14 @@ function bbp_get_dropdown( $args = array() ) {
 
 	// Force array
 	if ( ! empty( $r['include'] ) && ! is_array( $r['include'] ) ) {
-		$r['include'] = explode( ',', $r['include'] );
+		$include      = bbp_get_template_string_arg( $r, 'include' );
+		$r['include'] = ( '' !== $include ) ? explode( ',', $include ) : array();
 	}
 
 	// Force array
 	if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
-		$r['exclude'] = explode( ',', $r['exclude'] );
+		$exclude      = bbp_get_template_string_arg( $r, 'exclude' );
+		$r['exclude'] = ( '' !== $exclude ) ? explode( ',', $exclude ) : array();
 	}
 
 	/* Setup Posts ************************************************************/
@@ -2075,15 +2130,15 @@ function bbp_get_dropdown( $args = array() ) {
 	if ( empty( $r['options_only'] ) ) {
 
 		// Should this select appear disabled?
-		$disabled = disabled( isset( bbpress()->options[ $r['disabled'] ] ), true, false );
+		$disabled = disabled( isset( bbpress()->options[ $disabled_key ] ), true, false );
 
 		// Setup the tab index attribute
-		$tab = ! empty( $r['tab'] )
+		$tab = ! empty( $r['tab'] ) && is_scalar( $r['tab'] )
 			? ' tabindex="'. intval( $r['tab'] ) . '"'
 			: '';
 
 		// Open the select tag
-		$retval .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '" class="' . esc_attr( $r['select_class'] ) . '"' . $disabled . $tab . '>' . "\n";
+		$retval .= '<select name="' . esc_attr( $select_id ) . '" id="' . esc_attr( $select_id ) . '" class="' . esc_attr( $select_class ) . '"' . $disabled . $tab . '>' . "\n";
 	}
 
 	// Display a leading 'no-value' option, with or without custom text
@@ -2824,7 +2879,7 @@ function bbp_get_breadcrumb( $args = array() ) {
 	// Define variables
 	$front_id         = $root_id          = $remove_root_id      = 0;
 	$ancestors        = $crumbs           = $tag_data            = array();
-	$pre_root_text    = $pre_front_text   = $pre_current_text    = '';
+	$pre_root_html    = $pre_front_html   = $pre_current_html    = '';
 	$pre_include_root = $pre_include_home = $pre_include_current = true;
 
 	/** Home Text *************************************************************/
@@ -2836,11 +2891,11 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 		// Set home text to page title
 		if ( ! empty( $front_id ) ) {
-			$pre_front_text = get_the_title( $front_id );
+			$pre_front_html = get_the_title( $front_id );
 
 		// Default to 'Home'
 		} else {
-			$pre_front_text = esc_html__( 'Home', 'bbpress' );
+			$pre_front_html = esc_html__( 'Home', 'bbpress' );
 		}
 	}
 
@@ -2852,7 +2907,7 @@ function bbp_get_breadcrumb( $args = array() ) {
 		if ( ! empty( $page ) ) {
 			$root_id = $page->ID;
 		}
-		$pre_root_text = bbp_get_forum_archive_title();
+		$pre_root_html = bbp_get_forum_archive_title();
 	}
 
 	/** Includes **************************************************************/
@@ -2876,31 +2931,31 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 	// Search page
 	if ( bbp_is_search() ) {
-		$pre_current_text = bbp_get_search_title();
+		$pre_current_html = bbp_get_search_title();
 
 	// Forum archive
 	} elseif ( bbp_is_forum_archive() ) {
-		$pre_current_text = bbp_get_forum_archive_title();
+		$pre_current_html = bbp_get_forum_archive_title();
 
 	// Topic archive
 	} elseif ( bbp_is_topic_archive() ) {
-		$pre_current_text = bbp_get_topic_archive_title();
+		$pre_current_html = bbp_get_topic_archive_title();
 
 	// View
 	} elseif ( bbp_is_single_view() ) {
-		$pre_current_text = bbp_get_view_title();
+		$pre_current_html = bbp_get_view_title();
 
 	// Single Forum
 	} elseif ( bbp_is_single_forum() ) {
-		$pre_current_text = bbp_get_forum_title();
+		$pre_current_html = bbp_get_forum_title();
 
 	// Single Topic
 	} elseif ( bbp_is_single_topic() ) {
-		$pre_current_text = bbp_get_topic_title();
+		$pre_current_html = bbp_get_topic_title();
 
 	// Single Topic
 	} elseif ( bbp_is_single_reply() ) {
-		$pre_current_text = bbp_get_reply_title();
+		$pre_current_html = bbp_get_reply_title();
 
 	// Topic Tag (or theme compat topic tag)
 	} elseif ( bbp_is_topic_tag() || ( get_query_var( 'bbp_topic_tag' ) && ! bbp_is_topic_tag_edit() ) ) {
@@ -2915,15 +2970,15 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 		// Implode the results of the tag data
 		/* translators: %s: Topic tag data */
-		$pre_current_text = sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), implode( ' ', $tag_data ) );
+		$pre_current_html = sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), implode( ' ', $tag_data ) );
 
 	// Edit Topic Tag
 	} elseif ( bbp_is_topic_tag_edit() ) {
-		$pre_current_text = esc_html__( 'Edit', 'bbpress' );
+		$pre_current_html = esc_html__( 'Edit', 'bbpress' );
 
 	// Single
 	} else {
-		$pre_current_text = get_the_title();
+		$pre_current_html = get_the_title();
 	}
 
 	/** Parse Args ************************************************************/
@@ -2949,20 +3004,35 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 			// Home
 			'include_home'    => $pre_include_home,
-			'home_text'       => $pre_front_text,
+			'home_text'       => $pre_front_html,
 
 			// Forum root
 			'include_root'    => $pre_include_root,
-			'root_text'       => $pre_root_text,
+			'root_text'       => $pre_root_html,
 
 			// Current
 			'include_current' => $pre_include_current,
-			'current_text'    => $pre_current_text,
+			'current_text'    => $pre_current_html,
 			'current_before'  => '<span class="bbp-breadcrumb-current">',
 			'current_after'   => '</span>',
 		),
 		'get_breadcrumb'
 	);
+
+	// Use renderable strings for the filtered breadcrumb parts
+	$before         = bbp_get_template_string_arg( $r, 'before' );
+	$after          = bbp_get_template_string_arg( $r, 'after' );
+	$sep            = bbp_get_template_string_arg( $r, 'sep' );
+	$sep_before     = bbp_get_template_string_arg( $r, 'sep_before' );
+	$sep_after      = bbp_get_template_string_arg( $r, 'sep_after' );
+	$crumb_before   = bbp_get_template_string_arg( $r, 'crumb_before' );
+	$crumb_after    = bbp_get_template_string_arg( $r, 'crumb_after' );
+	$home_html      = bbp_get_template_string_arg( $r, 'home_text' );
+	$root_html      = bbp_get_template_string_arg( $r, 'root_text' );
+	$current_html   = bbp_get_template_string_arg( $r, 'current_text' );
+	$current_before = bbp_get_template_string_arg( $r, 'current_before' );
+	$current_after  = bbp_get_template_string_arg( $r, 'current_after' );
+	$pad_sep        = is_numeric( $r['pad_sep'] ) ? (int) $r['pad_sep'] : 0;
 
 	/** Ancestors *********************************************************/
 
@@ -2973,12 +3043,12 @@ function bbp_get_breadcrumb( $args = array() ) {
 	}
 
 	// Do we want to include a link to home?
-	if ( ! empty( $r['include_home'] ) || empty( $r['home_text'] ) ) {
-		$crumbs[] = '<a href="' . esc_url( home_url() ) . '" class="bbp-breadcrumb-home">' . $r['home_text'] . '</a>';
+	if ( ! empty( $r['include_home'] ) || empty( $home_html ) ) {
+		$crumbs[] = '<a href="' . esc_url( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_html . '</a>';
 	}
 
 	// Do we want to include a link to the forum root?
-	if ( ! empty( $r['include_root'] ) || empty( $r['root_text'] ) ) {
+	if ( ! empty( $r['include_root'] ) || empty( $root_html ) ) {
 
 		// Page exists at root slug path, so use its permalink
 		$page = bbp_get_page_by_path( bbp_get_root_slug() );
@@ -2992,7 +3062,7 @@ function bbp_get_breadcrumb( $args = array() ) {
 		}
 
 		// Add the breadcrumb
-		$crumbs[] = '<a href="' . esc_url( $root_url ) . '" class="bbp-breadcrumb-root">' . $r['root_text'] . '</a>';
+		$crumbs[] = '<a href="' . esc_url( $root_url ) . '" class="bbp-breadcrumb-root">' . $root_html . '</a>';
 	}
 
 	// Ancestors exist
@@ -3056,25 +3126,25 @@ function bbp_get_breadcrumb( $args = array() ) {
 	/** Current ***********************************************************/
 
 	// Add current page to breadcrumb
-	if ( ! empty( $r['include_current'] ) || empty( $r['current_text'] ) ) {
-		$crumbs[] = $r['current_before'] . $r['current_text'] . $r['current_after'];
+	if ( ! empty( $r['include_current'] ) || empty( $current_html ) ) {
+		$crumbs[] = $current_before . $current_html . $current_after;
 	}
 
 	/** Separator *********************************************************/
 
 	// Wrap the separator in before/after before padding and filter
-	if ( ! empty( $r['sep'] ) ) {
-		$sep = $r['sep_before'] . $r['sep'] . $r['sep_after'];
+	if ( ! empty( $sep ) ) {
+		$sep = $sep_before . $sep . $sep_after;
 	} else {
 		$sep = '';
 	}
 
 	// Pad the separator
-	if ( ! empty( $r['pad_sep'] ) ) {
+	if ( ! empty( $pad_sep ) ) {
 		if ( function_exists( 'mb_strlen' ) ) {
-			$sep = str_pad( $sep, mb_strlen( $sep ) + ( (int) $r['pad_sep'] * 2 ), ' ', STR_PAD_BOTH );
+			$sep = str_pad( $sep, mb_strlen( $sep ) + ( (int) $pad_sep * 2 ), ' ', STR_PAD_BOTH );
 		} else {
-			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $r['pad_sep'] * 2 ), ' ', STR_PAD_BOTH );
+			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $pad_sep * 2 ), ' ', STR_PAD_BOTH );
 		}
 	}
 
@@ -3102,7 +3172,7 @@ function bbp_get_breadcrumb( $args = array() ) {
 
 	// Build the trail
 	$trail  = ! empty( $crumbs )
-		? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'], $crumbs ) . $r['crumb_after'] . $r['after'] )
+		? ( $before . $crumb_before . implode( $sep . $crumb_after . $crumb_before, $crumbs ) . $crumb_after . $after )
 		: '';
 
 	/**

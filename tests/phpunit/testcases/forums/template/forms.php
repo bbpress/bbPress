@@ -237,6 +237,21 @@ class BBP_Tests_Forums_Template_Forms extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_form_forum_type_dropdown
+	 * @ticket 3794
+	 */
+	public function test_forum_type_dropdown_ignores_malformed_field_arguments() {
+		$html = bbp_get_form_forum_type_dropdown( array(
+			'select_id'    => array( 'bad' ),
+			'select_class' => array( 'bad' ),
+			'forum_id'     => array( 'bad' )
+		) );
+
+		$this->assertStringContainsString( '<select name="" id="_select" class=""', $html );
+		$this->assertStringContainsString( '<option value="forum"', $html );
+	}
+
+	/**
+	 * @covers ::bbp_get_form_forum_type_dropdown
 	 */
 	public function test_bbp_get_form_forum_type_dropdown_selects_forum_by_default() {
 		$this->assertMatchesRegularExpression(

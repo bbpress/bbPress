@@ -106,6 +106,26 @@ class BBP_Tests_Replies_Template_Links extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_reply_admin_links
+	 * @covers ::bbp_get_reply_edit_link
+	 * @ticket 3794
+	 */
+	public function test_reply_admin_links_skip_malformed_arguments() {
+		$this->with_keymaster_reply( function ( $reply_id ) {
+			$args = array(
+				'id'     => $reply_id,
+				'before' => '[',
+				'after'  => ']',
+				'sep'    => ', ',
+				'links'  => array( 'edit' => 'Edit', 'invalid' => array( 'Broken' ) )
+			);
+
+			$this->assertSame( '[Edit]', bbp_get_reply_admin_links( $args ) );
+			$this->assertNull( bbp_get_reply_edit_link( array( 'id' => array( $reply_id ) ) ) );
+		} );
+	}
+
+	/**
 	 * @covers ::bbp_reply_edit_link
 	 * @covers ::bbp_get_reply_edit_link
 	 */

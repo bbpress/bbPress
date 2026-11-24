@@ -434,6 +434,26 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_topic_admin_links
+	 * @covers ::bbp_get_topic_edit_link
+	 * @ticket 3794
+	 */
+	public function test_topic_admin_links_skip_malformed_arguments() {
+		$this->with_keymaster_topic( function ( $topic_id ) {
+			$args = array(
+				'id'     => $topic_id,
+				'before' => '[',
+				'after'  => ']',
+				'sep'    => ', ',
+				'links'  => array( 'edit' => 'Edit', 'invalid' => array( 'Broken' ) )
+			);
+
+			$this->assertSame( '[Edit]', bbp_get_topic_admin_links( $args ) );
+			$this->assertNull( bbp_get_topic_edit_link( array( 'id' => array( $topic_id ) ) ) );
+		} );
+	}
+
+	/**
 	 * @covers ::bbp_topic_edit_link
 	 * @covers ::bbp_get_topic_edit_link
 	 */

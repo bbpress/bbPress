@@ -927,13 +927,18 @@ function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
 		'get_user_nicename'
 	);
 
+	$force     = bbp_get_template_string_arg( $r, 'force' );
+	$before    = bbp_get_template_string_arg( $r, 'before' );
+	$after     = bbp_get_template_string_arg( $r, 'after' );
+	$lookup_id = is_numeric( $r['user_id'] ) ? (int) $r['user_id'] : 0;
+
 	// Force the nicename (likely from a previous user query)
-	if ( ! empty( $r['force'] ) ) {
-		$nicename = (string) $r['force'];
+	if ( ! empty( $force ) ) {
+		$nicename = $force;
 
 	// Maybe fallback to getting the nicename from user data
-	} elseif ( ! empty( $r['user_id'] ) ) {
-		$user     = get_userdata( $r['user_id'] );
+	} elseif ( ! empty( $lookup_id ) ) {
+		$user     = get_userdata( $lookup_id );
 		$nicename = ! empty( $user )
 			? $user->user_nicename
 			: '';
@@ -945,7 +950,7 @@ function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
 
 	// Maybe wrap the nicename
 	$retval = ! empty( $nicename )
-		? $r['before'] . esc_html( $nicename ) . $r['after']
+		? $before . esc_html( $nicename ) . $after
 		: '';
 
 	/**
@@ -1253,7 +1258,10 @@ function bbp_get_admin_link( $args = array() ) {
 		'get_admin_link'
 	);
 
-	$retval = $r['before'] . '<a href="' . esc_url( admin_url() ) . '">' . $r['text'] . '</a>' . $r['after'];
+	$before = bbp_get_template_string_arg( $r, 'before' );
+	$after  = bbp_get_template_string_arg( $r, 'after' );
+	$text   = bbp_get_template_string_arg( $r, 'text' );
+	$retval = $before . '<a href="' . esc_url( admin_url() ) . '">' . $text . '</a>' . $after;
 
 	/**
 	 * Filters the link to the admin section.
@@ -1667,18 +1675,29 @@ function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = tru
 		'get_user_favorites_link'
 	);
 
+	// Use renderable strings for labels and link arguments
+	$favorite    = bbp_get_template_string_arg( $r, 'favorite' );
+	$favorited   = bbp_get_template_string_arg( $r, 'favorited' );
+	$object_type = bbp_get_template_string_arg( $r, 'object_type' );
+	$before      = bbp_get_template_string_arg( $r, 'before' );
+	$after       = bbp_get_template_string_arg( $r, 'after' );
+	$redirect_to = bbp_get_template_string_arg( $r, 'redirect_to' );
+
 	// Validate user and object ID's
-	$user_id     = bbp_get_user_id( $r['user_id'], true, true );
-	$object_type = sanitize_key( $r['object_type'] );
+	$user_arg    = $r['user_id'];
+	$user_arg    = is_numeric( $user_arg ) ? $user_arg : false;
+	$user_id     = bbp_get_user_id( $user_arg, true, true );
+	$object_type = sanitize_key( $object_type );
 
 	// Back-compat for deprecated arguments
 	if ( ! empty( $r['topic_id'] ) ) {
-		$object_id = absint( $r['topic_id'] );
+		$object_arg = $r['topic_id'];
 	} elseif ( ! empty( $r['forum_id'] ) ) {
-		$object_id = absint( $r['forum_id'] );
+		$object_arg = $r['forum_id'];
 	} else {
-		$object_id = absint( $r['object_id'] );
+		$object_arg = $r['object_id'];
 	}
+	$object_id = is_numeric( $object_arg ) ? absint( $object_arg ) : 0;
 
 	// Validate the object before checking its favorite state
 	if ( empty( $user_id ) || empty( $object_id ) || ! bbp_current_user_can_toggle_engagement( $object_id, $object_type, 'favorite', 'remove', $user_id ) ) {
@@ -1693,13 +1712,13 @@ function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = tru
 	}
 
 	if ( ! empty( $is_fav ) ) {
-		$text   = $r['favorited'];
+		$text   = $favorited;
 		$q_args = array(
 			'action'    => 'bbp_favorite_remove',
 			'object_id' => $object_id
 		);
 	} else {
-		$text   = $r['favorite'];
+		$text   = $favorite;
 		$q_args = array(
 			'action'    => 'bbp_favorite_add',
 			'object_id' => $object_id
@@ -1707,14 +1726,14 @@ function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = tru
 	}
 
 	// Custom redirect
-	if ( ! empty( $r['redirect_to'] ) ) {
-		$q_args['redirect_to'] = urlencode( $r['redirect_to'] );
+	if ( ! empty( $redirect_to ) ) {
+		$q_args['redirect_to'] = urlencode( $redirect_to );
 	}
 
 	// URL
 	$url  = esc_url( wp_nonce_url( add_query_arg( $q_args ), 'toggle-favorite_' . $object_id ) );
 	$sub  = $is_fav ? ' class="is-favorite"' : '';
-	$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, $object_type, wp_create_nonce( 'toggle-favorite_' . $object_id ), $text, $r['after'] );
+	$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $before, $object_id, $sub, $url, $object_id, $object_type, wp_create_nonce( 'toggle-favorite_' . $object_id ), $text, $after );
 
 	// Initial output is wrapped in a span, ajax output is hooked to this
 	if ( ! empty( $wrap ) && ( bbp_get_current_user_id() === $user_id ) ) {
@@ -2324,18 +2343,29 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 		'get_user_subscribe_link'
 	);
 
+	// Use renderable strings for labels and link arguments
+	$subscribe   = bbp_get_template_string_arg( $r, 'subscribe' );
+	$unsubscribe = bbp_get_template_string_arg( $r, 'unsubscribe' );
+	$object_type = bbp_get_template_string_arg( $r, 'object_type' );
+	$before      = bbp_get_template_string_arg( $r, 'before' );
+	$after       = bbp_get_template_string_arg( $r, 'after' );
+	$redirect_to = bbp_get_template_string_arg( $r, 'redirect_to' );
+
 	// Validate user
-	$user_id     = bbp_get_user_id( $r['user_id'], true, true );
-	$object_type = sanitize_key( $r['object_type'] );
+	$user_arg    = $r['user_id'];
+	$user_arg    = is_numeric( $user_arg ) ? $user_arg : false;
+	$user_id     = bbp_get_user_id( $user_arg, true, true );
+	$object_type = sanitize_key( $object_type );
 
 	// Back-compat for deprecated arguments
 	if ( ! empty( $r['topic_id'] ) ) {
-		$object_id = absint( $r['topic_id'] );
+		$object_arg = $r['topic_id'];
 	} elseif ( ! empty( $r['forum_id'] ) ) {
-		$object_id = absint( $r['forum_id'] );
+		$object_arg = $r['forum_id'];
 	} else {
-		$object_id = absint( $r['object_id'] );
+		$object_arg = $r['object_id'];
 	}
+	$object_id = is_numeric( $object_arg ) ? absint( $object_arg ) : 0;
 
 	// Validate the object before checking its subscription state
 	if ( empty( $user_id ) || empty( $object_id ) || ! bbp_current_user_can_toggle_engagement( $object_id, $object_type, 'subscription', 'remove', $user_id ) ) {
@@ -2350,14 +2380,14 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 	}
 
 	if ( ! empty( $is_subscribed ) ) {
-		$text   = $r['unsubscribe'];
+		$text   = $unsubscribe;
 		$q_args = array(
 			'action'      => 'bbp_unsubscribe',
 			'object_id'   => $object_id,
 			'object_type' => $object_type
 		);
 	} else {
-		$text   = $r['subscribe'];
+		$text   = $subscribe;
 		$q_args = array(
 			'action'      => 'bbp_subscribe',
 			'object_id'   => $object_id,
@@ -2366,8 +2396,8 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 	}
 
 	// Custom redirect
-	if ( ! empty( $r['redirect_to'] ) ) {
-		$q_args['redirect_to'] = urlencode( $r['redirect_to'] );
+	if ( ! empty( $redirect_to ) ) {
+		$q_args['redirect_to'] = urlencode( $redirect_to );
 	}
 
 	// Posts keep the original nonce action for third-party theme package handlers.
@@ -2379,7 +2409,7 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 		: 'subscribe-' . $object_type . '-' . $object_id;
 	$url          = esc_url( wp_nonce_url( add_query_arg( $q_args ), $nonce_action ) );
 	$sub          = $is_subscribed ? ' class="is-subscribed"' : '';
-	$html         = sprintf( '%s<span id="%s"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $element_id, $sub, $url, $object_id, $object_type, wp_create_nonce( $nonce_action ), $text, $r['after'] );
+	$html         = sprintf( '%s<span id="%s"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $before, $element_id, $sub, $url, $object_id, $object_type, wp_create_nonce( $nonce_action ), $text, $after );
 
 	// Initial output is wrapped in a span, ajax output is hooked to this
 	if ( ! empty( $wrap ) && ( bbp_get_current_user_id() === $user_id ) ) {
@@ -3451,18 +3481,32 @@ function bbp_get_author_link( $args = array() ) {
 		'get_author_link'
 	);
 
+	$post_arg = $r['post_id'];
+	if ( $post_arg instanceof WP_Post ) {
+		$post_id = $post_arg->ID;
+	} elseif ( is_numeric( $post_arg ) ) {
+		$post_id = (int) $post_arg;
+	} else {
+		$post_id = 0;
+	}
+
+	$explicit_user_id = is_numeric( $r['user_id'] ) ? (int) $r['user_id'] : 0;
+	$title_arg        = bbp_get_template_string_arg( $r, 'link_title' );
+	$sep              = bbp_get_template_string_arg( $r, 'sep' );
+	$size             = is_numeric( $r['size'] ) ? (int) $r['size'] : 80;
+
 	// An explicitly empty post ID must not fall back to the current loop post
-	if ( ( is_numeric( $args ) || ( is_array( $args ) && array_key_exists( 'post_id', $args ) ) ) && empty( $r['post_id'] ) ) {
+	if ( ( is_numeric( $args ) || ( is_array( $args ) && array_key_exists( 'post_id', $args ) ) ) && empty( $post_id ) ) {
 		/** This filter is documented in src/includes/users/template.php. */
 		return apply_filters( 'bbp_get_author_link', '-', $r, $args );
 	}
 
 	// Confirmed topic
-	if ( bbp_is_topic( $r['post_id'] ) ) {
+	if ( bbp_is_topic( $post_id ) ) {
 		return bbp_get_topic_author_link( $r );
 
 	// Confirmed reply
-	} elseif ( bbp_is_reply( $r['post_id'] ) ) {
+	} elseif ( bbp_is_reply( $post_id ) ) {
 		return bbp_get_reply_author_link( $r );
 	}
 
@@ -3470,20 +3514,20 @@ function bbp_get_author_link( $args = array() ) {
 	$author_link = '';
 
 	// Neither a reply nor a topic, so could be a revision or explicit user
-	if ( ! empty( $r['post_id'] ) || ! empty( $r['user_id'] ) ) {
+	if ( ! empty( $post_id ) || ! empty( $explicit_user_id ) ) {
 
 		// Get some useful author information
-		if ( ! empty( $r['user_id'] ) ) {
-			$user_id = (int) $r['user_id'];
+		if ( ! empty( $explicit_user_id ) ) {
+			$user_id = $explicit_user_id;
 		} else {
-			$post_author = get_post_field( 'post_author', $r['post_id'] );
+			$post_author = get_post_field( 'post_author', $post_id );
 			$user_id     = (int) $post_author;
 		}
 		$author_url = bbp_validate_url( bbp_get_user_profile_url( $user_id ) );
-		$anonymous  = empty( $r['user_id'] ) && ! empty( $r['post_id'] ) && bbp_is_reply_anonymous( $r['post_id'] );
+		$anonymous  = empty( $explicit_user_id ) && ! empty( $post_id ) && bbp_is_reply_anonymous( $post_id );
 
 		// Generate title with the display name of the author
-		if ( empty( $r['link_title'] ) ) {
+		if ( empty( $title_arg ) ) {
 			$author = get_the_author_meta( 'display_name', $user_id );
 			$title  = empty( $anonymous )
 				/* translators: %s: Author's display name */
@@ -3492,17 +3536,18 @@ function bbp_get_author_link( $args = array() ) {
 				: esc_attr__( "Visit %s's website", 'bbpress' );
 
 			$r['link_title'] = sprintf( $title, $author );
+			$title_arg       = $r['link_title'];
 		}
 
 		// Setup title and author_links array
 		$author_links = array();
-		$link_title   = ! empty( $r['link_title'] )
-			? ' title="' . esc_attr( $r['link_title'] ) . '"'
+		$link_title   = ! empty( $title_arg )
+			? ' title="' . esc_attr( $title_arg ) . '"'
 			: '';
 
 		// Get avatar (unescaped, because HTML)
 		if ( ( 'avatar' === $r['type'] ) || ( 'both' === $r['type'] ) ) {
-			$author_links['avatar'] = get_avatar( $user_id, $r['size'] );
+			$author_links['avatar'] = get_avatar( $user_id, $size );
 		}
 
 		// Get display name (escaped, because never HTML)
@@ -3538,7 +3583,7 @@ function bbp_get_author_link( $args = array() ) {
 		$sections    = apply_filters( 'bbp_get_author_links', $author_links, $r, $args );
 
 		// Assemble sections into author link
-		$author_link = implode( $r['sep'], $sections );
+		$author_link = implode( $sep, $sections );
 
 		// Only wrap in link if profile exists
 		if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) && ( false !== $author_url ) ) {
@@ -4026,6 +4071,11 @@ function bbp_get_moderator_list( $object_id = 0, $args = array() ) {
 		'get_moderator_list'
 	);
 
+	$before = bbp_get_template_string_arg( $r, 'before' );
+	$after  = bbp_get_template_string_arg( $r, 'after' );
+	$sep    = bbp_get_template_string_arg( $r, 'sep' );
+	$none   = bbp_get_template_string_arg( $r, 'none' );
+
 	// Get forum moderators
 	$user_ids = bbp_get_moderator_ids( $object_id );
 	if ( ! empty( $user_ids ) ) {
@@ -4041,11 +4091,11 @@ function bbp_get_moderator_list( $object_id = 0, $args = array() ) {
 			}
 		}
 
-		$retval = $r['before'] . implode( $r['sep'], $users ) . $r['after'];
+		$retval = $before . implode( $sep, $users ) . $after;
 
 	// No forum moderators
 	} else {
-		$retval = $r['none'];
+		$retval = $none;
 	}
 
 	/**

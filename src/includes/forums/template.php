@@ -1020,13 +1020,29 @@ function bbp_list_forums( $args = array() ) {
 		$r['sep'] = $r['separator'];
 	}
 
+	// Use renderable text for the filtered list wrappers
+	$before       = bbp_get_template_string_arg( $r, 'before' );
+	$after        = bbp_get_template_string_arg( $r, 'after' );
+	$link_before  = bbp_get_template_string_arg( $r, 'link_before' );
+	$link_after   = bbp_get_template_string_arg( $r, 'link_after' );
+	$sep          = bbp_get_template_string_arg( $r, 'sep' );
+	$count_before = bbp_get_template_string_arg( $r, 'count_before' );
+	$count_after  = bbp_get_template_string_arg( $r, 'count_after' );
+	$count_sep    = bbp_get_template_string_arg( $r, 'count_sep' );
+
+	// A query array is also accepted as the subforum source
+	$forum_arg = $r['forum_id'];
+	if ( ! is_array( $forum_arg ) ) {
+		$forum_arg = is_numeric( $forum_arg ) ? (int) $forum_arg : 0;
+	}
+
 	// Default values
 	$links  = array();
 	$output = '';
 
 	// Query for subforums
-	$sub_forums = ! empty( $r['forum_id'] )
-		? bbp_forum_get_subforums( $r['forum_id'] )
+	$sub_forums = ! empty( $forum_arg )
+		? bbp_forum_get_subforums( $forum_arg )
 		: array();
 
 	// Loop through forums and create a list
@@ -1050,7 +1066,7 @@ function bbp_list_forums( $args = array() ) {
 
 			// Counts to show
 			$counts = ! empty( $count )
-				? $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after']
+				? $count_before . implode( $count_sep, $count ) . $count_after
 				: '';
 
 			// Subforum classes
@@ -1070,12 +1086,12 @@ function bbp_list_forums( $args = array() ) {
 			$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'sanitize_html_class', $subforum_classes ) ) . '"';
 
 			// Build this sub forums link
-			$links[] = $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $r['link_after'];
+			$links[] = $link_before . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $link_after;
 		}
 
 		// Maybe wrap output
 		$output = ! empty( $links )
-			? $r['before'] . implode( $r['sep'], $links ) . $r['after']
+			? $before . implode( $sep, $links ) . $after
 			: '';
 	}
 
@@ -3310,17 +3326,24 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 		'forum_type_select'
 	);
 
+	// Use valid field names and IDs from the parsed arguments
+	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$forum_arg    = is_numeric( $r['forum_id'] ) ? $r['forum_id'] : 0;
+	$forum_id     = (int) $forum_arg;
+
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {
 
 		// Post value is passed
-		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
+		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $select_id ] ) ) {
+			$r['selected'] = sanitize_key( $_POST[ $select_id ] );
 
 		// Edit topic
 		} elseif ( bbp_is_forum_edit() ) {
-			$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
-			$r['selected'] = bbp_get_forum_type( $r['forum_id'] );
+			$forum_id = bbp_get_forum_id( $forum_arg );
+			$r['forum_id'] = $forum_id;
+			$r['selected'] = bbp_get_forum_type( $forum_id );
 
 		// New forum
 		} else {
@@ -3331,9 +3354,9 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 	// Start an output buffer, we'll finish it after the select loop
 	ob_start(); ?>
 
-	<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+	<select name="<?php echo esc_attr( $select_id ); ?>" id="<?php echo esc_attr( $select_id ); ?>_select" class="<?php echo esc_attr( $select_class ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
-		<?php foreach ( bbp_get_forum_types( $r['forum_id'] ) as $key => $label ) : ?>
+		<?php foreach ( bbp_get_forum_types( $forum_id ) as $key => $label ) : ?>
 
 			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
@@ -3407,17 +3430,24 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 		'forum_status_select'
 	);
 
+	// Use valid field names and IDs from the parsed arguments
+	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$forum_arg    = is_numeric( $r['forum_id'] ) ? $r['forum_id'] : 0;
+	$forum_id     = (int) $forum_arg;
+
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {
 
 		// Post value is passed
-		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
+		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $select_id ] ) ) {
+			$r['selected'] = sanitize_key( $_POST[ $select_id ] );
 
 		// Edit topic
 		} elseif ( bbp_is_forum_edit() ) {
-			$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
-			$r['selected'] = bbp_get_forum_status( $r['forum_id'] );
+			$forum_id = bbp_get_forum_id( $forum_arg );
+			$r['forum_id'] = $forum_id;
+			$r['selected'] = bbp_get_forum_status( $forum_id );
 
 		// New topic
 		} else {
@@ -3428,9 +3458,9 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 	// Start an output buffer, we'll finish it after the select loop
 	ob_start(); ?>
 
-	<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+	<select name="<?php echo esc_attr( $select_id ); ?>" id="<?php echo esc_attr( $select_id ); ?>_select" class="<?php echo esc_attr( $select_class ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
-		<?php foreach ( bbp_get_forum_statuses( $r['forum_id'] ) as $key => $label ) : ?>
+		<?php foreach ( bbp_get_forum_statuses( $forum_id ) as $key => $label ) : ?>
 
 			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
@@ -3504,17 +3534,24 @@ function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 		'forum_type_select'
 	);
 
+	// Use valid field names and IDs from the parsed arguments
+	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$forum_arg    = is_numeric( $r['forum_id'] ) ? $r['forum_id'] : 0;
+	$forum_id     = (int) $forum_arg;
+
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {
 
 		// Post value is passed
-		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
+		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $select_id ] ) ) {
+			$r['selected'] = sanitize_key( $_POST[ $select_id ] );
 
 		// Edit topic
 		} elseif ( bbp_is_forum_edit() ) {
-			$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
-			$r['selected'] = bbp_get_forum_visibility( $r['forum_id'] );
+			$forum_id = bbp_get_forum_id( $forum_arg );
+			$r['forum_id'] = $forum_id;
+			$r['selected'] = bbp_get_forum_visibility( $forum_id );
 
 		// New topic
 		} else {
@@ -3525,9 +3562,9 @@ function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 	// Start an output buffer, we'll finish it after the select loop
 	ob_start(); ?>
 
-	<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+	<select name="<?php echo esc_attr( $select_id ); ?>" id="<?php echo esc_attr( $select_id ); ?>_select" class="<?php echo esc_attr( $select_class ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
-		<?php foreach ( bbp_get_forum_visibilities( $r['forum_id'] ) as $key => $label ) : ?>
+		<?php foreach ( bbp_get_forum_visibilities( $forum_id ) as $key => $label ) : ?>
 
 			<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
