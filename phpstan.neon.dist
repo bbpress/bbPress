@@ -21,6 +21,7 @@ parameters:
     stubFiles:
         - tests/phpstan/wp-metadata.stub
         - tests/phpstan/wp-escaping.stub
+        - tests/phpstan/wp-sanitization.stub
         - tests/phpstan/wp-html-processor.stub
         - tests/phpstan/wp-post.stub
         - tests/phpstan/wp-query.stub

@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * WordPress returns an empty key for non-scalar input before applying its filter.
+ *
+ * @param mixed $key Value to sanitize.
+ * @return string Sanitized key.
+ */
+function sanitize_key( $key ) {}
+
+/**
+ * WordPress returns an empty string for array and object input before applying
+ * its filter, and casts other values to strings.
+ *
+ * @param mixed $str Value to sanitize.
+ * @return string Sanitized text.
+ */
+function sanitize_text_field( $str ) {}
