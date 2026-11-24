@@ -21,7 +21,13 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_admin_get_settings_sections() {
 
-	// Filter & return
+	/**
+	 * Filters the Forums settings sections.
+	 *
+	 * @since 2.1.0 bbPress (r3998)
+	 *
+	 * @param array<string, array<string, mixed>> $value Settings sections keyed by ID.
+	 */
 	return (array) apply_filters(
 		'bbp_admin_get_settings_sections',
 		array(
@@ -119,7 +125,13 @@ function bbp_admin_get_settings_sections() {
  */
 function bbp_admin_get_settings_fields() {
 
-	// Filter & return
+	/**
+	 * Filters all of the settings fields.
+	 *
+	 * @since 2.1.0 bbPress (r4002)
+	 *
+	 * @param array<string, array<string, array<string, mixed>>> $value Settings fields grouped by section.
+	 */
 	return (array) apply_filters(
 		'bbp_admin_get_settings_fields',
 		array(
@@ -955,7 +967,14 @@ function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 		$retval = $fields[ $section_id ];
 	}
 
-	// Filter & return
+	/**
+	 * Filters the settings fields for a section.
+	 *
+	 * @since 2.1.0 bbPress (r4002)
+	 *
+	 * @param array<string, array<string, mixed>>|false $retval Section fields, or false if the section ID is empty.
+	 * @param string $section_id ID of the section to get fields for.
+	 */
 	return (array) apply_filters( 'bbp_admin_get_settings_fields_for_section', $retval, $section_id );
 }
 
@@ -1494,6 +1513,14 @@ function bbp_admin_setting_callback_search() {
 function bbp_admin_setting_callback_thread_replies_depth() {
 
 	// Set maximum depth for dropdown
+
+	/**
+	 * Filters the maximum depth for threaded replies.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param int $value The maximum depth for threaded replies.
+	 */
 	$max_depth     = (int) apply_filters( 'bbp_thread_replies_depth_max', 10 );
 	$current_depth = bbp_thread_replies_depth();
 
@@ -2853,7 +2880,16 @@ function bbp_get_form_option( $option, $default = '', $is_slug = false ) {
 		$value = $default;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the settings API option.
+	 *
+	 * @since 2.0.0 bbPress (r3203)
+	 *
+	 * @param string $value Escaped option value or its default.
+	 * @param string $option Option name to retrieve.
+	 * @param string $default Fallback value for an unset or empty option.
+	 * @param bool $is_slug Whether to apply editable slug formatting.
+	 */
 	return apply_filters( 'bbp_get_form_option', $value, $option, $default, $is_slug );
 }
 
@@ -2877,6 +2913,14 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 	if ( empty( $the_core_slugs ) ) {
 
 		// Slugs to check
+
+		/**
+		 * Filters the slugs checked for conflicts.
+		 *
+		 * @since 2.0.0 bbPress (r3306)
+		 *
+		 * @param array $slugs The slugs checked for conflicts.
+		 */
 		$core_slugs = apply_filters(
 			'bbp_slug_conflict_check',
 			array(
@@ -3019,6 +3063,14 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 		}
 
 		// Set the static
+
+		/**
+		 * Filters the slugs that conflict with bbPress rewrite rules.
+		 *
+		 * @since 2.0.0 bbPress (r3306)
+		 *
+		 * @param array $core_slugs The slugs that conflict with bbPress rewrite rules.
+		 */
 		$the_core_slugs = apply_filters( 'bbp_slug_conflict', $core_slugs );
 	}
 

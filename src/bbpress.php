@@ -322,23 +322,103 @@ final class bbPress {
 
 		// File & base
 		$this->file         = __FILE__;
+
+		/**
+		 * Filters the bbPress plugin basename.
+		 *
+		 * @since 2.5.13 bbPress (r5316)
+		 *
+		 * @param string $value The bbPress plugin basename.
+		 */
 		$this->basename     = apply_filters( 'bbp_plugin_basename', str_replace( array( 'build/', 'src/' ), '', plugin_basename( $this->file ) ) );
+
+		/**
+		 * Filters the relative bbPress plugin base path.
+		 *
+		 * @since 2.6.0 bbPress (r6508)
+		 *
+		 * @param string $value The relative bbPress plugin base path.
+		 */
 		$this->basepath     = apply_filters( 'bbp_plugin_basepath', trailingslashit( dirname( $this->basename ) ) );
 
 		// Path and URL
+
+		/**
+		 * Filters the bbPress plugin directory path.
+		 *
+		 * @since 2.1.0 bbPress (r3905)
+		 *
+		 * @param string $value The bbPress plugin directory path.
+		 */
 		$this->plugin_dir   = apply_filters( 'bbp_plugin_dir_path', plugin_dir_path( $this->file ) );
+
+		/**
+		 * Filters the bbPress plugin directory URL.
+		 *
+		 * @since 2.1.0 bbPress (r3905)
+		 *
+		 * @param string $value The bbPress plugin directory URL.
+		 */
 		$this->plugin_url   = apply_filters( 'bbp_plugin_dir_url',  plugin_dir_url ( $this->file ) );
 
 		// Includes
+
+		/**
+		 * Filters the path to the bbPress includes directory.
+		 *
+		 * @since 2.2.0 bbPress (r4248)
+		 *
+		 * @param string $value The path to the bbPress includes directory.
+		 */
 		$this->includes_dir = apply_filters( 'bbp_includes_dir', trailingslashit( $this->plugin_dir . 'includes'  ) );
+
+		/**
+		 * Filters the URL of the bbPress includes directory.
+		 *
+		 * @since 2.2.0 bbPress (r4248)
+		 *
+		 * @param string $value The URL of the bbPress includes directory.
+		 */
 		$this->includes_url = apply_filters( 'bbp_includes_url', trailingslashit( $this->plugin_url . 'includes'  ) );
 
 		// Languages
+
+		/**
+		 * Filters the relative path to bbPress languages.
+		 *
+		 * @since 2.6.0 bbPress (r6507)
+		 *
+		 * @param string $value The relative path to bbPress languages.
+		 */
 		$this->lang_base    = apply_filters( 'bbp_lang_base',    trailingslashit( $this->basepath   . 'languages' ) );
+
+		/**
+		 * Filters the path to the bbPress languages directory.
+		 *
+		 * @since 2.1.0 bbPress (r3905)
+		 *
+		 * @param string $value The path to the bbPress languages directory.
+		 */
 		$this->lang_dir     = apply_filters( 'bbp_lang_dir',     trailingslashit( $this->plugin_dir . 'languages' ) );
 
 		// Templates
+
+		/**
+		 * Filters the path to the bbPress templates directory.
+		 *
+		 * @since 2.1.0 bbPress (r3905)
+		 *
+		 * @param string $value The path to the bbPress templates directory.
+		 */
 		$this->themes_dir   = apply_filters( 'bbp_themes_dir',   trailingslashit( $this->plugin_dir . 'templates' ) );
+
+		/**
+		 * Filters the URL of the bbPress templates directory.
+		 *
+		 * @since 2.1.0 bbPress (r3905)
+		 *
+		 * @param string $value The URL of the bbPress templates directory.
+		 */
 		$this->themes_url   = apply_filters( 'bbp_themes_url',   trailingslashit( $this->plugin_url . 'templates' ) );
 	}
 
@@ -354,33 +434,225 @@ final class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
+
+		/**
+		 * Filters the forum post type identifier.
+		 *
+		 * @since 2.0.0 bbPress (r2464)
+		 *
+		 * @param string $post_type The forum post type identifier.
+		 */
 		$this->forum_post_type   = apply_filters( 'bbp_forum_post_type',  'forum'     );
+
+		/**
+		 * Filters the topic post type identifier.
+		 *
+		 * @since 2.0.0 bbPress (r2464)
+		 *
+		 * @param string $post_type The topic post type identifier.
+		 */
 		$this->topic_post_type   = apply_filters( 'bbp_topic_post_type',  'topic'     );
+
+		/**
+		 * Filters the topic tag tax query variable name.
+		 *
+		 * @since 2.0.0 bbPress (r3348)
+		 *
+		 * @param string $query_var The topic tag tax query variable name.
+		 */
 		$this->topic_tag_tax_id  = apply_filters( 'bbp_topic_tag_tax_id', 'topic-tag' );
+
+		/**
+		 * Filters the reply post type identifier.
+		 *
+		 * @since 2.0.0 bbPress (r2557)
+		 *
+		 * @param string $post_type The reply post type identifier.
+		 */
 		$this->reply_post_type   = apply_filters( 'bbp_reply_post_type',  'reply'     );
 
 		// Status identifiers
+
+		/**
+		 * Filters the spam post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r2727)
+		 *
+		 * @param string $status The spam post status identifier.
+		 */
 		$this->spam_status_id    = apply_filters( 'bbp_spam_post_status',    'spam'    );
+
+		/**
+		 * Filters the closed post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r2727)
+		 *
+		 * @param string $status The closed post status identifier.
+		 */
 		$this->closed_status_id  = apply_filters( 'bbp_closed_post_status',  'closed'  );
+
+		/**
+		 * Filters the orphan post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r3018)
+		 *
+		 * @param string $status The orphan post status identifier.
+		 */
 		$this->orphan_status_id  = apply_filters( 'bbp_orphan_post_status',  'orphan'  );
+
+		/**
+		 * Filters the public post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r3505)
+		 *
+		 * @param string $status The public post status identifier.
+		 */
 		$this->public_status_id  = apply_filters( 'bbp_public_post_status',  'publish' );
+
+		/**
+		 * Filters the pending post status identifier.
+		 *
+		 * @since 2.1.0 bbPress (r3581)
+		 *
+		 * @param string $status The pending post status identifier.
+		 */
 		$this->pending_status_id = apply_filters( 'bbp_pending_post_status', 'pending' );
+
+		/**
+		 * Filters the private post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r3505)
+		 *
+		 * @param string $status The private post status identifier.
+		 */
 		$this->private_status_id = apply_filters( 'bbp_private_post_status', 'private' );
+
+		/**
+		 * Filters the hidden post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r3082)
+		 *
+		 * @param string $status The hidden post status identifier.
+		 */
 		$this->hidden_status_id  = apply_filters( 'bbp_hidden_post_status',  'hidden'  );
+
+		/**
+		 * Filters the trash post status identifier.
+		 *
+		 * @since 2.0.0 bbPress (r3505)
+		 *
+		 * @param string $status The trash post status identifier.
+		 */
 		$this->trash_status_id   = apply_filters( 'bbp_trash_post_status',   'trash'   );
 
 		// Other identifiers
+
+		/**
+		 * Filters the user query variable name.
+		 *
+		 * @since 2.0.0 bbPress (r2688)
+		 *
+		 * @param string $query_var The user query variable name.
+		 */
 		$this->user_id           = apply_filters( 'bbp_user_id',        'bbp_user'        );
+
+		/**
+		 * Filters the tops query variable name.
+		 *
+		 * @since 2.2.0 bbPress (r4321)
+		 *
+		 * @param string $query_var The tops query variable name.
+		 */
 		$this->tops_id           = apply_filters( 'bbp_tops_id',        'bbp_tops'        );
+
+		/**
+		 * Filters the reps query variable name.
+		 *
+		 * @since 2.2.0 bbPress (r4321)
+		 *
+		 * @param string $query_var The reps query variable name.
+		 */
 		$this->reps_id           = apply_filters( 'bbp_reps_id',        'bbp_reps'        );
+
+		/**
+		 * Filters the favs query variable name.
+		 *
+		 * @since 2.2.0 bbPress (r4190)
+		 *
+		 * @param string $query_var The favs query variable name.
+		 */
 		$this->favs_id           = apply_filters( 'bbp_favs_id',        'bbp_favs'        );
+
+		/**
+		 * Filters the subs query variable name.
+		 *
+		 * @since 2.2.0 bbPress (r4190)
+		 *
+		 * @param string $query_var The subs query variable name.
+		 */
 		$this->subs_id           = apply_filters( 'bbp_subs_id',        'bbp_subs'        );
+
+		/**
+		 * Filters the view query variable name.
+		 *
+		 * @since 2.0.0 bbPress (r2789)
+		 *
+		 * @param string $query_var The view query variable name.
+		 */
 		$this->view_id           = apply_filters( 'bbp_view_id',        'bbp_view'        );
+
+		/**
+		 * Filters the edit query variable name.
+		 *
+		 * @since 2.0.0 bbPress (r3333)
+		 *
+		 * @param string $query_var The edit query variable name.
+		 */
 		$this->edit_id           = apply_filters( 'bbp_edit_id',        'edit'            );
+
+		/**
+		 * Filters the pagination query variable name.
+		 *
+		 * @since 2.4.0 bbPress (r4930)
+		 *
+		 * @param string $query_var The pagination query variable name.
+		 */
 		$this->paged_id          = apply_filters( 'bbp_paged_id',       'paged'           );
+
+		/**
+		 * Filters the search query variable name.
+		 *
+		 * @since 2.3.0 bbPress (r4579)
+		 *
+		 * @param string $query_var The search query variable name.
+		 */
 		$this->search_id         = apply_filters( 'bbp_search_id',      'bbp_search'      );
+
+		/**
+		 * Filters the engagements query variable name.
+		 *
+		 * @since 2.6.0 bbPress (r6320)
+		 *
+		 * @param string $query_var The engagements query variable name.
+		 */
 		$this->engagements_id    = apply_filters( 'bbp_engagements_id', 'bbp_engagements' );
+
+		/**
+		 * Filters the mentions query variable name.
+		 *
+		 * @since 2.7.0 bbPress (r8264)
+		 *
+		 * @param string $query_var The mentions query variable name.
+		 */
 		$this->mentions_id       = apply_filters( 'bbp_mentions_id',    'bbp_mentions'    );
+
+		/**
+		 * Filters the unsubscribe query variable name.
+		 *
+		 * @since 2.7.0 bbPress (r8349)
+		 *
+		 * @param string $query_var The unsubscribe query variable name.
+		 */
 		$this->unsubscribe_id    = apply_filters( 'bbp_unsubscribe_id', 'bbp_unsubscribe' );
 
 		/** Queries ***********************************************************/
@@ -418,6 +690,13 @@ final class bbPress {
 
 		/** Deprecated ********************************************************/
 
+		/**
+		 * Filters the starting tab index for bbPress forms.
+		 *
+		 * @since 2.0.0 bbPress (r2811)
+		 *
+		 * @param int $tab_index The starting tab index for bbPress forms.
+		 */
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
 	}
 
@@ -662,6 +941,13 @@ final class bbPress {
 		// Register Forum content type
 		register_post_type(
 			bbp_get_forum_post_type(),
+			/**
+			 * Filters the arguments used to register the forum post type.
+			 *
+			 * @since 2.0.0 bbPress (r2464)
+			 *
+			 * @param array $args The arguments used to register the forum post type.
+			 */
 			apply_filters(
 				'bbp_register_forum_post_type',
 				array(
@@ -696,6 +982,13 @@ final class bbPress {
 		// Register Topic content type
 		register_post_type(
 			bbp_get_topic_post_type(),
+			/**
+			 * Filters the arguments used to register the topic post type.
+			 *
+			 * @since 2.0.0 bbPress (r2464)
+			 *
+			 * @param array $args The arguments used to register the topic post type.
+			 */
 			apply_filters(
 				'bbp_register_topic_post_type',
 				array(
@@ -730,6 +1023,13 @@ final class bbPress {
 		// Register reply content type
 		register_post_type(
 			bbp_get_reply_post_type(),
+			/**
+			 * Filters the arguments used to register the reply post type.
+			 *
+			 * @since 2.0.0 bbPress (r2597)
+			 *
+			 * @param array $args The arguments used to register the reply post type.
+			 */
 			apply_filters(
 				'bbp_register_reply_post_type',
 				array(
@@ -776,6 +1076,13 @@ final class bbPress {
 		// Closed
 		register_post_status(
 			bbp_get_closed_status_id(),
+			/**
+			 * Filters the arguments used to register the closed post status.
+			 *
+			 * @since 2.0.0 bbPress (r2727)
+			 *
+			 * @param array $args The arguments used to register the closed post status.
+			 */
 			apply_filters(
 				'bbp_register_closed_post_status',
 				array(
@@ -793,6 +1100,13 @@ final class bbPress {
 		// Spam
 		register_post_status(
 			bbp_get_spam_status_id(),
+			/**
+			 * Filters the arguments used to register the spam post status.
+			 *
+			 * @since 2.0.0 bbPress (r2727)
+			 *
+			 * @param array $args The arguments used to register the spam post status.
+			 */
 			apply_filters(
 				'bbp_register_spam_post_status',
 				array(
@@ -811,6 +1125,13 @@ final class bbPress {
 		// Orphan
 		register_post_status(
 			bbp_get_orphan_status_id(),
+			/**
+			 * Filters the arguments used to register the orphan post status.
+			 *
+			 * @since 2.0.0 bbPress (r3018)
+			 *
+			 * @param array $args The arguments used to register the orphan post status.
+			 */
 			apply_filters(
 				'bbp_register_orphan_post_status',
 				array(
@@ -829,6 +1150,13 @@ final class bbPress {
 		// Hidden
 		register_post_status(
 			bbp_get_hidden_status_id(),
+			/**
+			 * Filters the arguments used to register the hidden post status.
+			 *
+			 * @since 2.0.0 bbPress (r3079)
+			 *
+			 * @param array $args The arguments used to register the hidden post status.
+			 */
 			apply_filters(
 				'bbp_register_hidden_post_status',
 				array(
@@ -881,6 +1209,13 @@ final class bbPress {
 		register_taxonomy(
 			bbp_get_topic_tag_tax_id(),
 			bbp_get_topic_post_type(),
+			/**
+			 * Filters the arguments used to register the topic taxonomy.
+			 *
+			 * @since 2.0.0 bbPress (r2597)
+			 *
+			 * @param array $args The arguments used to register the topic taxonomy.
+			 */
 			apply_filters(
 				'bbp_register_topic_taxonomy',
 				array(
@@ -940,6 +1275,13 @@ final class bbPress {
 		bbp_register_view(
 			'popular',
 			esc_html__( 'Most popular topics', 'bbpress' ),
+			/**
+			 * Filters the query arguments for the popular view.
+			 *
+			 * @since 2.3.0 bbPress (r4803)
+			 *
+			 * @param array $args The query arguments for the popular view.
+			 */
 			apply_filters(
 				'bbp_register_view_popular',
 				array(
@@ -956,6 +1298,13 @@ final class bbPress {
 		bbp_register_view(
 			'no-replies',
 			esc_html__( 'Topics with no replies', 'bbpress' ),
+			/**
+			 * Filters the query arguments for the no-replies view.
+			 *
+			 * @since 2.0.0 bbPress (r2789)
+			 *
+			 * @param array $args The query arguments for the no-replies view.
+			 */
 			apply_filters(
 				'bbp_register_view_no_replies',
 				array(

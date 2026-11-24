@@ -338,7 +338,15 @@ function bbp_is_password_protected( $object_id = 0, $object_type = 'post' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether a bbPress object or any of its parents is password protected.
+	 *
+	 * @since 2.6.16 bbPress (r7501)
+	 *
+	 * @param bool $retval True if the object is password protected, otherwise false.
+	 * @param int|WP_Post|array<int|WP_Post> $object_id One or more objects. Defaults to the current post.
+	 * @param string $object_type Object type. Defaults to 'post'.
+	 */
 	return (bool) apply_filters( 'bbp_is_password_protected', $retval, $object_id, $object_type );
 }
 
@@ -423,7 +431,13 @@ function bbp_get_redirect_to() {
 		? $_REQUEST['redirect_to']
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the unescaped redirect_to request value.
+	 *
+	 * @since 2.3.0 bbPress (r4655)
+	 *
+	 * @param string $retval The URL to redirect to, if set.
+	 */
 	return apply_filters( 'bbp_get_redirect_to', $retval );
 }
 
@@ -443,7 +457,14 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
 		? add_query_arg( array( 'view' => 'all' ), $original_link )
 		: $original_link;
 
-	// Filter & return
+	/**
+	 * Filters a URL after adding the view-all parameter.
+	 *
+	 * @since 2.0.0 bbPress (r2957)
+	 *
+	 * @param string $link The link with 'view=all' appended if necessary.
+	 * @param string $original_link Original Link to be modified.
+	 */
 	return apply_filters( 'bbp_add_view_all', $link, $original_link );
 }
 
@@ -460,7 +481,14 @@ function bbp_remove_view_all( $original_link = '' ) {
 	// Remove `view' argument
 	$link = remove_query_arg( 'view', $original_link );
 
-	// Filter & return
+	/**
+	 * Filters a URL after removing the view-all parameter.
+	 *
+	 * @since 2.6.0 bbPress (r5691)
+	 *
+	 * @param string $link The link with 'view=all' appended if necessary.
+	 * @param string $original_link Original Link to be modified.
+	 */
 	return apply_filters( 'bbp_remove_view_all', $link, $original_link );
 }
 
@@ -475,7 +503,14 @@ function bbp_remove_view_all( $original_link = '' ) {
 function bbp_get_view_all( $cap = 'moderate' ) {
 	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && current_user_can( $cap ) ) );
 
-	// Filter & return
+	/**
+	 * Filters whether current user can and is viewing all.
+	 *
+	 * @since 2.0.0 bbPress (r3325)
+	 *
+	 * @param bool $retval Whether current user can and is viewing all.
+	 * @param string $cap Capability used to ensure user can view all.
+	 */
 	return (bool) apply_filters( 'bbp_get_view_all', (bool) $retval, $cap );
 }
 
@@ -500,6 +535,7 @@ function bbp_get_view_all_for_object( $cap, $object_id ) {
 
 	$retval = ! empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && ( current_user_can( $cap ) || current_user_can( 'moderate', $object_id ) );
 
+	/** This filter is documented in src/includes/common/functions.php. */
 	return (bool) apply_filters( 'bbp_get_view_all', (bool) $retval, $cap );
 }
 
@@ -563,7 +599,16 @@ function bbp_filter_use_block_editor_for_post_type( $using = false, $post_type =
 	$is_post_type = in_array( $post_type, $bbp_post_types, true );
 	$retval       = $is_post_type ? false : (bool) $using;
 
-	// Filter & return
+	/**
+	 * Filters whether to use the block editor for a bbPress post type.
+	 *
+	 * @since 2.7.0 bbPress (r7389)
+	 *
+	 * @param bool $retval Whether to use the block editor for a bbPress post type.
+	 * @param bool $is_post_type Whether the request is for a post type.
+	 * @param bool $using Default false. If using.
+	 * @param string $post_type Default empty string. The post type to check.
+	 */
 	return (bool) apply_filters( 'bbp_filter_use_block_editor_for_post_type', $retval, $is_post_type, $using, $post_type );
 }
 
@@ -1013,7 +1058,15 @@ function bbp_past_edit_lock( $datetime = '', $utc = true ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the edit lock has expired.
+	 *
+	 * @since 2.0.0 bbPress (r3134)
+	 *
+	 * @param bool $retval True by default, if date is past, or editing is disabled.
+	 * @param string $datetime Gets run through strtotime().
+	 * @param boolean $utc Whether the timestamp is in UTC. Defaults to true.
+	 */
 	return (bool) apply_filters( 'bbp_past_edit_lock', $retval, $datetime, $utc );
 }
 
@@ -1037,7 +1090,14 @@ function bbp_get_trash_days( $context = 'forum' ) {
 		? (int) EMPTY_TRASH_DAYS
 		: 30;
 
-	// Filter & return
+	/**
+	 * Filters the number of days something should remain trashed for before it is cleaned.
+	 *
+	 * @since 2.6.0 bbPress (r6432)
+	 *
+	 * @param int $days Number of days items remain in trash.
+	 * @param string $context Provide context for additional filtering.
+	 */
 	return (int) apply_filters( 'bbp_get_trash_days', $days, $context );
 }
 
@@ -1336,7 +1396,15 @@ function bbp_get_statistics( $args = array() ) {
 	$statistics['hidden_topic_title'] = $hidden_topic_title;
 	$statistics['hidden_reply_title'] = $hidden_reply_title;
 
-	// Filter & return
+	/**
+	 * Filters the forum statistics.
+	 *
+	 * @since 2.0.0 bbPress (r2769)
+	 *
+	 * @param array<string, mixed> $statistics Array of statistics.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Requested statistics.
+	 */
 	return (array) apply_filters( 'bbp_get_statistics', $statistics, $r, $args );
 }
 
@@ -1453,21 +1521,52 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
 	$r = bbp_sanitize_anonymous_post_author( $r );
 
 	// Filter name
+
+	/**
+	 * Filters an anonymous author's name before saving a post.
+	 *
+	 * @since 2.0.0 bbPress (r2734)
+	 *
+	 * @param string $bbp_anonymous_name An anonymous author's name before saving a post.
+	 */
 	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name', $r['bbp_anonymous_name'] );
 	if ( empty( $r['bbp_anonymous_name'] ) ) {
 		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>Error</strong>: Invalid author name.', 'bbpress' ) );
 	}
 
 	// Filter email address
+
+	/**
+	 * Filters an anonymous author's email before saving a post.
+	 *
+	 * @since 2.0.0 bbPress (r2734)
+	 *
+	 * @param string $bbp_anonymous_email An anonymous author's email before saving a post.
+	 */
 	$r['bbp_anonymous_email'] = apply_filters( 'bbp_pre_anonymous_post_author_email', $r['bbp_anonymous_email'] );
 	if ( empty( $r['bbp_anonymous_email'] ) ) {
 		bbp_add_error( 'bbp_anonymous_email', __( '<strong>Error</strong>: Invalid email address.', 'bbpress' ) );
 	}
 
 	// Website is optional (can be empty)
+
+	/**
+	 * Filters an anonymous author's website before saving a post.
+	 *
+	 * @since 2.0.0 bbPress (r2734)
+	 *
+	 * @param string $bbp_anonymous_website An anonymous author's website before saving a post.
+	 */
 	$r['bbp_anonymous_website'] = apply_filters( 'bbp_pre_anonymous_post_author_website', $r['bbp_anonymous_website'] );
 
-	// Filter & return
+	/**
+	 * Filters the filtered anonymous author data.
+	 *
+	 * @since 2.0.0 bbPress (r2734)
+	 *
+	 * @param array<string, mixed> $r Filtered anonymous author data.
+	 * @param array<string, mixed> $args If no args are there, then $_POST values are.
+	 */
 	return (array) apply_filters( 'bbp_filter_anonymous_post_data', $r, $args );
 }
 
@@ -1506,7 +1605,14 @@ function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the sanitized anonymous author data.
+	 *
+	 * @since 2.6.0 bbPress (r6400)
+	 *
+	 * @param array<string, mixed> $r Sanitized anonymous author data.
+	 * @param array<string, mixed> $anonymous_data Anonymous author data to sanitize.
+	 */
 	return (array) apply_filters( 'bbp_sanitize_anonymous_post_author', $r, $anonymous_data );
 }
 
@@ -1641,6 +1747,15 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 		: '';
 	$query .= $where;
 	$query .= ' LIMIT 1';
+
+	/**
+	 * Filters the query used to find duplicate posts.
+	 *
+	 * @since 2.0.0 bbPress (r2763)
+	 *
+	 * @param string $query The query used to find duplicate posts.
+	 * @param array $r Parsed arguments.
+	 */
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
 	// Dupe found
@@ -1671,6 +1786,16 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 
 	// Allow for flood check to be skipped
+
+	/**
+	 * Filters whether to skip the posting flood check.
+	 *
+	 * @since 2.6.0 bbPress (r6442)
+	 *
+	 * @param bool $value Whether to skip the posting flood check.
+	 * @param array<string, mixed> $anonymous_data Anonymous data.
+	 * @param int $author_id Author id.
+	 */
 	if ( apply_filters( 'bbp_bypass_check_for_flood', false, $anonymous_data, $author_id ) ) {
 		return true;
 	}
@@ -1751,6 +1876,21 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	}
 
 	// Allow for moderation check to be skipped
+
+	/**
+	 * Filters whether to skip a moderation check.
+	 *
+	 * The hook name uses the moderation key in place of `{$hook_name}`.
+	 *
+	 * @since 2.6.0 bbPress (r6855)
+	 *
+	 * @param bool $value Whether to skip a moderation check.
+	 * @param array<string, mixed> $anonymous_data Anonymous data.
+	 * @param int $author_id Author id.
+	 * @param string $title Title.
+	 * @param string $content Content.
+	 * @param bool|string $strict Moderation check mode or custom key.
+	 */
 	if ( apply_filters( "bbp_bypass_check_for_{$hook_name}", false, $anonymous_data, $author_id, $title, $content, $strict ) ) {
 		return true;
 	}
@@ -1811,6 +1951,8 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 
 	/**
 	 * Filters the bbPress moderation keys.
+	 *
+	 * The hook name uses the moderation key in place of `{$hook_name}`.
 	 *
 	 * @since 2.6.0 bbPress (r6855)
 	 *
@@ -2181,6 +2323,14 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 	$no_reply = bbp_get_do_not_reply_address();
 	$headers  = array(
 		bbp_get_email_header(),
+
+		/**
+		 * Filters the sender email address of moderation notifications.
+		 *
+		 * @since 2.7.0 bbPress (r8089)
+		 *
+		 * @param string $no_reply The sender email address of moderation notifications.
+		 */
 		'From: ' . get_bloginfo( 'name' ) . ' <' . apply_filters( 'bbp_moderation_from_email', $no_reply ) . '>'
 	);
 
@@ -2198,6 +2348,16 @@ function bbp_notify_moderation_recipients( $post_id = 0 ) {
 	 * @param int   $forum_id Forum ID.
 	 */
 	$headers = (array) apply_filters( 'bbp_moderation_mail_headers', $headers, $post_id, $forum_id );
+
+	/**
+	 * Filters the recipient email address of moderation notifications.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param string $no_reply The recipient email address of moderation notifications.
+	 * @param int $post_id Post id.
+	 * @param int $forum_id Forum id.
+	 */
 	$to      = apply_filters( 'bbp_moderation_to_email', $no_reply, $post_id, $forum_id );
 	$sent    = add_post_meta( $post_id, '_bbp_moderation_notification_sent', 1, true );
 
@@ -2232,7 +2392,13 @@ function bbp_get_deferred_subscription_statuses() {
 		bbp_get_spam_status_id()
 	);
 
-	// Filter & return.
+	/**
+	 * Filters the post statuses that defer subscription notifications.
+	 *
+	 * @since 2.6.20 bbPress (r7899)
+	 *
+	 * @param array<array-key, string> $statuses Post statuses that defer subscription notifications.
+	 */
 	return (array) apply_filters( 'bbp_get_deferred_subscription_statuses', $statuses );
 }
 
@@ -2435,7 +2601,13 @@ function bbp_get_do_not_reply_address() {
 		$sitename = substr( $sitename, 4 );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the "Do Not Reply" email address to use when sending subscription emails.
+	 *
+	 * @since 2.5.6 bbPress (r5409)
+	 *
+	 * @param string $value The "do not reply" email address to use when sending subscription emails.
+	 */
 	return apply_filters( 'bbp_get_do_not_reply_address', 'noreply@' . $sitename );
 }
 
@@ -2459,6 +2631,14 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$reply_id = bbp_get_reply_id( $reply_id );
+
+	/**
+	 * Filters the maximum number of users processed in one batch.
+	 *
+	 * @since 2.6.0 bbPress (r6725)
+	 *
+	 * @param int $limit The maximum number of users processed in one batch.
+	 */
 	$limit    = apply_filters( 'bbp_get_users_chunk_limit', 100 );
 
 	// Prime user caches in chunks before checking capabilities
@@ -2511,7 +2691,14 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
  */
 function bbp_get_subscription_email_contexts( $contexts = array(), $email_addresses = array() ) {
 
-	// Filter & return
+	/**
+	 * Filters the subscription object context represented by each email recipient.
+	 *
+	 * @since 2.7.0 bbPress (r8358)
+	 *
+	 * @param array<int|string, array<string, mixed>> $contexts Subscription object data keyed by user ID.
+	 * @param array<int, string> $email_addresses Recipient email addresses.
+	 */
 	return (array) apply_filters( 'bbp_get_subscription_email_contexts', $contexts, $email_addresses );
 }
 
@@ -2564,7 +2751,16 @@ function bbp_get_subscription_email_receipt( $user_id = 0, $object_id = 0, $obje
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the receipt text for an individual subscription email.
+	 *
+	 * @since 2.7.0 bbPress (r8360)
+	 *
+	 * @param string $receipt Subscription receipt text.
+	 * @param int $user_id Recipient user ID.
+	 * @param int $object_id Subscribed object ID.
+	 * @param string $object_type Registered engagement type.
+	 */
 	return (string) apply_filters( 'bbp_get_subscription_email_receipt', $receipt, $user_id, $object_id, $object_type );
 }
 
@@ -2824,6 +3020,16 @@ Post Link: %3$s
 	$message .= "\n" . esc_html__( 'Replies to this email will be ignored.', 'bbpress' );
 
 	// For plugins to filter messages per reply/topic/user
+
+	/**
+	 * Filters the subscription email message.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param string $message The subscription email message.
+	 * @param int $reply_id Reply id.
+	 * @param int $topic_id Topic id.
+	 */
 	$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id );
 	if ( empty( $message ) ) {
 		bbp_restore_all_filters( 'bbp_get_reply_content' );
@@ -2833,6 +3039,16 @@ Post Link: %3$s
 	}
 
 	// For plugins to filter titles per reply/topic/user
+
+	/**
+	 * Filters the subscription email subject.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param string $value The subscription email subject.
+	 * @param int $reply_id Reply id.
+	 * @param int $topic_id Topic id.
+	 */
 	$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $forum_title . '] ' . $topic_title, $reply_id, $topic_id );
 	if ( empty( $subject ) ) {
 		bbp_restore_all_filters( 'bbp_get_reply_content' );
@@ -2850,6 +3066,14 @@ Post Link: %3$s
 	$no_reply   = bbp_get_do_not_reply_address();
 
 	// Setup "From" email address
+
+	/**
+	 * Filters the sender address for subscription emails.
+	 *
+	 * @since 2.5.6 bbPress (r5409)
+	 *
+	 * @param string $no_reply The sender address for subscription emails.
+	 */
 	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
@@ -2858,6 +3082,14 @@ Post Link: %3$s
 	/** Send it ***************************************************************/
 
 	// Custom headers
+
+	/**
+	 * Filters the subscription email headers.
+	 *
+	 * @since 2.2.0 bbPress (r4268)
+	 *
+	 * @param array $headers The subscription email headers.
+	 */
 	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
 
 	// The shared To address is incompatible with per-recipient unsubscribe links
@@ -3078,6 +3310,17 @@ Topic Link: %3$s
 	$message .= "\n" . esc_html__( 'Replies to this email will be ignored.', 'bbpress' );
 
 	// For plugins to filter messages per reply/topic/user
+
+	/**
+	 * Filters the forum subscription email message.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param string $message The forum subscription email message.
+	 * @param int $topic_id Topic id.
+	 * @param int $forum_id Forum id.
+	 * @param int $user_id User id.
+	 */
 	$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );
 	if ( empty( $message ) ) {
 		bbp_restore_all_filters( 'bbp_get_topic_content' );
@@ -3087,6 +3330,17 @@ Topic Link: %3$s
 	}
 
 	// For plugins to filter titles per reply/topic/user
+
+	/**
+	 * Filters the forum subscription email subject.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param string $value The forum subscription email subject.
+	 * @param int $topic_id Topic id.
+	 * @param int $forum_id Forum id.
+	 * @param int $user_id User id.
+	 */
 	$subject = apply_filters( 'bbp_forum_subscription_mail_title', '[' . $forum_title . '] ' . $topic_title, $topic_id, $forum_id, $user_id );
 	if ( empty( $subject ) ) {
 		bbp_restore_all_filters( 'bbp_get_topic_content' );
@@ -3104,6 +3358,7 @@ Topic Link: %3$s
 	$no_reply   = bbp_get_do_not_reply_address();
 
 	// Setup "From" email address
+	/** This filter is documented in src/includes/common/functions.php. */
 	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
@@ -3112,6 +3367,7 @@ Topic Link: %3$s
 	/** Send it ***************************************************************/
 
 	// Custom headers
+	/** This filter is documented in src/includes/common/functions.php. */
 	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
 
 	// The shared To address is incompatible with per-recipient unsubscribe links
@@ -3204,6 +3460,7 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 	$retval = array();
 
 	// Maximum number of users to get per database query
+	/** This filter is documented in src/includes/common/functions.php. */
 	$limit = apply_filters( 'bbp_get_users_chunk_limit', 100 );
 
 	// Only do the work if there are user IDs to query for
@@ -3226,7 +3483,15 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 		$retval = bbp_get_unique_array_values( $retval );
 	}
 
-	// Filter & return
+	/**
+	 * Filters an array of user email addresses from an array of user IDs.
+	 *
+	 * @since 2.6.0 bbPress (r6725)
+	 *
+	 * @param array<array-key, string> $retval User email addresses.
+	 * @param array<array-key, int|string> $user_ids User IDs to look up.
+	 * @param int $limit Number of users processed per batch.
+	 */
 	return apply_filters( 'bbp_get_email_addresses_from_user_ids', $retval, $user_ids, $limit );
 }
 
@@ -3247,6 +3512,15 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 function bbp_chunk_emails( $args = array() ) {
 
 	// Get the maximum number of Bcc's per chunk
+
+	/**
+	 * Filters the maximum number of email recipients in one Bcc chunk.
+	 *
+	 * @since 2.6.0 bbPress (r6919)
+	 *
+	 * @param int $limit The maximum number of email recipients in one Bcc chunk.
+	 * @param array<string, mixed> $args Original arguments.
+	 */
 	$max_num = (int) apply_filters( 'bbp_get_bcc_chunk_limit', 40, $args );
 	if ( $max_num < 1 ) {
 		return $args;
@@ -3304,6 +3578,14 @@ function bbp_chunk_emails( $args = array() ) {
  * @return string
  */
 function bbp_get_email_header() {
+
+	/**
+	 * Filters an email header value.
+	 *
+	 * @since 2.6.0 bbPress (r6919)
+	 *
+	 * @param string $header An email header value.
+	 */
 	return apply_filters( 'bbp_get_email_header', 'X-bbPress: ' . bbp_get_version() );
 }
 
@@ -3343,6 +3625,14 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 		}
 
 		// Filter the $redirect_to destination
+
+		/**
+		 * Filters the redirect URL after logging out.
+		 *
+		 * @since 2.6.0 bbPress (r6863)
+		 *
+		 * @param string $redirect_to The redirect URL after logging out.
+		 */
 		$filtered  = apply_filters( 'bbp_logout_url_redirect_to', $redirect_to );
 
 		// Validate $redirect_to, default to root
@@ -3354,7 +3644,14 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 		$url       = add_query_arg( array( 'redirect_to' => $encoded ), $url );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a clean and reliable logout URL.
+	 *
+	 * @since 2.0.0 bbPress (r2815)
+	 *
+	 * @param string $url The url.
+	 * @param string $redirect_to URL to redirect to after logout.
+	 */
 	return apply_filters( 'bbp_logout_url', $url, $redirect_to );
 }
 
@@ -3389,6 +3686,18 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 
 	// Passively filter the args before the parse
 	if ( ! empty( $filter_key ) ) {
+
+		/**
+		 * Filters arguments before merging them with defaults.
+		 *
+		 * The hook name uses the caller-supplied key in place of `{$filter_key}`.
+		 *
+		 * @since 2.1.0 bbPress (r3840)
+		 *
+		 * @param array $r Arguments before merging them with defaults.
+		 * @param string|int|array<array-key, mixed>|object $args Original arguments.
+		 * @param array<array-key, mixed>|string $defaults Defaults.
+		 */
 		$r = apply_filters( "bbp_before_{$filter_key}_parse_args", $r, $args, $defaults );
 	}
 
@@ -3399,6 +3708,18 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 
 	// Aggressively filter the args after the parse
 	if ( ! empty( $filter_key ) ) {
+
+		/**
+		 * Filters arguments after merging them with defaults.
+		 *
+		 * The hook name uses the caller-supplied key in place of `{$filter_key}`.
+		 *
+		 * @since 2.1.0 bbPress (r3840)
+		 *
+		 * @param array $r Arguments after merging them with defaults.
+		 * @param string|int|array<array-key, mixed>|object $args Original arguments.
+		 * @param array<array-key, mixed>|string $defaults Defaults.
+		 */
 		$r = apply_filters( "bbp_after_{$filter_key}_parse_args", $r, $args, $defaults );
 	}
 
@@ -3516,7 +3837,15 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	$child_id = is_array( $posts ) ? array_shift( $posts ) : null;
 	unset( $query );
 
-	// Filter & return
+	/**
+	 * Filters the last active child post ID.
+	 *
+	 * @since 2.0.0 bbPress (r2868)
+	 *
+	 * @param int|false $child_id Last active child post ID, or false without a parent.
+	 * @param int $parent_id Parent id.
+	 * @param string $post_type Post type. Defaults to 'post'.
+	 */
 	return (int) apply_filters( 'bbp_get_public_child_last_id', $child_id, $parent_id, $post_type );
 }
 
@@ -3646,6 +3975,15 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 	}
 
 	// Make sure results are INTs
+
+	/**
+	 * Filters the counts of a forum's child posts.
+	 *
+	 * @since 2.6.0 bbPress (r6827)
+	 *
+	 * @param array $retval The counts of a forum's child posts.
+	 * @param int $parent_id Parent id.
+	 */
 	return (array) apply_filters( 'bbp_get_child_counts', $retval, $parent_id );
 }
 
@@ -3685,7 +4023,16 @@ function bbp_filter_child_counts_list( $parent_id = 0, $types = array( 'post' ),
 		$retval[ $type ] = $type_counts;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the child counts grouped by post type and status.
+	 *
+	 * @since 2.6.0 bbPress (r6827)
+	 *
+	 * @param array<string, array<string, int>> $retval Child counts grouped by post type and status.
+	 * @param int $parent_id ID of post to get child counts from.
+	 * @param array<array-key, string>|string $types Post types to filter by.
+	 * @param array<array-key, string>|string $statuses Post statuses to filter by.
+	 */
 	return (array) apply_filters( 'bbp_filter_child_counts_list', $retval, $parent_id, $types, $statuses );
 }
 
@@ -3732,7 +4079,15 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		? bbp_number_not_negative( array_sum( array_values( $counts[ $post_type ] ) ) )
 		: 0;
 
-	// Filter & return
+	/**
+	 * Filters the child count.
+	 *
+	 * @since 2.0.0 bbPress (r2868)
+	 *
+	 * @param int|false $child_count Child count, or false when the post type is missing.
+	 * @param int $parent_id Parent id.
+	 * @param string $post_type Post type. Defaults to 'post'.
+	 */
 	return (int) apply_filters( 'bbp_get_public_child_count', $child_count, $parent_id, $post_type );
 }
 /**
@@ -3782,7 +4137,15 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		? bbp_number_not_negative( array_sum( array_values( $counts[ $post_type ] ) ) )
 		: 0;
 
-	// Filter & return
+	/**
+	 * Filters the child count.
+	 *
+	 * @since 2.6.0 bbPress (r6827)
+	 *
+	 * @param int|false $child_count Child count, or false when required arguments are missing.
+	 * @param int $parent_id Parent id.
+	 * @param string $post_type Post type. Defaults to 'post'.
+	 */
 	return (int) apply_filters( 'bbp_get_non_public_child_count', $child_count, $parent_id, $post_type );
 }
 
@@ -3887,7 +4250,15 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 	unset( $query );
 
-	// Filter & return
+	/**
+	 * Filters the child post IDs.
+	 *
+	 * @since 2.0.0 bbPress (r2891)
+	 *
+	 * @param array<array-key, int> $child_ids Child post IDs.
+	 * @param int $parent_id Parent id.
+	 * @param string $post_type Post type. Defaults to 'post'.
+	 */
 	return (array) apply_filters( 'bbp_get_public_child_ids', $child_ids, $parent_id, $post_type );
 }
 
@@ -3947,7 +4318,15 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Make sure results are INTs
 	$child_ids = wp_parse_id_list( $child_ids );
 
-	// Filter & return
+	/**
+	 * Filters the child post IDs.
+	 *
+	 * @since 2.0.0 bbPress (r3325)
+	 *
+	 * @param array<array-key, int> $child_ids Child post IDs.
+	 * @param int $parent_id Parent id.
+	 * @param string $post_type Post type. Defaults to 'post'.
+	 */
 	return (array) apply_filters( 'bbp_get_all_child_ids', $child_ids, $parent_id, $post_type );
 }
 
@@ -3979,6 +4358,15 @@ function bbp_update_post_family_caches( $objects = array() ) {
 	$post_ids = array();
 
 	// Filter the types of IDs to prime
+
+	/**
+	 * Filters the metadata keys used to prime post family caches.
+	 *
+	 * @since 2.6.0 bbPress (r6700)
+	 *
+	 * @param array $meta_keys The metadata keys used to prime post family caches.
+	 * @param array<array-key, WP_Post|int> $objects Objects.
+	 */
 	$ids = apply_filters(
 		'bbp_update_post_family_caches',
 		array(
@@ -4100,7 +4488,16 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
 		? sanitize_post_field( $field, $post->{$field}, $post->ID, $context )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters a field from the global post object.
+	 *
+	 * @since 2.1.0 bbPress (r3702)
+	 *
+	 * @param string $retval Field value.
+	 * @param WP_Post|null $post Post object.
+	 * @param string $field Name of the key.
+	 * @param string $context How to sanitize - raw|edit|db|display|attribute|js.
+	 */
 	return apply_filters( 'bbp_get_global_post_field', $retval, $post, $field, $context );
 }
 
@@ -4575,7 +4972,14 @@ function bbp_get_page_by_path( $path = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the page object.
+	 *
+	 * @since 2.0.0 bbPress (r3304)
+	 *
+	 * @param WP_Post|false $retval Page object, or false if no public page exists.
+	 * @param string $path Page path to resolve.
+	 */
 	return apply_filters( 'bbp_get_page_by_path', $retval, $path );
 }
 
@@ -4753,6 +5157,15 @@ function bbp_is_title_too_long( $title = '' ) {
 	$len    = mb_strlen( $title, 'utf-8' );
 	$result = ( $len > $max );
 
-	// Filter & return
+	/**
+	 * Filters whether a title exceeds its maximum length.
+	 *
+	 * @since 2.6.0 bbPress (r6784)
+	 *
+	 * @param bool $result Whether a title exceeds its maximum length.
+	 * @param string $title Title to check.
+	 * @param int $max Maximum allowed length.
+	 * @param int $len Title length.
+	 */
 	return (bool) apply_filters( 'bbp_is_title_too_long', $result, $title, $max, $len );
 }

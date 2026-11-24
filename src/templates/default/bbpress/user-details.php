@@ -16,7 +16,16 @@ do_action( 'bbp_template_before_user_details' ); ?>
 	<div id="bbp-user-avatar">
 		<span class='vcard'>
 			<a class="url fn n" href="<?php bbp_user_profile_url(); ?>" title="<?php bbp_displayed_user_field( 'display_name' ); ?>" rel="me">
-				<?php echo get_avatar( bbp_get_displayed_user_field( 'user_email', 'raw' ), apply_filters( 'bbp_single_user_details_avatar_size', 150 ) ); ?>
+				<?php
+				/**
+				 * Filters the avatar size in a user's profile details.
+				 *
+				 * @since 2.2.3 bbPress (r4477)
+				 *
+				 * @param int $value The avatar size in a user's profile details.
+				 */
+				echo get_avatar( bbp_get_displayed_user_field( 'user_email', 'raw' ), apply_filters( 'bbp_single_user_details_avatar_size', 150 ) );
+				?>
 			</a>
 		</span>
 	</div>

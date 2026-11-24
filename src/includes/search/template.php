@@ -98,6 +98,14 @@ function bbp_has_search_results( $args = array() ) {
 			: ceil( $bbp->search_query->found_posts / $bbp->search_query->posts_per_page );
 
 		// Pagination settings with filter
+
+		/**
+		 * Filters the search results pagination arguments.
+		 *
+		 * @since 2.3.0 bbPress (r4579)
+		 *
+		 * @param array $args The search results pagination arguments.
+		 */
 		$bbp_search_pagination = apply_filters(
 			'bbp_search_results_pagination',
 			array(
@@ -111,7 +119,14 @@ function bbp_has_search_results( $args = array() ) {
 		$bbp->search_query->pagination_links = bbp_paginate_links( $bbp_search_pagination );
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether search results are available.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param bool $value Whether search results are available.
+	 * @param WP_Query $search_query Query object.
+	 */
 	return apply_filters( 'bbp_has_search_results', $bbp->search_query->have_posts(), $bbp->search_query );
 }
 
@@ -185,7 +200,14 @@ function bbp_get_search_title() {
 		$title = sprintf( esc_html__( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the search page title.
+	 *
+	 * @since 2.4.0 bbPress (r4913)
+	 *
+	 * @param string $title Search page title.
+	 * @param string|false $search_terms Search terms, or false if unavailable.
+	 */
 	return apply_filters( 'bbp_get_search_title', $title, $search_terms );
 }
 
@@ -226,7 +248,13 @@ function bbp_get_search_url() {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the search url.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param string $url Search url.
+	 */
 	return apply_filters( 'bbp_get_search_url', $url );
 }
 
@@ -277,7 +305,13 @@ function bbp_get_search_results_url() {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the search url.
+	 *
+	 * @since 2.4.0 bbPress (r4928)
+	 *
+	 * @param string $url Search url.
+	 */
 	return apply_filters( 'bbp_get_search_results_url', $url );
 }
 
@@ -355,7 +389,14 @@ function bbp_get_search_terms( $passed_terms = '' ) {
 		? urldecode( trim( $search_terms ) )
 		: false;
 
-	// Filter & return
+	/**
+	 * Filters the search terms.
+	 *
+	 * @since 2.4.0 bbPress (r4912)
+	 *
+	 * @param string|false $search_terms Search terms on success, false on failure.
+	 * @param string $passed_terms Search terms.
+	 */
 	$search_terms = apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
 	return is_string( $search_terms ) ? $search_terms : false;
 }
@@ -398,7 +439,13 @@ function bbp_get_search_pagination_base() {
 		$base = add_query_arg( 'paged', '%#%' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the base URL used inside of pagination links.
+	 *
+	 * @since 2.6.0 bbPress (r6680)
+	 *
+	 * @param string|false $base Pagination base, or false when its URL is invalid.
+	 */
 	return apply_filters( 'bbp_get_search_pagination_base', $base );
 }
 
@@ -465,7 +512,13 @@ function bbp_get_search_pagination_count() {
 
 	}
 
-	// Filter & return
+	/**
+	 * Filters the search results pagination count.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param string $value Search pagination count.
+	 */
 	return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 }
 
@@ -493,6 +546,12 @@ function bbp_get_search_pagination_links() {
 		return false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the search pagination links.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param string|false $pagination_links Search pagination links, or false when unavailable.
+	 */
 	return apply_filters( 'bbp_get_search_pagination_links', $bbp->search_query->pagination_links );
 }

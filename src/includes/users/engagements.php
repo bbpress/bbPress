@@ -21,6 +21,16 @@ defined( 'ABSPATH' ) || exit;
  * @return string
  */
 function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
+
+	/**
+	 * Filters the interface used for user engagements.
+	 *
+	 * @since 2.6.0 bbPress (r6723)
+	 *
+	 * @param object $value The interface used for user engagements.
+	 * @param string $rel_key Rel key.
+	 * @param string $rel_type Rel type.
+	 */
 	return apply_filters( 'bbp_user_engagements_interface', bbpress()->engagements, $rel_key, $rel_type );
 }
 
@@ -116,6 +126,15 @@ function bbp_get_engagement_type( $name = '' ) {
 		: false;
 
 	// Filter
+
+	/**
+	 * Filters the registered engagement type.
+	 *
+	 * @since 2.7.0 bbPress (r8306)
+	 *
+	 * @param BBP_User_Engagements_Type|false $retval The registered engagement type.
+	 * @param string $name Name.
+	 */
 	$retval = apply_filters( 'bbp_get_engagement_type', $retval, $name );
 
 	// Return only valid engagement types
@@ -142,6 +161,17 @@ function bbp_object_supports_engagement( $object_id = 0, $object_type = 'post', 
 	$retval    = ! empty( $object_id ) && ! empty( $type ) && (bool) $type->supports( $engagement, $object_id );
 
 	// Filter
+
+	/**
+	 * Filters whether an object supports this engagement type.
+	 *
+	 * @since 2.7.0 bbPress (r8370)
+	 *
+	 * @param bool $retval Whether an object supports this engagement type.
+	 * @param int $object_id Object ID.
+	 * @param BBP_User_Engagements_Type|false $type Engagement type.
+	 * @param string $engagement Engagement.
+	 */
 	$retval = apply_filters( 'bbp_object_supports_engagement', $retval, $object_id, $type, $engagement );
 
 	// Do not allow filters to make an invalid object or type support engagements
@@ -168,7 +198,18 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $rel_key = '', $r
 	$user_id   = absint( $user_id );
 	$retval    = bbp_user_engagements_interface( $rel_key, $rel_type )->add_user_to_object( $object_id, $user_id, $rel_key, $rel_type, $unique );
 
-	// Filter & return
+	/**
+	 * Filters whether a user was added to an object.
+	 *
+	 * @since 2.6.0 bbPress (r6109)
+	 *
+	 * @param bool $retval Returns true on success, false on failure.
+	 * @param int|float|string $object_id The object id.
+	 * @param int|float|string $user_id The user id.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 * @param bool $unique Whether meta key should be unique to the object.
+	 */
 	return (bool) apply_filters( 'bbp_add_user_to_object', $retval, $object_id, $user_id, $rel_key, $rel_type, $unique );
 }
 
@@ -187,7 +228,17 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $rel_key = '', $r
 function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $rel_key = '', $rel_type = 'post' ) {
 	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_user_from_object( $object_id, $user_id, $rel_key, $rel_type );
 
-	// Filter & return
+	/**
+	 * Filters whether a user was removed from an object.
+	 *
+	 * @since 2.6.0 bbPress (r6109)
+	 *
+	 * @param bool $retval Returns true on success, false on failure.
+	 * @param int $object_id The object id.
+	 * @param int $user_id The user id.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 */
 	return (bool) apply_filters( 'bbp_remove_user_from_object', $retval, $object_id, $user_id, $rel_key, $rel_type );
 }
 
@@ -206,7 +257,16 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $rel_key = '', $rel_typ
 	$user_id = absint( $user_id );
 	$retval  = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_user_from_all_objects( $user_id, $rel_key, $rel_type );
 
-	// Filter & return
+	/**
+	 * Filters whether a user was removed from all objects.
+	 *
+	 * @since 2.6.0 bbPress (r6517)
+	 *
+	 * @param bool $retval Returns true on success, false on failure.
+	 * @param int $user_id The user id.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 */
 	return (bool) apply_filters( 'bbp_remove_user_from_all_objects', $retval, $user_id, $rel_key, $rel_type );
 }
 
@@ -225,7 +285,16 @@ function bbp_remove_object_from_all_users( $object_id = 0, $rel_key = '', $rel_t
 	$object_id = absint( $object_id );
 	$retval    = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_object_from_all_users( $object_id, $rel_key, $rel_type );
 
-	// Filter & return
+	/**
+	 * Filters whether an object was removed from all users.
+	 *
+	 * @since 2.6.0 bbPress (r6544)
+	 *
+	 * @param bool $retval Returns true on success, false on failure.
+	 * @param int $object_id The object id.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 */
 	return (bool) apply_filters( 'bbp_remove_object_from_all_users', $retval, $object_id, $rel_key, $rel_type );
 }
 
@@ -242,7 +311,15 @@ function bbp_remove_object_from_all_users( $object_id = 0, $rel_key = '', $rel_t
 function bbp_remove_all_users_from_all_objects( $rel_key = '', $rel_type = 'post' ) {
 	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_all_users_from_all_objects( $rel_key, $rel_type );
 
-	// Filter & return
+	/**
+	 * Filters whether all user-object relationships were removed.
+	 *
+	 * @since 2.6.0 bbPress (r6520)
+	 *
+	 * @param bool $retval Returns true on success, false on failure.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 */
 	return (bool) apply_filters( 'bbp_remove_all_users_from_all_objects', $retval, $rel_key, $rel_type );
 }
 
@@ -261,7 +338,16 @@ function bbp_get_users_for_object( $object_id = 0, $rel_key = '', $rel_type = 'p
 	$object_id = absint( $object_id );
 	$retval    = bbp_user_engagements_interface( $rel_key, $rel_type )->get_users_for_object( $object_id, $rel_key, $rel_type );
 
-	// Filter & return
+	/**
+	 * Filters the users of an object.
+	 *
+	 * @since 2.6.0 bbPress (r6109)
+	 *
+	 * @param array<array-key, int> $retval User IDs for the object.
+	 * @param int $object_id The object id.
+	 * @param string $rel_key The key used to index this relationship.
+	 * @param string $rel_type The type of meta to look in.
+	 */
 	return (array) apply_filters( 'bbp_get_users_for_object', $retval, $object_id, $rel_key, $rel_type );
 }
 
@@ -283,7 +369,17 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
 	$user_ids  = bbp_get_users_for_object( $object_id, $rel_key, $rel_type );
 	$retval    = is_numeric( array_search( $user_id, $user_ids, true ) );
 
-	// Filter & return
+	/**
+	 * Filters whether an object has a specific user.
+	 *
+	 * @since 2.6.0 bbPress (r6109)
+	 *
+	 * @param bool $retval Returns true if object has a user, false if not.
+	 * @param int|float|string $object_id The object id.
+	 * @param int|float|string $user_id The user id.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 */
 	return (bool) apply_filters( 'bbp_is_object_of_user', $retval, $object_id, $user_id, $rel_key, $rel_type );
 }
 
@@ -319,7 +415,18 @@ function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '
 		$retval = array_merge( $retval, (array) $type->get_subtype_query_args( $rel_subtype ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the query part responsible for JOINing objects to user IDs.
+	 *
+	 * @since 2.6.0 bbPress (r6739)
+	 *
+	 * @param array<string, mixed> $retval The query part responsible for joining objects to user ids.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 * @param string $context Additional context.
+	 * @param string $rel_key The relationship key.
+	 * @param string $rel_type The relationship type (usually 'post').
+	 * @param string $rel_subtype Registered object subtype.
+	 */
 	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $rel_key, $rel_type, $rel_subtype );
 }
 
@@ -338,7 +445,14 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$users    = bbp_get_users_for_object( $topic_id, '_bbp_engagement' );
 
-	// Filter & return
+	/**
+	 * Filters the users who have engaged in a topic.
+	 *
+	 * @since 2.6.0 bbPress (r6311)
+	 *
+	 * @param array<array-key, int> $users Users engaged in the topic, or an empty array.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters( 'bbp_get_topic_engagements', $users, $topic_id );
 }
 
@@ -388,7 +502,14 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 	// Parse results into voices
 	$engagements = wp_parse_id_list( array_filter( $results ) );
 
-	// Filter & return
+	/**
+	 * Filters the users who have engaged in a topic, directly with a database query.
+	 *
+	 * @since 2.6.0 bbPress (r6522)
+	 *
+	 * @param array<array-key, int> $engagements The users who have engaged in a topic, directly with a database query.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters( 'bbp_get_topic_engagements_raw', $engagements, $topic_id );
 }
 
@@ -409,7 +530,16 @@ function bbp_get_user_engagements( $args = array() ) {
 		? bbp_has_topics( $r )
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the query result for a user's engaged topics.
+	 *
+	 * @since 2.6.0 bbPress (r6311)
+	 *
+	 * @param bool|array<array-key, mixed> $query Engaged-topic query result, or an empty array if no query was built.
+	 * @param int $user_id Reserved user ID argument, always zero.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 */
 	return apply_filters( 'bbp_get_user_engagements', $query, 0, $r, $args );
 }
 
@@ -428,7 +558,15 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$retval   = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_engagement' );
 
-	// Filter & return
+	/**
+	 * Filters whether a user is engaged in a topic or not.
+	 *
+	 * @since 2.6.0 bbPress (r6311)
+	 *
+	 * @param bool $retval True if the topic is in user's engagements, otherwise false.
+	 * @param int $user_id User id.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_engaged', $retval, $user_id, $topic_id );
 }
 
@@ -553,7 +691,14 @@ function bbp_recalculate_topic_engagements( $topic_id = 0, $force = false ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether topic engagements were added.
+	 *
+	 * @since 2.6.0 bbPress (r6522)
+	 *
+	 * @param bool $retval Whether engagements were added.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_recalculate_user_engagements', $retval, $topic_id );
 }
 
@@ -638,7 +783,16 @@ function bbp_current_user_can_manage_engagements( $engagement = '', $user_id = 0
 		&& ! empty( $user_id )
 		&& ( ( $user_id === $current_user_id ) || current_user_can( 'edit_user', $user_id ) );
 
-	// Filter & return.
+	/**
+	 * Filters whether the current user can manage a user's engagements.
+	 *
+	 * @since 2.7.0 bbPress (r7849)
+	 *
+	 * @param bool $retval Whether the current user can manage the user's engagements.
+	 * @param string $engagement Favorite or subscription. Defaults to the current favorites or subscriptions view.
+	 * @param int $user_id User ID. Defaults to the displayed user.
+	 * @param int $current_user_id Current user id.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_manage_engagements', $retval, $engagement, $user_id, $current_user_id );
 }
 
@@ -752,7 +906,18 @@ function bbp_get_user_object_ids( $args = array() ) {
 		$object_ids = $query->posts;
 	}
 
-	// Filter & return
+	/**
+	 * Filters a user's object IDs.
+	 *
+	 * The hook name uses the sanitized `filter` argument. The default name is
+	 * `bbp_get_user_object_ids`.
+	 *
+	 * @since 2.6.0 bbPress (r6607)
+	 *
+	 * @param array<int, int|WP_Post> $object_ids Object IDs, posts when the query fields are overridden, or an empty array.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args User ID, object type, relationship key and type, filter name, and query arguments.
+	 */
 	return (array) apply_filters( "bbp_get_{$r['filter']}", $object_ids, $r, $args );
 }
 

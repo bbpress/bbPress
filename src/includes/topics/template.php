@@ -32,7 +32,13 @@ function bbp_topic_post_type() {
  */
 function bbp_get_topic_post_type() {
 
-	// Filter & return
+	/**
+	 * Filters the topic post type ID.
+	 *
+	 * @since 2.0.0 bbPress (r2858)
+	 *
+	 * @param string $topic_post_type The unique topic post type id.
+	 */
 	return apply_filters( 'bbp_get_topic_post_type', bbpress()->topic_post_type );
 }
 
@@ -45,7 +51,13 @@ function bbp_get_topic_post_type() {
  */
 function bbp_get_topic_post_type_labels() {
 
-	// Filter & return
+	/**
+	 * Filters the array of labels used by the topic post type.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, string> $value The array of labels used by the topic post type.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_post_type_labels',
 		array(
@@ -94,7 +106,13 @@ function bbp_get_topic_post_type_labels() {
  */
 function bbp_get_topic_post_type_rewrite() {
 
-	// Filter & return
+	/**
+	 * Filters the array of topic post type rewrite settings.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, mixed> $value The array of topic post type rewrite settings.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_post_type_rewrite',
 		array(
@@ -113,7 +131,13 @@ function bbp_get_topic_post_type_rewrite() {
  */
 function bbp_get_topic_post_type_supports() {
 
-	// Filter & return
+	/**
+	 * Filters the array of features the topic post type supports.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<array-key, string> $value The array of features the topic post type supports.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_post_type_supports',
 		array(
@@ -141,7 +165,13 @@ function bbp_show_lead_topic( $show_lead = false ) {
 		return false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether to show the topic above its replies.
+	 *
+	 * @since 2.0.0 bbPress (r2954)
+	 *
+	 * @param bool $show_lead Yes if the topic appears as a lead, otherwise false.
+	 */
 	return (bool) apply_filters( 'bbp_show_lead_topic', (bool) $show_lead );
 }
 
@@ -281,6 +311,14 @@ function bbp_has_topics( $args = array() ) {
 			: false;
 
 		// Pagination settings with filter
+
+		/**
+		 * Filters the topic pagination arguments.
+		 *
+		 * @since 2.0.0 bbPress (r2519)
+		 *
+		 * @param array $args The topic pagination arguments.
+		 */
 		$bbp_topic_pagination = apply_filters(
 			'bbp_topic_pagination',
 			array(
@@ -299,7 +337,14 @@ function bbp_has_topics( $args = array() ) {
 		$bbp->topic_query->pagination_links = bbp_paginate_links( $bbp_topic_pagination );
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether topics are available.
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 *
+	 * @param bool $value Whether topics are available.
+	 * @param WP_Query $topic_query Query object.
+	 */
 	return apply_filters( 'bbp_has_topics', $bbp->topic_query->have_posts(), $bbp->topic_query );
 }
 
@@ -652,7 +697,14 @@ function bbp_get_topic_id( $topic_id = 0 ) {
 		$bbp_topic_id = 0;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic id.
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 *
+	 * @param int $bbp_topic_id The topic id.
+	 * @param int|float|string|false $topic_id Topic ID, or false to use the current topic.
+	 */
 	return (int) apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
 }
 
@@ -697,7 +749,16 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 		$retval = array_values( get_object_vars( $topic ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2788)
+	 *
+	 * @param WP_Post|array<array-key, mixed>|null $retval Topic in the requested format, or null if unavailable.
+	 * @param int|WP_Post $topic Topic ID or post object.
+	 * @param string $output Output type. Defaults to OBJECT.
+	 * @param string $filter Post filter. Defaults to raw.
+	 */
 	return apply_filters( 'bbp_get_topic', $retval, $topic, $output, $filter );
 }
 
@@ -738,7 +799,14 @@ function bbp_get_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
 		$topic_permalink = get_permalink( $topic_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 *
+	 * @param string $topic_permalink Permanent link to topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_permalink', $topic_permalink, $topic_id );
 }
 
@@ -767,7 +835,14 @@ function bbp_get_topic_title( $topic_id = 0 ) {
 	$title    = get_post_field( 'post_title', $topic_id );
 	$title    = apply_filters( 'the_title', $title, $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the title of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 *
+	 * @param string $title Title of topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_title', $title, $topic_id );
 }
 
@@ -811,7 +886,13 @@ function bbp_get_topic_archive_title( $title = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic archive title.
+	 *
+	 * @since 2.0.0 bbPress (r3250)
+	 *
+	 * @param string $title The topic archive title.
+	 */
 	return apply_filters( 'bbp_get_topic_archive_title', $title );
 }
 
@@ -846,7 +927,14 @@ function bbp_get_topic_content( $topic_id = 0 ) {
 
 	$content = get_post_field( 'post_content', $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the content of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $content Content of the topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_content', $content, $topic_id );
 }
 
@@ -899,7 +987,15 @@ function bbp_get_topic_excerpt( $topic_id = 0, $length = 100 ) {
 		$excerpt .= '&hellip;';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the excerpt of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $excerpt topic Excerpt.
+	 * @param int $topic_id topic id.
+	 * @param int $length Length of the excerpt. Defaults to 100 letters.
+	 */
 	return apply_filters( 'bbp_get_topic_excerpt', $excerpt, $topic_id, $length );
 }
 
@@ -953,7 +1049,19 @@ function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false
 		$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the post date and time of a topic.
+	 *
+	 * @since 2.2.0 bbPress (r4156)
+	 *
+	 * @param string $result The post date and time of a topic.
+	 * @param int $topic_id Topic id.
+	 * @param bool $humanize Humanize output using time_since.
+	 * @param bool $gmt Use GMT.
+	 * @param string $date Formatted date.
+	 * @param string $time Formatted time.
+	 * @param string $date_format PHP date format. Defaults to the WordPress date format. Ignored when `$humanize` is true.
+	 */
 	return apply_filters( 'bbp_get_topic_post_date', $result, $topic_id, $humanize, $gmt, $date, $time, $date_format );
 }
 
@@ -1027,6 +1135,7 @@ function bbp_get_topic_pagination( $args = array() ) {
 		: false;
 
 	// Pagination settings with filter
+	/** This filter is documented in src/includes/topics/template.php. */
 	$bbp_topic_pagination = apply_filters(
 		'bbp_get_topic_pagination',
 		array(
@@ -1048,7 +1157,14 @@ function bbp_get_topic_pagination( $args = array() ) {
 		$pagination_links = $r['before'] . $pagination_links . $r['after'];
 	}
 
-	// Filter & return
+	/**
+	 * Filters the pagination links of a topic within the topic loop.
+	 *
+	 * @since 2.0.0 bbPress (r2967)
+	 *
+	 * @param string|null $pagination_links Pagination links, or null when replies are threaded.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_pagination', $pagination_links, $args );
 }
 
@@ -1071,7 +1187,15 @@ function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
 	// Validate the ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the content with revisions appended.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param string|null $value Content with revisions appended, or null in admin and feeds.
+	 * @param string $content Content to which we need to append the revisions to.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_topic_append_revisions', $content . bbp_get_topic_revision_log( $topic_id ), $content, $topic_id );
 }
 
@@ -1150,7 +1274,14 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
 
 	$retval .= "\n" . '</ul>' . "\n\n";
 
-	// Filter & return
+	/**
+	 * Filters the formatted revision log of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param string|false $retval Topic revision log, or false when no revisions are available.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_revision_log', $retval, $topic_id );
 }
 
@@ -1170,7 +1301,14 @@ function bbp_get_topic_raw_revision_log( $topic_id = 0 ) {
 		? $revision_log
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the raw revision log of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param array<array-key, mixed> $revision_log Raw revision log of the topic, or an empty array.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_raw_revision_log', $revision_log, $topic_id );
 }
 
@@ -1186,7 +1324,14 @@ function bbp_get_topic_revisions( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );
 	$revisions = wp_get_post_revisions( $topic_id, array( 'order' => 'ASC' ) );
 
-	// Filter & return
+	/**
+	 * Filters the revisions of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param WP_Post[] $revisions Topic revisions, keyed by revision ID.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_revisions', $revisions, $topic_id );
 }
 
@@ -1206,6 +1351,18 @@ function bbp_get_topic_revision_count( $topic_id = 0, $integer = false ) {
 		? 'bbp_get_topic_revision_count_int'
 		: 'bbp_get_topic_revision_count';
 
+	/**
+	 * Filters a topic's revision count.
+	 *
+	 * The hook name is `bbp_get_topic_revision_count_int` for integer output and
+	 * `bbp_get_topic_revision_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $count Unformatted count, or a formatted count after filtering.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( $filter, $count, $topic_id );
 }
 
@@ -1231,7 +1388,15 @@ function bbp_is_topic_sticky( $topic_id = 0, $check_super = true ) {
 		$retval = bbp_is_topic_super_sticky( $topic_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is a sticky or super sticky.
+	 *
+	 * @since 2.6.0 bbPress (r5680)
+	 *
+	 * @param bool $retval True if sticky or super sticky, false if not.
+	 * @param int $topic_id Topic id.
+	 * @param bool $check_super If set to true and if the topic is not a normal sticky, it is checked if it is a super sticky or not. Defaults to true.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_sticky', $retval, $topic_id, $check_super );
 }
 
@@ -1248,7 +1413,14 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
 	$stickies = bbp_get_super_stickies();
 	$retval   = in_array( $topic_id, $stickies, true );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is a super sticky.
+	 *
+	 * @since 2.6.0 bbPress (r5680)
+	 *
+	 * @param bool $retval True if super sticky, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_super_sticky', $retval, $topic_id );
 }
 
@@ -1275,7 +1447,14 @@ function bbp_topic_status( $topic_id = 0 ) {
 function bbp_get_topic_status( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the status of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param string $value Status of topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_status', get_post_status( $topic_id ), $topic_id );
 }
 
@@ -1293,7 +1472,14 @@ function bbp_is_topic_closed( $topic_id = 0 ) {
 	$status       = bbp_get_closed_status_id();
 	$topic_status = ( bbp_get_topic_status( $topic_id ) === $status );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is closed to new replies.
+	 *
+	 * @since 2.1.0 bbPress (r3805)
+	 *
+	 * @param bool $topic_status True if closed, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_closed', $topic_status, $topic_id );
 }
 
@@ -1330,7 +1516,14 @@ function bbp_is_topic_public( $topic_id = 0 ) {
 	$public    = bbp_get_public_topic_statuses();
 	$is_public = in_array( $status, $public, true );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is publicly viewable.
+	 *
+	 * @since 2.6.0 bbPress (r6384)
+	 *
+	 * @param bool $is_public True if public, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_public', $is_public, $topic_id );
 }
 
@@ -1347,7 +1540,14 @@ function bbp_is_topic_published( $topic_id = 0 ) {
 	$status       = bbp_get_public_status_id();
 	$topic_status = ( bbp_get_topic_status( $topic_id ) === $status );
 
-	// Filter & return
+	/**
+	 * Filters whether a topic is published.
+	 *
+	 * @since 2.1.0 bbPress (r3805)
+	 *
+	 * @param bool $topic_status True if published, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_published', $topic_status, $topic_id );
 }
 
@@ -1364,7 +1564,14 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
 	$status       = bbp_get_spam_status_id();
 	$topic_status = ( bbp_get_topic_status( $topic_id ) === $status );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is marked as spam.
+	 *
+	 * @since 2.1.0 bbPress (r3805)
+	 *
+	 * @param bool $topic_status True if spam, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_spam', $topic_status, $topic_id );
 }
 
@@ -1381,7 +1588,14 @@ function bbp_is_topic_trash( $topic_id = 0 ) {
 	$status       = bbp_get_trash_status_id();
 	$topic_status = ( bbp_get_topic_status( $topic_id ) === $status );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is trashed.
+	 *
+	 * @since 2.1.0 bbPress (r3805)
+	 *
+	 * @param bool $topic_status True if trashed, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_trash', $topic_status, $topic_id );
 }
 
@@ -1398,7 +1612,14 @@ function bbp_is_topic_pending( $topic_id = 0 ) {
 	$status       = bbp_get_pending_status_id();
 	$topic_status = ( bbp_get_topic_status( $topic_id ) === $status );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is pending.
+	 *
+	 * @since 2.6.0 bbPress (r5504)
+	 *
+	 * @param bool $topic_status True if pending, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_pending', $topic_status, $topic_id );
 }
 
@@ -1415,7 +1636,14 @@ function bbp_is_topic_private( $topic_id = 0 ) {
 	$status       = bbp_get_private_status_id();
 	$topic_status = ( bbp_get_topic_status( $topic_id ) === $status );
 
-	// Filter & return
+	/**
+	 * Filters whether the topic is private.
+	 *
+	 * @since 2.6.0 bbPress (r5504)
+	 *
+	 * @param bool $topic_status True if private, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_private', $topic_status, $topic_id );
 }
 
@@ -1441,7 +1669,14 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether a topic has an anonymous author.
+	 *
+	 * @since 2.1.0 bbPress (r3805)
+	 *
+	 * @param bool $retval True if the post is by an anonymous user, false if not.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_anonymous', $retval, $topic_id );
 }
 
@@ -1482,7 +1717,14 @@ function bbp_get_topic_author( $topic_id = 0 ) {
 		$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author of topic.
+	 *
+	 * @since 2.0.0 bbPress (r2590)
+	 *
+	 * @param string $author Author of topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_author', $author, $topic_id );
 }
 
@@ -1510,7 +1752,14 @@ function bbp_get_topic_author_id( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );
 	$author_id = get_post_field( 'post_author', $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the author ID of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2590)
+	 *
+	 * @param int $author_id Author ID of the topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_get_topic_author_id', (int) $author_id, $topic_id );
 }
 
@@ -1561,7 +1810,14 @@ function bbp_get_topic_author_display_name( $topic_id = 0 ) {
 		$author_name = bbp_get_fallback_display_name( $topic_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a topic author's display name.
+	 *
+	 * @since 2.1.0 bbPress (r3648)
+	 *
+	 * @param string $author_name Topic's author's display name.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_author_display_name', $author_name, $topic_id );
 }
 
@@ -1599,7 +1855,15 @@ function bbp_get_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author avatar of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2590)
+	 *
+	 * @param string $author_avatar Avatar of the author of the topic.
+	 * @param int $topic_id Topic id.
+	 * @param int $size Avatar size. Defaults to 40.
+	 */
 	return apply_filters( 'bbp_get_topic_author_avatar', $author_avatar, $topic_id, $size );
 }
 
@@ -1702,6 +1966,16 @@ function bbp_get_topic_author_link( $args = array() ) {
 		unset( $links );
 
 		// Filter sections
+
+		/**
+		 * Filters the links in a topic author's information.
+		 *
+		 * @since 2.6.0 bbPress (r6591)
+		 *
+		 * @param array $author_links The links in a topic author's information.
+		 * @param array $r Parsed arguments.
+		 * @param mixed|int $args Original arguments.
+		 */
 		$sections = apply_filters( 'bbp_get_topic_author_links', $author_links, $r, $args );
 
 		// Assemble sections into author link
@@ -1718,7 +1992,15 @@ function bbp_get_topic_author_link( $args = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2720)
+	 *
+	 * @param string $author_link Author link of topic.
+	 * @param array $r Arguments.
+	 * @param mixed|int $args If it is an integer, it is used as topic id. Optional.
+	 */
 	return apply_filters( 'bbp_get_topic_author_link', $author_link, $r, $args );
 }
 
@@ -1757,7 +2039,14 @@ function bbp_get_topic_author_url( $topic_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author url of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2590)
+	 *
+	 * @param string $author_url Author URL of topic.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_author_url', $author_url, $topic_id );
 }
 
@@ -1804,7 +2093,14 @@ function bbp_get_topic_author_email( $topic_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic author email address.
+	 *
+	 * @since 2.0.0 bbPress (r3446)
+	 *
+	 * @param string $author_email Topic author email address.
+	 * @param int $topic_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_topic_author_email', $author_email, $topic_id );
 }
 
@@ -1861,7 +2157,14 @@ function bbp_get_topic_author_role( $args = array() ) {
 		$author_role = $r['before'] . $role . $r['after'];
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic author role.
+	 *
+	 * @since 2.1.0 bbPress (r3860)
+	 *
+	 * @param string $author_role topic author role.
+	 * @param array $r Arguments.
+	 */
 	return apply_filters( 'bbp_get_topic_author_role', $author_role, $r );
 }
 
@@ -1889,7 +2192,15 @@ function bbp_get_topic_forum_title( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the title of the forum a topic belongs to.
+	 *
+	 * @since 2.0.0 bbPress (r2498)
+	 *
+	 * @param string $value Topic forum title.
+	 * @param int $topic_id Topic id.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_topic_forum', bbp_get_forum_title( $forum_id ), $topic_id, $forum_id );
 }
 
@@ -1927,7 +2238,14 @@ function bbp_get_topic_forum_id( $topic_id = 0 ) {
 		$forum_id = (int) bbp_get_forum_id( $forum_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forum id a topic belongs to.
+	 *
+	 * @since 2.0.0 bbPress (r2498)
+	 *
+	 * @param int $forum_id Topic forum id.
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_get_topic_forum_id', $forum_id, $topic_id );
 }
 
@@ -1955,7 +2273,14 @@ function bbp_get_topic_last_active_id( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );
 	$active_id = (int) get_post_meta( $topic_id, '_bbp_last_active_id', true );
 
-	// Filter & return
+	/**
+	 * Filters a topic's last active post ID.
+	 *
+	 * @since 2.0.0 bbPress (r2872)
+	 *
+	 * @param int $active_id Last active post ID in the topic.
+	 * @param int $topic_id Forum id.
+	 */
 	return (int) apply_filters( 'bbp_get_topic_last_active_id', $active_id, $topic_id );
 }
 
@@ -1987,6 +2312,7 @@ function bbp_get_topic_last_active_time( $topic_id = 0 ) {
 
 	// Topic metadata may point to activity that still requires a password.
 	if ( ! empty( $topic_id ) && bbp_get_password_required_id( $activity_ids ) ) {
+		/** This filter is documented in src/includes/topics/template.php. */
 		return apply_filters( 'bbp_get_topic_last_active', '', $topic_id );
 	}
 
@@ -2002,7 +2328,14 @@ function bbp_get_topic_last_active_time( $topic_id = 0 ) {
 
 	$last_active = ! empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
 
-	// Filter & return
+	/**
+	 * Filters the topics last update date/time (aka freshness).
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 *
+	 * @param string $last_active Topic freshness.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_last_active', $last_active, $topic_id );
 }
 
@@ -2062,7 +2395,15 @@ function bbp_get_topic_subscription_link( $args = array() ) {
 	// Get the link
 	$retval = bbp_get_user_subscribe_link( $r );
 
-	// Filter & return
+	/**
+	 * Filters the topic subscription link.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param string|false|null $retval Subscription link, false when unavailable, or null when subscriptions are inactive.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Subscription link arguments.
+	 */
 	return apply_filters( 'bbp_get_topic_subscribe_link', $retval, $r, $args );
 }
 
@@ -2122,7 +2463,15 @@ function bbp_get_topic_favorite_link( $args = array() ) {
 	// Get the link
 	$retval = bbp_get_user_favorites_link( $r );
 
-	// Filter & return
+	/**
+	 * Filters the topic favorite link.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param string|false $retval Favorite link, or false when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Favorite link arguments.
+	 */
 	return apply_filters( 'bbp_get_topic_favorite_link', $retval, $r, $args );
 }
 
@@ -2152,7 +2501,14 @@ function bbp_get_topic_last_reply_id( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$reply_id = (int) get_post_meta( $topic_id, '_bbp_last_reply_id', true );
 
-	// Filter & return
+	/**
+	 * Filters the id of the topics last reply.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param int $reply_id Topic last reply id.
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_get_topic_last_reply_id', $reply_id, $topic_id );
 }
 
@@ -2183,9 +2539,27 @@ function bbp_get_topic_last_reply_title( $topic_id = 0 ) {
 	$retval   = bbp_get_reply_title( $reply_id );
 
 	// Misspelled. Use 'bbp_get_topic_last_reply_title' hook instead.
+
+	/**
+	 * Filters the latest topic title shown in a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $retval The latest topic title shown in a topic.
+	 * @param int $topic_id Topic id.
+	 * @param int $reply_id Reply id.
+	 */
 	$retval = apply_filters( 'bbp_get_topic_last_topic_title', $retval, $topic_id, $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the title of the last reply inside a topic.
+	 *
+	 * @since 2.6.0 bbPress (r6244)
+	 *
+	 * @param string $retval Topic last reply title.
+	 * @param int $topic_id Topic id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_topic_last_reply_title', $retval, $topic_id, $reply_id );
 }
 
@@ -2214,7 +2588,15 @@ function bbp_get_topic_last_reply_permalink( $topic_id = 0 ) {
 	$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 	$retval   = bbp_get_reply_permalink( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the link to the last reply in a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $retval Permanent link to the reply.
+	 * @param int $topic_id Topic id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_topic_last_reply_permalink', $retval, $topic_id, $reply_id );
 }
 
@@ -2248,7 +2630,15 @@ function bbp_get_topic_last_reply_url( $topic_id = 0 ) {
 		$reply_url = bbp_get_topic_permalink( $topic_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the last reply in a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2684)
+	 *
+	 * @param string $reply_url Topic last reply url.
+	 * @param int $topic_id Topic id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_topic_last_reply_url', $reply_url, $topic_id, $reply_id );
 }
 
@@ -2282,6 +2672,7 @@ function bbp_get_topic_freshness_link( $topic_id = 0 ) {
 
 	// Check the activity record and the reply used to build the link.
 	if ( ! empty( $topic_id ) && bbp_get_password_required_id( $activity_ids ) ) {
+		/** This filter is documented in src/includes/topics/template.php. */
 		return apply_filters( 'bbp_get_topic_freshness_link', '-', $topic_id, '', '', '' );
 	}
 
@@ -2295,7 +2686,17 @@ function bbp_get_topic_freshness_link( $topic_id = 0 ) {
 		$anchor = esc_html__( 'No Replies', 'bbpress' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the most recent activity inside a topic, complete.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $anchor Topic freshness link.
+	 * @param int $topic_id Topic id.
+	 * @param string $time_since Human-readable time since activity.
+	 * @param string $link_url Link URL.
+	 * @param string $title Title.
+	 */
 	return apply_filters( 'bbp_get_topic_freshness_link', $anchor, $topic_id, $time_since, $link_url, $title );
 }
 
@@ -2347,7 +2748,14 @@ function bbp_get_topic_replies_link( $topic_id = 0 ) {
 			: " {$extra}";
 	}
 
-	// Filter & return
+	/**
+	 * Filters the replies link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param string $retval Reply count as a link or plain text.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_replies_link', $retval, $topic_id );
 }
 
@@ -2380,6 +2788,18 @@ function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
 		? 'bbp_get_topic_reply_count_int'
 		: 'bbp_get_topic_reply_count';
 
+	/**
+	 * Filters a topic's reply count.
+	 *
+	 * The hook name is `bbp_get_topic_reply_count_int` for integer output and
+	 * `bbp_get_topic_reply_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $replies Unformatted count, or a formatted count after filtering.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( $filter, $replies, $topic_id );
 }
 
@@ -2412,6 +2832,18 @@ function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
 		? 'bbp_get_topic_post_count_int'
 		: 'bbp_get_topic_post_count';
 
+	/**
+	 * Filters a topic's total post count.
+	 *
+	 * The hook name is `bbp_get_topic_post_count_int` for integer output and
+	 * `bbp_get_topic_post_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2955)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $replies Unformatted count, or a formatted count after filtering.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( $filter, $replies, $topic_id );
 }
 
@@ -2446,6 +2878,18 @@ function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 		? 'bbp_get_topic_reply_count_hidden_int'
 		: 'bbp_get_topic_reply_count_hidden';
 
+	/**
+	 * Filters a topic's hidden reply count.
+	 *
+	 * The hook name is `bbp_get_topic_reply_count_hidden_int` for integer output and
+	 * `bbp_get_topic_reply_count_hidden` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r3349)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $replies Unformatted count, or a formatted count after filtering.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( $filter, $replies, $topic_id );
 }
 
@@ -2478,6 +2922,18 @@ function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 		? 'bbp_get_topic_voice_count_int'
 		: 'bbp_get_topic_voice_count';
 
+	/**
+	 * Filters a topic's participant count.
+	 *
+	 * The hook name is `bbp_get_topic_voice_count_int` for integer output and
+	 * `bbp_get_topic_voice_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2567)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $voices Unformatted count, or a formatted count after filtering.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( $filter, $voices, $topic_id );
 }
 
@@ -2621,6 +3077,16 @@ function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
 	$post_classes = get_post_class( array_merge( $classes, $topic_classes ), $topic_id );
 
 	// Filter
+
+	/**
+	 * Filters the CSS classes on a topic row.
+	 *
+	 * @since 2.0.0 bbPress (r2678)
+	 *
+	 * @param array $classes The CSS classes on a topic row.
+	 * @param int $topic_id Topic id.
+	 * @param array<array-key, string> $classes Classes.
+	 */
 	$new_classes  = apply_filters( 'bbp_get_topic_class', $post_classes, $topic_id, $classes );
 
 	// Return
@@ -2668,6 +3134,15 @@ function bbp_get_topic_admin_links( $args = array() ) {
 	);
 
 	if ( empty( $r['links'] ) ) {
+
+		/**
+		 * Filters the available topic admin links.
+		 *
+		 * @since 2.0.0 bbPress (r2590)
+		 *
+		 * @param array $value The available topic admin links.
+		 * @param int $id Id.
+		 */
 		$r['links'] = apply_filters(
 			'bbp_topic_admin_links',
 			array(
@@ -2705,7 +3180,15 @@ function bbp_get_topic_admin_links( $args = array() ) {
 	$links  = implode( $r['sep'], array_filter( $r['links'] ) );
 	$retval = $r['before'] . $links . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the admin links for topic.
+	 *
+	 * @since 2.0.0 bbPress (r2590)
+	 *
+	 * @param string $retval Topic admin links.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_admin_links', $retval, $r, $args );
 }
 
@@ -2772,7 +3255,15 @@ function bbp_get_topic_edit_link( $args = array() ) {
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-edit-link">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the edit link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2727)
+	 *
+	 * @param string|null $retval Topic edit link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_edit_link', $retval, $r, $args );
 }
 
@@ -2827,7 +3318,14 @@ function bbp_get_topic_edit_url( $topic_id = 0 ) {
 	// Maybe add view=all
 	$url = bbp_add_view_all( $url );
 
-	// Filter & return
+	/**
+	 * Filters the URL to edit a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2753)
+	 *
+	 * @param string|null $url Topic edit URL, or null when unavailable.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_edit_url', $url, $topic_id );
 }
 
@@ -2929,7 +3427,15 @@ function bbp_get_topic_trash_link( $args = array() ) {
 	// Process the admin links
 	$retval = $r['link_before'] . implode( $r['sep'], $actions ) . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the trash link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2727)
+	 *
+	 * @param string|null $retval Topic trash link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_trash_link', $retval, $r, $args );
 }
 
@@ -2992,7 +3498,15 @@ function bbp_get_topic_close_link( $args = array() ) {
 	$uri     = wp_nonce_url( $uri, 'close-topic_' . $topic->ID );
 	$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-close-link">' . $display . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the close link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2727)
+	 *
+	 * @param string|null $retval Topic close link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_close_link', $retval, $r, $args );
 }
 
@@ -3056,7 +3570,15 @@ function bbp_get_topic_approve_link( $args = array() ) {
 	$uri     = wp_nonce_url( $uri, 'approve-topic_' . $topic->ID );
 	$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-approve-link">' . $display . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the approve link of the topic.
+	 *
+	 * @since 2.6.0 bbPress (r5504)
+	 *
+	 * @param string|null $retval Topic approve link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_approve_link', $retval, $r, $args );
 }
 
@@ -3149,7 +3671,15 @@ function bbp_get_topic_stick_link( $args = array() ) {
 	// Combine the HTML into 1 string
 	$retval = $r['link_before'] . $stick_display . $super_display . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the stick link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2754)
+	 *
+	 * @param string|null $retval Topic stick link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_stick_link', $retval, $r, $args );
 }
 
@@ -3204,7 +3734,15 @@ function bbp_get_topic_merge_link( $args = array() ) {
 	$uri    = add_query_arg( $query, bbp_get_topic_edit_url( $topic->ID ) );
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-merge-link">' . $r['merge_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the merge link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param string|null $retval Topic merge link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_merge_link', $retval, $r, $args );
 }
 
@@ -3270,7 +3808,15 @@ function bbp_get_topic_spam_link( $args = array() ) {
 	$uri    = wp_nonce_url( $uri, 'spam-topic_' . $topic->ID );
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-spam-link">' . $display . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the spam link of the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2727)
+	 *
+	 * @param string|null $retval Topic spam link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_spam_link', $retval, $r, $args );
 }
 
@@ -3328,7 +3874,15 @@ function bbp_get_topic_reply_link( $args = array() ) {
 	$r['uri'] = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . '#new-post';
 	$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link"' . $onclick . '>' . $r['reply_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the link to go directly to the reply form.
+	 *
+	 * @since 2.4.0 bbPress (r4966)
+	 *
+	 * @param string|null $retval Link for a reply to a topic, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments.
+	 */
 	return apply_filters( 'bbp_get_topic_reply_link', $retval, $r, $args );
 }
 
@@ -3403,7 +3957,14 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 		$base = add_query_arg( 'paged', '%#%' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the base URL used inside of pagination links.
+	 *
+	 * @since 2.6.0 bbPress (r6402)
+	 *
+	 * @param string|false $base Pagination base, or false when its URL is invalid.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_topics_pagination_base', $base, $forum_id );
 }
 
@@ -3472,7 +4033,13 @@ function bbp_get_forum_pagination_count() {
 		$retstr = esc_html( $retstr );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the pagination count.
+	 *
+	 * @since 2.0.0 bbPress (r2753)
+	 *
+	 * @param string $retstr Forum Pagination count.
+	 */
 	return apply_filters( 'bbp_get_forum_pagination_count', $retstr );
 }
 
@@ -3501,7 +4068,13 @@ function bbp_get_forum_pagination_links() {
 		return false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the pagination links.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param string|false $pagination_links Forum pagination links, or false when unavailable.
+	 */
 	return apply_filters( 'bbp_get_forum_pagination_links', $bbp->topic_query->pagination_links );
 }
 
@@ -3547,6 +4120,16 @@ function bbp_topic_notices() {
 	}
 
 	// Filter notice text and bail if empty
+
+	/**
+	 * Filters a notice shown above a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2744)
+	 *
+	 * @param string $notice_text A notice shown above a topic.
+	 * @param string $topic_status Topic status.
+	 * @param int $topic_id Topic id.
+	 */
 	$notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() );
 	if ( empty( $notice_text ) ) {
 		return;
@@ -3648,6 +4231,7 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
 	$topic_types = bbp_get_topic_types( $r['topic_id'] );
 	if ( ! current_user_can( 'moderate' ) ) {
 		if ( ! empty( $r['topic_id'] ) && bbp_is_topic_super_sticky( $r['topic_id'] ) ) {
+			/** This filter is documented in src/includes/topics/template.php. */
 			return apply_filters( 'bbp_get_form_topic_type_dropdown', '', $r, $args );
 		}
 		unset( $topic_types['super'] );
@@ -3668,7 +4252,15 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
 
 	<?php
 
-	// Filter & return
+	/**
+	 * Filters the topic type select box (normal/sticky/super sticky).
+	 *
+	 * @since 2.4.0 bbPress (r5060)
+	 *
+	 * @param string $value Topic type dropdown markup, or an empty string when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_form_topic_type_dropdown', ob_get_clean(), $r, $args );
 }
 
@@ -3753,7 +4345,15 @@ function bbp_get_form_topic_status_dropdown( $args = array() ) {
 
 	<?php
 
-	// Filter & return
+	/**
+	 * Filters the topic status dropdown.
+	 *
+	 * @since 2.4.0 bbPress (r5060)
+	 *
+	 * @param string $value Topic status dropdown markup.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_form_topic_status_dropdown', ob_get_clean(), $r, $args );
 }
 
@@ -3809,6 +4409,7 @@ function bbp_get_single_topic_description( $args = array() ) {
 	 * @param array<string, mixed> $args            Original arguments.
 	 */
 	if ( ! apply_filters( 'bbp_use_single_topic_description', true, $r, $args ) ) {
+		/** This filter is documented in src/includes/topics/template.php. */
 		return apply_filters( 'bbp_get_single_topic_description', '', $r, $args );
 	}
 
@@ -3903,7 +4504,15 @@ function bbp_get_single_topic_description( $args = array() ) {
 	// Combine the elements together
 	$retstr = $r['before'] . $retstr . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the description of a single topic.
+	 *
+	 * @since 2.0.0 bbPress (r2872)
+	 *
+	 * @param string $retstr Filtered topic description.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_single_topic_description', $retstr, $r, $args );
 }
 
@@ -3929,7 +4538,13 @@ function bbp_topic_tag_tax_id() {
  */
 function bbp_get_topic_tag_tax_id() {
 
-	// Filter & return
+	/**
+	 * Filters the topic tag taxonomy ID.
+	 *
+	 * @since 2.0.0 bbPress (r3348)
+	 *
+	 * @param string $topic_tag_tax_id The unique topic tag taxonomy.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_tax_id', bbpress()->topic_tag_tax_id );
 }
 
@@ -3942,7 +4557,13 @@ function bbp_get_topic_tag_tax_id() {
  */
 function bbp_get_topic_tag_tax_labels() {
 
-	// Filter & return
+	/**
+	 * Filters the array of labels used by the topic-tag taxonomy.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, string> $value The array of labels used by the topic-tag taxonomy.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_tag_tax_labels',
 		array(
@@ -3981,7 +4602,13 @@ function bbp_get_topic_tag_tax_labels() {
  */
 function bbp_get_topic_tag_tax_rewrite() {
 
-	// Filter & return
+	/**
+	 * Filters an array of topic-tag taxonomy rewrite settings.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, mixed> $value An array of topic-tag taxonomy rewrite settings.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_tag_tax_rewrite',
 		array(
@@ -4026,7 +4653,15 @@ function bbp_get_topic_tag_id( $tag = '' ) {
 		? $term->term_id
 		: 0;
 
-	// Filter & return
+	/**
+	 * Filters the id of the current tag.
+	 *
+	 * @since 2.0.0 bbPress (r3109)
+	 *
+	 * @param int $retval Topic tag ID.
+	 * @param string $tag Topic tag slug.
+	 * @param WP_Term|false $term Resolved topic tag.
+	 */
 	return (int) apply_filters( 'bbp_get_topic_tag_id', (int) $retval, $tag, $term );
 }
 
@@ -4065,7 +4700,15 @@ function bbp_get_topic_tag_name( $tag = '' ) {
 		? $term->name
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the name of the current tag.
+	 *
+	 * @since 2.0.0 bbPress (r3109)
+	 *
+	 * @param string $retval Topic tag name.
+	 * @param string $tag Topic tag slug.
+	 * @param WP_Term|false $term Resolved topic tag.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_name', $retval, $tag, $term );
 }
 
@@ -4104,7 +4747,15 @@ function bbp_get_topic_tag_slug( $tag = '' ) {
 		? $term->slug
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the slug of the current tag.
+	 *
+	 * @since 2.0.0 bbPress (r3109)
+	 *
+	 * @param string $retval Topic tag slug.
+	 * @param string $tag Topic tag slug.
+	 * @param WP_Term|false $term Resolved topic tag.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_slug', $retval, $tag, $term );
 }
 
@@ -4146,7 +4797,15 @@ function bbp_get_topic_tag_link( $tag = '' ) {
 		$retval = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link of the current tag.
+	 *
+	 * @since 2.0.0 bbPress (r3348)
+	 *
+	 * @param string $retval Topic tag URL.
+	 * @param string $tag Topic tag slug.
+	 * @param WP_Term|false $term Resolved topic tag.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_link', $retval, $tag, $term );
 }
 
@@ -4200,7 +4859,15 @@ function bbp_get_topic_tag_subscription_link( $args = array() ) {
 		? bbp_get_user_subscribe_link( $r )
 		: false;
 
-	// Filter & return
+	/**
+	 * Filters the topic-tag subscription link.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string|false $retval Subscription link, or false when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Subscription-link arguments.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_subscribe_link', $retval, $r, $args );
 }
 
@@ -4247,7 +4914,15 @@ function bbp_get_topic_tag_edit_link( $tag = '' ) {
 		$retval = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link of the current tag.
+	 *
+	 * @since 2.0.0 bbPress (r3348)
+	 *
+	 * @param string $retval Topic tag edit URL.
+	 * @param string $tag Topic tag slug.
+	 * @param WP_Term|false $term Resolved topic tag.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_edit_link', $retval, $tag, $term );
 }
 
@@ -4299,7 +4974,17 @@ function bbp_get_topic_tag_description( $args = array() ) {
 		? $r['before'] . $term->description . $r['after']
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the description of the current tag.
+	 *
+	 * @since 2.0.0 bbPress (r3109)
+	 *
+	 * @param string $retval Term Name.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args before|after|tag.
+	 * @param string $tag Topic tag slug.
+	 * @param WP_Term|false $term Resolved topic tag.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_description', $retval, $r, $args, $tag, $term );
 }
 
@@ -4341,7 +5026,13 @@ function bbp_get_form_topic_title() {
 		$topic_title = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of topic title field.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param string $topic_title Value of topic title field.
+	 */
 	return apply_filters( 'bbp_get_form_topic_title', $topic_title );
 }
 
@@ -4381,7 +5072,13 @@ function bbp_get_form_topic_content() {
 		$topic_content = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of topic content field.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param string $topic_content Value of topic content field.
+	 */
 	return apply_filters( 'bbp_get_form_topic_content', $topic_content );
 }
 
@@ -4458,7 +5155,13 @@ function bbp_get_form_topic_tags() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of topic tags field.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param string $topic_tags Value of topic tags field.
+	 */
 	return apply_filters( 'bbp_get_form_topic_tags', $topic_tags );
 }
 
@@ -4495,7 +5198,13 @@ function bbp_get_form_topic_forum() {
 		$topic_forum = 0;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of topic forum.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param int $topic_forum Forum ID for the topic, or 0 when none is selected.
+	 */
 	return apply_filters( 'bbp_get_form_topic_forum', $topic_forum );
 }
 
@@ -4539,7 +5248,14 @@ function bbp_get_form_topic_subscribed() {
 	// Get checked output
 	$checked = checked( $topic_subscribed, true, false );
 
-	// Filter & return
+	/**
+	 * Filters the checked value of topic subscription.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param string $checked Checked value of topic subscription.
+	 * @param bool $topic_subscribed Whether the topic is subscribed.
+	 */
 	return apply_filters( 'bbp_get_form_topic_subscribed', $checked, $topic_subscribed );
 }
 
@@ -4575,7 +5291,14 @@ function bbp_get_form_topic_log_edit() {
 	// Get checked output
 	$checked = checked( $topic_revision, true, false );
 
-	// Filter & return
+	/**
+	 * Filters the checked value of topic log edit field.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param string $checked Topic log edit checked value.
+	 * @param bool $topic_revision Whether to log the topic edit.
+	 */
 	return apply_filters( 'bbp_get_form_topic_log_edit', $checked, $topic_revision );
 }
 
@@ -4608,7 +5331,13 @@ function bbp_get_form_topic_edit_reason() {
 		$topic_edit_reason = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of the topic edit reason.
+	 *
+	 * @since 2.0.0 bbPress (r2976)
+	 *
+	 * @param string $topic_edit_reason Topic edit reason value.
+	 */
 	return apply_filters( 'bbp_get_form_topic_edit_reason', $topic_edit_reason );
 }
 
@@ -4684,7 +5413,14 @@ function bbp_show_topic_lock_alert() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether to show the topic lock alert.
+	 *
+	 * @since 2.6.0 bbPress (r6344)
+	 *
+	 * @param bool $retval Whether to show the topic lock alert.
+	 * @param int $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_show_topic_lock_alert', $retval, $topic_id );
 }
 
@@ -4721,6 +5457,14 @@ function bbp_get_topic_lock_description( $topic_id = 0 ) {
 	/* translators: %1$s: Person who is editing (user profile link or "Nobody") */
 	$text = sprintf( esc_html__( '%1$s is currently editing this topic.', 'bbpress' ), $person );
 
-	// Filter & return
+	/**
+	 * Filters the topic lock description.
+	 *
+	 * @since 2.6.0 bbPress (r6344)
+	 *
+	 * @param string $text Topic lock description.
+	 * @param int $user_id User id.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_lock_description', $text, $user_id, $topic_id );
 }

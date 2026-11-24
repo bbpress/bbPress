@@ -49,7 +49,13 @@ function bbp_get_search_query_args() {
 		? array( 's' => $search_terms )
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the search query arguments.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param array<string, mixed> $retval Query arguments.
+	 */
 	return apply_filters( 'bbp_get_search_query_args', $retval );
 }
 
@@ -90,6 +96,14 @@ function bbp_search_results_redirect() {
  * @return list<string>
  */
 function bbp_get_search_type_ids() {
+
+	/**
+	 * Filters the post types included in forum search.
+	 *
+	 * @since 2.6.0 bbPress (r6903)
+	 *
+	 * @param array $types The post types included in forum search.
+	 */
 	return apply_filters( 'bbp_get_search_types', array( 's', 'fs', 'ts', 'rs' ) );
 }
 
@@ -137,6 +151,13 @@ function bbp_sanitize_search_request( $query_arg = 's' ) {
 	// Sanitize
 	$retval = sanitize_text_field( $terms );
 
-	// Filter & return
+	/**
+	 * Filters the sanitized search terms.
+	 *
+	 * @since 2.6.0 bbPress (r6903)
+	 *
+	 * @param string|false $retval Sanitized search terms, or false when no valid terms were supplied.
+	 * @param string $query_arg s|fs|ts|rs.
+	 */
 	return apply_filters( 'bbp_sanitize_search_request', $retval, $query_arg );
 }

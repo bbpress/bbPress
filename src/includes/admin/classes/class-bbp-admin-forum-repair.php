@@ -553,6 +553,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 				$this->fail( 'source-limit' );
 				return false;
 			}
+			/** This filter is documented in src/includes/forums/functions.php. */
 			$children = (array) apply_filters( 'bbp_forum_query_subforum_ids', $children, $id );
 			if ( count( $children ) > $limit ) {
 				$this->fail( 'source-limit' );
@@ -981,6 +982,7 @@ abstract class BBP_Admin_Forum_Repair extends BBP_Admin_Batch_Worker {
 	 */
 	protected function normalize_id( $id, $counted ) {
 		$id = (int) $id;
+		/** This filter is documented in src/includes/forums/template.php. */
 		return $counted && 'topics' !== $this->type ? (int) apply_filters( 'bbp_get_forum_id', $id, $id ) : $id;
 	}
 

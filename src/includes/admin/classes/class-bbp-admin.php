@@ -947,12 +947,29 @@ class BBP_Admin {
 		require_once ABSPATH . 'wp-admin/includes/import.php';
 
 		// Load our importers
+
+		/**
+		 * Filters the registered importer IDs.
+		 *
+		 * @since 2.0.0 bbPress (r3194)
+		 *
+		 * @param array $value The registered importer IDs.
+		 */
 		$importers = apply_filters( 'bbp_importers', array( 'bbpress' ) );
 
 		// Loop through included importers
 		foreach ( $importers as $importer ) {
 
 			// Allow custom importer directory
+
+			/**
+			 * Filters the directory containing a registered importer.
+			 *
+			 * @since 2.0.0 bbPress (r3438)
+			 *
+			 * @param string $value The directory containing a registered importer.
+			 * @param string $importer Importer.
+			 */
 			$import_dir  = apply_filters( 'bbp_importer_path', $this->admin_dir . 'importers', $importer );
 
 			// Compile the importer path
@@ -1291,6 +1308,14 @@ class BBP_Admin {
 		check_ajax_referer( 'bbp_suggest_topic_nonce' );
 
 		// Allow the maximum number of results to be filtered
+
+		/**
+		 * Filters the number of topics in the admin suggestions list.
+		 *
+		 * @since 2.6.5 bbPress (r7070)
+		 *
+		 * @param int $value The number of topics in the admin suggestions list.
+		 */
 		$number = (int) apply_filters( 'bbp_suggest_topic_count', 10 );
 
 		// Try to get some topics
@@ -1381,6 +1406,14 @@ class BBP_Admin {
 		}
 
 		// Allow the maximum number of results to be filtered
+
+		/**
+		 * Filters the number of users in the admin suggestions list.
+		 *
+		 * @since 2.6.5 bbPress (r7070)
+		 *
+		 * @param int $value The number of users in the admin suggestions list.
+		 */
 		$number = (int) apply_filters( 'bbp_suggest_user_count', 10 );
 
 		// Query database for users based on above criteria

@@ -57,6 +57,14 @@ function bbp_get_mention_pattern() {
  * @return bool
  */
 function bbp_is_mention_notifications_active() {
+
+	/**
+	 * Filters whether mention notifications are enabled.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param bool $value Whether mention notifications are enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_mention_notifications_active', ! ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) );
 }
 
@@ -354,6 +362,15 @@ function bbp_is_user_mention_email_enabled( $user_id = 0 ) {
 	$setting = bbp_get_user_notification_preference( $user_id, 'mentions' );
 	$enabled = bbp_is_user_notification_enabled( $user_id, 'mentions' );
 
+	/**
+	 * Filters whether mention emails are enabled for a user.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param bool $enabled Whether mention emails are enabled for a user.
+	 * @param int $user_id User id.
+	 * @param bool|null $setting Setting.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_mention_email_enabled', $enabled, $user_id, $setting );
 }
 
@@ -423,6 +440,15 @@ function bbp_send_mention_notifications() {
 				} else {
 					$link = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
 				}
+
+				/**
+				 * Filters the URL of a user's mention email settings.
+				 *
+				 * @since 2.7.0 bbPress (r8264)
+				 *
+				 * @param string $value The URL of a user's mention email settings.
+				 * @param int $user_id User id.
+				 */
 				$settings_url = bbp_validate_url( apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id ) );
 				/* translators: %s: Site name */
 				$subject = sprintf( __( '[%s] You were mentioned in a forum discussion', 'bbpress' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );
@@ -434,7 +460,27 @@ function bbp_send_mention_notifications() {
 					$message .= "\n\n" . __( 'You can turn off mention emails in your profile settings:', 'bbpress' );
 					$message .= "\n" . $settings_url;
 				}
+
+				/**
+				 * Filters the mention notification email message.
+				 *
+				 * @since 2.7.0 bbPress (r8264)
+				 *
+				 * @param string $message The mention notification email message.
+				 * @param int $post_id Post id.
+				 * @param int $user_id User id.
+				 */
 				$message = apply_filters( 'bbp_mention_notification_message', $message, $post_id, $user_id );
+
+				/**
+				 * Filters the mention notification email subject.
+				 *
+				 * @since 2.7.0 bbPress (r8264)
+				 *
+				 * @param string $subject The mention notification email subject.
+				 * @param int $post_id Post id.
+				 * @param int $user_id User id.
+				 */
 				$subject = apply_filters( 'bbp_mention_notification_subject', $subject, $post_id, $user_id );
 
 				if ( $subject && $message ) {

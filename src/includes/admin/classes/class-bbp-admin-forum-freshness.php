@@ -925,6 +925,7 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			'_bbp_last_active_id' => 'active'
 		);
 		if ( isset( $fields[ $key ] ) ) {
+			/** These filters are documented in src/includes/forums/functions.php. */
 			$node['returns'][ $fields[ $key ] ] = (int) apply_filters( str_replace( '_bbp_', 'bbp_update_forum_', $key ), $node['values'][ $key ], $node['id'] );
 		}
 		if ( '_bbp_last_topic_id' === $key ) {
@@ -936,11 +937,13 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 		if ( '_bbp_last_active_id' === $key ) {
 			$date = $this->post_date( $node['returns']['active'] );
 			if ( empty( $date ) ) {
+				/** This filter is documented in src/includes/forums/template.php. */
 				$fallback = (int) apply_filters( 'bbp_get_forum_last_active_id', $node['values'][ $key ], $node['id'] );
 				$date = $this->post_date( $fallback );
 			}
 			$node['values']['_bbp_last_active_time'] = empty( $date ) ? null : $date;
 		} elseif ( '_bbp_last_active_time' === $key ) {
+			/** This filter is documented in src/includes/forums/functions.php. */
 			apply_filters( 'bbp_update_forum_last_active', (string) $node['values'][ $key ], $node['id'] );
 		}
 		return $node;

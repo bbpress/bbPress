@@ -36,6 +36,16 @@ function bbp_get_template_part( $slug, $name = null ) {
 	$templates[] = $slug . '.php';
 
 	// Allow template parst to be filtered
+
+	/**
+	 * Filters the candidate files for a template part.
+	 *
+	 * @since 2.0.0 bbPress (r3032)
+	 *
+	 * @param array $templates The candidate files for a template part.
+	 * @param string $slug Slug.
+	 * @param string|null $name Name.
+	 */
 	$templates = apply_filters( 'bbp_get_template_part', $templates, $slug, $name );
 
 	// Return the part that is found
@@ -538,7 +548,13 @@ function bbp_get_template_stack() {
 	// Remove empties and duplicates
 	$stack = array_unique( array_filter( $stack ) );
 
-	// Filter & return
+	/**
+	 * Filters the template stack.
+	 *
+	 * @since 2.2.0 bbPress (r4324)
+	 *
+	 * @param array<int, string> $stack The filtered template locations.
+	 */
 	return (array) apply_filters( 'bbp_get_template_stack', $stack );
 }
 
@@ -597,6 +613,16 @@ function bbp_get_query_template( $type, $templates = array() ) {
 	}
 
 	// Filter possible templates
+
+	/**
+	 * Filters the candidate templates for a query type.
+	 *
+	 * The hook name uses the requested template type in place of `{$type}`.
+	 *
+	 * @since 2.1.0 bbPress (r3629)
+	 *
+	 * @param array<int, string> $templates Candidate template files.
+	 */
 	$templates = apply_filters( "bbp_get_{$type}_template", $templates );
 
 	// Stash the possible templates for this query, for later use
@@ -608,7 +634,16 @@ function bbp_get_query_template( $type, $templates = array() ) {
 	// Stash the located template for this query, for later use
 	bbp_set_theme_compat_template( $template );
 
-	// Filter & return
+	/**
+	 * Filters the path to a template.
+	 *
+	 * The hook name uses the requested template type in place of `{$type}`.
+	 *
+	 * @since 2.1.0 bbPress (r3629)
+	 *
+	 * @param string $template Full path to file.
+	 * @param array<int, string> $templates An optional list of template candidates.
+	 */
 	return apply_filters( "bbp_{$type}_template", $template, $templates );
 }
 
@@ -627,7 +662,14 @@ function bbp_get_template_locations( $templates = array() ) {
 		''
 	);
 
-	// Filter & return
+	/**
+	 * Filters the possible subdirectories to check for templates in.
+	 *
+	 * @since 2.1.0 bbPress (r3739)
+	 *
+	 * @param array<int, string> $locations Possible subdirectories to look in.
+	 * @param array<int, string> $templates Templates we are looking for.
+	 */
 	return apply_filters( 'bbp_get_template_locations', $locations, $templates );
 }
 
@@ -652,7 +694,14 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the template locations.
+	 *
+	 * @since 2.3.0 bbPress (r4762)
+	 *
+	 * @param array<int, string> $value Template locations.
+	 * @param array<int, string> $stacks Template stack paths.
+	 */
 	return (array) apply_filters( 'bbp_add_template_stack_locations', array_unique( $retval ), $stacks );
 }
 

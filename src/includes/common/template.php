@@ -236,7 +236,14 @@ function bbp_is_site_public( $site_id = 0 ) {
 		? get_blog_option( $site_id, 'blog_public', 1 )
 		: get_option( 'blog_public', 1 );
 
-	// Filter & return
+	/**
+	 * Filters whether current site is public.
+	 *
+	 * @since 2.0.0 bbPress (r3398)
+	 *
+	 * @param bool $public True if site is public, false if private.
+	 * @param int $site_id Site ID to check. Defaults to the current site.
+	 */
 	return (bool) apply_filters( 'bbp_is_site_public', $public, $site_id );
 }
 
@@ -259,7 +266,14 @@ function bbp_is_forum( $post_id = 0 ) {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a bbPress forum.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval True if it's a forum page, false if not.
+	 * @param int|WP_Post $post_id Possible post ID or object to check.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum', $retval, $post_id );
 }
 
@@ -283,7 +297,13 @@ function bbp_is_forum_archive() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows a forum archive.
+	 *
+	 * @since 2.0.0 bbPress (r3251)
+	 *
+	 * @param bool $retval Whether the current page shows a forum archive.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_archive', $retval );
 }
 
@@ -309,7 +329,13 @@ function bbp_is_single_forum() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows a single forum.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval Whether the current page shows a single forum.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_forum', $retval );
 }
 
@@ -344,7 +370,13 @@ function bbp_is_forum_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a forum edit page.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's the forum edit page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_edit', $retval );
 }
 
@@ -367,7 +399,14 @@ function bbp_is_topic( $post_id = 0 ) {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a bbPress topic.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval True if it's a topic page, false if not.
+	 * @param int|WP_Post $post_id Possible post ID or object to check.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic', $retval, $post_id );
 }
 
@@ -393,7 +432,13 @@ function bbp_is_single_topic() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows a single topic.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval Whether the current page shows a single topic.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_topic', $retval );
 }
 
@@ -414,7 +459,13 @@ function bbp_is_topic_archive() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows a topic archive.
+	 *
+	 * @since 2.0.0 bbPress (r3251)
+	 *
+	 * @param bool $retval Whether the current page shows a topic archive.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_archive', $retval );
 }
 
@@ -449,7 +500,13 @@ function bbp_is_topic_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a topic edit page.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's the topic edit page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_edit', $retval );
 }
 
@@ -470,7 +527,13 @@ function bbp_is_topic_merge() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a topic merge page.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's the topic merge page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_merge', $retval );
 }
 
@@ -491,7 +554,13 @@ function bbp_is_topic_split() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a topic split page.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's the topic split page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_split', $retval );
 }
 
@@ -522,7 +591,13 @@ function bbp_is_topic_tag() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a topic tag.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's a topic tag, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_tag', $retval );
 }
 
@@ -563,7 +638,13 @@ function bbp_is_topic_tag_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is editing a topic tag.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if editing a topic tag, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_topic_tag_edit', $retval );
 }
 
@@ -596,7 +677,14 @@ function bbp_is_custom_post_type( $post_types = false ) {
 	$bbp_post_types = bbp_get_post_types();
 	$retval         = ! empty( array_intersect( $post_types, $bbp_post_types ) );
 
-	// Filter & return
+	/**
+	 * Filters whether the current post type is one that comes with bbPress.
+	 *
+	 * @since 2.1.0 bbPress (r3902)
+	 *
+	 * @param bool $retval Whether the current post type is one that comes with bbPress.
+	 * @param array<int, string> $original_post_types Original post type IDs.
+	 */
 	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval, $original_post_types );
 }
 
@@ -619,7 +707,14 @@ function bbp_is_reply( $post_id = 0 ) {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a bbPress reply.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval True if it's a reply page, false if not.
+	 * @param int|WP_Post $post_id Possible post ID or object to check.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply', $retval, $post_id );
 }
 
@@ -654,7 +749,13 @@ function bbp_is_reply_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a reply edit page.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's the reply edit page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_edit', $retval );
 }
 
@@ -673,7 +774,13 @@ function bbp_is_reply_move() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a reply move page.
+	 *
+	 * @since 2.3.0 bbPress (r4522)
+	 *
+	 * @param bool $retval True if it's the reply move page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_move', $retval );
 }
 
@@ -699,7 +806,13 @@ function bbp_is_single_reply() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows a single reply.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval Whether the current page shows a single reply.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_reply', $retval );
 }
 
@@ -723,7 +836,13 @@ function bbp_is_favorites() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a bbPress user's favorites page (profile page).
+	 *
+	 * @since 2.0.0 bbPress (r3303)
+	 *
+	 * @param bool $retval True if it's the favorites page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_favorites', $retval );
 }
 
@@ -747,7 +866,13 @@ function bbp_is_subscriptions() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a bbPress user's subscriptions page (profile page).
+	 *
+	 * @since 2.0.0 bbPress (r3303)
+	 *
+	 * @param bool $retval True if it's the subscriptions page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_subscriptions', $retval );
 }
 
@@ -772,7 +897,13 @@ function bbp_is_topics_created() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows the topics created by a bbPress user (profile.
+	 *
+	 * @since 2.0.0 bbPress (r3303)
+	 *
+	 * @param bool $retval True if it's the topics created page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_topics_created', $retval );
 }
 
@@ -797,7 +928,13 @@ function bbp_is_replies_created() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page shows the replies created by a bbPress user (profile.
+	 *
+	 * @since 2.2.0 bbPress (r4228)
+	 *
+	 * @param bool $retval True if it's the replies created page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_replies_created', $retval );
 }
 
@@ -821,7 +958,13 @@ function bbp_is_user_home() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is the currently logged in users author page.
+	 *
+	 * @since 2.1.0 bbPress (r2660)
+	 *
+	 * @param bool $retval True if it's the user's home, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_home', $retval );
 }
 
@@ -841,7 +984,13 @@ function bbp_is_user_home_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is the currently logged in users author edit page.
+	 *
+	 * @since 2.1.0 bbPress (r3918)
+	 *
+	 * @param bool $retval True if it's the user's home, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_home_edit', $retval );
 }
 
@@ -865,7 +1014,13 @@ function bbp_is_single_user() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a user profile page.
+	 *
+	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param bool $retval True if it's a user's profile page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user', $retval );
 }
 
@@ -889,7 +1044,13 @@ function bbp_is_single_user_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a user profile edit page.
+	 *
+	 * @since 2.1.0 bbPress (r3553)
+	 *
+	 * @param bool $retval True if it's a user's profile edit page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user_edit', $retval );
 }
 
@@ -913,7 +1074,13 @@ function bbp_is_single_user_profile() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a user profile page.
+	 *
+	 * @since 2.2.0 bbPress (r4228)
+	 *
+	 * @param bool $retval True if it's a user's profile page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user_profile', $retval );
 }
 
@@ -937,7 +1104,13 @@ function bbp_is_single_user_topics() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a user topics created page.
+	 *
+	 * @since 2.2.0 bbPress (r4228)
+	 *
+	 * @param bool $retval True if it's a user's topics page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user_topics', $retval );
 }
 
@@ -961,7 +1134,13 @@ function bbp_is_single_user_replies() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a user replies created page.
+	 *
+	 * @since 2.2.0 bbPress (r4228)
+	 *
+	 * @param bool $retval True if it's a user's replies page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user_replies', $retval );
 }
 
@@ -985,7 +1164,13 @@ function bbp_is_single_user_engagements() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a user engagements page.
+	 *
+	 * @since 2.6.0 bbPress (r6320)
+	 *
+	 * @param bool $retval True if it's a user's replies page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user_engagements', $retval );
 }
 
@@ -999,6 +1184,13 @@ function bbp_is_single_user_engagements() {
 function bbp_is_single_user_mentions() {
 	$query = bbp_get_wp_query();
 
+	/**
+	 * Filters whether the request shows a user's mentions.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param bool $value Whether the request shows a user's mentions.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_user_mentions', ! empty( $query->bbp_is_single_user_mentions ) );
 }
 
@@ -1027,7 +1219,13 @@ function bbp_is_single_view() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a view page.
+	 *
+	 * @since 2.0.1 bbPress (r3541)
+	 *
+	 * @param bool $retval Whether the current page is a view page.
+	 */
 	return (bool) apply_filters( 'bbp_is_single_view', $retval );
 }
 
@@ -1069,7 +1267,13 @@ function bbp_is_search() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a search page.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param bool $retval Whether the current page is a search page.
+	 */
 	return (bool) apply_filters( 'bbp_is_search', $retval );
 }
 
@@ -1108,7 +1312,13 @@ function bbp_is_search_results() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a search results page.
+	 *
+	 * @since 2.4.0 bbPress (r4919)
+	 *
+	 * @param bool $retval Whether the current page is a search results page.
+	 */
 	return (bool) apply_filters( 'bbp_is_search_results', $retval );
 }
 
@@ -1132,7 +1342,13 @@ function bbp_is_edit() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is an edit page.
+	 *
+	 * @since 2.1.0 bbPress (r3586)
+	 *
+	 * @param bool $retval True if it's the edit page, false if not.
+	 */
 	return (bool) apply_filters( 'bbp_is_edit', $retval );
 }
 
@@ -1265,9 +1481,29 @@ function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 	$classes = array_unique(array_merge( (array) $bbp_classes, (array) $wp_classes ) );
 
 	// Deprecated filter (do not use )
+
+	/**
+	 * Filters the CSS classes added to the document body.
+	 *
+	 * @since 2.0.0 bbPress (r2926)
+	 *
+	 * @param array $classes The CSS classes added to the document body.
+	 * @param array<int, string> $bbp_classes Bbp classes.
+	 * @param array<int, string> $wp_classes Wp classes.
+	 * @param array<int, string>|bool $custom_classes Custom classes.
+	 */
 	$classes = apply_filters( 'bbp_get_the_body_class', $classes, $bbp_classes, $wp_classes, $custom_classes );
 
-	// Filter & return
+	/**
+	 * Filters the body classes.
+	 *
+	 * @since 2.0.0 bbPress (r2926)
+	 *
+	 * @param array<int, string> $classes Body classes.
+	 * @param array<int, string> $bbp_classes bbPress body classes.
+	 * @param array<int, string> $wp_classes WordPress body classes.
+	 * @param array<int, string>|bool $custom_classes Custom classes passed to the body class filters.
+	 */
 	return (array) apply_filters( 'bbp_body_class', $classes, $bbp_classes, $wp_classes, $custom_classes );
 }
 
@@ -1343,7 +1579,15 @@ function bbp_has_shortcode( $text = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether text contains a bbPress shortcode.
+	 *
+	 * @since 2.6.0 bbPress (r6440)
+	 *
+	 * @param bool $retval Whether text contains a bbPress shortcode.
+	 * @param bool $found Whether a shortcode was found.
+	 * @param string $text Content to check for a bbPress shortcode.
+	 */
 	return (bool) apply_filters( 'bbp_has_shortcode', $retval, $found, $text );
 }
 
@@ -1434,7 +1678,13 @@ function is_bbpress() {
 
 	/* Done *******************************************************************/
 
-	// Filter & return
+	/**
+	 * Filters whether the current page is a bbPress page.
+	 *
+	 * @since 2.0.0 bbPress (r3344)
+	 *
+	 * @param bool $retval In a bbPress page.
+	 */
 	return (bool) apply_filters( 'is_bbpress', $retval );
 }
 
@@ -1480,7 +1730,15 @@ function bbp_get_wp_login_action( $args = array() ) {
 
 	$login_url = site_url( $login_url, $r['context'] );
 
-	// Filter & return
+	/**
+	 * Filters the login form action URL.
+	 *
+	 * @since 2.5.8 bbPress (r5698)
+	 *
+	 * @param string $login_url Login form action URL.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Login action, context, and URL settings.
+	 */
 	return apply_filters( 'bbp_get_wp_login_action', $login_url, $r, $args );
 }
 
@@ -1510,7 +1768,14 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
 	$redirect_to    = remove_query_arg( 'loggedout', $redirect_to );
 	$redirect_field = '<input type="hidden" id="bbp_redirect_to" name="redirect_to" value="' . esc_url( $redirect_to ) . '" />';
 
-	// Filter & return
+	/**
+	 * Filters the redirect URL stored in the form field.
+	 *
+	 * @since 2.0.0 bbPress (r2815)
+	 *
+	 * @param string $redirect_field Hidden redirect field markup.
+	 * @param string $redirect_to Pass a URL to redirect to.
+	 */
 	echo apply_filters( 'bbp_redirect_to_field', $redirect_field, $redirect_to );
 }
 
@@ -1569,7 +1834,15 @@ function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
 			break;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the sanitized $_REQUEST value.
+	 *
+	 * @since 2.0.0 bbPress (r2815)
+	 *
+	 * @param string|false $retval Sanitized value, or false if the request value is empty.
+	 * @param string $request Name of the request value to sanitize.
+	 * @param string $input_type Input type: text, textarea, password, select, radio, or checkbox.
+	 */
 	return apply_filters( 'bbp_get_sanitize_val', $retval, $request, $input_type );
 }
 
@@ -1615,7 +1888,13 @@ function bbp_get_tab_index( $auto_increment = true ) {
 		++$bbp->tab_index;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the current tab index of a given form.
+	 *
+	 * @since 2.0.0 bbPress (r2810)
+	 *
+	 * @param int $tab_index The global tab index.
+	 */
 	return apply_filters( 'bbp_get_tab_index', (int) $bbp->tab_index );
 }
 
@@ -1657,7 +1936,14 @@ function bbp_get_tab_index_attribute( $tab = false ) {
 		? ' tabindex="' . (int) $tab . '"'
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters a "tabindex" attribute for an element, if an index was passed.
+	 *
+	 * @since 2.6.0 bbPress (r6433)
+	 *
+	 * @param string $attr A "tabindex" attribute for an element, if an index was passed.
+	 * @param mixed $tab False to skip, any integer to use.
+	 */
 	return apply_filters( 'bbp_get_tab_index_attribute', $attr, $tab );
 }
 
@@ -1840,7 +2126,15 @@ function bbp_get_dropdown( $args = array() ) {
 		$retval .= '</select>';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forum or topic selection dropdown.
+	 *
+	 * @since 2.0.0 bbPress (r2746)
+	 *
+	 * @param string $retval Forum or topic dropdown markup.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_dropdown', $retval, $r, $args );
 }
 
@@ -1946,6 +2240,14 @@ function bbp_reply_form_fields() {
 
 		// Show redirect field if not viewing a specific topic
 		if ( bbp_is_query_name( 'bbp_single_topic' ) ) {
+
+			/**
+			 * Filters the reply form redirect URL.
+			 *
+			 * @since 2.6.0 bbPress (r6728)
+			 *
+			 * @param string $value The reply form redirect URL.
+			 */
 			$redirect_to = apply_filters( 'bbp_reply_form_redirect_to', get_permalink() );
 			bbp_redirect_to_field( $redirect_to );
 		}
@@ -2138,7 +2440,15 @@ function bbp_get_the_content( $args = array() ) {
 	// Put the output into a usable variable
 	$output = ob_get_clean();
 
-	// Filter & return
+	/**
+	 * Filters the content editor markup.
+	 *
+	 * @since 2.1.0 bbPress (r3586)
+	 *
+	 * @param string $output Content editor markup.
+	 * @param array<string, mixed> $args Editor settings.
+	 * @param string $post_content Post content.
+	 */
 	return apply_filters( 'bbp_get_the_content', $output, $args, $post_content );
 }
 
@@ -2166,7 +2476,13 @@ function bbp_get_tiny_mce_plugins( $plugins = array() ) {
 	// Add the tabfocus plugin
 	$plugins[] = 'tabfocus';
 
-	// Filter & return
+	/**
+	 * Filters the TinyMCE plugins used by the editor.
+	 *
+	 * @since 2.3.0 bbPress (r4576)
+	 *
+	 * @param array<array-key, string> $plugins The tinymce plugins used by the editor.
+	 */
 	return apply_filters( 'bbp_get_tiny_mce_plugins', $plugins );
 }
 
@@ -2197,7 +2513,13 @@ function bbp_get_teeny_mce_buttons( $buttons = array() ) {
 	// Images
 	array_push( $buttons, 'image' );
 
-	// Filter & return
+	/**
+	 * Filters the buttons in the compact TinyMCE editor.
+	 *
+	 * @since 2.3.0 bbPress (r4606)
+	 *
+	 * @param array<array-key, string> $buttons The buttons in the compact tinymce editor.
+	 */
 	return apply_filters( 'bbp_get_teeny_mce_buttons', $buttons );
 }
 
@@ -2230,7 +2552,13 @@ function bbp_get_quicktags_settings( $settings = array() ) {
 	// Put them back into a string in the $settings array
 	$settings['buttons'] = implode( ',', $buttons );
 
-	// Filter & return
+	/**
+	 * Filters the quicktags settings.
+	 *
+	 * @since 2.3.0 bbPress (r4607)
+	 *
+	 * @param array<string, mixed> $settings Quicktags settings.
+	 */
 	return apply_filters( 'bbp_get_quicktags_settings', $settings );
 }
 
@@ -2283,7 +2611,14 @@ function bbp_get_view_id( $view = '' ) {
 		$view_id = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the view id.
+	 *
+	 * @since 2.6.0 bbPress (r6930)
+	 *
+	 * @param string $view_id View ID, or empty string if none is set.
+	 * @param string|int|false $view View ID, or false to use the current view.
+	 */
 	return apply_filters( 'bbp_get_view_id', $view_id, $view );
 }
 
@@ -2366,7 +2701,14 @@ function bbp_get_view_url( $view = false ) {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the view url.
+	 *
+	 * @since 2.0.0 bbPress (r2789)
+	 *
+	 * @param string $url View URL, or home URL if no view resolves.
+	 * @param string|int|false $view View ID.
+	 */
 	return apply_filters( 'bbp_get_view_link', $url, $view );
 }
 
@@ -2457,6 +2799,14 @@ function bbp_breadcrumb( $args = array() ) {
 function bbp_get_breadcrumb( $args = array() ) {
 
 	// Turn off breadcrumbs
+
+	/**
+	 * Filters whether to omit the breadcrumb on the front page.
+	 *
+	 * @since 2.0.0 bbPress (r3241)
+	 *
+	 * @param bool $omit Whether to omit the breadcrumb on the front page.
+	 */
 	if ( apply_filters( 'bbp_no_breadcrumb', is_front_page() ) ) {
 		return null;
 	}
@@ -2721,7 +3071,23 @@ function bbp_get_breadcrumb( $args = array() ) {
 	/** Finish Up *********************************************************/
 
 	// Filter the separator and breadcrumb
+
+	/**
+	 * Filters the separator used between breadcrumb items.
+	 *
+	 * @since 2.0.0 bbPress (r3109)
+	 *
+	 * @param string $sep The separator used between breadcrumb items.
+	 */
 	$sep    = apply_filters( 'bbp_breadcrumb_separator', $sep    );
+
+	/**
+	 * Filters the breadcrumb items before rendering them.
+	 *
+	 * @since 2.0.0 bbPress (r3241)
+	 *
+	 * @param array $crumbs The breadcrumb items before rendering them.
+	 */
 	$crumbs = apply_filters( 'bbp_breadcrumbs',          $crumbs );
 
 	// Build the trail
@@ -2729,7 +3095,16 @@ function bbp_get_breadcrumb( $args = array() ) {
 		? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'], $crumbs ) . $r['crumb_after'] . $r['after'] )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters a breadcrumb ( forum -> topic -> reply ).
+	 *
+	 * @since 2.0.0 bbPress (r2589)
+	 *
+	 * @param string|null $trail Breadcrumb markup, or null when breadcrumbs are disabled.
+	 * @param array<int, string> $crumbs Breadcrumb items.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Breadcrumb settings.
+	 */
 	return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r, $args );
 }
 
@@ -2774,7 +3149,13 @@ function bbp_get_allowed_tags() {
 		$allowed .= '> ';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the HTML representation of allowed tags.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param string $value HTML allowed tags entity encoded.
+	 */
 	return apply_filters( 'bbp_get_allowed_tags', htmlentities( $allowed ) );
 }
 
@@ -2808,7 +3189,14 @@ function bbp_get_template_notice_context() {
 		? $contexts[ $action ]
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the template notice context for the current POST action.
+	 *
+	 * @since 2.6.20 bbPress (r7968)
+	 *
+	 * @param string $context Template notice context.
+	 * @param string $action Current action.
+	 */
 	return apply_filters( 'bbp_get_template_notice_context', $context, $action );
 }
 
@@ -2932,7 +3320,15 @@ function bbp_get_logout_link( $redirect_to = '', $classes = array( 'button', 'lo
 	// Build the link
 	$link = '<a href="' . wp_logout_url( $redirect_to ) . '" class="' . esc_attr( $classes ) . '">' . esc_html__( 'Log Out', 'bbpress' ) . '</a>';
 
-	// Filter & return
+	/**
+	 * Filters the logout link.
+	 *
+	 * @since 2.0.0 bbPress (r2827)
+	 *
+	 * @param string $link The logout link.
+	 * @param string $redirect_to Redirect to url.
+	 * @param array<int, string> $classes Classes to add to the logout link.
+	 */
 	return apply_filters( 'bbp_get_logout_link', $link, $redirect_to, $classes );
 }
 
@@ -3115,6 +3511,14 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	}
 
 	// This filter is deprecated. Use 'bbp_before_title_parse_args' instead.
+
+	/**
+	 * Filters the unformatted title components.
+	 *
+	 * @since 2.4.0 bbPress (r5018)
+	 *
+	 * @param array $new_title The unformatted title components.
+	 */
 	$new_title = apply_filters( 'bbp_raw_title_array', $new_title );
 
 	// Set title array defaults
@@ -3131,6 +3535,16 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	$new_title = sprintf( $new_title['format'], $new_title['text'] );
 
 	// Filter the raw title
+
+	/**
+	 * Filters the unformatted page title.
+	 *
+	 * @since 2.0.0 bbPress (r2788)
+	 *
+	 * @param string $new_title The unformatted page title.
+	 * @param string $sep Sep.
+	 * @param string $seplocation Seplocation.
+	 */
 	$new_title = apply_filters( 'bbp_raw_title', $new_title, $sep, $seplocation );
 
 	// Compare new title with original title
@@ -3157,7 +3571,15 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		$new_title       = $prefix . implode( " $sep ", $new_title_array );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the title.
+	 *
+	 * @since 2.0.0 bbPress (r2788)
+	 *
+	 * @param string $new_title The title.
+	 * @param string $sep Optional, default is '&raquo;'. How to separate the various items within the page title.
+	 * @param string $seplocation Direction to display title, 'right'. separator and separator location.
+	 */
 	return apply_filters( 'bbp_title', $new_title, $sep, $seplocation );
 }
 
@@ -3192,6 +3614,14 @@ function bbp_no_title_status_hints( $prepend = '', $post = 0 ) {
 		? '%s'
 		: $prepend;
 
-	// Filter & return
+	/**
+	 * Filters the status hints shown when a title is absent.
+	 *
+	 * @since 2.7.0 bbPress (r7276)
+	 *
+	 * @param string $retval The status hints shown when a title is absent.
+	 * @param string $prepend text displayed before a post title.
+	 * @param int|WP_Post $post current post object.
+	 */
 	return (string) apply_filters( 'bbp_no_special_title_formatting', $retval, $prepend, $post );
 }

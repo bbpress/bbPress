@@ -81,6 +81,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			FROM {$this->db->posts} AS r INNER JOIN {$this->db->posts} AS t ON r.post_parent = t.ID
 			WHERE t.post_parent = %d AND t.post_type = %s AND r.post_type = %s GROUP BY r.post_status, r.post_type";
 		$query = $this->db->prepare( $sql, $id, $this->context['forum'], $this->context['topic'], $id, $this->context['topic'], $this->context['reply'] );
+		/** This filter is documented in src/includes/common/functions.php. */
 		$query = apply_filters( 'bbp_get_child_counts_query', $query, $id, $this->context['forum'] );
 		$rows  = $this->db->get_results( $query, ARRAY_A );
 		if ( ! is_array( $rows ) || ! empty( $this->db->last_error ) ) {
@@ -98,6 +99,7 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			}
 			$counts[ $row['type'] ][ $row['status'] ] = bbp_number_not_negative( $row['count'] );
 		}
+		/** This filter is documented in src/includes/common/functions.php. */
 		$counts   = (array) apply_filters( 'bbp_get_child_counts', $counts, $id );
 		$types    = array_flip( array( $type ) );
 		$lookup   = array_flip( $statuses );
@@ -107,8 +109,10 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 				$filtered[ $key ] = empty( $lookup ) ? $values : array_intersect_key( $values, $lookup );
 			}
 		}
+		/** This filter is documented in src/includes/common/functions.php. */
 		$filtered = (array) apply_filters( 'bbp_filter_child_counts_list', $filtered, $id, $types, $lookup );
 		$count    = isset( $filtered[ $type ] ) ? bbp_number_not_negative( array_sum( array_values( $filtered[ $type ] ) ) ) : 0;
+		/** These filters are documented in src/includes/common/functions.php. */
 		return (int) apply_filters( $hidden ? 'bbp_get_non_public_child_count' : 'bbp_get_public_child_count', $count, $id, $type );
 	}
 
@@ -147,7 +151,9 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 			return array();
 		}
 		$forum_type = is_string( $forum_type ) ? maybe_unserialize( $forum_type ) : '';
+		/** This filter is documented in src/includes/forums/template.php. */
 		$forum_type = apply_filters( 'bbp_get_forum_type', empty( $forum_type ) ? 'forum' : $forum_type, $id );
+		/** This filter is documented in src/includes/forums/template.php. */
 		$category   = (bool) apply_filters( 'bbp_is_forum_category', ! empty( $forum_type ) && ( 'category' === $forum_type ), $id );
 		$count    = 0;
 		if ( ! $category ) {
@@ -276,10 +282,14 @@ class BBP_Admin_Forum_Counts extends BBP_Admin_Forum_Repair {
 		$total_key = $this->meta_keys[1];
 		if ( 'topics' === $this->type ) {
 			$total_hidden_key = $this->meta_keys[3];
+			/** This filter is documented in src/includes/forums/functions.php. */
 			$parent_node['values'][ $total_key ]        += (int) apply_filters( 'bbp_update_forum_topic_count', $child['values'][ $total_key ], $edge );
+
+			/** This filter is documented in src/includes/forums/template.php. */
 			$parent_node['values'][ $total_hidden_key ] += (int) apply_filters( 'bbp_get_forum_topic_count_hidden_int', $child['values'][ $total_hidden_key ], $edge );
 		} else {
 			$hook = ( 'hidden-replies' === $this->type ) ? 'bbp_update_forum_reply_count_hidden' : 'bbp_update_forum_reply_count';
+			/** These filters are documented in src/includes/forums/functions.php. */
 			$parent_node['values'][ $total_key ] += (int) apply_filters( $hook, $child['values'][ $total_key ], $child['id'] );
 		}
 	}

@@ -35,7 +35,13 @@ function bbp_get_notification_types() {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the notification types that support a user email preference.
+	 *
+	 * @since 2.7.0 bbPress (r8363)
+	 *
+	 * @param array<string, array{label:string, default:bool}> $types Notification types, labels, and default values.
+	 */
 	return (array) apply_filters( 'bbp_get_notification_types', $types );
 }
 
@@ -82,6 +88,15 @@ function bbp_get_user_notification_default( $user_id = 0, $type = '' ) {
 		return false;
 	}
 
+	/**
+	 * Filters the inherited notification preference for a user.
+	 *
+	 * @since 2.7.0 bbPress (r8363)
+	 *
+	 * @param bool|null $value The inherited notification preference for a user.
+	 * @param int|string $user_id User id.
+	 * @param string $type Engagement type.
+	 */
 	$inherited = apply_filters( 'bbp_get_user_notification_inherited_preference', null, $user_id, $type );
 
 	return is_bool( $inherited )
@@ -114,13 +129,23 @@ function bbp_is_user_notification_enabled( $user_id = 0, $type = '' ) {
 	if ( null !== $preference ) {
 		$enabled = $preference;
 	} else {
+		/** This filter is documented in src/includes/users/notifications.php. */
 		$inherited = apply_filters( 'bbp_get_user_notification_inherited_preference', null, $user_id, $type );
 		$enabled   = is_bool( $inherited )
 			? $inherited
 			: ( ! empty( $types[ $type ]['default'] ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the notification is enabled.
+	 *
+	 * @since 2.7.0 bbPress (r8363)
+	 *
+	 * @param bool $enabled Whether the notification is enabled.
+	 * @param int|string $user_id User ID.
+	 * @param string $type Registered notification type.
+	 * @param bool|null $preference Explicit notification preference, or null when inherited.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_notification_enabled', $enabled, $user_id, $type, $preference );
 }
 
@@ -184,6 +209,7 @@ function bbp_filter_notification_user_ids( $user_ids = array(), $type = '' ) {
 	}
 
 	// Prime user metadata in batches before checking each preference
+	/** This filter is documented in src/includes/common/functions.php. */
 	$limit = apply_filters( 'bbp_get_users_chunk_limit', 100 );
 	foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
 		cache_users( $user_ids_chunk );

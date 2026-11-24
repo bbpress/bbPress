@@ -42,6 +42,16 @@ class BBP_User_Engagements_Base {
 	 * @return string Storage key.
 	 */
 	protected function get_storage_key( $meta_key = '', $meta_type = 'post' ) {
+
+		/**
+		 * Filters the metadata key used to store an engagement.
+		 *
+		 * @since 2.7.0 bbPress (r8318)
+		 *
+		 * @param string $meta_key The metadata key used to store an engagement.
+		 * @param string $meta_type Meta type.
+		 * @param BBP_User_Engagements_Base $this This.
+		 */
 		return (string) apply_filters( 'bbp_get_engagement_storage_key', $meta_key, $meta_type, $this );
 	}
 

@@ -18,7 +18,13 @@
  */
 function bbp_get_forum_caps() {
 
-	// Filter & return
+	/**
+	 * Filters the forum capabilities.
+	 *
+	 * @since 2.0.0 bbPress (r2593)
+	 *
+	 * @param array<string, string> $value Forum capabilities.
+	 */
 	return (array) apply_filters(
 		'bbp_get_forum_caps',
 		array(
@@ -77,6 +83,17 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				 * requiring the bbPress spectate capability.
 				 *
 				 * @since 2.6.20 bbPress (r7833)
+				 */
+
+				/**
+				 * Filters whether a user can read without the spectate capability.
+				 *
+				 * @since 2.6.20 bbPress (r7833)
+				 *
+				 * @param bool $value Whether a user can read without the spectate capability.
+				 * @param int $user_id User id.
+				 * @param int $context_3 Context 3.
+				 * @param string $cap Cap.
 				 */
 				$can_read = (bool) apply_filters( 'bbp_allow_read_without_spectate', false, $user_id, (int) $args[0], $cap );
 			}
@@ -290,7 +307,16 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			break;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the actual capabilities for meta capability.
+	 *
+	 * @since 2.2.0 bbPress (r4244)
+	 *
+	 * @param array<array-key, string> $caps Actual capabilities for meta capability.
+	 * @param string $cap Capability name.
+	 * @param int $user_id User id.
+	 * @param list<mixed> $args Arguments.
+	 */
 	return (array) apply_filters( 'bbp_map_forum_meta_caps', $caps, $cap, $user_id, $args );
 }
 
@@ -309,7 +335,15 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$retval   = user_can( $user_id, 'moderate', $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters whether a user moderates a forum.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param bool $retval Return true if user is moderator of forum.
+	 * @param int|float|string $user_id User id.
+	 * @param int|string $forum_id Forum id.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id );
 }
 
@@ -357,6 +391,14 @@ function bbp_allow_forums_of_user( $forum_ids = array(), $user_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters forum IDs excluded from a user's view.
+	 *
+	 * @since 2.6.0 bbPress (r6425)
+	 *
+	 * @param array<array-key, int|string> $forum_ids Forum ids excluded from a user's view.
+	 * @param int $user_id User ID to check if is a moderator of forums.
+	 * @param array<array-key, int|string> $original_forum_ids Original excluded forum IDs.
+	 */
 	return (array) apply_filters( 'bbp_allow_forums_of_user', $forum_ids, $user_id, $original_forum_ids );
 }

@@ -32,7 +32,13 @@ function bbp_forum_post_type() {
  */
 function bbp_get_forum_post_type() {
 
-	// Filter & return
+	/**
+	 * Filters the forum post type ID.
+	 *
+	 * @since 2.0.0 bbPress (r2858)
+	 *
+	 * @param string $forum_post_type The unique forum post type id.
+	 */
 	return apply_filters( 'bbp_get_forum_post_type', bbpress()->forum_post_type );
 }
 
@@ -45,7 +51,13 @@ function bbp_get_forum_post_type() {
  */
 function bbp_get_forum_post_type_labels() {
 
-	// Filter & return
+	/**
+	 * Filters the array of labels used by the forum post type.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, string> $value The array of labels used by the forum post type.
+	 */
 	return (array) apply_filters(
 		'bbp_get_forum_post_type_labels',
 		array(
@@ -94,7 +106,13 @@ function bbp_get_forum_post_type_labels() {
  */
 function bbp_get_forum_post_type_rewrite() {
 
-	// Filter & return
+	/**
+	 * Filters the array of forum post type rewrite settings.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, mixed> $value The array of forum post type rewrite settings.
+	 */
 	return (array) apply_filters(
 		'bbp_get_forum_post_type_rewrite',
 		array(
@@ -113,7 +131,13 @@ function bbp_get_forum_post_type_rewrite() {
  */
 function bbp_get_forum_post_type_supports() {
 
-	// Filter & return
+	/**
+	 * Filters the array of features the forum post type supports.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<array-key, string> $value The array of features the forum post type supports.
+	 */
 	return (array) apply_filters(
 		'bbp_get_forum_post_type_supports',
 		array(
@@ -182,7 +206,14 @@ function bbp_has_forums( $args = array() ) {
 	$bbp              = bbpress();
 	$bbp->forum_query = bbp_get_forum_loop_query( $r );
 
-	// Filter & return
+	/**
+	 * Filters whether forums are available.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 *
+	 * @param bool $value Whether forums are available.
+	 * @param WP_Query $forum_query Forum query object.
+	 */
 	return apply_filters( 'bbp_has_forums', $bbp->forum_query->have_posts(), $bbp->forum_query );
 }
 
@@ -291,7 +322,14 @@ function bbp_get_forum_id( $forum_id = 0 ) {
 		$bbp_forum_id = 0;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forum id.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 *
+	 * @param int $bbp_forum_id The forum id.
+	 * @param int|float|string|false $forum_id Forum ID, or false to use the current forum.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_id', (int) $bbp_forum_id, $forum_id );
 }
 
@@ -337,7 +375,16 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 		$retval = array_values( get_object_vars( $forum ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2787)
+	 *
+	 * @param WP_Post|array<array-key, mixed>|null $retval Forum in the requested format, or null if unavailable.
+	 * @param int|object $forum forum id or forum object.
+	 * @param string $output OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
+	 * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}.
+	 */
 	return apply_filters( 'bbp_get_forum', $retval, $forum, $output, $filter );
 }
 
@@ -412,7 +459,14 @@ function bbp_get_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 		$forum_permalink = get_permalink( $forum_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the forum.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 *
+	 * @param string $forum_permalink Permanent link to forum.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_permalink', $forum_permalink, $forum_id );
 }
 
@@ -441,7 +495,14 @@ function bbp_get_forum_title( $forum_id = 0 ) {
 	$title    = get_post_field( 'post_title', $forum_id );
 	$title    = apply_filters( 'the_title', $title, $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters the title of the forum.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 *
+	 * @param string $title Title of forum.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_title', $title, $forum_id );
 }
 
@@ -485,7 +546,13 @@ function bbp_get_forum_archive_title( $title = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forum archive title.
+	 *
+	 * @since 2.0.0 bbPress (r3250)
+	 *
+	 * @param string $title The forum archive title.
+	 */
 	return apply_filters( 'bbp_get_forum_archive_title', $title );
 }
 
@@ -521,7 +588,14 @@ function bbp_get_forum_content( $forum_id = 0 ) {
 
 	$content = get_post_field( 'post_content', $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters the content of the forum.
+	 *
+	 * @since 2.0.0 bbPress (r2794)
+	 *
+	 * @param string $content Content of the forum.
+	 * @param int $forum_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_forum_content', $content, $forum_id );
 }
 
@@ -562,7 +636,14 @@ function bbp_get_forum_last_active_id( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
 	$active_id = (int) get_post_meta( $forum_id, '_bbp_last_active_id', true );
 
-	// Filter & return
+	/**
+	 * Filters a forum's last active post ID.
+	 *
+	 * @since 2.0.0 bbPress (r2876)
+	 *
+	 * @param int $active_id Forum's last active id.
+	 * @param int $forum_id Forum id. the last active id and forum id.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_last_active_id', $active_id, $forum_id );
 }
 
@@ -598,6 +679,7 @@ function bbp_get_forum_last_active_time( $forum_id = 0 ) {
 		$active_id = bbp_get_forum_last_topic_id( $forum_id );
 	}
 	if ( ! empty( $active_id ) && ! bbp_is_forum_activity_public( $active_id ) ) {
+		/** This filter is documented in src/includes/forums/template.php. */
 		return apply_filters( 'bbp_get_forum_last_active', '', $forum_id );
 	}
 	$last_active = get_post_meta( $forum_id, '_bbp_last_active_time', true );
@@ -619,7 +701,14 @@ function bbp_get_forum_last_active_time( $forum_id = 0 ) {
 		? bbp_get_time_since( bbp_convert_date( $last_active ) )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the forum's last update date/time (aka freshness).
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 *
+	 * @param string $active_time Forum last update date/time (freshness).
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_active', $active_time, $forum_id );
 }
 
@@ -703,6 +792,7 @@ function bbp_get_forum_freshness_link( $forum_id = 0 ) {
 
 	// Existing forum metadata may still point to non-public content
 	if ( ! empty( $active_id ) && ( ! bbp_is_forum_activity_public( $active_id ) || ( ! empty( $rendered_id ) && ! bbp_is_forum_activity_public( $rendered_id ) ) ) ) {
+		/** This filter is documented in src/includes/forums/template.php. */
 		return apply_filters( 'bbp_get_forum_freshness_link', '-', $forum_id, '', '', '', $active_id );
 	}
 
@@ -722,7 +812,18 @@ function bbp_get_forum_freshness_link( $forum_id = 0 ) {
 		$anchor = esc_html__( 'No Topics', 'bbpress' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the most recent activity inside a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $anchor Link to the forum's latest activity, or fallback text.
+	 * @param int $forum_id Forum id.
+	 * @param string $time_since Human-readable time since activity.
+	 * @param string $link_url Link URL.
+	 * @param string $title Title.
+	 * @param int $active_id Last active post ID.
+	 */
 	return apply_filters( 'bbp_get_forum_freshness_link', $anchor, $forum_id, $time_since, $link_url, $title, $active_id );
 }
 
@@ -760,7 +861,14 @@ function bbp_get_forum_parent_id( $forum_id = 0 ) {
 		$parent_id = (int) bbp_get_forum_id( $parent_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a forum's parent ID.
+	 *
+	 * @since 2.1.0 bbPress (r3678)
+	 *
+	 * @param int $parent_id Forum parent id.
+	 * @param int $forum_id Forum id.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_parent_id', $parent_id, $forum_id );
 }
 
@@ -789,7 +897,14 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the array of parent forums.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param array<array-key, int> $ancestors Forum ancestors.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_ancestors', $ancestors, $forum_id );
 }
 
@@ -835,7 +950,15 @@ function bbp_forum_get_subforums( $args = array() ) {
 		$retval    = $get_posts->query( $r );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the subforums of given forum.
+	 *
+	 * @since 2.0.0 bbPress (r2914)
+	 *
+	 * @param array<array-key, WP_Post> $retval Subforum posts, or an empty array when none are found.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int|string $args Query arguments or a parent forum ID.
+	 */
 	return (array) apply_filters( 'bbp_forum_get_subforums', $retval, $r, $args );
 }
 
@@ -927,6 +1050,15 @@ function bbp_list_forums( $args = array() ) {
 
 			// Subforum classes
 			$subforum_classes      = array( 'bbp-forum-link' );
+
+			/**
+			 * Filters the classes applied to a subforum in the forum list.
+			 *
+			 * @since 2.6.0 bbPress (r6315)
+			 *
+			 * @param array<int, string> $subforum_classes The classes applied to a subforum in the forum list.
+			 * @param int $sub_forum_id Subforum ID.
+			 */
 			$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
 
 			// This could use bbp_get_forum_class() eventually...
@@ -943,6 +1075,16 @@ function bbp_list_forums( $args = array() ) {
 	}
 
 	// Filter output
+
+	/**
+	 * Filters the rendered list of forums.
+	 *
+	 * @since 2.0.0 bbPress (r2708)
+	 *
+	 * @param string $output The rendered list of forums.
+	 * @param array $r Parsed arguments.
+	 * @param array<string, mixed> $args Original arguments.
+	 */
 	$the_list = apply_filters( 'bbp_list_forums', $output, $r, $args );
 
 	// Echo or return the forums list
@@ -1013,7 +1155,15 @@ function bbp_get_forum_subscription_link( $args = array() ) {
 		$retval = bbp_get_user_subscribe_link( $r );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forum subscription link.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param string|false|null $retval Subscription link, false when unavailable, or null when subscriptions are inactive.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Subscription link arguments.
+	 */
 	return apply_filters( 'bbp_get_forum_subscribe_link', $retval, $r, $args );
 }
 
@@ -1043,7 +1193,14 @@ function bbp_get_forum_last_topic_id( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$topic_id = (int) get_post_meta( $forum_id, '_bbp_last_topic_id', true );
 
-	// Filter & return
+	/**
+	 * Filters the forum's last topic id.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param int $topic_id Forum's last topic id.
+	 * @param int $forum_id Forum id.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_last_topic_id', $topic_id, $forum_id );
 }
 
@@ -1074,7 +1231,14 @@ function bbp_get_forum_last_topic_title( $forum_id = 0 ) {
 		? bbp_get_topic_title( $topic_id )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the title of the last topic inside a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $title Forum's last topic's title.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_topic_title', $title, $forum_id );
 }
 
@@ -1103,7 +1267,15 @@ function bbp_get_forum_last_topic_permalink( $forum_id = 0 ) {
 	$topic_id = bbp_get_forum_last_topic_id( $forum_id );
 	$link     = bbp_get_topic_permalink( $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the link to the last topic in a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $link Permanent link to topic.
+	 * @param int $forum_id Forum id.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_topic_permalink', $link, $forum_id, $topic_id );
 }
 
@@ -1120,7 +1292,15 @@ function bbp_get_forum_last_topic_author_id( $forum_id = 0 ) {
 	$topic_id  = bbp_get_forum_last_topic_id( $forum_id );
 	$author_id = bbp_get_topic_author_id( $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the author ID of the last topic of a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2758)
+	 *
+	 * @param int $author_id Forum's last topic's author id.
+	 * @param int $forum_id Forum id.
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_last_topic_author_id', (int) $author_id, $forum_id, $topic_id );
 }
 
@@ -1149,7 +1329,14 @@ function bbp_get_forum_last_topic_author_link( $forum_id = 0 ) {
 	$author_id   = bbp_get_forum_last_topic_author_id( $forum_id );
 	$author_link = bbp_get_user_profile_link( $author_id );
 
-	// Filter & return
+	/**
+	 * Filters the link to author of last topic of forum.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $author_link Forum's last topic's author link.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_topic_author_link', $author_link, $forum_id );
 }
 
@@ -1179,7 +1366,14 @@ function bbp_get_forum_last_reply_id( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$reply_id = (int) get_post_meta( $forum_id, '_bbp_last_reply_id', true );
 
-	// Filter & return
+	/**
+	 * Filters the forum's last reply id.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param int $reply_id Forum's last reply id.
+	 * @param int $forum_id Forum id.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_last_reply_id', $reply_id, $forum_id );
 }
 
@@ -1204,7 +1398,15 @@ function bbp_get_forum_last_reply_title( $forum_id = 0 ) {
 	$reply_id = bbp_get_forum_last_reply_id( $forum_id );
 	$title    = bbp_get_reply_title( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the title of the last reply inside a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2758)
+	 *
+	 * @param string $title The title of the last reply inside a forum.
+	 * @param int $forum_id Forum id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_reply_title', $title, $forum_id, $reply_id );
 }
 
@@ -1234,7 +1436,15 @@ function bbp_get_forum_last_reply_permalink( $forum_id = 0 ) {
 	$reply_id = bbp_get_forum_last_reply_id( $forum_id );
 	$link     = bbp_get_reply_permalink( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the link to the last reply in a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $link Permanent link to the forum's last reply.
+	 * @param int $forum_id Forum id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_reply_permalink', $link, $forum_id, $reply_id );
 }
 
@@ -1276,7 +1486,15 @@ function bbp_get_forum_last_reply_url( $forum_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the url to the last reply in a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2684)
+	 *
+	 * @param string $reply_url Paginated URL to latest reply.
+	 * @param int $forum_id Forum id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_reply_url', $reply_url, $forum_id, $reply_id );
 }
 
@@ -1305,7 +1523,15 @@ function bbp_get_forum_last_reply_author_id( $forum_id = 0 ) {
 	$reply_id  = bbp_get_forum_last_reply_id( $forum_id );
 	$author_id = bbp_get_reply_author_id( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the author ID of last reply of forum.
+	 *
+	 * @since 2.0.0 bbPress (r2758)
+	 *
+	 * @param int $author_id Forum's last reply author id.
+	 * @param int $forum_id Forum id.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_reply_author_id', $author_id, $forum_id, $reply_id );
 }
 
@@ -1334,7 +1560,15 @@ function bbp_get_forum_last_reply_author_link( $forum_id = 0 ) {
 	$author_id   = bbp_get_forum_last_reply_author_id( $forum_id );
 	$author_link = bbp_get_user_profile_link( $author_id );
 
-	// Filter & return
+	/**
+	 * Filters the link to author of last reply of forum.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 *
+	 * @param string $author_link Link to author of last reply of forum.
+	 * @param int $forum_id Forum id.
+	 * @param int $author_id Author id.
+	 */
 	return apply_filters( 'bbp_get_forum_last_reply_author_link', $author_link, $forum_id, $author_id );
 }
 
@@ -1388,7 +1622,14 @@ function bbp_get_forum_topics_link( $forum_id = 0 ) {
 			: " {$extra}";
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topics link of the forum.
+	 *
+	 * @since 2.0.0 bbPress (r2889)
+	 *
+	 * @param string $retval Topic count as a link or plain text.
+	 * @param int $forum_id Forum ID.
+	 */
 	return apply_filters( 'bbp_get_forum_topics_link', $retval, $forum_id );
 }
 
@@ -1421,6 +1662,18 @@ function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
 		? 'bbp_get_forum_subforum_count_int'
 		: 'bbp_get_forum_subforum_count';
 
+	/**
+	 * Filters a forum's subforum count.
+	 *
+	 * The hook name is `bbp_get_forum_subforum_count_int` for integer output and
+	 * `bbp_get_forum_subforum_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2627)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $forum_count Unformatted count, or a formatted count after filtering.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( $filter, $forum_count, $forum_id );
 }
 
@@ -1456,6 +1709,18 @@ function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer
 		? 'bbp_get_forum_topic_count_int'
 		: 'bbp_get_forum_topic_count';
 
+	/**
+	 * Filters a forum's topic count.
+	 *
+	 * The hook name is `bbp_get_forum_topic_count_int` for integer output and
+	 * `bbp_get_forum_topic_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $topics Unformatted count, or a formatted count after filtering.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( $filter, $topics, $forum_id );
 }
 
@@ -1491,6 +1756,18 @@ function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer
 		? 'bbp_get_forum_reply_count_int'
 		: 'bbp_get_forum_reply_count';
 
+	/**
+	 * Filters a forum's reply count.
+	 *
+	 * The hook name is `bbp_get_forum_reply_count_int` for integer output and
+	 * `bbp_get_forum_reply_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2615)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $replies Unformatted count, or a formatted count after filtering.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( $filter, $replies, $forum_id );
 }
 
@@ -1527,6 +1804,18 @@ function bbp_get_forum_post_count( $forum_id = 0, $total_count = true, $integer 
 		? 'bbp_get_forum_post_count_int'
 		: 'bbp_get_forum_post_count';
 
+	/**
+	 * Filters a forum's total post count.
+	 *
+	 * The hook name is `bbp_get_forum_post_count_int` for integer output and
+	 * `bbp_get_forum_post_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2464)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $retval Unformatted count, or a formatted count after filtering.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( $filter, $retval, $forum_id );
 }
 
@@ -1566,6 +1855,18 @@ function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $
 		? 'bbp_get_forum_topic_count_hidden_int'
 		: 'bbp_get_forum_topic_count_hidden';
 
+	/**
+	 * Filters a forum's hidden topic count.
+	 *
+	 * The hook name is `bbp_get_forum_topic_count_hidden_int` for integer output and
+	 * `bbp_get_forum_topic_count_hidden` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r3349)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $topics Unformatted count, or a formatted count after filtering.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( $filter, $topics, $forum_id );
 }
 
@@ -1603,6 +1904,17 @@ function bbp_get_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $
 		? 'bbp_get_forum_reply_count_hidden_int'
 		: 'bbp_get_forum_reply_count_hidden';
 
+	/**
+	 * Filters a forum's hidden reply count.
+	 *
+	 * The hook name is `bbp_get_forum_reply_count_hidden_int` for integer output and
+	 * `bbp_get_forum_reply_count_hidden` for formatted output.
+	 *
+	 * @since 2.6.0 bbPress (r6923)
+	 *
+	 * @param int|string $replies Unformatted count, or a formatted count after filtering.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( $filter, $replies, $forum_id );
 }
 
@@ -1634,7 +1946,14 @@ function bbp_get_forum_status( $forum_id = 0 ) {
 		$status = 'open';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the status of the forum.
+	 *
+	 * @since 2.0.0 bbPress (r2678)
+	 *
+	 * @param string $status Status of forum.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_status', $status, $forum_id );
 }
 
@@ -1662,7 +1981,14 @@ function bbp_get_forum_visibility( $forum_id = 0 ) {
 	$forum_id   = bbp_get_forum_id( $forum_id );
 	$visibility = get_post_status( $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters the visibility of the forum.
+	 *
+	 * @since 2.0.0 bbPress (r2998)
+	 *
+	 * @param string $visibility Visibility status of forum.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_visibility', $visibility, $forum_id );
 }
 
@@ -1712,7 +2038,14 @@ function bbp_get_forum_type( $forum_id = 0 ) {
 		$retval = 'forum';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the type of forum (category/forum/etc...).
+	 *
+	 * @since 2.1.0 bbPress (r3563)
+	 *
+	 * @param string $retval Forum type slug.
+	 * @param int $forum_id Forum id.
+	 */
 	return apply_filters( 'bbp_get_forum_type', $retval, $forum_id );
 }
 
@@ -1729,7 +2062,14 @@ function bbp_is_forum_category( $forum_id = 0 ) {
 	$type     = bbp_get_forum_type( $forum_id );
 	$retval   = ( ! empty( $type ) && 'category' === $type );
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is a category.
+	 *
+	 * @since 2.0.0 bbPress (r3008)
+	 *
+	 * @param bool $retval Whether the forum is a category or not.
+	 * @param int $forum_id Forum id.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_category', (bool) $retval, $forum_id );
 }
 
@@ -1765,7 +2105,15 @@ function bbp_is_forum_closed( $forum_id = 0, $check_ancestors = true ) {
 	// Check if the forum or one of it's ancestors is closed
 	$retval   = bbp_is_forum_status( $forum_id, bbp_get_closed_status_id(), $check_ancestors, 'OR' );
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is closed.
+	 *
+	 * @since 2.0.0 bbPress (r3008)
+	 *
+	 * @param bool $retval True if closed, false if not.
+	 * @param int $forum_id Forum id.
+	 * @param bool $check_ancestors Check if the ancestors are closed (only if they're a category).
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_closed', (bool) $retval, $forum_id, $check_ancestors );
 }
 
@@ -1841,7 +2189,18 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the forum status is a specific one, also maybe checking ancestors.
+	 *
+	 * @since 2.6.0 bbPress (r5499)
+	 *
+	 * @param bool $retval True if match, false if not.
+	 * @param int $count Number of matching forums.
+	 * @param int $forum_id Forum ID.
+	 * @param string $status_name Forum status name to check.
+	 * @param bool $check_ancestors Whether to check forum ancestors.
+	 * @param string $operator Logical operation to perform. 'OR' means only one forum from the tree needs to match; 'AND' means all forums must match. The default is 'AND'.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_status', $retval, $count, $forum_id, $status_name, $check_ancestors, $operator );
 }
 
@@ -1889,7 +2248,15 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is public.
+	 *
+	 * @since 2.0.0 bbPress (r2998)
+	 *
+	 * @param bool $retval True if public, false if not.
+	 * @param int $forum_id Forum id.
+	 * @param bool $check_ancestors Check if the ancestors are public.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_public', $retval, $forum_id, $check_ancestors );
 }
 
@@ -1910,7 +2277,15 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 	// Check if the forum or one of it's ancestors is private
 	$retval   = bbp_is_forum_visibility( $forum_id, bbp_get_private_status_id(), $check_ancestors, 'OR' );
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is private.
+	 *
+	 * @since 2.0.0 bbPress (r2998)
+	 *
+	 * @param bool $retval True if private, false if not.
+	 * @param int $forum_id Forum id.
+	 * @param bool $check_ancestors Check if the ancestors are private.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_private', $retval, $forum_id, $check_ancestors );
 }
 
@@ -1932,7 +2307,15 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 	// Check if the forum or one of it's ancestors is hidden
 	$retval   = bbp_is_forum_visibility( $forum_id, bbp_get_hidden_status_id(), $check_ancestors, 'OR' );
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is hidden.
+	 *
+	 * @since 2.0.0 bbPress (r2998)
+	 *
+	 * @param bool $retval True if hidden, false if not.
+	 * @param int $forum_id Forum id.
+	 * @param bool $check_ancestors Check if the ancestors are private (only if they're a category).
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_hidden', $retval, $forum_id, $check_ancestors );
 }
 
@@ -1974,7 +2357,15 @@ function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
 		|| bbp_is_forum_private( $forum_id, $check_ancestors )
 		|| bbp_is_forum_hidden( $forum_id, $check_ancestors );
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is unclassified, private, or hidden.
+	 *
+	 * @since 2.6.16 bbPress (r7473)
+	 *
+	 * @param bool $retval True if unclassified, private, or hidden, false if not.
+	 * @param int $forum_id Forum id.
+	 * @param bool $check_ancestors Whether to check the forum ancestors.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_restricted', $retval, $forum_id, $check_ancestors );
 }
 
@@ -2002,7 +2393,15 @@ function bbp_is_forum_restricted_for_user( $forum_id = 0, $user_id = 0 ) {
 		&& ( empty( $user_id ) || ! bbp_is_user_forum_moderator( $user_id, $forum_id ) )
 		&& ! user_can( $user_id, 'read_forum', $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters whether the forum is restricted from a user.
+	 *
+	 * @since 2.6.16 bbPress (r7503)
+	 *
+	 * @param bool $retval True if the forum is restricted from the user, false if not.
+	 * @param int $forum_id Forum ID.
+	 * @param int $user_id User ID. Defaults to 0.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_restricted_for_user', $retval, $forum_id, $user_id );
 }
 
@@ -2080,7 +2479,18 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether a forum matches the requested visibility.
+	 *
+	 * @since 2.6.0 bbPress (r5499)
+	 *
+	 * @param bool $retval True if match, false if not.
+	 * @param int $count Number of matching forums.
+	 * @param int $forum_id Forum id.
+	 * @param string $status_name The forum visibility name to check.
+	 * @param bool $check_ancestors Check the forum ancestors.
+	 * @param string $operator The logical operation to perform. 'OR' means only one forum from the tree needs to match; 'AND' means all forums must match. The default is 'AND'.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_visibility', $retval, $count, $forum_id, $status_name, $check_ancestors, $operator );
 }
 
@@ -2109,7 +2519,14 @@ function bbp_get_forum_author_id( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
 	$author_id = get_post_field( 'post_author', $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters the author ID of the forum.
+	 *
+	 * @since 2.1.0 bbPress (r3678)
+	 *
+	 * @param int $author_id Author ID of the forum.
+	 * @param int $forum_id Forum id.
+	 */
 	return (int) apply_filters( 'bbp_get_forum_author_id', (int) $author_id, $forum_id );
 }
 
@@ -2138,7 +2555,15 @@ function bbp_get_forum_author_display_name( $forum_id = 0 ) {
 	$author_id = bbp_get_forum_author_id( $forum_id );
 	$author    = get_the_author_meta( 'display_name', $author_id );
 
-	// Filter & return
+	/**
+	 * Filters a forum author's display name.
+	 *
+	 * @since 2.1.0 bbPress (r3678)
+	 *
+	 * @param string $author Author of forum.
+	 * @param int $forum_id Forum id.
+	 * @param int $author_id Author id.
+	 */
 	return apply_filters( 'bbp_get_forum_author_display_name', $author, $forum_id, $author_id );
 }
 
@@ -2177,7 +2602,13 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id, $time_since = '', 
 		$retval = '-';
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether to suppress metadata for a private forum.
+	 *
+	 * @since 2.0.0 bbPress (r3008)
+	 *
+	 * @param string $retval Whether to suppress metadata for a private forum.
+	 */
 	return apply_filters( 'bbp_suppress_private_forum_meta', $retval );
 }
 
@@ -2233,7 +2664,15 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array(), $
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether to suppress the author link for private content.
+	 *
+	 * @since 2.0.0 bbPress (r3008)
+	 *
+	 * @param string $retval Whether to suppress the author link for private content.
+	 * @param string $author_link Original author link.
+	 * @param array<string, mixed> $args Author link arguments.
+	 */
 	return apply_filters( 'bbp_suppress_private_author_link', $retval, $author_link, $args );
 }
 
@@ -2313,6 +2752,16 @@ function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
 	$post_classes = get_post_class( array_merge( $classes, $forum_classes ), $forum_id );
 
 	// Filter
+
+	/**
+	 * Filters the CSS classes on a forum row.
+	 *
+	 * @since 2.0.0 bbPress (r2678)
+	 *
+	 * @param array $classes The CSS classes on a forum row.
+	 * @param int $forum_id Forum id.
+	 * @param array<array-key, string> $classes Classes.
+	 */
 	$new_classes  = apply_filters( 'bbp_get_forum_class', $post_classes, $forum_id, $classes );
 
 	// Return
@@ -2373,6 +2822,7 @@ function bbp_get_single_forum_description( $args = array() ) {
 	 * @param array<string, mixed> $args            Original arguments.
 	 */
 	if ( ! apply_filters( 'bbp_use_single_forum_description', true, $r, $args ) ) {
+		/** This filter is documented in src/includes/forums/template.php. */
 		return apply_filters( 'bbp_get_single_forum_description', '', $r, $args );
 	}
 
@@ -2462,7 +2912,15 @@ function bbp_get_single_forum_description( $args = array() ) {
 	// Combine the elements together
 	$retstr = $r['before'] . $retstr . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the description of a single forum.
+	 *
+	 * @since 2.0.0 bbPress (r2876)
+	 *
+	 * @param string $retstr Filtered forum description.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_single_forum_description', $retstr, $r, $args );
 }
 
@@ -2501,7 +2959,13 @@ function bbp_get_form_forum_title() {
 		$forum_title = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of forum title field.
+	 *
+	 * @since 2.1.0 bbPress (r3551)
+	 *
+	 * @param string $forum_title Value of forum title field.
+	 */
 	return apply_filters( 'bbp_get_form_forum_title', $forum_title );
 }
 
@@ -2538,7 +3002,13 @@ function bbp_get_form_forum_content() {
 		$forum_content = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of forum content field.
+	 *
+	 * @since 2.1.0 bbPress (r3551)
+	 *
+	 * @param string $forum_content Value of forum content field.
+	 */
 	return apply_filters( 'bbp_get_form_forum_content', $forum_content );
 }
 
@@ -2591,7 +3061,13 @@ function bbp_get_form_forum_moderators() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of forum moderators field.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param string $forum_mods Value of forum moderators field.
+	 */
 	return apply_filters( 'bbp_get_form_forum_moderators', $forum_mods );
 }
 
@@ -2628,7 +3104,13 @@ function bbp_get_form_forum_parent() {
 		$forum_parent = 0;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of forum parent.
+	 *
+	 * @since 2.1.0 bbPress (r3551)
+	 *
+	 * @param int $forum_parent Forum parent ID, or 0 when none is selected.
+	 */
 	return apply_filters( 'bbp_get_form_forum_parent', $forum_parent );
 }
 
@@ -2665,7 +3147,13 @@ function bbp_get_form_forum_type() {
 		$forum_type = 'forum';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of forum type.
+	 *
+	 * @since 2.1.0 bbPress (r3563)
+	 *
+	 * @param string $forum_type Selected forum type.
+	 */
 	return apply_filters( 'bbp_get_form_forum_type', $forum_type );
 }
 
@@ -2702,7 +3190,13 @@ function bbp_get_form_forum_visibility() {
 		$forum_visibility = bbpress()->public_status_id;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of forum visibility.
+	 *
+	 * @since 2.1.0 bbPress (r3563)
+	 *
+	 * @param string $forum_visibility Selected forum visibility.
+	 */
 	return apply_filters( 'bbp_get_form_forum_visibility', $forum_visibility );
 }
 
@@ -2746,7 +3240,14 @@ function bbp_get_form_forum_subscribed() {
 	// Get checked output
 	$checked = checked( $forum_subscribed, true, false );
 
-	// Filter & return
+	/**
+	 * Filters the checked value of forum subscription.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param string $checked Checked value of forum subscription.
+	 * @param bool $forum_subscribed Whether the forum is subscribed.
+	 */
 	return apply_filters( 'bbp_get_form_forum_subscribed', $checked, $forum_subscribed );
 }
 
@@ -2837,7 +3338,15 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 
 	<?php
 
-	// Filter & return
+	/**
+	 * Filters the forum type dropdown.
+	 *
+	 * @since 2.1.0 bbPress (r3563)
+	 *
+	 * @param string $value Forum type dropdown markup.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r, $args );
 }
 
@@ -2926,7 +3435,15 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 
 	<?php
 
-	// Filter & return
+	/**
+	 * Filters the forum status dropdown.
+	 *
+	 * @since 2.1.0 bbPress (r3563)
+	 *
+	 * @param string $value HTML select list for selecting forum status.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_form_forum_status_dropdown', ob_get_clean(), $r, $args );
 }
 
@@ -3016,9 +3533,18 @@ function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 	<?php
 
 	// Preserve the existing type filter for visibility dropdowns.
+	/** This filter is documented in src/includes/forums/template.php. */
 	$html = apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r, $args );
 
-	// Filter & return
+	/**
+	 * Filters the forum visibility dropdown.
+	 *
+	 * @since 2.1.0 bbPress (r3563)
+	 *
+	 * @param string $html HTML select list for selecting forum visibility.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_form_forum_visibility_dropdown', $html, $r, $args );
 }
 
@@ -3118,7 +3644,15 @@ function bbp_get_forum_topics_feed_link( $forum_id = 0 ) {
 		$link = '<a href="' . esc_url( $url ) . '" class="bbp-forum-rss-link topics"><span>' . esc_attr__( 'Topics', 'bbpress' ) . '</span></a>';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link for the forum feed.
+	 *
+	 * @since 2.0.0 bbPress (r3172)
+	 *
+	 * @param string $link The link for the forum feed.
+	 * @param string $url URL.
+	 * @param int $forum_id Forum ID.
+	 */
 	return apply_filters( 'bbp_get_forum_topics_feed_link', $link, $url, $forum_id );
 }
 
@@ -3179,6 +3713,14 @@ function bbp_get_forum_replies_feed_link( $forum_id = 0 ) {
 		$link = '<a href="' . esc_url( $url ) . '" class="bbp-forum-rss-link replies"><span>' . esc_html__( 'Replies', 'bbpress' ) . '</span></a>';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link for the forum replies feed.
+	 *
+	 * @since 2.0.0 bbPress (r3172)
+	 *
+	 * @param string $link The link for the forum replies feed.
+	 * @param string $url URL.
+	 * @param int $forum_id Forum ID.
+	 */
 	return apply_filters( 'bbp_get_forum_replies_feed_link', $link, $url, $forum_id );
 }

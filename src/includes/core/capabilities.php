@@ -206,7 +206,14 @@ function bbp_get_caps_for_role( $role = '' ) {
 			break;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the capabilities assigned to a forum role.
+	 *
+	 * @since 2.0.0 bbPress (r2994)
+	 *
+	 * @param array<string, bool> $caps Capabilities for $role.
+	 * @param string $role Defaults to The role to load caps for.
+	 */
 	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
 }
 
@@ -273,7 +280,14 @@ function bbp_get_blog_roles() {
 	$the_roles = isset( $wp_roles->roles ) ? $wp_roles->roles : false;
 	$all_roles = apply_filters( 'editable_roles', $the_roles );
 
-	// Filter & return
+	/**
+	 * Filters the available roles, minus the dynamic roles that come with bbPress.
+	 *
+	 * @since 2.4.0 bbPress (r5064)
+	 *
+	 * @param array<string, array<string, mixed>>|false $all_roles The available roles, minus the dynamic roles that come with bbpress.
+	 * @param WP_Roles $wp_roles WordPress roles object.
+	 */
 	return apply_filters( 'bbp_get_blog_roles', $all_roles, $wp_roles );
 }
 
@@ -395,7 +409,14 @@ function bbp_get_dynamic_roles() {
 		$to_array[ $role_id ] = (array) $wp_role;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the registered dynamic forum roles.
+	 *
+	 * @since 2.2.0 bbPress (r4352)
+	 *
+	 * @param array<string, array{name: string, capabilities: array<string, bool>}> $to_array The registered dynamic forum roles.
+	 * @param array $roles Registered roles.
+	 */
 	return (array) apply_filters( 'bbp_get_dynamic_roles', $to_array, $roles );
 }
 
@@ -414,7 +435,15 @@ function bbp_get_dynamic_role_name( $role_id = '' ) {
 		? bbp_translate_user_role( $roles[ $role_id ]['name'] )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters a translated role name from a role ID.
+	 *
+	 * @since 2.3.0 bbPress (r4793)
+	 *
+	 * @param string $role Translated role name.
+	 * @param string $role_id Role identifier.
+	 * @param array $roles Registered roles.
+	 */
 	return apply_filters( 'bbp_get_dynamic_role_name', $role, $role_id, $roles );
 }
 
@@ -456,7 +485,13 @@ function bbp_filter_blog_editable_roles( $all_roles = array() ) {
  */
 function bbp_get_keymaster_role() {
 
-	// Filter & return
+	/**
+	 * Filters the keymaster role ID.
+	 *
+	 * @since 2.2.0 bbPress (r4290)
+	 *
+	 * @param string $value The keymaster role id.
+	 */
 	return apply_filters( 'bbp_get_keymaster_role', 'bbp_keymaster' );
 }
 
@@ -469,7 +504,13 @@ function bbp_get_keymaster_role() {
  */
 function bbp_get_moderator_role() {
 
-	// Filter & return
+	/**
+	 * Filters the moderator role ID.
+	 *
+	 * @since 2.0.0 bbPress (r3413)
+	 *
+	 * @param string $value The moderator role id.
+	 */
 	return apply_filters( 'bbp_get_moderator_role', 'bbp_moderator' );
 }
 
@@ -482,7 +523,13 @@ function bbp_get_moderator_role() {
  */
 function bbp_get_participant_role() {
 
-	// Filter & return
+	/**
+	 * Filters the participant role ID.
+	 *
+	 * @since 2.0.0 bbPress (r3413)
+	 *
+	 * @param string $value The participant role id.
+	 */
 	return apply_filters( 'bbp_get_participant_role', 'bbp_participant' );
 }
 
@@ -495,7 +542,13 @@ function bbp_get_participant_role() {
  */
 function bbp_get_spectator_role() {
 
-	// Filter & return
+	/**
+	 * Filters the spectator role ID.
+	 *
+	 * @since 2.2.0 bbPress (r4290)
+	 *
+	 * @param string $value The spectator role id.
+	 */
 	return apply_filters( 'bbp_get_spectator_role', 'bbp_spectator' );
 }
 
@@ -508,7 +561,13 @@ function bbp_get_spectator_role() {
  */
 function bbp_get_blocked_role() {
 
-	// Filter & return
+	/**
+	 * Filters the blocked role ID.
+	 *
+	 * @since 2.2.0 bbPress (r4290)
+	 *
+	 * @param string $value The blocked role id.
+	 */
 	return apply_filters( 'bbp_get_blocked_role', 'bbp_blocked' );
 }
 

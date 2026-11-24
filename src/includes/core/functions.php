@@ -116,6 +116,15 @@ function bbp_get_db_version_raw() {
 function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 
 	// Allow the forum ID to be updated 'just in time' before save
+
+	/**
+	 * Filters the forum ID stored in post metadata.
+	 *
+	 * @since 2.0.0 bbPress (r3179)
+	 *
+	 * @param int $forum_id The forum ID stored in post metadata.
+	 * @param int $post_id Post id.
+	 */
 	$forum_id = (int) apply_filters( 'bbp_update_forum_id', $forum_id, $post_id );
 
 	// Update the post meta forum ID
@@ -136,6 +145,15 @@ function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
 
 	// Allow the topic ID to be updated 'just in time' before save
+
+	/**
+	 * Filters the topic ID stored in post metadata.
+	 *
+	 * @since 2.0.0 bbPress (r3179)
+	 *
+	 * @param int $topic_id The topic ID stored in post metadata.
+	 * @param int $post_id Post id.
+	 */
 	$topic_id = (int) apply_filters( 'bbp_update_topic_id', $topic_id, $post_id );
 
 	// Update the post meta topic ID
@@ -156,6 +174,15 @@ function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
 function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 
 	// Allow the reply ID to be updated 'just in time' before save
+
+	/**
+	 * Filters the reply ID stored in post metadata.
+	 *
+	 * @since 2.0.0 bbPress (r3181)
+	 *
+	 * @param int $reply_id The reply ID stored in post metadata.
+	 * @param int $post_id Post id.
+	 */
 	$reply_id = (int) apply_filters( 'bbp_update_reply_id', $reply_id, $post_id );
 
 	// Update the post meta reply ID
@@ -176,6 +203,15 @@ function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 function bbp_update_reply_to_id( $post_id = 0, $reply_id = 0 ) {
 
 	// Allow the reply ID to be updated 'just in time' before save
+
+	/**
+	 * Filters the parent reply ID stored in post metadata.
+	 *
+	 * @since 2.6.0 bbPress (r5736)
+	 *
+	 * @param int $reply_id The parent reply ID stored in post metadata.
+	 * @param int $post_id Post id.
+	 */
 	$reply_id = (int) apply_filters( 'bbp_update_reply_to_id', $reply_id, $post_id );
 
 	// Update the post meta reply ID
@@ -313,7 +349,14 @@ function bbp_get_view_query_args( $view = '' ) {
 		? $bbp->views[ $view ]['query']
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the query arguments of a topic-view.
+	 *
+	 * @since 2.1.0 bbPress (r3702)
+	 *
+	 * @param array<string, mixed> $retval Query arguments.
+	 * @param string $view View name.
+	 */
 	return (array) apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }
 
@@ -352,6 +395,14 @@ function bbp_has_errors() {
 		? true
 		: false;
 
+	/**
+	 * Filters whether bbPress has queued errors.
+	 *
+	 * @since 2.0.0 bbPress (r3382)
+	 *
+	 * @param bool $has_errors Whether bbPress has queued errors.
+	 * @param WP_Error $errors bbPress error collection.
+	 */
 	return (bool) apply_filters( 'bbp_has_errors', $has_errors, bbpress()->errors );
 }
 
@@ -370,7 +421,13 @@ function bbp_has_errors() {
  */
 function bbp_find_mentions_pattern() {
 
-	// Filter & return
+	/**
+	 * Filters the regular expression used to find mentions.
+	 *
+	 * @since 2.4.0 bbPress (r4998)
+	 *
+	 * @param string $value Pattern to match usernames with.
+	 */
 	return apply_filters( 'bbp_find_mentions_pattern', '/[@]+([A-Za-z0-9-_\.@]+)\b/' );
 }
 
@@ -394,7 +451,15 @@ function bbp_find_mentions( $content = '' ) {
 		$usernames = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the mentioned usernames found in content.
+	 *
+	 * @since 2.4.0 bbPress (r4998)
+	 *
+	 * @param array<array-key, string>|false $usernames Usernames found, or false when there are no matches.
+	 * @param string $pattern Mention matching pattern.
+	 * @param string $content The content.
+	 */
 	return apply_filters( 'bbp_find_mentions', $usernames, $pattern, $content );
 }
 

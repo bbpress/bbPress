@@ -680,6 +680,16 @@ class BBP_Replies_Admin {
 		}
 
 		// Filter all message args
+
+		/**
+		 * Filters the notice arguments for an admin reply action.
+		 *
+		 * @since 2.6.0 bbPress (r6397)
+		 *
+		 * @param array<string, string|int> $retval The notice arguments for an admin reply action.
+		 * @param int $reply_id Reply id.
+		 * @param string $action Action.
+		 */
 		$retval = apply_filters( 'bbp_toggle_reply_action_admin', $retval, $reply_id, $action );
 
 		// Do additional reply toggle actions (admin side)
@@ -764,6 +774,17 @@ class BBP_Replies_Admin {
 		}
 
 		// Do additional reply toggle notice filters (admin side)
+
+		/**
+		 * Filters the notice shown after an admin reply action.
+		 *
+		 * @since 2.0.0 bbPress (r2740)
+		 *
+		 * @param string $message The notice shown after an admin reply action.
+		 * @param int $reply_id Reply id.
+		 * @param string $notice Notice.
+		 * @param bool $is_failure Is failure.
+		 */
 		$message = apply_filters( 'bbp_toggle_reply_notice_admin', $message, $reply_id, $notice, $is_failure );
 		$class   = ( true === $is_failure )
 			? 'error'

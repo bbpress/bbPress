@@ -198,6 +198,14 @@ class BBP_Akismet {
 		);
 
 		// Allow post_data to be manipulated
+
+		/**
+		 * Filters the post data sent to Akismet.
+		 *
+		 * @since 2.1.0 bbPress (r3939)
+		 *
+		 * @param array<string, mixed> $post_data The post data sent to Akismet.
+		 */
 		$post_data = apply_filters( 'bbp_akismet_check_post', $post_data );
 
 		// Parse and log the last response
@@ -232,6 +240,15 @@ class BBP_Akismet {
 		$skip_spam = current_user_can( 'moderate', $parent_id );
 
 		// Bail early if current user can skip spam enforcement
+
+		/**
+		 * Filters whether to bypass spam enforcement for this post.
+		 *
+		 * @since 2.6.0 bbPress (r6874)
+		 *
+		 * @param bool $skip_spam Whether to bypass spam enforcement for this post.
+		 * @param array<string, mixed> $post_data Post data.
+		 */
 		if ( apply_filters( 'bbp_bypass_spam_enforcement', $skip_spam, $post_data ) ) {
 			return $post_data;
 		}
@@ -512,6 +529,15 @@ class BBP_Akismet {
 		}
 
 		// Send data to Akismet
+
+		/**
+		 * Filters whether to skip the Akismet spam check.
+		 *
+		 * @since 2.6.0 bbPress (r6874)
+		 *
+		 * @param bool $value Whether to skip the Akismet spam check.
+		 * @param array<string, mixed> $post_data Post data.
+		 */
 		if ( ! apply_filters( 'bbp_bypass_check_for_spam', false, $post_data ) ) {
 			$response = $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
 		}
@@ -1018,6 +1044,10 @@ class BBP_Akismet {
 		/**
 		 * Determines how many rows will be deleted in each batch.
 		 *
+		 * The default hook is `_bbp_akismet_delete_spam_limit`.
+		 *
+		 * @since 2.6.7 bbPress (r7203)
+		 *
 		 * @param int $limit The number of rows. Default 1000.
 		 */
 		$delete_limit = (int) apply_filters( $filter, 1000 );
@@ -1044,6 +1074,10 @@ class BBP_Akismet {
 		/**
 		 * Determines how many days a piece of spam will be left in the Spam
 		 * queue before being deleted.
+		 *
+		 * The default hook is `_bbp_akismet_delete_spam_interval`.
+		 *
+		 * @since 2.6.7 bbPress (r7203)
 		 *
 		 * @param int $interval The number of days. Default 15.
 		 */
@@ -1122,6 +1156,8 @@ class BBP_Akismet {
 
 		/**
 		 * Determines whether tables should be optimized.
+		 *
+		 * @since 2.6.7 bbPress (r7203)
 		 *
 		 * @param int   $random Random number between 1 and 5000.
 		 * @param array $tables Database tables to optimize.
@@ -1293,6 +1329,8 @@ class BBP_Akismet {
 
 		/**
 		 * Determines whether tables should be optimized.
+		 *
+		 * @since 2.6.7 bbPress (r7203)
 		 *
 		 * @param int    $random Random number between 1 and 5000.
 		 * @param string $table  Database table to optimize.

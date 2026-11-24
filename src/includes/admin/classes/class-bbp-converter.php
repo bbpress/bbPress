@@ -308,6 +308,14 @@ class BBP_Converter {
 	private function maybe_set_memory() {
 
 		// Filter args
+
+		/**
+		 * Filters the PHP configuration overrides used by the converter.
+		 *
+		 * @since 2.6.0 bbPress (r6820)
+		 *
+		 * @param array $value The PHP configuration overrides used by the converter.
+		 */
 		$r = apply_filters(
 			'bbp_converter_php_ini_overrides',
 			array(

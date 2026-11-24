@@ -460,6 +460,16 @@ class BBP_Forums_Admin {
 		}
 
 		// Filter all message args
+
+		/**
+		 * Filters the notice arguments for an admin forum action.
+		 *
+		 * @since 2.6.0 bbPress (r6397)
+		 *
+		 * @param array<string, string|int> $retval The notice arguments for an admin forum action.
+		 * @param int $forum_id Forum id.
+		 * @param string $action Action.
+		 */
 		$retval = apply_filters( 'bbp_toggle_forum_action_admin', $retval, $forum_id, $action );
 
 		// Do additional forum toggle actions (admin side)
@@ -528,6 +538,17 @@ class BBP_Forums_Admin {
 		}
 
 		// Do additional forum toggle notice filters (admin side)
+
+		/**
+		 * Filters the notice shown after an admin forum action.
+		 *
+		 * @since 2.6.0 bbPress (r5254)
+		 *
+		 * @param string $message The notice shown after an admin forum action.
+		 * @param int $forum_id Forum id.
+		 * @param string $notice Notice.
+		 * @param bool $is_failure Is failure.
+		 */
 		$message = apply_filters( 'bbp_toggle_forum_notice_admin', $message, $forum_id, $notice, $is_failure );
 		$class   = ( true === $is_failure )
 			? 'error'

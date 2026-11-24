@@ -188,6 +188,14 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 function bbp_filter_column_headers( $columns = array() ) {
 
 	// Do not filter column headers by default - maybe we'll turn it on later
+
+	/**
+	 * Filters whether to replace admin column labels with icons.
+	 *
+	 * @since 2.6.0 bbPress (r5833)
+	 *
+	 * @param bool $use_icons Whether to replace admin column labels with icons.
+	 */
 	if ( ! apply_filters( 'bbp_filter_column_headers', false ) ) {
 		return $columns;
 	}

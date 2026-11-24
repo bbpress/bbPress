@@ -162,7 +162,13 @@ function bbp_get_default_options() {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the default site options and their values.
+	 *
+	 * @since 2.0.0 bbPress (r3421)
+	 *
+	 * @param array<string, mixed> $options Filtered option names and values.
+	 */
 	return (array) apply_filters( 'bbp_get_default_options', $options );
 }
 
@@ -353,6 +359,14 @@ function bbp_pre_load_options() {
 	}
 
 	// Maybe intercept
+
+	/**
+	 * Filters how bbPress options are preloaded.
+	 *
+	 * @since 2.6.0 bbPress (r6762)
+	 *
+	 * @param string $value How bbPress options are preloaded.
+	 */
 	$strategy  = apply_filters( 'bbp_pre_load_options_strategy', 'notoptions' );
 	$intercept = bbp_maybe_intercept( __FUNCTION__, $strategy );
 	if ( bbp_is_intercepted( $intercept ) ) {
@@ -417,6 +431,13 @@ function bbp_get_forums_statuses() {
 		'frozen' => _x( 'Frozen', 'Site-wide forum status', 'bbpress' )
 	);
 
+	/**
+	 * Filters the available site-wide forum status labels.
+	 *
+	 * @since 2.6.20 bbPress (r7851)
+	 *
+	 * @param array<string, string> $statuses The available site-wide forum status labels.
+	 */
 	return (array) apply_filters( 'bbp_get_forums_statuses', $statuses );
 }
 
@@ -484,6 +505,15 @@ function bbp_user_can_post_in_forums( $user_id ) {
 		$retval = bbp_user_is_keymaster_or_moderator( $user_id );
 	}
 
+	/**
+	 * Filters whether a user can post given the site-wide forum status.
+	 *
+	 * @since 2.6.20 bbPress (r7851)
+	 *
+	 * @param bool $retval Whether a user can post given the site-wide forum status.
+	 * @param int $user_id User id.
+	 * @param string $status Site-wide forum status.
+	 */
 	return (bool) apply_filters( 'bbp_user_can_post_in_forums', $retval, $user_id, bbp_get_forums_status() );
 }
 
@@ -513,6 +543,15 @@ function bbp_user_can_edit_in_forums( $user_id ) {
 		$retval = bbp_user_is_keymaster_or_moderator( $user_id );
 	}
 
+	/**
+	 * Filters whether a user can edit posts given the site-wide forum status.
+	 *
+	 * @since 2.6.20 bbPress (r7851)
+	 *
+	 * @param bool $retval Whether a user can edit posts given the site-wide forum status.
+	 * @param int $user_id User id.
+	 * @param string $status Site-wide forum status.
+	 */
 	return (bool) apply_filters( 'bbp_user_can_edit_in_forums', $retval, $user_id, bbp_get_forums_status() );
 }
 
@@ -535,6 +574,13 @@ function bbp_get_moderation_link_limit() {
 		$limit = get_option( 'comment_max_links', 0 );
 	}
 
+	/**
+	 * Filters the number of links allowed before moderation.
+	 *
+	 * @since 2.7.0 bbPress (r7974)
+	 *
+	 * @param int $limit The number of links allowed before moderation.
+	 */
 	return (int) apply_filters( 'bbp_get_moderation_link_limit', (int) $limit );
 }
 
@@ -548,7 +594,13 @@ function bbp_get_moderation_link_limit() {
  */
 function bbp_is_favorites_active( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether favorites feature is enabled.
+	 *
+	 * @since 2.0.0 bbPress (r2812)
+	 *
+	 * @param bool $value Whether favorites feature is enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', $default ) );
 }
 
@@ -567,7 +619,13 @@ function bbp_is_subscriptions_active( $default = 1 ) {
 		? ! empty( bbp_get_subscription_subtypes( $default ) )
 		: (bool) $value;
 
-	// Filter & return
+	/**
+	 * Filters whether any subscription feature is enabled.
+	 *
+	 * @since 2.0.0 bbPress (r2812)
+	 *
+	 * @param bool $active Whether any subscriptions are enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_subscriptions_active', $active );
 }
 
@@ -598,7 +656,13 @@ function bbp_get_subscription_subtype_labels() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the labels for registered object subtypes that support subscriptions.
+	 *
+	 * @since 2.7.0 bbPress (r8330)
+	 *
+	 * @param array<string, string> $labels Subscription subtype labels keyed by object type and subtype.
+	 */
 	return (array) apply_filters( 'bbp_get_subscription_subtype_labels', $labels );
 }
 
@@ -627,7 +691,13 @@ function bbp_get_subscription_subtypes( $default = 1 ) {
 			: array();
 	}
 
-	// Filter & return
+	/**
+	 * Filters the enabled subscription object subtypes.
+	 *
+	 * @since 2.7.0 bbPress (r8330)
+	 *
+	 * @param array<int, string> $subtypes Subscription subtype IDs.
+	 */
 	return (array) apply_filters( 'bbp_get_subscription_subtypes', $subtypes );
 }
 
@@ -653,6 +723,7 @@ function bbp_is_subscription_subtype_active( $object_type = '', $object_subtype 
 	// A filter can enable every registered subtype for a disabled scalar option.
 	if ( $enabled && ! is_array( $value ) && empty( $value ) ) {
 		$subtypes = array_keys( bbp_get_subscription_subtype_labels() );
+		/** This filter is documented in src/includes/core/options.php. */
 		$subtypes = (array) apply_filters( 'bbp_get_subscription_subtypes', $subtypes );
 	} else {
 		$subtypes = bbp_get_subscription_subtypes( $default );
@@ -663,7 +734,15 @@ function bbp_is_subscription_subtype_active( $object_type = '', $object_subtype 
 		&& $enabled
 		&& in_array( $subtype_id, $subtypes, true );
 
-	// Filter & return
+	/**
+	 * Filters whether subscriptions are enabled for an object subtype.
+	 *
+	 * @since 2.7.0 bbPress (r8330)
+	 *
+	 * @param bool $active Whether subscriptions are enabled for the object subtype.
+	 * @param string $object_type Engagement object type.
+	 * @param string $object_subtype Registered post type or taxonomy name.
+	 */
 	return (bool) apply_filters( 'bbp_is_subscription_subtype_active', $active, $object_type, $object_subtype );
 }
 
@@ -677,7 +756,13 @@ function bbp_is_subscription_subtype_active( $object_type = '', $object_subtype 
  */
 function bbp_is_engagements_active( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether engagements feature is enabled.
+	 *
+	 * @since 2.6.0 bbPress (r6321)
+	 *
+	 * @param bool $value Whether engagements feature is enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_engagements_active', (bool) get_option( '_bbp_enable_engagements', $default ) );
 }
 
@@ -695,7 +780,13 @@ function bbp_get_moderation_notification_recipient_type_labels() {
 		'forum_moderators' => esc_html__( 'Per-forum Moderators', 'bbpress' )
 	);
 
-	// Filter & return
+	/**
+	 * Filters the available moderation notification recipient type labels.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param array<string, string> $labels Recipient type labels keyed by type ID.
+	 */
 	return (array) apply_filters( 'bbp_get_moderation_notification_recipient_type_labels', $labels );
 }
 
@@ -715,7 +806,13 @@ function bbp_get_moderation_notification_recipient_types( $default = array() ) {
 	$available = bbp_get_moderation_notification_recipient_type_labels();
 	$types     = array_values( array_intersect( $types, array_keys( $available ) ) );
 
-	// Filter & return
+	/**
+	 * Filters the enabled moderation notification recipient types.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param array<int, string> $types Recipient type IDs.
+	 */
 	return (array) apply_filters( 'bbp_get_moderation_notification_recipient_types', $types );
 }
 
@@ -729,7 +826,13 @@ function bbp_get_moderation_notification_recipient_types( $default = array() ) {
 function bbp_is_moderation_notifications_active() {
 	$active = ! empty( bbp_get_moderation_notification_recipient_types() );
 
-	// Filter & return
+	/**
+	 * Filters whether moderation notifications are enabled.
+	 *
+	 * @since 2.7.0 bbPress (r8089)
+	 *
+	 * @param bool $active Whether moderation notifications are enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_moderation_notifications_active', $active );
 }
 
@@ -743,7 +846,13 @@ function bbp_is_moderation_notifications_active() {
  */
 function bbp_allow_content_edit( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether content editing is available when posting new topics and replies.
+	 *
+	 * @since 2.6.0 bbPress (r6442)
+	 *
+	 * @param bool $value Whether content editing is available when posting new topics and replies.
+	 */
 	return (bool) apply_filters( 'bbp_allow_content_edit', (bool) get_option( '_bbp_allow_content_edit', $default ) );
 }
 
@@ -757,7 +866,13 @@ function bbp_allow_content_edit( $default = 1 ) {
  */
 function bbp_allow_content_throttle( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether content throttling is engaged when posting new topics and replies.
+	 *
+	 * @since 2.6.0 bbPress (r6442)
+	 *
+	 * @param bool $value Whether content throttling is engaged when posting new topics and replies.
+	 */
 	return (bool) apply_filters( 'bbp_allow_content_throttle', (bool) get_option( '_bbp_allow_content_throttle', $default ) );
 }
 
@@ -771,7 +886,13 @@ function bbp_allow_content_throttle( $default = 1 ) {
  */
 function bbp_allow_moderation_links( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether link moderation is enabled for new topics and replies.
+	 *
+	 * @since 2.7.0 bbPress (r7974)
+	 *
+	 * @param bool $value Whether link moderation is enabled.
+	 */
 	return (bool) apply_filters( 'bbp_allow_moderation_links', (bool) get_option( '_bbp_allow_moderation_links', $default ) );
 }
 
@@ -785,7 +906,13 @@ function bbp_allow_moderation_links( $default = 1 ) {
  */
 function bbp_allow_topic_tags( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether topic tags are allowed.
+	 *
+	 * @since 2.2.0 bbPress (r4098)
+	 *
+	 * @param bool $value Whether topic tags are allowed.
+	 */
 	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
 }
 
@@ -807,6 +934,15 @@ function bbp_topic_tag_edit_scope( $default = 'all_participants' ) {
 	}
 
 	// Filter the scope
+
+	/**
+	 * Filters the editing scope for topic tags.
+	 *
+	 * @since 2.7.0 bbPress (r8615)
+	 *
+	 * @param string $scope The editing scope for topic tags.
+	 * @param string $default Default.
+	 */
 	$scope = apply_filters( 'bbp_topic_tag_edit_scope', $scope, $default );
 
 	// Return a valid scope
@@ -826,7 +962,13 @@ function bbp_topic_tag_edit_scope( $default = 'all_participants' ) {
  */
 function bbp_allow_forum_mods( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether per-forum moderators are allowed.
+	 *
+	 * @since 2.6.0 bbPress (r5834)
+	 *
+	 * @param bool $value Whether per-forum moderators are allowed.
+	 */
 	return (bool) apply_filters( 'bbp_allow_forum_mods', (bool) get_option( '_bbp_allow_forum_mods', $default ) );
 }
 
@@ -841,7 +983,13 @@ function bbp_allow_forum_mods( $default = 1 ) {
  */
 function bbp_allow_super_mods( $default = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether moderators are allowed to edit users.
+	 *
+	 * @since 2.6.0 bbPress (r6563)
+	 *
+	 * @param bool $value Whether moderators are allowed to edit users.
+	 */
 	return (bool) apply_filters( 'bbp_allow_super_mods', (bool) get_option( '_bbp_allow_super_mods', $default ) );
 }
 
@@ -855,7 +1003,13 @@ function bbp_allow_super_mods( $default = 0 ) {
  */
 function bbp_allow_search( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether forum search is enabled.
+	 *
+	 * @since 2.4.0 bbPress (r4971)
+	 *
+	 * @param bool $value Whether forum search is enabled.
+	 */
 	return (bool) apply_filters( 'bbp_allow_search', (bool) get_option( '_bbp_allow_search', $default ) );
 }
 
@@ -870,9 +1024,22 @@ function bbp_allow_search( $default = 1 ) {
 function bbp_allow_threaded_replies( $default = 0 ) {
 
 	// Apply the legacy filter first for backward compatibility
+	/**
+	 * Filters the legacy threaded-replies setting.
+	 *
+	 * @since 2.4.0 bbPress (r4963)
+	 *
+	 * @param bool $allow Whether threaded replies are allowed.
+	 */
 	$allow = (bool) apply_filters( '_bbp_allow_threaded_replies', (bool) get_option( '_bbp_allow_threaded_replies', $default ) );
 
-	// Filter & return
+	/**
+	 * Filters whether threaded replies are allowed.
+	 *
+	 * @since 2.6.20 bbPress (r7830)
+	 *
+	 * @param bool $allow Whether threaded replies are allowed.
+	 */
 	return (bool) apply_filters( 'bbp_allow_threaded_replies', $allow );
 }
 
@@ -886,7 +1053,13 @@ function bbp_allow_threaded_replies( $default = 0 ) {
  */
 function bbp_thread_replies_depth( $default = 2 ) {
 
-	// Filter & return
+	/**
+	 * Filters the thread replies depth.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param int $value Thread replies depth.
+	 */
 	return (int) apply_filters( 'bbp_thread_replies_depth', (int) get_option( '_bbp_thread_replies_depth', $default ) );
 }
 
@@ -900,7 +1073,13 @@ function bbp_thread_replies_depth( $default = 2 ) {
  */
 function bbp_allow_revisions( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether topic and reply revisions are allowed.
+	 *
+	 * @since 2.0.0 bbPress (r3416)
+	 *
+	 * @param bool $value Whether topic and reply revisions are allowed.
+	 */
 	return (bool) apply_filters( 'bbp_allow_revisions', (bool) get_option( '_bbp_allow_revisions', $default ) );
 }
 
@@ -914,7 +1093,13 @@ function bbp_allow_revisions( $default = 1 ) {
  */
 function bbp_allow_anonymous( $default = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether anonymous posting is allowed.
+	 *
+	 * @since 2.0.0 bbPress (r2617)
+	 *
+	 * @param bool $value Whether anonymous posting is allowed.
+	 */
 	return apply_filters( 'bbp_allow_anonymous', (bool) get_option( '_bbp_allow_anonymous', $default ) );
 }
 
@@ -944,10 +1129,23 @@ function bbp_is_auto_role_disabled( $setting = null ) {
  */
 function bbp_allow_global_access( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether this forum is available to all users on all sites in this installation.
+	 *
+	 * @since 2.0.0 bbPress (r3378)
+	 *
+	 * @param bool $allowed Whether this forum is available to all users on all sites in this installation.
+	 */
 	$setting = get_option( '_bbp_allow_global_access', $default );
 	$allowed = ! bbp_is_auto_role_disabled( $setting ) && (bool) $setting;
 
+	/**
+	 * Filters whether users have global access to forums.
+	 *
+	 * @since 2.0.0 bbPress (r3378)
+	 *
+	 * @param bool $allowed Whether users have global access to forums.
+	 */
 	return (bool) apply_filters( 'bbp_allow_global_access', $allowed );
 }
 
@@ -980,7 +1178,13 @@ function bbp_get_auto_role_mode() {
  */
 function bbp_get_default_role( $default = 'bbp_participant' ) {
 
-	// Filter & return
+	/**
+	 * Filters the default forum role for new users.
+	 *
+	 * @since 2.2.0 bbPress (r4294)
+	 *
+	 * @param string $value The default forums user role.
+	 */
 	return apply_filters( 'bbp_get_default_role', get_option( '_bbp_default_role', $default ) );
 }
 
@@ -995,7 +1199,13 @@ function bbp_get_default_role( $default = 'bbp_participant' ) {
 function bbp_get_user_block_action_ids( $default = array() ) {
 	$actions = get_option( '_bbp_user_block_actions', $default );
 
-	// Filter & return
+	/**
+	 * Filters the actions to run when a user receives the blocked forum role.
+	 *
+	 * @since 2.7.0 bbPress (r8131)
+	 *
+	 * @param array<array-key, mixed> $actions Selected action IDs.
+	 */
 	return (array) apply_filters( 'bbp_get_user_block_action_ids', (array) $actions );
 }
 
@@ -1009,7 +1219,13 @@ function bbp_get_user_block_action_ids( $default = array() ) {
  */
 function bbp_use_wp_editor( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether to use the WordPress editor.
+	 *
+	 * @since 2.1.0 bbPress (r3586)
+	 *
+	 * @param bool $value Use WP editor?
+	 */
 	return (bool) apply_filters( 'bbp_use_wp_editor', (bool) get_option( '_bbp_use_wp_editor', $default ) );
 }
 
@@ -1023,7 +1239,13 @@ function bbp_use_wp_editor( $default = 1 ) {
  */
 function bbp_use_autoembed( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether to embed supported media automatically.
+	 *
+	 * @since 2.1.0 bbPress (r3753)
+	 *
+	 * @param bool $value Use oEmbed?
+	 */
 	return (bool) apply_filters( 'bbp_use_autoembed', (bool) get_option( '_bbp_use_autoembed', $default ) );
 }
 
@@ -1037,7 +1259,13 @@ function bbp_use_autoembed( $default = 1 ) {
  */
 function bbp_get_theme_package_id( $default = 'default' ) {
 
-	// Filter & return
+	/**
+	 * Filters the current theme package ID.
+	 *
+	 * @since 2.1.0 bbPress (r3830)
+	 *
+	 * @param string $value ID of the theme-package.
+	 */
 	return apply_filters( 'bbp_get_theme_package_id', get_option( '_bbp_theme_package_id', $default ) );
 }
 
@@ -1063,7 +1291,13 @@ function bbp_title_max_length( $default = 80 ) {
  */
 function bbp_get_title_max_length( $default = 80 ) {
 
-	// Filter & return
+	/**
+	 * Filters the maximum length of a title.
+	 *
+	 * @since 2.0.0 bbPress (r3246)
+	 *
+	 * @param int $value Maximum title length.
+	 */
 	return (int) apply_filters( 'bbp_get_title_max_length', (int) get_option( '_bbp_title_max_length', $default ) );
 }
 
@@ -1091,7 +1325,13 @@ function bbp_edit_lock( $default = 5 ) {
  */
 function bbp_get_edit_lock( $default = 5 ) {
 
-	// Filter & return
+	/**
+	 * Filters the number of minutes a topic or reply can be edited after it's.
+	 *
+	 * @since 2.6.0 bbPress (r6869)
+	 *
+	 * @param int $value Edit window in minutes.
+	 */
 	return (int) apply_filters( 'bbp_get_edit_lock', (int) get_option( '_bbp_edit_lock', $default ) );
 }
 
@@ -1117,7 +1357,13 @@ function bbp_group_forums_root_id( $default = 0 ) {
  */
 function bbp_get_group_forums_root_id( $default = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters the group forums root parent forum id.
+	 *
+	 * @since 2.1.0 bbPress (r3575)
+	 *
+	 * @param int $value The post ID for the root forum.
+	 */
 	return (int) apply_filters( 'bbp_get_group_forums_root_id', (int) get_option( '_bbp_group_forums_root_id', $default ) );
 }
 
@@ -1131,7 +1377,13 @@ function bbp_get_group_forums_root_id( $default = 0 ) {
  */
 function bbp_is_group_forums_active( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether BuddyPress group forums are enabled.
+	 *
+	 * @since 2.1.0 bbPress (r3575)
+	 *
+	 * @param bool $value Whether BuddyPress group forums are enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_group_forums_active', (bool) get_option( '_bbp_enable_group_forums', $default ) );
 }
 
@@ -1145,7 +1397,13 @@ function bbp_is_group_forums_active( $default = 1 ) {
  */
 function bbp_is_akismet_active( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether akismet is enabled.
+	 *
+	 * @since 2.1.0 bbPress (r3575)
+	 *
+	 * @param bool $value Whether akismet is enabled.
+	 */
 	return (bool) apply_filters( 'bbp_is_akismet_active', (bool) get_option( '_bbp_enable_akismet', $default ) );
 }
 
@@ -1179,7 +1437,14 @@ function bbp_settings_integration( $default = 'basic' ) {
 		$integration = 'basic';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the settings integration mode.
+	 *
+	 * @since 2.4.0 bbPress (r4932)
+	 *
+	 * @param string $integration How to integrate settings.
+	 * @param string $default Default value 'basic'.
+	 */
 	return apply_filters( 'bbp_settings_integration', $integration, $default );
 }
 
@@ -1233,6 +1498,15 @@ function bbp_engagements_strategy( $default = 'meta' ) {
 	}
 
 	// Filter the integration
+
+	/**
+	 * Filters the user engagement storage strategy.
+	 *
+	 * @since 2.6.0 bbPress (r6876)
+	 *
+	 * @param string $integration The user engagement storage strategy.
+	 * @param string $default Default.
+	 */
 	$integration = apply_filters( 'bbp_engagements_strategy', $integration, $default );
 
 	// Return a valid integration
@@ -1253,7 +1527,13 @@ function bbp_engagements_strategy( $default = 'meta' ) {
  */
 function bbp_get_root_slug( $default = 'forums' ) {
 
-	// Filter & return
+	/**
+	 * Filters the root slug.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $value The root slug.
+	 */
 	return apply_filters( 'bbp_get_root_slug', get_option( '_bbp_root_slug', $default ) );
 }
 
@@ -1267,7 +1547,13 @@ function bbp_get_root_slug( $default = 'forums' ) {
  */
 function bbp_include_root_slug( $default = 1 ) {
 
-	// Filter & return
+	/**
+	 * Filters whether to include the forum root slug.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param bool $value Whether to include the forum root slug.
+	 */
 	return (bool) apply_filters( 'bbp_include_root_slug', (bool) get_option( '_bbp_include_root', $default ) );
 }
 
@@ -1281,7 +1567,13 @@ function bbp_include_root_slug( $default = 1 ) {
  */
 function bbp_show_on_root( $default = 'forums' ) {
 
-	// Filter & return
+	/**
+	 * Filters what appears at the forum root.
+	 *
+	 * @since 2.4.0 bbPress (r4932)
+	 *
+	 * @param string $value What appears at the forum root.
+	 */
 	return apply_filters( 'bbp_show_on_root', get_option( '_bbp_show_on_root', $default ) );
 }
 
@@ -1298,7 +1590,13 @@ function bbp_maybe_get_root_slug() {
 		? trailingslashit( $slug )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the root slug when included.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $retval Root slug when included, or an empty string.
+	 */
 	return apply_filters( 'bbp_maybe_get_root_slug', $retval );
 }
 
@@ -1312,7 +1610,13 @@ function bbp_maybe_get_root_slug() {
  */
 function bbp_get_forum_slug( $default = 'forum' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single forum slug.
+	 *
+	 * @since 2.6.0 bbPress (r5304)
+	 *
+	 * @param string $value The single forum slug.
+	 */
 	return apply_filters( 'bbp_get_forum_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_forum_slug', $default ) );
 }
 
@@ -1326,7 +1630,13 @@ function bbp_get_forum_slug( $default = 'forum' ) {
  */
 function bbp_get_topic_archive_slug( $default = 'topics' ) {
 
-	// Filter & return
+	/**
+	 * Filters the topic archive slug.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $value The topic archive slug.
+	 */
 	return apply_filters( 'bbp_get_topic_archive_slug', get_option( '_bbp_topic_archive_slug', $default ) );
 }
 
@@ -1340,7 +1650,13 @@ function bbp_get_topic_archive_slug( $default = 'topics' ) {
  */
 function bbp_get_reply_archive_slug( $default = 'replies' ) {
 
-	// Filter & return
+	/**
+	 * Filters the reply archive slug.
+	 *
+	 * @since 2.4.0 bbPress (r4926)
+	 *
+	 * @param string $value The reply archive slug.
+	 */
 	return apply_filters( 'bbp_get_reply_archive_slug', get_option( '_bbp_reply_archive_slug', $default ) );
 }
 
@@ -1354,7 +1670,13 @@ function bbp_get_reply_archive_slug( $default = 'replies' ) {
  */
 function bbp_get_topic_slug( $default = 'topic' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single topic slug.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $value The single topic slug.
+	 */
 	return apply_filters( 'bbp_get_topic_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_slug', $default ) );
 }
 
@@ -1368,7 +1690,13 @@ function bbp_get_topic_slug( $default = 'topic' ) {
  */
 function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
 
-	// Filter & return
+	/**
+	 * Filters the topic-tag taxonomy slug.
+	 *
+	 * @since 2.1.0 bbPress (r3762)
+	 *
+	 * @param string $value The topic-tag taxonomy slug.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_tax_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_tag_slug', $default ) );
 }
 
@@ -1382,7 +1710,13 @@ function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
  */
 function bbp_get_reply_slug( $default = 'reply' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single reply slug (used mostly for editing).
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $value The single reply slug (used mostly for editing).
+	 */
 	return apply_filters( 'bbp_get_reply_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_reply_slug', $default ) );
 }
 
@@ -1396,7 +1730,13 @@ function bbp_get_reply_slug( $default = 'reply' ) {
  */
 function bbp_get_user_slug( $default = 'users' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single user slug.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $value The single user slug.
+	 */
 	return apply_filters( 'bbp_get_user_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_user_slug', $default ) );
 }
 
@@ -1410,7 +1750,13 @@ function bbp_get_user_slug( $default = 'users' ) {
  */
 function bbp_get_user_favorites_slug( $default = 'favorites' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single user favorites slug.
+	 *
+	 * @since 2.2.0 bbPress (r4188)
+	 *
+	 * @param string $value The single user favorites slug.
+	 */
 	return apply_filters( 'bbp_get_user_favorites_slug', get_option( '_bbp_user_favs_slug', $default ) );
 }
 
@@ -1424,7 +1770,13 @@ function bbp_get_user_favorites_slug( $default = 'favorites' ) {
  */
 function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single user subscriptions slug.
+	 *
+	 * @since 2.2.0 bbPress (r4188)
+	 *
+	 * @param string $value The single user subscriptions slug.
+	 */
 	return apply_filters( 'bbp_get_user_subscriptions_slug', get_option( '_bbp_user_subs_slug', $default ) );
 }
 
@@ -1438,7 +1790,13 @@ function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
  */
 function bbp_get_user_engagements_slug( $default = 'engagements' ) {
 
-	// Filter & return
+	/**
+	 * Filters the single user engagements slug.
+	 *
+	 * @since 2.6.0 bbPress (r6320)
+	 *
+	 * @param string $value The single user engagements slug.
+	 */
 	return apply_filters( 'bbp_get_user_engagements_slug', get_option( '_bbp_user_engs_slug', $default ) );
 }
 
@@ -1451,6 +1809,14 @@ function bbp_get_user_engagements_slug( $default = 'engagements' ) {
  * @return string
  */
 function bbp_get_user_mentions_slug( $default = 'mentions' ) {
+
+	/**
+	 * Filters the user mentions URL slug.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param string $value The user mentions URL slug.
+	 */
 	return apply_filters( 'bbp_get_user_mentions_slug', get_option( '_bbp_user_mentions_slug', $default ) );
 }
 
@@ -1464,7 +1830,13 @@ function bbp_get_user_mentions_slug( $default = 'mentions' ) {
  */
 function bbp_get_view_slug( $default = 'view' ) {
 
-	// Filter & return
+	/**
+	 * Filters the topic view slug.
+	 *
+	 * @since 2.1.0 bbPress (r3760)
+	 *
+	 * @param string $value The topic view slug.
+	 */
 	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
 }
 
@@ -1485,7 +1857,13 @@ function bbp_get_route_root_slugs() {
 		bbp_get_subscription_unsubscribe_slug(),
 	);
 
-	// Filter & return
+	/**
+	 * Filters the route root slugs.
+	 *
+	 * @since 2.6.21 bbPress (r8064)
+	 *
+	 * @param array<int, string> $slugs Route root slugs.
+	 */
 	return (array) apply_filters( 'bbp_get_route_root_slugs', $slugs );
 }
 
@@ -1499,7 +1877,13 @@ function bbp_get_route_root_slugs() {
  */
 function bbp_get_search_slug( $default = 'search' ) {
 
-	// Filter & return
+	/**
+	 * Filters the search slug.
+	 *
+	 * @since 2.3.0 bbPress (r4579)
+	 *
+	 * @param string $value The search slug.
+	 */
 	return apply_filters( 'bbp_get_search_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_search_slug', $default ) );
 }
 
@@ -1513,7 +1897,13 @@ function bbp_get_search_slug( $default = 'search' ) {
  */
 function bbp_get_subscription_unsubscribe_slug( $default = 'unsubscribe' ) {
 
-	// Filter & return
+	/**
+	 * Filters the subscription unsubscribe slug.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param string $value The subscription unsubscribe slug.
+	 */
 	return apply_filters( 'bbp_get_subscription_unsubscribe_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_unsubscribe_slug', $default ) );
 }
 
@@ -1527,7 +1917,13 @@ function bbp_get_subscription_unsubscribe_slug( $default = 'unsubscribe' ) {
  */
 function bbp_get_edit_slug( $default = 'edit' ) {
 
-	// Filter & return
+	/**
+	 * Filters the edit slug.
+	 *
+	 * @since 2.6.2 bbPress (r6966)
+	 *
+	 * @param string $value The edit slug.
+	 */
 	return apply_filters( 'bbp_get_edit_slug', get_option( '_bbp_edit_slug', $default ) );
 }
 
@@ -1543,7 +1939,13 @@ function bbp_get_edit_slug( $default = 'edit' ) {
  */
 function bbp_get_config_location( $default = '' ) {
 
-	// Filter & return
+	/**
+	 * Filters whether there is a previous BuddyPress Forum configuration.
+	 *
+	 * @since 2.1.0 bbPress (r3791)
+	 *
+	 * @param string $value The location of the bb-config.php file, if any.
+	 */
 	return apply_filters( 'bbp_get_config_location', get_option( 'bb-config-location', $default ) );
 }
 

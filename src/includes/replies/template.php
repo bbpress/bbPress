@@ -32,7 +32,13 @@ function bbp_reply_post_type() {
  */
 function bbp_get_reply_post_type() {
 
-	// Filter & return
+	/**
+	 * Filters the reply post type ID.
+	 *
+	 * @since 2.0.0 bbPress (r2858)
+	 *
+	 * @param string $reply_post_type The unique reply post type id.
+	 */
 	return apply_filters( 'bbp_get_reply_post_type', bbpress()->reply_post_type );
 }
 
@@ -45,7 +51,13 @@ function bbp_get_reply_post_type() {
  */
 function bbp_get_reply_post_type_labels() {
 
-	// Filter & return
+	/**
+	 * Filters the array of labels used by the reply post type.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, string> $value The array of labels used by the reply post type.
+	 */
 	return (array) apply_filters(
 		'bbp_get_reply_post_type_labels',
 		array(
@@ -94,7 +106,13 @@ function bbp_get_reply_post_type_labels() {
  */
 function bbp_get_reply_post_type_rewrite() {
 
-	// Filter & return
+	/**
+	 * Filters the array of reply post type rewrite settings.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<string, mixed> $value The array of reply post type rewrite settings.
+	 */
 	return (array) apply_filters(
 		'bbp_get_reply_post_type_rewrite',
 		array(
@@ -113,7 +131,13 @@ function bbp_get_reply_post_type_rewrite() {
  */
 function bbp_get_reply_post_type_supports() {
 
-	// Filter & return
+	/**
+	 * Filters the array of features the reply post type supports.
+	 *
+	 * @since 2.5.0 bbPress (r5130)
+	 *
+	 * @param array<array-key, string> $value The array of features the reply post type supports.
+	 */
 	return (array) apply_filters(
 		'bbp_get_reply_post_type_supports',
 		array(
@@ -267,6 +291,14 @@ function bbp_has_replies( $args = array() ) {
 				: false;
 
 			// Pagination settings with filter
+
+			/**
+			 * Filters the replies pagination arguments.
+			 *
+			 * @since 2.0.0 bbPress (r2553)
+			 *
+			 * @param array $args The replies pagination arguments.
+			 */
 			$bbp_replies_pagination = apply_filters(
 				'bbp_replies_pagination',
 				array(
@@ -282,7 +314,14 @@ function bbp_has_replies( $args = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether replies are available.
+	 *
+	 * @since 2.0.0 bbPress (r2553)
+	 *
+	 * @param bool $value Whether replies are available.
+	 * @param WP_Query $reply_query Query object.
+	 */
 	return apply_filters( 'bbp_has_replies', $bbp->reply_query->have_posts(), $bbp->reply_query );
 }
 
@@ -385,7 +424,14 @@ function bbp_get_reply_id( $reply_id = 0 ) {
 		$bbp_reply_id = 0;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the id of the reply in a replies loop.
+	 *
+	 * @since 2.0.0 bbPress (r2553)
+	 *
+	 * @param int $bbp_reply_id The reply id.
+	 * @param int|float|string|false $reply_id Reply ID, or false to use the current reply.
+	 */
 	return (int) apply_filters( 'bbp_get_reply_id', $bbp_reply_id, $reply_id );
 }
 
@@ -430,7 +476,16 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 		$retval = array_values( get_object_vars( $reply ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a reply.
+	 *
+	 * @since 2.0.0 bbPress (r2788)
+	 *
+	 * @param WP_Post|array<array-key, mixed>|null $retval Reply in the requested format, or null if unavailable.
+	 * @param int|object $reply reply id or reply object.
+	 * @param string $output OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT.
+	 * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}.
+	 */
 	return apply_filters( 'bbp_get_reply', $retval, $reply, $output, $filter );
 }
 
@@ -458,7 +513,14 @@ function bbp_reply_permalink( $reply_id = 0 ) {
 function bbp_get_reply_permalink( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the link to the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2553)
+	 *
+	 * @param string $value Permanent link to reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_permalink', get_permalink( $reply_id ), $reply_id );
 }
 
@@ -552,7 +614,15 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 		$url = bbp_add_view_all( $url, true );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the paginated url to the reply in the reply loop.
+	 *
+	 * @since 2.0.0 bbPress (r2680)
+	 *
+	 * @param string $url Link to reply relative to paginated topic.
+	 * @param int $reply_id Reply id.
+	 * @param string $redirect_to Pass a redirect value for use with shortcodes and other fun things.
+	 */
 	return apply_filters( 'bbp_get_reply_url', $url, $reply_id, $redirect_to );
 }
 
@@ -581,7 +651,14 @@ function bbp_get_reply_title( $reply_id = 0 ) {
 	$title    = get_post_field( 'post_title', $reply_id );
 	$title    = apply_filters( 'the_title', $title, $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the title of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2553)
+	 *
+	 * @param string $title Title of reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_title', $title, $reply_id );
 }
 
@@ -623,6 +700,7 @@ function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
 		}
 
 		if ( ! $can_read ) {
+			/** This filter is documented in src/includes/replies/template.php. */
 			return apply_filters( 'bbp_get_reply_title_fallback', esc_html__( 'Reply', 'bbpress' ), $post_id, '' );
 		}
 	}
@@ -637,7 +715,15 @@ function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
 		$topic_title
 	);
 
-	// Filter & return
+	/**
+	 * Filters the empty reply title fallback.
+	 *
+	 * @since 2.5.0 bbPress (r5177)
+	 *
+	 * @param string $reply_title Title of reply.
+	 * @param int $post_id Required. Reply ID.
+	 * @param string $topic_title Topic title.
+	 */
 	return apply_filters( 'bbp_get_reply_title_fallback', $reply_title, $post_id, $topic_title );
 }
 
@@ -672,7 +758,14 @@ function bbp_get_reply_content( $reply_id = 0 ) {
 
 	$content = get_post_field( 'post_content', $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the content of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2553)
+	 *
+	 * @param string $content Content of the reply.
+	 * @param int $reply_id reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_content', $content, $reply_id );
 }
 
@@ -725,7 +818,15 @@ function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
 		$excerpt .= '&hellip;';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the excerpt of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2751)
+	 *
+	 * @param string $excerpt Reply Excerpt.
+	 * @param int $reply_id Reply id.
+	 * @param int $length Length of the excerpt. Defaults to 100 letters.
+	 */
 	return apply_filters( 'bbp_get_reply_excerpt', $excerpt, $reply_id, $length );
 }
 
@@ -779,7 +880,19 @@ function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false
 		$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the post date and time of a reply.
+	 *
+	 * @since 2.2.0 bbPress (r4156)
+	 *
+	 * @param string $result The post date and time of a reply.
+	 * @param int $reply_id Reply id.
+	 * @param bool $humanize Humanize output using time_since.
+	 * @param bool $gmt Use GMT.
+	 * @param string $date Formatted date.
+	 * @param string $time Formatted time.
+	 * @param string $date_format PHP date format. Defaults to the WordPress date format. Ignored when `$humanize` is true.
+	 */
 	return apply_filters( 'bbp_get_reply_post_date', $result, $reply_id, $humanize, $gmt, $date, $time, $date_format );
 }
 
@@ -802,7 +915,15 @@ function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
 	// Validate the ID
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the content with the revisions appended.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param string $value Content with the revisions appended.
+	 * @param string $content Content to which we need to append the revisions to.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_reply_append_revisions', $content . bbp_get_reply_revision_log( $reply_id ), $content, $reply_id );
 }
 
@@ -891,7 +1012,14 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
 
 	$r .= "\n" . '</ul>' . "\n\n";
 
-	// Filter & return
+	/**
+	 * Filters the formatted revision log of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param string|false $r Reply revision log, or false when no revisions are available.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_revision_log', $r, $reply_id );
 }
 
@@ -910,7 +1038,14 @@ function bbp_get_reply_raw_revision_log( $reply_id = 0 ) {
 		? $revision_log
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the raw revision log of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param array<array-key, mixed> $revision_log Raw revision log of the reply, or an empty array.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_raw_revision_log', $revision_log, $reply_id );
 }
 
@@ -926,7 +1061,14 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
 	$reply_id  = bbp_get_reply_id( $reply_id );
 	$revisions = wp_get_post_revisions( $reply_id, array( 'order' => 'ASC' ) );
 
-	// Filter & return
+	/**
+	 * Filters the revisions of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 *
+	 * @param WP_Post[] $revisions Reply revisions, keyed by revision ID.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_revisions', $revisions, $reply_id );
 }
 
@@ -946,6 +1088,18 @@ function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
 		? 'bbp_get_reply_revision_count_int'
 		: 'bbp_get_reply_revision_count';
 
+	/**
+	 * Filters a reply's revision count.
+	 *
+	 * The hook name is `bbp_get_reply_revision_count_int` for integer output and
+	 * `bbp_get_reply_revision_count` for formatted output.
+	 *
+	 * @since 2.0.0 bbPress (r2782)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string $count Unformatted count, or a formatted count after filtering.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( $filter, $count, $reply_id );
 }
 
@@ -972,7 +1126,14 @@ function bbp_reply_status( $reply_id = 0 ) {
 function bbp_get_reply_status( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the status of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param string $value Status of reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ), $reply_id );
 }
 
@@ -992,7 +1153,14 @@ function bbp_is_reply_public( $reply_id = 0 ) {
 	$public    = bbp_get_public_reply_statuses();
 	$is_public = in_array( $status, $public, true );
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is publicly viewable.
+	 *
+	 * @since 2.6.0 bbPress (r6791)
+	 *
+	 * @param bool $is_public True if public, false if not.
+	 * @param int $reply_id Reply id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_public', $is_public, $reply_id );
 }
 
@@ -1013,7 +1181,14 @@ function bbp_is_reply_published( $reply_id = 0 ) {
 	$reply_status = ( bbp_get_reply_status( $reply_id ) === $status );
 	$retval       = ( $reply_status && $topic_status );
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is not spam or deleted.
+	 *
+	 * @since 2.0.0 bbPress (r3501)
+	 *
+	 * @param bool $retval True if published, false if not.
+	 * @param int $reply_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_published', (bool) $retval, $reply_id );
 }
 
@@ -1030,7 +1205,14 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 	$status       = bbp_get_spam_status_id();
 	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is marked as spam.
+	 *
+	 * @since 2.0.0 bbPress (r2858)
+	 *
+	 * @param bool $reply_status True if spam, false if not.
+	 * @param int $reply_id Reply id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_spam', (bool) $reply_status, $reply_id );
 }
 
@@ -1047,7 +1229,14 @@ function bbp_is_reply_trash( $reply_id = 0 ) {
 	$status       = bbp_get_trash_status_id();
 	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is trashed.
+	 *
+	 * @since 2.0.0 bbPress (r2929)
+	 *
+	 * @param bool $reply_status Whether the reply is trashed.
+	 * @param int $reply_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_trash', (bool) $reply_status, $reply_id );
 }
 
@@ -1064,7 +1253,14 @@ function bbp_is_reply_pending( $reply_id = 0 ) {
 	$status       = bbp_get_pending_status_id();
 	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is pending.
+	 *
+	 * @since 2.6.0 bbPress (r5507)
+	 *
+	 * @param bool $reply_status True if pending, false if not.
+	 * @param int $reply_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_pending', (bool) $reply_status, $reply_id );
 }
 
@@ -1081,7 +1277,14 @@ function bbp_is_reply_private( $reply_id = 0 ) {
 	$status       = bbp_get_private_status_id();
 	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is private.
+	 *
+	 * @since 2.6.0 bbPress (r5507)
+	 *
+	 * @param bool $reply_status True if private, false if not.
+	 * @param int $reply_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_private', (bool) $reply_status, $reply_id );
 }
 
@@ -1107,7 +1310,14 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the reply is by an anonymous user.
+	 *
+	 * @since 2.0.0 bbPress (r2858)
+	 *
+	 * @param bool $retval True if the post is by an anonymous user, false if not.
+	 * @param int $reply_id Reply id.
+	 */
 	return (bool) apply_filters( 'bbp_is_reply_anonymous', $retval, $reply_id );
 }
 
@@ -1148,7 +1358,14 @@ function bbp_get_reply_author( $reply_id = 0 ) {
 		$author = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author of reply.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param string $author Author of reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_author', $author, $reply_id );
 }
 
@@ -1176,7 +1393,14 @@ function bbp_get_reply_author_id( $reply_id = 0 ) {
 	$reply_id  = bbp_get_reply_id( $reply_id );
 	$author_id = get_post_field( 'post_author', $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the author ID of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param int $author_id Author ID of the reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return (int) apply_filters( 'bbp_get_reply_author_id', $author_id, $reply_id );
 }
 
@@ -1227,7 +1451,14 @@ function bbp_get_reply_author_display_name( $reply_id = 0 ) {
 		$author_name = bbp_get_fallback_display_name( $reply_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a reply author's display name.
+	 *
+	 * @since 2.0.0 bbPress (r2720)
+	 *
+	 * @param string $author_name The display name of the author of the reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_author_display_name', $author_name, $reply_id );
 }
 
@@ -1268,7 +1499,15 @@ function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 		$author_avatar = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author avatar of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param string $author_avatar Avatar of author of the reply.
+	 * @param int $reply_id Reply ID.
+	 * @param int $size Size of the avatar. Defaults to 40.
+	 */
 	return apply_filters( 'bbp_get_reply_author_avatar', $author_avatar, $reply_id, $size );
 }
 
@@ -1370,6 +1609,16 @@ function bbp_get_reply_author_link( $args = array() ) {
 		unset( $links );
 
 		// Filter sections
+
+		/**
+		 * Filters the links in a reply author's information.
+		 *
+		 * @since 2.6.0 bbPress (r6591)
+		 *
+		 * @param array $author_links The links in a reply author's information.
+		 * @param array $r Parsed arguments.
+		 * @param array<string, mixed>|int $args Original arguments.
+		 */
 		$sections    = apply_filters( 'bbp_get_reply_author_links', $author_links, $r, $args );
 
 		// Assemble sections into author link
@@ -1386,7 +1635,15 @@ function bbp_get_reply_author_link( $args = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author link of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2720)
+	 *
+	 * @param string $author_link Author link of reply.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Arguments or a reply ID.
+	 */
 	return apply_filters( 'bbp_get_reply_author_link', $author_link, $r, $args );
 }
 
@@ -1424,7 +1681,14 @@ function bbp_get_reply_author_url( $reply_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author url of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param string $author_url Author URL of the reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_author_url', $author_url, $reply_id );
 }
 
@@ -1471,7 +1735,14 @@ function bbp_get_reply_author_email( $reply_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the reply author email address.
+	 *
+	 * @since 2.0.0 bbPress (r3446)
+	 *
+	 * @param string $author_email Reply author email address.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_author_email', $author_email, $reply_id );
 }
 
@@ -1528,7 +1799,15 @@ function bbp_get_reply_author_role( $args = array() ) {
 		$author_role = $r['before'] . $role . $r['after'];
 	}
 
-	// Filter & return
+	/**
+	 * Filters the reply author role.
+	 *
+	 * @since 2.1.0 bbPress (r3860)
+	 *
+	 * @param string $author_role Reply author role.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_author_role', $author_role, $r, $args );
 }
 
@@ -1557,7 +1836,14 @@ function bbp_get_reply_topic_title( $reply_id = 0 ) {
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
 	$title    = bbp_get_topic_title( $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the topic title a reply belongs to.
+	 *
+	 * @since 2.0.0 bbPress (r2680)
+	 *
+	 * @param string $title The topic title of the reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_topic_title', $title, $reply_id );
 }
 
@@ -1595,7 +1881,14 @@ function bbp_get_reply_topic_id( $reply_id = 0 ) {
 		$topic_id = (int) bbp_get_topic_id( $topic_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic id a reply belongs to.
+	 *
+	 * @since 2.0.0 bbPress (r2553)
+	 *
+	 * @param int $topic_id The topic id of the reply.
+	 * @param int|false $reply_id Reply ID, or false to use the current reply.
+	 */
 	return (int) apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
 }
 
@@ -1635,7 +1928,14 @@ function bbp_get_reply_forum_id( $reply_id = 0 ) {
 		$forum_id = (int) bbp_get_forum_id( $forum_id );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forum id a reply belongs to.
+	 *
+	 * @since 2.0.0 bbPress (r2858)
+	 *
+	 * @param int $forum_id The forum id of the reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return (int) apply_filters( 'bbp_get_reply_forum_id', $forum_id, $reply_id );
 }
 
@@ -1715,7 +2015,14 @@ function bbp_get_reply_to( $reply_id = 0 ) {
 		$reply_to = (int) get_post_meta( $reply_id, '_bbp_reply_to', true );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the reply to id of a reply.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param int $reply_to The parent reply id of the reply.
+	 * @param int $reply_id Reply id.
+	 */
 	return (int) apply_filters( 'bbp_get_reply_to', $reply_to, $reply_id );
 }
 
@@ -1798,7 +2105,15 @@ function bbp_get_reply_to_link( $args = array() ) {
 	$r['uri'] = $uri;
 	$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link"' . $onclick . '>' . $r['reply_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the link for a reply to a reply.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param string|null $retval Link for a reply to a reply, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments.
+	 */
 	return apply_filters( 'bbp_get_reply_to_link', $retval, $r, $args );
 }
 
@@ -1844,7 +2159,15 @@ function bbp_get_cancel_reply_to_link( $text = '' ) {
 	$link   = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . "#post-{$reply_to}";
 	$retval = sprintf( '<a href="%1$s" id="bbp-cancel-reply-to-link"%2$s>%3$s</a>', esc_url( $link ), $style, esc_html( $text ) );
 
-	// Filter & return
+	/**
+	 * Filters the cancellation link for a reply to a reply.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param string|null $retval The cancellation link, or null when unavailable.
+	 * @param string $link Link markup.
+	 * @param string $text The cancel text.
+	 */
 	return apply_filters( 'bbp_get_cancel_reply_to_link', $retval, $link, $text );
 }
 
@@ -1908,7 +2231,15 @@ function bbp_get_reply_position( $reply_id = 0, $topic_id = 0, $view_all = false
 		++$reply_position;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the numeric position of a reply within a topic.
+	 *
+	 * @since 2.0.0 bbPress (r2984)
+	 *
+	 * @param int $reply_position Reply position.
+	 * @param int $reply_id Reply id.
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_get_reply_position', $reply_position, $reply_id, $topic_id );
 }
 
@@ -1975,6 +2306,15 @@ function bbp_get_reply_admin_links( $args = array() ) {
 
 	// If no links were passed, default to the standard
 	if ( empty( $r['links'] ) ) {
+
+		/**
+		 * Filters the available reply admin links.
+		 *
+		 * @since 2.0.0 bbPress (r2667)
+		 *
+		 * @param array $value The available reply admin links.
+		 * @param int $id Id.
+		 */
 		$r['links'] = apply_filters(
 			'bbp_reply_admin_links',
 			array(
@@ -2002,7 +2342,15 @@ function bbp_get_reply_admin_links( $args = array() ) {
 	$links  = implode( $r['sep'], array_filter( $r['links'] ) );
 	$retval = $r['before'] . $links . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the admin links for reply.
+	 *
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @param string|null $retval Reply admin links, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_admin_links', $retval, $r, $args );
 }
 
@@ -2069,7 +2417,15 @@ function bbp_get_reply_edit_link( $args = array() ) {
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-edit-link">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the edit link of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param string|null $retval Reply edit link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_edit_link', $retval, $r, $args );
 }
 
@@ -2124,7 +2480,14 @@ function bbp_get_reply_edit_url( $reply_id = 0 ) {
 	// Maybe add view all
 	$url = bbp_add_view_all( $url );
 
-	// Filter & return
+	/**
+	 * Filters the URL to edit a reply.
+	 *
+	 * @since 2.0.0 bbPress (r2753)
+	 *
+	 * @param string|null $url Reply edit URL, or null when unavailable.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_get_reply_edit_url', $url, $reply_id );
 }
 
@@ -2215,7 +2578,15 @@ function bbp_get_reply_trash_link( $args = array() ) {
 	// Process the admin links
 	$retval = $r['link_before'] . implode( $r['sep'], $actions ) . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the trash link of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param string|null $retval Reply trash link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_trash_link', $retval, $r, $args );
 }
 
@@ -2280,7 +2651,15 @@ function bbp_get_reply_spam_link( $args = array() ) {
 	$uri    = wp_nonce_url( $uri, 'spam-reply_' . $reply->ID );
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-spam-link">' . $display . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the spam link of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param string|null $retval Reply spam link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_spam_link', $retval, $r, $args );
 }
 
@@ -2347,7 +2726,15 @@ function bbp_get_reply_move_link( $args = array() ) {
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-reply-move-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the move reply link.
+	 *
+	 * @since 2.3.0 bbPress (r4522)
+	 *
+	 * @param string|null $retval Reply move link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_move_link', $retval, $r, $args );
 }
 
@@ -2414,7 +2801,15 @@ function bbp_get_topic_split_link( $args = array() ) {
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-topic-split-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the split topic link.
+	 *
+	 * @since 2.0.0 bbPress (r2756)
+	 *
+	 * @param string|null $retval Topic split link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_topic_split_link', $retval, $r, $args );
 }
 
@@ -2481,7 +2876,15 @@ function bbp_get_reply_approve_link( $args = array() ) {
 	$uri    = wp_nonce_url( $uri, 'approve-reply_' . $reply->ID );
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-approve-link">' . $display . '</a>' . $r['link_after'];
 
-	// Filter & return
+	/**
+	 * Filters the approve link of the reply.
+	 *
+	 * @since 2.6.0 bbPress (r5507)
+	 *
+	 * @param string|null $retval Reply approve link, or null when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_reply_approve_link', $retval, $r, $args );
 }
 
@@ -2551,6 +2954,16 @@ function bbp_get_reply_class( $reply_id = 0, $classes = array() ) {
 	$post_classes = get_post_class( array_merge( $classes, $reply_classes ), $reply_id );
 
 	// Filter
+
+	/**
+	 * Filters the CSS classes on a reply row.
+	 *
+	 * @since 2.0.0 bbPress (r2678)
+	 *
+	 * @param array $classes The CSS classes on a reply row.
+	 * @param int $reply_id Reply id.
+	 * @param array<array-key, string> $classes Classes.
+	 */
 	$new_classes  = apply_filters( 'bbp_get_reply_class', $post_classes, $reply_id, $classes );
 
 	// Return
@@ -2599,7 +3012,14 @@ function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 		$base = add_query_arg( 'paged', '%#%' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the base URL used inside of pagination links.
+	 *
+	 * @since 2.6.0 bbPress (r6680)
+	 *
+	 * @param string|false $base Pagination base, or false when its URL is invalid.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_replies_pagination_base', $base, $topic_id );
 }
 
@@ -2689,7 +3109,13 @@ function bbp_get_topic_pagination_count() {
 	// Escape results of _n()
 	$retstr = esc_html( $retstr );
 
-	// Filter & return
+	/**
+	 * Filters the topic pagination count.
+	 *
+	 * @since 2.0.0 bbPress (r2519)
+	 *
+	 * @param string $retstr Topic pagination count.
+	 */
 	return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
 }
 
@@ -2718,7 +3144,13 @@ function bbp_get_topic_pagination_links() {
 		return false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic pagination links.
+	 *
+	 * @since 2.0.0 bbPress (r2519)
+	 *
+	 * @param string|false $pagination_links Topic pagination links, or false when unavailable.
+	 */
 	return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
 }
 
@@ -2760,7 +3192,13 @@ function bbp_get_form_reply_content() {
 		$reply_content = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of reply content field.
+	 *
+	 * @since 2.0.0 bbPress (r3101)
+	 *
+	 * @param string $reply_content Value of reply content field.
+	 */
 	return apply_filters( 'bbp_get_form_reply_content', $reply_content );
 }
 
@@ -2797,7 +3235,13 @@ function bbp_get_form_reply_to() {
 		$reply_to = bbp_get_reply_to();
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of reply to field.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param int $reply_to Parent reply ID, or 0 when none is selected.
+	 */
 	return apply_filters( 'bbp_get_form_reply_to', $reply_to );
 }
 
@@ -2889,7 +3333,16 @@ function bbp_get_reply_to_dropdown( $reply_id = 0, $topic_id = 0 ) {
 		)
 	);
 
-	// Filter & return
+	/**
+	 * Filters the reply parent selection dropdown.
+	 *
+	 * @since 2.6.0 bbPress (r5387)
+	 *
+	 * @param string $retval The dropdown.
+	 * @param int $reply_id Reply id.
+	 * @param int $reply_to Parent reply ID.
+	 * @param int $topic_id Optional topic id when previewing a reply move.
+	 */
 	return apply_filters( 'bbp_get_reply_to_dropdown', $retval, $reply_id, $reply_to, $topic_id );
 }
 
@@ -2925,7 +3378,14 @@ function bbp_get_form_reply_log_edit() {
 	// Get checked output
 	$checked = checked( $reply_revision, true, false );
 
-	// Filter & return
+	/**
+	 * Filters the checked value of reply log edit field.
+	 *
+	 * @since 2.0.0 bbPress (r3101)
+	 *
+	 * @param string $checked Reply log edit checked value.
+	 * @param bool $reply_revision Whether to log the reply edit.
+	 */
 	return apply_filters( 'bbp_get_form_reply_log_edit', $checked, $reply_revision );
 }
 
@@ -2958,7 +3418,13 @@ function bbp_get_form_reply_edit_reason() {
 		$reply_edit_reason = '';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of the reply edit reason.
+	 *
+	 * @since 2.0.0 bbPress (r3101)
+	 *
+	 * @param string $reply_edit_reason Reply edit reason value.
+	 */
 	return apply_filters( 'bbp_get_form_reply_edit_reason', $reply_edit_reason );
 }
 
@@ -3043,7 +3509,15 @@ function bbp_get_form_reply_status_dropdown( $args = array() ) {
 
 	<?php
 
-	// Filter & return
+	/**
+	 * Filters the reply status dropdown.
+	 *
+	 * @since 2.6.0 bbPress (r5399)
+	 *
+	 * @param string $value Reply status dropdown markup.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Arguments passed to the function.
+	 */
 	return apply_filters( 'bbp_get_form_reply_status_dropdown', ob_get_clean(), $r, $args );
 }
 

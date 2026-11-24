@@ -107,7 +107,16 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 		$retval = $GLOBALS[ $name ];
 	}
 
-	// Filter & return
+	/**
+	 * Filters the value of a bbPress global object.
+	 *
+	 * @since 2.6.0 bbPress (r5826)
+	 *
+	 * @param mixed $retval Global value, fallback, or null.
+	 * @param string $name Name of global variable.
+	 * @param string|false $type Type of variable to check with `is_a()`, or false to skip the check.
+	 * @param mixed $default Default value to return if no global found.
+	 */
 	return apply_filters( 'bbp_get_global_object', $retval, $name, $type, $default );
 }
 
@@ -438,7 +447,13 @@ function bbp_get_root_url() {
 		$retval = $rewrite->root;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the root URL.
+	 *
+	 * @since 2.6.0 bbPress (r5823)
+	 *
+	 * @param string $retval The root url.
+	 */
 	return apply_filters( 'bbp_get_root_url', $retval );
 }
 
@@ -460,7 +475,13 @@ function bbp_get_paged_slug() {
 		$retval = $rewrite->pagination_base;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the slug used for paginated requests.
+	 *
+	 * @since 2.6.0 bbPress (r5823)
+	 *
+	 * @param string $retval The slug used for paginated requests.
+	 */
 	return apply_filters( 'bbp_get_paged_slug', $retval );
 }
 
@@ -482,7 +503,13 @@ function bbp_use_pretty_urls() {
 		$retval = $rewrite->using_permalinks();
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the environment is using pretty URLs.
+	 *
+	 * @since 2.6.0 bbPress (r5823)
+	 *
+	 * @param bool $retval Whether the environment is using pretty URLs.
+	 */
 	return apply_filters( 'bbp_pretty_urls', $retval );
 }
 
@@ -512,7 +539,14 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
 			: ( preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $pagination_links ) ?? $pagination_links );
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether to use canonical links for the first page.
+	 *
+	 * @since 2.6.0 bbPress (r6680)
+	 *
+	 * @param string|null $retval Canonical pagination links, or null when no links were supplied.
+	 * @param string|null $pagination_links The HTML links used for pagination, or null when absent.
+	 */
 	return apply_filters( 'bbp_make_first_page_canonical', $retval, $pagination_links );
 }
 
@@ -600,7 +634,13 @@ function bbp_is_large_install() {
 		? wp_is_large_network( 'users' )
 		: wp_is_large_user_count();
 
-	// Filter & return
+	/**
+	 * Filters whether this is a large bbPress installation.
+	 *
+	 * @since 2.6.0 bbPress (r6542)
+	 *
+	 * @param bool $retval True if more than 10000 users, false not.
+	 */
 	return (bool) apply_filters( 'bbp_is_large_install', $retval );
 }
 
@@ -616,7 +656,13 @@ function bbp_is_large_install() {
 function bbp_get_total_users() {
 	$count = get_user_count();
 
-	// Filter & return
+	/**
+	 * Filters the total number of users on this site.
+	 *
+	 * @since 2.0.0 bbPress (r2769)
+	 *
+	 * @param int $count Total number of users.
+	 */
 	return (int) apply_filters( 'bbp_get_total_users', (int) $count );
 }
 
@@ -669,6 +715,14 @@ function bbp_get_total_forum_users() {
 	}
 
 	// Filter the result after caching so request-specific overrides stay local
+
+	/**
+	 * Filters the total number of forum users.
+	 *
+	 * @since 2.7.0 bbPress (r7447)
+	 *
+	 * @param int $count The total number of forum users.
+	 */
 	return (int) apply_filters( 'bbp_get_total_forum_users', (int) $count );
 }
 
@@ -809,6 +863,13 @@ function bbp_get_empty_datetime() {
 	// Default return value
 	$retval = '0000-00-00 00:00:00';
 
-	// Filter & return
+	/**
+	 * Filters an empty datetime value.
+	 *
+	 * @since 2.6.6 bbPress (r7099)
+	 *
+	 * @param string $retval An empty datetime value.
+	 * @param string $db_version Database version.
+	 */
 	return (string) apply_filters( 'bbp_get_default_zero_date', $retval, $db_version );
 }

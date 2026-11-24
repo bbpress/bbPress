@@ -1062,6 +1062,7 @@ function bbp_admin_repair_forum_subforum_count_batch( $dry_run = false ) {
 			}
 			if ( ! $dry_run && $repair['changed'] ) {
 				// Preserve the count updater's return filter for completed repairs
+				/** This filter is documented in src/includes/forums/functions.php. */
 				apply_filters( 'bbp_update_forum_subforum_count', $count, $id );
 			}
 			$completed[]     = $id;
@@ -2787,6 +2788,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 		bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 		return $batch;
 	}
+	/** This filter is documented in src/includes/topics/functions.php. */
 	$super   = (array) apply_filters( 'bbp_get_super_stickies', is_array( $super ) ? wp_parse_id_list( $super ) : array() );
 	$context = array(
 		'forum' => bbp_get_forum_post_type(),
@@ -2960,6 +2962,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 						$topic = bbp_get_topic_id( $item );
 						wp_cache_delete( $topic, 'posts' );
 						wp_cache_delete( $topic, 'post_meta' );
+						/** This filter is documented in src/includes/topics/template.php. */
 						$is_super = (bool) apply_filters( 'bbp_is_topic_super_sticky', in_array( $topic, $super, true ), $topic );
 						$parent   = $is_super ? $id : bbp_get_topic_forum_id( $topic );
 						if ( ! empty( $db->last_error ) ) {
@@ -3887,6 +3890,7 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 			$error = 'source-limit';
 			return false;
 		}
+		/** This filter is documented in src/includes/common/functions.php. */
 		$children = array_values( array_filter( (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() ), 'bbp_is_reply_public' ) );
 		if ( count( $children ) > $limit ) {
 			$error = 'source-limit';

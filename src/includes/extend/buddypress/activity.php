@@ -830,7 +830,26 @@ class BBP_BuddyPress_Activity {
 			$topic_link,
 			$forum_link
 		);
+
+		/**
+		 * Filters the BuddyPress activity text when a topic is created.
+		 *
+		 * @since 2.0.0 bbPress (r3395)
+		 *
+		 * @param string $activity_text The BuddyPress activity text when a topic is created.
+		 * @param int $user_id User id.
+		 * @param int $topic_id Topic id.
+		 * @param int $forum_id Forum id.
+		 */
 		$activity_action  = apply_filters( 'bbp_activity_topic_create',         $activity_text, $user_id,   $topic_id,   $forum_id );
+
+		/**
+		 * Filters the topic excerpt used in BuddyPress activity.
+		 *
+		 * @since 2.0.0 bbPress (r3395)
+		 *
+		 * @param string $topic_content The topic excerpt used in BuddyPress activity.
+		 */
 		$activity_content = apply_filters( 'bbp_activity_topic_create_excerpt', $topic_content                                     );
 
 		// Compile and record the activity stream results
@@ -984,7 +1003,26 @@ class BBP_BuddyPress_Activity {
 			$topic_link,
 			$forum_link
 		);
+
+		/**
+		 * Filters the BuddyPress activity text when a reply is created.
+		 *
+		 * @since 2.0.0 bbPress (r3395)
+		 *
+		 * @param string $activity_text The BuddyPress activity text when a reply is created.
+		 * @param int $user_id User id.
+		 * @param int $reply_id Reply id.
+		 * @param int $topic_id Topic id.
+		 */
 		$activity_action  = apply_filters( 'bbp_activity_reply_create',         $activity_text, $user_id, $reply_id,  $topic_id );
+
+		/**
+		 * Filters the reply excerpt used in BuddyPress activity.
+		 *
+		 * @since 2.0.0 bbPress (r3395)
+		 *
+		 * @param string $reply_content The reply excerpt used in BuddyPress activity.
+		 */
 		$activity_content = apply_filters( 'bbp_activity_reply_create_excerpt', $reply_content                                  );
 
 		// Compile and record the activity stream results

@@ -356,6 +356,14 @@ function bbp_new_reply_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the reply title before creating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $reply_title The reply title before creating it.
+	 */
 	$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
 
 	// Validate the reply title
@@ -368,6 +376,14 @@ function bbp_new_reply_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the reply content before creating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $reply_content The reply content before creating it.
+	 */
 	$reply_content = apply_filters( 'bbp_new_reply_pre_content', $reply_content );
 
 	// No reply content
@@ -443,6 +459,14 @@ function bbp_new_reply_handler( $action = '' ) {
 	// Add the content of the form to $reply_data as an array
 	// Just in time manipulation of reply data before being created
 	$initial_menu_order = ( bbp_get_pending_status_id() === $reply_status ) ? 0 : bbp_get_topic_reply_count( $topic_id, true ) + 1;
+
+	/**
+	 * Filters the reply post data before creating it.
+	 *
+	 * @since 2.0.0 bbPress (r3222)
+	 *
+	 * @param array $value The reply post data before creating it.
+	 */
 	$reply_data = apply_filters(
 		'bbp_new_reply_pre_insert',
 		array(
@@ -476,6 +500,16 @@ function bbp_new_reply_handler( $action = '' ) {
 		/** Topic Tags ********************************************************/
 
 		// Just in time manipulation of reply terms before being edited
+
+		/**
+		 * Filters the terms assigned when a reply is created.
+		 *
+		 * @since 2.0.0 bbPress (r3255)
+		 *
+		 * @param array $terms The terms assigned when a reply is created.
+		 * @param int $topic_id Topic id.
+		 * @param int $reply_id Reply id.
+		 */
 		$terms = apply_filters( 'bbp_new_reply_pre_set_terms', $terms, $topic_id, $reply_id );
 
 		// Insert terms
@@ -565,6 +599,16 @@ function bbp_new_reply_handler( $action = '' ) {
 			$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
 			// Allow to be filtered
+
+			/**
+			 * Filters the redirect URL after saving the reply.
+			 *
+			 * @since 2.0.0 bbPress (r3240)
+			 *
+			 * @param string $reply_url The redirect URL after saving the reply.
+			 * @param string $redirect_to Redirect to.
+			 * @param int $reply_id Reply id.
+			 */
 			$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $redirect_to, $reply_id );
 
 			/** Successful Save ***************************************************/
@@ -729,6 +773,15 @@ function bbp_edit_reply_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the reply title before updating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $reply_title The reply title before updating it.
+	 * @param int $reply_id Reply id.
+	 */
 	$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
 
 	// Validate the reply title
@@ -741,6 +794,15 @@ function bbp_edit_reply_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the reply content before updating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $reply_content The reply content before updating it.
+	 * @param int $reply_id Reply id.
+	 */
 	$reply_content = apply_filters( 'bbp_edit_reply_pre_content', $reply_content, $reply_id );
 
 	// No reply content
@@ -808,6 +870,14 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Add the content of the form to $reply_data as an array
 	// Just in time manipulation of reply data before being edited
+
+	/**
+	 * Filters the reply post data before updating it.
+	 *
+	 * @since 2.0.0 bbPress (r3223)
+	 *
+	 * @param array $value The reply post data before updating it.
+	 */
 	$reply_data = apply_filters(
 		'bbp_edit_reply_pre_insert',
 		array(
@@ -848,6 +918,16 @@ function bbp_edit_reply_handler( $action = '' ) {
 		/** Topic Tags ********************************************************/
 
 		// Just in time manipulation of reply terms before being edited
+
+		/**
+		 * Filters the terms assigned when a reply is edited.
+		 *
+		 * @since 2.0.0 bbPress (r3255)
+		 *
+		 * @param array $terms The terms assigned when a reply is edited.
+		 * @param int $topic_id Topic id.
+		 * @param int $reply_id Reply id.
+		 */
 		$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id, $reply_id );
 
 		// Insert terms
@@ -896,6 +976,15 @@ function bbp_edit_reply_handler( $action = '' ) {
 		$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
 		// Allow to be filtered
+
+		/**
+		 * Filters the redirect URL after saving the reply.
+		 *
+		 * @since 2.0.0 bbPress (r3265)
+		 *
+		 * @param string $reply_url The redirect URL after saving the reply.
+		 * @param string $redirect_to Redirect to.
+		 */
 		$reply_url = apply_filters( 'bbp_edit_reply_redirect_to', $reply_url, $redirect_to );
 
 		/** Successful Edit ***************************************************/
@@ -1184,7 +1273,15 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	// Update the forum ID
 	$retval = bbp_update_forum_id( $reply_id, $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters the forum ID of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $retval Forum ID of the reply.
+	 * @param int $reply_id Reply id to update.
+	 * @param int $forum_id Forum id.
+	 */
 	return (int) apply_filters( 'bbp_update_reply_forum_id', $retval, $reply_id, $forum_id );
 }
 
@@ -1227,7 +1324,15 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	// Update the topic ID
 	$retval = bbp_update_topic_id( $reply_id, $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the topic ID of the reply.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $retval Topic ID of the reply.
+	 * @param int $reply_id Reply id to update.
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_update_reply_topic_id', $retval, $reply_id, $topic_id );
 }
 
@@ -1259,7 +1364,14 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the parent reply ID.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param int $reply_to Parent reply ID.
+	 * @param int $reply_id Reply id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_reply_to', $reply_to, $reply_id );
 }
 
@@ -1310,7 +1422,14 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters all ancestors to a reply.
+	 *
+	 * @since 2.6.0 bbPress (r5390)
+	 *
+	 * @param array<int, int> $ancestors All ancestors to a reply.
+	 * @param int $reply_id Reply ID whose ancestors are requested.
+	 */
 	return (array) apply_filters( 'bbp_get_reply_ancestors', $ancestors, $reply_id );
 }
 
@@ -1352,7 +1471,14 @@ function bbp_update_reply_revision_log( $args = array() ) {
 	// Finally, update
 	update_post_meta( $r['reply_id'], '_bbp_revision_log', $revision_log );
 
-	// Filter & return
+	/**
+	 * Filters the updated revision log.
+	 *
+	 * @since 2.0.0 bbPress (r2914)
+	 *
+	 * @param array<array-key, mixed> $revision_log Updated revision log.
+	 * @param int $reply_id Reply id.
+	 */
 	return apply_filters( 'bbp_update_reply_revision_log', $revision_log, $r['reply_id'] );
 }
 
@@ -1503,6 +1629,7 @@ function bbp_move_reply_handler( $action = '' ) {
 					}
 
 					// Filter the new topic title
+					/** This filter is documented in src/includes/topics/functions.php. */
 					$destination_topic_title = apply_filters( 'bbp_new_topic_pre_title', $destination_topic_title );
 
 					// Validate the topic title
@@ -1865,7 +1992,15 @@ function bbp_toggle_reply( $args = array() ) {
 		$retval['redirect_to'] = bbp_add_view_all( $retval['redirect_to'], true );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the result of a reply moderation action.
+	 *
+	 * @since 2.0.0 bbPress (r2740)
+	 *
+	 * @param array<string, mixed> $retval The result of a reply moderation action.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Reply ID, action, and related toggle settings.
+	 */
 	return apply_filters( 'bbp_toggle_reply', $retval, $r, $args );
 }
 
@@ -1882,7 +2017,14 @@ function bbp_toggle_reply( $args = array() ) {
  */
 function bbp_get_reply_statuses( $reply_id = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters an associative array of available reply statuses.
+	 *
+	 * @since 2.6.0 bbPress (r5399)
+	 *
+	 * @param array<string, string> $value An associative array of available reply statuses.
+	 * @param int $reply_id Reply id.
+	 */
 	return (array) apply_filters(
 		'bbp_get_reply_statuses',
 		array(
@@ -1906,7 +2048,14 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
  */
 function bbp_get_reply_toggles( $reply_id = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters the array of available reply toggle actions.
+	 *
+	 * @since 2.6.0 bbPress (r6134)
+	 *
+	 * @param array<array-key, string> $value The array of available reply toggle actions.
+	 * @param int $reply_id Reply id.
+	 */
 	return (array) apply_filters(
 		'bbp_get_toggle_reply_actions',
 		array(
@@ -1930,7 +2079,13 @@ function bbp_get_public_reply_statuses() {
 		bbp_get_public_status_id()
 	);
 
-	// Filter & return
+	/**
+	 * Filters the array of public reply statuses.
+	 *
+	 * @since 2.6.0 bbPress (r6706)
+	 *
+	 * @param array<array-key, string> $statuses The array of public reply statuses.
+	 */
 	return (array) apply_filters( 'bbp_get_public_reply_statuses', $statuses );
 }
 
@@ -1948,7 +2103,13 @@ function bbp_get_non_public_reply_statuses() {
 		bbp_get_pending_status_id()
 	);
 
-	// Filter & return
+	/**
+	 * Filters the array of non-public reply statuses.
+	 *
+	 * @since 2.6.0 bbPress (r6791)
+	 *
+	 * @param array<array-key, string> $statuses The array of non-public reply statuses.
+	 */
 	return (array) apply_filters( 'bbp_get_non_public_reply_statuses', $statuses );
 }
 
@@ -2274,7 +2435,14 @@ function bbp_get_replies_per_page( $default = 15 ) {
 		$retval = $default;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the replies per page setting.
+	 *
+	 * @since 2.0.1 bbPress (r3540)
+	 *
+	 * @param int $retval The replies per page setting.
+	 * @param int $default Default replies per page (15).
+	 */
 	return (int) apply_filters( 'bbp_get_replies_per_page', $retval, $default );
 }
 
@@ -2296,7 +2464,14 @@ function bbp_get_replies_per_rss_page( $default = 25 ) {
 		$retval = $default;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the replies per RSS page setting.
+	 *
+	 * @since 2.0.1 bbPress (r3540)
+	 *
+	 * @param int $retval The replies per rss page setting.
+	 * @param int $default Default replies per page (25).
+	 */
 	return (int) apply_filters( 'bbp_get_replies_per_rss_page', $retval, $default );
 }
 
@@ -2825,7 +3000,15 @@ function bbp_thread_replies() {
 		$retval = (bool) ( ( $depth >= 2 ) && ( true === $allow ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether replies are threaded.
+	 *
+	 * @since 2.4.0 bbPress (r4944)
+	 *
+	 * @param bool $retval Whether replies are threaded.
+	 * @param int $depth Maximum reply nesting depth.
+	 * @param bool $allow Whether threaded replies are enabled.
+	 */
 	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth, $allow );
 }
 

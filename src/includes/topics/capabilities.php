@@ -18,7 +18,13 @@
  */
 function bbp_get_topic_caps() {
 
-	// Filter & return
+	/**
+	 * Filters the topic capabilities.
+	 *
+	 * @since 2.0.0 bbPress (r2593)
+	 *
+	 * @param array<string, string> $value Topic capabilities.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_caps',
 		array(
@@ -43,7 +49,13 @@ function bbp_get_topic_caps() {
  */
 function bbp_get_topic_tag_caps() {
 
-	// Filter & return
+	/**
+	 * Filters the topic tag capabilities.
+	 *
+	 * @since 2.0.0 bbPress (r2593)
+	 *
+	 * @param array<string, string> $value Topic tag capabilities.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_tag_caps',
 		array(
@@ -83,6 +95,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			$can_read = user_can( $user_id, 'spectate' ) || bbp_is_anonymous();
 
 			if ( ! $can_read && ! empty( $args[0] ) ) {
+				/** This filter is documented in src/includes/forums/capabilities.php. */
 				$can_read = (bool) apply_filters( 'bbp_allow_read_without_spectate', false, $user_id, (int) $args[0], $cap );
 			}
 
@@ -313,7 +326,16 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			break;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the actual capabilities for meta capability.
+	 *
+	 * @since 2.2.0 bbPress (r4244)
+	 *
+	 * @param array<array-key, string> $caps Actual capabilities for meta capability.
+	 * @param string $cap Capability name.
+	 * @param int $user_id User id.
+	 * @param list<mixed> $args Arguments.
+	 */
 	return (array) apply_filters( 'bbp_map_topic_meta_caps', $caps, $cap, $user_id, $args );
 }
 
@@ -498,6 +520,15 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 			break;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the actual capabilities for meta capability.
+	 *
+	 * @since 2.2.0 bbPress (r4244)
+	 *
+	 * @param array<array-key, string> $caps Actual capabilities for meta capability.
+	 * @param string $cap Capability name.
+	 * @param int $user_id User id.
+	 * @param list<mixed> $args Arguments.
+	 */
 	return (array) apply_filters( 'bbp_map_topic_tag_meta_caps', $caps, $cap, $user_id, $args );
 }

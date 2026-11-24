@@ -152,7 +152,13 @@ function bbp_get_current_template_pack() {
 		$bbp->theme_compat->theme = new BBP_Theme_Compat();
 	}
 
-	// Filter & return
+	/**
+	 * Filters the current template pack package.
+	 *
+	 * @since 2.6.0 bbPress (r6551)
+	 *
+	 * @param BBP_Theme_Compat $theme The current template pack package.
+	 */
 	return apply_filters( 'bbp_get_current_template_pack', $bbp->theme_compat->theme );
 }
 
@@ -168,7 +174,13 @@ function bbp_get_current_template_pack() {
  */
 function bbp_get_theme_compat_id() {
 
-	// Filter & return
+	/**
+	 * Filters the theme compatibility package ID.
+	 *
+	 * @since 2.1.0 bbPress (r3830)
+	 *
+	 * @param string $id The theme compatibility package id.
+	 */
 	return apply_filters( 'bbp_get_theme_compat_id', bbp_get_current_template_pack()->id );
 }
 
@@ -184,7 +196,13 @@ function bbp_get_theme_compat_id() {
  */
 function bbp_get_theme_compat_name() {
 
-	// Filter & return
+	/**
+	 * Filters the theme compatibility package name.
+	 *
+	 * @since 2.0.0 bbPress (r3507)
+	 *
+	 * @param string $name The theme compatibility package name.
+	 */
 	return apply_filters( 'bbp_get_theme_compat_name', bbp_get_current_template_pack()->name );
 }
 
@@ -200,7 +218,13 @@ function bbp_get_theme_compat_name() {
  */
 function bbp_get_theme_compat_version() {
 
-	// Filter & return
+	/**
+	 * Filters the theme compatibility package version.
+	 *
+	 * @since 2.0.0 bbPress (r3507)
+	 *
+	 * @param string $version The theme compatibility package version.
+	 */
 	return apply_filters( 'bbp_get_theme_compat_version', bbp_get_current_template_pack()->version );
 }
 
@@ -216,7 +240,13 @@ function bbp_get_theme_compat_version() {
  */
 function bbp_get_theme_compat_dir() {
 
-	// Filter & return
+	/**
+	 * Filters the theme compatibility package directory.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 *
+	 * @param string $dir The theme compatibility package directory.
+	 */
 	return apply_filters( 'bbp_get_theme_compat_dir', bbp_get_current_template_pack()->dir );
 }
 
@@ -232,7 +262,13 @@ function bbp_get_theme_compat_dir() {
  */
 function bbp_get_theme_compat_url() {
 
-	// Filter & return
+	/**
+	 * Filters the theme compatibility package URL.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 *
+	 * @param string $url The theme compatibility package url.
+	 */
 	return apply_filters( 'bbp_get_theme_compat_url', bbp_get_current_template_pack()->url );
 }
 
@@ -996,7 +1032,13 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the template file to include.
+	 *
+	 * @since 2.0.0 bbPress (r3311)
+	 *
+	 * @param string $template Template file to include.
+	 */
 	return apply_filters( 'bbp_template_include_theme_compat', $template );
 }
 
@@ -1289,7 +1331,16 @@ function bbp_force_comment_status( $open = false, $post_id = 0 ) {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether comments are open.
+	 *
+	 * @since 2.1.0 bbPress (r3589)
+	 *
+	 * @param bool $retval Whether comments are open.
+	 * @param bool $open Whether comments are currently open.
+	 * @param int $post_id Post ID to check.
+	 * @param string $post_type Post type ID.
+	 */
 	return (bool) apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
 }
 

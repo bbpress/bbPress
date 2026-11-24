@@ -35,7 +35,15 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 		$url = home_url();
 	}
 
-	// Filter & return
+	/**
+	 * Filters the login redirect URL.
+	 *
+	 * @since 2.0.0 bbPress (r2815)
+	 *
+	 * @param string $url Login redirect URL.
+	 * @param string $raw_url Raw url.
+	 * @param object|string $user User object or empty string.
+	 */
 	return apply_filters( 'bbp_redirect_login', $url, $raw_url, $user );
 }
 
@@ -50,7 +58,13 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 function bbp_is_anonymous() {
 	$is_anonymous = ( ! is_user_logged_in() && bbp_allow_anonymous() );
 
-	// Filter & return
+	/**
+	 * Filters whether an anonymous topic/reply is being made.
+	 *
+	 * @since 2.0.0 bbPress (r2670)
+	 *
+	 * @param bool $is_anonymous True if anonymous is allowed and user is not logged in, false if anonymous is not allowed or user is logged in.
+	 */
 	return (bool) apply_filters( 'bbp_is_anonymous', $is_anonymous );
 }
 
@@ -155,7 +169,14 @@ function bbp_current_author_ip() {
 	// Remove any unsavory bits
 	$retval = preg_replace( '/[^0-9a-fA-F:., ]/', '', $remote_address ) ?? '';
 
-	// Filter & return
+	/**
+	 * Filters the poster IP address.
+	 *
+	 * @since 2.0.0 bbPress (r3120)
+	 *
+	 * @param string $retval The poster ip address.
+	 * @param string $remote_address Remote IP address.
+	 */
 	return apply_filters( 'bbp_current_author_ip', $retval, $remote_address );
 }
 
@@ -171,7 +192,13 @@ function bbp_current_author_ua() {
 		? mb_substr( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 254 )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the poster user agent.
+	 *
+	 * @since 2.0.0 bbPress (r3447)
+	 *
+	 * @param string $retval The poster user agent.
+	 */
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
 
@@ -235,7 +262,15 @@ function bbp_filter_user_edit_post_data( $data = array(), $user_id = 0 ) {
 		unset( $data['role'] );
 	}
 
-	// Filter & return.
+	/**
+	 * Filters the edited user profile data.
+	 *
+	 * @since 2.6.16 bbPress (r7513)
+	 *
+	 * @param array<string, mixed> $data Filtered user profile data.
+	 * @param int $user_id User being edited.
+	 * @param int $current_user_id Current user id.
+	 */
 	return (array) apply_filters( 'bbp_filter_user_edit_post_data', $data, $user_id, bbp_get_current_user_id() );
 }
 
@@ -254,7 +289,15 @@ function bbp_user_email_change_requires_confirmation( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id, false, false );
 	$retval  = ( bbp_get_current_user_id() === $user_id );
 
-	// Filter & return.
+	/**
+	 * Filters whether an email change requires confirmation from the edited user.
+	 *
+	 * @since 2.6.16 bbPress (r7513)
+	 *
+	 * @param bool $retval Whether confirmation is required.
+	 * @param int $user_id User being edited.
+	 * @param int $current_user_id Current user id.
+	 */
 	return (bool) apply_filters( 'bbp_user_email_change_requires_confirmation', $retval, $user_id, bbp_get_current_user_id() );
 }
 
@@ -601,6 +644,15 @@ The %4$s Team
 	 * @param string $email_text Text in the email.
 	 * @param array  $r          New user email data, including the newemail address.
 	 */
+
+	/**
+	 * Filters the email message sent after a user's address changes.
+	 *
+	 * @since 2.6.0 bbPress (r5665)
+	 *
+	 * @param string $email_text The email message sent after a user's address changes.
+	 * @param array $r Parsed arguments.
+	 */
 	$content = apply_filters( 'bbp_user_email_update_content', $email_text, $r );
 
 	// Build the email message
@@ -678,7 +730,16 @@ function bbp_get_user_topics_started( $args = array() ) {
 	$query   = bbp_has_topics( $r );
 	$user_id = $r['author'];
 
-	// Filter & return
+	/**
+	 * Filters the topics that a user created.
+	 *
+	 * @since 2.1.0 bbPress (r3696)
+	 *
+	 * @param bool $query True if user has started topics, otherwise false.
+	 * @param int $user_id User id.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 */
 	return apply_filters( 'bbp_get_user_topics_started', $query, $user_id, $r, $args );
 }
 
@@ -733,7 +794,16 @@ function bbp_get_user_replies_created( $args = array() ) {
 	$query   = bbp_has_replies( $r );
 	$user_id = $r['author'];
 
-	// Filter & return
+	/**
+	 * Filters the replies that a user created.
+	 *
+	 * @since 2.2.0 bbPress (r4228)
+	 *
+	 * @param bool $query True if user has created replies, otherwise false.
+	 * @param int $user_id User id.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 */
 	return apply_filters( 'bbp_get_user_replies_created', $query, $user_id, $r, $args );
 }
 
@@ -776,7 +846,14 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the user IDs from nicenames.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param array<int|string, int> $retval The user ids from nicenames.
+	 * @param mixed $user_nicenames User nicenames to resolve.
+	 */
 	return (array) apply_filters( 'bbp_get_user_ids_from_nicenames', $retval, $user_nicenames );
 }
 
@@ -811,7 +888,14 @@ function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the user nicenames from IDs.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param array<int|string, string> $retval The user nicenames from ids.
+	 * @param mixed $user_ids User ids.
+	 */
 	return (array) apply_filters( 'bbp_get_user_nicenames_from_ids', $retval, $user_ids );
 }
 
@@ -839,7 +923,14 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 	$query   = $bbp_db->prepare( $sql, bbp_get_topic_post_type(), $user_id );
 	$count   = (int) $bbp_db->get_var( $query );
 
-	// Filter & return
+	/**
+	 * Filters the raw database count of topics by a user.
+	 *
+	 * @since 2.1.0 bbPress (r3633)
+	 *
+	 * @param int $count Raw DB count of topics.
+	 * @param int $user_id User ID to get count for.
+	 */
 	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
 }
 
@@ -865,7 +956,14 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 	$query   = $bbp_db->prepare( $sql, bbp_get_reply_post_type(), $user_id );
 	$count   = (int) $bbp_db->get_var( $query );
 
-	// Filter & return
+	/**
+	 * Filters the raw database count of replies by a user.
+	 *
+	 * @since 2.1.0 bbPress (r3633)
+	 *
+	 * @param int $count Raw DB count of replies.
+	 * @param int $user_id User ID to get count for.
+	 */
 	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
 }
 
@@ -906,6 +1004,17 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 	$user_topic_count = (int) bbp_number_not_negative( $count + $difference );
 
 	// Add them up and filter them
+
+	/**
+	 * Filters a user's topic count after adjusting it.
+	 *
+	 * @since 2.6.0 bbPress (r5309)
+	 *
+	 * @param int|bool $user_topic_count A user's topic count after adjusting it.
+	 * @param int|string $user_id User id.
+	 * @param int $difference Difference.
+	 * @param int $count Count.
+	 */
 	$new_count = (int) apply_filters( 'bbp_bump_user_topic_count', $user_topic_count, $user_id, $difference, $count );
 
 	// Preserve absolute count filters before using the atomic difference
@@ -953,6 +1062,17 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 	$user_reply_count = (int) bbp_number_not_negative( $count + $difference );
 
 	// Add them up and filter them
+
+	/**
+	 * Filters a user's reply count after adjusting it.
+	 *
+	 * @since 2.6.0 bbPress (r5309)
+	 *
+	 * @param int|bool $user_reply_count A user's reply count after adjusting it.
+	 * @param int|string $user_id User id.
+	 * @param int $difference Difference.
+	 * @param int $count Count.
+	 */
 	$new_count = (int) apply_filters( 'bbp_bump_user_reply_count', $user_reply_count, $user_id, $difference, $count );
 
 	// Preserve absolute count filters before using the atomic difference
@@ -1255,6 +1375,15 @@ function bbp_check_user_edit() {
 	}
 
 	// Allow conclusion to be overridden
+
+	/**
+	 * Filters whether the user-edit request should redirect.
+	 *
+	 * @since 2.0.2 bbPress (r3605)
+	 *
+	 * @param bool $redirect Whether the user-edit request should redirect.
+	 * @param int $user_id User id.
+	 */
 	$redirect = (bool) apply_filters( 'bbp_check_user_edit', $redirect, $user_id );
 
 	// Bail if not redirecting
@@ -1264,6 +1393,15 @@ function bbp_check_user_edit() {
 
 	// Filter redirect URL
 	$profile_url = bbp_get_user_profile_url( $user_id );
+
+	/**
+	 * Filters the redirect URL after editing a user.
+	 *
+	 * @since 2.6.0 bbPress (r5657)
+	 *
+	 * @param string $profile_url The redirect URL after editing a user.
+	 * @param int $user_id User id.
+	 */
 	$redirect_to = apply_filters( 'bbp_check_user_edit_redirect_to', $profile_url, $user_id );
 
 	// Redirect

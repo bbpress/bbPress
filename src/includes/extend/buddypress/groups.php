@@ -646,11 +646,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function map_group_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 		// Group request state only describes the logged-in user
 		if ( bbp_get_current_user_id() !== (int) $user_id ) {
+			/** This filter is documented in src/includes/extend/buddypress/groups.php. */
 			return (array) apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
 		}
 
 		// Never replace an earlier hard denial
 		if ( in_array( 'do_not_allow', $caps, true ) ) {
+			/** This filter is documented in src/includes/extend/buddypress/groups.php. */
 			return (array) apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
 		}
 
@@ -678,6 +680,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			}
 
 			if ( ! bbp_is_forum_in_group( $forum_id ) ) {
+				/** This filter is documented in src/includes/extend/buddypress/groups.php. */
 				return (array) apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
 			}
 		}

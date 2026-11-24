@@ -136,6 +136,19 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	}
 
 	// Filter the return value
+	/**
+	 * Filters the formatted BuddyPress subscription notification.
+	 *
+	 * The hook name is `bbp_multiple_new_subscription_notification` for more
+	 * than one reply, or `bbp_single_new_subscription_notification` otherwise.
+	 *
+	 * @since 2.5.0 bbPress (r5155)
+	 *
+	 * @param string|array<string, string> $value Notification text or BuddyBar data.
+	 * @param int $action_item_count Number of new replies.
+	 * @param string $text Notification text.
+	 * @param string $topic_link URL of the topic.
+	 */
 	$retval = apply_filters( $filter, $value, $action_item_count, $text, $topic_link );
 
 	do_action( 'bbp_format_buddypress_notifications', $component_action_name, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id );

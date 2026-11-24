@@ -192,6 +192,14 @@ function bbp_new_topic_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the topic title before creating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $topic_title The topic title before creating it.
+	 */
 	$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
 
 	// Validate the topic title
@@ -204,6 +212,14 @@ function bbp_new_topic_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the topic content before creating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $topic_content The topic content before creating it.
+	 */
 	$topic_content = apply_filters( 'bbp_new_topic_pre_content', $topic_content );
 
 	// No topic content
@@ -361,6 +377,14 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	// Add the content of the form to $topic_data as an array.
 	// Just in time manipulation of topic data before being created
+
+	/**
+	 * Filters the topic post data before creating it.
+	 *
+	 * @since 2.0.0 bbPress (r3222)
+	 *
+	 * @param array $value The topic post data before creating it.
+	 */
 	$topic_data = apply_filters(
 		'bbp_new_topic_pre_insert',
 		array(
@@ -456,6 +480,16 @@ function bbp_new_topic_handler( $action = '' ) {
 			}
 
 			// Allow to be filtered
+
+			/**
+			 * Filters the redirect URL after saving the topic.
+			 *
+			 * @since 2.0.0 bbPress (r3240)
+			 *
+			 * @param string $redirect_url The redirect URL after saving the topic.
+			 * @param string $redirect_to Redirect to.
+			 * @param int $topic_id Topic id.
+			 */
 			$redirect_url = apply_filters( 'bbp_new_topic_redirect_to', $redirect_url, $redirect_to, $topic_id );
 
 			/** Successful Save ***************************************************/
@@ -634,6 +668,15 @@ function bbp_edit_topic_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the topic title before updating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $topic_title The topic title before updating it.
+	 * @param int $topic_id Topic id.
+	 */
 	$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
 
 	// Validate the topic title
@@ -646,6 +689,15 @@ function bbp_edit_topic_handler( $action = '' ) {
 	}
 
 	// Filter and sanitize
+
+	/**
+	 * Filters the topic content before updating it.
+	 *
+	 * @since 2.0.0 bbPress (r2780)
+	 *
+	 * @param string $topic_content The topic content before updating it.
+	 * @param int $topic_id Topic id.
+	 */
 	$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
 
 	// No topic content
@@ -713,6 +765,14 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	// Add the content of the form to $topic_data as an array
 	// Just in time manipulation of topic data before being edited
+
+	/**
+	 * Filters the topic post data before updating it.
+	 *
+	 * @since 2.0.0 bbPress (r3223)
+	 *
+	 * @param array $value The topic post data before updating it.
+	 */
 	$topic_data = apply_filters(
 		'bbp_edit_topic_pre_insert',
 		array(
@@ -807,6 +867,16 @@ function bbp_edit_topic_handler( $action = '' ) {
 		}
 
 		// Allow to be filtered
+
+		/**
+		 * Filters the redirect URL after saving the topic.
+		 *
+		 * @since 2.0.0 bbPress (r3265)
+		 *
+		 * @param string $topic_url The redirect URL after saving the topic.
+		 * @param bool $view_all View all.
+		 * @param string $redirect_to Redirect to.
+		 */
 		$topic_url = apply_filters( 'bbp_edit_topic_redirect_to', $topic_url, $view_all, $redirect_to );
 
 		/** Successful Edit ***************************************************/
@@ -1634,6 +1704,7 @@ function bbp_split_topic_handler( $action = '' ) {
 					}
 
 					// Filter the new topic title
+					/** This filter is documented in src/includes/topics/functions.php. */
 					$destination_topic_title = apply_filters( 'bbp_new_topic_pre_title', $destination_topic_title );
 
 					// Validate the topic title
@@ -2129,7 +2200,14 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
  */
 function bbp_get_topic_statuses( $topic_id = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters an associative array of available topic statuses.
+	 *
+	 * @since 2.4.0 bbPress (r5060)
+	 *
+	 * @param array<string, string> $value An associative array of available topic statuses.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_statuses',
 		array(
@@ -2154,7 +2232,14 @@ function bbp_get_topic_statuses( $topic_id = 0 ) {
  */
 function bbp_get_topic_types( $topic_id = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters an associative array of topic sticky types.
+	 *
+	 * @since 2.4.0 bbPress (r5060)
+	 *
+	 * @param array<string, string> $value An associative array of topic sticky types.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters(
 		'bbp_get_topic_types',
 		array(
@@ -2177,7 +2262,14 @@ function bbp_get_topic_types( $topic_id = 0 ) {
  */
 function bbp_get_topic_toggles( $topic_id = 0 ) {
 
-	// Filter & return
+	/**
+	 * Filters the array of available topic toggle actions.
+	 *
+	 * @since 2.6.0 bbPress (r6142)
+	 *
+	 * @param array<array-key, string> $value The array of available topic toggle actions.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters(
 		'bbp_get_toggle_topic_actions',
 		array(
@@ -2204,7 +2296,13 @@ function bbp_get_public_topic_statuses() {
 		bbp_get_closed_status_id()
 	);
 
-	// Filter & return
+	/**
+	 * Filters the array of public topic statuses.
+	 *
+	 * @since 2.6.0 bbPress (r6384)
+	 *
+	 * @param array<array-key, string> $statuses The array of public topic statuses.
+	 */
 	return (array) apply_filters( 'bbp_get_public_topic_statuses', $statuses );
 }
 
@@ -2222,7 +2320,13 @@ function bbp_get_non_public_topic_statuses() {
 		bbp_get_pending_status_id()
 	);
 
-	// Filter & return
+	/**
+	 * Filters the array of non-public topic statuses.
+	 *
+	 * @since 2.6.0 bbPress (r6644)
+	 *
+	 * @param array<array-key, string> $statuses The array of non-public topic statuses.
+	 */
 	return (array) apply_filters( 'bbp_get_non_public_topic_statuses', $statuses );
 }
 
@@ -2249,7 +2353,14 @@ function bbp_get_stickies( $forum_id = 0 ) {
 		? array()
 		: wp_parse_id_list( $stickies );
 
-	// Filter & return
+	/**
+	 * Filters the sticky topics of a forum.
+	 *
+	 * @since 2.0.0 bbPress (r2592)
+	 *
+	 * @param array<int, int> $stickies IDs of sticky topics of a forum or super stickies.
+	 * @param int $forum_id If not passed, super stickies are returned.
+	 */
 	return (array) apply_filters( 'bbp_get_stickies', $stickies, $forum_id );
 }
 
@@ -2270,7 +2381,13 @@ function bbp_get_super_stickies() {
 		? array()
 		: wp_parse_id_list( $stickies );
 
-	// Filter & return
+	/**
+	 * Filters the topics stuck to front page of the forums.
+	 *
+	 * @since 2.0.0 bbPress (r2592)
+	 *
+	 * @param array<int, int> $stickies IDs of super sticky topics.
+	 */
 	return (array) apply_filters( 'bbp_get_super_stickies', $stickies );
 }
 
@@ -2516,7 +2633,15 @@ function bbp_toggle_topic( $args = array() ) {
 		$retval['redirect_to'] = bbp_add_view_all( $retval['redirect_to'], true );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the result of a topic moderation action.
+	 *
+	 * @since 2.0.0 bbPress (r2734)
+	 *
+	 * @param array<string, mixed> $retval The result of a topic moderation action.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Topic ID, action, and related toggle settings.
+	 */
 	return apply_filters( 'bbp_toggle_topic', $retval, $r, $args );
 }
 
@@ -2608,7 +2733,15 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 	// Update this topic id's reply count
 	bbp_bump_count_meta( 'post', $topic_id, '_bbp_reply_count', $difference, $reply_count );
 
-	// Filter & return
+	/**
+	 * Filters the topic reply count.
+	 *
+	 * @since 2.1.0 bbPress (r3826)
+	 *
+	 * @param int|false $new_count Topic reply count, or false when no count change is requested.
+	 * @param int $topic_id Topic id.
+	 * @param int $difference Default 1.
+	 */
 	return (int) apply_filters( 'bbp_bump_topic_reply_count', $new_count, $topic_id, $difference );
 }
 
@@ -2703,7 +2836,15 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 	// Update this topic id's hidden reply count
 	bbp_bump_count_meta( 'post', $topic_id, '_bbp_reply_count_hidden', $difference, $reply_count );
 
-	// Filter & return
+	/**
+	 * Filters the hidden topic reply count.
+	 *
+	 * @since 2.1.0 bbPress (r3826)
+	 *
+	 * @param int|false $new_count Hidden topic reply count, or false when no count change is requested.
+	 * @param int $topic_id Topic id.
+	 * @param int $difference Default 1.
+	 */
 	return (int) apply_filters( 'bbp_bump_topic_reply_count_hidden', $new_count, $topic_id, $difference );
 }
 
@@ -2822,7 +2963,14 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 	// Update the forum ID
 	$forum_id = bbp_update_forum_id( $topic_id, $forum_id );
 
-	// Filter & return
+	/**
+	 * Filters the forum id.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $forum_id Forum id.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_forum_id', $forum_id, $topic_id );
 }
 
@@ -2839,7 +2987,13 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$topic_id = bbp_update_topic_id( $topic_id, $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters the topic id.
+	 *
+	 * @since 2.0.0 bbPress (r2955)
+	 *
+	 * @param int $topic_id Topic id.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_topic_id', $topic_id );
 }
 
@@ -2867,7 +3021,14 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = false ) {
 
 	update_post_meta( $topic_id, '_bbp_reply_count', $reply_count );
 
-	// Filter & return
+	/**
+	 * Filters the topic reply count.
+	 *
+	 * @since 2.0.0 bbPress (r2485)
+	 *
+	 * @param int $reply_count Topic reply count.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_reply_count', $reply_count, $topic_id );
 }
 
@@ -2896,7 +3057,14 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = fals
 
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $reply_count );
 
-	// Filter & return
+	/**
+	 * Filters the topic hidden reply count.
+	 *
+	 * @since 2.0.0 bbPress (r3349)
+	 *
+	 * @param int $reply_count Topic hidden reply count.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_reply_count_hidden', $reply_count, $topic_id );
 }
 
@@ -2932,7 +3100,14 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 	// Update only if published
 	update_post_meta( $topic_id, '_bbp_last_active_id', $active_id );
 
-	// Filter & return
+	/**
+	 * Filters the active id.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $active_id Active id.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_last_active_id', $active_id, $topic_id );
 }
 
@@ -2965,7 +3140,14 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 		update_post_meta( $topic_id, '_bbp_last_active_time', $new_time );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a topic's last active timestamp.
+	 *
+	 * @since 2.0.0 bbPress (r2905)
+	 *
+	 * @param string $new_time MySQL timestamp of last active reply.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_update_topic_last_active_time', $new_time, $topic_id );
 }
 
@@ -3004,7 +3186,14 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 	// Update if reply is published
 	update_post_meta( $topic_id, '_bbp_last_reply_id', $reply_id );
 
-	// Filter & return
+	/**
+	 * Filters the reply id.
+	 *
+	 * @since 2.0.0 bbPress (r2895)
+	 *
+	 * @param int $reply_id Reply id.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_last_reply_id', $reply_id, $topic_id );
 }
 
@@ -3036,7 +3225,14 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	// Update the voice count for this topic id
 	update_post_meta( $topic_id, '_bbp_voice_count', $count );
 
-	// Filter & return
+	/**
+	 * Filters the voice count.
+	 *
+	 * @since 2.0.0 bbPress (r2567)
+	 *
+	 * @param int|null $count Voice count, or null without a topic ID.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_voice_count', $count, $topic_id );
 }
 
@@ -3070,7 +3266,14 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 		update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the anonymous reply count.
+	 *
+	 * @since 2.0.0 bbPress (r2918)
+	 *
+	 * @param int $replies Anonymous reply count.
+	 * @param int $topic_id Topic id to update.
+	 */
 	return (int) apply_filters( 'bbp_update_topic_anonymous_reply_count', $replies, $topic_id );
 }
 
@@ -4083,7 +4286,14 @@ function bbp_get_topics_per_page( $default = 15 ) {
 		$retval = $default;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topics per page setting.
+	 *
+	 * @since 2.0.1 bbPress (r3540)
+	 *
+	 * @param int $retval Number of topics per page.
+	 * @param int $default Number of topics per page if no value exists.
+	 */
 	return (int) apply_filters( 'bbp_get_topics_per_page', $retval, $default );
 }
 
@@ -4106,7 +4316,14 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 		$retval = $default;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topics per RSS page setting.
+	 *
+	 * @since 2.0.1 bbPress (r3540)
+	 *
+	 * @param int $retval Number of topics per RSS page.
+	 * @param int $default Default replies per page (25).
+	 */
 	return (int) apply_filters( 'bbp_get_topics_per_rss_page', $retval, $default );
 }
 
@@ -4126,7 +4343,14 @@ function bbp_get_topic_tags( $topic_id = 0 ) {
 	$terms      = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
 	$topic_tags = is_array( $terms ) ? array_filter( $terms ) : array();
 
-	// Filter & return
+	/**
+	 * Filters the topic tags for a specific topic ID.
+	 *
+	 * @since 2.2.0 bbPress (r4166)
+	 *
+	 * @param array<int, WP_Term> $topic_tags Topic tag terms.
+	 * @param int $topic_id Topic id.
+	 */
 	return apply_filters( 'bbp_get_topic_tags', $topic_tags, $topic_id );
 }
 
@@ -4147,7 +4371,15 @@ function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 		? implode( $sep, $pluck )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the topic tags for a specific topic ID.
+	 *
+	 * @since 2.6.0 bbPress (r5837)
+	 *
+	 * @param string $terms The topic tags for a specific topic id.
+	 * @param int $topic_id Topic id.
+	 * @param string $sep Separator string.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_names', $terms, $topic_id, $sep );
 }
 
@@ -4192,7 +4424,15 @@ function bbp_get_topic_tag_names_for_update( $topic_id = 0, $tag_names = '', $us
 		$tag_names = implode( ', ', array_unique( $retval ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic-tag names a user is allowed to set on a topic.
+	 *
+	 * @since 2.6.16 bbPress (r7509)
+	 *
+	 * @param string $tag_names Comma-separated topic-tag names.
+	 * @param int $topic_id Topic id.
+	 * @param int|bool $user_id User id. Default false for the current user.
+	 */
 	return apply_filters( 'bbp_get_topic_tag_names_for_update', $tag_names, $topic_id, $user_id );
 }
 

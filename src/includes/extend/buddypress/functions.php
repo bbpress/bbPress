@@ -101,7 +101,13 @@ function bbp_get_component_name() {
 		? bbpress()->extend->buddypress->id
 		: 'forums';
 
-	// Filter & return
+	/**
+	 * Filters the component name/ID ('forums' by default).
+	 *
+	 * @since 2.5.3 bbPress (r5232)
+	 *
+	 * @param string $retval The component name/id ('forums' by default).
+	 */
 	return apply_filters( 'bbp_get_component_name', $retval );
 }
 
@@ -245,6 +251,14 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
  */
 function bbp_member_forums_screen_topics() {
 	add_action( 'bp_template_content', 'bbp_member_forums_topics_content' );
+
+	/**
+	 * Filters the BuddyPress template for a member's topics screen.
+	 *
+	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param string $value The BuddyPress template for a member's topics screen.
+	 */
 	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_topics', 'members/single/plugins' ) );
 }
 
@@ -255,6 +269,14 @@ function bbp_member_forums_screen_topics() {
  */
 function bbp_member_forums_screen_replies() {
 	add_action( 'bp_template_content', 'bbp_member_forums_replies_content' );
+
+	/**
+	 * Filters the BuddyPress template for a member's replies screen.
+	 *
+	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param string $value The BuddyPress template for a member's replies screen.
+	 */
 	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_replies', 'members/single/plugins' ) );
 }
 
@@ -265,6 +287,14 @@ function bbp_member_forums_screen_replies() {
  */
 function bbp_member_forums_screen_engagements() {
 	add_action( 'bp_template_content', 'bbp_member_forums_engagements_content' );
+
+	/**
+	 * Filters the BuddyPress template for a member's engagements screen.
+	 *
+	 * @since 2.6.0 bbPress (r6320)
+	 *
+	 * @param string $value The BuddyPress template for a member's engagements screen.
+	 */
 	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_engagements', 'members/single/plugins' ) );
 }
 
@@ -280,6 +310,14 @@ function bbp_member_forums_screen_mentions() {
 	}
 
 	add_action( 'bp_template_content', 'bbp_member_forums_mentions_content' );
+
+	/**
+	 * Filters the BuddyPress template for a member's mentions screen.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param string $value The BuddyPress template for a member's mentions screen.
+	 */
 	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_mentions', 'members/single/plugins' ) );
 }
 
@@ -303,6 +341,14 @@ function bbp_member_forums_mentions_content() {
  */
 function bbp_member_forums_screen_favorites() {
 	add_action( 'bp_template_content', 'bbp_member_forums_favorites_content' );
+
+	/**
+	 * Filters the BuddyPress template for a member's favorites screen.
+	 *
+	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param string $value The BuddyPress template for a member's favorites screen.
+	 */
 	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_favorites', 'members/single/plugins' ) );
 }
 
@@ -313,6 +359,14 @@ function bbp_member_forums_screen_favorites() {
  */
 function bbp_member_forums_screen_subscriptions() {
 	add_action( 'bp_template_content', 'bbp_member_forums_subscriptions_content' );
+
+	/**
+	 * Filters the BuddyPress template for a member's subscriptions screen.
+	 *
+	 * @since 2.1.0 bbPress (r3552)
+	 *
+	 * @param string $value The BuddyPress template for a member's subscriptions screen.
+	 */
 	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_subscriptions', 'members/single/plugins' ) );
 }
 
@@ -514,7 +568,14 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 	// Make sure result is an array of ints
 	$forum_ids = array_filter( wp_parse_id_list( $forum_ids ) );
 
-	// Filter & return
+	/**
+	 * Filters the forum IDs for a group.
+	 *
+	 * @since 2.1.0 bbPress (r3654)
+	 *
+	 * @param array $forum_ids The forum ids for a group.
+	 * @param int $group_id Group ID.
+	 */
 	return (array) apply_filters( 'bbp_get_group_forum_ids', $forum_ids, $group_id );
 }
 
@@ -545,7 +606,14 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 	// Make sure result is an array of ints
 	$group_ids = array_filter( wp_parse_id_list( $group_ids ) );
 
-	// Filter & return
+	/**
+	 * Filters the group IDs for a forum.
+	 *
+	 * @since 2.1.0 bbPress (r3654)
+	 *
+	 * @param array $group_ids The group ids for a forum.
+	 * @param int $forum_id Forum ID.
+	 */
 	return (array) apply_filters( 'bbp_get_forum_group_ids', $group_ids, $forum_id );
 }
 
@@ -893,7 +961,15 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 	// Check if the forum has groups
 	$retval    = (bool) ! empty( $group_ids );
 
-	// Filter & return
+	/**
+	 * Filters whether a forum belongs to a BuddyPress group.
+	 *
+	 * @since 2.3.0 bbPress (r4572)
+	 *
+	 * @param bool $retval True if it is a group forum, false if not.
+	 * @param int $forum_id Forum id.
+	 * @param array<int, int> $group_ids BuddyPress group IDs.
+	 */
 	return (bool) apply_filters( 'bbp_is_forum_group_forum', $retval, $forum_id, $group_ids );
 }
 
@@ -941,6 +1017,13 @@ function bbp_get_group_pending_topic_id() {
 		$topic_id = 0;
 	}
 
+	/**
+	 * Filters the pending topic ID for a BuddyPress group.
+	 *
+	 * @since 2.6.20 bbPress (r7878)
+	 *
+	 * @param int $topic_id The pending topic ID for a BuddyPress group.
+	 */
 	return (int) apply_filters( 'bbp_get_group_pending_topic_id', $topic_id );
 }
 
@@ -1094,7 +1177,13 @@ function bbp_get_activity_actions() {
 		esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
 	);
 
-	// Filter & return
+	/**
+	 * Filters an array of allowed activity actions.
+	 *
+	 * @since 2.6.0 bbPress (r6370)
+	 *
+	 * @param array $actions An array of allowed activity actions.
+	 */
 	return (array) apply_filters( 'bbp_get_activity_actions', $actions );
 }
 

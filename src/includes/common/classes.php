@@ -94,7 +94,27 @@ class BBP_Component {
 	 */
 	private function setup_globals( $args = array() ) {
 		$this->name = $args['name'];
+
+		/**
+		 * Filters a component ID during setup.
+		 *
+		 * The hook name uses the component name: `bbp_{$name}_id`.
+		 *
+		 * @since 2.0.0 bbPress (r3376)
+		 *
+		 * @param string $id Component ID.
+		 */
 		$this->id   = apply_filters( 'bbp_' . $this->name . '_id',   $args['id']   );
+
+		/**
+		 * Filters a component slug during setup.
+		 *
+		 * The hook name uses the component name: `bbp_{$name}_slug`.
+		 *
+		 * @since 2.0.0 bbPress (r3376)
+		 *
+		 * @param string $slug Component slug.
+		 */
 		$this->slug = apply_filters( 'bbp_' . $this->name . '_slug', $args['slug'] );
 	}
 
@@ -263,6 +283,18 @@ class BBP_Walker_Dropdown extends Walker {
 		}
 
 		$output .= '>';
+
+		/**
+		 * Filters a post title in the dropdown walker.
+		 *
+		 * @since 2.0.0 bbPress (r2746)
+		 *
+		 * @param string $post_title A post title in the dropdown walker.
+		 * @param string $output Output.
+		 * @param WP_Post $object Object.
+		 * @param int $depth Depth.
+		 * @param array<string, mixed> $args Original arguments.
+		 */
 		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $object->post_title, $output, $object, $depth, $args );
 		$output .= $pad . esc_html( $title );
 		$output .= "</option>\n";
@@ -563,6 +595,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		$title = ! empty( $object->post_title ) ? $object->post_title : wp_html_excerpt( $object->post_content, 10 );
 		/* translators: 1: Reply ID, 2: Reply title */
 		$title   = sprintf( esc_html__( '%1$s - %2$s', 'bbpress' ), (int) $object->ID, $title );
+		/** This filter is documented in src/includes/common/classes.php. */
 		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $title, $output, $object, $depth, $args );
 
 		// Attributes

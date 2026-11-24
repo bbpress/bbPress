@@ -472,6 +472,14 @@ function _bbp_filter_locale( $locale = '', $domain = '' ) {
 		return $locale;
 	}
 
+	/**
+	 * Filters the locale used by bbPress.
+	 *
+	 * @since 2.0.0 bbPress (r2596)
+	 *
+	 * @param string $locale The locale used by bbPress.
+	 * @param string $domain Domain.
+	 */
 	return apply_filters( 'bbpress_locale', $locale, $domain );
 }
 add_filter( 'bbp_plugin_locale', '_bbp_filter_locale', 10, 2 );
@@ -486,7 +494,13 @@ add_filter( 'bbp_plugin_locale', '_bbp_filter_locale', 10, 2 );
  */
 function _bbp_has_forums_query( $args = array() ) {
 
-	// Filter & return
+	/**
+	 * Filters the forum query after bbPress adds its constraints.
+	 *
+	 * @since 2.0.0 bbPress (r3066)
+	 *
+	 * @param array<string, mixed> $args The forum query after bbpress adds its constraints.
+	 */
 	return (array) apply_filters( 'bbp_has_forums_query', $args );
 }
 add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
@@ -501,7 +515,13 @@ add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
  */
 function _bbp_has_topics_query( $args = array() ) {
 
-	// Filter & return
+	/**
+	 * Filters the topic query after bbPress adds its constraints.
+	 *
+	 * @since 2.0.0 bbPress (r3066)
+	 *
+	 * @param array<string, mixed> $args The topic query after bbpress adds its constraints.
+	 */
 	return (array) apply_filters( 'bbp_has_topics_query', $args );
 }
 add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
@@ -516,7 +536,13 @@ add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
  */
 function _bbp_has_replies_query( $args = array() ) {
 
-	// Filter & return
+	/**
+	 * Filters the reply query after bbPress adds its constraints.
+	 *
+	 * @since 2.0.0 bbPress (r3066)
+	 *
+	 * @param array<string, mixed> $args The reply query after bbpress adds its constraints.
+	 */
 	return (array) apply_filters( 'bbp_has_replies_query', $args );
 }
 add_filter( 'bbp_after_has_replies_parse_args', '_bbp_has_replies_query' );

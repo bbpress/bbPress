@@ -603,7 +603,14 @@ function bbp_get_request() {
  */
 function bbp_plugin_locale( $locale = '', $domain = '' ) {
 
-	// Filter & return
+	/**
+	 * Filters the bbPress locale.
+	 *
+	 * @since 2.2.0 bbPress (r4214)
+	 *
+	 * @param string $locale Filtered plugin locale.
+	 * @param string $domain Text domain.
+	 */
 	return apply_filters( 'bbp_plugin_locale', $locale, $domain );
 }
 
@@ -617,7 +624,13 @@ function bbp_plugin_locale( $locale = '', $domain = '' ) {
  */
 function bbp_request( $query_vars = array() ) {
 
-	// Filter & return
+	/**
+	 * Filters the parsed bbPress request variables.
+	 *
+	 * @since 2.1.0 bbPress (r3759)
+	 *
+	 * @param array<string, mixed> $query_vars Filtered query variables.
+	 */
 	return apply_filters( 'bbp_request', $query_vars );
 }
 
@@ -632,7 +645,14 @@ function bbp_request( $query_vars = array() ) {
  */
 function bbp_nav_menu_objects( $menu_items = array(), $args = null ) {
 
-	// Filter & return
+	/**
+	 * Filters navigation menu items after bbPress updates their classes.
+	 *
+	 * @since 2.7.0 bbPress (r8608)
+	 *
+	 * @param array<array-key, WP_Post> $menu_items Navigation menu items.
+	 * @param stdClass|null            $args       Navigation menu arguments.
+	 */
 	return (array) apply_filters( 'bbp_nav_menu_objects', $menu_items, $args );
 }
 
@@ -647,7 +667,13 @@ function bbp_nav_menu_objects( $menu_items = array(), $args = null ) {
  */
 function bbp_template_include( $template = '' ) {
 
-	// Filter & return
+	/**
+	 * Filters the template file to use.
+	 *
+	 * @since 2.0.0 bbPress (r3032)
+	 *
+	 * @param string $template Template file to use.
+	 */
 	return apply_filters( 'bbp_template_include', $template );
 }
 
@@ -677,7 +703,13 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  */
 function bbp_allowed_themes( $themes ) {
 
-	// Filter & return
+	/**
+	 * Filters the array of allowed themes.
+	 *
+	 * @since 2.0.0 bbPress (r2944)
+	 *
+	 * @param array<array-key, mixed> $themes Array of allowed themes.
+	 */
 	return (array) apply_filters( 'bbp_allowed_themes', $themes );
 }
 
@@ -695,7 +727,16 @@ function bbp_allowed_themes( $themes ) {
  */
 function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
-	// Filter & return
+	/**
+	 * Filters the array of capabilities.
+	 *
+	 * @since 2.0.0 bbPress (r2593)
+	 *
+	 * @param array<array-key, mixed> $caps Array of capabilities.
+	 * @param string $cap Capability name.
+	 * @param int $user_id User ID.
+	 * @param array<array-key, mixed> $args Arguments.
+	 */
 	return (array) apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
 }
 
@@ -724,7 +765,13 @@ function bbp_mail( $args = array() ) {
 		return $args;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the arguments passed to the bbPress mailer.
+	 *
+	 * @since 2.6.0 bbPress (r6919)
+	 *
+	 * @param array<string, mixed> $args Filtered mail arguments.
+	 */
 	return (array) apply_filters( 'bbp_mail', $args );
 }
 
@@ -744,7 +791,14 @@ function bbp_mail( $args = array() ) {
  */
 function bbp_redirect_canonical( $redirect_url = '', $requested_url = '' ) {
 
-	// Filter & return
+	/**
+	 * Filters the canonical redirect URL.
+	 *
+	 * @since 2.0.0 bbPress (r2634)
+	 *
+	 * @param string $redirect_url Empty string if a topic/forum and their first page, otherwise the redirect URL.
+	 * @param string $requested_url The requested URL.
+	 */
 	return (string) apply_filters( 'bbp_redirect_canonical', $redirect_url, $requested_url );
 }
 

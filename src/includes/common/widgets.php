@@ -29,6 +29,14 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the login widget registration options.
+		 *
+		 * @since 2.0.0 bbPress (r2827)
+		 *
+		 * @param array $options The login widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_login_widget_options',
 			array(
@@ -70,8 +78,38 @@ class BBP_Login_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title', $settings['title'], $instance, $this->id_base );
 
 		// bbPress filters
+
+		/**
+		 * Filters the login widget title.
+		 *
+		 * @since 2.0.0 bbPress (r2827)
+		 *
+		 * @param string $title The login widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title']    = apply_filters( 'bbp_login_widget_title',    $settings['title'],    $instance, $this->id_base );
+
+		/**
+		 * Filters the registration URL in the login widget.
+		 *
+		 * @since 2.0.0 bbPress (r3440)
+		 *
+		 * @param string $register The registration URL in the login widget.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['register'] = apply_filters( 'bbp_login_widget_register', $settings['register'], $instance, $this->id_base );
+
+		/**
+		 * Filters the lost password URL in the login widget.
+		 *
+		 * @since 2.0.0 bbPress (r3440)
+		 *
+		 * @param string $lostpass The lost password URL in the login widget.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['lostpass'] = apply_filters( 'bbp_login_widget_lostpass', $settings['lostpass'], $instance, $this->id_base );
 
 		echo $args['before_widget'];
@@ -240,6 +278,14 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the views widget registration options.
+		 *
+		 * @since 2.0.0 bbPress (r3020)
+		 *
+		 * @param array $options The views widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_views_widget_options',
 			array(
@@ -286,6 +332,16 @@ class BBP_Views_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title',          $settings['title'], $instance, $this->id_base );
 
 		// bbPress filter
+
+		/**
+		 * Filters the view widget title.
+		 *
+		 * @since 2.0.0 bbPress (r3020)
+		 *
+		 * @param string $title The view widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title'] = apply_filters( 'bbp_view_widget_title', $settings['title'], $instance, $this->id_base );
 
 		// Start an output buffer
@@ -392,6 +448,14 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4579)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the search widget registration options.
+		 *
+		 * @since 2.3.0 bbPress (r4579)
+		 *
+		 * @param array $options The search widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_search_widget_options',
 			array(
@@ -438,6 +502,16 @@ class BBP_Search_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title',            $settings['title'], $instance, $this->id_base );
 
 		// bbPress filter
+
+		/**
+		 * Filters the search widget title.
+		 *
+		 * @since 2.3.0 bbPress (r4579)
+		 *
+		 * @param string $title The search widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title'] = apply_filters( 'bbp_search_widget_title', $settings['title'], $instance, $this->id_base );
 
 		echo $args['before_widget'];
@@ -530,6 +604,14 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the forums widget registration options.
+		 *
+		 * @since 2.0.0 bbPress (r2750)
+		 *
+		 * @param array $options The forums widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_forums_widget_options',
 			array(
@@ -571,6 +653,16 @@ class BBP_Forums_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title',           $settings['title'], $instance, $this->id_base );
 
 		// bbPress filter
+
+		/**
+		 * Filters the forum widget title.
+		 *
+		 * @since 2.0.0 bbPress (r2750)
+		 *
+		 * @param string $title The forum widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title'] = apply_filters( 'bbp_forum_widget_title', $settings['title'], $instance, $this->id_base );
 
 		// Note: private and hidden forums will be excluded via the
@@ -728,6 +820,14 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the topics widget registration options.
+		 *
+		 * @since 2.0.0 bbPress (r2750)
+		 *
+		 * @param array $options The topics widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_topics_widget_options',
 			array(
@@ -769,6 +869,16 @@ class BBP_Topics_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title',           $settings['title'], $instance, $this->id_base );
 
 		// bbPress filter
+
+		/**
+		 * Filters the topic widget title.
+		 *
+		 * @since 2.0.0 bbPress (r2750)
+		 *
+		 * @param string $title The topic widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title'] = apply_filters( 'bbp_topic_widget_title', $settings['title'], $instance, $this->id_base );
 
 		// Use the WordPress default to query topics from any forum
@@ -1065,6 +1175,14 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4510)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the stats widget registration options.
+		 *
+		 * @since 2.3.0 bbPress (r4510)
+		 *
+		 * @param array $options The stats widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_stats_widget_options',
 			array(
@@ -1106,6 +1224,16 @@ class BBP_Stats_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title',           $settings['title'], $instance, $this->id_base );
 
 		// bbPress widget title filter
+
+		/**
+		 * Filters the stats widget title.
+		 *
+		 * @since 2.3.0 bbPress (r4510)
+		 *
+		 * @param string $title The stats widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title'] = apply_filters( 'bbp_stats_widget_title', $settings['title'], $instance, $this->id_base );
 
 		echo $args['before_widget'];
@@ -1198,6 +1326,14 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @since 2.1.0 bbPress (r3825)
 	 */
 	public function __construct() {
+
+		/**
+		 * Filters the replies widget registration options.
+		 *
+		 * @since 2.0.0 bbPress (r2750)
+		 *
+		 * @param array $options The replies widget registration options.
+		 */
 		$widget_ops = apply_filters(
 			'bbp_replies_widget_options',
 			array(
@@ -1239,6 +1375,16 @@ class BBP_Replies_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'widget_title',             $settings['title'], $instance, $this->id_base );
 
 		// bbPress filter
+
+		/**
+		 * Filters the replies widget title.
+		 *
+		 * @since 2.0.0 bbPress (r2750)
+		 *
+		 * @param string $title The replies widget title.
+		 * @param array<string, mixed> $instance Widget instance settings.
+		 * @param string $id_base Widget base ID.
+		 */
 		$settings['title'] = apply_filters( 'bbp_replies_widget_title', $settings['title'], $instance, $this->id_base );
 
 		// Note: private and hidden forums will be excluded via the

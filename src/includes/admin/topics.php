@@ -843,6 +843,16 @@ class BBP_Topics_Admin {
 		}
 
 		// Filter all message args
+
+		/**
+		 * Filters the notice arguments for an admin topic action.
+		 *
+		 * @since 2.6.0 bbPress (r6397)
+		 *
+		 * @param array<string, string|int> $retval The notice arguments for an admin topic action.
+		 * @param int $topic_id Topic id.
+		 * @param string $action Action.
+		 */
 		$retval = apply_filters( 'bbp_toggle_topic_action_admin', $retval, $topic_id, $action );
 
 		// Do additional topic toggle actions (admin side)
@@ -968,6 +978,17 @@ class BBP_Topics_Admin {
 		}
 
 		// Do additional topic toggle notice filters (admin side)
+
+		/**
+		 * Filters the notice shown after an admin topic action.
+		 *
+		 * @since 2.0.0 bbPress (r2727)
+		 *
+		 * @param string $message The notice shown after an admin topic action.
+		 * @param int $topic_id Topic id.
+		 * @param string $notice Notice.
+		 * @param bool $is_failure Is failure.
+		 */
 		$message = apply_filters( 'bbp_toggle_topic_notice_admin', $message, $topic_id, $notice, $is_failure );
 		$class   = ( true === $is_failure )
 			? 'error'
@@ -986,7 +1007,13 @@ class BBP_Topics_Admin {
 	 */
 	private function get_row_action_sort_order() {
 
-		// Filter & return
+		/**
+		 * Filters an array of keys used to sort row actions.
+		 *
+		 * @since 2.6.0 bbPress (r6772)
+		 *
+		 * @param array<int|string, string> $value An array of keys used to sort row actions.
+		 */
 		return (array) apply_filters(
 			'bbp_admin_topics_row_action_sort_order',
 			array(
@@ -1014,7 +1041,13 @@ class BBP_Topics_Admin {
 	 */
 	private function get_allowed_notice_toggles() {
 
-		// Filter & return
+		/**
+		 * Filters an array of notice toggles.
+		 *
+		 * @since 2.6.0 bbPress (r6397)
+		 *
+		 * @param array<int|string, string> $value An array of notice toggles.
+		 */
 		return (array) apply_filters(
 			'bbp_admin_topics_allowed_notice_toggles',
 			array(
@@ -1040,7 +1073,13 @@ class BBP_Topics_Admin {
 	 */
 	private function get_allowed_action_toggles() {
 
-		// Filter & return
+		/**
+		 * Filters an array of notice toggles.
+		 *
+		 * @since 2.6.0 bbPress (r6397)
+		 *
+		 * @param array<int|string, string> $value An array of notice toggles.
+		 */
 		return (array) apply_filters(
 			'bbp_admin_topics_allowed_action_toggles',
 			array(
@@ -1073,7 +1112,13 @@ class BBP_Topics_Admin {
 			'bbp_topic_freshness'   => esc_html__( 'Last Post', 'bbpress' )
 		);
 
-		// Filter & return
+		/**
+		 * Filters the bbPress topic columns.
+		 *
+		 * @since 2.0.0 bbPress (r2565)
+		 *
+		 * @param array<string, string> $columns bbPress topic columns.
+		 */
 		return (array) apply_filters( 'bbp_admin_topics_column_headers', $columns );
 	}
 

@@ -53,6 +53,14 @@ class BBP_Shortcodes {
 		// phpcs:disable PEAR.Functions.FunctionCallSignature.CloseBracketLine
 
 		// Setup the shortcodes
+
+		/**
+		 * Filters the registered bbPress shortcodes.
+		 *
+		 * @since 2.0.0 bbPress (r3143)
+		 *
+		 * @param array $shortcodes The registered bbPress shortcodes.
+		 */
 		$this->codes = apply_filters(
 			'bbp_shortcodes',
 			array(

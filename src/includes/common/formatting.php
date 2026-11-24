@@ -51,6 +51,16 @@ function bbp_pre_do_shortcode_tag( $output, $tag, $attr, $matches ) {
 		return $output;
 	}
 
+	/**
+	 * Filters a shortcode result before its callback runs.
+	 *
+	 * @since 2.6.20 bbPress (r7847)
+	 *
+	 * @param false|string $output A shortcode result before its callback runs.
+	 * @param string $tag Tag.
+	 * @param array<array-key, mixed> $attr Attr.
+	 * @param array<int, string> $matches Matches.
+	 */
 	return apply_filters( 'bbp_pre_do_shortcode_tag', $output, $tag, $attr, $matches );
 }
 
@@ -103,7 +113,13 @@ function bbp_prevent_content_shortcodes( $output, $tag, $attr, $matches ) {
  */
 function bbp_kses_allowed_tags() {
 
-	// Filter & return
+	/**
+	 * Filters the allowed tags and attributes.
+	 *
+	 * @since 2.3.0 bbPress (r4604)
+	 *
+	 * @param array<string, array<string, bool>> $value Allowed tags and attributes.
+	 */
 	return (array) apply_filters(
 		'bbp_kses_allowed_tags',
 		array(
@@ -621,6 +637,15 @@ function bbp_make_clickable( $text = '' ) {
 			}
 		} else {
 			$ret = " {$piece} "; // Pad with whitespace to simplify the regexes
+
+			/**
+			 * Filters content after converting URLs to links.
+			 *
+			 * @since 2.4.0 bbPress (r4942)
+			 *
+			 * @param string $ret Content after converting URLs to links.
+			 * @param string $text Text.
+			 */
 			$ret = apply_filters( 'bbp_make_clickable', $ret, $text );
 			$ret = substr( $ret, 1, -1 ); // Remove our whitespace padding.
 			$r  .= $ret;
@@ -736,6 +761,15 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 	);
 
 	// Filter classes
+
+	/**
+	 * Filters the CSS classes on a mention link.
+	 *
+	 * @since 2.6.0 bbPress (r6346)
+	 *
+	 * @param array $classes The CSS classes on a mention link.
+	 * @param WP_User $user User.
+	 */
 	$classes = (array) apply_filters( 'bbp_make_mentions_clickable_classes', $classes, $user );
 
 	// Escape & implode if not empty, otherwise an empty string
@@ -796,7 +830,15 @@ function bbp_number_not_negative( $number = 0 ) {
 	// Pick the maximum value, never less than zero
 	$not_less_than_zero = max( 0, $int );
 
-	// Filter & return
+	/**
+	 * Filters the nonnegative number.
+	 *
+	 * @since 2.6.0 bbPress (r6302)
+	 *
+	 * @param int $not_less_than_zero Nonnegative number.
+	 * @param int $int Original integer.
+	 * @param int|float|string $number Number to clamp to zero or greater.
+	 */
 	return (int) apply_filters( 'bbp_number_not_negative', $not_less_than_zero, $int, $number );
 }
 
@@ -821,7 +863,17 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
 	$format_number   = (float) $number;
 	$format_decimals = (int) $decimals;
 
-	// Filter & return
+	/**
+	 * Filters the formatted string.
+	 *
+	 * @since 2.0.0 bbPress (r2486)
+	 *
+	 * @param string $value Formatted string.
+	 * @param int|float|string $number Number to format.
+	 * @param int|bool $decimals Number of decimal places.
+	 * @param string $dec_point Decimal point character.
+	 * @param string $thousands_sep Thousands separator.
+	 */
 	return apply_filters( 'bbp_number_format', number_format( $format_number, $format_decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
 }
 
@@ -844,7 +896,15 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 	$format_number   = (float) $number;
 	$format_decimals = (int) $decimals;
 
-	// Filter & return
+	/**
+	 * Filters the formatted string.
+	 *
+	 * @since 2.1.0 bbPress (r3858)
+	 *
+	 * @param string $value Formatted string.
+	 * @param int|float|string $number Number to format.
+	 * @param int|false $decimals Display decimals.
+	 */
 	return apply_filters( 'bbp_number_format_i18n', number_format_i18n( $format_number, $format_decimals ), $number, $decimals );
 }
 
@@ -864,7 +924,16 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 	$new_time = mysql2date( $d, $time, $translate );
 
-	// Filter & return
+	/**
+	 * Filters the converted timestamp.
+	 *
+	 * @since 2.0.0 bbPress (r2722)
+	 *
+	 * @param string $new_time Returns timestamp.
+	 * @param string $d Date format. Defaults to 'U'.
+	 * @param bool $translate Whether to translate the date. Defaults to false.
+	 * @param string $time Time to convert.
+	 */
 	return apply_filters( 'bbp_convert_date', $new_time, $d, $translate, $time );
 }
 
@@ -898,7 +967,23 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 	// Setup the strings
+
+	/**
+	 * Filters the text displayed when activity time is unknown.
+	 *
+	 * @since 2.1.0 bbPress (r3842)
+	 *
+	 * @param string $value The text displayed when activity time is unknown.
+	 */
 	$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
+
+	/**
+	 * Filters the text displayed for activity happening now.
+	 *
+	 * @since 2.1.0 bbPress (r3842)
+	 *
+	 * @param string $value The text displayed for activity happening now.
+	 */
 	$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
 	/* translators: %s: Time period */
 	$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
@@ -1008,7 +1093,15 @@ function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 		$output = sprintf( $ago_text, $output );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the human-readable time since a date.
+	 *
+	 * @since 2.0.0 bbPress (r2544)
+	 *
+	 * @param string $output Formatted time since the older date.
+	 * @param string|int|false $older_date Unix timestamp from which the difference begins.
+	 * @param string|int|false $newer_date Unix timestamp from which the difference ends. False for current time.
+	 */
 	return apply_filters( 'bbp_get_time_since', $output, $older_date, $newer_date );
 }
 

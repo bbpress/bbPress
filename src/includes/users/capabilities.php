@@ -147,7 +147,16 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			break;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the actual capabilities for meta capability.
+	 *
+	 * @since 2.2.0 bbPress (r4244)
+	 *
+	 * @param array<array-key, string> $caps Actual capabilities for meta capability.
+	 * @param string $cap Capability name.
+	 * @param int $user_id User id.
+	 * @param list<mixed> $args Arguments.
+	 */
 	return (array) apply_filters( 'bbp_map_primary_meta_caps', $caps, $cap, $user_id, $args );
 }
 
@@ -177,7 +186,15 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 		$new_role = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the filtered role value.
+	 *
+	 * @since 2.2.0 bbPress (r4297)
+	 *
+	 * @param string|false $new_role Filtered role value, or false.
+	 * @param int $user_id User id.
+	 * @param WP_User $user User object.
+	 */
 	return apply_filters( 'bbp_set_user_role', $new_role, $user_id, $user );
 }
 
@@ -299,7 +316,13 @@ function bbp_get_user_block_actions() {
 		),
 	);
 
-	// Filter & return
+	/**
+	 * Filters the actions available when a user is blocked from the forums.
+	 *
+	 * @since 2.7.0 bbPress (r8131)
+	 *
+	 * @param array<string, array<string, mixed>> $actions Block action details keyed by action ID.
+	 */
 	return (array) apply_filters( 'bbp_get_user_block_actions', $actions );
 }
 
@@ -590,6 +613,15 @@ function bbp_set_user_role_on_sites( $user_id = 0, $new_role = false, $site_ids 
 		$site_ids = array_keys( get_blogs_of_user( $user_id ) );
 	}
 
+	/**
+	 * Filters the site IDs to process when setting a user's forum role.
+	 *
+	 * @since 2.7.0 bbPress (r8131)
+	 *
+	 * @param array $site_ids The site IDs to process when setting a user's forum role.
+	 * @param int $user_id User id.
+	 * @param string|bool $new_role New role.
+	 */
 	$site_ids = (array) apply_filters( 'bbp_set_user_role_site_ids', $site_ids, $user_id, $new_role );
 	$site_ids = array_unique( array_map( 'intval', $site_ids ) );
 
@@ -668,7 +700,15 @@ function bbp_get_user_role( $user_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters a user's forums role.
+	 *
+	 * @since 2.1.0 bbPress (r3860)
+	 *
+	 * @param string $role A user's forums role.
+	 * @param int $user_id User id.
+	 * @param WP_User $user User object.
+	 */
 	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
 }
 
@@ -705,7 +745,15 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters a user's blog role.
+	 *
+	 * @since 2.2.1 bbPress (r4447)
+	 *
+	 * @param string $role A user's blog role.
+	 * @param int $user_id User id.
+	 * @param WP_User $user User object.
+	 */
 	return apply_filters( 'bbp_get_user_blog_role', $role, $user_id, $user );
 }
 
@@ -797,7 +845,14 @@ function bbp_get_user_auto_role_exclusion_scope( $user_id = 0 ) {
 		}
 	}
 
-	// Filter & return.
+	/**
+	 * Filters the scope where automatic forum role assignment is skipped for a user.
+	 *
+	 * @since 2.7.0 bbPress (r8160)
+	 *
+	 * @param string|bool $scope "all_sites" or "site", or false when assignment is automatic.
+	 * @param int $user_id User ID.
+	 */
 	return apply_filters( 'bbp_get_user_auto_role_exclusion_scope', $scope, $user_id );
 }
 
@@ -813,7 +868,14 @@ function bbp_is_user_auto_role_excluded( $user_id = 0 ) {
 	$user_id  = bbp_get_user_id( $user_id, false, false );
 	$excluded = false !== bbp_get_user_auto_role_exclusion_scope( $user_id );
 
-	// Filter & return.
+	/**
+	 * Filters whether automatic forum role assignment is skipped for a user.
+	 *
+	 * @since 2.7.0 bbPress (r8160)
+	 *
+	 * @param bool $excluded Whether automatic forum role assignment is skipped for this user.
+	 * @param int $user_id User ID.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_auto_role_excluded', $excluded, $user_id );
 }
 
@@ -907,7 +969,15 @@ function bbp_get_user_editable_forum_roles( $user_id = 0 ) {
 		);
 	}
 
-	// Filter & return.
+	/**
+	 * Filters the forum roles the current user may assign to another user.
+	 *
+	 * @since 2.6.16 bbPress (r7513)
+	 *
+	 * @param array<string, array{name:string, capabilities:array<string, bool>}> $roles Filtered array of editable forum roles.
+	 * @param int $user_id User being edited. Defaults to the displayed user.
+	 * @param int $current_user_id Current user id.
+	 */
 	return (array) apply_filters( 'bbp_get_user_editable_forum_roles', $roles, $user_id, bbp_get_current_user_id() );
 }
 
@@ -963,7 +1033,16 @@ function bbp_current_user_can_edit_user_field( $field = 'profile', $user_id = 0 
 		$retval = false;
 	}
 
-	// Filter & return.
+	/**
+	 * Filters whether the current user may edit a user-profile field.
+	 *
+	 * @since 2.6.16 bbPress (r7513)
+	 *
+	 * @param bool $retval Whether the field may be edited.
+	 * @param string $field Profile field group: profile, email, password, site_role, or forum_role.
+	 * @param int $user_id User being edited. Defaults to the displayed user.
+	 * @param int $current_user_id Current user id.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_edit_user_field', $retval, $field, $user_id, $current_user_id );
 }
 
@@ -1002,7 +1081,14 @@ function bbp_is_valid_role( $role = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether a role ID is valid.
+	 *
+	 * @since 2.6.5 bbPress (r7086)
+	 *
+	 * @param bool $retval True if role is valid. False if role is not valid.
+	 * @param string $role A well-formed (string) role ID to validate.
+	 */
 	return (bool) apply_filters( 'bbp_is_valid_role', $retval, $role );
 }
 
@@ -1117,7 +1203,13 @@ function bbp_get_user_role_map() {
 	// Get the default role once here
 	$default_role = bbp_get_default_role();
 
-	// Filter & return
+	/**
+	 * Filters the mapping from WordPress roles to forum roles.
+	 *
+	 * @since 2.2.0 bbPress (r4335)
+	 *
+	 * @param array<string, string> $value Filtered array of WordPress roles to bbPress roles.
+	 */
 	return (array) apply_filters(
 		'bbp_get_user_role_map',
 		array(
@@ -1167,7 +1259,13 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 		$is_spammer = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the user has been marked as a spammer.
+	 *
+	 * @since 2.3.1 bbPress (r4864)
+	 *
+	 * @param bool $is_spammer True if spammer, False if not.
+	 */
 	return (bool) apply_filters( 'bbp_core_is_user_spammer', $is_spammer );
 }
 
@@ -1386,7 +1484,13 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 		$is_deleted = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the user has been marked as deleted.
+	 *
+	 * @since 2.3.1 bbPress (r4864)
+	 *
+	 * @param bool $is_deleted True if deleted, False if not.
+	 */
 	return (bool) apply_filters( 'bbp_core_is_user_deleted', $is_deleted );
 }
 
@@ -1444,7 +1548,15 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
 	$_user_id = bbp_get_user_id( $user_id, false, true );
 	$retval   = user_can( $_user_id, 'keep_gate' );
 
-	// Filter & return
+	/**
+	 * Filters whether user is a keymaster.
+	 *
+	 * @since 2.3.0 bbPress (r4783)
+	 *
+	 * @param bool $retval True if keymaster, false if not.
+	 * @param int $_user_id  user id.
+	 * @param int $user_id The user ID to check. Defaults to current user ID.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_keymaster', $retval, $_user_id, $user_id );
 }
 
@@ -1477,7 +1589,14 @@ function bbp_user_has_profile( $user_id = 0 ) {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether or not the user has a profile on this blog_id.
+	 *
+	 * @since 2.2.0 bbPress (r4363)
+	 *
+	 * @param bool $retval Whether or not the user has a profile on this blog_id.
+	 * @param int $user_id User ID to check.
+	 */
 	return (bool) apply_filters( 'bbp_show_user_profile', $retval, $user_id );
 }
 
@@ -1570,6 +1689,14 @@ function bbp_get_moderators( $object_id = 0, $object_type = 'post' ) {
 			: array();
 	}
 
-	// Filter & return
+	/**
+	 * Filters the moderators for an object.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param array<array-key, WP_User> $users The moderators for an object.
+	 * @param int $object_id Traditionally a post ID.
+	 * @param string $object_type Type of meta (post,term,user,comment).
+	 */
 	return (array) apply_filters( 'bbp_get_moderators', $users, $object_id, $object_type );
 }

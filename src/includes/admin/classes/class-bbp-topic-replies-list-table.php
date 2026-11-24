@@ -193,6 +193,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		}
 
 		// Filter the reply content
+		/** This filter is documented in src/includes/replies/template.php. */
 		$reply_content = apply_filters( 'bbp_get_reply_content', $item->post_content, $item->ID );
 		$reply_actions = $this->row_actions( $actions );
 

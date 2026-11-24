@@ -19,7 +19,13 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_get_default_user_options() {
 
-	// Filter & return
+	/**
+	 * Filters the default user options and their values.
+	 *
+	 * @since 2.1.0 bbPress (r3911)
+	 *
+	 * @param array<string, mixed> $value Filtered user option names and values.
+	 */
 	return (array) apply_filters(
 		'bbp_get_default_user_options',
 		array(
@@ -149,6 +155,15 @@ function bbp_update_user_topic_count( $user_id = 0, $count = false, $difference 
 
 	// Just in time filtering of the user's topic count
 	$unfiltered_count = $count;
+
+	/**
+	 * Filters the user topic count before updating it.
+	 *
+	 * @since 2.6.0 bbPress (r5309)
+	 *
+	 * @param int|bool $count The user topic count before updating it.
+	 * @param int $user_id User id.
+	 */
 	$count = apply_filters( 'bbp_update_user_topic_count', $count, $user_id );
 
 	// Bail if no count was passed
@@ -190,6 +205,15 @@ function bbp_update_user_reply_count( $user_id = 0, $count = false, $difference 
 
 	// Just in time filtering of the user's reply count
 	$unfiltered_count = $count;
+
+	/**
+	 * Filters the user reply count before updating it.
+	 *
+	 * @since 2.6.0 bbPress (r5309)
+	 *
+	 * @param int|bool $count The user reply count before updating it.
+	 * @param int $user_id User id.
+	 */
 	$count = apply_filters( 'bbp_update_user_reply_count', $count, $user_id );
 
 	// Bail if no count was passed
@@ -247,7 +271,18 @@ function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
 		? 'bbp_get_user_topic_count_int'
 		: 'bbp_get_user_topic_count';
 
-	// Filter & return
+	/**
+	 * Filters a user's topic count.
+	 *
+	 * The hook name is `bbp_get_user_topic_count_int` for integer output and
+	 * `bbp_get_user_topic_count` for formatted output.
+	 *
+	 * @since 2.1.0 bbPress (r3632)
+	 * @since 2.2.0 bbPress (r4258) Added the integer topic-count filter.
+	 *
+	 * @param int|string|false $count User topic count, or false when unavailable.
+	 * @param int $user_id User ID.
+	 */
 	return apply_filters( $filter, $count, $user_id );
 }
 
@@ -288,6 +323,18 @@ function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
 		? 'bbp_get_user_reply_count_int'
 		: 'bbp_get_user_reply_count';
 
+	/**
+	 * Filters a user's reply count.
+	 *
+	 * The hook name is `bbp_get_user_reply_count_int` for integer output and
+	 * `bbp_get_user_reply_count` for formatted output.
+	 *
+	 * @since 2.1.0 bbPress (r3632)
+	 * @since 2.6.0 bbPress (r5309) Added the integer-count filter.
+	 *
+	 * @param int|string|false $count Unformatted count, or a formatted count after filtering.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( $filter, $count, $user_id );
 }
 
@@ -330,6 +377,18 @@ function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 		? 'bbp_get_user_post_count_int'
 		: 'bbp_get_user_post_count';
 
+	/**
+	 * Filters a user's total post count.
+	 *
+	 * The hook name is `bbp_get_user_post_count_int` for integer output and
+	 * `bbp_get_user_post_count` for formatted output.
+	 *
+	 * @since 2.1.0 bbPress (r3632)
+	 * @since 2.2.0 bbPress (r4258) Added the integer-count filter.
+	 *
+	 * @param int|string|false $count Unformatted count, or a formatted count after filtering.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( $filter, $count, $user_id );
 }
 
@@ -390,6 +449,13 @@ function bbp_get_user_last_posted( $user_id = 0 ) {
 
 	$time = get_user_option( '_bbp_last_posted', $user_id );
 
-	// Filter & return
+	/**
+	 * Filters the raw value of the last posted time.
+	 *
+	 * @since 2.1.0 bbPress (r3911)
+	 *
+	 * @param mixed $time False if no user, time() format if exists.
+	 * @param int $user_id User ID to retrieve value for.
+	 */
 	return apply_filters( 'bbp_get_user_last_posted', $time, $user_id );
 }

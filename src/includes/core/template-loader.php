@@ -447,7 +447,13 @@ function bbp_get_theme_compat_template_hierarchy() {
 		'index.php'
 	);
 
-	// Filter & return
+	/**
+	 * Filters the theme compatibility template hierarchy.
+	 *
+	 * @since 2.6.22 bbPress (r8343)
+	 *
+	 * @param array<int, string> $templates Template filenames.
+	 */
 	return (array) apply_filters( 'bbp_get_theme_compat_template_hierarchy', $templates );
 }
 
@@ -479,6 +485,14 @@ function bbp_get_theme_canvas_template() {
 		$templates,
 		array_diff( bbp_get_theme_compat_template_hierarchy(), $templates )
 	);
+
+	/**
+	 * Filters the candidate templates for the bbPress theme canvas.
+	 *
+	 * @since 2.1.0 bbPress (r3929)
+	 *
+	 * @param array $templates The candidate templates for the bbPress theme canvas.
+	 */
 	$templates = (array) apply_filters( 'bbp_get_bbpress_template', $templates );
 
 	// Stash the possible templates for this query
@@ -492,7 +506,13 @@ function bbp_get_theme_canvas_template() {
 		$template = ABSPATH . WPINC . '/template-canvas.php';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the theme canvas template, used for Block Themes.
+	 *
+	 * @since 2.6.16 bbPress (r7394)
+	 *
+	 * @param string $template Path to canvas file.
+	 */
 	return apply_filters( 'bbp_get_theme_canvas_template', $template );
 }
 
@@ -545,7 +565,13 @@ function bbp_get_template_include_templates() {
 		'bbp_is_topic_tag'        => 'bbp_get_topic_tag_template',
 	);
 
-	// Filter & return
+	/**
+	 * Filters the array of _is_ functions and their template finders.
+	 *
+	 * @since 2.7.0 bbPress (r7394)
+	 *
+	 * @param array<string, string> $templates Checkers and their template getters.
+	 */
 	return (array) apply_filters( 'bbp_get_template_include_templates', $templates );
 }
 

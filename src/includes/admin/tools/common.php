@@ -130,6 +130,15 @@ function bbp_get_admin_repair_tool_action_url( $component = array(), $action = '
 
 	// Preserve the original filter for Run actions
 	if ( 'run' === $action ) {
+
+		/**
+		 * Filters the URL that runs an admin repair tool.
+		 *
+		 * @since 2.6.0 bbPress (r5885)
+		 *
+		 * @param string $url The URL that runs an admin repair tool.
+		 * @param array<string, mixed> $component Component.
+		 */
 		$url = apply_filters( 'bbp_get_admin_repair_tool_run_url', $url, $component );
 	}
 
@@ -2270,7 +2279,14 @@ function bbp_get_admin_repair_tools( $type = '' ) {
 		$tools = wp_list_filter( bbp_admin()->tools, array( 'type' => $type ) );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the array of available repair tools.
+	 *
+	 * @since 2.6.0 bbPress (r5885)
+	 *
+	 * @param array<string, array<string, mixed>> $tools The array of available repair tools.
+	 * @param string $type repair|upgrade The type of tools to get. Default empty for all tools.
+	 */
 	return (array) apply_filters( 'bbp_get_admin_repair_tools', $tools, $type );
 }
 
@@ -2310,7 +2326,13 @@ function bbp_get_admin_repair_tool_registered_components() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the components registered by repair tools.
+	 *
+	 * @since 2.6.0 bbPress (r5885)
+	 *
+	 * @param array<array-key, string> $retval The components registered by repair tools.
+	 */
 	return (array) apply_filters( 'bbp_get_admin_repair_tool_registered_components', $retval );
 }
 
@@ -2415,7 +2437,13 @@ function bbp_get_admin_repair_tool_registered_versions() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the versions registered by repair tools.
+	 *
+	 * @since 2.6.0 bbPress (r6894)
+	 *
+	 * @param array<array-key, string> $retval The versions registered by repair tools.
+	 */
 	return (array) apply_filters( 'bbp_get_admin_repair_tool_registered_versions', $retval );
 }
 
@@ -2687,7 +2715,13 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 	// Sort
 	$retval = wp_list_sort( $repair_list, $orderby, $order, true );
 
-	// Filter & return
+	/**
+	 * Filters the array of the repairs to show in a list table.
+	 *
+	 * @since 2.1.0 bbPress (r3884)
+	 *
+	 * @param array<int, array<string, mixed>> $retval Repair list of options.
+	 */
 	return (array) apply_filters( 'bbp_repair_list', $retval );
 }
 
@@ -2724,7 +2758,14 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
 		$links[] = '&mdash;';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the repair tool component links.
+	 *
+	 * @since 2.6.0 bbPress (r5885)
+	 *
+	 * @param array<array-key, string> $links The repair tool component links.
+	 * @param array<string, mixed> $item Repair tool entry containing components.
+	 */
 	return (array) apply_filters( 'bbp_get_admin_repair_tool_components', $links, $item );
 }
 
@@ -2761,7 +2802,14 @@ function bbp_get_admin_repair_tool_version( $item = array() ) {
 		$links[] = '&mdash;';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the repair tool version links.
+	 *
+	 * @since 2.6.0 bbPress (r6894)
+	 *
+	 * @param array<array-key, string> $links The repair tool version links.
+	 * @param array<string, mixed> $item Repair tool entry containing versions.
+	 */
 	return (array) apply_filters( 'bbp_get_admin_repair_tool_version', $links, $item );
 }
 
@@ -2798,7 +2846,14 @@ function bbp_get_admin_repair_tool_overhead( $item = array() ) {
 		$links[] = '&mdash;';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the repair tool overhead links.
+	 *
+	 * @since 2.6.0 bbPress (r6176)
+	 *
+	 * @param array<array-key, string> $links The repair tool overhead links.
+	 * @param array<string, mixed> $item Repair tool entry containing overhead values.
+	 */
 	return (array) apply_filters( 'bbp_get_admin_repair_tool_overhead', $links, $item );
 }
 
@@ -2932,7 +2987,15 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	// Surround output with before & after strings
 	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the repair tool overhead filters.
+	 *
+	 * @since 2.6.0 bbPress (r6926)
+	 *
+	 * @param string $output Filter links for repair tool overheads.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Display options for overhead filter links.
+	 */
 	return apply_filters( 'bbp_get_admin_repair_tool_overhead_filters', $output, $r, $args );
 }
 
@@ -3051,6 +3114,14 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 	// Surround output with before & after strings
 	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the repair tool status filters.
+	 *
+	 * @since 2.6.0 bbPress (r6926)
+	 *
+	 * @param string $output Filter links for repair tool statuses.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Display options for status filter links.
+	 */
 	return apply_filters( 'bbp_get_admin_repair_tool_status_filters', $output, $r, $args );
 }

@@ -24,7 +24,15 @@ defined( 'ABSPATH' ) || exit;
 function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );
 
-	// Filter & return
+	/**
+	 * Filters the users who have subscribed.
+	 *
+	 * @since 2.6.0 bbPress (r6544)
+	 *
+	 * @param array<int|string, int|string> $users Subscriber user IDs, or an empty array.
+	 * @param int $object_id ID of object (forum, topic, or something else).
+	 * @param string $type Object metadata type. Defaults to post.
+	 */
 	return (array) apply_filters( 'bbp_get_subscribers', $users, $object_id, $type );
 }
 
@@ -44,7 +52,16 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
 		? bbp_has_topics( $r )
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the query result for a user's subscribed topics.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param bool|array<int|string, mixed> $query Subscribed-topic query result, or an empty array if no query was built.
+	 * @param int $user_id Reserved user ID argument, always zero.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 */
 	return apply_filters( 'bbp_get_user_topic_subscriptions', $query, 0, $r, $args );
 }
 
@@ -64,7 +81,16 @@ function bbp_get_user_forum_subscriptions( $args = array() ) {
 		? bbp_has_forums( $r )
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the query result for a user's subscribed forums.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param bool|array<int|string, mixed> $query Subscribed-forum query result, or an empty array if no query was built.
+	 * @param int $user_id Reserved user ID argument, always zero.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 */
 	return apply_filters( 'bbp_get_user_forum_subscriptions', $query, 0, $r, $args );
 }
 
@@ -89,7 +115,16 @@ function bbp_get_user_term_subscriptions( $args = array() ) {
 
 	$query = bbp_has_terms( $r );
 
-	// Filter & return
+	/**
+	 * Filters a user's subscribed terms in a taxonomy.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param bool $query Whether the user has subscribed terms in the taxonomy.
+	 * @param int $user_id Reserved user ID argument, always zero.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID. The taxonomy argument defaults to topic tags.
+	 */
 	return (bool) apply_filters( 'bbp_get_user_term_subscriptions', $query, 0, $r, $args );
 }
 
@@ -109,7 +144,13 @@ function bbp_get_topic_subscription_taxonomies() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the topic taxonomies that have active subscriptions.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param array<int|string, string> $taxonomies Taxonomy names.
+	 */
 	return (array) apply_filters( 'bbp_get_topic_subscription_taxonomies', $taxonomies );
 }
 
@@ -160,6 +201,17 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 	}
 
 	// Preserve the existing subscriber filter
+
+	/**
+	 * Filters users subscribed to the topic's terms.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param int[] $value Users subscribed to the topic's terms.
+	 * @param int $topic_id Topic id.
+	 * @param array $term_ids Term ids.
+	 * @param array $taxonomies Taxonomies.
+	 */
 	$user_ids = (array) apply_filters( 'bbp_get_subscribers_for_topic_terms', array_keys( $contexts ), $topic_id, $term_ids, $taxonomies );
 	$user_ids = wp_parse_id_list( $user_ids );
 
@@ -171,7 +223,16 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the subscription contexts for users subscribed to terms assigned to a topic.
+	 *
+	 * @since 2.7.0 bbPress (r8360)
+	 *
+	 * @param array<int, array{object_id?: int, object_type?: string}> $contexts Subscription object data keyed by user ID.
+	 * @param int $topic_id Topic ID.
+	 * @param array<int, int> $term_ids Term IDs.
+	 * @param array<int, string> $taxonomies Taxonomy names.
+	 */
 	return (array) apply_filters( 'bbp_get_topic_term_subscription_contexts', $contexts, $topic_id, $term_ids, $taxonomies );
 }
 
@@ -186,7 +247,6 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
 	$user_ids = array_keys( bbp_get_topic_term_subscription_contexts( $topic_id ) );
 
-	// Filter & return
 	return wp_parse_id_list( $user_ids );
 }
 
@@ -244,7 +304,16 @@ function bbp_is_subscribable( $object_id = 0, $object_type = '' ) {
 function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) {
 	$retval = bbp_is_object_of_user( $object_id, $user_id, '_bbp_subscription', $type );
 
-	// Filter & return
+	/**
+	 * Filters whether an object (forum or topic) is in user's subscription list or not.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param bool $retval True if the object (forum or topic) is in user's subscriptions, otherwise false.
+	 * @param int|float|string $user_id User ID.
+	 * @param int|string $object_id Object ID.
+	 * @param string $type Object metadata type. Defaults to post.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_subscribed', $retval, $user_id, $object_id, $type );
 }
 
@@ -339,6 +408,17 @@ function bbp_get_subscription_unsubscribe_token( $user_id = 0, $object_id = 0, $
 	}
 
 	if ( empty( $expiration ) ) {
+
+		/**
+		 * Filters the lifetime of a subscription unsubscribe token in seconds.
+		 *
+		 * @since 2.7.0 bbPress (r8349)
+		 *
+		 * @param int $value The lifetime of a subscription unsubscribe token in seconds.
+		 * @param int $user_id User id.
+		 * @param int $object_id Object ID.
+		 * @param string $object_type Object type.
+		 */
 		$lifetime = (int) apply_filters( 'bbp_subscription_unsubscribe_token_lifetime', WEEK_IN_SECONDS, $user->ID, $object_id, $object_type );
 		$expiration = time() + $lifetime;
 	}
@@ -352,7 +432,17 @@ function bbp_get_subscription_unsubscribe_token( $user_id = 0, $object_id = 0, $
 	$data      = implode( '|', array( $user->ID, $object_id, $object_type, $user->user_email, $pass_frag, $expiration ) );
 	$hash      = hash_hmac( 'sha256', $data, wp_salt( 'nonce' ) );
 
-	// Filter & return.
+	/**
+	 * Filters the signed token.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param string|false $value Signed token, or false when it cannot be generated.
+	 * @param int $user_id User id.
+	 * @param int $object_id Subscribed object ID.
+	 * @param string $object_type Registered engagement type.
+	 * @param int $expiration Token expiration timestamp.
+	 */
 	return apply_filters( 'bbp_get_subscription_unsubscribe_token', $user->ID . '|' . $expiration . '|' . $hash, $user->ID, $object_id, $object_type, $expiration );
 }
 
@@ -437,7 +527,16 @@ function bbp_get_subscription_unsubscribe_url( $user_id = 0, $object_id = 0, $ob
 		$url
 	);
 
-	// Filter & return.
+	/**
+	 * Filters a signed URL that unsubscribes a user without requiring authentication.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param string|false $url Unsubscribe URL, or false when unavailable.
+	 * @param int $user_id User ID.
+	 * @param int $object_id Subscribed object ID.
+	 * @param string $object_type Registered engagement type.
+	 */
 	return apply_filters( 'bbp_get_subscription_unsubscribe_url', $url, $user_id, $object_id, $object_type );
 }
 
@@ -743,7 +842,14 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
 	_deprecated_function( __FUNCTION__, '2.5', 'bbp_get_user_topic_subscriptions()' );
 	$query = bbp_get_user_topic_subscriptions( $user_id );
 
-	// Filter & return
+	/**
+	 * Filters a user's subscribed topics.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param bool|array<int|string, mixed> $query Whether subscribed topics are available, or an empty array if no query is built.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_user_subscriptions', $query, $user_id );
 }
 
@@ -760,7 +866,14 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
 function bbp_get_forum_subscribers( $forum_id = 0 ) {
 	$users = bbp_get_users_for_object( $forum_id, '_bbp_subscription' );
 
-	// Filter & return
+	/**
+	 * Filters the users who have subscribed to the forum.
+	 *
+	 * @since 2.5.0 bbPress (r5156)
+	 *
+	 * @param array<int|string, int|string> $users Forum subscribers, or an empty array.
+	 * @param int $forum_id forum id.
+	 */
 	return (array) apply_filters( 'bbp_get_forum_subscribers', $users, $forum_id );
 }
 
@@ -777,7 +890,14 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
 function bbp_get_topic_subscribers( $topic_id = 0 ) {
 	$users = bbp_get_users_for_object( $topic_id, '_bbp_subscription' );
 
-	// Filter & return
+	/**
+	 * Filters the users who have subscribed to the topic.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param array<int|string, int|string> $users Topic subscribers, or an empty array.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters( 'bbp_get_topic_subscribers', $users, $topic_id );
 }
 

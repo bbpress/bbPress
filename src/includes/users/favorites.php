@@ -25,7 +25,14 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$users    = bbp_get_users_for_object( $topic_id, '_bbp_favorite' );
 
-	// Filter & return
+	/**
+	 * Filters the users who have made the topic favorite.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param array<int, int> $users Users who favorited the topic, or an empty array.
+	 * @param int $topic_id Topic id.
+	 */
 	return (array) apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
 }
 
@@ -45,7 +52,16 @@ function bbp_get_user_favorites( $args = array() ) {
 		? bbp_has_topics( $r )
 		: array();
 
-	// Filter & return
+	/**
+	 * Filters the query result for a user's favorite topics.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param bool|array<array-key, mixed> $query Favorite-topic query result, or an empty array if no query was built.
+	 * @param int $user_id Reserved user ID argument, always zero.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Query arguments or a user ID.
+	 */
 	return apply_filters( 'bbp_get_user_favorites', $query, 0, $r, $args );
 }
 
@@ -62,7 +78,15 @@ function bbp_get_user_favorites( $args = array() ) {
 function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	$retval = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_favorite' );
 
-	// Filter & return
+	/**
+	 * Filters whether a topic is in user's favorites or not.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param bool $retval True if the topic is in user's favorites, otherwise false.
+	 * @param int|float|string $user_id User id.
+	 * @param int|string $topic_id Topic id.
+	 */
 	return (bool) apply_filters( 'bbp_is_user_favorite', $retval, $user_id, $topic_id );
 }
 

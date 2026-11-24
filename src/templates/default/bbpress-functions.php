@@ -147,6 +147,14 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Get and filter the bbp-default style
+
+		/**
+		 * Filters the styles registered by the default theme.
+		 *
+		 * @since 2.5.0 bbPress (r5183)
+		 *
+		 * @param array $styles The styles registered by the default theme.
+		 */
 		$styles = apply_filters( 'bbp_default_styles', $defaults );
 
 		// Enqueue the styles
@@ -208,6 +216,14 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Filter the scripts
+
+		/**
+		 * Filters the scripts registered by the default theme.
+		 *
+		 * @since 2.5.0 bbPress (r5183)
+		 *
+		 * @param array $scripts The scripts registered by the default theme.
+		 */
 		$scripts = apply_filters( 'bbp_default_scripts', $scripts );
 
 		// Enqueue the scripts

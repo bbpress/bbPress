@@ -459,7 +459,14 @@ function bbp_has_users( $args = array() ) {
 	$bbp             = bbpress();
 	$bbp->user_query = new BBP_User_Query( $r );
 
-	// Filter & return
+	/**
+	 * Filters whether users are available.
+	 *
+	 * @since 2.6.0 bbPress (r6332)
+	 *
+	 * @param bool $value Whether users are available.
+	 * @param WP_Query $user_query Query object.
+	 */
 	return apply_filters( 'bbp_has_users', $bbp->user_query->have_users(), $bbp->user_query );
 }
 
@@ -510,7 +517,14 @@ function bbp_has_terms( $args = array() ) {
 	$bbp             = bbpress();
 	$bbp->term_query = new BBP_Term_Query( $r );
 
-	// Filter & return
+	/**
+	 * Filters whether the query has terms.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param bool $value Whether the query has terms.
+	 * @param WP_Query $term_query Query object.
+	 */
 	return (bool) apply_filters( 'bbp_has_terms', $bbp->term_query->have_terms(), $bbp->term_query );
 }
 
@@ -586,7 +600,15 @@ function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $curren
 		$bbp_user_id = 0;
 	}
 
-	// Filter & return
+	/**
+	 * Filters a validated user ID.
+	 *
+	 * @since 2.0.0 bbPress (r2729)
+	 *
+	 * @param int $bbp_user_id Validated user id.
+	 * @param bool $displayed_user_fallback Whether to use the displayed user.
+	 * @param bool $current_user_fallback Whether to use the current user.
+	 */
 	return (int) apply_filters( 'bbp_get_user_id', (int) $bbp_user_id, $displayed_user_fallback, $current_user_fallback );
 }
 
@@ -610,7 +632,13 @@ function bbp_current_user_id() {
  */
 function bbp_get_current_user_id() {
 
-	// Filter & return
+	/**
+	 * Filters the current user ID.
+	 *
+	 * @since 2.0.0 bbPress (r2574)
+	 *
+	 * @param int $value Current user id.
+	 */
 	return (int) apply_filters( 'bbp_get_current_user_id', bbp_get_user_id( 0, false, true ) );
 }
 
@@ -634,7 +662,13 @@ function bbp_displayed_user_id() {
  */
 function bbp_get_displayed_user_id() {
 
-	// Filter & return
+	/**
+	 * Filters the displayed user ID.
+	 *
+	 * @since 2.0.0 bbPress (r2688)
+	 *
+	 * @param int $value Displayed user id.
+	 */
 	return apply_filters( 'bbp_get_displayed_user_id', bbp_get_user_id( 0, true, false ) );
 }
 
@@ -688,7 +722,15 @@ function bbp_get_displayed_user_field( $field = '', $filter = 'display' ) {
 	// Put back the user filter property that was previously juggled above.
 	$user->filter = $old_filter;
 
-	// Filter & return
+	/**
+	 * Filters a sanitized user field value.
+	 *
+	 * @since 2.1.1 bbPress (r4094)
+	 *
+	 * @param string|bool $value Value of the field if it exists, else false.
+	 * @param string $field Field to get.
+	 * @param string $filter How to filter the field value (null|raw|db|display|edit).
+	 */
 	return apply_filters( 'bbp_get_displayed_user_field', $value, $field, $filter );
 }
 
@@ -735,7 +777,13 @@ function bbp_get_current_user_name() {
 		? bbp_get_global_object( 'user_identity', false, $default )
 		: $default;
 
-	// Filter & return
+	/**
+	 * Filters the current user's name.
+	 *
+	 * @since 2.0.0 bbPress (r2574)
+	 *
+	 * @param string $current_user_name The current user's name.
+	 */
 	return apply_filters( 'bbp_get_current_user_name', $current_user_name );
 }
 
@@ -768,7 +816,14 @@ function bbp_get_current_user_avatar( $size = 40 ) {
 
 	$avatar = get_avatar( $user, $size );
 
-	// Filter & return
+	/**
+	 * Filters the current user's avatar.
+	 *
+	 * @since 2.0.0 bbPress (r2574)
+	 *
+	 * @param string $avatar Current user avatar.
+	 * @param int $size Size of the avatar. Defaults to 40.
+	 */
 	return apply_filters( 'bbp_get_current_user_avatar', $avatar, $size );
 }
 
@@ -819,7 +874,14 @@ function bbp_get_user_profile_link( $user_id = 0 ) {
 		? '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>'
 		: esc_html( $name );
 
-	// Filter & return
+	/**
+	 * Filters the link to the profile page of a user.
+	 *
+	 * @since 2.0.0 bbPress (r2688)
+	 *
+	 * @param string|false $link User profile link, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return (string) apply_filters( 'bbp_get_user_profile_link', $link, $user_id );
 }
 
@@ -886,7 +948,16 @@ function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
 		? $r['before'] . esc_html( $nicename ) . $r['after']
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters a user's nicename.
+	 *
+	 * @since 2.3.0 bbPress (r4672)
+	 *
+	 * @param string|false $retval User nicename with optional wrapper, or false if no user ID exists.
+	 * @param int $user_id User ID whose nicename to get.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Before, after, user ID, and forced nicename settings.
+	 */
 	return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r, $args );
 }
 
@@ -949,7 +1020,15 @@ function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the URL to a user profile.
+	 *
+	 * @since 2.0.0 bbPress (r2688)
+	 *
+	 * @param string|false $url User profile URL, or false when unavailable.
+	 * @param int $user_id Optional user ID.
+	 * @param string $user_nicename Optional user nicename.
+	 */
 	return apply_filters( 'bbp_get_user_profile_url', $url, $user_id, $user_nicename );
 }
 
@@ -1000,7 +1079,14 @@ function bbp_get_user_profile_edit_link( $user_id = 0 ) {
 		? '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>'
 		: esc_html( $name );
 
-	// Filter & return
+	/**
+	 * Filters the link to edit a user profile.
+	 *
+	 * @since 2.0.0 bbPress (r2845)
+	 *
+	 * @param string|false $link User profile edit link, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return (string) apply_filters( 'bbp_get_user_profile_edit_link', $link, $user_id );
 }
 
@@ -1058,7 +1144,15 @@ function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the URL to edit a user profile.
+	 *
+	 * @since 2.0.0 bbPress (r2688)
+	 *
+	 * @param string|false $url User profile edit URL, or false when unavailable.
+	 * @param int $user_id Optional user ID.
+	 * @param string $user_nicename Optional user nicename.
+	 */
 	return apply_filters( 'bbp_get_user_edit_profile_url', $url, $user_id, $user_nicename );
 }
 
@@ -1106,7 +1200,14 @@ function bbp_get_user_display_role( $user_id = 0 ) {
 		$role = esc_html__( 'Member', 'bbpress' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters a user's main role for display.
+	 *
+	 * @since 2.1.0 bbPress (r3860)
+	 *
+	 * @param string $role A user's main role for display.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_user_display_role', $role, $user_id );
 }
 
@@ -1154,7 +1255,15 @@ function bbp_get_admin_link( $args = array() ) {
 
 	$retval = $r['before'] . '<a href="' . esc_url( admin_url() ) . '">' . $r['text'] . '</a>' . $r['after'];
 
-	// Filter & return
+	/**
+	 * Filters the link to the admin section.
+	 *
+	 * @since 2.0.0 bbPress (r2827)
+	 *
+	 * @param string|null $retval Admin link, or null without moderation capability.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|string $args Link text and before/after wrapper settings.
+	 */
 	return apply_filters( 'bbp_get_admin_link', $retval, $r, $args );
 }
 
@@ -1202,7 +1311,15 @@ function bbp_get_author_ip( $args = array() ) {
 		? $r['before'] . esc_html( $author_ip ) . $r['after']
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the author IP address of a post.
+	 *
+	 * @since 2.0.0 bbPress (r3120)
+	 *
+	 * @param string $author_ip Author IP address with optional markup, or an empty string when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Arguments or a post ID.
+	 */
 	return apply_filters( 'bbp_get_author_ip', $author_ip, $r, $args );
 }
 
@@ -1223,7 +1340,14 @@ function bbp_get_author_ip( $args = array() ) {
 function bbp_get_fallback_display_name( $object_id = 0 ) {
 	$name = esc_html__( 'Anonymous', 'bbpress' );
 
-	// Filter & return
+	/**
+	 * Filters the default name that's displayed when a user cannot be identified.
+	 *
+	 * @since 2.6.0 bbPress (r6562)
+	 *
+	 * @param string $name The default name that's displayed when a user cannot be identified.
+	 * @param int $object_id For additional context only, usually a post ID.
+	 */
 	return apply_filters( 'bbp_get_anonymous_name', $name, $object_id );
 }
 
@@ -1274,7 +1398,14 @@ function bbp_get_author_display_name( $post_id = 0 ) {
 		$retval = bbp_get_current_anonymous_user_data( 'name' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author display-name of a topic or reply.
+	 *
+	 * @since 2.5.0 bbPress (r5120)
+	 *
+	 * @param string $retval The name of the author.
+	 * @param int $post_id Post id.
+	 */
 	return apply_filters( 'bbp_get_author_display_name', $retval, $post_id );
 }
 
@@ -1325,7 +1456,14 @@ function bbp_get_author_email( $post_id = 0 ) {
 		$retval = bbp_get_current_anonymous_user_data( 'email' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author email of a topic or reply.
+	 *
+	 * @since 2.5.0 bbPress (r5120)
+	 *
+	 * @param string $retval The email of the author.
+	 * @param int $post_id Post id.
+	 */
 	return apply_filters( 'bbp_get_author_email', $retval, $post_id );
 }
 
@@ -1376,7 +1514,14 @@ function bbp_get_author_url( $post_id = 0 ) {
 		$retval = bbp_get_current_anonymous_user_data( 'url' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the URL of a topic or reply author.
+	 *
+	 * @since 2.5.0 bbPress (r5120)
+	 *
+	 * @param string $retval The url of the author.
+	 * @param int $post_id Post id.
+	 */
 	return apply_filters( 'bbp_get_author_url', $retval, $post_id );
 }
 
@@ -1455,7 +1600,14 @@ function bbp_get_favorites_permalink( $user_id = 0 ) {
 		$url = add_query_arg( $args, $profile_url );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the user's favorites page (profile page).
+	 *
+	 * @since 2.0.0 bbPress (r2660)
+	 *
+	 * @param string|false $url URL for the user favorites page, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_favorites_permalink', $url, $user_id );
 }
 
@@ -1569,7 +1721,16 @@ function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = tru
 		$html = '<span id="favorite-toggle">' . $html . '</span>';
 	}
 
-	// Filter & return
+	/**
+	 * Filters the favorites link.
+	 *
+	 * @since 2.0.0 bbPress (r2652)
+	 *
+	 * @param string|false $html Favorites link, or false when unavailable.
+	 * @param array $r Arguments.
+	 * @param int $user_id Legacy user ID parameter; use $args['user_id'] instead.
+	 * @param int $object_id Object id.
+	 */
 	return apply_filters( 'bbp_get_user_favorites_link', $html, $r, $user_id, $object_id );
 }
 
@@ -1658,7 +1819,14 @@ function bbp_get_subscriptions_permalink( $user_id = 0 ) {
 		$url = add_query_arg( $args, $profile_url );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the user's subscriptions page (profile page).
+	 *
+	 * @since 2.0.0 bbPress (r2849)
+	 *
+	 * @param string|false $url URL for the user subscriptions page, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_subscriptions_permalink', $url, $user_id );
 }
 
@@ -1692,7 +1860,15 @@ function bbp_is_subscription_unsubscribe( $status = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether this is an unsubscribe request with the requested status.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param bool $retval Whether this is an unsubscribe request with the requested status.
+	 * @param string $status Status to compare.
+	 * @param string $current Current unsubscribe request status.
+	 */
 	return (bool) apply_filters( 'bbp_is_subscription_unsubscribe', $retval, $status, $current );
 }
 
@@ -1714,7 +1890,14 @@ function bbp_get_subscription_unsubscribe_title() {
 		$title = __( 'Unable to Unsubscribe', 'bbpress' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the title for the current subscription-unsubscribe request.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param string $title Unsubscribe page title.
+	 * @param string $status Unsubscribe request status.
+	 */
 	return apply_filters( 'bbp_get_subscription_unsubscribe_title', $title, $status );
 }
 
@@ -1742,7 +1925,14 @@ function bbp_get_subscription_unsubscribe_feedback_class() {
 		? 'info'
 		: 'error';
 
-	// Filter & return
+	/**
+	 * Filters the feedback class for the current subscription-unsubscribe request.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param string $class Feedback class.
+	 * @param string $status Unsubscribe request status.
+	 */
 	return apply_filters( 'bbp_get_subscription_unsubscribe_feedback_class', $class, $status );
 }
 
@@ -1775,7 +1965,14 @@ function bbp_get_subscription_unsubscribe_feedback() {
 		$feedback = __( 'This unsubscribe link is invalid or has expired.', 'bbpress' );
 	}
 
-	// Filter & return
+	/**
+	 * Filters the feedback for the current subscription-unsubscribe request.
+	 *
+	 * @since 2.7.0 bbPress (r8349)
+	 *
+	 * @param string $feedback Feedback message.
+	 * @param string $status Unsubscribe request status.
+	 */
 	return apply_filters( 'bbp_get_subscription_unsubscribe_feedback', $feedback, $status );
 }
 
@@ -1801,7 +1998,14 @@ function bbp_has_term_subscription_taxonomies() {
 	$bbp                 = bbpress();
 	$bbp->taxonomy_query = new BBP_Taxonomy_Query( bbp_get_topic_subscription_taxonomies() );
 
-	// Filter & return
+	/**
+	 * Filters whether there are taxonomies in the loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param bool $value Whether there are taxonomies in the loop.
+	 * @param WP_Query $taxonomy_query Query object.
+	 */
 	return (bool) apply_filters( 'bbp_has_term_subscription_taxonomies', $bbp->taxonomy_query->have_taxonomies(), $bbp->taxonomy_query );
 }
 
@@ -1841,7 +2045,14 @@ function bbp_get_term_subscription_taxonomy() {
 		? $taxonomy
 		: false;
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription taxonomy.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param WP_Taxonomy|false $retval Current taxonomy object, or false when unavailable.
+	 * @param string $taxonomy Taxonomy name.
+	 */
 	return apply_filters( 'bbp_get_term_subscription_taxonomy', $retval, $taxonomy );
 }
 
@@ -1869,7 +2080,14 @@ function bbp_get_term_subscription_taxonomy_id() {
 		? $taxonomy->name
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription taxonomy ID.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $retval Taxonomy ID.
+	 * @param string $taxonomy Taxonomy name.
+	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_taxonomy_id', $retval, $taxonomy );
 }
 
@@ -1886,7 +2104,14 @@ function bbp_get_term_subscription_taxonomy_label() {
 		? $taxonomy->labels->name
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription taxonomy label.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $retval Taxonomy plural label.
+	 * @param string $taxonomy Taxonomy name.
+	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_taxonomy_label', $retval, $taxonomy );
 }
 
@@ -1909,7 +2134,14 @@ function bbp_get_term_subscription( $term = 0 ) {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription from the term loop.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param WP_Term|false $retval Term object, or false when unavailable.
+	 * @param int|WP_Term $term Term ID or object.
+	 */
 	return apply_filters( 'bbp_get_term_subscription', $retval, $term );
 }
 
@@ -1939,7 +2171,14 @@ function bbp_get_term_subscription_name( $term = 0 ) {
 		? $term->name
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription name.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $name Term name.
+	 * @param int|WP_Term $term Term ID or object.
+	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_name', $name, $term );
 }
 
@@ -1970,7 +2209,14 @@ function bbp_get_term_subscription_permalink( $term = 0 ) {
 		? $type->get_url( $term->term_id )
 		: '';
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription permalink.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string $url Term permalink.
+	 * @param int|WP_Term $term Term ID or object.
+	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_permalink', $url, $term );
 }
 
@@ -2011,7 +2257,15 @@ function bbp_get_term_subscription_toggle_link( $args = array() ) {
 		'get_term_subscription_toggle_link'
 	);
 
-	// Filter & return
+	/**
+	 * Filters the current term subscription toggle link.
+	 *
+	 * @since 2.7.0 bbPress (r8335)
+	 *
+	 * @param string|false $value Subscription link, or false when unavailable.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Subscription-link arguments.
+	 */
 	return apply_filters( 'bbp_get_term_subscription_toggle_link', bbp_get_user_subscribe_link( $r, $user_id, false ), $r, $args );
 }
 
@@ -2132,7 +2386,16 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 		$html = '<span id="subscription-toggle">' . $html . '</span>';
 	}
 
-	// Filter & return
+	/**
+	 * Filters a forum or topic subscription link.
+	 *
+	 * @since 2.0.0 bbPress (r2668)
+	 *
+	 * @param string|false|null $html Subscription link, false when unavailable, or null when subscriptions are inactive.
+	 * @param array $r Arguments.
+	 * @param int $user_id Legacy user ID parameter; use $args['user_id'] instead.
+	 * @param int $object_id Object id.
+	 */
 	return apply_filters( 'bbp_get_user_subscribe_link', $html, $r, $user_id, $object_id );
 }
 
@@ -2488,7 +2751,13 @@ function bbp_edit_user_contact_methods() {
 	// Get the core WordPress contact methods
 	$contact_methods = wp_get_user_contact_methods( bbpress()->displayed_user );
 
-	// Filter & return
+	/**
+	 * Filters the user contact methods select box.
+	 *
+	 * @since 2.0.0 bbPress (r2970)
+	 *
+	 * @param array<string, string> $contact_methods User contact methods.
+	 */
 	return (array) apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
 }
 
@@ -2608,7 +2877,14 @@ function bbp_get_user_topics_created_url( $user_id = 0 ) {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the user's topics.
+	 *
+	 * @since 2.2.0 bbPress (r4228)
+	 *
+	 * @param string|false $url URL for the user topics page, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
 }
 
@@ -2667,7 +2943,14 @@ function bbp_get_user_replies_created_url( $user_id = 0 ) {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the user's replies.
+	 *
+	 * @since 2.2.0 bbPress (r4322)
+	 *
+	 * @param string|false $url URL for the user replies page, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_user_replies_created_url', $url, $user_id );
 }
 
@@ -2726,7 +3009,14 @@ function bbp_get_user_engagements_url( $user_id = 0 ) {
 		);
 	}
 
-	// Filter & return
+	/**
+	 * Filters the link to the user's engagements.
+	 *
+	 * @since 2.6.0 bbPress (r6320)
+	 *
+	 * @param string|false $url URL for the user engagements page, or false when unavailable.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_user_engagements_url', $url, $user_id );
 }
 
@@ -2758,6 +3048,14 @@ function bbp_get_user_mentions_url( $user_id = 0 ) {
 			: add_query_arg( bbp_get_user_mentions_rewrite_id(), '1', $url );
 	}
 
+	/**
+	 * Filters the URL for a user's mentions.
+	 *
+	 * @since 2.7.0 bbPress (r8264)
+	 *
+	 * @param string|false $url The URL for a user's mentions.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_get_user_mentions_url', $url, $user_id );
 }
 
@@ -2938,7 +3236,15 @@ function bbp_get_user_languages_dropdown( $args = array() ) {
 	// Get the markup for the languages drop-down
 	$retval = wp_dropdown_languages( $r );
 
-	// Filter & return
+	/**
+	 * Filters the select element used to save a user's language.
+	 *
+	 * @since 2.6.0 bbPress (r6489)
+	 *
+	 * @param string $retval The select element used to save a user's language.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args See wp_dropdown_languages().
+	 */
 	return apply_filters( 'bbp_get_user_languages_dropdown', $retval, $r, $args );
 }
 
@@ -3024,6 +3330,14 @@ function bbp_user_login_fields() {
 	<?php
 
 	// Allow custom login redirection
+
+	/**
+	 * Filters the redirect URL for the login form.
+	 *
+	 * @since 2.0.0 bbPress (r3450)
+	 *
+	 * @param string $value The redirect URL for the login form.
+	 */
 	$redirect_to = apply_filters( 'bbp_user_login_redirect_to', '' );
 	bbp_redirect_to_field( $redirect_to );
 
@@ -3049,6 +3363,14 @@ function bbp_user_register_fields() {
 	<?php
 
 	// Allow custom registration redirection
+
+	/**
+	 * Filters the redirect URL for the registration form.
+	 *
+	 * @since 2.0.0 bbPress (r3450)
+	 *
+	 * @param string $value The redirect URL for the registration form.
+	 */
 	$redirect_to = apply_filters( 'bbp_user_register_redirect_to', '' );
 	bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), $redirect_to ) );
 
@@ -3073,6 +3395,14 @@ function bbp_user_lost_pass_fields() {
 	<?php
 
 	// Allow custom lost pass redirection
+
+	/**
+	 * Filters the redirect URL for the lost password form.
+	 *
+	 * @since 2.0.0 bbPress (r3450)
+	 *
+	 * @param string $value The redirect URL for the lost password form.
+	 */
 	$redirect_to = apply_filters( 'bbp_user_lost_pass_redirect_to', get_permalink() );
 	bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), $redirect_to ) );
 
@@ -3123,6 +3453,7 @@ function bbp_get_author_link( $args = array() ) {
 
 	// An explicitly empty post ID must not fall back to the current loop post
 	if ( ( is_numeric( $args ) || ( is_array( $args ) && array_key_exists( 'post_id', $args ) ) ) && empty( $r['post_id'] ) ) {
+		/** This filter is documented in src/includes/users/template.php. */
 		return apply_filters( 'bbp_get_author_link', '-', $r, $args );
 	}
 
@@ -3194,6 +3525,16 @@ function bbp_get_author_link( $args = array() ) {
 		unset( $links );
 
 		// Filter sections
+
+		/**
+		 * Filters the author links before combining them.
+		 *
+		 * @since 2.6.0 bbPress (r6736)
+		 *
+		 * @param array $author_links The author links before combining them.
+		 * @param array $r Parsed arguments.
+		 * @param array<string, mixed>|int $args Original arguments.
+		 */
 		$sections    = apply_filters( 'bbp_get_author_links', $author_links, $r, $args );
 
 		// Assemble sections into author link
@@ -3205,7 +3546,15 @@ function bbp_get_author_link( $args = array() ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the author link of the post.
+	 *
+	 * @since 2.0.0 bbPress (r2894)
+	 *
+	 * @param string $author_link Author link, placeholder, or an empty string.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed>|int $args Arguments or a post ID.
+	 */
 	return apply_filters( 'bbp_get_author_link', $author_link, $r, $args );
 }
 
@@ -3255,7 +3604,15 @@ function bbp_user_can_view_forum( $args = array() ) {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the user can access a specific forum.
+	 *
+	 * @since 2.0.0 bbPress (r3057)
+	 *
+	 * @param bool $retval Whether the user can access a specific forum.
+	 * @param int $forum_id Forum id.
+	 * @param int $user_id User id.
+	 */
 	return apply_filters( 'bbp_user_can_view_forum', $retval, $forum_id, $user_id );
 }
 
@@ -3289,7 +3646,13 @@ function bbp_current_user_can_publish_topics() {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can publish topics.
+	 *
+	 * @since 2.0.0 bbPress (r3366)
+	 *
+	 * @param bool $retval Whether the current user can publish topics.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_publish_topics', $retval );
 }
 
@@ -3319,7 +3682,13 @@ function bbp_current_user_can_publish_forums() {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can publish forums.
+	 *
+	 * @since 2.1.0 bbPress (r3549)
+	 *
+	 * @param bool $retval Whether the current user can publish forums.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_publish_forums', $retval );
 }
 
@@ -3353,7 +3722,13 @@ function bbp_current_user_can_publish_replies() {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can publish replies.
+	 *
+	 * @since 2.0.0 bbPress (r3366)
+	 *
+	 * @param bool $retval Whether the current user can publish replies.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_publish_replies', $retval );
 }
 
@@ -3396,7 +3771,15 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 		$forums = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the forums the current user has the ability to see and post to.
+	 *
+	 * @since 2.0.0 bbPress (r3127)
+	 *
+	 * @param array<array-key, WP_Post>|false $forums Forums, or false when none are available.
+	 * @param array $r Arguments.
+	 * @param array<string, mixed> $args Forum query arguments.
+	 */
 	return apply_filters( 'bbp_get_forums_for_current_user', $forums, $r, $args );
 }
 
@@ -3430,7 +3813,13 @@ function bbp_current_user_can_access_create_forum_form() {
 		$retval = false;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can access the new forum form.
+	 *
+	 * @since 2.1.0 bbPress (r3549)
+	 *
+	 * @param bool $retval Whether the current user can access the new forum form.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_forum_form', (bool) $retval );
 }
 
@@ -3472,7 +3861,13 @@ function bbp_current_user_can_access_create_topic_form() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can access the new topic form.
+	 *
+	 * @since 2.0.0 bbPress (r3159)
+	 *
+	 * @param bool $retval Whether the current user can access the new topic form.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
 }
 
@@ -3518,7 +3913,13 @@ function bbp_current_user_can_access_create_reply_form() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can access the new reply form.
+	 *
+	 * @since 2.1.0 bbPress (r3549)
+	 *
+	 * @param bool $retval Whether the current user can access the new reply form.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_reply_form', (bool) $retval );
 }
 
@@ -3539,7 +3940,14 @@ function bbp_current_user_can_access_topic_moderation( $topic_id = 0 ) {
 		&& current_user_can( 'moderate', $topic_id )
 		&& current_user_can( 'edit_topic', $topic_id );
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can access structural topic moderation actions.
+	 *
+	 * @since 2.7.0 bbPress (r7617)
+	 *
+	 * @param bool $retval True if the current user can moderate and edit the topic.
+	 * @param int $topic_id Topic ID.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_access_topic_moderation', $retval, $topic_id );
 }
 
@@ -3569,7 +3977,13 @@ function bbp_current_user_can_access_anonymous_user_form() {
 		$retval = true;
 	}
 
-	// Filter & return
+	/**
+	 * Filters whether the current user can access the anonymous user form.
+	 *
+	 * @since 2.5.0 bbPress (r5120)
+	 *
+	 * @param bool $retval Whether the current user can access the anonymous user form.
+	 */
 	return (bool) apply_filters( 'bbp_current_user_can_access_anonymous_user_form', (bool) $retval );
 }
 
@@ -3634,6 +4048,12 @@ function bbp_get_moderator_list( $object_id = 0, $args = array() ) {
 		$retval = $r['none'];
 	}
 
-	// Filter & return
+	/**
+	 * Filters the moderators for an object.
+	 *
+	 * @since 2.6.0 bbPress (r6056)
+	 *
+	 * @param string $retval Moderator list of the object.
+	 */
 	return apply_filters( 'bbp_get_moderator_list', $retval );
 }
