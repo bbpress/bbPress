@@ -451,6 +451,16 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_author_ip
+	 */
+	public function test_author_ip_skips_non_string_wrappers() {
+		$topic_id = $this->factory->topic->create();
+		$args     = array( 'post_id' => $topic_id, 'before' => array( 'invalid' ), 'after' => array( 'invalid' ) );
+
+		$this->assertSame( '127.0.0.1', bbp_get_author_ip( $args ) );
+	}
+
+	/**
 	 * @covers ::bbp_author_display_name
 	 * @covers ::bbp_get_author_display_name
 	 */

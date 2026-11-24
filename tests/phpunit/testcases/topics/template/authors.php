@@ -203,4 +203,15 @@ class BBP_Tests_Topics_Template_Authors extends BBP_UnitTestCase {
 		$this->expectOutputString( $expected );
 		bbp_topic_author_role( $args );
 	}
+
+	/**
+	 * @covers ::bbp_get_topic_author_role
+	 */
+	public function test_topic_author_role_skips_non_string_wrappers() {
+		$user_id  = $this->factory->user->create();
+		$topic_id = $this->factory->topic->create( array( 'post_author' => $user_id ) );
+		$args     = array( 'topic_id' => $topic_id, 'before' => array( 'invalid' ), 'after' => array( 'invalid' ) );
+
+		$this->assertSame( bbp_get_user_display_role( $user_id ), bbp_get_topic_author_role( $args ) );
+	}
 }

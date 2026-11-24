@@ -1313,10 +1313,13 @@ function bbp_get_author_ip( $args = array() ) {
 		'get_author_ip'
 	);
 
+	$before_html = bbp_get_template_string_arg( $r, 'before' );
+	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+
 	// Get the author IP meta value
 	$author_ip = get_post_meta( $r['post_id'], '_bbp_author_ip', true );
 	$author_ip = ! empty( $author_ip )
-		? $r['before'] . esc_html( $author_ip ) . $r['after']
+		? $before_html . esc_html( $author_ip ) . $after_html
 		: '';
 
 	/**

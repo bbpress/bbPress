@@ -871,6 +871,16 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_get_single_forum_description
 	 */
+	public function test_forum_description_skips_non_string_wrappers() {
+		$forum_id = $this->factory->forum->create();
+		$args     = array( 'forum_id' => $forum_id, 'before' => array( 'invalid' ), 'after' => array( 'invalid' ) );
+
+		$this->assertSame( 'This forum is empty.', bbp_get_single_forum_description( $args ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_single_forum_description
+	 */
 	public function test_bbp_get_single_forum_description_can_be_disabled() {
 		$args                     = array( 'forum_id' => 123 );
 		$filtered_args            = array();

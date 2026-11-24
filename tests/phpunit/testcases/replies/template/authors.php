@@ -224,4 +224,16 @@ class BBP_Tests_Replies_Template_Authors extends BBP_UnitTestCase {
 		$this->expectOutputString( $expected );
 		bbp_reply_author_role( $args );
 	}
+
+	/**
+	 * @covers ::bbp_get_reply_author_role
+	 */
+	public function test_reply_author_role_skips_non_string_wrappers() {
+		$user_id  = $this->factory->user->create();
+		$topic_id = $this->factory->topic->create();
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id, 'post_author' => $user_id ) );
+		$args     = array( 'reply_id' => $reply_id, 'before' => array( 'invalid' ), 'after' => array( 'invalid' ) );
+
+		$this->assertSame( bbp_get_user_display_role( $user_id ), bbp_get_reply_author_role( $args ) );
+	}
 }

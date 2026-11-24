@@ -2931,7 +2931,9 @@ function bbp_get_single_forum_description( $args = array() ) {
 	add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 	// Combine the elements together
-	$retstr = $r['before'] . $retstr . $r['after'];
+	$before_html = bbp_get_template_string_arg( $r, 'before' );
+	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$retstr     = $before_html . $retstr . $after_html;
 
 	/**
 	 * Filters the description of a single forum.

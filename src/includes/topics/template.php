@@ -2157,14 +2157,17 @@ function bbp_get_topic_author_role( $args = array() ) {
 		$r['before'] = '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">';
 	}
 
+	$before_html = bbp_get_template_string_arg( $r, 'before' );
+	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+
 	// Backwards compatibilty with old 'class' argument
 	if ( ! empty( $r['class'] ) ) {
-		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $r['before'], $r['class'], $role, $r['after'] );
+		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $before_html, $r['class'], $role, $after_html );
 
 	// Simpler before & after arguments
 	// https://bbpress.trac.wordpress.org/ticket/2557
 	} else {
-		$author_role = $r['before'] . $role . $r['after'];
+		$author_role = $before_html . $role . $after_html;
 	}
 
 	/**
@@ -2991,6 +2994,11 @@ function bbp_get_topic_tag_list( $topic_id = 0, $args = array() ) {
 		'get_topic_tag_list'
 	);
 
+	$before_html = bbp_get_template_string_arg( $r, 'before' );
+	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$sep_html    = bbp_get_template_string_arg( $r, 'sep' );
+	$none_html   = bbp_get_template_string_arg( $r, 'none' );
+
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Topic is spammed, so display pre-spam terms
@@ -3001,19 +3009,19 @@ function bbp_get_topic_tag_list( $topic_id = 0, $args = array() ) {
 
 		// If terms exist, implode them and compile the return value
 		if ( ! empty( $terms ) ) {
-			$terms = $r['before'] . implode( $r['sep'], $terms ) . $r['after'];
+			$terms = $before_html . implode( $sep_html, $terms ) . $after_html;
 		}
 
 	// Topic is not spam so display a clickable term list
 	} else {
-		$terms = get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $r['before'], $r['sep'], $r['after'] );
+		$terms = get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $before_html, $sep_html, $after_html );
 	}
 
 	// No terms so return none string
-	if ( ! empty( $terms ) ) {
+	if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
 		$retval = $terms;
 	} else {
-		$retval = $r['none'];
+		$retval = $none_html;
 	}
 
 	return $retval;
@@ -4602,7 +4610,9 @@ function bbp_get_single_topic_description( $args = array() ) {
 	add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
 
 	// Combine the elements together
-	$retstr = $r['before'] . $retstr . $r['after'];
+	$before_html = bbp_get_template_string_arg( $r, 'before' );
+	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$retstr     = $before_html . $retstr . $after_html;
 
 	/**
 	 * Filters the description of a single topic.
@@ -5060,6 +5070,9 @@ function bbp_get_topic_tag_description( $args = array() ) {
 		'get_topic_tag_description'
 	);
 
+	$before_html = bbp_get_template_string_arg( $r, 'before' );
+	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+
 	// Get the term
 	$tag = $r['tag'];
 	if ( ! empty( $tag ) ) {
@@ -5071,7 +5084,7 @@ function bbp_get_topic_tag_description( $args = array() ) {
 
 	// Add before & after if description exists
 	$retval = ! empty( $term->description )
-		? $r['before'] . $term->description . $r['after']
+		? $before_html . $term->description . $after_html
 		: '';
 
 	/**

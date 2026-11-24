@@ -368,6 +368,18 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_single_topic_description
+	 */
+	public function test_topic_description_skips_non_string_wrappers() {
+		$topic_id = $this->factory->topic->create();
+		$args = array( 'topic_id' => $topic_id, 'before' => array( 'invalid' ), 'after' => array( 'invalid' ) );
+
+		$description = bbp_get_single_topic_description( $args );
+		$this->assertStringContainsString( 'This topic', $description );
+		$this->assertStringNotContainsString( 'Array', $description );
+	}
+
+	/**
 	 * @covers ::bbp_get_topic_pagination
 	 */
 	public function test_bbp_get_topic_pagination_with_missing_topic() {

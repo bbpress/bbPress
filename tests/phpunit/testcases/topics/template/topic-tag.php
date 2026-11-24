@@ -15,6 +15,10 @@ class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 		return new WP_Error( 'invalid_term_link' );
 	}
 
+	public function return_invalid_term_list() {
+		return new WP_Error( 'invalid_term_list' );
+	}
+
 	/**
 	 * @ticket BBP2989
 	 */
@@ -64,6 +68,42 @@ class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 			$this->assertSame( '', bbp_get_topic_tag_list( $topic_id, $args ) );
 		} finally {
 			remove_filter( 'bbp_allow_topic_tags', '__return_false' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_get_topic_tag_list
+	 * @covers ::bbp_get_topic_tag_description
+	 */
+	public function test_topic_tag_wrappers_skip_non_string_values() {
+		$topic_id = $this->factory->topic->create();
+		$term     = wp_insert_term( 'Alpha', bbp_get_topic_tag_tax_id(), array( 'slug' => 'alpha', 'description' => 'Alpha description' ) );
+		$this->assertFalse( is_wp_error( $term ) );
+		wp_set_object_terms( $topic_id, array( 'alpha', 'beta' ), bbp_get_topic_tag_tax_id() );
+
+		$args = array( 'before' => array( 'invalid' ), 'sep' => array( 'invalid' ), 'after' => array( 'invalid' ), 'none' => array( 'invalid' ) );
+		$list = bbp_get_topic_tag_list( $topic_id, $args );
+		$this->assertStringContainsString( '>Alpha</a>', $list );
+		$this->assertStringContainsString( '>beta</a>', $list );
+		$this->assertStringNotContainsString( 'Array', $list );
+		$this->assertSame( '', bbp_get_topic_tag_list( $this->factory->topic->create(), $args ) );
+
+		$args['tag'] = 'alpha';
+		$this->assertSame( 'Alpha description', bbp_get_topic_tag_description( $args ) );
+	}
+
+	/**
+	 * @covers ::bbp_get_topic_tag_list
+	 */
+	public function test_topic_tag_list_uses_fallback_after_term_error() {
+		$topic_id = $this->factory->topic->create();
+		wp_set_object_terms( $topic_id, 'alpha', bbp_get_topic_tag_tax_id() );
+		add_filter( 'get_the_terms', array( $this, 'return_invalid_term_list' ) );
+
+		try {
+			$this->assertSame( 'No tags', bbp_get_topic_tag_list( $topic_id, array( 'none' => 'No tags' ) ) );
+		} finally {
+			remove_filter( 'get_the_terms', array( $this, 'return_invalid_term_list' ) );
 		}
 	}
 
