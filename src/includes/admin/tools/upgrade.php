@@ -82,6 +82,11 @@ function bbp_admin_upgrade_user_mentions_process( $dry_run = false, $automatic =
 	}
 
 	$batch = bbp_admin_upgrade_user_mentions_batch( $dry_run );
+
+	$added_count     = bbp_admin_repair_tool_batch_count( $batch, 'added' );
+	$baselines_count = bbp_admin_repair_tool_batch_count( $batch, 'baselines' );
+	$posts_count     = bbp_admin_repair_tool_batch_count( $batch, 'posts' );
+	$removed_count   = bbp_admin_repair_tool_batch_count( $batch, 'removed' );
 	if ( $batch['code'] ) {
 		$message = $batch['message'] ? $batch['message'] : new WP_Error( 'bbp_mention_backfill_checkpoint', __( 'Could not save mention backfill progress. Run the tool again to resume.', 'bbpress' ) );
 		return array(
@@ -98,23 +103,23 @@ function bbp_admin_upgrade_user_mentions_process( $dry_run = false, $automatic =
 		$lines = array(
 			sprintf(
 				/* translators: %s: Number of topics and replies checked */
-				_n( '%s topic or reply checked.', '%s topics and replies checked.', $batch['posts'], 'bbpress' ),
-				number_format_i18n( $batch['posts'] )
+				_n( '%s topic or reply checked.', '%s topics and replies checked.', $posts_count, 'bbpress' ),
+				number_format_i18n( $posts_count )
 			),
 			sprintf(
 				/* translators: %s: Number of mentions to add */
-				_n( '%s mention added.', '%s mentions added.', $batch['added'], 'bbpress' ),
-				number_format_i18n( $batch['added'] )
+				_n( '%s mention added.', '%s mentions added.', $added_count, 'bbpress' ),
+				number_format_i18n( $added_count )
 			),
 			sprintf(
 				/* translators: %s: Number of mentions to remove */
-				_n( '%s mention removed.', '%s mentions removed.', $batch['removed'], 'bbpress' ),
-				number_format_i18n( $batch['removed'] )
+				_n( '%s mention removed.', '%s mentions removed.', $removed_count, 'bbpress' ),
+				number_format_i18n( $removed_count )
 			),
 			sprintf(
 				/* translators: %s: Number of posts whose email history needs updating */
-				_n( '%s post email history updated to prevent zombie notifications.', '%s post email histories updated to prevent zombie notifications.', $batch['baselines'], 'bbpress' ),
-				number_format_i18n( $batch['baselines'] )
+				_n( '%s post email history updated to prevent zombie notifications.', '%s post email histories updated to prevent zombie notifications.', $baselines_count, 'bbpress' ),
+				number_format_i18n( $baselines_count )
 			)
 		);
 		return array(
@@ -700,17 +705,19 @@ function bbp_admin_upgrade_user_engagements_process( $dry_run = false ) {
 
 	$batch     = bbp_admin_upgrade_user_engagements_batch( $dry_run );
 
+	$added_count   = bbp_admin_repair_tool_batch_count( $batch, 'added' );
+	$removed_count = bbp_admin_repair_tool_batch_count( $batch, 'removed' );
 	if ( $dry_run ) {
 		/* translators: %s: Number of missing engagements that would be added */
-		$added = sprintf( _n( '%s missing engagement would be added from topic and reply authors.', '%s missing engagements would be added from topic and reply authors.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
+		$added = sprintf( _n( '%s missing engagement would be added from topic and reply authors.', '%s missing engagements would be added from topic and reply authors.', $added_count, 'bbpress' ), bbp_number_format( $added_count ) );
 		/* translators: %s: Number of stale or duplicate engagement rows that would be removed */
-		$removed = sprintf( _n( '%s stale or duplicate engagement row would be cleaned up.', '%s stale or duplicate engagement rows would be cleaned up.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
+		$removed = sprintf( _n( '%s stale or duplicate engagement row would be cleaned up.', '%s stale or duplicate engagement rows would be cleaned up.', $removed_count, 'bbpress' ), bbp_number_format( $removed_count ) );
 		$result  = $added . "\n" . $removed;
 	} else {
 		/* translators: %s: Number of missing engagements added */
-		$added = sprintf( _n( '%s missing engagement added from topic and reply authors.', '%s missing engagements added from topic and reply authors.', $batch['added'], 'bbpress' ), bbp_number_format( $batch['added'] ) );
+		$added = sprintf( _n( '%s missing engagement added from topic and reply authors.', '%s missing engagements added from topic and reply authors.', $added_count, 'bbpress' ), bbp_number_format( $added_count ) );
 		/* translators: %s: Number of stale or duplicate engagement rows removed */
-		$removed = sprintf( _n( '%s stale or duplicate engagement row cleaned up.', '%s stale or duplicate engagement rows cleaned up.', $batch['removed'], 'bbpress' ), bbp_number_format( $batch['removed'] ) );
+		$removed = sprintf( _n( '%s stale or duplicate engagement row cleaned up.', '%s stale or duplicate engagement rows cleaned up.', $removed_count, 'bbpress' ), bbp_number_format( $removed_count ) );
 		$result  = $added . "\n" . $removed;
 	}
 
@@ -769,11 +776,11 @@ function bbp_admin_upgrade_group_forum_relationships_process( $dry_run = false )
  * @return array{0:int, 1:string|WP_Error, success?:bool, complete?:bool, batches?:int, error?:string} Status, message, success and completion.
  */
 function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run = false ) {
-	$groups       = $batch['groups'];
-	$forums       = $batch['forums'];
-	$statuses     = $batch['statuses'];
-	$root_updates = $batch['root'];
-	$renames      = $batch['rename'];
+	$groups       = bbp_admin_repair_tool_batch_count( $batch, 'groups' );
+	$forums       = bbp_admin_repair_tool_batch_count( $batch, 'forums' );
+	$statuses     = bbp_admin_repair_tool_batch_count( $batch, 'statuses' );
+	$root_updates = bbp_admin_repair_tool_batch_count( $batch, 'root' );
+	$renames      = bbp_admin_repair_tool_batch_count( $batch, 'rename' );
 	$legacy_roles = $batch['roles'];
 	$statement    = $dry_run
 		/* translators: %s: Status of the dry-run process */
@@ -795,9 +802,9 @@ function bbp_admin_upgrade_group_forum_relationships_results( $batch, $dry_run =
 			/* translators: %s: Number of forum statuses that would be synced */
 			sprintf( _n( '%s forum status would be synced', '%s forum statuses would be synced', $statuses, 'bbpress' ), bbp_number_format( $statuses ) ),
 			/* translators: %s: Number of group root settings that would be updated */
-			sprintf( _n( '%s group root setting would be updated', '%s group root settings would be updated', (int) $root_updates, 'bbpress' ), bbp_number_format( (int) $root_updates ) ),
+			sprintf( _n( '%s group root setting would be updated', '%s group root settings would be updated', $root_updates, 'bbpress' ), bbp_number_format( $root_updates ) ),
 			/* translators: %s: Number of forums that would be renamed */
-			sprintf( _n( '%s forum would be renamed', '%s forums would be renamed', (int) $renames, 'bbpress' ), bbp_number_format( (int) $renames ) ),
+			sprintf( _n( '%s forum would be renamed', '%s forums would be renamed', $renames, 'bbpress' ), bbp_number_format( $renames ) ),
 			/* translators: %1$s: Number of legacy roles that would be removed; %2$s: Legacy role IDs */
 			sprintf( _n( '%1$s legacy role would be removed (%2$s)', '%1$s legacy roles would be removed (%2$s)', count( $legacy_roles ), 'bbpress' ), bbp_number_format( count( $legacy_roles ) ), $role_list )
 		);
@@ -1093,8 +1100,8 @@ function bbp_admin_upgrade_user_meta_process( $type, $dry_run = false ) {
 	$old_key      = $config['source_key'];
 	$new_key      = $config['destination_key'];
 	$batch        = bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_run );
-	$total        = $batch['added'];
-	$failed_total = $batch['failed'];
+	$total        = bbp_admin_repair_tool_batch_count( $batch, 'added' );
+	$failed_total = bbp_admin_repair_tool_batch_count( $batch, 'failed' );
 
 	switch ( $type ) {
 		case 'favorites':
@@ -1492,7 +1499,7 @@ function bbp_admin_upgrade_remove_user_meta_process( $type = 'favorites', $dry_r
 		);
 	}
 
-	$total = $batch['removed'];
+	$total = bbp_admin_repair_tool_batch_count( $batch, 'removed' );
 	switch ( $type ) {
 		case 'topic-subscriptions':
 			if ( $dry_run ) {

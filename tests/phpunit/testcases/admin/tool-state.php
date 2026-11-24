@@ -148,6 +148,23 @@ class BBP_Tests_Admin_Tool_State extends BBP_UnitTestCase {
 		$this->assertSame( 'source-read', $batch['error'] );
 	}
 
+	public function test_batch_count_reports_invalid_values() {
+		$batch = bbp_admin_repair_tool_batch_status( array( 'repaired' => 3 ) );
+		$this->assertSame( 3, bbp_admin_repair_tool_batch_count( $batch, 'repaired' ) );
+		$this->assertSame( 0, $batch['code'] );
+
+		foreach ( array( null, '3', -1, array( 3 ) ) as $value ) {
+			$batch = bbp_admin_repair_tool_batch_status( array( 'repaired' => $value ) );
+			$this->assertSame( 0, bbp_admin_repair_tool_batch_count( $batch, 'repaired' ) );
+			$this->assertSame( BBP_Admin_Batch_Worker::RESULT_FAILED, $batch['code'] );
+			$this->assertSame( 'progress', $batch['error'] );
+		}
+
+		$batch = bbp_admin_repair_tool_batch_status();
+		$this->assertSame( 0, bbp_admin_repair_tool_batch_count( $batch, 'repaired' ) );
+		$this->assertSame( 'progress', $batch['error'] );
+	}
+
 	public function test_native_field_verification_rejects_successful_filters_and_transformed_values() {
 		$topic = $this->factory->topic->create();
 		add_post_meta( $topic, '_bbp_status', 'private' );

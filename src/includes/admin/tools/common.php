@@ -1598,6 +1598,25 @@ function bbp_admin_repair_tool_batch_fail( &$batch, $reason ) {
 }
 
 /**
+ * Read a non-negative batch counter before formatting a tool result.
+ *
+ * @since 2.7.0 bbPress (r8631)
+ * @access private
+ *
+ * @param array<string, mixed> $batch Current worker result.
+ * @param string $field Counter field name.
+ * @return int Counter value, or zero after recording an invalid result.
+ */
+function bbp_admin_repair_tool_batch_count( &$batch, $field ) {
+	if ( ! isset( $batch[ $field ] ) || ! is_int( $batch[ $field ] ) || ( $batch[ $field ] < 0 ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+		return 0;
+	}
+
+	return $batch[ $field ];
+}
+
+/**
  * Load one procedural worker checkpoint into its shared batch result.
  *
  * @since 2.7.0 bbPress (r8339)

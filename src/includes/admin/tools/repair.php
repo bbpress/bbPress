@@ -384,22 +384,23 @@ function bbp_admin_repair_topic_reply_count_process( $dry_run = false, $hidden =
 
 	$batch     = bbp_admin_repair_topic_reply_count_batch( $hidden, $dry_run );
 
+	$repaired_count = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	if ( $hidden ) {
 		if ( $dry_run ) {
 			/* translators: %d: Number of topics whose hidden reply counts would be repaired */
-			$result = sprintf( _n( 'Hidden reply counts would be repaired in %d topic.', 'Hidden reply counts would be repaired in %d topics.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			$result = sprintf( _n( 'Hidden reply counts would be repaired in %d topic.', 'Hidden reply counts would be repaired in %d topics.', $repaired_count, 'bbpress' ), $repaired_count );
 		} else {
 			/* translators: %d: Number of topics whose hidden reply counts were repaired */
-			$result = sprintf( _n( 'Hidden reply counts repaired in %d topic.', 'Hidden reply counts repaired in %d topics.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			$result = sprintf( _n( 'Hidden reply counts repaired in %d topic.', 'Hidden reply counts repaired in %d topics.', $repaired_count, 'bbpress' ), $repaired_count );
 		}
 	} elseif ( $dry_run ) {
 		/* translators: %d: Number of topics whose reply counts would be repaired */
-		$result = sprintf( _n( 'Reply counts would be repaired in %d topic.', 'Reply counts would be repaired in %d topics.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Reply counts would be repaired in %d topic.', 'Reply counts would be repaired in %d topics.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		/* translators: %d: Number of topics whose reply counts were repaired */
-		$result = sprintf( _n( 'Reply counts repaired in %d topic.', 'Reply counts repaired in %d topics.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Reply counts repaired in %d topic.', 'Reply counts repaired in %d topics.', $repaired_count, 'bbpress' ), $repaired_count );
 	}
-	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, $dry_run && empty( $batch['repaired'] ), $no_counts );
+	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, $dry_run && empty( $repaired_count ), $no_counts );
 }
 
 /**
@@ -699,23 +700,26 @@ function bbp_admin_repair_topic_voice_count_process( $dry_run = false ) {
 		$statement = esc_html__( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	}
 	$batch     = bbp_admin_repair_topic_voice_count_batch( $dry_run );
+
+	$engagements_count = bbp_admin_repair_tool_batch_count( $batch, 'engagements' );
+	$voices_count      = bbp_admin_repair_tool_batch_count( $batch, 'voices' );
 	if ( $dry_run ) {
 		/* translators: %d: Number of topics whose engagements would be repaired */
-		$engagements = sprintf( _n( 'Engagements would be repaired in %d topic.', 'Engagements would be repaired in %d topics.', $batch['engagements'], 'bbpress' ), $batch['engagements'] );
+		$engagements = sprintf( _n( 'Engagements would be repaired in %d topic.', 'Engagements would be repaired in %d topics.', $engagements_count, 'bbpress' ), $engagements_count );
 		/* translators: %d: Number of topics whose voice counts would be repaired */
-		$voices = sprintf( _n( 'Voice counts would be repaired in %d topic.', 'Voice counts would be repaired in %d topics.', $batch['voices'], 'bbpress' ), $batch['voices'] );
+		$voices = sprintf( _n( 'Voice counts would be repaired in %d topic.', 'Voice counts would be repaired in %d topics.', $voices_count, 'bbpress' ), $voices_count );
 	} else {
 		/* translators: %d: Number of topics whose engagements were repaired */
-		$engagements = sprintf( _n( 'Engagements repaired in %d topic.', 'Engagements repaired in %d topics.', $batch['engagements'], 'bbpress' ), $batch['engagements'] );
+		$engagements = sprintf( _n( 'Engagements repaired in %d topic.', 'Engagements repaired in %d topics.', $engagements_count, 'bbpress' ), $engagements_count );
 		/* translators: %d: Number of topics whose voice counts were repaired */
-		$voices = sprintf( _n( 'Voice counts repaired in %d topic.', 'Voice counts repaired in %d topics.', $batch['voices'], 'bbpress' ), $batch['voices'] );
+		$voices = sprintf( _n( 'Voice counts repaired in %d topic.', 'Voice counts repaired in %d topics.', $voices_count, 'bbpress' ), $voices_count );
 	}
 	return bbp_admin_repair_tool_present_batch(
 		$batch,
 		$statement,
 		$engagements . "\n" . $voices,
 		$dry_run,
-		$dry_run && ! $batch['engagements'] && ! $batch['voices'],
+		$dry_run && ! $engagements_count && ! $voices_count,
 		esc_html__( '0 topic engagements or voice counts to repair.', 'bbpress' )
 	);
 }
@@ -812,26 +816,28 @@ function bbp_admin_repair_forum_count_process( $type = 'topics', $dry_run = fals
 		}
 	}
 	$batch     = bbp_admin_repair_forum_count_batch( $type, $dry_run );
+
+	$repaired_count = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	if ( 'topics' === $type ) {
 		$result = $dry_run
 			/* translators: %d: Number of forums whose topic counts would be repaired */
-			? sprintf( _n( 'Topic counts would be repaired in %d forum.', 'Topic counts would be repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			? sprintf( _n( 'Topic counts would be repaired in %d forum.', 'Topic counts would be repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count )
 			/* translators: %d: Number of forums whose topic counts were repaired */
-			: sprintf( _n( 'Topic counts repaired in %d forum.', 'Topic counts repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			: sprintf( _n( 'Topic counts repaired in %d forum.', 'Topic counts repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count );
 	} elseif ( 'hidden-replies' === $type ) {
 		$result = $dry_run
 			/* translators: %d: Number of forums whose hidden reply counts would be repaired */
-			? sprintf( _n( 'Hidden reply counts would be repaired in %d forum.', 'Hidden reply counts would be repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			? sprintf( _n( 'Hidden reply counts would be repaired in %d forum.', 'Hidden reply counts would be repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count )
 			/* translators: %d: Number of forums whose hidden reply counts were repaired */
-			: sprintf( _n( 'Hidden reply counts repaired in %d forum.', 'Hidden reply counts repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			: sprintf( _n( 'Hidden reply counts repaired in %d forum.', 'Hidden reply counts repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		$result = $dry_run
 			/* translators: %d: Number of forums whose reply counts would be repaired */
-			? sprintf( _n( 'Reply counts would be repaired in %d forum.', 'Reply counts would be repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			? sprintf( _n( 'Reply counts would be repaired in %d forum.', 'Reply counts would be repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count )
 			/* translators: %d: Number of forums whose reply counts were repaired */
-			: sprintf( _n( 'Reply counts repaired in %d forum.', 'Reply counts repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			: sprintf( _n( 'Reply counts repaired in %d forum.', 'Reply counts repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count );
 	}
-	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, ! $batch['repaired'] && ( $dry_run || $batch['initial'] ), $none );
+	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, ! $repaired_count && ( $dry_run || $batch['initial'] ), $none );
 }
 
 /**
@@ -1104,19 +1110,21 @@ function bbp_admin_repair_forum_subforum_count_process( $dry_run = false ) {
 		$statement = esc_html__( 'Counting the number of subforums in each forum&hellip; %s', 'bbpress' );
 	}
 	$batch     = bbp_admin_repair_forum_subforum_count_batch( $dry_run );
+
+	$repaired_count = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	if ( $dry_run ) {
 		/* translators: %d: Number of forums whose subforum counts would be repaired */
-		$result = sprintf( _n( 'Subforum counts would be repaired in %d forum.', 'Subforum counts would be repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Subforum counts would be repaired in %d forum.', 'Subforum counts would be repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		/* translators: %d: Number of forums whose subforum counts were repaired */
-		$result = sprintf( _n( 'Subforum counts repaired in %d forum.', 'Subforum counts repaired in %d forums.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Subforum counts repaired in %d forum.', 'Subforum counts repaired in %d forums.', $repaired_count, 'bbpress' ), $repaired_count );
 	}
 	return bbp_admin_repair_tool_present_batch(
 		$batch,
 		$statement,
 		$result,
 		$dry_run,
-		empty( $batch['repaired'] ) && ( $dry_run || $batch['initial'] ),
+		empty( $repaired_count ) && ( $dry_run || $batch['initial'] ),
 		esc_html__( '0 forum subforum counts to repair.', 'bbpress' )
 	);
 }
@@ -1407,22 +1415,25 @@ function bbp_admin_repair_topic_tag_count_process( $dry_run = false ) {
 	}
 
 	$batch     = bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run );
+
+	$processed_count = bbp_admin_repair_tool_batch_count( $batch, 'processed' );
+	$repaired_count  = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	if ( $dry_run ) {
 		/* translators: %d: Number of topic-tags whose topic counts would be repaired */
-		$result = sprintf( _n( 'Topic counts would be repaired in %d topic-tag.', 'Topic counts would be repaired in %d topic-tags.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Topic counts would be repaired in %d topic-tag.', 'Topic counts would be repaired in %d topic-tags.', $repaired_count, 'bbpress' ), $repaired_count );
 	} elseif ( $standard ) {
 		/* translators: %d: Number of topic-tags whose topic counts were repaired */
-		$result = sprintf( _n( 'Topic counts repaired in %d topic-tag.', 'Topic counts repaired in %d topic-tags.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Topic counts repaired in %d topic-tag.', 'Topic counts repaired in %d topic-tags.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		/* translators: %d: Number of topic-tags passed to the configured count callback */
-		$result = sprintf( _n( 'Topic counts recounted in %d topic-tag.', 'Topic counts recounted in %d topic-tags.', $batch['processed'], 'bbpress' ), $batch['processed'] );
+		$result = sprintf( _n( 'Topic counts recounted in %d topic-tag.', 'Topic counts recounted in %d topic-tags.', $processed_count, 'bbpress' ), $processed_count );
 	}
 	return bbp_admin_repair_tool_present_batch(
 		$batch,
 		$statement,
 		$result,
 		$dry_run,
-		$standard && empty( $batch['repaired'] ) && ( $dry_run || $batch['initial'] ),
+		$standard && empty( $repaired_count ) && ( $dry_run || $batch['initial'] ),
 		esc_html__( '0 topic-tag counts to repair.', 'bbpress' )
 	);
 }
@@ -1661,22 +1672,23 @@ function bbp_admin_repair_user_post_count_process( $type, $dry_run = false ) {
 
 	$batch     = bbp_admin_repair_user_post_count_batch( $tool_id, $post_type, $statuses, $key, $dry_run );
 
+	$repaired_count = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	if ( $dry_run ) {
 		if ( 'topic' === $type ) {
 			/* translators: %d: Number of users whose topic counts would be repaired */
-			$result = sprintf( _n( 'Topic counts would be repaired for %d user.', 'Topic counts would be repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			$result = sprintf( _n( 'Topic counts would be repaired for %d user.', 'Topic counts would be repaired for %d users.', $repaired_count, 'bbpress' ), $repaired_count );
 		} else {
 			/* translators: %d: Number of users whose reply counts would be repaired */
-			$result = sprintf( _n( 'Reply counts would be repaired for %d user.', 'Reply counts would be repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			$result = sprintf( _n( 'Reply counts would be repaired for %d user.', 'Reply counts would be repaired for %d users.', $repaired_count, 'bbpress' ), $repaired_count );
 		}
 	} elseif ( 'topic' === $type ) {
 		/* translators: %d: Number of users whose topic counts were repaired */
-		$result = sprintf( _n( 'Topic counts repaired for %d user.', 'Topic counts repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Topic counts repaired for %d user.', 'Topic counts repaired for %d users.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		/* translators: %d: Number of users whose reply counts were repaired */
-		$result = sprintf( _n( 'Reply counts repaired for %d user.', 'Reply counts repaired for %d users.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( 'Reply counts repaired for %d user.', 'Reply counts repaired for %d users.', $repaired_count, 'bbpress' ), $repaired_count );
 	}
-	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, $dry_run && empty( $batch['repaired'] ), $no_counts );
+	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, $dry_run && empty( $repaired_count ), $no_counts );
 }
 
 /**
@@ -2113,11 +2125,13 @@ function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = fal
 		}
 	}
 	$batch     = bbp_admin_repair_user_meta_batch( $type, $dry_run );
+
+	$repaired_count = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	$statement = bbp_admin_repair_tool_restart_statement( $statement, $batch['restarted'], $dry_run );
 	if ( $batch['code'] ) {
 		return bbp_admin_repair_tool_batch_result( $batch, $statement );
 	}
-	if ( $batch['empty'] || ( $batch['complete'] && ! $batch['repaired'] && ( $dry_run || $batch['initial'] ) ) ) {
+	if ( $batch['empty'] || ( $batch['complete'] && ! $repaired_count && ( $dry_run || $batch['initial'] ) ) ) {
 		return array(
 			$dry_run ? 1 : 0,
 			sprintf( $statement, $dry_run ? $none : esc_html__( 'Nothing to remove!', 'bbpress' ) ),
@@ -2128,21 +2142,21 @@ function bbp_admin_repair_user_meta_process( $type = 'favorites', $dry_run = fal
 	if ( 'favorites' === $type ) {
 		$result = $dry_run
 			/* translators: %d: Number of stored favorite lists that would be repaired */
-			? sprintf( _n( '%d stored favorite list would be repaired.', '%d stored favorite lists would be repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			? sprintf( _n( '%d stored favorite list would be repaired.', '%d stored favorite lists would be repaired.', $repaired_count, 'bbpress' ), $repaired_count )
 			/* translators: %d: Number of stored favorite lists repaired */
-			: sprintf( _n( '%d stored favorite list repaired.', '%d stored favorite lists repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			: sprintf( _n( '%d stored favorite list repaired.', '%d stored favorite lists repaired.', $repaired_count, 'bbpress' ), $repaired_count );
 	} elseif ( 'forum-subscriptions' === $type ) {
 		$result = $dry_run
 			/* translators: %d: Number of stored forum subscription lists that would be repaired */
-			? sprintf( _n( '%d stored forum subscription list would be repaired.', '%d stored forum subscription lists would be repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			? sprintf( _n( '%d stored forum subscription list would be repaired.', '%d stored forum subscription lists would be repaired.', $repaired_count, 'bbpress' ), $repaired_count )
 			/* translators: %d: Number of stored forum subscription lists repaired */
-			: sprintf( _n( '%d stored forum subscription list repaired.', '%d stored forum subscription lists repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			: sprintf( _n( '%d stored forum subscription list repaired.', '%d stored forum subscription lists repaired.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		$result = $dry_run
 			/* translators: %d: Number of stored topic subscription lists that would be repaired */
-			? sprintf( _n( '%d stored topic subscription list would be repaired.', '%d stored topic subscription lists would be repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] )
+			? sprintf( _n( '%d stored topic subscription list would be repaired.', '%d stored topic subscription lists would be repaired.', $repaired_count, 'bbpress' ), $repaired_count )
 			/* translators: %d: Number of stored topic subscription lists repaired */
-			: sprintf( _n( '%d stored topic subscription list repaired.', '%d stored topic subscription lists repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+			: sprintf( _n( '%d stored topic subscription list repaired.', '%d stored topic subscription lists repaired.', $repaired_count, 'bbpress' ), $repaired_count );
 	}
 	return bbp_admin_repair_tool_batch_result( $batch, $statement, $result, $dry_run );
 }
@@ -2602,7 +2616,7 @@ function bbp_admin_repair_user_roles_process( $dry_run = false ) {
 		$statement = esc_html__( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
 	}
 	$batch     = bbp_admin_repair_user_roles_batch( $dry_run );
-	$total = $batch['changed'];
+	$total = bbp_admin_repair_tool_batch_count( $batch, 'changed' );
 	if ( $dry_run ) {
 		/* translators: %s: Number of forum role assignments that would change */
 		$result = sprintf( _n( '%s forum role assignment would be repaired.', '%s forum role assignments would be repaired.', $total, 'bbpress' ), bbp_number_format( $total ) );
@@ -2666,27 +2680,31 @@ function bbp_admin_repair_freshness_process( $dry_run = false ) {
 		/* translators: %s: Repair result */
 		: esc_html__( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
 	$batch     = bbp_admin_repair_freshness_batch( $dry_run );
+
+	$forums_count = bbp_admin_repair_tool_batch_count( $batch, 'forums' );
+	$stale_count  = bbp_admin_repair_tool_batch_count( $batch, 'stale' );
+	$topics_count = bbp_admin_repair_tool_batch_count( $batch, 'topics' );
 	if ( $dry_run ) {
 		/* translators: %s: Number of topics */
-		$topics = sprintf( esc_html( _n( '%s topic would be recalculated.', '%s topics would be recalculated.', $batch['topics'], 'bbpress' ) ), bbp_number_format( $batch['topics'] ) );
+		$topics = sprintf( esc_html( _n( '%s topic would be recalculated.', '%s topics would be recalculated.', $topics_count, 'bbpress' ) ), bbp_number_format( $topics_count ) );
 		/* translators: %s: Number of forums */
-		$forums = sprintf( esc_html( _n( '%s forum would be recalculated.', '%s forums would be recalculated.', $batch['forums'], 'bbpress' ) ), bbp_number_format( $batch['forums'] ) );
+		$forums = sprintf( esc_html( _n( '%s forum would be recalculated.', '%s forums would be recalculated.', $forums_count, 'bbpress' ) ), bbp_number_format( $forums_count ) );
 		/* translators: %s: Number of orphaned freshness rows */
-		$stale = sprintf( esc_html( _n( '%s orphaned freshness row would be removed.', '%s orphaned freshness rows would be removed.', $batch['stale'], 'bbpress' ) ), bbp_number_format( $batch['stale'] ) );
+		$stale = sprintf( esc_html( _n( '%s orphaned freshness row would be removed.', '%s orphaned freshness rows would be removed.', $stale_count, 'bbpress' ) ), bbp_number_format( $stale_count ) );
 	} else {
 		/* translators: %s: Number of topics */
-		$topics = sprintf( esc_html( _n( '%s topic recalculated.', '%s topics recalculated.', $batch['topics'], 'bbpress' ) ), bbp_number_format( $batch['topics'] ) );
+		$topics = sprintf( esc_html( _n( '%s topic recalculated.', '%s topics recalculated.', $topics_count, 'bbpress' ) ), bbp_number_format( $topics_count ) );
 		/* translators: %s: Number of forums */
-		$forums = sprintf( esc_html( _n( '%s forum recalculated.', '%s forums recalculated.', $batch['forums'], 'bbpress' ) ), bbp_number_format( $batch['forums'] ) );
+		$forums = sprintf( esc_html( _n( '%s forum recalculated.', '%s forums recalculated.', $forums_count, 'bbpress' ) ), bbp_number_format( $forums_count ) );
 		/* translators: %s: Number of orphaned freshness rows */
-		$stale = sprintf( esc_html( _n( '%s orphaned freshness row removed.', '%s orphaned freshness rows removed.', $batch['stale'], 'bbpress' ) ), bbp_number_format( $batch['stale'] ) );
+		$stale = sprintf( esc_html( _n( '%s orphaned freshness row removed.', '%s orphaned freshness rows removed.', $stale_count, 'bbpress' ) ), bbp_number_format( $stale_count ) );
 	}
 	return bbp_admin_repair_tool_present_batch(
 		$batch,
 		$statement,
 		$topics . "\n" . $forums . "\n" . $stale,
 		$dry_run,
-		$batch['initial'] && ! $batch['topics'] && ! $batch['forums'] && ! $batch['stale'],
+		$batch['initial'] && ! $topics_count && ! $forums_count && ! $stale_count,
 		esc_html__( '0 topic or forum freshness records to recalculate.', 'bbpress' )
 	);
 }
@@ -3082,6 +3100,8 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
  */
 function bbp_admin_repair_sticky_process( $dry_run = false ) {
 	$batch = bbp_admin_repair_sticky_batch( $dry_run );
+
+	$repaired_count = bbp_admin_repair_tool_batch_count( $batch, 'repaired' );
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking sticky topic assignments&hellip; %s', 'bbpress' );
@@ -3091,10 +3111,10 @@ function bbp_admin_repair_sticky_process( $dry_run = false ) {
 	}
 	if ( $dry_run ) {
 		/* translators: %d: Number of sticky topic assignments that would be repaired */
-		$result = sprintf( _n( '%d sticky topic assignment would be repaired.', '%d sticky topic assignments would be repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( '%d sticky topic assignment would be repaired.', '%d sticky topic assignments would be repaired.', $repaired_count, 'bbpress' ), $repaired_count );
 	} else {
 		/* translators: %d: Number of repaired sticky topic assignments */
-		$result = sprintf( _n( '%d sticky topic assignment repaired.', '%d sticky topic assignments repaired.', $batch['repaired'], 'bbpress' ), $batch['repaired'] );
+		$result = sprintf( _n( '%d sticky topic assignment repaired.', '%d sticky topic assignments repaired.', $repaired_count, 'bbpress' ), $repaired_count );
 	}
 	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run );
 }
@@ -3238,12 +3258,14 @@ function bbp_admin_repair_closed_topics_process( $dry_run = false ) {
 		$statement = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
 	}
 	$batch     = bbp_admin_repair_closed_topics_batch( $dry_run );
+
+	$changed_count = bbp_admin_repair_tool_batch_count( $batch, 'changed' );
 	if ( $dry_run ) {
 		/* translators: %d: Number of closed topics that would be repaired */
-		$result = sprintf( _n( '%d closed topic would be repaired.', '%d closed topics would be repaired.', $batch['changed'], 'bbpress' ), $batch['changed'] );
+		$result = sprintf( _n( '%d closed topic would be repaired.', '%d closed topics would be repaired.', $changed_count, 'bbpress' ), $changed_count );
 	} else {
 		/* translators: %d: Number of repaired topics */
-		$result = sprintf( _n( '%d closed topic repaired.', '%d closed topics repaired.', $batch['changed'], 'bbpress' ), $batch['changed'] );
+		$result = sprintf( _n( '%d closed topic repaired.', '%d closed topics repaired.', $changed_count, 'bbpress' ), $changed_count );
 	}
 	return bbp_admin_repair_tool_present_batch( $batch, $statement, $result, $dry_run, ! $batch['processed'], esc_html__( '0 closed topics to repair.', 'bbpress' ) );
 }
@@ -3564,6 +3586,10 @@ function bbp_admin_repair_forum_visibility_batch( $dry_run = false ) {
  */
 function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 	$batch = bbp_admin_repair_forum_visibility_batch( $dry_run );
+
+	$checked_count = bbp_admin_repair_tool_batch_count( $batch, 'checked' );
+	$hidden_count  = bbp_admin_repair_tool_batch_count( $batch, 'hidden' );
+	$private_count = bbp_admin_repair_tool_batch_count( $batch, 'private' );
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking forum visibility&hellip; %s', 'bbpress' );
@@ -3572,27 +3598,36 @@ function bbp_admin_repair_forum_visibility_process( $dry_run = false ) {
 		$statement = esc_html__( 'Recalculating forum visibility&hellip; %s', 'bbpress' );
 	}
 	/* translators: %s: Number of non-public forums checked in this batch */
-	$checked = sprintf( esc_html( _n( '%s non-public forum checked.', '%s non-public forums checked.', $batch['checked'], 'bbpress' ) ), bbp_number_format( $batch['checked'] ) );
+	$checked = sprintf( esc_html( _n( '%s non-public forum checked.', '%s non-public forums checked.', $checked_count, 'bbpress' ) ), bbp_number_format( $checked_count ) );
 	$details = array( $checked );
 	if ( $dry_run ) {
 		/* translators: %s: Number of private forum visibility entries */
-		$private = _n( '%s private forum visibility entry would be repaired.', '%s private forum visibility entries would be repaired.', $batch['private'], 'bbpress' );
+		$private = _n( '%s private forum visibility entry would be repaired.', '%s private forum visibility entries would be repaired.', $private_count, 'bbpress' );
 		/* translators: %s: Number of hidden forum visibility entries */
-		$hidden = _n( '%s hidden forum visibility entry would be repaired.', '%s hidden forum visibility entries would be repaired.', $batch['hidden'], 'bbpress' );
+		$hidden = _n( '%s hidden forum visibility entry would be repaired.', '%s hidden forum visibility entries would be repaired.', $hidden_count, 'bbpress' );
 	} else {
 		/* translators: %s: Number of private forum visibility entries */
-		$private = _n( '%s private forum visibility entry repaired.', '%s private forum visibility entries repaired.', $batch['private'], 'bbpress' );
+		$private = _n( '%s private forum visibility entry repaired.', '%s private forum visibility entries repaired.', $private_count, 'bbpress' );
 		/* translators: %s: Number of hidden forum visibility entries */
-		$hidden = _n( '%s hidden forum visibility entry repaired.', '%s hidden forum visibility entries repaired.', $batch['hidden'], 'bbpress' );
+		$hidden = _n( '%s hidden forum visibility entry repaired.', '%s hidden forum visibility entries repaired.', $hidden_count, 'bbpress' );
 	}
 	$messages = array(
 		'private' => $private,
 		'hidden'  => $hidden,
 	);
-	foreach ( $batch['evaluated'] as $type ) {
-		$details[] = sprintf( esc_html( $messages[ $type ] ), bbp_number_format( $batch[ $type ] ) );
+	$evaluated = isset( $batch['evaluated'] ) ? $batch['evaluated'] : null;
+	if ( ! is_array( $evaluated ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+		$evaluated = array();
 	}
-	if ( count( $batch['evaluated'] ) < 2 ) {
+	foreach ( $evaluated as $type ) {
+		if ( ! is_string( $type ) || ! isset( $messages[ $type ] ) ) {
+			bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+			continue;
+		}
+		$details[] = sprintf( esc_html( $messages[ $type ] ), bbp_number_format( bbp_admin_repair_tool_batch_count( $batch, $type ) ) );
+	}
+	if ( count( $evaluated ) < 2 ) {
 		$details[] = esc_html__( 'Visibility counts are not complete yet.', 'bbpress' );
 	}
 	return bbp_admin_repair_tool_present_batch(
@@ -3662,48 +3697,53 @@ function bbp_admin_repair_forum_meta_process( $dry_run = false ) {
 	}
 
 	$batch     = bbp_admin_repair_forum_meta_batch( $dry_run );
-	$repaired = $batch['forums'] + $batch['topics'] + $batch['replies'] + $batch['stale'];
+
+	$forums_count  = bbp_admin_repair_tool_batch_count( $batch, 'forums' );
+	$replies_count = bbp_admin_repair_tool_batch_count( $batch, 'replies' );
+	$stale_count   = bbp_admin_repair_tool_batch_count( $batch, 'stale' );
+	$topics_count  = bbp_admin_repair_tool_batch_count( $batch, 'topics' );
+	$repaired = $forums_count + $topics_count + $replies_count + $stale_count;
 	if ( $dry_run ) {
 		$forum_result = sprintf(
 			/* translators: %s: Number of forum parent references */
-			esc_html( _n( '%s forum parent reference would be repaired.', '%s forum parent references would be repaired.', $batch['forums'], 'bbpress' ) ),
-			bbp_number_format( $batch['forums'] )
+			esc_html( _n( '%s forum parent reference would be repaired.', '%s forum parent references would be repaired.', $forums_count, 'bbpress' ) ),
+			bbp_number_format( $forums_count )
 		);
 		$topic_result = sprintf(
 			/* translators: %s: Number of topic parent forum references */
-			esc_html( _n( '%s topic parent forum reference would be repaired.', '%s topic parent forum references would be repaired.', $batch['topics'], 'bbpress' ) ),
-			bbp_number_format( $batch['topics'] )
+			esc_html( _n( '%s topic parent forum reference would be repaired.', '%s topic parent forum references would be repaired.', $topics_count, 'bbpress' ) ),
+			bbp_number_format( $topics_count )
 		);
 		$reply_result = sprintf(
 			/* translators: %s: Number of reply parent forum references */
-			esc_html( _n( '%s reply parent forum reference would be repaired.', '%s reply parent forum references would be repaired.', $batch['replies'], 'bbpress' ) ),
-			bbp_number_format( $batch['replies'] )
+			esc_html( _n( '%s reply parent forum reference would be repaired.', '%s reply parent forum references would be repaired.', $replies_count, 'bbpress' ) ),
+			bbp_number_format( $replies_count )
 		);
 		$stale_result = sprintf(
 			/* translators: %s: Number of orphaned parent forum references */
-			esc_html( _n( '%s orphaned parent forum reference would be removed.', '%s orphaned parent forum references would be removed.', $batch['stale'], 'bbpress' ) ),
-			bbp_number_format( $batch['stale'] )
+			esc_html( _n( '%s orphaned parent forum reference would be removed.', '%s orphaned parent forum references would be removed.', $stale_count, 'bbpress' ) ),
+			bbp_number_format( $stale_count )
 		);
 	} else {
 		$forum_result = sprintf(
 			/* translators: %s: Number of forum parent references */
-			esc_html( _n( '%s forum parent reference repaired.', '%s forum parent references repaired.', $batch['forums'], 'bbpress' ) ),
-			bbp_number_format( $batch['forums'] )
+			esc_html( _n( '%s forum parent reference repaired.', '%s forum parent references repaired.', $forums_count, 'bbpress' ) ),
+			bbp_number_format( $forums_count )
 		);
 		$topic_result = sprintf(
 			/* translators: %s: Number of topic parent forum references */
-			esc_html( _n( '%s topic parent forum reference repaired.', '%s topic parent forum references repaired.', $batch['topics'], 'bbpress' ) ),
-			bbp_number_format( $batch['topics'] )
+			esc_html( _n( '%s topic parent forum reference repaired.', '%s topic parent forum references repaired.', $topics_count, 'bbpress' ) ),
+			bbp_number_format( $topics_count )
 		);
 		$reply_result = sprintf(
 			/* translators: %s: Number of reply parent forum references */
-			esc_html( _n( '%s reply parent forum reference repaired.', '%s reply parent forum references repaired.', $batch['replies'], 'bbpress' ) ),
-			bbp_number_format( $batch['replies'] )
+			esc_html( _n( '%s reply parent forum reference repaired.', '%s reply parent forum references repaired.', $replies_count, 'bbpress' ) ),
+			bbp_number_format( $replies_count )
 		);
 		$stale_result = sprintf(
 			/* translators: %s: Number of orphaned parent forum references */
-			esc_html( _n( '%s orphaned parent forum reference removed.', '%s orphaned parent forum references removed.', $batch['stale'], 'bbpress' ) ),
-			bbp_number_format( $batch['stale'] )
+			esc_html( _n( '%s orphaned parent forum reference removed.', '%s orphaned parent forum references removed.', $stale_count, 'bbpress' ) ),
+			bbp_number_format( $stale_count )
 		);
 	}
 	return bbp_admin_repair_tool_present_batch(
@@ -3776,37 +3816,41 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 		$statement = esc_html__( 'Recalculating topic references&hellip; %s', 'bbpress' );
 	}
 	$batch     = bbp_admin_repair_topic_meta_batch( $dry_run );
+
+	$replies_count = bbp_admin_repair_tool_batch_count( $batch, 'replies' );
+	$stale_count   = bbp_admin_repair_tool_batch_count( $batch, 'stale' );
+	$topics_count  = bbp_admin_repair_tool_batch_count( $batch, 'topics' );
 	if ( $dry_run ) {
 		$topics = sprintf(
 			/* translators: %s: Number of topic self-references */
-			esc_html( _n( '%s topic self-reference would be repaired.', '%s topic self-references would be repaired.', $batch['topics'], 'bbpress' ) ),
-			bbp_number_format( $batch['topics'] )
+			esc_html( _n( '%s topic self-reference would be repaired.', '%s topic self-references would be repaired.', $topics_count, 'bbpress' ) ),
+			bbp_number_format( $topics_count )
 		);
 		$replies = sprintf(
 			/* translators: %s: Number of reply parent topic references */
-			esc_html( _n( '%s reply parent topic reference would be repaired.', '%s reply parent topic references would be repaired.', $batch['replies'], 'bbpress' ) ),
-			bbp_number_format( $batch['replies'] )
+			esc_html( _n( '%s reply parent topic reference would be repaired.', '%s reply parent topic references would be repaired.', $replies_count, 'bbpress' ) ),
+			bbp_number_format( $replies_count )
 		);
 		$stale = sprintf(
 			/* translators: %s: Number of orphaned topic references */
-			esc_html( _n( '%s orphaned topic reference would be removed.', '%s orphaned topic references would be removed.', $batch['stale'], 'bbpress' ) ),
-			bbp_number_format( $batch['stale'] )
+			esc_html( _n( '%s orphaned topic reference would be removed.', '%s orphaned topic references would be removed.', $stale_count, 'bbpress' ) ),
+			bbp_number_format( $stale_count )
 		);
 	} else {
 		$topics = sprintf(
 			/* translators: %s: Number of topic self-references */
-			esc_html( _n( '%s topic self-reference repaired.', '%s topic self-references repaired.', $batch['topics'], 'bbpress' ) ),
-			bbp_number_format( $batch['topics'] )
+			esc_html( _n( '%s topic self-reference repaired.', '%s topic self-references repaired.', $topics_count, 'bbpress' ) ),
+			bbp_number_format( $topics_count )
 		);
 		$replies = sprintf(
 			/* translators: %s: Number of reply parent topic references */
-			esc_html( _n( '%s reply parent topic reference repaired.', '%s reply parent topic references repaired.', $batch['replies'], 'bbpress' ) ),
-			bbp_number_format( $batch['replies'] )
+			esc_html( _n( '%s reply parent topic reference repaired.', '%s reply parent topic references repaired.', $replies_count, 'bbpress' ) ),
+			bbp_number_format( $replies_count )
 		);
 		$stale = sprintf(
 			/* translators: %s: Number of orphaned topic references */
-			esc_html( _n( '%s orphaned topic reference removed.', '%s orphaned topic references removed.', $batch['stale'], 'bbpress' ) ),
-			bbp_number_format( $batch['stale'] )
+			esc_html( _n( '%s orphaned topic reference removed.', '%s orphaned topic references removed.', $stale_count, 'bbpress' ) ),
+			bbp_number_format( $stale_count )
 		);
 	}
 	return bbp_admin_repair_tool_present_batch(
@@ -3814,7 +3858,7 @@ function bbp_admin_repair_topic_meta_process( $dry_run = false ) {
 		$statement,
 		$topics . "\n" . $replies . "\n" . $stale,
 		$dry_run,
-		! $batch['topics'] && ! $batch['replies'] && ! $batch['stale'] && ( $dry_run || $batch['initial'] ),
+		! $topics_count && ! $replies_count && ! $stale_count && ( $dry_run || $batch['initial'] ),
 		esc_html__( '0 topic references to repair.', 'bbpress' )
 	);
 }
@@ -4194,6 +4238,9 @@ function bbp_admin_repair_reply_menu_order_batch( $dry_run = false ) {
  */
 function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 	$batch = bbp_admin_repair_reply_menu_order_batch( $dry_run );
+
+	$positions_count     = bbp_admin_repair_tool_batch_count( $batch, 'positions' );
+	$relationships_count = bbp_admin_repair_tool_batch_count( $batch, 'relationships' );
 	if ( $dry_run ) {
 		/* translators: %s: Status of the dry-run process */
 		$statement = esc_html__( 'Checking reply menu order&hellip; %s', 'bbpress' );
@@ -4203,17 +4250,17 @@ function bbp_admin_repair_reply_menu_order_process( $dry_run = false ) {
 	}
 	if ( $dry_run ) {
 		/* translators: %s: Number of self-referential reply-to references */
-		$relationships = _n( '%s self-referential reply-to reference would be removed.', '%s self-referential reply-to references would be removed.', $batch['relationships'], 'bbpress' );
+		$relationships = _n( '%s self-referential reply-to reference would be removed.', '%s self-referential reply-to references would be removed.', $relationships_count, 'bbpress' );
 		/* translators: %s: Number of reply positions */
-		$positions = _n( '%s reply position would be recalculated.', '%s reply positions would be recalculated.', $batch['positions'], 'bbpress' );
+		$positions = _n( '%s reply position would be recalculated.', '%s reply positions would be recalculated.', $positions_count, 'bbpress' );
 	} else {
 		/* translators: %s: Number of removed self-referential reply-to references */
-		$relationships = _n( '%s self-referential reply-to reference was removed.', '%s self-referential reply-to references were removed.', $batch['relationships'], 'bbpress' );
+		$relationships = _n( '%s self-referential reply-to reference was removed.', '%s self-referential reply-to references were removed.', $relationships_count, 'bbpress' );
 		/* translators: %s: Number of recalculated reply positions */
-		$positions = _n( '%s reply position was recalculated.', '%s reply positions were recalculated.', $batch['positions'], 'bbpress' );
+		$positions = _n( '%s reply position was recalculated.', '%s reply positions were recalculated.', $positions_count, 'bbpress' );
 	}
-	$details = sprintf( esc_html( $relationships ), bbp_number_format( $batch['relationships'] ) ) . "\n"
-		. sprintf( esc_html( $positions ), bbp_number_format( $batch['positions'] ) );
+	$details = sprintf( esc_html( $relationships ), bbp_number_format( $relationships_count ) ) . "\n"
+		. sprintf( esc_html( $positions ), bbp_number_format( $positions_count ) );
 	return bbp_admin_repair_tool_present_batch(
 		$batch,
 		$statement,
