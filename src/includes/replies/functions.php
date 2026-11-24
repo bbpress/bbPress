@@ -506,7 +506,7 @@ function bbp_new_reply_handler( $action = '' ) {
 		 *
 		 * @since 2.0.0 bbPress (r3255)
 		 *
-		 * @param array $terms The terms assigned when a reply is created.
+		 * @param string $terms Topic tag names assigned when a reply is created.
 		 * @param int $topic_id Topic id.
 		 * @param int $reply_id Reply id.
 		 */
@@ -924,7 +924,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		 *
 		 * @since 2.0.0 bbPress (r3255)
 		 *
-		 * @param array $terms The terms assigned when a reply is edited.
+		 * @param string $terms Topic tag names assigned when a reply is edited.
 		 * @param int $topic_id Topic id.
 		 * @param int $reply_id Reply id.
 		 */

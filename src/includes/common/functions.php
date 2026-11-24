@@ -2637,7 +2637,7 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 	 *
 	 * @since 2.6.0 bbPress (r6725)
 	 *
-	 * @param int $limit The maximum number of users processed in one batch.
+	 * @param positive-int $limit The maximum number of users processed in one batch; must exceed zero.
 	 */
 	$limit    = apply_filters( 'bbp_get_users_chunk_limit', 100 );
 
@@ -3842,7 +3842,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	 *
 	 * @since 2.0.0 bbPress (r2868)
 	 *
-	 * @param int|false $child_id Last active child post ID, or false without a parent.
+	 * @param mixed $child_id Last active child post ID or post object, or null when none is found.
 	 * @param int $parent_id Parent id.
 	 * @param string $post_type Post type. Defaults to 'post'.
 	 */
@@ -4255,7 +4255,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	 *
 	 * @since 2.0.0 bbPress (r2891)
 	 *
-	 * @param array<array-key, int> $child_ids Child post IDs.
+	 * @param mixed $child_ids Child post IDs or post objects returned by the query.
 	 * @param int $parent_id Parent id.
 	 * @param string $post_type Post type. Defaults to 'post'.
 	 */

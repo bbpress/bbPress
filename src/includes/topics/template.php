@@ -804,7 +804,7 @@ function bbp_get_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param string $topic_permalink Permanent link to topic.
+	 * @param mixed $topic_permalink Topic permalink, or false when unavailable.
 	 * @param int $topic_id Topic id.
 	 */
 	return apply_filters( 'bbp_get_topic_permalink', $topic_permalink, $topic_id );
@@ -1058,8 +1058,8 @@ function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false
 	 * @param int $topic_id Topic id.
 	 * @param bool $humanize Humanize output using time_since.
 	 * @param bool $gmt Use GMT.
-	 * @param string $date Formatted date.
-	 * @param string $time Formatted time.
+	 * @param int|string|false $date Formatted date or timestamp, or false when unavailable.
+	 * @param int|string|false $time Formatted time or timestamp, or false when unavailable.
 	 * @param string $date_format PHP date format. Defaults to the WordPress date format. Ignored when `$humanize` is true.
 	 */
 	return apply_filters( 'bbp_get_topic_post_date', $result, $topic_id, $humanize, $gmt, $date, $time, $date_format );
@@ -1162,7 +1162,7 @@ function bbp_get_topic_pagination( $args = array() ) {
 	 *
 	 * @since 2.0.0 bbPress (r2967)
 	 *
-	 * @param string|null $pagination_links Pagination links, or null when replies are threaded.
+	 * @param mixed $pagination_links Pagination HTML, an empty array, or null when replies are threaded.
 	 * @param array<string, mixed> $args Arguments passed to the function.
 	 */
 	return apply_filters( 'bbp_get_topic_pagination', $pagination_links, $args );
@@ -1329,7 +1329,7 @@ function bbp_get_topic_revisions( $topic_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2782)
 	 *
-	 * @param WP_Post[] $revisions Topic revisions, keyed by revision ID.
+	 * @param mixed $revisions Topic revision IDs or posts, keyed by revision ID.
 	 * @param int $topic_id Topic id.
 	 */
 	return apply_filters( 'bbp_get_topic_revisions', $revisions, $topic_id );
@@ -1452,7 +1452,7 @@ function bbp_get_topic_status( $topic_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2667)
 	 *
-	 * @param string $value Status of topic.
+	 * @param mixed $value Status of topic.
 	 * @param int $topic_id Topic id.
 	 */
 	return apply_filters( 'bbp_get_topic_status', get_post_status( $topic_id ), $topic_id );
@@ -1860,7 +1860,7 @@ function bbp_get_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2590)
 	 *
-	 * @param string $author_avatar Avatar of the author of the topic.
+	 * @param mixed $author_avatar Avatar of the author of the topic.
 	 * @param int $topic_id Topic id.
 	 * @param int $size Avatar size. Defaults to 40.
 	 */
@@ -3083,7 +3083,7 @@ function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
 	 *
 	 * @since 2.0.0 bbPress (r2678)
 	 *
-	 * @param array $classes The CSS classes on a topic row.
+	 * @param array<array-key, string> $post_classes The CSS classes on a topic row.
 	 * @param int $topic_id Topic id.
 	 * @param array<array-key, string> $classes Classes.
 	 */
@@ -4073,7 +4073,7 @@ function bbp_get_forum_pagination_links() {
 	 *
 	 * @since 2.0.0 bbPress (r2740)
 	 *
-	 * @param string|false $pagination_links Forum pagination links, or false when unavailable.
+	 * @param mixed $pagination_links Forum pagination HTML, a list of links, or null.
 	 */
 	return apply_filters( 'bbp_get_forum_pagination_links', $bbp->topic_query->pagination_links );
 }
@@ -4257,7 +4257,7 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
 	 *
 	 * @since 2.4.0 bbPress (r5060)
 	 *
-	 * @param string $value Topic type dropdown markup, or an empty string when unavailable.
+	 * @param mixed $value Topic type dropdown markup, or an empty string when unavailable.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args Arguments passed to the function.
 	 */
@@ -4350,7 +4350,7 @@ function bbp_get_form_topic_status_dropdown( $args = array() ) {
 	 *
 	 * @since 2.4.0 bbPress (r5060)
 	 *
-	 * @param string $value Topic status dropdown markup.
+	 * @param mixed $value Topic status dropdown markup.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args Arguments passed to the function.
 	 */
@@ -4660,7 +4660,7 @@ function bbp_get_topic_tag_id( $tag = '' ) {
 	 *
 	 * @param int $retval Topic tag ID.
 	 * @param string $tag Topic tag slug.
-	 * @param WP_Term|false $term Resolved topic tag.
+	 * @param object|false|null $term Resolved topic tag or queried object, or false or null.
 	 */
 	return (int) apply_filters( 'bbp_get_topic_tag_id', (int) $retval, $tag, $term );
 }
@@ -4707,7 +4707,7 @@ function bbp_get_topic_tag_name( $tag = '' ) {
 	 *
 	 * @param string $retval Topic tag name.
 	 * @param string $tag Topic tag slug.
-	 * @param WP_Term|false $term Resolved topic tag.
+	 * @param object|false|null $term Resolved topic tag or queried object, or false or null.
 	 */
 	return apply_filters( 'bbp_get_topic_tag_name', $retval, $tag, $term );
 }
@@ -4754,7 +4754,7 @@ function bbp_get_topic_tag_slug( $tag = '' ) {
 	 *
 	 * @param string $retval Topic tag slug.
 	 * @param string $tag Topic tag slug.
-	 * @param WP_Term|false $term Resolved topic tag.
+	 * @param object|false|null $term Resolved topic tag or queried object, or false or null.
 	 */
 	return apply_filters( 'bbp_get_topic_tag_slug', $retval, $tag, $term );
 }
@@ -4804,7 +4804,7 @@ function bbp_get_topic_tag_link( $tag = '' ) {
 	 *
 	 * @param string $retval Topic tag URL.
 	 * @param string $tag Topic tag slug.
-	 * @param WP_Term|false $term Resolved topic tag.
+	 * @param object|false|null $term Resolved topic tag or queried object, or false or null.
 	 */
 	return apply_filters( 'bbp_get_topic_tag_link', $retval, $tag, $term );
 }
@@ -4864,7 +4864,7 @@ function bbp_get_topic_tag_subscription_link( $args = array() ) {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param string|false $retval Subscription link, or false when unavailable.
+	 * @param mixed $retval Subscription link, or false or null when unavailable.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args Subscription-link arguments.
 	 */
@@ -4921,7 +4921,7 @@ function bbp_get_topic_tag_edit_link( $tag = '' ) {
 	 *
 	 * @param string $retval Topic tag edit URL.
 	 * @param string $tag Topic tag slug.
-	 * @param WP_Term|false $term Resolved topic tag.
+	 * @param object|false|null $term Resolved topic tag or queried object, or false or null.
 	 */
 	return apply_filters( 'bbp_get_topic_tag_edit_link', $retval, $tag, $term );
 }
@@ -4983,7 +4983,7 @@ function bbp_get_topic_tag_description( $args = array() ) {
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args before|after|tag.
 	 * @param string $tag Topic tag slug.
-	 * @param WP_Term|false $term Resolved topic tag.
+	 * @param object|false|null $term Resolved topic tag or queried object, or false or null.
 	 */
 	return apply_filters( 'bbp_get_topic_tag_description', $retval, $r, $args, $tag, $term );
 }
@@ -5463,7 +5463,7 @@ function bbp_get_topic_lock_description( $topic_id = 0 ) {
 	 * @since 2.6.0 bbPress (r6344)
 	 *
 	 * @param string $text Topic lock description.
-	 * @param int $user_id User id.
+	 * @param int|false $user_id User id.
 	 * @param int $topic_id Topic id.
 	 */
 	return apply_filters( 'bbp_get_topic_lock_description', $text, $user_id, $topic_id );

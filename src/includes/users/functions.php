@@ -1399,7 +1399,7 @@ function bbp_check_user_edit() {
 	 *
 	 * @since 2.6.0 bbPress (r5657)
 	 *
-	 * @param string $profile_url The redirect URL after editing a user.
+	 * @param string|false $profile_url The redirect URL after editing a user.
 	 * @param int $user_id User id.
 	 */
 	$redirect_to = apply_filters( 'bbp_check_user_edit_redirect_to', $profile_url, $user_id );

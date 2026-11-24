@@ -429,7 +429,7 @@ function bbp_get_reply_id( $reply_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2553)
 	 *
-	 * @param int $bbp_reply_id The reply id.
+	 * @param int|float|numeric-string $bbp_reply_id Reply ID before normalization to an integer.
 	 * @param int|float|string|false $reply_id Reply ID, or false to use the current reply.
 	 */
 	return (int) apply_filters( 'bbp_get_reply_id', $bbp_reply_id, $reply_id );
@@ -518,7 +518,7 @@ function bbp_get_reply_permalink( $reply_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2553)
 	 *
-	 * @param string $value Permanent link to reply.
+	 * @param mixed $value Reply permalink, or false when unavailable.
 	 * @param int $reply_id Reply id.
 	 */
 	return apply_filters( 'bbp_get_reply_permalink', get_permalink( $reply_id ), $reply_id );
@@ -889,8 +889,8 @@ function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false
 	 * @param int $reply_id Reply id.
 	 * @param bool $humanize Humanize output using time_since.
 	 * @param bool $gmt Use GMT.
-	 * @param string $date Formatted date.
-	 * @param string $time Formatted time.
+	 * @param int|string|false $date Formatted date or timestamp, or false when unavailable.
+	 * @param int|string|false $time Formatted time or timestamp, or false when unavailable.
 	 * @param string $date_format PHP date format. Defaults to the WordPress date format. Ignored when `$humanize` is true.
 	 */
 	return apply_filters( 'bbp_get_reply_post_date', $result, $reply_id, $humanize, $gmt, $date, $time, $date_format );
@@ -1066,7 +1066,7 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2782)
 	 *
-	 * @param WP_Post[] $revisions Reply revisions, keyed by revision ID.
+	 * @param mixed $revisions Reply revision IDs or posts, keyed by revision ID.
 	 * @param int $reply_id Reply id.
 	 */
 	return apply_filters( 'bbp_get_reply_revisions', $revisions, $reply_id );
@@ -1131,7 +1131,7 @@ function bbp_get_reply_status( $reply_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2667)
 	 *
-	 * @param string $value Status of reply.
+	 * @param mixed $value Status of reply.
 	 * @param int $reply_id Reply id.
 	 */
 	return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ), $reply_id );
@@ -1398,7 +1398,7 @@ function bbp_get_reply_author_id( $reply_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2667)
 	 *
-	 * @param int $author_id Author ID of the reply.
+	 * @param string $author_id Stored author ID before integer conversion.
 	 * @param int $reply_id Reply id.
 	 */
 	return (int) apply_filters( 'bbp_get_reply_author_id', $author_id, $reply_id );
@@ -1504,7 +1504,7 @@ function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2667)
 	 *
-	 * @param string $author_avatar Avatar of author of the reply.
+	 * @param mixed $author_avatar Avatar of author of the reply.
 	 * @param int $reply_id Reply ID.
 	 * @param int $size Size of the avatar. Defaults to 40.
 	 */
@@ -2960,7 +2960,7 @@ function bbp_get_reply_class( $reply_id = 0, $classes = array() ) {
 	 *
 	 * @since 2.0.0 bbPress (r2678)
 	 *
-	 * @param array $classes The CSS classes on a reply row.
+	 * @param array<array-key, string> $post_classes The CSS classes on a reply row.
 	 * @param int $reply_id Reply id.
 	 * @param array<array-key, string> $classes Classes.
 	 */
@@ -3149,7 +3149,7 @@ function bbp_get_topic_pagination_links() {
 	 *
 	 * @since 2.0.0 bbPress (r2519)
 	 *
-	 * @param string|false $pagination_links Topic pagination links, or false when unavailable.
+	 * @param mixed $pagination_links Topic pagination HTML or a list of links.
 	 */
 	return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
 }
@@ -3514,7 +3514,7 @@ function bbp_get_form_reply_status_dropdown( $args = array() ) {
 	 *
 	 * @since 2.6.0 bbPress (r5399)
 	 *
-	 * @param string $value Reply status dropdown markup.
+	 * @param mixed $value Reply status dropdown markup.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args Arguments passed to the function.
 	 */

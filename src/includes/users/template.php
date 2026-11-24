@@ -465,7 +465,7 @@ function bbp_has_users( $args = array() ) {
 	 * @since 2.6.0 bbPress (r6332)
 	 *
 	 * @param bool $value Whether users are available.
-	 * @param WP_Query $user_query Query object.
+	 * @param BBP_User_Query $user_query Query object.
 	 */
 	return apply_filters( 'bbp_has_users', $bbp->user_query->have_users(), $bbp->user_query );
 }
@@ -523,7 +523,7 @@ function bbp_has_terms( $args = array() ) {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param bool $value Whether the query has terms.
-	 * @param WP_Query $term_query Query object.
+	 * @param BBP_Term_Query $term_query Query object.
 	 */
 	return (bool) apply_filters( 'bbp_has_terms', $bbp->term_query->have_terms(), $bbp->term_query );
 }
@@ -821,7 +821,7 @@ function bbp_get_current_user_avatar( $size = 40 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2574)
 	 *
-	 * @param string $avatar Current user avatar.
+	 * @param mixed $avatar Current user avatar, or false when unavailable.
 	 * @param int $size Size of the avatar. Defaults to 40.
 	 */
 	return apply_filters( 'bbp_get_current_user_avatar', $avatar, $size );
@@ -1027,7 +1027,7 @@ function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	 *
 	 * @param string|false $url User profile URL, or false when unavailable.
 	 * @param int $user_id Optional user ID.
-	 * @param string $user_nicename Optional user nicename.
+	 * @param string|false $user_nicename User nicename, or false when unavailable.
 	 */
 	return apply_filters( 'bbp_get_user_profile_url', $url, $user_id, $user_nicename );
 }
@@ -1403,7 +1403,7 @@ function bbp_get_author_display_name( $post_id = 0 ) {
 	 *
 	 * @since 2.5.0 bbPress (r5120)
 	 *
-	 * @param string $retval The name of the author.
+	 * @param mixed $retval Author name, or anonymous author data.
 	 * @param int $post_id Post id.
 	 */
 	return apply_filters( 'bbp_get_author_display_name', $retval, $post_id );
@@ -1461,7 +1461,7 @@ function bbp_get_author_email( $post_id = 0 ) {
 	 *
 	 * @since 2.5.0 bbPress (r5120)
 	 *
-	 * @param string $retval The email of the author.
+	 * @param mixed $retval Author email, or anonymous author data.
 	 * @param int $post_id Post id.
 	 */
 	return apply_filters( 'bbp_get_author_email', $retval, $post_id );
@@ -1519,7 +1519,7 @@ function bbp_get_author_url( $post_id = 0 ) {
 	 *
 	 * @since 2.5.0 bbPress (r5120)
 	 *
-	 * @param string $retval The url of the author.
+	 * @param mixed $retval Author URL, or anonymous author data.
 	 * @param int $post_id Post id.
 	 */
 	return apply_filters( 'bbp_get_author_url', $retval, $post_id );
@@ -2004,7 +2004,7 @@ function bbp_has_term_subscription_taxonomies() {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param bool $value Whether there are taxonomies in the loop.
-	 * @param WP_Query $taxonomy_query Query object.
+	 * @param BBP_Taxonomy_Query $taxonomy_query Query object.
 	 */
 	return (bool) apply_filters( 'bbp_has_term_subscription_taxonomies', $bbp->taxonomy_query->have_taxonomies(), $bbp->taxonomy_query );
 }
@@ -2086,7 +2086,7 @@ function bbp_get_term_subscription_taxonomy_id() {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $retval Taxonomy ID.
-	 * @param string $taxonomy Taxonomy name.
+	 * @param WP_Taxonomy|false $taxonomy Subscription taxonomy object, or false when unavailable.
 	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_taxonomy_id', $retval, $taxonomy );
 }
@@ -2110,7 +2110,7 @@ function bbp_get_term_subscription_taxonomy_label() {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $retval Taxonomy plural label.
-	 * @param string $taxonomy Taxonomy name.
+	 * @param WP_Taxonomy|false $taxonomy Subscription taxonomy object, or false when unavailable.
 	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_taxonomy_label', $retval, $taxonomy );
 }
@@ -2139,7 +2139,7 @@ function bbp_get_term_subscription( $term = 0 ) {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param WP_Term|false $retval Term object, or false when unavailable.
+	 * @param mixed $retval Term object, WP_Error, false, or null when unavailable.
 	 * @param int|WP_Term $term Term ID or object.
 	 */
 	return apply_filters( 'bbp_get_term_subscription', $retval, $term );
@@ -2177,7 +2177,7 @@ function bbp_get_term_subscription_name( $term = 0 ) {
 	 * @since 2.7.0 bbPress (r8335)
 	 *
 	 * @param string $name Term name.
-	 * @param int|WP_Term $term Term ID or object.
+	 * @param WP_Term|false $term Resolved subscription term, or false when unavailable.
 	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_name', $name, $term );
 }
@@ -2214,8 +2214,8 @@ function bbp_get_term_subscription_permalink( $term = 0 ) {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param string $url Term permalink.
-	 * @param int|WP_Term $term Term ID or object.
+	 * @param string|false|null $url Term permalink, or false or null when unavailable.
+	 * @param WP_Term|false $term Resolved subscription term, or false when unavailable.
 	 */
 	return (string) apply_filters( 'bbp_get_term_subscription_permalink', $url, $term );
 }
@@ -2262,7 +2262,7 @@ function bbp_get_term_subscription_toggle_link( $args = array() ) {
 	 *
 	 * @since 2.7.0 bbPress (r8335)
 	 *
-	 * @param string|false $value Subscription link, or false when unavailable.
+	 * @param mixed $value Subscription link, or false or null when unavailable.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args Subscription-link arguments.
 	 */
@@ -3241,7 +3241,7 @@ function bbp_get_user_languages_dropdown( $args = array() ) {
 	 *
 	 * @since 2.6.0 bbPress (r6489)
 	 *
-	 * @param string $retval The select element used to save a user's language.
+	 * @param mixed $retval Language selector markup, or null when unavailable.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args See wp_dropdown_languages().
 	 */
@@ -3401,7 +3401,7 @@ function bbp_user_lost_pass_fields() {
 	 *
 	 * @since 2.0.0 bbPress (r3450)
 	 *
-	 * @param string $value The redirect URL for the lost password form.
+	 * @param string|false $value The redirect URL for the lost password form.
 	 */
 	$redirect_to = apply_filters( 'bbp_user_lost_pass_redirect_to', get_permalink() );
 	bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), $redirect_to ) );
@@ -3776,7 +3776,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	 *
 	 * @since 2.0.0 bbPress (r3127)
 	 *
-	 * @param array<array-key, WP_Post>|false $forums Forums, or false when none are available.
+	 * @param mixed $forums Forum IDs or posts, or false when none are available.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args Forum query arguments.
 	 */

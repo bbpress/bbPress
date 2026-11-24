@@ -231,7 +231,7 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 	 * @param array<int, array{object_id?: int, object_type?: string}> $contexts Subscription object data keyed by user ID.
 	 * @param int $topic_id Topic ID.
 	 * @param array<int, int> $term_ids Term IDs.
-	 * @param array<int, string> $taxonomies Taxonomy names.
+	 * @param array<int|string, string> $taxonomies Taxonomy names.
 	 */
 	return (array) apply_filters( 'bbp_get_topic_term_subscription_contexts', $contexts, $topic_id, $term_ids, $taxonomies );
 }

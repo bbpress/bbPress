@@ -837,7 +837,7 @@ function bbp_number_not_negative( $number = 0 ) {
 	 *
 	 * @param int $not_less_than_zero Nonnegative number.
 	 * @param int $int Original integer.
-	 * @param int|float|string $number Number to clamp to zero or greater.
+	 * @param float|int|string|null $number Number to clamp to zero or greater, or null.
 	 */
 	return (int) apply_filters( 'bbp_number_not_negative', $not_less_than_zero, $int, $number );
 }
@@ -929,7 +929,7 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 	 *
 	 * @since 2.0.0 bbPress (r2722)
 	 *
-	 * @param string $new_time Returns timestamp.
+	 * @param mixed $new_time Timestamp, formatted date, or false when unavailable.
 	 * @param string $d Date format. Defaults to 'U'.
 	 * @param bool $translate Whether to translate the date. Defaults to false.
 	 * @param string $time Time to convert.

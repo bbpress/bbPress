@@ -1339,7 +1339,7 @@ function bbp_force_comment_status( $open = false, $post_id = 0 ) {
 	 * @param bool $retval Whether comments are open.
 	 * @param bool $open Whether comments are currently open.
 	 * @param int $post_id Post ID to check.
-	 * @param string $post_type Post type ID.
+	 * @param string|false $post_type Post type ID, or false when unavailable.
 	 */
 	return (bool) apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
 }

@@ -1585,7 +1585,7 @@ function bbp_has_shortcode( $text = '' ) {
 	 * @since 2.6.0 bbPress (r6440)
 	 *
 	 * @param bool $retval Whether text contains a bbPress shortcode.
-	 * @param bool $found Whether a shortcode was found.
+	 * @param list<non-empty-string> $found Shortcode names found in the text.
 	 * @param string $text Content to check for a bbPress shortcode.
 	 */
 	return (bool) apply_filters( 'bbp_has_shortcode', $retval, $found, $text );
@@ -2246,7 +2246,7 @@ function bbp_reply_form_fields() {
 			 *
 			 * @since 2.6.0 bbPress (r6728)
 			 *
-			 * @param string $value The reply form redirect URL.
+			 * @param mixed $value The reply form redirect URL, or false when unavailable.
 			 */
 			$redirect_to = apply_filters( 'bbp_reply_form_redirect_to', get_permalink() );
 			bbp_redirect_to_field( $redirect_to );
@@ -2445,7 +2445,7 @@ function bbp_get_the_content( $args = array() ) {
 	 *
 	 * @since 2.1.0 bbPress (r3586)
 	 *
-	 * @param string $output Content editor markup.
+	 * @param mixed $output Content editor markup, or false if output buffering fails.
 	 * @param array<string, mixed> $args Editor settings.
 	 * @param string $post_content Post content.
 	 */
@@ -3327,7 +3327,7 @@ function bbp_get_logout_link( $redirect_to = '', $classes = array( 'button', 'lo
 	 *
 	 * @param string $link The logout link.
 	 * @param string $redirect_to Redirect to url.
-	 * @param array<int, string> $classes Classes to add to the logout link.
+	 * @param string $classes Space-separated classes on the logout link.
 	 */
 	return apply_filters( 'bbp_get_logout_link', $link, $redirect_to, $classes );
 }

@@ -50,7 +50,7 @@ class BBP_User_Engagements_Base {
 		 *
 		 * @param string $meta_key The metadata key used to store an engagement.
 		 * @param string $meta_type Meta type.
-		 * @param BBP_User_Engagements_Base $this This.
+		 * @param BBP_User_Engagements_Base $strategy Current engagement strategy.
 		 */
 		return (string) apply_filters( 'bbp_get_engagement_storage_key', $meta_key, $meta_type, $this );
 	}

@@ -102,7 +102,7 @@ function bbp_get_search_type_ids() {
 	 *
 	 * @since 2.6.0 bbPress (r6903)
 	 *
-	 * @param array $types The post types included in forum search.
+	 * @param list<string> $types The post types included in forum search.
 	 */
 	return apply_filters( 'bbp_get_search_types', array( 's', 'fs', 'ts', 'rs' ) );
 }

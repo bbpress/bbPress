@@ -464,7 +464,7 @@ function bbp_get_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 *
-	 * @param string $forum_permalink Permanent link to forum.
+	 * @param mixed $forum_permalink Forum permalink, or false when unavailable.
 	 * @param int $forum_id Forum id.
 	 */
 	return apply_filters( 'bbp_get_forum_permalink', $forum_permalink, $forum_id );
@@ -955,7 +955,7 @@ function bbp_forum_get_subforums( $args = array() ) {
 	 *
 	 * @since 2.0.0 bbPress (r2914)
 	 *
-	 * @param array<array-key, WP_Post> $retval Subforum posts, or an empty array when none are found.
+	 * @param mixed $retval Subforum IDs or posts, or an empty array when none are found.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed>|int|string $args Query arguments or a parent forum ID.
 	 */
@@ -1334,7 +1334,7 @@ function bbp_get_forum_last_topic_author_link( $forum_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2627)
 	 *
-	 * @param string $author_link Forum's last topic's author link.
+	 * @param mixed $author_link Last topic author link, or false when unavailable.
 	 * @param int $forum_id Forum id.
 	 */
 	return apply_filters( 'bbp_get_forum_last_topic_author_link', $author_link, $forum_id );
@@ -1565,7 +1565,7 @@ function bbp_get_forum_last_reply_author_link( $forum_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2627)
 	 *
-	 * @param string $author_link Link to author of last reply of forum.
+	 * @param mixed $author_link Last reply author link, or false when unavailable.
 	 * @param int $forum_id Forum id.
 	 * @param int $author_id Author id.
 	 */
@@ -1912,7 +1912,7 @@ function bbp_get_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $
 	 *
 	 * @since 2.6.0 bbPress (r6923)
 	 *
-	 * @param int|string $replies Unformatted count, or a formatted count after filtering.
+	 * @param int $replies Unformatted reply count passed to the selected filter.
 	 * @param int $forum_id Forum id.
 	 */
 	return apply_filters( $filter, $replies, $forum_id );
@@ -1986,7 +1986,7 @@ function bbp_get_forum_visibility( $forum_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2998)
 	 *
-	 * @param string $visibility Visibility status of forum.
+	 * @param mixed $visibility Forum visibility status, or false when unavailable.
 	 * @param int $forum_id Forum id.
 	 */
 	return apply_filters( 'bbp_get_forum_visibility', $visibility, $forum_id );
@@ -2758,7 +2758,7 @@ function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
 	 *
 	 * @since 2.0.0 bbPress (r2678)
 	 *
-	 * @param array $classes The CSS classes on a forum row.
+	 * @param array<array-key, string> $post_classes The CSS classes on a forum row.
 	 * @param int $forum_id Forum id.
 	 * @param array<array-key, string> $classes Classes.
 	 */
@@ -3343,7 +3343,7 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 	 *
 	 * @since 2.1.0 bbPress (r3563)
 	 *
-	 * @param string $value Forum type dropdown markup.
+	 * @param mixed $value Forum type dropdown markup, or false when unavailable.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed>|int $args Arguments passed to the function.
 	 */
@@ -3440,7 +3440,7 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 	 *
 	 * @since 2.1.0 bbPress (r3563)
 	 *
-	 * @param string $value HTML select list for selecting forum status.
+	 * @param mixed $value Forum status dropdown markup, or false when unavailable.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed>|int $args Arguments passed to the function.
 	 */

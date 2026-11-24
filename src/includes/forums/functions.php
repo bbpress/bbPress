@@ -2519,7 +2519,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 	 *
 	 * @since 2.0.0 bbPress (r3349)
 	 *
-	 * @param int $topic_count Forum hidden topic count.
+	 * @param int|false $topic_count Forum hidden topic count, or false when unavailable.
 	 * @param int $forum_id Forum or topic ID.
 	 */
 	return (int) apply_filters( 'bbp_update_forum_topic_count_hidden', $topic_count, $forum_id );
@@ -3838,7 +3838,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r2993)
 	 *
-	 * @param int $reply_id Last public reply ID, or 0 if none is found.
+	 * @param mixed $reply_id Last public reply ID or post object, or null when none is found.
 	 * @param int $forum_id Forum id.
 	 */
 	return (int) apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );

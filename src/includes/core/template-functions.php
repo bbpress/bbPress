@@ -641,7 +641,7 @@ function bbp_get_query_template( $type, $templates = array() ) {
 	 *
 	 * @since 2.1.0 bbPress (r3629)
 	 *
-	 * @param string $template Full path to file.
+	 * @param mixed $template Full template path, or false when none is found.
 	 * @param array<int, string> $templates An optional list of template candidates.
 	 */
 	return apply_filters( "bbp_{$type}_template", $template, $templates );

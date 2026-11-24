@@ -446,7 +446,7 @@ function bbp_send_mention_notifications() {
 				 *
 				 * @since 2.7.0 bbPress (r8264)
 				 *
-				 * @param string $value The URL of a user's mention email settings.
+				 * @param string|false $value The URL of a user's mention email settings.
 				 * @param int $user_id User id.
 				 */
 				$settings_url = bbp_validate_url( apply_filters( 'bbp_mention_email_settings_url', bbp_get_user_profile_edit_url( $user_id ), $user_id ) );

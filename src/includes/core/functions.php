@@ -122,7 +122,7 @@ function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 	 *
 	 * @since 2.0.0 bbPress (r3179)
 	 *
-	 * @param int $forum_id The forum ID stored in post metadata.
+	 * @param int|string $forum_id The forum ID stored in post metadata.
 	 * @param int $post_id Post id.
 	 */
 	$forum_id = (int) apply_filters( 'bbp_update_forum_id', $forum_id, $post_id );

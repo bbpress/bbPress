@@ -972,7 +972,7 @@ function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 	 *
 	 * @since 2.1.0 bbPress (r4002)
 	 *
-	 * @param array<string, array<string, mixed>>|false $retval Section fields, or false if the section ID is empty.
+	 * @param array<string, array<string, mixed>> $retval Section fields.
 	 * @param string $section_id ID of the section to get fields for.
 	 */
 	return (array) apply_filters( 'bbp_admin_get_settings_fields_for_section', $retval, $section_id );

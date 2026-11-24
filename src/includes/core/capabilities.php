@@ -286,7 +286,7 @@ function bbp_get_blog_roles() {
 	 * @since 2.4.0 bbPress (r5064)
 	 *
 	 * @param array<string, array<string, mixed>>|false $all_roles The available roles, minus the dynamic roles that come with bbpress.
-	 * @param WP_Roles $wp_roles WordPress roles object.
+	 * @param WP_Roles|null $wp_roles WordPress roles object, or null when unavailable.
 	 */
 	return apply_filters( 'bbp_get_blog_roles', $all_roles, $wp_roles );
 }

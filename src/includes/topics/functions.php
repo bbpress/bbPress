@@ -3026,7 +3026,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = false ) {
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param int $reply_count Topic reply count.
+	 * @param int|false $reply_count Topic reply count.
 	 * @param int $topic_id Topic id to update.
 	 */
 	return (int) apply_filters( 'bbp_update_topic_reply_count', $reply_count, $topic_id );
@@ -3062,7 +3062,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = fals
 	 *
 	 * @since 2.0.0 bbPress (r3349)
 	 *
-	 * @param int $reply_count Topic hidden reply count.
+	 * @param int|false $reply_count Topic hidden reply count.
 	 * @param int $topic_id Topic id to update.
 	 */
 	return (int) apply_filters( 'bbp_update_topic_reply_count_hidden', $reply_count, $topic_id );

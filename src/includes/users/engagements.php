@@ -27,7 +27,7 @@ function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
 	 *
 	 * @since 2.6.0 bbPress (r6723)
 	 *
-	 * @param object $value The interface used for user engagements.
+	 * @param mixed $value Current engagement strategy object or a value from an earlier filter.
 	 * @param string $rel_key Rel key.
 	 * @param string $rel_type Rel type.
 	 */
@@ -914,7 +914,7 @@ function bbp_get_user_object_ids( $args = array() ) {
 	 *
 	 * @since 2.6.0 bbPress (r6607)
 	 *
-	 * @param array<int, int|WP_Post> $object_ids Object IDs, posts when the query fields are overridden, or an empty array.
+	 * @param array<int|WP_Post>|null $object_ids Object IDs, posts when the query fields are overridden, or an empty array.
 	 * @param array $r Arguments.
 	 * @param array<string, mixed> $args User ID, object type, relationship key and type, filter name, and query arguments.
 	 */

@@ -193,7 +193,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 	 *
 	 * @param string|false $new_role Filtered role value, or false.
 	 * @param int $user_id User id.
-	 * @param WP_User $user User object.
+	 * @param WP_User|false $user User object.
 	 */
 	return apply_filters( 'bbp_set_user_role', $new_role, $user_id, $user );
 }
@@ -705,9 +705,9 @@ function bbp_get_user_role( $user_id = 0 ) {
 	 *
 	 * @since 2.1.0 bbPress (r3860)
 	 *
-	 * @param string $role A user's forums role.
+	 * @param mixed $role User's forum role, or false when unavailable.
 	 * @param int $user_id User id.
-	 * @param WP_User $user User object.
+	 * @param WP_User|false $user User object.
 	 */
 	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
 }
@@ -750,9 +750,9 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 	 *
 	 * @since 2.2.1 bbPress (r4447)
 	 *
-	 * @param string $role A user's blog role.
+	 * @param mixed $role User's blog role, or false when unavailable.
 	 * @param int $user_id User id.
-	 * @param WP_User $user User object.
+	 * @param WP_User|false $user User object.
 	 */
 	return apply_filters( 'bbp_get_user_blog_role', $role, $user_id, $user );
 }

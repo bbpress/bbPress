@@ -544,8 +544,8 @@ function bbp_make_first_page_canonical( $pagination_links = '' ) {
 	 *
 	 * @since 2.6.0 bbPress (r6680)
 	 *
-	 * @param string|null $retval Canonical pagination links, or null when no links were supplied.
-	 * @param string|null $pagination_links The HTML links used for pagination, or null when absent.
+	 * @param list<string>|string|null $retval Canonical pagination links, or null when no links were supplied.
+	 * @param list<string>|string|null $pagination_links The HTML links used for pagination, or null when absent.
 	 */
 	return apply_filters( 'bbp_make_first_page_canonical', $retval, $pagination_links );
 }
@@ -814,7 +814,7 @@ function bbp_is_intercepted( $value = '' ) {
  * @since 2.6.0 bbPress (r6751)
  *
  * @param string                  $action Typically the name of the caller function.
- * @param array<array-key, mixed> $args   Typically the results of caller function func_get_args().
+ * @param array<array-key, mixed>|string $args Typically the results of caller function func_get_args(), or a single argument.
  *
  * @return mixed         Intercept results. Default bbp_default_intercept().
  */
@@ -869,7 +869,7 @@ function bbp_get_empty_datetime() {
 	 * @since 2.6.6 bbPress (r7099)
 	 *
 	 * @param string $retval An empty datetime value.
-	 * @param string $db_version Database version.
+	 * @param string|null $db_version Database version, or null when unavailable.
 	 */
 	return (string) apply_filters( 'bbp_get_default_zero_date', $retval, $db_version );
 }

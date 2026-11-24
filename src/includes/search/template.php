@@ -551,7 +551,7 @@ function bbp_get_search_pagination_links() {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param string|false $pagination_links Search pagination links, or false when unavailable.
+	 * @param mixed $pagination_links Search pagination HTML or a list of links.
 	 */
 	return apply_filters( 'bbp_get_search_pagination_links', $bbp->search_query->pagination_links );
 }
