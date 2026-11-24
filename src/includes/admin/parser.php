@@ -2412,7 +2412,8 @@ return '';
 */
 function Internal_DoEnhancedTag($tag_rule, $params, $contents) {
 $params['_content'] = $contents;
-$params['_defaultcontent'] = is_string($params['_default']) && strlen($params['_default']) ? $params['_default'] : $contents;
+$default_value = $params['_default'] ?? false;
+$params['_defaultcontent'] = is_string($default_value) && strlen($default_value) ? $default_value : $contents;
 $template = $tag_rule['template'] ?? '';
 $defaults = $tag_rule['default'] ?? Array();
 return $this->FillTemplate($template, $params, $defaults);
