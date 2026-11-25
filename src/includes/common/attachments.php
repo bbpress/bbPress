@@ -159,15 +159,6 @@ function bbp_forum_enforce_attachments() {
 	// Attachments inherit bbPress visibility from their parent
 	if ( $parent && ! bbp_user_can_view_attachment( $attachment ) ) {
 		bbp_set_404( $wp_query );
-
-		// Prevent feeds and later template hooks from using the denied object
-		$wp_query->posts             = array();
-		$wp_query->post              = null;
-		$wp_query->post_count        = 0;
-		$wp_query->found_posts       = 0;
-		$wp_query->max_num_pages     = 0;
-		$wp_query->queried_object    = null;
-		$wp_query->queried_object_id = 0;
 	}
 }
 

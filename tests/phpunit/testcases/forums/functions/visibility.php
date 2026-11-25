@@ -16,35 +16,80 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	 * @param string $visibility Restricted forum visibility.
 	 */
 	protected function assert_forum_visibility_guard( $listener, $visibility ) {
-		global $wp_query;
+		global $post, $wp_query;
 
-		$posts    = $this->create_visibility_test_posts();
-		$previous = $wp_query;
+		$posts         = $this->create_visibility_test_posts();
+		$previous      = $wp_query;
+		$previous_post = $post;
 		$this->set_current_user( 0 );
 
 		try {
 			foreach ( array( 'forum', 'topic', 'reply' ) as $type ) {
-				$post_id = $posts[ "{$visibility}_{$type}" ];
-				$query   = new WP_Query();
-				$query->post        = get_post( $post_id );
-				$query->is_singular = true;
-				$query->set( 'post_type', get_post_type( $post_id ) );
-				$wp_query = $query;
+				foreach ( array( false, true ) as $array_post_type ) {
+					$post_id = $posts[ "{$visibility}_{$type}" ];
+					$query   = new WP_Query();
+					$query->posts       = array( get_post( $post_id ) );
+					$query->post        = get_post( $post_id );
+					$query->post_count  = 1;
+					$query->is_embed    = true;
+					$query->is_feed     = true;
+					$query->is_singular = true;
+					$query->set( 'post_type', $array_post_type ? array( get_post_type( $post_id ) ) : get_post_type( $post_id ) );
+					$wp_query = $query;
+					$post     = $array_post_type ? get_post( $post_id ) : $query->post;
+					if ( $array_post_type ) {
+						$this->assertNotSame( $query->post, $post );
+					}
 
-				call_user_func( $listener );
-				$this->assertTrue( $query->is_404(), "{$type} in {$visibility} forum was not denied" );
+					call_user_func( $listener );
+					$this->assertTrue( $query->is_404(), "{$type} in {$visibility} forum was not denied" );
+					$this->assertFalse( $query->is_embed(), "{$type} in {$visibility} forum retained embed state" );
+					$this->assertFalse( $query->is_feed(), "{$type} in {$visibility} forum retained feed state" );
+					$this->assertEmpty( $query->posts, "{$type} in {$visibility} forum retained posts" );
+					$this->assertNull( $query->post, "{$type} in {$visibility} forum retained the post" );
+					$this->assertNull( $post, "{$type} in {$visibility} forum retained the global post" );
+					$this->assertSame( 0, $query->post_count, "{$type} in {$visibility} forum retained a post count" );
+				}
 			}
 
 			$query = new WP_Query();
-			$query->post        = get_post( $posts['public_forum'] );
+			$query->post        = get_post( $posts[ "{$visibility}_forum" ] );
 			$query->is_singular = true;
 			$query->set( 'post_type', bbp_get_forum_post_type() );
 			$wp_query = $query;
+			$post     = get_post( $posts['public_forum'] );
+
+			call_user_func( $listener );
+			$this->assertTrue( $query->is_404() );
+			$this->assertNull( $query->post );
+			$this->assertSame( $posts['public_forum'], $post->ID );
+
+			foreach ( array( false, true ) as $array_post_type ) {
+				$query = new WP_Query();
+				$query->post        = get_post( $posts['public_forum'] );
+				$query->is_singular = true;
+				$query->set( 'post_type', $array_post_type ? array( bbp_get_forum_post_type() ) : bbp_get_forum_post_type() );
+				$wp_query = $query;
+				$post     = $query->post;
+
+				call_user_func( $listener );
+				$this->assertFalse( $query->is_404() );
+				$this->assertSame( $posts['public_forum'], $query->post->ID );
+				$this->assertSame( $query->post, $post );
+			}
+
+			$query              = new WP_Query();
+			$query->is_singular = true;
+			$wp_query           = $query;
+			$post               = get_post( $posts[ "{$visibility}_forum" ] );
 
 			call_user_func( $listener );
 			$this->assertFalse( $query->is_404() );
+			$this->assertNull( $query->post );
+			$this->assertSame( $posts[ "{$visibility}_forum" ], $post->ID );
 		} finally {
 			$wp_query = $previous;
+			$post     = $previous_post;
 		}
 	}
 
@@ -350,6 +395,197 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 			);
 
 			$this->assertEmpty( $query->posts );
+			$this->assertTrue( $query->bbp_is_404 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_explicit_restricted_forum_feed_matches_unknown_id() {
+		$posts = $this->create_visibility_test_posts();
+		$this->set_current_user( 0 );
+
+		foreach ( array( $posts['private_forum'], $posts['hidden_forum'], PHP_INT_MAX ) as $forum_id ) {
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				'p'         => $forum_id,
+				'feed'      => 'rss2',
+			) );
+
+			$this->assertTrue( $query->is_feed );
+			$this->assertEmpty( $query->posts );
+			$this->assertFalse( isset( $query->bbp_is_404 ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_explicit_forum_alias_id_query_excludes_restricted_forums() {
+		$posts = $this->create_visibility_test_posts();
+		foreach ( array( 'public_forum', 'private_forum', 'hidden_forum' ) as $forum ) {
+			bbp_update_forum_id( $posts[ $forum ], 0 );
+		}
+		$this->set_current_user( 0 );
+
+		foreach ( array( 'page_id', 'attachment_id', 'subpost_id' ) as $query_var ) {
+			foreach ( array( 'private_forum', 'hidden_forum' ) as $forum ) {
+				$query = new WP_Query( array(
+					'post_type' => bbp_get_forum_post_type(),
+					$query_var   => $posts[ $forum ],
+					'embed'     => 'true',
+				) );
+
+				$this->assertEmpty( $query->posts, "{$query_var} loaded {$forum}" );
+				$this->assertTrue( $query->bbp_is_404 );
+			}
+
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				$query_var   => $posts['public_forum'],
+				'embed'     => 'true',
+			) );
+			$this->assertSame( array( $posts['public_forum'] ), wp_list_pluck( $query->posts, 'ID' ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_posts_page_id_does_not_mask_restricted_forum_id() {
+		$posts          = $this->create_visibility_test_posts();
+		$front_page_id  = $this->factory->post->create( array( 'post_type' => 'page' ) );
+		$posts_page_id  = $this->factory->post->create( array( 'post_type' => 'page' ) );
+		$show_on_front  = get_option( 'show_on_front' );
+		$page_on_front  = get_option( 'page_on_front' );
+		$page_for_posts = get_option( 'page_for_posts' );
+
+		foreach ( array( 'private_forum', 'hidden_forum' ) as $forum ) {
+			bbp_update_forum_id( $posts[ $forum ], 0 );
+		}
+		$this->set_current_user( 0 );
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $front_page_id );
+		update_option( 'page_for_posts', $posts_page_id );
+
+		try {
+			foreach ( array( 'p', 'attachment_id', 'subpost_id' ) as $query_var ) {
+				foreach ( array( 'private_forum', 'hidden_forum' ) as $forum ) {
+					$query = new WP_Query( array(
+						'post_type' => bbp_get_forum_post_type(),
+						'page_id'   => $posts_page_id,
+						$query_var   => $posts[ $forum ],
+						'embed'     => 'true',
+					) );
+
+					$this->assertEmpty( $query->posts, "{$query_var} loaded {$forum} behind the posts page" );
+				}
+			}
+
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				'page_id'   => $posts_page_id,
+				'p'         => $posts['public_forum'],
+				'embed'     => 'true',
+			) );
+			$this->assertSame( array( $posts['public_forum'] ), wp_list_pluck( $query->posts, 'ID' ) );
+		} finally {
+			update_option( 'show_on_front', $show_on_front );
+			update_option( 'page_on_front', $page_on_front );
+			update_option( 'page_for_posts', $page_for_posts );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_exclude_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_zero_in_excluded_forum_ids_keeps_public_forums_visible() {
+		$posts = $this->create_visibility_test_posts();
+		foreach ( array( 'public_forum', 'private_forum', 'hidden_forum' ) as $forum ) {
+			bbp_update_forum_id( $posts[ $forum ], 0 );
+		}
+		$this->set_current_user( 0 );
+
+		$add_zero = function( $retval, $forum_ids, $type ) {
+			if ( 'array' === $type ) {
+				$retval[] = 0;
+			}
+
+			return $retval;
+		};
+		add_filter( 'bbp_exclude_forum_ids', $add_zero, 10, 3 );
+
+		try {
+			$this->assertNotContains( 0, bbp_exclude_forum_ids( 'array' ) );
+
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				'fields'    => 'ids',
+			) );
+
+			$this->assertSame( array( $posts['public_forum'] ), $query->posts );
+		} finally {
+			remove_filter( 'bbp_exclude_forum_ids', $add_zero, 10 );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_explicit_forum_alias_id_query_respects_roles_and_ancestry() {
+		$forums         = $this->create_visibility_test_posts();
+		$private_branch = $this->create_inherited_visibility_test_posts( bbp_get_private_status_id() );
+		$hidden_branch  = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		foreach ( array( $private_branch, $hidden_branch ) as $branch ) {
+			bbp_update_forum_id( $branch['child_id'], 0 );
+			bbp_update_forum_id( $branch['grandchild_id'], 0 );
+		}
+		$subscriber     = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$participant    = $this->factory->user->create();
+		$moderator      = $this->factory->user->create();
+		$keymaster      = $this->factory->user->create();
+
+		bbp_set_user_role( $participant, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster, bbp_get_keymaster_role() );
+
+		$cases = array(
+			'logged out'  => array( 0,            false, false ),
+			'subscriber'  => array( $subscriber,  true,  false ),
+			'participant' => array( $participant, true,  false ),
+			'moderator'   => array( $moderator,   true,  true  ),
+			'keymaster'   => array( $keymaster,  true,  true  ),
+		);
+
+		foreach ( $cases as $role => $case ) {
+			list( $user_id, $can_read_private, $can_read_hidden ) = $case;
+			$this->set_current_user( $user_id );
+
+			$expected = array(
+				$forums['public_forum']                  => true,
+				$forums['private_forum']                 => $can_read_private,
+				$forums['hidden_forum']                  => $can_read_hidden,
+				$private_branch['child_id']             => $can_read_private,
+				$private_branch['grandchild_id']        => $can_read_private,
+				$hidden_branch['child_id']              => $can_read_hidden,
+				$hidden_branch['grandchild_id']         => $can_read_hidden,
+			);
+
+			foreach ( $expected as $forum_id => $readable ) {
+				$query = new WP_Query( array(
+					'post_type' => bbp_get_forum_post_type(),
+					'page_id'   => $forum_id,
+					'embed'     => 'true',
+				) );
+
+				$this->assertSame(
+					$readable ? array( $forum_id ) : array(),
+					wp_list_pluck( $query->posts, 'ID' ),
+					"{$role} read forum {$forum_id}"
+				);
+			}
 		}
 	}
 
@@ -384,11 +620,15 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
 	 */
-	public function test_forum_queries_parse_filtered_exclusion_id_strings() {
+	public function test_forum_queries_respect_filtered_exclusion_id_arrays() {
 		$posts   = $this->create_visibility_test_posts();
 		$post_id = $this->factory->post->create();
-		$filter  = function( $excluded, $ids, $type ) {
-			return ( 'array' === $type ) ? implode( ',', $ids ) : $excluded;
+		$filter  = function( $excluded, $ids, $type ) use ( $posts ) {
+			if ( 'array' === $type ) {
+				$excluded[] = $posts['public_forum'];
+			}
+
+			return $excluded;
 		};
 
 		$this->set_current_user( 0 );
@@ -400,7 +640,7 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 				'post__in'  => array( $posts['public_forum'], $posts['private_forum'], $posts['hidden_forum'] ),
 				'fields'    => 'ids',
 			) );
-			$this->assertSame( array( $posts['public_forum'] ), $query->posts );
+			$this->assertSame( array(), $query->posts );
 
 			$query = new WP_Query( array(
 				'post_type'   => array( bbp_get_forum_post_type(), 'post' ),
@@ -408,7 +648,7 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 				'post__in'    => array( $post_id, $posts['public_forum'], $posts['hidden_forum'] ),
 				'fields'      => 'ids',
 			) );
-			$this->assertEqualSets( array( $post_id, $posts['public_forum'] ), $query->posts );
+			$this->assertSame( array( $post_id ), $query->posts );
 
 			$keymaster_id = $this->factory->user->create();
 			bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
@@ -418,7 +658,7 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 				'post__in'  => array( $posts['public_forum'], $posts['private_forum'], $posts['hidden_forum'] ),
 				'fields'    => 'ids',
 			) );
-			$this->assertEqualSets( array( $posts['public_forum'], $posts['private_forum'], $posts['hidden_forum'] ), $query->posts );
+			$this->assertEqualSets( array( $posts['private_forum'], $posts['hidden_forum'] ), $query->posts );
 		} finally {
 			remove_filter( 'bbp_exclude_forum_ids', $filter, 10 );
 		}

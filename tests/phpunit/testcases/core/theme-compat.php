@@ -1052,6 +1052,141 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::bbp_set_404
+	 * @covers ::bbp_template_include_theme_supports
+	 * @covers ::bbp_template_include_theme_compat
+	 */
+	public function test_denied_forum_ids_keep_the_404_template() {
+		$previous_user = get_current_user_id();
+		$subscriber_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$forum_id      = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$requests      = array(
+			array(
+				'post_type' => bbp_get_forum_post_type(),
+				'p'         => $forum_id,
+			),
+			array(
+				'post_type' => bbp_get_forum_post_type(),
+				'page_id'   => $forum_id,
+				'embed'     => 'true',
+			),
+		);
+
+		try {
+			foreach ( array( 0, $subscriber_id ) as $user_id ) {
+				$this->set_current_user( $user_id );
+				foreach ( $requests as $request ) {
+					$this->go_to_without_reregistering_blocks( add_query_arg( $request, home_url( '/' ) ) );
+					$query = bbp_get_wp_query();
+
+					$this->assertTrue( $query->is_404() );
+					$this->assertTrue( $query->bbp_is_404 );
+					$this->assertFalse( bbp_is_edit() );
+					$this->assertFalse( bbp_is_forum_edit() );
+					$this->assertSame( '/404.php', bbp_template_include_theme_supports( '/404.php' ) );
+					$this->assertSame( '/404.php', bbp_template_include_theme_compat( '/404.php' ) );
+					$this->assertTrue( $query->is_404() );
+				}
+			}
+		} finally {
+			$this->set_current_user( $previous_user );
+			$this->go_to_without_reregistering_blocks( '/' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::bbp_pre_handle_404
+	 */
+	public function test_forum_edit_keeps_its_route_without_loading_denied_posts() {
+		$previous_user   = get_current_user_id();
+		$forum_id        = $this->factory->forum->create();
+		$hidden_forum_id = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$participant_id  = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		$request         = array(
+			'post_type'                => bbp_get_forum_post_type(),
+			'p'                        => $forum_id,
+			bbp_get_edit_rewrite_id() => 1,
+		);
+
+		$add_edit_query_var = function( $query_vars ) {
+			$query_vars[] = bbp_get_edit_rewrite_id();
+			return $query_vars;
+		};
+
+		try {
+			add_filter( 'query_vars', $add_edit_query_var );
+			foreach ( array( 0, $participant_id ) as $user_id ) {
+				$this->set_current_user( $user_id );
+				$request['p'] = $forum_id;
+				$this->go_to_without_reregistering_blocks( add_query_arg( $request, home_url( '/' ) ) );
+				$query = bbp_get_wp_query();
+
+				$this->assertFalse( $query->is_404() );
+				$this->assertFalse( $query->bbp_is_404 );
+				$this->assertTrue( bbp_is_forum_edit() );
+				$this->assertSame( $forum_id, $query->post->ID );
+
+				foreach ( array( $hidden_forum_id, $hidden_forum_id + 1000000 ) as $post_id ) {
+					$request['p'] = $post_id;
+					$this->go_to_without_reregistering_blocks( add_query_arg( $request, home_url( '/' ) ) );
+					$query = bbp_get_wp_query();
+
+					$this->assertFalse( $query->is_404() );
+					$this->assertFalse( $query->bbp_is_404 );
+					$this->assertTrue( bbp_is_forum_edit() );
+					$this->assertEmpty( $query->posts );
+					$this->assertNull( $query->post );
+					$this->assertSame( 0, bbp_get_forum_id() );
+				}
+			}
+		} finally {
+			remove_filter( 'query_vars', $add_edit_query_var );
+			$this->set_current_user( $previous_user );
+			$this->go_to_without_reregistering_blocks( '/' );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::bbp_pre_handle_404
+	 */
+	public function test_denied_forum_id_preserves_view_route_status() {
+		$previous_user = get_current_user_id();
+		$forum_id      = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$unknown_id    = $forum_id + 1000000;
+		$request       = array(
+			'post_type'               => bbp_get_forum_post_type(),
+			bbp_get_view_rewrite_id() => 'popular',
+		);
+
+		$add_view_query_var = function( $query_vars ) {
+			$query_vars[] = bbp_get_view_rewrite_id();
+			return $query_vars;
+		};
+
+		try {
+			add_filter( 'query_vars', $add_view_query_var );
+			$this->set_current_user( 0 );
+			foreach ( array( $unknown_id, $forum_id ) as $post_id ) {
+				$request['page_id'] = $post_id;
+				$this->go_to_without_reregistering_blocks( add_query_arg( $request, home_url( '/' ) ) );
+				$query = bbp_get_wp_query();
+
+				$this->assertFalse( $query->is_404() );
+				$this->assertFalse( $query->bbp_is_404 );
+				$this->assertTrue( bbp_is_single_view() );
+			}
+		} finally {
+			remove_filter( 'query_vars', $add_view_query_var );
+			$this->set_current_user( $previous_user );
+			$this->go_to_without_reregistering_blocks( '/' );
+		}
+	}
+
+	/**
 	 * Run the theme compatibility template selection.
 	 *
 	 * @return string Selected template path.

@@ -705,10 +705,20 @@
 	public function test_bbp_forum_enforce_blocked() {
 		$old_user  = get_current_user_id();
 		$old_query = $GLOBALS['wp_query'];
+		$old_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		$query     = new WP_Query();
+		$forum_id  = $this->factory->forum->create();
+		$forum     = get_post( $forum_id );
 		$user_id   = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		bbp_set_user_role( $user_id, bbp_get_blocked_role() );
+		$query->posts       = array( $forum );
+		$query->post        = $forum;
+		$query->post_count  = 1;
+		$query->is_singular = true;
+		$query->is_feed     = true;
+		$query->is_embed    = true;
 		$GLOBALS['wp_query'] = $query;
+		$GLOBALS['post']     = get_post( $forum_id );
 		add_filter( 'is_bbpress', '__return_true' );
 
 		try {
@@ -726,11 +736,18 @@
 			$this->assertFalse( current_user_can( 'spectate' ) );
 			bbp_forum_enforce_blocked();
 			$this->assertTrue( $query->is_404() );
+			$this->assertFalse( $query->is_feed );
+			$this->assertFalse( $query->is_embed );
+			$this->assertSame( array(), $query->posts );
+			$this->assertNull( $query->post );
+			$this->assertSame( 0, $query->post_count );
+			$this->assertNull( $GLOBALS['post'] );
 		} finally {
 			remove_filter( 'bbp_is_user_keymaster', '__return_true' );
 			remove_filter( 'is_bbpress', '__return_true' );
 			$this->set_current_user( $old_user );
 			$GLOBALS['wp_query'] = $old_query;
+			$GLOBALS['post']     = $old_post;
 		}
 	}
 

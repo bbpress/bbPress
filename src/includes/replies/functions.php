@@ -2788,23 +2788,7 @@ function bbp_reply_enforce_visibility() {
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
 
 	if ( ( ! bbp_is_reply_public( $reply_id ) && ! current_user_can( 'read_reply', $reply_id ) ) || ( ! bbp_is_topic_public( $topic_id ) && ! current_user_can( 'read_topic', $topic_id ) ) ) {
-		$query = bbp_get_wp_query();
-
-		bbp_set_404( $query );
-		if ( ! ( $query instanceof WP_Query ) ) {
-			return;
-		}
-
-		// Prevent later templates from using the denied object.
-		$query->is_feed           = false;
-		$query->is_embed          = false;
-		$query->posts             = array();
-		$query->post              = null;
-		$query->post_count        = 0;
-		$query->found_posts       = 0;
-		$query->max_num_pages     = 0;
-		$query->queried_object    = null;
-		$query->queried_object_id = 0;
+		bbp_set_404();
 	}
 }
 

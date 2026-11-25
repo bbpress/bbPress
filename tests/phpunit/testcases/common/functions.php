@@ -4018,9 +4018,97 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 * @covers ::bbp_set_404
 	 */
 	public function test_bbp_set_404() {
-		$query = new WP_Query();
+		$query                          = new WP_Query();
+		$query->post                    = self::factory()->post->create_and_get();
+		$query->posts                   = array( $query->post );
+		$query->post_count              = 1;
+		$query->found_posts             = 1;
+		$query->max_num_pages           = 1;
+		$query->queried_object          = $query->post;
+		$query->queried_object_id       = $query->post->ID;
+		$query->is_feed                 = true;
+		$query->is_embed                = true;
+		$query->bbp_is_edit             = true;
+		$query->bbp_is_forum_edit       = true;
+		$query->bbp_is_topic_edit       = true;
+		$query->bbp_is_reply_edit       = true;
+		$query->bbp_is_topic_tag_edit   = true;
+		$query->bbp_is_single_user_edit = true;
 		bbp_set_404( $query );
 		$this->assertTrue( $query->is_404() );
+		$this->assertFalse( $query->is_feed );
+		$this->assertFalse( $query->is_embed );
+		$this->assertFalse( $query->bbp_is_edit );
+		$this->assertFalse( $query->bbp_is_forum_edit );
+		$this->assertFalse( $query->bbp_is_topic_edit );
+		$this->assertFalse( $query->bbp_is_reply_edit );
+		$this->assertFalse( $query->bbp_is_topic_tag_edit );
+		$this->assertFalse( $query->bbp_is_single_user_edit );
+		$this->assertSame( array(), $query->posts );
+		$this->assertNull( $query->post );
+		$this->assertSame( 0, $query->post_count );
+		$this->assertSame( 0, $query->found_posts );
+		$this->assertSame( 0, $query->max_num_pages );
+		$this->assertNull( $query->queried_object );
+		$this->assertSame( 0, $query->queried_object_id );
+	}
+
+	/**
+	 * @covers ::bbp_set_404
+	 */
+	public function test_bbp_set_404_clears_main_query_edit_state() {
+		global $wp_query;
+
+		$previous_query           = $wp_query;
+		$query                    = new WP_Query();
+		$query->bbp_is_edit       = true;
+		$query->bbp_is_forum_edit = true;
+		$wp_query                 = $query;
+
+		try {
+			$this->assertTrue( bbp_is_edit() );
+			$this->assertTrue( bbp_is_forum_edit() );
+
+			bbp_set_404( $query );
+
+			$this->assertFalse( bbp_is_edit() );
+			$this->assertFalse( bbp_is_forum_edit() );
+		} finally {
+			$wp_query = $previous_query;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_set_404
+	 */
+	public function test_bbp_set_404_clears_main_feed_request() {
+		global $wp, $wp_query;
+
+		$previous_query         = $wp_query;
+		$had_feed               = array_key_exists( 'feed', $wp->query_vars );
+		$previous_feed          = $had_feed ? $wp->query_vars['feed'] : null;
+		$query                  = new WP_Query();
+		$secondary              = new WP_Query();
+		$query->is_feed         = true;
+		$secondary->is_feed     = true;
+		$wp_query               = $query;
+		$wp->query_vars['feed'] = 'rss2';
+
+		try {
+			bbp_set_404( $secondary );
+			$this->assertSame( 'rss2', $wp->query_vars['feed'] );
+
+			bbp_set_404( $query );
+			$this->assertSame( '', $wp->query_vars['feed'] );
+			$this->assertFalse( $query->is_feed );
+		} finally {
+			$wp_query = $previous_query;
+			if ( $had_feed ) {
+				$wp->query_vars['feed'] = $previous_feed;
+			} else {
+				unset( $wp->query_vars['feed'] );
+			}
+		}
 	}
 
 	/**

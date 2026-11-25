@@ -184,6 +184,7 @@ Development for the next bbPress release is in progress. See the active
 - Limited block editor topic-tag choices to public discussions in accessible forums.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
+- Tightened forum visibility enforcement for single-item requests.
 
 ### Fixed
 
