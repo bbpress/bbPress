@@ -127,7 +127,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$storage_key = $this->get_storage_key( $meta_key, $meta_type );
 
-		return wp_parse_id_list( get_metadata( $meta_type, $object_id, $storage_key, false ) );
+		return bbp_parse_id_list( get_metadata( $meta_type, $object_id, $storage_key, false ) );
 	}
 
 	/**

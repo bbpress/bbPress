@@ -388,7 +388,7 @@ function bbp_get_sticky_topic_loop_query( $args ) {
 
 	// WordPress ignores post__not_in when post__in is set.
 	if ( ! empty( $args['post__in'] ) ) {
-		$post_in = array_diff( wp_parse_id_list( $args['post__in'] ), $sticky_ids );
+		$post_in = array_diff( bbp_parse_id_list( $args['post__in'] ), $sticky_ids );
 		$query_args['post__in'] = ! empty( $post_in ) ? $post_in : array( 0 );
 	} else {
 		$query_args['post__not_in'] = array_unique( array_merge( (array) ( $args['post__not_in'] ?? array() ), $sticky_ids ) );

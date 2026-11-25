@@ -2900,6 +2900,17 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_parse_id_list
+	 */
+	public function test_bbp_parse_id_list_skips_unusable_values() {
+		$this->assertSame( array( 3, 7 ), bbp_parse_id_list( '3, 7' ) );
+		$this->assertSame( array( 3 ), bbp_parse_id_list( 3 ) );
+		$this->assertSame( array( 0 => 3, 2 => 7 ), bbp_parse_id_list( array( '3', new stdClass(), '7' ) ) );
+		$this->assertSame( array(), bbp_parse_id_list( new stdClass() ) );
+		$this->assertSame( array(), bbp_parse_id_list( null ) );
+	}
+
+	/**
 	 * @covers ::bbp_is_custom_post_type
 	 */
 	public function test_bbp_is_custom_post_type() {

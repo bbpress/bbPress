@@ -182,7 +182,7 @@ function bbp_get_mention_backfill_plan( $post_id = 0 ) {
 		$handled = array();
 	}
 	$plan['handled']  = $handled;
-	$plan['baseline'] = ! $exists || ! empty( array_diff( $handled, wp_parse_id_list( $record['handled'] ) ) );
+	$plan['baseline'] = ! $exists || ! empty( array_diff( $handled, bbp_parse_id_list( $record['handled'] ) ) );
 
 	return $plan;
 }

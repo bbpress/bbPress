@@ -1107,8 +1107,8 @@ function bbp_update_forum_visibility_options( $forum_id = 0, $visibility = '' ) 
 	}
 
 	// Remove the forum from both visibility options
-	$private = bbp_get_unique_array_values( wp_parse_id_list( get_option( '_bbp_private_forums', array() ) ) );
-	$hidden  = bbp_get_unique_array_values( wp_parse_id_list( get_option( '_bbp_hidden_forums',  array() ) ) );
+	$private     = bbp_get_unique_array_values( bbp_parse_id_list( get_option( '_bbp_private_forums', array() ) ) );
+	$hidden      = bbp_get_unique_array_values( bbp_parse_id_list( get_option( '_bbp_hidden_forums',  array() ) ) );
 	$old_private = $private;
 	$old_hidden  = $hidden;
 
@@ -3115,7 +3115,7 @@ function bbp_get_countable_forum_statuses() {
 function bbp_get_hidden_forum_ids() {
 	$forum_ids = get_option( '_bbp_hidden_forums', array() );
 	$forum_ids = ! empty( $forum_ids )
-		? wp_parse_id_list( $forum_ids )
+		? bbp_parse_id_list( $forum_ids )
 		: array();
 
 	/**
@@ -3140,7 +3140,7 @@ function bbp_get_hidden_forum_ids() {
 function bbp_get_private_forum_ids() {
 	$forum_ids = get_option( '_bbp_private_forums', array() );
 	$forum_ids = ! empty( $forum_ids )
-		? wp_parse_id_list( $forum_ids )
+		? bbp_parse_id_list( $forum_ids )
 		: array();
 
 	/**
@@ -3343,7 +3343,7 @@ function bbp_forum_query_all_subforum_ids( $forum_id ) {
 		}
 	}
 
-	return wp_parse_id_list( $forum_ids );
+	return bbp_parse_id_list( $forum_ids );
 }
 
 /**
@@ -3676,7 +3676,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			}
 
 			// WordPress ignores post__not_in when post__in has IDs.
-			$post_in = wp_parse_id_list( $posts_query->get( 'post__in' ) );
+			$post_in = bbp_parse_id_list( $posts_query->get( 'post__in' ) );
 			if ( ! empty( $post_in ) ) {
 				$post_in = array_values( array_diff( $post_in, $forum_ids ) );
 				$posts_query->set( 'post__in', ! empty( $post_in ) ? $post_in : array( 0 ) );
@@ -3768,7 +3768,7 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
 	// Get the query-specific visibility constraints.
 	$post_types    = bbp_get_string_array_values( $posts_query->get( '_bbp_forum_visibility_post_types' )    );
 	$post_statuses = bbp_get_string_array_values( $posts_query->get( '_bbp_forum_visibility_post_statuses' ) );
-	$forum_ids     = wp_parse_id_list( $posts_query->get( '_bbp_forum_visibility_forum_ids' ) );
+	$forum_ids     = bbp_parse_id_list( $posts_query->get( '_bbp_forum_visibility_forum_ids' ) );
 
 	// Bail if this query does not need a post-type-aware visibility clause.
 	if ( empty( $post_types ) || ( empty( $post_statuses ) && empty( $forum_ids ) ) ) {
@@ -4357,7 +4357,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	if ( ! empty( $topic_ids ) ) {
 
 		// Save the restore list before trashing, so an interrupted request can retry.
-		$pre_trashed_topics = wp_parse_id_list( get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+		$pre_trashed_topics = bbp_parse_id_list( get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
 		$pre_trashed_topics = wp_parse_id_list( array_merge( $pre_trashed_topics, $topic_ids ) );
 		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
 

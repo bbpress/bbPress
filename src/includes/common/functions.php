@@ -187,7 +187,7 @@ function bbp_password_protected_search_where( $where = '', $posts_query = null )
 
 	$search    = (bool) $posts_query->get( '_bbp_password_protected_search' );
 	$listing   = (bool) $posts_query->get( '_bbp_password_protected_listing' );
-	$forum_ids = wp_parse_id_list( $posts_query->get( '_bbp_password_protected_forum_ids' ) );
+	$forum_ids = bbp_parse_id_list( $posts_query->get( '_bbp_password_protected_forum_ids' ) );
 	if ( ! $search && ! $listing ) {
 		return $where;
 	}
@@ -647,6 +647,31 @@ function bbp_get_string_array_values( $arr = array() ) {
 	}
 
 	return $retval;
+}
+
+/**
+ * Parse IDs from a value supplied by a filter, option, or query.
+ *
+ * WordPress accepts lists and strings, but an untyped source can also contain
+ * objects or other values that its list parser cannot handle. Keep scalar
+ * members of an array and pass the supported input to WordPress.
+ *
+ * @since 2.7.0 bbPress (r8639)
+ * @access private
+ *
+ * @param mixed $value Value to parse.
+ * @return array<int> Sanitized IDs.
+ */
+function bbp_parse_id_list( $value ) {
+	if ( is_array( $value ) ) {
+		$value = array_filter( $value, 'is_scalar' );
+	} elseif ( is_scalar( $value ) ) {
+		$value = (string) $value;
+	} else {
+		return array();
+	}
+
+	return wp_parse_id_list( $value );
 }
 
 /**
@@ -3824,13 +3849,19 @@ function bbp_query_post_parent__in( $where, $query = '' ) {
 
 	// Including specific post_parent's
 	if ( ! empty( $query->query_vars['post_parent__in'] ) ) {
-		$ids    = implode( ',', wp_parse_id_list( $query->query_vars['post_parent__in'] ) );
-		$where .= " AND {$bbp_db->posts}.post_parent IN ($ids)";
+		$ids = bbp_parse_id_list( $query->query_vars['post_parent__in'] );
+		if ( empty( $ids ) ) {
+			$where .= ' AND 1 = 0';
+		} else {
+			$where .= " AND {$bbp_db->posts}.post_parent IN (" . implode( ',', $ids ) . ')';
+		}
 
 	// Excluding specific post_parent's
 	} elseif ( ! empty( $query->query_vars['post_parent__not_in'] ) ) {
-		$ids    = implode( ',', wp_parse_id_list( $query->query_vars['post_parent__not_in'] ) );
-		$where .= " AND {$bbp_db->posts}.post_parent NOT IN ($ids)";
+		$ids = bbp_parse_id_list( $query->query_vars['post_parent__not_in'] );
+		if ( ! empty( $ids ) ) {
+			$where .= " AND {$bbp_db->posts}.post_parent NOT IN (" . implode( ',', $ids ) . ')';
+		}
 	}
 
 	// Return possibly modified $where
@@ -4377,7 +4408,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	// Make sure results are INTs
-	$child_ids = wp_parse_id_list( $child_ids );
+	$child_ids = bbp_parse_id_list( $child_ids );
 
 	/**
 	 * Filters the child post IDs.

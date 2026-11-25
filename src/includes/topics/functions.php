@@ -3715,7 +3715,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 
 	if ( ! empty( $reply_ids ) ) {
 		// Save the restore list before trashing so an interrupted run can retry.
-		$pre_spammed_replies = wp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
+		$pre_spammed_replies = bbp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
 		$pre_spammed_replies = wp_parse_id_list( array_merge( $pre_spammed_replies, $reply_ids ) );
 		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
 
@@ -4377,7 +4377,7 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 	if ( ! empty( $reply_ids ) ) {
 
 		// Save the restore list before trashing, so an interrupted request can retry.
-		$pre_trashed_replies = wp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+		$pre_trashed_replies = bbp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
 		$pre_trashed_replies = wp_parse_id_list( array_merge( $pre_trashed_replies, $reply_ids ) );
 		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
 		$defer               = doing_action( 'wp_trash_post' )
