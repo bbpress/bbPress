@@ -3455,6 +3455,10 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 
 	// Forum IDs cannot be zero, including IDs added by filters.
 	if ( 'array' === $type ) {
+		if ( ! is_array( $retval ) ) {
+			$retval = bbp_parse_id_list( $retval );
+		}
+
 		$retval = array_filter( $retval );
 	}
 
@@ -3617,7 +3621,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Get forums to exclude.
-	$forum_ids = bbp_exclude_forum_ids( 'array' );
+	$forum_ids = bbp_parse_id_list( bbp_exclude_forum_ids( 'array' ) );
 
 	/**
 	 * Search matches and sitemap URLs must not reveal password-protected content.

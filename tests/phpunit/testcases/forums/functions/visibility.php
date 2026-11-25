@@ -532,6 +532,39 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_exclude_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_string_filter_result_for_array_exclusions_keeps_public_forums_visible() {
+		$posts = $this->create_visibility_test_posts();
+		$this->set_current_user( 0 );
+
+		$as_string = function( $retval, $forum_ids, $type ) {
+			if ( 'array' === $type ) {
+				return implode( ',', $retval ) . ',0';
+			}
+
+			return $retval;
+		};
+		add_filter( 'bbp_exclude_forum_ids', $as_string, 10, 3 );
+
+		try {
+			$excluded = bbp_exclude_forum_ids( 'array' );
+			$this->assertContains( $posts['private_forum'], $excluded );
+			$this->assertNotContains( 0, $excluded );
+
+			$query = new WP_Query( array(
+				'post_type' => bbp_get_forum_post_type(),
+				'fields'    => 'ids',
+			) );
+
+			$this->assertSame( array( $posts['public_forum'] ), $query->posts );
+		} finally {
+			remove_filter( 'bbp_exclude_forum_ids', $as_string, 10 );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
 	 */
 	public function test_explicit_forum_alias_id_query_respects_roles_and_ancestry() {
