@@ -752,14 +752,14 @@ function bbp_admin_sanitize_global_access( $mode ) {
 					__( 'Do nothing was not saved because it would remove your access to forum settings. Have a user with an assigned Keymaster role save this change.', 'bbpress' )
 				);
 
-				return (int) get_option( '_bbp_allow_global_access', 1 );
+				return bbp_parse_int( get_option( '_bbp_allow_global_access', 1 ) );
 			}
 
 			return $mode;
 		}
 	}
 
-	return (int) get_option( '_bbp_allow_global_access', 1 );
+	return bbp_parse_int( get_option( '_bbp_allow_global_access', 1 ) );
 }
 
 /**
@@ -1151,7 +1151,7 @@ function bbp_admin_setting_callback_throttle() {
  */
 function bbp_admin_setting_callback_moderation_links() {
 	$limit         = get_option( '_bbp_moderation_links', false );
-	$default_limit = (int) get_option( 'comment_max_links', 0 );
+	$default_limit = bbp_parse_int( get_option( 'comment_max_links', 0 ) );
 	$placeholder   = 0 < $default_limit ? $default_limit : '';
 
 	// Start the output buffer for the link limit option
@@ -2615,7 +2615,7 @@ function bbp_converter_setting_callback_convert_users() {
 function bbp_converter_settings_page() {
 
 	// Status
-	$step = (int) get_option( '_bbp_converter_step', 0 );
+	$step = bbp_parse_int( get_option( '_bbp_converter_step', 0 ) );
 	$max  = (int) bbp_setup_converter()->max_steps;
 
 	// Starting or continuing?

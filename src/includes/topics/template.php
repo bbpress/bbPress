@@ -249,8 +249,9 @@ function bbp_has_topics( $args = array() ) {
 	/** Setup *****************************************************************/
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, $default, 'has_topics' );
-	if ( $view_all && ! current_user_can( 'edit_others_topics' ) && $view_all_parent !== (int) $r['post_parent'] ) {
+	$r                = bbp_parse_args( $args, $default, 'has_topics' );
+	$requested_parent = bbp_parse_int( $r['post_parent'] );
+	if ( $view_all && ! current_user_can( 'edit_others_topics' ) && ( $view_all_parent !== $requested_parent ) ) {
 		unset( $r['post_status'] );
 		$r['perm'] = 'readable';
 		$view_all  = false;
@@ -269,7 +270,7 @@ function bbp_has_topics( $args = array() ) {
 
 	// Limited the number of pages shown
 	if ( ! empty( $r['max_num_pages'] ) ) {
-		$bbp->topic_query->max_num_pages = (int) $r['max_num_pages'];
+		$bbp->topic_query->max_num_pages = bbp_parse_int( $r['max_num_pages'] );
 	}
 
 	// If no limit to posts per page, set it to the current post_count
@@ -278,8 +279,8 @@ function bbp_has_topics( $args = array() ) {
 	}
 
 	// Add pagination values to query object
-	$bbp->topic_query->posts_per_page = (int) $r['posts_per_page'];
-	$bbp->topic_query->paged          = (int) $r['paged'];
+	$bbp->topic_query->posts_per_page = bbp_parse_int( $r['posts_per_page'] );
+	$bbp->topic_query->paged          = bbp_parse_int( $r['paged'] );
 
 	// Only add pagination if query returned results
 	if ( ( ! empty( $bbp->topic_query->post_count ) || ! empty( $bbp->topic_query->found_posts ) ) && ! empty( $bbp->topic_query->posts_per_page ) ) {
@@ -1243,7 +1244,7 @@ function bbp_get_topic_revision_log( $topic_id = 0 ) {
 			$author_id = $revision->post_author;
 			$reason    = '';
 		} else {
-			$author_id = (int) $revision_log[ $revision->ID ]['author'];
+			$author_id = bbp_parse_int( $revision_log[ $revision->ID ]['author'] );
 			$reason    = $revision_log[ $revision->ID ]['reason'];
 
 			if ( empty( $author_id ) ) {
@@ -2243,7 +2244,7 @@ function bbp_get_topic_forum_id( $topic_id = 0 ) {
 
 	// Meta-data fallback
 	if ( empty( $forum_id ) ) {
-		$forum_id = (int) get_post_meta( $topic_id, '_bbp_forum_id', true );
+		$forum_id = bbp_parse_int( get_post_meta( $topic_id, '_bbp_forum_id', true ) );
 	}
 
 	// Filter
@@ -2284,7 +2285,7 @@ function bbp_topic_last_active_id( $topic_id = 0 ) {
  */
 function bbp_get_topic_last_active_id( $topic_id = 0 ) {
 	$topic_id  = bbp_get_topic_id( $topic_id );
-	$active_id = (int) get_post_meta( $topic_id, '_bbp_last_active_id', true );
+	$active_id = bbp_parse_int( get_post_meta( $topic_id, '_bbp_last_active_id', true ) );
 
 	/**
 	 * Filters a topic's last active post ID.
@@ -2512,7 +2513,7 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
  */
 function bbp_get_topic_last_reply_id( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$reply_id = (int) get_post_meta( $topic_id, '_bbp_last_reply_id', true );
+	$reply_id = bbp_parse_int( get_post_meta( $topic_id, '_bbp_last_reply_id', true ) );
 
 	/**
 	 * Filters the id of the topics last reply.
@@ -2796,7 +2797,7 @@ function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
  */
 function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$replies  = (int) get_post_meta( $topic_id, '_bbp_reply_count', true );
+	$replies  = bbp_parse_int( get_post_meta( $topic_id, '_bbp_reply_count', true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_topic_reply_count_int'
 		: 'bbp_get_topic_reply_count';
@@ -2840,7 +2841,7 @@ function bbp_topic_post_count( $topic_id = 0, $integer = false ) {
  */
 function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$replies  = ( (int) get_post_meta( $topic_id, '_bbp_reply_count', true ) ) + 1;
+	$replies  = bbp_parse_int( get_post_meta( $topic_id, '_bbp_reply_count', true ) ) + 1;
 	$filter   = ( true === $integer )
 		? 'bbp_get_topic_post_count_int'
 		: 'bbp_get_topic_post_count';
@@ -2886,7 +2887,7 @@ function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
  */
 function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$replies  = (int) get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
+	$replies  = bbp_parse_int( get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_topic_reply_count_hidden_int'
 		: 'bbp_get_topic_reply_count_hidden';
@@ -2930,7 +2931,7 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
  */
 function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$voices   = (int) get_post_meta( $topic_id, '_bbp_voice_count', true );
+	$voices   = bbp_parse_int( get_post_meta( $topic_id, '_bbp_voice_count', true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_topic_voice_count_int'
 		: 'bbp_get_topic_voice_count';
@@ -5305,7 +5306,7 @@ function bbp_get_form_topic_forum() {
 
 	// Get _POST data
 	if ( bbp_is_topic_form_post_request() && isset( $_POST['bbp_forum_id'] ) ) {
-		$topic_forum = (int) $_POST['bbp_forum_id'];
+		$topic_forum = bbp_parse_int( $_POST['bbp_forum_id'] );
 
 	// Get edit data
 	} elseif ( bbp_is_topic_edit() ) {

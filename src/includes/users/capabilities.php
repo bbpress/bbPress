@@ -124,7 +124,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 				// Get the user ID
 				$_user_id = ! empty( $args[0] )
-					? (int) $args[0]
+					? bbp_parse_int( $args[0] )
 					: bbp_get_displayed_user_id();
 
 				// Users can always edit themselves, so only map for others.

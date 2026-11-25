@@ -1019,8 +1019,8 @@ class BBP_Akismet {
 
 							<tr>
 								<td style="color: #999; text-align: right; white-space: nowrap;">
-									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', (int) $row['time'] ) . ' GMT' ); ?>">
-										<?php bbp_time_since( (int) $row['time'], false, true ); ?>
+									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', bbp_parse_int( $row['time'] ) ) . ' GMT' ); ?>">
+										<?php bbp_time_since( bbp_parse_int( $row['time'] ), false, true ); ?>
 									</span>
 								</td>
 								<td style="padding-left: 5px;">

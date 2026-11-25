@@ -275,7 +275,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 		if ( empty( $attempt ) ) {
 			$exists = metadata_exists( $meta_type, $object_id, $meta_key );
 			$count  = $exists
-				? (int) get_metadata( $meta_type, $object_id, $meta_key, true )
+				? bbp_parse_int( get_metadata( $meta_type, $object_id, $meta_key, true ) )
 				: $default;
 		} else {
 			$stored = $bbp_db->get_var( $count_query );
@@ -290,7 +290,7 @@ function bbp_bump_count_meta( $meta_type = '', $object_id = 0, $meta_key = '', $
 		}
 
 		$new_count = sanitize_meta( $meta_key, bbp_number_not_negative( $count + $difference ), $meta_type, $subtype );
-		$new_count = (int) $new_count;
+		$new_count = bbp_parse_int( $new_count );
 
 		// Allow metadata updates to be short-circuited as usual
 		if ( ! $checked ) {
@@ -723,7 +723,9 @@ function bbp_get_total_forum_users() {
 	 *
 	 * @param int $count The total number of forum users.
 	 */
-	return (int) apply_filters( 'bbp_get_total_forum_users', (int) $count );
+	$count = bbp_parse_int( $count );
+	$count = apply_filters( 'bbp_get_total_forum_users', $count );
+	return bbp_parse_int( $count );
 }
 
 /**

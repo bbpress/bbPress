@@ -147,6 +147,20 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_forum_topic_count
+	 * @covers ::bbp_get_forum_reply_count
+	 */
+	public function test_forum_counts_ignore_non_scalar_metadata() {
+		$forum_id = $this->factory->forum->create();
+
+		update_post_meta( $forum_id, '_bbp_total_topic_count', array( 9 ) );
+		update_post_meta( $forum_id, '_bbp_total_reply_count', array( 9 ) );
+
+		$this->assertSame( 0, bbp_get_forum_topic_count( $forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_forum_post_count
 	 * @covers ::bbp_get_forum_post_count
 	 */

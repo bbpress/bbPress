@@ -134,7 +134,7 @@ function bbp_set_forum_nav_menu_classes( $menu_items ) {
 	$root_slug     = bbp_get_root_slug();
 	$root_page     = ( '' !== $root_slug ) ? bbp_get_page_by_path( $root_slug ) : null;
 	$root_page_id  = $root_page ? (int) $root_page->ID : 0;
-	$posts_page_id = (int) get_option( 'page_for_posts' );
+	$posts_page_id = bbp_parse_int( get_option( 'page_for_posts' ) );
 	$menu_keys     = array();
 	$root_keys     = array();
 	$root_urls     = array();

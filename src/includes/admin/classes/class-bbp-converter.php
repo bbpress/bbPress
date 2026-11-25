@@ -181,7 +181,7 @@ class BBP_Converter {
 
 				// UI State
 				'state' => array(
-					'delay'         => (int) get_option( '_bbp_converter_delay_time', 2 ),
+					'delay'         => bbp_parse_int( get_option( '_bbp_converter_delay_time', 2 ) ),
 					'started'       => (bool) get_option( '_bbp_converter_step',       0 ),
 					'finished'      => (bool) get_option( '_bbp_converter_finished',   false ),
 					'running'       => false,
@@ -394,12 +394,12 @@ class BBP_Converter {
 
 			// Halt
 			'_bbp_converter_halt' => ! empty( $_POST['_bbp_converter_halt'] )
-				? (int) $_POST['_bbp_converter_halt']
+				? bbp_parse_int( $_POST['_bbp_converter_halt'] )
 				: 0,
 
 			// Rows (bound between 1 and 5000)
 			'_bbp_converter_rows' => ! empty( $_POST['_bbp_converter_rows'] )
-				? min( max( (int) $_POST['_bbp_converter_rows'], 1 ), 5000 )
+				? min( max( bbp_parse_int( $_POST['_bbp_converter_rows'] ), 1 ), 5000 )
 				: 0,
 
 			// Platform
@@ -466,10 +466,10 @@ class BBP_Converter {
 	private function setup_options() {
 
 		// Set starting point & rows
-		$this->step         = (int) get_option( '_bbp_converter_step',         1   );
-		$this->start        = (int) get_option( '_bbp_converter_start',        0   );
-		$this->rows         = (int) get_option( '_bbp_converter_rows',         100 );
-		$this->rows_in_step = (int) get_option( '_bbp_converter_rows_in_step', 0   );
+		$this->step         = bbp_parse_int( get_option( '_bbp_converter_step',         1   ) );
+		$this->start        = bbp_parse_int( get_option( '_bbp_converter_start',        0   ) );
+		$this->rows         = bbp_parse_int( get_option( '_bbp_converter_rows',         100 ) );
+		$this->rows_in_step = bbp_parse_int( get_option( '_bbp_converter_rows_in_step', 0   ) );
 		$this->finished     = (bool) get_option( '_bbp_converter_finished',     false );
 
 		// Set boundaries

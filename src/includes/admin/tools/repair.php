@@ -305,7 +305,7 @@ function bbp_admin_repair_topic_reply_count_batch( $hidden = false, $dry_run = f
 			if ( $work >= $size ) {
 				break;
 			}
-			$topic_id = (int) $topic['ID'];
+			$topic_id = bbp_parse_int( $topic['ID'] );
 			$count    = null;
 			if ( $hidden || ! empty( $topic['is_public'] ) ) {
 				$count = (int) $bbp_db->get_var(
@@ -950,7 +950,7 @@ function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
 	}
 	$counts = array();
 	foreach ( $rows as $row ) {
-		$counts[ (int) $row['ID'] ] = (int) $row['subforum_count'];
+		$counts[ bbp_parse_int( $row['ID'] ) ] = bbp_parse_int( $row['subforum_count'] );
 	}
 	return array(
 		'code'   => 0,
@@ -1226,8 +1226,8 @@ function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_
 	$term_taxonomy_ids = array();
 	$repair_count      = 0;
 	foreach ( $rows as $row ) {
-		$term_taxonomy_ids[] = (int) $row['term_taxonomy_id'];
-		if ( (int) $row['stored_count'] !== (int) $row['expected_count'] ) {
+		$term_taxonomy_ids[] = bbp_parse_int( $row['term_taxonomy_id'] );
+		if ( bbp_parse_int( $row['stored_count'] ) !== bbp_parse_int( $row['expected_count'] ) ) {
 			++$repair_count;
 		}
 	}
@@ -1360,7 +1360,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 			}
 		}
 		if ( ! empty( $rows ) ) {
-			$state['cursor'] = (int) end( $rows )['term_taxonomy_id'];
+			$state['cursor'] = bbp_parse_int( end( $rows )['term_taxonomy_id'] );
 		}
 		++$batch['batches'];
 		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, array( 'repaired', 'processed', 'initial', 'batches' ) ) ) {

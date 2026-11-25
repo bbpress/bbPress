@@ -894,7 +894,7 @@ class BBP_Forums_Admin {
 			/* translators: %s: date and time of the revision */
 			5 => isset( $_GET['revision'] )
 				/* translators: %s: Date and time of the revision */
-				? sprintf( esc_html__( 'Forum restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+				? sprintf( esc_html__( 'Forum restored to revision from %s', 'bbpress' ), wp_post_revision_title( bbp_parse_int( $_GET['revision'] ), false ) )
 				: false,
 
 			// Forum created

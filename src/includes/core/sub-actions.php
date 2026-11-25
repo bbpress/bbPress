@@ -1150,7 +1150,7 @@ function bbp_get_canonical_redirect_post_id( $requested_url = '' ) {
 
 	// Explicitly trust an existing 404 post ID.
 	if ( is_404() ) {
-		$post_id = max( 0, (int) get_query_var( 'p' ), (int) get_query_var( 'page_id' ), (int) get_query_var( 'attachment_id' ) );
+		$post_id = max( 0, bbp_parse_int( get_query_var( 'p' ) ), bbp_parse_int( get_query_var( 'page_id' ) ), bbp_parse_int( get_query_var( 'attachment_id' ) ) );
 		if ( $post_id ) {
 			return $post_id;
 		}

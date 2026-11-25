@@ -39,7 +39,7 @@ function bbp_check_post_lock( $post_id = 0 ) {
 	$time = $lock[0];
 	$user = isset( $lock[1] )
 		? (int) $lock[1]
-		: (int) get_post_meta( $post->ID, '_edit_last', true );
+		: bbp_parse_int( get_post_meta( $post->ID, '_edit_last', true ) );
 
 	// Filter editing window duration
 

@@ -281,7 +281,7 @@ function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
 	$completed = get_option( '_bbp_mention_backfill', false );
 	if ( false === $state && ! $dry_run && ! empty( $context['run_id'] ) && ! empty( $context['started'] )
 		&& is_array( $completed ) && ! empty( $completed['complete'] ) ) {
-		$batch['processed'] = isset( $completed['processed'] ) ? (int) $completed['processed'] : 0;
+		$batch['processed'] = isset( $completed['processed'] ) ? bbp_parse_int( $completed['processed'] ) : 0;
 		$batch['complete']  = true;
 		return $batch;
 	}
@@ -982,11 +982,12 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 			}
 			$batch['found'] = true;
 
-			$row_id   = (int) $meta->umeta_id;
-			$user_id  = (int) $meta->user_id;
-			$row_hash = bbp_admin_repair_user_meta_row_hash( $meta );
-			$offset   = ( $row_id === (int) $state['cursor'] ) && ( $row_hash === $state['row_hash'] )
-				? (int) $state['offset']
+			$row_id    = (int) $meta->umeta_id;
+			$user_id   = (int) $meta->user_id;
+			$row_hash  = bbp_admin_repair_user_meta_row_hash( $meta );
+			$cursor_id = bbp_parse_int( $state['cursor'] );
+			$offset    = ( $row_id === $cursor_id ) && ( $row_hash === $state['row_hash'] )
+				? bbp_parse_int( $state['offset'] )
 				: 0;
 			$parsed = bbp_admin_repair_user_meta_id_batch( $meta->meta_value, $offset, $size - $work );
 

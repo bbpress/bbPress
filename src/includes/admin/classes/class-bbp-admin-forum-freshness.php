@@ -891,8 +891,8 @@ class BBP_Admin_Forum_Freshness extends BBP_Admin_Forum_Repair {
 			'_bbp_last_reply_id'  => 'reply',
 			'_bbp_last_active_id' => 'active',
 		) as $key => $return ) {
-			$current   = (int) $parent_node['values'][ $key ];
-			$candidate = (int) $child['returns'][ $return ];
+			$current   = bbp_parse_int( $parent_node['values'][ $key ] );
+			$candidate = bbp_parse_int( $child['returns'][ $return ] );
 			$old_date  = $this->post_date( $current, 'raw' );
 			$new_date  = $this->post_date( $candidate, 'raw' );
 			if ( $this->error ) {

@@ -83,8 +83,8 @@ function bbp_has_search_results( $args = array() ) {
 	}
 
 	// Add pagination values to query object
-	$bbp->search_query->posts_per_page = (int) $r['posts_per_page'];
-	$bbp->search_query->paged          = (int) $r['paged'];
+	$bbp->search_query->posts_per_page = bbp_parse_int( $r['posts_per_page'] );
+	$bbp->search_query->paged          = bbp_parse_int( $r['paged'] );
 
 	// Never home, regardless of what parse_query says
 	$bbp->search_query->is_home        = false;

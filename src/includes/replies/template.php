@@ -216,15 +216,16 @@ function bbp_has_replies( $args = array() ) {
 	/** Setup *****************************************************************/
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, $default, 'has_replies' );
-	if ( $view_all && ! current_user_can( 'edit_others_replies' ) && $view_all_parent !== (int) $r['post_parent'] ) {
+	$r                = bbp_parse_args( $args, $default, 'has_replies' );
+	$requested_parent = bbp_parse_int( $r['post_parent'] );
+	if ( $view_all && ! current_user_can( 'edit_others_replies' ) && ( $view_all_parent !== $requested_parent ) ) {
 		unset( $r['post_status'] );
 		$r['perm'] = 'readable';
 		$view_all  = false;
 	}
 
 	// Set posts_per_page value if replies are threaded
-	$replies_per_page = (int) $r['posts_per_page'];
+	$replies_per_page = bbp_parse_int( $r['posts_per_page'] );
 	if ( true === $r['hierarchical'] ) {
 		$r['posts_per_page'] = -1;
 	}
@@ -237,7 +238,7 @@ function bbp_has_replies( $args = array() ) {
 
 	// Add pagination values to query object
 	$bbp->reply_query->posts_per_page = (int) $replies_per_page;
-	$bbp->reply_query->paged          = (int) $r['paged'];
+	$bbp->reply_query->paged          = bbp_parse_int( $r['paged'] );
 
 	// Never home, regardless of what parse_query says
 	$bbp->reply_query->is_home        = false;
@@ -980,7 +981,7 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
 			$author_id = $revision->post_author;
 			$reason    = '';
 		} else {
-			$author_id = (int) $revision_log[ $revision->ID ]['author'];
+			$author_id = bbp_parse_int( $revision_log[ $revision->ID ]['author'] );
 			$reason    = $revision_log[ $revision->ID ]['reason'];
 
 			if ( empty( $author_id ) ) {
@@ -1881,7 +1882,7 @@ function bbp_get_reply_topic_id( $reply_id = 0 ) {
 
 	// Meta-data fallback
 	if ( empty( $topic_id ) ) {
-		$topic_id = (int) get_post_meta( $reply_id, '_bbp_topic_id', true );
+		$topic_id = bbp_parse_int( get_post_meta( $reply_id, '_bbp_topic_id', true ) );
 	}
 
 	// Filter
@@ -1928,7 +1929,7 @@ function bbp_get_reply_forum_id( $reply_id = 0 ) {
 
 	// Meta-data fallback
 	if ( empty( $forum_id ) ) {
-		$forum_id = (int) get_post_meta( $reply_id, '_bbp_forum_id', true );
+		$forum_id = bbp_parse_int( get_post_meta( $reply_id, '_bbp_forum_id', true ) );
 	}
 
 	// Filter
@@ -2020,7 +2021,7 @@ function bbp_get_reply_to( $reply_id = 0 ) {
 
 	// Get reply_to value
 	if ( ! empty( $reply_id ) ) {
-		$reply_to = (int) get_post_meta( $reply_id, '_bbp_reply_to', true );
+		$reply_to = bbp_parse_int( get_post_meta( $reply_id, '_bbp_reply_to', true ) );
 	}
 
 	/**
@@ -2165,7 +2166,7 @@ function bbp_get_cancel_reply_to_link( $text = '' ) {
 
 	// Replying to...
 	$reply_to = isset( $_GET['bbp_reply_to'] )
-		? (int) $_GET['bbp_reply_to']
+		? bbp_parse_int( $_GET['bbp_reply_to'] )
 		: 0;
 
 	// Set visibility

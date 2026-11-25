@@ -726,6 +726,42 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_moderation_link_limit
+	 * @covers ::bbp_thread_replies_depth
+	 * @covers ::bbp_get_title_max_length
+	 * @covers ::bbp_get_edit_lock
+	 * @covers ::bbp_get_group_forums_root_id
+	 */
+	public function test_integer_options_ignore_non_scalar_filter_results() {
+		$filters = array(
+			'bbp_get_moderation_link_limit',
+			'bbp_thread_replies_depth',
+			'bbp_get_title_max_length',
+			'bbp_get_edit_lock',
+			'bbp_get_group_forums_root_id',
+		);
+		$invalid = function() {
+			return array( 9 );
+		};
+
+		foreach ( $filters as $filter ) {
+			add_filter( $filter, $invalid );
+		}
+
+		try {
+			$this->assertSame( 0, bbp_get_moderation_link_limit() );
+			$this->assertSame( 0, bbp_thread_replies_depth() );
+			$this->assertSame( 0, bbp_get_title_max_length() );
+			$this->assertSame( 0, bbp_get_edit_lock() );
+			$this->assertSame( 0, bbp_get_group_forums_root_id() );
+		} finally {
+			foreach ( $filters as $filter ) {
+				remove_filter( $filter, $invalid );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_settings_integration
 	 */
 	public function test_bbp_settings_integration_normalizes_legacy_and_invalid_values() {

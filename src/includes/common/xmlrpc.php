@@ -58,7 +58,7 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 
 	// mt.publishPost sets a post status without bbPress lifecycle handling
 	if ( 'mt.publishPost' === $method ) {
-		$post_id = ! empty( $args[0] ) ? (int) $args[0] : 0;
+		$post_id = ! empty( $args[0] ) ? bbp_parse_int( $args[0] ) : 0;
 		$post    = get_post( $post_id );
 		$types   = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 
@@ -77,10 +77,10 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 			return;
 		}
 
-		$post_id   = (int) $args[3];
+		$post_id   = bbp_parse_int( $args[3] );
 		$post_data = $args[4];
 	} elseif ( $is_restore && ! empty( $args[3] ) ) {
-		$revision_id = (int) $args[3];
+		$revision_id = bbp_parse_int( $args[3] );
 		$revision    = wp_get_post_revision( $revision_id );
 
 		if ( empty( $revision ) ) {
@@ -109,11 +109,11 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	}
 
 	$post_parent = isset( $post_data['post_parent'] )
-		? (int) $post_data['post_parent']
+		? bbp_parse_int( $post_data['post_parent'] )
 		: (int) $post->post_parent;
 	$parent_changed = ( $post_parent !== (int) $post->post_parent );
 	$status_changed = isset( $post_data['post_status'] ) && ( $post_data['post_status'] !== $post->post_status );
-	$order_changed  = isset( $post_data['menu_order'] ) && ( (int) $post_data['menu_order'] !== (int) $post->menu_order );
+	$order_changed  = isset( $post_data['menu_order'] ) && ( bbp_parse_int( $post_data['menu_order'] ) !== bbp_parse_int( $post->menu_order ) );
 	$invalid          = false;
 	$is_forum_content = in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true );
 	$can_moderate     = current_user_can( 'moderate', $post_id );
@@ -280,7 +280,7 @@ function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 		}
 	}
 
-	if ( ! empty( $bbp_xmlrpc_error_post_id ) && in_array( $cap, $edit_caps, true ) && ! empty( $args[0] ) && ( (int) $args[0] === $bbp_xmlrpc_error_post_id ) ) {
+	if ( ! empty( $bbp_xmlrpc_error_post_id ) && in_array( $cap, $edit_caps, true ) && ! empty( $args[0] ) && ( bbp_parse_int( $args[0] ) === $bbp_xmlrpc_error_post_id ) ) {
 		$caps[] = 'do_not_allow';
 	}
 	if ( ( ( bbp_get_topic_post_type() === $bbp_xmlrpc_error_post_type ) && ( 'edit_topics' === $cap ) ) || ( ( bbp_get_reply_post_type() === $bbp_xmlrpc_error_post_type ) && ( 'edit_replies' === $cap ) ) ) {
@@ -299,7 +299,7 @@ function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
  * @return array<string, mixed> Parsed post data.
  */
 function bbp_xmlrpc_wp_insert_post_data( $post_data = array() ) {
-	$post_id   = ! empty( $post_data['ID'] ) ? (int) $post_data['ID'] : 0;
+	$post_id   = ! empty( $post_data['ID'] ) ? bbp_parse_int( $post_data['ID'] ) : 0;
 	$post_type = isset( $post_data['post_type'] ) ? $post_data['post_type'] : '';
 
 	if ( empty( $post_id ) || ! in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
@@ -319,7 +319,7 @@ function bbp_xmlrpc_wp_insert_post_data( $post_data = array() ) {
 
 	$title     = isset( $post_data['post_title'] ) ? wp_unslash( $post_data['post_title'] ) : '';
 	$content   = isset( $post_data['post_content'] ) ? wp_unslash( $post_data['post_content'] ) : '';
-	$author_id = isset( $post_data['post_author'] ) ? (int) $post_data['post_author'] : 0;
+	$author_id = isset( $post_data['post_author'] ) ? bbp_parse_int( $post_data['post_author'] ) : 0;
 	$is_public = ( bbp_get_topic_post_type() === $post_type )
 		? bbp_is_topic_public( $post_id )
 		: bbp_is_reply_public( $post_id );

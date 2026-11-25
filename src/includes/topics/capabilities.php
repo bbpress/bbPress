@@ -96,7 +96,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			if ( ! $can_read && ! empty( $args[0] ) ) {
 				/** This filter is documented in src/includes/forums/capabilities.php. */
-				$can_read = (bool) apply_filters( 'bbp_allow_read_without_spectate', false, $user_id, (int) $args[0], $cap );
+				$can_read = (bool) apply_filters( 'bbp_allow_read_without_spectate', false, $user_id, bbp_parse_int( $args[0] ), $cap );
 			}
 
 			// User cannot spectate

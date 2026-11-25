@@ -589,6 +589,8 @@ function bbp_get_moderation_link_limit() {
 		$limit = get_option( 'comment_max_links', 0 );
 	}
 
+	$limit = bbp_parse_int( $limit );
+
 	/**
 	 * Filters the number of links allowed before moderation.
 	 *
@@ -596,7 +598,8 @@ function bbp_get_moderation_link_limit() {
 	 *
 	 * @param int $limit The number of links allowed before moderation.
 	 */
-	return (int) apply_filters( 'bbp_get_moderation_link_limit', (int) $limit );
+	$limit = apply_filters( 'bbp_get_moderation_link_limit', $limit );
+	return bbp_parse_int( $limit );
 }
 
 /**
@@ -1067,6 +1070,7 @@ function bbp_allow_threaded_replies( $default = 0 ) {
  * @return int Thread replies depth.
  */
 function bbp_thread_replies_depth( $default = 2 ) {
+	$depth = bbp_parse_int( get_option( '_bbp_thread_replies_depth', $default ) );
 
 	/**
 	 * Filters the thread replies depth.
@@ -1075,7 +1079,8 @@ function bbp_thread_replies_depth( $default = 2 ) {
 	 *
 	 * @param int $value Thread replies depth.
 	 */
-	return (int) apply_filters( 'bbp_thread_replies_depth', (int) get_option( '_bbp_thread_replies_depth', $default ) );
+	$depth = apply_filters( 'bbp_thread_replies_depth', $depth );
+	return bbp_parse_int( $depth );
 }
 
 /**
@@ -1131,7 +1136,7 @@ function bbp_is_auto_role_disabled( $setting = null ) {
 		$setting = get_option( '_bbp_allow_global_access', 1 );
 	}
 
-	return 2 === (int) $setting;
+	return ( 2 === bbp_parse_int( $setting ) );
 }
 
 /**
@@ -1305,6 +1310,7 @@ function bbp_title_max_length( $default = 80 ) {
  * @return int Maximum title length.
  */
 function bbp_get_title_max_length( $default = 80 ) {
+	$length = bbp_parse_int( get_option( '_bbp_title_max_length', $default ) );
 
 	/**
 	 * Filters the maximum length of a title.
@@ -1313,7 +1319,8 @@ function bbp_get_title_max_length( $default = 80 ) {
 	 *
 	 * @param int $value Maximum title length.
 	 */
-	return (int) apply_filters( 'bbp_get_title_max_length', (int) get_option( '_bbp_title_max_length', $default ) );
+	$length = apply_filters( 'bbp_get_title_max_length', $length );
+	return bbp_parse_int( $length );
 }
 
 /**
@@ -1339,6 +1346,7 @@ function bbp_edit_lock( $default = 5 ) {
  * @return int Edit window in minutes.
  */
 function bbp_get_edit_lock( $default = 5 ) {
+	$lock = bbp_parse_int( get_option( '_bbp_edit_lock', $default ) );
 
 	/**
 	 * Filters the number of minutes a topic or reply can be edited after it's.
@@ -1347,7 +1355,8 @@ function bbp_get_edit_lock( $default = 5 ) {
 	 *
 	 * @param int $value Edit window in minutes.
 	 */
-	return (int) apply_filters( 'bbp_get_edit_lock', (int) get_option( '_bbp_edit_lock', $default ) );
+	$lock = apply_filters( 'bbp_get_edit_lock', $lock );
+	return bbp_parse_int( $lock );
 }
 
 /**
@@ -1371,6 +1380,7 @@ function bbp_group_forums_root_id( $default = 0 ) {
  * @return int The post ID for the root forum.
  */
 function bbp_get_group_forums_root_id( $default = 0 ) {
+	$root_id = bbp_parse_int( get_option( '_bbp_group_forums_root_id', $default ) );
 
 	/**
 	 * Filters the group forums root parent forum id.
@@ -1379,7 +1389,8 @@ function bbp_get_group_forums_root_id( $default = 0 ) {
 	 *
 	 * @param int $value The post ID for the root forum.
 	 */
-	return (int) apply_filters( 'bbp_get_group_forums_root_id', (int) get_option( '_bbp_group_forums_root_id', $default ) );
+	$root_id = apply_filters( 'bbp_get_group_forums_root_id', $root_id );
+	return bbp_parse_int( $root_id );
 }
 
 /**

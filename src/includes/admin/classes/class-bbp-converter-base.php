@@ -166,7 +166,7 @@ abstract class BBP_Converter_Base {
 		$this->clean         = ! empty( $_POST['_bbp_converter_clean'] );
 		$this->convert_users = current_user_can( 'bbp_tools_import_users' ) && (bool) get_option( '_bbp_converter_convert_users', false );
 		$this->halt          = (bool) get_option( '_bbp_converter_halt',          0     );
-		$this->max_rows      = (int) get_option( '_bbp_converter_rows',          100   );
+		$this->max_rows      = bbp_parse_int( get_option( '_bbp_converter_rows',          100   ) );
 
 		/** Sanitize Connection ***********************************************/
 
@@ -1215,7 +1215,7 @@ abstract class BBP_Converter_Base {
 		// deleted from usermeta. An offset would skip rows as the result set shrinks.
 		$cursor = empty( $start )
 			? 0
-			: (int) get_option( '_bbp_converter_passwords_cursor', 0 );
+			: bbp_parse_int( get_option( '_bbp_converter_passwords_cursor', 0 ) );
 
 		$query      = $this->wpdb->prepare( "SELECT umeta_id, user_id, meta_value FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND umeta_id > %d ORDER BY umeta_id ASC LIMIT {$max_rows}", '_bbp_password', $cursor );
 		$converted  = $this->get_results( $query, ARRAY_A );
@@ -1230,7 +1230,7 @@ abstract class BBP_Converter_Base {
 				}
 
 				clean_user_cache( $value['user_id'] );
-				$cursor = (int) $value['umeta_id'];
+				$cursor = bbp_parse_int( $value['umeta_id'] );
 			}
 			update_option( '_bbp_converter_passwords_cursor', $cursor, false );
 			$has_delete = true;
@@ -1390,7 +1390,7 @@ abstract class BBP_Converter_Base {
 		$query       = $this->require_query( $query );
 		$count_query = $this->require_query( $count_query );
 		$results      = $this->get_results( $query );
-		$saved_count  = (int) get_option( '_bbp_converter_rows_in_step', 0 );
+		$saved_count  = bbp_parse_int( get_option( '_bbp_converter_rows_in_step', 0 ) );
 		$result_count = count( $results );
 
 		if ( empty( $start ) || ! $saved_count || ( $result_count && ( $start + $result_count > $saved_count ) ) ) {

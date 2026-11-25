@@ -639,7 +639,7 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
  */
 function bbp_get_forum_last_active_id( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
-	$active_id = (int) get_post_meta( $forum_id, '_bbp_last_active_id', true );
+	$active_id = bbp_parse_int( get_post_meta( $forum_id, '_bbp_last_active_id', true ) );
 
 	/**
 	 * Filters a forum's last active post ID.
@@ -858,7 +858,7 @@ function bbp_get_forum_parent_id( $forum_id = 0 ) {
 
 	// Meta-data fallback
 	if ( empty( $parent_id ) ) {
-		$parent_id = (int) get_post_meta( $forum_id, '_bbp_forum_id', true );
+		$parent_id = bbp_parse_int( get_post_meta( $forum_id, '_bbp_forum_id', true ) );
 	}
 
 	// Filter
@@ -1212,7 +1212,7 @@ function bbp_forum_last_topic_id( $forum_id = 0 ) {
  */
 function bbp_get_forum_last_topic_id( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
-	$topic_id = (int) get_post_meta( $forum_id, '_bbp_last_topic_id', true );
+	$topic_id = bbp_parse_int( get_post_meta( $forum_id, '_bbp_last_topic_id', true ) );
 
 	/**
 	 * Filters the forum's last topic id.
@@ -1385,7 +1385,7 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
  */
 function bbp_get_forum_last_reply_id( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
-	$reply_id = (int) get_post_meta( $forum_id, '_bbp_last_reply_id', true );
+	$reply_id = bbp_parse_int( get_post_meta( $forum_id, '_bbp_last_reply_id', true ) );
 
 	/**
 	 * Filters the forum's last reply id.
@@ -1678,7 +1678,7 @@ function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
  */
 function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
 	$forum_id    = bbp_get_forum_id( $forum_id );
-	$forum_count = (int) get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
+	$forum_count = bbp_parse_int( get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
 	$filter      = ( true === $integer )
 		? 'bbp_get_forum_subforum_count_int'
 		: 'bbp_get_forum_subforum_count';
@@ -1725,7 +1725,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
 function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$meta_key = empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count';
-	$topics   = (int) get_post_meta( $forum_id, $meta_key, true );
+	$topics   = bbp_parse_int( get_post_meta( $forum_id, $meta_key, true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_forum_topic_count_int'
 		: 'bbp_get_forum_topic_count';
@@ -1772,7 +1772,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
 function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$meta_key = empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count';
-	$replies  = (int) get_post_meta( $forum_id, $meta_key, true );
+	$replies  = bbp_parse_int( get_post_meta( $forum_id, $meta_key, true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_forum_reply_count_int'
 		: 'bbp_get_forum_reply_count';
@@ -1871,7 +1871,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $inte
 function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$meta_key = empty( $total_count ) ? '_bbp_topic_count_hidden' : '_bbp_total_topic_count_hidden';
-	$topics   = (int) get_post_meta( $forum_id, $meta_key, true );
+	$topics   = bbp_parse_int( get_post_meta( $forum_id, $meta_key, true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_forum_topic_count_hidden_int'
 		: 'bbp_get_forum_topic_count_hidden';
@@ -1920,7 +1920,7 @@ function bbp_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $inte
 function bbp_get_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $integer = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$meta_key = empty( $total_count ) ? '_bbp_reply_count_hidden' : '_bbp_total_reply_count_hidden';
-	$replies  = (int) get_post_meta( $forum_id, $meta_key, true );
+	$replies  = bbp_parse_int( get_post_meta( $forum_id, $meta_key, true ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_forum_reply_count_hidden_int'
 		: 'bbp_get_forum_reply_count_hidden';
@@ -2649,7 +2649,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array(), $
 	// Assume the author link is the return value
 	$retval = $author_link;
 	$post_id = ! empty( $args['post_id'] )
-		? (int) $args['post_id']
+		? bbp_parse_int( $args['post_id'] )
 		: ( is_numeric( $original_args ) ? (int) $original_args : 0 );
 
 	// Suppress non-public authors unless this user moderates their forum
@@ -3116,7 +3116,7 @@ function bbp_get_form_forum_parent() {
 
 	// Get _POST data
 	if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_id'] ) ) {
-		$forum_parent = (int) $_POST['bbp_forum_id'];
+		$forum_parent = bbp_parse_int( $_POST['bbp_forum_id'] );
 
 	// Get edit data
 	} elseif ( bbp_is_forum_edit() ) {

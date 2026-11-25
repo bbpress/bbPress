@@ -623,7 +623,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 
 		// Get the reply ID
 		if ( isset( $args['exclude'][0] ) ) {
-			$reply_id = (int) $args['exclude'][0];
+			$reply_id = bbp_parse_int( $args['exclude'][0] );
 		} else {
 			$reply_id = bbp_get_reply_id();
 		}

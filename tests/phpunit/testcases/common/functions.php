@@ -2911,6 +2911,20 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_parse_int
+	 */
+	public function test_bbp_parse_int_preserves_scalar_casts_and_rejects_other_values() {
+		$this->assertSame( 12, bbp_parse_int( 12 ) );
+		$this->assertSame( 12, bbp_parse_int( '12 replies' ) );
+		$this->assertSame( 4, bbp_parse_int( 4.8 ) );
+		$this->assertSame( 1, bbp_parse_int( true ) );
+		$this->assertSame( 0, bbp_parse_int( false ) );
+		$this->assertSame( 0, bbp_parse_int( null ) );
+		$this->assertSame( 0, bbp_parse_int( array( 9 ) ) );
+		$this->assertSame( 0, bbp_parse_int( new stdClass() ) );
+	}
+
+	/**
 	 * @covers ::bbp_is_custom_post_type
 	 */
 	public function test_bbp_is_custom_post_type() {

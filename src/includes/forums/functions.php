@@ -1910,7 +1910,7 @@ function bbp_bump_forum_ancestor_count( $forum_id = 0, $meta_key = '', $differen
 			break;
 		}
 
-		$count = (int) get_post_meta( $ancestor_id, $meta_key, true );
+		$count = bbp_parse_int( get_post_meta( $ancestor_id, $meta_key, true ) );
 
 		if ( ! bbp_bump_count_meta( 'post', $ancestor_id, $meta_key, $difference, $count ) ) {
 			$updated = false;
@@ -2241,7 +2241,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	}
 
 	// Cast as integer in case of empty or string
-	$reply_id = (int) $reply_id;
+	$reply_id = bbp_parse_int( $reply_id );
 
 	// Update the last public reply ID
 	update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
@@ -2298,7 +2298,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	}
 
 	// Cast as integer in case of empty or string
-	$active_id = (int) $active_id;
+	$active_id = bbp_parse_int( $active_id );
 
 	update_post_meta( $forum_id, '_bbp_last_active_id', $active_id );
 
@@ -2546,7 +2546,7 @@ function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum
 function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false ) {
 	$forum_id             = bbp_get_forum_id( $forum_id );
 	$old_total_topics     = ( true === $update_ancestors )
-		? (int) get_post_meta( $forum_id, '_bbp_total_topic_count', true )
+		? bbp_parse_int( get_post_meta( $forum_id, '_bbp_total_topic_count', true ) )
 		: 0;
 	$children_topic_count = 0;
 	$total_topics         = 0;
@@ -2615,7 +2615,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 	$children_topic_count = 0;
 	$total_topics         = 0;
 	$old_total_topics     = ( true === $update_ancestors )
-		? (int) get_post_meta( $forum_id, '_bbp_total_topic_count_hidden', true )
+		? bbp_parse_int( get_post_meta( $forum_id, '_bbp_total_topic_count_hidden', true ) )
 		: 0;
 
 	// Can't update what isn't there
@@ -2684,7 +2684,7 @@ function bbp_update_forum_reply_count( $forum_id = 0, $update_ancestors = false 
 
 	$forum_id             = bbp_get_forum_id( $forum_id );
 	$old_total_replies    = ( true === $update_ancestors )
-		? (int) get_post_meta( $forum_id, '_bbp_total_reply_count', true )
+		? bbp_parse_int( get_post_meta( $forum_id, '_bbp_total_reply_count', true ) )
 		: 0;
 	$children_reply_count = 0;
 
@@ -2741,7 +2741,7 @@ function bbp_update_forum_reply_count( $forum_id = 0, $update_ancestors = false 
 
 	if ( null === $reply_count ) {
 		// Keep the saved total when the count query fails.
-		$total_replies = bbp_number_not_negative( (int) get_post_meta( $forum_id, '_bbp_total_reply_count', true ) );
+		$total_replies = bbp_number_not_negative( bbp_parse_int( get_post_meta( $forum_id, '_bbp_total_reply_count', true ) ) );
 	} else {
 		// Calculate total replies in this forum
 		$total_replies = (int) ( $reply_count + $children_reply_count );
@@ -2784,7 +2784,7 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors =
 
 	$forum_id             = bbp_get_forum_id( $forum_id );
 	$old_total_replies    = ( true === $update_ancestors )
-		? (int) get_post_meta( $forum_id, '_bbp_total_reply_count_hidden', true )
+		? bbp_parse_int( get_post_meta( $forum_id, '_bbp_total_reply_count_hidden', true ) )
 		: 0;
 	$children_reply_count = 0;
 
@@ -4007,7 +4007,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 	 * @param mixed $reply_id Last public reply ID or post object, or null when none is found.
 	 * @param int $forum_id Forum id.
 	 */
-	return (int) apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
+	return bbp_parse_int( apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id ) );
 }
 
 /**

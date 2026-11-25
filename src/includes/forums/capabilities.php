@@ -95,7 +95,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				 * @param int $context_3 Context 3.
 				 * @param string $cap Cap.
 				 */
-				$can_read = (bool) apply_filters( 'bbp_allow_read_without_spectate', false, $user_id, (int) $args[0], $cap );
+				$can_read = (bool) apply_filters( 'bbp_allow_read_without_spectate', false, $user_id, bbp_parse_int( $args[0] ), $cap );
 			}
 
 			// User cannot spectate

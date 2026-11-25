@@ -697,7 +697,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
 
 	// Look for pagination value
 	$page = isset( $_REQUEST['page'] )
-		? (int) $_REQUEST['page']
+		? bbp_parse_int( $_REQUEST['page'] )
 		: 0;
 
 	// Load up the list table

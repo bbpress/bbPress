@@ -601,7 +601,7 @@ class PHPWind extends BBP_Converter_Base {
 	 * @return string|bool Serialized password metadata, or false on failure.
 	 */
 	private function get_source_password( $user, $stored_hash ) {
-		$old_user_id = (int) get_user_meta( $user->ID, '_bbp_old_user_id', true );
+		$old_user_id = bbp_parse_int( get_user_meta( $user->ID, '_bbp_old_user_id', true ) );
 		if ( $old_user_id < 1 || null === $this->opdb || get_transient( 'bbp_phpwind_source_connection_failed' ) ) {
 			return false;
 		}

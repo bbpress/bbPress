@@ -101,7 +101,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	 * @param int $topic_id The reply topic ID.
 	 * @param int $forum_id The reply forum ID.
 	 */
-	do_action( 'bbp_insert_reply', (int) $reply_id, (int) $reply_meta['topic_id'], (int) $reply_meta['forum_id'] );
+	do_action( 'bbp_insert_reply', bbp_parse_int( $reply_id ), bbp_parse_int( $reply_meta['topic_id'] ), bbp_parse_int( $reply_meta['forum_id'] ) );
 
 	// Return reply_id
 	return $reply_id;
@@ -1514,7 +1514,7 @@ function bbp_update_reply_revision_log( $args = array() ) {
 	$r['reason']      = bbp_format_revision_reason( $r['reason'] );
 	$r['reply_id']    = bbp_get_reply_id( $r['reply_id'] );
 	$r['author_id']   = bbp_get_user_id ( $r['author_id'], false, true );
-	$r['revision_id'] = (int) $r['revision_id'];
+	$r['revision_id'] = bbp_parse_int( $r['revision_id'] );
 
 	// Get the logs and append the new one to those
 	$revision_log                      = bbp_get_reply_raw_revision_log( $r['reply_id'] );
@@ -1565,7 +1565,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
 		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>Error</strong>: A reply ID is required.', 'bbpress' ) );
 	} else {
-		$move_reply_id = (int) $_POST['bbp_reply_id'];
+		$move_reply_id = bbp_parse_int( $_POST['bbp_reply_id'] );
 	}
 
 	$move_reply = bbp_get_reply( $move_reply_id );
@@ -1621,7 +1621,7 @@ function bbp_move_reply_handler( $action = '' ) {
 				if ( empty( $_POST['bbp_destination_topic'] ) ) {
 					bbp_add_error( 'bbp_move_reply_destination_id', __( '<strong>Error</strong>: A topic ID is required.', 'bbpress' ) );
 				} else {
-					$destination_topic_id = (int) $_POST['bbp_destination_topic'];
+					$destination_topic_id = bbp_parse_int( $_POST['bbp_destination_topic'] );
 				}
 
 				// Get the destination topic
@@ -1913,7 +1913,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	}
 
 	// What's the reply id?
-	$reply_id = bbp_get_reply_id( (int) $_GET['reply_id'] );
+	$reply_id = bbp_get_reply_id( bbp_parse_int( $_GET['reply_id'] ) );
 
 	// Get possible reply-handler toggles
 	$toggles = bbp_get_reply_toggles( $reply_id );
@@ -2004,7 +2004,7 @@ function bbp_toggle_reply( $args = array() ) {
 	);
 
 	// Build the nonce suffix
-	$nonce_suffix = bbp_get_reply_post_type() . '_' . (int) $r['id'];
+	$nonce_suffix = bbp_get_reply_post_type() . '_' . bbp_parse_int( $r['id'] );
 
 	// Default return values
 	$retval = array(

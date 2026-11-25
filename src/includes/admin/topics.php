@@ -692,12 +692,12 @@ class BBP_Topics_Admin {
 		}
 
 		$topic = bbp_get_topic( $postarr['ID'] );
-		if ( empty( $topic ) || (int) $topic->post_parent === (int) $data['post_parent'] ) {
+		if ( empty( $topic ) || bbp_parse_int( $topic->post_parent ) === bbp_parse_int( $data['post_parent'] ) ) {
 			return $data;
 		}
 
 		$old_forum_id = (int) $topic->post_parent;
-		$new_forum_id = (int) $data['post_parent'];
+		$new_forum_id = bbp_parse_int( $data['post_parent'] );
 		$is_new       = ( 'auto-draft' === $topic->post_status );
 		$is_editor    = ! empty( $_POST['action'] ) && ( 'editpost' === $_POST['action'] );
 
@@ -1419,7 +1419,7 @@ class BBP_Topics_Admin {
 
 		// Get which forum is selected
 		$selected = ! empty( $_GET['bbp_forum_id'] )
-			? (int) $_GET['bbp_forum_id']
+			? bbp_parse_int( $_GET['bbp_forum_id'] )
 			: 0;
 
 		// Show the forums dropdown
@@ -1479,7 +1479,7 @@ class BBP_Topics_Admin {
 		if ( ! empty( $_GET['bbp_forum_id'] ) ) {
 			$query_vars['meta_key']   = '_bbp_forum_id';
 			$query_vars['meta_type']  = 'NUMERIC';
-			$query_vars['meta_value'] = (int) $_GET['bbp_forum_id'];
+			$query_vars['meta_value'] = bbp_parse_int( $_GET['bbp_forum_id'] );
 		}
 
 		// Return manipulated query_vars
@@ -1531,7 +1531,7 @@ class BBP_Topics_Admin {
 			/* translators: %s: date and time of the revision */
 			5 => isset( $_GET['revision'] )
 					/* translators: %s: Date and time of the revision */
-					? sprintf( esc_html__( 'Topic restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+					? sprintf( esc_html__( 'Topic restored to revision from %s', 'bbpress' ), wp_post_revision_title( bbp_parse_int( $_GET['revision'] ), false ) )
 					: false,
 
 			// Topic created

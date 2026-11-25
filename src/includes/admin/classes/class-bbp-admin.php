@@ -637,8 +637,8 @@ class BBP_Admin {
 			&& is_array( $cached['counts'] )
 		) {
 			$counts = array(
-				$topic_type => isset( $cached['counts'][ $topic_type ] ) ? (int) $cached['counts'][ $topic_type ] : 0,
-				$reply_type => isset( $cached['counts'][ $reply_type ] ) ? (int) $cached['counts'][ $reply_type ] : 0
+				$topic_type => isset( $cached['counts'][ $topic_type ] ) ? bbp_parse_int( $cached['counts'][ $topic_type ] ) : 0,
+				$reply_type => isset( $cached['counts'][ $reply_type ] ) ? bbp_parse_int( $cached['counts'][ $reply_type ] ) : 0
 			);
 		}
 

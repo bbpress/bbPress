@@ -34,7 +34,7 @@ function bbp_filter_rest_user_discovery( $response, $handler, $request ) {
 		return $response;
 	}
 
-	$user_id = (int) $request->get_param( 'id' );
+	$user_id = bbp_parse_int( $request->get_param( 'id' ) );
 
 	if ( $user_id <= 0 || get_current_user_id() === $user_id || current_user_can( 'list_users' ) || current_user_can( 'edit_user', $user_id ) ) {
 		return $response;
@@ -78,7 +78,7 @@ function bbp_filter_rest_password_required_revisions( $response, $handler, $requ
 		return $response;
 	}
 
-	$parent_id = ! empty( $request['parent'] ) ? (int) $request['parent'] : (int) $request['id'];
+	$parent_id = ! empty( $request['parent'] ) ? bbp_parse_int( $request['parent'] ) : bbp_parse_int( $request['id'] );
 	$parent    = get_post( $parent_id );
 
 	if (
@@ -269,9 +269,9 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			return $retval;
 		}
 
-		$parent_changed = $request->has_param( 'parent' ) && ( (int) $request['parent'] !== (int) $forum->post_parent );
+		$parent_changed = $request->has_param( 'parent' ) && ( bbp_parse_int( $request['parent'] ) !== bbp_parse_int( $forum->post_parent ) );
 		$status_changed = $request->has_param( 'status' ) && ( $request['status'] !== $forum->post_status );
-		$order_changed  = $request->has_param( 'menu_order' ) && ( (int) $request['menu_order'] !== (int) $forum->menu_order );
+		$order_changed  = $request->has_param( 'menu_order' ) && ( bbp_parse_int( $request['menu_order'] ) !== bbp_parse_int( $forum->menu_order ) );
 
 		if ( ( $parent_changed || $order_changed ) && ! current_user_can( 'assign_moderators' ) ) {
 			return new WP_Error(

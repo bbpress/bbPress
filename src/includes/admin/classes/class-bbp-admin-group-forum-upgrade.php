@@ -372,7 +372,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 			$this->fail( $read_error );
 			return false;
 		}
-		$field['rows_found'] = (int) $field['rows_found'];
+		$field['rows_found'] = bbp_parse_int( $field['rows_found'] );
 		if ( $field['rows_found'] > 1 ) {
 			$this->fail( 'ambiguous-mapping' );
 			return false;
@@ -761,7 +761,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 		if ( $group ) {
 			if ( $plan['update_group'] ) {
 				$this->claim( 'legacy_' . md5( $plan['legacy'] ), $plan['id'] );
-				if ( (string) (int) $plan['legacy'] === $plan['legacy'] && $this->read_plan( 'native_' . $plan['legacy'] ) ) {
+				if ( (string) bbp_parse_int( $plan['legacy'] ) === $plan['legacy'] && $this->read_plan( 'native_' . $plan['legacy'] ) ) {
 					if ( $this->fail( 'ambiguous-mapping' ) ) {
 						$this->mapping_error = true;
 					}
@@ -930,8 +930,8 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 			return array( 'ID' => 0 );
 		}
 		$root                = reset( $posts );
-		$root['ID']          = (int) $root['ID'];
-		$root['post_parent'] = (int) $root['post_parent'];
+		$root['ID']          = bbp_parse_int( $root['ID'] );
+		$root['post_parent'] = bbp_parse_int( $root['post_parent'] );
 		return $root;
 	}
 

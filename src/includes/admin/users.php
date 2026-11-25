@@ -271,7 +271,7 @@ class BBP_Users_Admin {
 
 		// Run through user ids
 		foreach ( (array) $_REQUEST['users'] as $user_id ) {
-			$user_id = (int) $user_id;
+			$user_id = bbp_parse_int( $user_id );
 
 			// Don't let a user change their own role
 			if ( $user_id === $current_user_id ) {

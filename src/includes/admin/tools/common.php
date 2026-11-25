@@ -915,7 +915,7 @@ function bbp_admin_repair_single_metadata( $meta_type, $object_id, $key, $value,
 	$resuming     = $dry_run && is_array( $preview )
 		&& isset( $preview['signature'], $preview['keep_id'], $preview['replace'], $preview['replaced'], $preview['delete_cursor'], $preview['changed'] )
 		&& $signature === $preview['signature'];
-	$keep_id      = $resuming ? (int) $preview['keep_id'] : 0;
+	$keep_id      = $resuming ? bbp_parse_int( $preview['keep_id'] ) : 0;
 	$replace      = $resuming ? ! empty( $preview['replace'] ) : false;
 	if ( ! $resuming && null !== $value ) {
 		$keep_id = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT {$id_column} FROM {$table} WHERE {$object_key} = %d AND BINARY meta_key = %s AND BINARY meta_value = %s ORDER BY {$id_column} LIMIT 1", $object_id, $key, $stored_value ) );

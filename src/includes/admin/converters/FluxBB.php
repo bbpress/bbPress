@@ -741,7 +741,7 @@ class FluxBB extends BBP_Converter_Base {
 	 */
 	public function callback_forum_reply_count( $count = 0, $row = array() ) {
 		$num_topics = isset( $row['num_topics'] )
-			? (int) $row['num_topics']
+			? bbp_parse_int( $row['num_topics'] )
 			: 0;
 
 		return max( 0, (int) $count - $num_topics );

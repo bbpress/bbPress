@@ -675,6 +675,22 @@ function bbp_parse_id_list( $value ) {
 }
 
 /**
+ * Cast a scalar value to an integer.
+ *
+ * Filters, options, and metadata may contain arrays or objects. Those values
+ * cannot represent one integer, so use zero instead of casting them to one.
+ *
+ * @since 2.7.0 bbPress (r8647)
+ * @access private
+ *
+ * @param mixed $value Value to cast.
+ * @return int Integer value, or zero for a non-scalar value.
+ */
+function bbp_parse_int( $value ) {
+	return is_scalar( $value ) ? (int) $value : 0;
+}
+
+/**
  * Validate an absolute HTTP or HTTPS URL.
  *
  * The host may differ from the current site, as with Multisite or domain mapping.

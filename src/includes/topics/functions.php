@@ -95,7 +95,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	 * @param int $topic_id               The topic id.
 	 * @param int $topic_meta['forum_id'] The topic forum meta.
 	 */
-	do_action( 'bbp_insert_topic', (int) $topic_id, (int) $topic_meta['forum_id'] );
+	do_action( 'bbp_insert_topic', bbp_parse_int( $topic_id ), bbp_parse_int( $topic_meta['forum_id'] ) );
 
 	// Return topic_id
 	return $topic_id;
@@ -1340,7 +1340,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	if ( empty( $_POST['bbp_topic_id'] ) ) {
 		bbp_add_error( 'bbp_merge_topic_source_id', __( '<strong>Error</strong>: Topic ID not found.', 'bbpress' ) );
 	} else {
-		$source_topic_id = (int) $_POST['bbp_topic_id'];
+		$source_topic_id = bbp_parse_int( $_POST['bbp_topic_id'] );
 	}
 
 	// Nonce check
@@ -1367,7 +1367,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	if ( empty( $_POST['bbp_destination_topic'] ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_id', __( '<strong>Error</strong>: Destination topic ID not found.', 'bbpress' ) );
 	} else {
-		$destination_topic_id = (int) $_POST['bbp_destination_topic'];
+		$destination_topic_id = bbp_parse_int( $_POST['bbp_destination_topic'] );
 	}
 
 	// Get the destination topic
@@ -1689,7 +1689,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
 		bbp_add_error( 'bbp_split_topic_reply_id', __( '<strong>Error</strong>: A reply ID is required.', 'bbpress' ) );
 	} else {
-		$from_reply_id = (int) $_POST['bbp_reply_id'];
+		$from_reply_id = bbp_parse_int( $_POST['bbp_reply_id'] );
 	}
 
 	$from_reply = bbp_get_reply( $from_reply_id );
@@ -1743,7 +1743,7 @@ function bbp_split_topic_handler( $action = '' ) {
 				if ( empty( $_POST['bbp_destination_topic'] ) ) {
 					bbp_add_error( 'bbp_split_topic_destination_id', __( '<strong>Error</strong>: A topic ID is required.', 'bbpress' ) );
 				} else {
-					$destination_topic_id = (int) $_POST['bbp_destination_topic'];
+					$destination_topic_id = bbp_parse_int( $_POST['bbp_destination_topic'] );
 				}
 
 				// Get the destination topic
@@ -2121,7 +2121,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 	}
 
 	// Setup vars
-	$tag_id = (int) $_POST['tag-id'];
+	$tag_id = bbp_parse_int( $_POST['tag-id'] );
 	$tag    = get_term( $tag_id, bbp_get_topic_tag_tax_id() );
 
 	// Tag does not exist
@@ -2557,7 +2557,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
 	}
 
 	// What's the topic id?
-	$topic_id = bbp_get_topic_id( (int) $_GET['topic_id'] );
+	$topic_id = bbp_get_topic_id( bbp_parse_int( $_GET['topic_id'] ) );
 
 	// Get possible topic-handler toggles
 	$toggles = bbp_get_topic_toggles( $topic_id );
@@ -2654,7 +2654,7 @@ function bbp_toggle_topic( $args = array() ) {
 	);
 
 	// Build the nonce suffix
-	$nonce_suffix = bbp_get_topic_post_type() . '_' . (int) $r['id'];
+	$nonce_suffix = bbp_get_topic_post_type() . '_' . bbp_parse_int( $r['id'] );
 
 	// Default return values
 	$retval = array(
@@ -3415,7 +3415,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 		: false;
 	$replies = false === $queried ? null : $bbp_db->get_var();
 	if ( null === $replies || ! empty( $bbp_db->last_error ) ) {
-		$replies = (int) get_post_meta( $topic_id, '_bbp_anonymous_reply_count', true );
+		$replies = bbp_parse_int( get_post_meta( $topic_id, '_bbp_anonymous_reply_count', true ) );
 	} else {
 		$replies = (int) $replies;
 		update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );
@@ -3459,7 +3459,7 @@ function bbp_update_topic_revision_log( $args = array() ) {
 	$r['reason']      = bbp_format_revision_reason( $r['reason'] );
 	$r['topic_id']    = bbp_get_topic_id( $r['topic_id'] );
 	$r['author_id']   = bbp_get_user_id ( $r['author_id'], false, true );
-	$r['revision_id'] = (int) $r['revision_id'];
+	$r['revision_id'] = bbp_parse_int( $r['revision_id'] );
 
 	// Get the logs and append the new one to those
 	$revision_log                      = bbp_get_topic_raw_revision_log( $r['topic_id'] );
