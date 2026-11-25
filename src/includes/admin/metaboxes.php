@@ -10,6 +10,26 @@
 /** Dashboard *****************************************************************/
 
 /**
+ * Read a display count and its plural selector from filtered statistics.
+ *
+ * @since 2.7.0 bbPress (r8641)
+ * @access private
+ *
+ * @param array<string, mixed> $statistics Filtered statistics.
+ * @param string               $key        Count key.
+ * @return array{string, int} Display count and plural selector.
+ */
+function bbp_admin_get_statistic( $statistics, $key ) {
+	$display = isset( $statistics[ $key ] ) ? $statistics[ $key ] : 0;
+	$count   = isset( $statistics[ "{$key}_int" ] ) ? $statistics[ "{$key}_int" ] : 0;
+
+	return array(
+		is_scalar( $display ) ? (string) $display : '0',
+		is_scalar( $count ) ? (int) $count : 0
+	);
+}
+
+/**
  * Filter the Dashboard "at a glance" items and append bbPress elements to it.
  *
  * @since 2.6.0 bbPress (r5269)
@@ -41,9 +61,10 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Users
 	if ( isset( $r['user_count'] ) ) {
+		list( $display, $count ) = bbp_admin_get_statistic( $r, 'user_count' );
 		$link       = admin_url( 'users.php' );
 		/* translators: %s: Number of users */
-		$text       = sprintf( _n( '%s User', '%s Users', $r['user_count_int'], 'bbpress' ), $r['user_count'] );
+		$text       = sprintf( _n( '%s User', '%s Users', $count, 'bbpress' ), $display );
 		$elements[] = current_user_can( 'edit_users' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-users">' . esc_html( $text ) . '</a>'
 			: esc_html( $text );
@@ -51,9 +72,10 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Forums
 	if ( isset( $r['forum_count'] ) ) {
+		list( $display, $count ) = bbp_admin_get_statistic( $r, 'forum_count' );
 		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
 		/* translators: %s: Number of forums */
-		$text       = sprintf( _n( '%s Forum', '%s Forums', $r['forum_count_int'], 'bbpress' ), $r['forum_count'] );
+		$text       = sprintf( _n( '%s Forum', '%s Forums', $count, 'bbpress' ), $display );
 		$elements[] = current_user_can( 'publish_forums' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>'
 			: esc_html( $text );
@@ -61,9 +83,10 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Topics
 	if ( isset( $r['topic_count'] ) ) {
+		list( $display, $count ) = bbp_admin_get_statistic( $r, 'topic_count' );
 		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 		/* translators: %s: Number of topics */
-		$text       = sprintf( _n( '%s Topic', '%s Topics', $r['topic_count_int'], 'bbpress' ), $r['topic_count'] );
+		$text       = sprintf( _n( '%s Topic', '%s Topics', $count, 'bbpress' ), $display );
 		$elements[] = current_user_can( 'publish_topics' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>'
 			: esc_html( $text );
@@ -71,9 +94,10 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Replies
 	if ( isset( $r['reply_count'] ) ) {
+		list( $display, $count ) = bbp_admin_get_statistic( $r, 'reply_count' );
 		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 		/* translators: %s: Number of replies */
-		$text       = sprintf( _n( '%s Reply', '%s Replies', $r['reply_count_int'], 'bbpress' ), $r['reply_count'] );
+		$text       = sprintf( _n( '%s Reply', '%s Replies', $count, 'bbpress' ), $display );
 		$elements[] = current_user_can( 'publish_replies' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>'
 			: esc_html( $text );
@@ -81,13 +105,14 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Topic Tags
 	if ( bbp_allow_topic_tags() && isset( $r['topic_tag_count'] ) ) {
+		list( $display, $count ) = bbp_admin_get_statistic( $r, 'topic_tag_count' );
 		$args = array(
 			'taxonomy'  => bbp_get_topic_tag_tax_id(),
 			'post_type' => bbp_get_topic_post_type()
 		);
 		$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 		/* translators: %s: Number of topic tags */
-		$text = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
+		$text = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $count, 'bbpress' ), $display );
 
 		$elements[] = current_user_can( 'manage_topic_tags' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>'
@@ -129,8 +154,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr class="first">
 
 				<?php
-					$num  = $r['forum_count'];
-					$text = _n( 'Forum', 'Forums', $r['forum_count_int'], 'bbpress' );
+					list( $num, $count ) = bbp_admin_get_statistic( $r, 'forum_count' );
+					$text = _n( 'Forum', 'Forums', $count, 'bbpress' );
 					if ( current_user_can( 'publish_forums' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
@@ -146,8 +171,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr>
 
 				<?php
-					$num  = $r['topic_count'];
-					$text = _n( 'Topic', 'Topics', $r['topic_count_int'], 'bbpress' );
+					list( $num, $count ) = bbp_admin_get_statistic( $r, 'topic_count' );
+					$text = _n( 'Topic', 'Topics', $count, 'bbpress' );
 					if ( current_user_can( 'publish_topics' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
@@ -163,8 +188,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr>
 
 				<?php
-					$num  = $r['reply_count'];
-					$text = _n( 'Reply', 'Replies', $r['reply_count_int'], 'bbpress' );
+					list( $num, $count ) = bbp_admin_get_statistic( $r, 'reply_count' );
+					$text = _n( 'Reply', 'Replies', $count, 'bbpress' );
 					if ( current_user_can( 'publish_replies' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
@@ -182,8 +207,8 @@ function bbp_dashboard_widget_right_now() {
 				<tr>
 
 					<?php
-						$num  = $r['topic_tag_count'];
-						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count_int'], 'bbpress' );
+						list( $num, $count ) = bbp_admin_get_statistic( $r, 'topic_tag_count' );
+						$text = _n( 'Topic Tag', 'Topic Tags', $count, 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
 							$args = array(
 								'taxonomy'  => bbp_get_topic_tag_tax_id(),
@@ -224,8 +249,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr class="first">
 
 				<?php
-					$num  = $r['user_count'];
-					$text = _n( 'User', 'Users', $r['user_count_int'], 'bbpress' );
+					list( $num, $count ) = bbp_admin_get_statistic( $r, 'user_count' );
+					$text = _n( 'User', 'Users', $count, 'bbpress' );
 					if ( current_user_can( 'edit_users' ) ) {
 						$link = admin_url( 'users.php' );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -243,14 +268,15 @@ function bbp_dashboard_widget_right_now() {
 				<tr>
 
 					<?php
-						$num  = $r['topic_count_hidden'];
-						$text = _n( 'Hidden Topic', 'Hidden Topics', $r['topic_count_hidden_int'], 'bbpress' );
+						list( $num, $count ) = bbp_admin_get_statistic( $r, 'topic_count_hidden' );
+						$title = isset( $r['hidden_topic_title'] ) && is_scalar( $r['hidden_topic_title'] ) ? (string) $r['hidden_topic_title'] : '';
+						$text  = _n( 'Hidden Topic', 'Hidden Topics', $count, 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-topics"><?php echo $num; ?></td>
@@ -265,14 +291,15 @@ function bbp_dashboard_widget_right_now() {
 				<tr>
 
 					<?php
-						$num  = $r['reply_count_hidden'];
-						$text = _n( 'Hidden Reply', 'Hidden Replies', $r['reply_count_hidden_int'], 'bbpress' );
+						list( $num, $count ) = bbp_admin_get_statistic( $r, 'reply_count_hidden' );
+						$title = isset( $r['hidden_reply_title'] ) && is_scalar( $r['hidden_reply_title'] ) ? (string) $r['hidden_reply_title'] : '';
+						$text  = _n( 'Hidden Reply', 'Hidden Replies', $count, 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-replies"><?php echo $num; ?></td>
@@ -287,8 +314,8 @@ function bbp_dashboard_widget_right_now() {
 				<tr>
 
 					<?php
-						$num  = $r['empty_topic_tag_count'];
-						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $r['empty_topic_tag_count_int'], 'bbpress' );
+						list( $num, $count ) = bbp_admin_get_statistic( $r, 'empty_topic_tag_count' );
+						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $count, 'bbpress' );
 						$args = array(
 							'taxonomy'  => bbp_get_topic_tag_tax_id(),
 							'post_type' => bbp_get_topic_post_type()

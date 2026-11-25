@@ -231,6 +231,42 @@ class BBP_Tests_Admin_Metaboxes extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_get_statistic
+	 * @covers ::bbp_filter_dashboard_glance_items
+	 * @covers ::bbp_dashboard_widget_right_now
+	 */
+	public function test_dashboard_statistics_handle_malformed_filter_values() {
+		$this->create_capable_user( array( 'spectate' ) );
+
+		$filter = function ( $statistics ) {
+			$statistics['user_count']         = array( 'invalid' );
+			$statistics['user_count_int']     = array( 2 );
+			$statistics['forum_count']        = '12';
+			$statistics['forum_count_int']    = '12';
+			$statistics['hidden_topic_title'] = array( 'invalid' );
+			return $statistics;
+		};
+		add_filter( 'bbp_get_statistics', $filter );
+
+		try {
+			$glance = implode( '', bbp_filter_dashboard_glance_items() );
+			$this->assertStringContainsString( '0 Users', $glance );
+			$this->assertStringContainsString( '12 Forums', $glance );
+			$invalid = array(
+				'user_count'     => array( 'invalid' ),
+				'user_count_int' => array( 2 )
+			);
+			$this->assertSame( array( '0', 0 ), bbp_admin_get_statistic( $invalid, 'user_count' ) );
+
+			$widget = $this->capture_callback( 'bbp_dashboard_widget_right_now' );
+			$this->assertStringContainsString( '>12</', $widget );
+			$this->assertStringContainsString( 'title=""', $widget );
+		} finally {
+			remove_filter( 'bbp_get_statistics', $filter );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_forum_metabox
 	 */
 	public function test_forum_metabox_outputs_attributes_parent_order_and_nonce() {
