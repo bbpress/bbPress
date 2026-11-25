@@ -1875,6 +1875,7 @@ function bbp_admin_repair_tool_is_valid_preview_state( $state, $integer_fields =
  * @param mixed $state  Saved checkpoint.
  * @param array<string, mixed> $fields Expected identity fields, without changing their layout.
  * @return bool Whether the checkpoint matches the expected identity fields.
+ * @phpstan-assert-if-true array<string, mixed> $state
  */
 function bbp_admin_repair_tool_is_matching_checkpoint( $state, $fields ) {
 	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state ) ) {
@@ -1896,6 +1897,7 @@ function bbp_admin_repair_tool_is_matching_checkpoint( $state, $fields ) {
  * @param mixed $state        Saved checkpoint.
  * @param list<string> $extra_fields Additional nonnegative integer fields to check.
  * @return bool Whether the checkpoint fields and bounds are valid.
+ * @phpstan-assert-if-true array<string, mixed> $state
  */
 function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = array() ) {
 	if ( ! is_array( $state ) ) {
@@ -1920,6 +1922,7 @@ function bbp_admin_repair_tool_is_valid_checkpoint( $state, $extra_fields = arra
  * @param mixed $state           Saved worker checkpoint.
  * @param bool  $allow_row_start Whether a parsed row may wait at byte zero for publication.
  * @return bool Whether the source row and list offset can be resumed.
+ * @phpstan-assert-if-true array<string, mixed> $state
  */
 function bbp_admin_repair_tool_is_valid_user_meta_checkpoint( $state, $allow_row_start = false ) {
 	if ( ! bbp_admin_repair_tool_is_valid_checkpoint( $state, array( 'offset' ) )

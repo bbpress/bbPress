@@ -2382,6 +2382,7 @@ function bbp_admin_repair_user_role( $user_id, $role, $dry_run = false, $planned
  *
  * @param mixed $roles Simulated forum roles.
  * @return bool Whether the role plan can be resumed safely.
+ * @phpstan-assert-if-true list<string> $roles
  */
 function bbp_admin_repair_user_role_plan_is_valid( $roles ) {
 	if ( ! is_array( $roles ) || array_values( $roles ) !== $roles || count( $roles ) !== count( array_unique( $roles ) ) ) {
