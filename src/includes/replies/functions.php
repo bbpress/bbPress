@@ -1129,6 +1129,27 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 }
 
 /**
+ * Refresh a draft or scheduled reply's forum when it changes status.
+ *
+ * @since 2.6.23 bbPress (r8649)
+ *
+ * @param string  $new_status New post status.
+ * @param string  $old_status Previous post status.
+ * @param WP_Post $post       Reply post object.
+ */
+function bbp_update_reply_forum_id_on_status_change( $new_status, $old_status, $post ) {
+	$unsynced_statuses = array( 'draft', 'future' );
+	if ( ! ( $post instanceof WP_Post ) || ( bbp_get_reply_post_type() !== $post->post_type ) || ! in_array( $old_status, $unsynced_statuses, true ) || in_array( $new_status, $unsynced_statuses, true ) ) {
+		return;
+	}
+
+	$topic = get_post( $post->post_parent );
+	if ( ! empty( $topic ) && ( bbp_get_topic_post_type() === $topic->post_type ) ) {
+		bbp_update_reply_forum_id( $post->ID, $topic->post_parent );
+	}
+}
+
+/**
  * Update the reply with its topic id it is in
  *
  * @since 2.0.0 bbPress (r2858)

@@ -30,6 +30,7 @@ Development for the next bbPress release is in progress. See the active
 ### Security
 
 - Tightened forum visibility enforcement for single-item requests.
+- Improved forum visibility for scheduled replies.
 
 ## 2.6.22 - 2026-11-15
 

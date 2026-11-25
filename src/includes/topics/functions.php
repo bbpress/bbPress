@@ -1363,7 +1363,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 		array(
 			'post_parent'    => $source_topic->ID,
 			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => array_unique( array_merge( bbp_get_public_reply_statuses(), bbp_get_non_public_reply_statuses() ) ),
+			'post_status'    => array_unique( array_merge( bbp_get_public_reply_statuses(), bbp_get_non_public_reply_statuses(), array( 'draft', 'future' ) ) ),
 			'posts_per_page' => -1,
 			'order'          => 'ASC'
 		)
