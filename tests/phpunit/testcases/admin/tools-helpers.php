@@ -1022,6 +1022,7 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_admin_repair_tool_overhead_filters
 	 * @covers ::bbp_admin_repair_tool_status_filters
+	 * @covers ::bbp_admin_repair_tool_filter_args
 	 * @covers ::bbp_get_admin_repair_tool_overhead_filters
 	 * @covers ::bbp_get_admin_repair_tool_status_filters
 	 */
@@ -1058,6 +1059,39 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 		ob_start();
 		bbp_admin_repair_tool_status_filters();
 		$this->assertSame( $status, ob_get_clean() );
+
+		bbp_admin()->tools['invalid-overhead'] = $this->tool( array( 'overhead' => array( 'invalid' ) ) );
+		$invalid = array(
+			'before'       => array( 'invalid' ),
+			'after'        => array( 'invalid' ),
+			'link_before'  => array( 'invalid' ),
+			'link_after'   => array( 'invalid' ),
+			'count_before' => array( 'invalid' ),
+			'count_after'  => array( 'invalid' ),
+			'sep'          => array( 'invalid' ),
+			'separator'    => array( 'invalid' )
+		);
+		$observed = null;
+		$capture  = function ( $output, $parsed ) use ( &$observed ) {
+			$observed = $parsed;
+			return $output;
+		};
+		add_filter( 'bbp_get_admin_repair_tool_overhead_filters', $capture, 10, 2 );
+
+		try {
+			$overhead = bbp_get_admin_repair_tool_overhead_filters( $invalid );
+			$this->assertStringContainsString( 'All 4', $overhead );
+			$this->assertStringContainsString( 'overhead=high', $overhead );
+			$this->assertStringNotContainsString( 'overhead=Array', $overhead );
+			$this->assertSame( $invalid['before'], $observed['before'] );
+			$this->assertSame( $invalid['separator'], $observed['sep'] );
+
+			$status = bbp_get_admin_repair_tool_status_filters( $invalid );
+			$this->assertStringContainsString( 'All 4', $status );
+			$this->assertStringContainsString( 'Pending 1', $status );
+		} finally {
+			remove_filter( 'bbp_get_admin_repair_tool_overhead_filters', $capture, 10 );
+		}
 	}
 
 	/**

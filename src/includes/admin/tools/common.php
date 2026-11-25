@@ -2919,6 +2919,56 @@ function bbp_get_admin_repair_tool_overhead( $item = array() ) {
 /** Overhead ******************************************************************/
 
 /**
+ * Parse the shared arguments for repair tool filter links.
+ *
+ * @since 2.7.0 bbPress (r8642)
+ * @access private
+ *
+ * @param array<string, mixed> $args    Display options for filter links.
+ * @param string               $context Parse context for the existing filter.
+ * @return array{array<string, mixed>, array<string, string>} Parsed arguments and display strings.
+ */
+function bbp_admin_repair_tool_filter_args( $args, $context ) {
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'before'       => '<ul class="subsubsub">',
+			'after'        => '</ul>',
+			'link_before'  => '<li>',
+			'link_after'   => '</li>',
+			'count_before' => ' <span class="count">(',
+			'count_after'  => ')</span>',
+			'sep'          => ' | ',
+
+			// Retired, use 'sep' instead
+			'separator'    => false
+		),
+		$context
+	);
+
+	/**
+	 * Necessary for backwards compatibility.
+	 *
+	 * @see https://bbpress.trac.wordpress.org/ticket/2900
+	 */
+	if ( ! empty( $r['separator'] ) ) {
+		$r['sep'] = $r['separator'];
+	}
+
+	$markup = array(
+		'before'       => bbp_get_string_arg( $r, 'before' ),
+		'after'        => bbp_get_string_arg( $r, 'after' ),
+		'link_before'  => bbp_get_string_arg( $r, 'link_before' ),
+		'link_after'   => bbp_get_string_arg( $r, 'link_after' ),
+		'count_before' => bbp_get_string_arg( $r, 'count_before' ),
+		'count_after'  => bbp_get_string_arg( $r, 'count_after' ),
+		'sep'          => bbp_get_string_arg( $r, 'sep' )
+	);
+
+	return array( $r, $markup );
+}
+
+/**
  * Output filter links for overheads for a specific admin repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
@@ -2941,31 +2991,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args(
-		$args,
-		array(
-			'before'       => '<ul class="subsubsub">',
-			'after'        => '</ul>',
-			'link_before'  => '<li>',
-			'link_after'   => '</li>',
-			'count_before' => ' <span class="count">(',
-			'count_after'  => ')</span>',
-			'sep'          => ' | ',
-
-			// Retired, use 'sep' instead
-			'separator'    => false
-		),
-		'get_admin_repair_tool_overhead_filters'
-	);
-
-	/**
-	 * Necessary for backwards compatibility.
-	 *
-	 * @see https://bbpress.trac.wordpress.org/ticket/2900
-	 */
-	if ( ! empty( $r['separator'] ) ) {
-		$r['sep'] = $r['separator'];
-	}
+	list( $r, $markup ) = bbp_admin_repair_tool_filter_args( $args, 'get_admin_repair_tool_overhead_filters' );
 
 	// Count the tools
 	$tools = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
@@ -2979,6 +3005,9 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	// Loop through tools and count overheads
 	if ( count( $tools ) ) {
 		foreach ( $tools as $tool ) {
+			if ( ! is_array( $tool ) || ! isset( $tool['overhead'] ) || ! is_string( $tool['overhead'] ) ) {
+				continue;
+			}
 
 			// Get the overhead level
 			$overhead = $tool['overhead'];
@@ -3004,16 +3033,16 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	$all_text = sprintf(
 		/* translators: %s: Number of items */
 		esc_html__( 'All %s', 'bbpress' ),
-		$r['count_before'] . count( $tools ) . $r['count_after']
+		$markup['count_before'] . count( $tools ) . $markup['count_after']
 	);
 
 	$links[] = sprintf(
 		'%1$s<a href="%2$s" class="%3$s">%4$s</a>%5$s',
-		$r['link_before'],
+		$markup['link_before'],
 		esc_url( $tools_url ),
 		esc_attr( $current ),
 		$all_text,
-		$r['link_after']
+		$markup['link_after']
 	);
 
 	// Loop through overheads and created links
@@ -3036,15 +3065,15 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 				: '';
 
 			// Count to show
-			$overhead_count = $r['count_before'] . $count . $r['count_after'];
+			$overhead_count = $markup['count_before'] . $count . $markup['count_after'];
 
 			// Build the link
-			$links[] = $r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $current ) . '">' . bbp_admin_repair_tool_translate_overhead( $overhead ) . $overhead_count . '</a>' . $r['link_after'];
+			$links[] = $markup['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $current ) . '">' . bbp_admin_repair_tool_translate_overhead( $overhead ) . $overhead_count . '</a>' . $markup['link_after'];
 		}
 	}
 
 	// Surround output with before & after strings
-	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
+	$output = $markup['before'] . implode( $markup['sep'], $links ) . $markup['after'];
 
 	/**
 	 * Filters the repair tool overhead filters.
@@ -3083,31 +3112,7 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
 function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args(
-		$args,
-		array(
-			'before'       => '<ul class="subsubsub">',
-			'after'        => '</ul>',
-			'link_before'  => '<li>',
-			'link_after'   => '</li>',
-			'count_before' => ' <span class="count">(',
-			'count_after'  => ')</span>',
-			'sep'          => ' | ',
-
-			// Retired, use 'sep' instead
-			'separator'    => false
-		),
-		'get_admin_repair_tool_status_filters'
-	);
-
-	/**
-	 * Necessary for backwards compatibility.
-	 *
-	 * @see https://bbpress.trac.wordpress.org/ticket/2900
-	 */
-	if ( ! empty( $r['separator'] ) ) {
-		$r['sep'] = $r['separator'];
-	}
+	list( $r, $markup ) = bbp_admin_repair_tool_filter_args( $args, 'get_admin_repair_tool_status_filters' );
 
 	// Get the type of tool
 	$type = bbp_get_admin_repair_tool_page_id();
@@ -3148,30 +3153,30 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 	);
 
 	// Count HTML
-	$all_count     = $r['count_before'] . count( $tools   ) . $r['count_after'];
-	$pending_count = $r['count_before'] . count( $pending ) . $r['count_after'];
+	$all_count     = $markup['count_before'] . count( $tools   ) . $markup['count_after'];
+	$pending_count = $markup['count_before'] . count( $pending ) . $markup['count_after'];
 
 	// Define links
 	$links = array(
-		$r['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' .
+		$markup['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' .
 			sprintf(
 				/* translators: %s: Number of items */
 				esc_html__( 'All %s', 'bbpress' ),
 				$all_count
 			) .
-		'</a>' . $r['link_after'],
+		'</a>' . $markup['link_after'],
 
-		$r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' .
+		$markup['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' .
 			sprintf(
 				/* translators: %s: Number of pending items */
 				esc_html__( 'Pending %s', 'bbpress' ),
 				$pending_count
 			) .
-		'</a>' . $r['link_after']
+		'</a>' . $markup['link_after']
 	);
 
 	// Surround output with before & after strings
-	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
+	$output = $markup['before'] . implode( $markup['sep'], $links ) . $markup['after'];
 
 	/**
 	 * Filters the repair tool status filters.
