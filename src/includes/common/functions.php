@@ -691,6 +691,24 @@ function bbp_parse_int( $value ) {
 }
 
 /**
+ * Get a post by ID without falling back to the global post.
+ *
+ * WordPress uses the global post when get_post() receives zero. Resolve only
+ * positive IDs so malformed values cannot select the current post.
+ *
+ * @since 2.7.0 bbPress (r8650)
+ * @access private
+ *
+ * @param mixed $post_id Post ID to look up.
+ * @return WP_Post|null Post object, or null for an invalid or missing ID.
+ */
+function bbp_get_post_by_id( $post_id ) {
+	$post_id = bbp_parse_int( $post_id );
+
+	return ( $post_id > 0 ) ? get_post( $post_id ) : null;
+}
+
+/**
  * Validate an absolute HTTP or HTTPS URL.
  *
  * The host may differ from the current site, as with Multisite or domain mapping.
@@ -1461,7 +1479,7 @@ function bbp_get_statistics( $args = array() ) {
  */
 function bbp_filter_revision_post_author( $data = array() ) {
 	if ( isset( $data['post_type'], $data['post_parent'] ) && ( 'revision' === $data['post_type'] ) && ! empty( $data['post_parent'] ) ) {
-		$parent = get_post( $data['post_parent'] );
+		$parent = bbp_get_post_by_id( $data['post_parent'] );
 
 		if ( ! empty( $parent ) && in_array( $parent->post_type, bbp_get_post_types(), true ) && ( empty( $data['post_name'] ) || ( false === strpos( $data['post_name'], '-autosave-v1' ) ) ) ) {
 			$data['post_author'] = (int) $parent->post_author;

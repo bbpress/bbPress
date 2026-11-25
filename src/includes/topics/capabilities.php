@@ -112,7 +112,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				}
 
 				// Get the post.
-				$_post = get_post( $args[0] );
+				$_post = bbp_get_post_by_id( $args[0] );
 				if ( ! empty( $_post ) ) {
 
 					// Get caps for post type object
@@ -202,7 +202,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Get the post.
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
@@ -277,7 +277,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Get the post.
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
@@ -365,7 +365,7 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 			// WordPress also passes term IDs here; only bbPress passes a topic context
 			$is_topic_context = isset( $args[1] ) && ( 'topic' === $args[1] );
 			$has_post         = ! empty( $args[0] );
-			$_post            = $has_post ? get_post( $args[0] ) : null;
+			$_post            = $has_post ? bbp_get_post_by_id( $args[0] ) : null;
 			$post_id          = $_post ? $_post->ID : 0;
 
 			// Add 'do_not_allow' cap if user is spam or deleted

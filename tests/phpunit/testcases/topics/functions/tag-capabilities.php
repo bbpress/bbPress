@@ -52,6 +52,25 @@ class BBP_Tests_Topics_Functions_Tag_Capabilities extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_map_topic_tag_meta_caps
 	 */
+	public function test_topic_tag_assignment_rejects_a_malformed_topic_id() {
+		global $post;
+
+		$user_id       = $this->factory->user->create();
+		$topic_id      = $this->factory->topic->create();
+		$original_post = $post;
+		$post          = get_post( $topic_id );
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		try {
+			$this->assertSame( array( 'do_not_allow' ), bbp_map_topic_tag_meta_caps( array(), 'assign_topic_tags', $user_id, array( array( 'invalid' ), 'topic' ) ) );
+		} finally {
+			$post = $original_post;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_map_topic_tag_meta_caps
+	 */
 	public function test_forum_moderator_cannot_edit_or_delete_global_tag_with_colliding_id() {
 		global $wpdb;
 

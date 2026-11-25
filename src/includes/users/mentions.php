@@ -414,15 +414,26 @@ function bbp_send_mention_notifications() {
 		if ( $switched ) {
 			switch_to_blog( $blog_id );
 		}
+		$sent_posts = isset( $sent[ $blog_id ] ) && is_array( $sent[ $blog_id ] )
+			? $sent[ $blog_id ]
+			: array();
+		$url_posts  = isset( $urls[ $blog_id ] ) && is_array( $urls[ $blog_id ] )
+			? $urls[ $blog_id ]
+			: array();
 
 		foreach ( $posts as $post_id => $user_ids ) {
-			$post = get_post( $post_id );
+			$post    = bbp_get_post_by_id( $post_id );
 			if ( ! $post || ! is_array( $user_ids ) ) {
 				continue;
 			}
+			$post_id = $post->ID;
 
+			$user_ids   = bbp_parse_id_list( $user_ids );
 			$recipients = array_intersect( $user_ids, bbp_get_users_for_object( $post_id, '_bbp_mention' ) );
-			$excluded   = isset( $sent[ $blog_id ][ $post_id ] ) ? $sent[ $blog_id ][ $post_id ] : array();
+			$excluded   = isset( $sent_posts[ $post_id ] )
+				? $sent_posts[ $post_id ]
+				: array();
+			$excluded   = bbp_parse_id_list( $excluded );
 			$excluded[] = (int) $post->post_author;
 			foreach ( array_diff( $recipients, $excluded ) as $user_id ) {
 				if ( ! bbp_is_user_mention_email_enabled( $user_id ) || ! bbp_user_can_read_mention( $post_id, $user_id ) ) {
@@ -435,8 +446,8 @@ function bbp_send_mention_notifications() {
 				}
 
 				$switched_locale = switch_to_locale( get_user_locale( $user ) );
-				if ( isset( $urls[ $blog_id ][ $post_id ] ) ) {
-					$link = $urls[ $blog_id ][ $post_id ];
+				if ( isset( $url_posts[ $post_id ] ) ) {
+					$link = $url_posts[ $post_id ];
 				} else {
 					$link = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
 				}

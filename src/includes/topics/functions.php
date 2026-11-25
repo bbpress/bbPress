@@ -2652,9 +2652,10 @@ function bbp_toggle_topic( $args = array() ) {
 			'data'       => array()
 		)
 	);
+	$r['id'] = bbp_parse_int( $r['id'] );
 
 	// Build the nonce suffix
-	$nonce_suffix = bbp_get_topic_post_type() . '_' . bbp_parse_int( $r['id'] );
+	$nonce_suffix = bbp_get_topic_post_type() . '_' . $r['id'];
 
 	// Default return values
 	$retval = array(
@@ -3887,9 +3888,10 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
 			}
 
 			foreach ( (array) $pre_spammed_replies as $reply ) {
-				if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
-					wp_untrash_post( $reply );
-					if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
+				$reply_id = bbp_parse_int( $reply );
+				if ( ( $reply_id > 0 ) && ( bbp_get_trash_status_id() === get_post_status( $reply_id ) ) ) {
+					wp_untrash_post( $reply_id );
+					if ( bbp_get_trash_status_id() === get_post_status( $reply_id ) ) {
 						$failed = true;
 					}
 				}
@@ -4471,9 +4473,10 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 
 			// Loop through replies
 			foreach ( (array) $pre_trashed_replies as $reply ) {
-				if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
-					wp_untrash_post( $reply );
-					if ( bbp_get_trash_status_id() === get_post_status( $reply ) ) {
+				$reply_id = bbp_parse_int( $reply );
+				if ( ( $reply_id > 0 ) && ( bbp_get_trash_status_id() === get_post_status( $reply_id ) ) ) {
+					wp_untrash_post( $reply_id );
+					if ( bbp_get_trash_status_id() === get_post_status( $reply_id ) ) {
 						$failed = true;
 					}
 				}

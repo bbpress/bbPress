@@ -111,7 +111,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				}
 
 				// Get the post.
-				$_post = get_post( $args[0] );
+				$_post = bbp_get_post_by_id( $args[0] );
 				if ( ! empty( $_post ) ) {
 
 					// Allow moderators of this forum through restricted ancestors
@@ -206,7 +206,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Only allow this capability for forums
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			$caps  = ( ! empty( $_post ) && ( bbp_get_forum_post_type() === $_post->post_type ) )
 				? array( 'assign_moderators' )
 				: array( 'do_not_allow' );
@@ -222,7 +222,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Get the post.
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
@@ -272,7 +272,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Get the post.
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object

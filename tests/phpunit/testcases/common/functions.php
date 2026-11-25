@@ -2925,6 +2925,26 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_post_by_id
+	 */
+	public function test_bbp_get_post_by_id_avoids_the_global_post_fallback() {
+		global $post;
+
+		$post_id       = $this->factory->forum->create();
+		$original_post = $post;
+		$post          = get_post( $post_id );
+
+		try {
+			$this->assertSame( $post_id, get_post( 0 )->ID );
+			$this->assertNull( bbp_get_post_by_id( 0 ) );
+			$this->assertNull( bbp_get_post_by_id( array( $post_id ) ) );
+			$this->assertSame( $post_id, bbp_get_post_by_id( (string) $post_id )->ID );
+		} finally {
+			$post = $original_post;
+		}
+	}
+
+	/**
 	 * @covers ::bbp_is_custom_post_type
 	 */
 	public function test_bbp_is_custom_post_type() {

@@ -84,7 +84,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				}
 
 				// Get the post.
-				$_post = get_post( $args[0] );
+				$_post = bbp_get_post_by_id( $args[0] );
 				if ( ! empty( $_post ) ) {
 
 					// Get post type object
@@ -174,7 +174,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Get the post.
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			if ( ! empty( $_post ) ) {
 
 				// Get post type object
@@ -245,7 +245,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			}
 
 			// Get the post
-			$_post = get_post( $args[0] );
+			$_post = bbp_get_post_by_id( $args[0] );
 			if ( ! empty( $_post ) ) {
 
 				// Get post type object

@@ -1701,6 +1701,22 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_untrash_topic_replies
+	 */
+	public function test_bbp_untrash_topic_replies_skips_malformed_saved_ids() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		wp_trash_post( $reply_id );
+		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', array( array( 'invalid' ), $reply_id ) );
+		bbp_untrash_topic_replies( $topic_id );
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $reply_id ) );
+		$this->assertSame( '', get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_deleted_topic
 	 */
 	public function test_bbp_deleted_topic() {

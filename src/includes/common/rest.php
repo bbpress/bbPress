@@ -194,7 +194,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			return $retval;
 		}
 
-		$post = isset( $request['id'] ) ? get_post( $request['id'] ) : null;
+		$post = isset( $request['id'] ) ? bbp_get_post_by_id( $request['id'] ) : null;
 		if ( ! empty( $post ) && ! $this->check_read_permission( $post ) ) {
 			return new WP_Error(
 				'bbp_rest_cannot_edit_forum_content',
@@ -301,7 +301,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response or error from WordPress.
 	 */
 	public function update_item( $request ) {
-		$post = isset( $request['id'] ) ? get_post( $request['id'] ) : null;
+		$post = isset( $request['id'] ) ? bbp_get_post_by_id( $request['id'] ) : null;
 
 		if ( ! empty( $post ) && $this->is_forum_content( $post ) && in_array( $post->post_status, bbp_get_public_topic_statuses(), true ) ) {
 			$title   = $this->get_moderation_title( $request, $post );

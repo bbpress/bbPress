@@ -4433,9 +4433,10 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
 
 		// Loop through topics
 		foreach ( (array) $pre_trashed_topics as $topic ) {
-			if ( bbp_get_trash_status_id() === get_post_status( $topic ) ) {
-				wp_untrash_post( $topic );
-				if ( bbp_get_trash_status_id() === get_post_status( $topic ) ) {
+			$topic_id = bbp_parse_int( $topic );
+			if ( ( $topic_id > 0 ) && ( bbp_get_trash_status_id() === get_post_status( $topic_id ) ) ) {
+				wp_untrash_post( $topic_id );
+				if ( bbp_get_trash_status_id() === get_post_status( $topic_id ) ) {
 					$failed = true;
 				}
 			}

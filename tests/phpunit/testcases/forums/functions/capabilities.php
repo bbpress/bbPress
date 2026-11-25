@@ -69,6 +69,24 @@ class BBP_Tests_Forums_Functions_Capabilities extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_map_forum_meta_caps
 	 */
+	public function test_manage_forum_attributes_rejects_a_malformed_id_with_a_global_post() {
+		global $post;
+
+		$user_id       = $this->factory->user->create();
+		$forum_id      = $this->factory->forum->create();
+		$original_post = $post;
+		$post          = get_post( $forum_id );
+
+		try {
+			$this->assertSame( array( 'do_not_allow' ), bbp_map_forum_meta_caps( array(), 'manage_forum_attributes', $user_id, array( array( 'invalid' ) ) ) );
+		} finally {
+			$post = $original_post;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 */
 	public function test_read_forum_maps_public_forums_for_anonymous_and_registered_users() {
 		$forum_id = $this->factory->forum->create( array( 'post_author' => 0 ) );
 		$user_id  = $this->factory->user->create();

@@ -1348,6 +1348,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
  * @param string  $new_status New post status.
  * @param string  $old_status Previous post status.
  * @param WP_Post $post       Reply post object.
+ * @return void
  */
 function bbp_update_reply_forum_id_on_status_change( $new_status, $old_status, $post ) {
 	$unsynced_statuses = array( 'draft', 'future' );
@@ -2023,9 +2024,10 @@ function bbp_toggle_reply( $args = array() ) {
 			'data'       => array()
 		)
 	);
+	$r['id'] = bbp_parse_int( $r['id'] );
 
 	// Build the nonce suffix
-	$nonce_suffix = bbp_get_reply_post_type() . '_' . bbp_parse_int( $r['id'] );
+	$nonce_suffix = bbp_get_reply_post_type() . '_' . $r['id'];
 
 	// Default return values
 	$retval = array(

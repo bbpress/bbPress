@@ -111,6 +111,26 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->assertSame( array( 'handled' => array( $this->recipient ) ), get_post_meta( $topic, '_bbp_mention_notification', true ) );
 	}
 
+	/**
+	 * @covers ::bbp_send_mention_notifications
+	 */
+	public function test_queued_mentions_skip_malformed_ids_and_recipients() {
+		$topic   = $this->topic();
+		$blog_id = get_current_blog_id();
+		$bbp     = bbpress();
+		$queue   = $bbp->mention_notification_queue;
+		$queue[ $blog_id ]['invalid'] = array( $this->recipient );
+		$queue[ $blog_id ][ $topic ][] = new stdClass();
+		$bbp->mention_notification_queue      = $queue;
+		$bbp->mention_notification_urls       = array( $blog_id => 'invalid' );
+		$bbp->mention_subscription_recipients = array( $blog_id => array( $topic => array( new stdClass() ) ) );
+
+		bbp_send_mention_notifications();
+
+		$this->assertCount( 1, $this->mail );
+		$this->assertStringContainsString( bbp_get_topic_permalink( $topic ), $this->mail[0]['message'] );
+	}
+
 	public function test_mention_email_omits_invalid_settings_url() {
 		$invalid_url = '__return_false';
 		add_filter( 'bbp_get_user_edit_profile_url', $invalid_url );

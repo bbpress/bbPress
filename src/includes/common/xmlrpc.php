@@ -58,12 +58,11 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 
 	// mt.publishPost sets a post status without bbPress lifecycle handling
 	if ( 'mt.publishPost' === $method ) {
-		$post_id = ! empty( $args[0] ) ? bbp_parse_int( $args[0] ) : 0;
-		$post    = get_post( $post_id );
-		$types   = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+		$post  = ! empty( $args[0] ) ? bbp_get_post_by_id( $args[0] ) : null;
+		$types = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 
 		if ( ! empty( $post ) && in_array( $post->post_type, $types, true ) && ( 'publish' !== $post->post_status ) ) {
-			$bbp_xmlrpc_error_post_id = $post_id;
+			$bbp_xmlrpc_error_post_id = $post->ID;
 		}
 
 		return;
@@ -268,7 +267,7 @@ function bbp_map_xmlrpc_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 
 	// XML-RPC uses edit_post to authorize raw post and revision reads as well as edits.
 	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && in_array( $cap, array( 'edit_post', 'edit_topic', 'edit_reply' ), true ) && ! empty( $args[0] ) ) {
-		$post = get_post( $args[0] );
+		$post = bbp_get_post_by_id( $args[0] );
 
 		if (
 			! empty( $post )

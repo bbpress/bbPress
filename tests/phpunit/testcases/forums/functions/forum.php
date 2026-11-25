@@ -706,6 +706,21 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_untrash_forum_topics
+	 */
+	public function test_bbp_untrash_forum_topics_skips_malformed_saved_ids() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+
+		wp_trash_post( $topic_id );
+		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', array( array( 'invalid' ), $topic_id ) );
+		bbp_untrash_forum_topics( $forum_id );
+
+		$this->assertSame( bbp_get_public_status_id(), get_post_status( $topic_id ) );
+		$this->assertSame( '', get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_trash_forum
 	 * @covers ::bbp_untrash_forum
 	 * @covers ::bbp_trash_forum_topics
