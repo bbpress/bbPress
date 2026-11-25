@@ -9,6 +9,66 @@
 class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_get_widget_wrappers
+	 * @ticket 3794
+	 */
+	public function test_widget_wrappers_skip_unrenderable_values() {
+		$this->assertSame(
+			array(
+				'before_widget' => '',
+				'before_title'  => '2',
+				'after_title'   => '',
+				'after_widget'  => '</aside>'
+			),
+			bbp_get_widget_wrappers(
+				array(
+					'before_widget' => array( 'invalid' ),
+					'before_title'  => 2,
+					'after_title'   => false,
+					'after_widget'  => '</aside>'
+				)
+			)
+		);
+	}
+
+	/**
+	 * @covers BBP_Login_Widget::widget
+	 * @ticket 3794
+	 */
+	public function test_login_widget_skips_malformed_filtered_text() {
+		$this->set_current_user( 0 );
+		$widget = new BBP_Login_Widget();
+		$args   = array(
+			'before_widget' => array( 'invalid' ),
+			'after_widget'  => '</aside>',
+			'before_title'  => '<h2>',
+			'after_title'   => '</h2>'
+		);
+		$invalid = function() {
+			return array( 'invalid' );
+		};
+
+		add_filter( 'bbp_login_widget_title', $invalid );
+		add_filter( 'bbp_login_widget_register', $invalid );
+		add_filter( 'bbp_login_widget_lostpass', $invalid );
+		try {
+			ob_start();
+			$widget->widget( $args, array( 'title' => 'Login' ) );
+			$html = ob_get_clean();
+		} finally {
+			remove_filter( 'bbp_login_widget_title', $invalid );
+			remove_filter( 'bbp_login_widget_register', $invalid );
+			remove_filter( 'bbp_login_widget_lostpass', $invalid );
+		}
+
+		$this->assertStringContainsString( 'class="bbp-login-form"', $html );
+		$this->assertStringEndsWith( '</aside>', $html );
+		$this->assertStringNotContainsString( '<h2>', $html );
+		$this->assertStringNotContainsString( 'bbp-login-links', $html );
+		$this->assertStringNotContainsString( 'Array', $html );
+	}
+
+	/**
 	 * @covers BBP_Login_Widget::__construct
 	 * @covers BBP_Views_Widget::__construct
 	 * @covers BBP_Search_Widget::__construct
@@ -291,6 +351,39 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 				$old
 			)
 		);
+	}
+
+	/**
+	 * @covers BBP_Login_Widget::update
+	 * @covers BBP_Views_Widget::update
+	 * @covers BBP_Search_Widget::update
+	 * @covers BBP_Forums_Widget::update
+	 * @covers BBP_Topics_Widget::update
+	 * @covers BBP_Stats_Widget::update
+	 * @covers BBP_Replies_Widget::update
+	 * @ticket 3794
+	 */
+	public function test_widget_updates_skip_unrenderable_fields() {
+		$invalid = array(
+			'title'        => array( 'invalid' ),
+			'register'     => array( 'invalid' ),
+			'lostpass'     => array( 'invalid' ),
+			'parent_forum' => array( 'invalid' ),
+			'order_by'     => array( 'invalid' ),
+			'max_shown'    => array( 'invalid' ),
+			'show_date'    => array( 'invalid' ),
+			'show_user'    => array( 'invalid' )
+		);
+
+		foreach ( array( 'BBP_Login_Widget', 'BBP_Views_Widget', 'BBP_Search_Widget', 'BBP_Forums_Widget', 'BBP_Topics_Widget', 'BBP_Stats_Widget', 'BBP_Replies_Widget' ) as $class ) {
+			$widget  = new $class();
+			$updated = $widget->update( $invalid, array() );
+			$this->assertSame( '', $updated['title'] );
+
+			ob_start();
+			$widget->form( $invalid );
+			$this->assertStringNotContainsString( 'Array', ob_get_clean() );
+		}
 	}
 
 	/**
@@ -639,6 +732,37 @@ class BBP_Tests_Common_Widgets extends BBP_UnitTestCase {
 		$this->assertStringContainsString( 'Matching Child Forum', $html );
 		$this->assertStringNotContainsString( 'Parent Forum', $html );
 		$this->assertStringNotContainsString( 'Other Root Forum', $html );
+	}
+
+	/**
+	 * @covers BBP_Forums_Widget::widget
+	 * @ticket 3794
+	 */
+	public function test_forums_widget_uses_default_for_invalid_page_size() {
+		$this->factory->forum->create();
+		$widget         = new BBP_Forums_Widget();
+		$captured_query = array();
+		$invalid_option = function() {
+			return array( 'invalid' );
+		};
+		$capture_query  = function( $query ) use ( &$captured_query ) {
+			if ( bbp_get_forum_post_type() === $query->get( 'post_type' ) ) {
+				$captured_query = $query->query;
+			}
+		};
+
+		add_filter( 'option__bbp_forums_per_page', $invalid_option );
+		add_action( 'pre_get_posts', $capture_query, 999 );
+		try {
+			ob_start();
+			$widget->widget( array(), array() );
+			ob_end_clean();
+		} finally {
+			remove_filter( 'option__bbp_forums_per_page', $invalid_option );
+			remove_action( 'pre_get_posts', $capture_query, 999 );
+		}
+
+		$this->assertSame( 50, $captured_query['posts_per_page'] );
 	}
 
 	/**
