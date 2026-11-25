@@ -588,20 +588,25 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 	public function test_merge_moves_replies_with_non_public_statuses() {
 		$user_id              = $this->factory->user->create();
 		$source_forum_id      = $this->factory->forum->create();
-		$destination_forum_id = $this->factory->forum->create();
+		$destination_forum_id = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
 		$source_topic_id      = $this->factory->topic->create( array( 'post_parent' => $source_forum_id ) );
 		$destination_topic_id = $this->factory->topic->create( array( 'post_parent' => $destination_forum_id ) );
 		$reply_ids            = array();
 
-		foreach ( array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) as $status ) {
-			$reply_ids[ $status ] = $this->factory->reply->create( array(
-				'post_parent' => $source_topic_id,
-				'post_status' => $status,
-				'reply_meta'  => array(
+		foreach ( array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id(), 'draft', 'future' ) as $status ) {
+			$reply_args = array(
+				'post_parent'  => $source_topic_id,
+				'post_status'  => $status,
+				'post_content' => 'merged-hidden-reply-' . $status,
+				'reply_meta'   => array(
 					'forum_id' => $source_forum_id,
 					'topic_id' => $source_topic_id,
 				),
-			) );
+			);
+			if ( 'future' === $status ) {
+				$reply_args['post_date'] = gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS );
+			}
+			$reply_ids[ $status ] = $this->factory->reply->create( $reply_args );
 		}
 
 		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
@@ -619,6 +624,12 @@ class BBP_Tests_Topics_Functions_Permissions extends BBP_UnitTestCase {
 
 		$this->assertSame( 2, bbp_get_topic_reply_count( $destination_topic_id, true ) );
 		$this->assertSame( 3, bbp_get_topic_reply_count_hidden( $destination_topic_id, true ) );
+
+		wp_publish_post( $reply_ids['draft'] );
+		wp_publish_post( $reply_ids['future'] );
+		$this->set_current_user( 0 );
+		$search = new WP_Query( array( 'post_type' => bbp_get_reply_post_type(), 's' => 'merged-hidden-reply' ) );
+		$this->assertSame( array(), wp_list_pluck( $search->posts, 'ID' ) );
 	}
 
 	/**

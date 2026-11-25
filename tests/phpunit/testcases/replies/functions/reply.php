@@ -486,6 +486,49 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_reply_forum_id_on_status_change
+	 */
+	public function test_unpublished_replies_use_current_topic_forum_on_publication() {
+		$old_forum_id = $this->factory->forum->create();
+		$new_forum_id = $this->factory->forum->create( array( 'post_status' => bbp_get_hidden_status_id() ) );
+		$topic_id     = $this->factory->topic->create( array(
+			'post_parent' => $old_forum_id,
+			'topic_meta'  => array( 'forum_id' => $old_forum_id ),
+		) );
+		$reply_ids    = array();
+
+		foreach ( array( 'future', 'draft' ) as $status ) {
+			$reply_ids[] = $this->factory->reply->create( array(
+				'post_parent'  => $topic_id,
+				'post_status'  => $status,
+				'post_content' => 'moved-unpublished-reply-' . $status,
+				'post_date'    => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+				'reply_meta'   => array( 'forum_id' => $old_forum_id, 'topic_id' => $topic_id ),
+			) );
+		}
+		$pending_reply_id = $this->factory->reply->create( array(
+			'post_parent'  => $topic_id,
+			'post_status'  => 'draft',
+			'post_content' => 'moved-unpublished-reply-pending',
+			'reply_meta'   => array( 'forum_id' => $old_forum_id, 'topic_id' => $topic_id ),
+		) );
+
+		bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id );
+
+		foreach ( $reply_ids as $reply_id ) {
+			wp_publish_post( $reply_id );
+			$this->assertSame( $new_forum_id, (int) get_post_meta( $reply_id, '_bbp_forum_id', true ) );
+		}
+		wp_update_post( array( 'ID' => $pending_reply_id, 'post_status' => bbp_get_pending_status_id() ) );
+		$this->assertSame( $new_forum_id, (int) get_post_meta( $pending_reply_id, '_bbp_forum_id', true ) );
+		bbp_approve_reply( $pending_reply_id );
+		$this->assertSame( $new_forum_id, (int) get_post_meta( $pending_reply_id, '_bbp_forum_id', true ) );
+
+		$search = new WP_Query( array( 'post_type' => bbp_get_reply_post_type(), 's' => 'moved-unpublished-reply' ) );
+		$this->assertSame( array(), wp_list_pluck( $search->posts, 'ID' ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_reply_topic_id
 	 */
 	public function test_bbp_update_reply_topic_id() {

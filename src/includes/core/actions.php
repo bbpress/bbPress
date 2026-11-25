@@ -327,6 +327,7 @@ add_action( 'bbp_unapproved_reply', 'bbp_update_reply_walker' );
 
 // Update visibility and counts from persisted post status changes
 add_action( 'bbp_transition_post_status', 'bbp_update_forum_visibility_on_transition_post_status', 5, 3 );
+add_action( 'bbp_transition_post_status', 'bbp_update_reply_forum_id_on_status_change',          5, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_counts_on_transition_post_status', 10, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_forum_subforum_count_on_transition_post_status', 10, 3 );
 add_action( 'bbp_transition_post_status', 'bbp_update_reply_positions_on_status_change', 11, 3 );
