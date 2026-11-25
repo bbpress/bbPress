@@ -3858,12 +3858,13 @@ function bbp_do_not_guess_404_permalink( $do_redirect_guess = true ) {
 }
 
 /**
- * Sets the 404 status.
+ * Sets the 404 status and resets the query.
  *
- * Used primarily with topics/replies inside hidden forums.
+ * Used for denied bbPress content and custom 404 routes.
  *
  * @since 2.0.0 bbPress (r3051)
  * @since 2.6.0 bbPress (r6583) Use status_header() & nocache_headers()
+ * @since 2.6.23 bbPress (r8644) Reset query state and correct feed headers.
  *
  * @param WP_Query $query  The query being checked
  *
@@ -3876,12 +3877,74 @@ function bbp_set_404( $query = null ) {
 		$query = bbp_get_wp_query();
 	}
 
+	$is_main_feed =
+		( $query instanceof WP_Query ) &&
+		$query->is_feed &&
+		isset( $GLOBALS['wp'], $GLOBALS['wp_query'] ) &&
+		( $GLOBALS['wp'] instanceof WP ) &&
+		( $query === $GLOBALS['wp_query'] );
+
 	// Setup environment
 	$query->set_404();
+	bbp_reset_404_query( $query );
+
+	// WordPress may still send feed headers after handling this 404.
+	if ( $is_main_feed ) {
+		$GLOBALS['wp']->query_vars['feed'] = '';
+	}
 
 	// Setup request
 	status_header( 404 );
 	nocache_headers();
+
+	// Replace feed headers if WordPress sent them before this 404.
+	if ( $is_main_feed && ! headers_sent() ) {
+		header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
+		header_remove( 'ETag' );
+	}
+}
+
+/**
+ * Reset a query after setting its 404 status.
+ * Also clear the matching global post copied by WordPress before template redirect.
+ *
+ * @since 2.6.23 bbPress (r8644)
+ *
+ * @param WP_Query $query Query to reset.
+ * @return void
+ */
+function bbp_reset_404_query( $query ) {
+	if ( ! ( $query instanceof WP_Query ) ) {
+		return;
+	}
+
+	if (
+		isset( $GLOBALS['wp_query'], $GLOBALS['post'] ) &&
+		( $query === $GLOBALS['wp_query'] ) &&
+		( $query->post instanceof WP_Post ) &&
+		( $GLOBALS['post'] instanceof WP_Post ) &&
+		( (int) $query->post->ID === (int) $GLOBALS['post']->ID )
+	) {
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['post'] = null;
+	}
+
+	$query->is_feed           = false;
+	$query->is_embed          = false;
+	$query->posts             = array();
+	$query->post              = null;
+	$query->post_count        = 0;
+	$query->found_posts       = 0;
+	$query->max_num_pages     = 0;
+	$query->queried_object    = null;
+	$query->queried_object_id = 0;
+
+	$query->bbp_is_edit             = false;
+	$query->bbp_is_forum_edit       = false;
+	$query->bbp_is_topic_edit       = false;
+	$query->bbp_is_reply_edit       = false;
+	$query->bbp_is_topic_tag_edit   = false;
+	$query->bbp_is_single_user_edit = false;
 }
 
 /**

@@ -214,6 +214,7 @@ class BBP_Tests_Common_Oembed_Visibility extends BBP_UnitTestCase {
 		$query->posts      = array( $post );
 		$query->post_count = 1;
 		$query->is_feed    = true;
+		$query->is_embed   = true;
 		$wp_query          = $query;
 
 		$this->set_current_user( 0 );
@@ -222,6 +223,8 @@ class BBP_Tests_Common_Oembed_Visibility extends BBP_UnitTestCase {
 			do_action( 'bbp_template_redirect' );
 
 			$this->assertTrue( $query->is_404() );
+			$this->assertFalse( $query->is_feed );
+			$this->assertFalse( $query->is_embed );
 			$this->assertSame( array(), $query->posts );
 			$this->assertNull( $query->post );
 			$this->assertSame( 0, $query->post_count );

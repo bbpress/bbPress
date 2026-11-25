@@ -2961,8 +2961,13 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 	// There are forums that need to be excluded
 	$retval = $types[ $type ];
 
-	// Filter & return
-	return apply_filters( 'bbp_exclude_forum_ids', $retval, $forum_ids, $type );
+	// Filter & remove invalid IDs from the array format
+	$retval = apply_filters( 'bbp_exclude_forum_ids', $retval, $forum_ids, $type );
+	if ( 'array' === $type ) {
+		$retval = array_filter( $retval );
+	}
+
+	return $retval;
 }
 
 /**
@@ -3103,6 +3108,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			$posts_query->set( 'p', 0 );
 			$posts_query->set( 'page_id', 0 );
 			$posts_query->set( 'attachment_id', 0 );
+			$posts_query->set( 'subpost_id', 0 );
 			$posts_query->set( 'post__in', array( 0 ) );
 			return;
 		}
@@ -3169,10 +3175,24 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			 * queried. Replace an inaccessible forum ID with an impossible
 			 * inclusion so the restricted forum is not loaded into the query.
 			 */
-			$forum_id = absint( $posts_query->get( 'p' ) );
-			if ( ! empty( $forum_id ) && in_array( $forum_id, $forum_ids, true ) ) {
+			$explicit_ids = array(
+				absint( $posts_query->get( 'p' ) ),
+				absint( $posts_query->get( 'page_id' ) ),
+				absint( $posts_query->get( 'attachment_id' ) ),
+				absint( $posts_query->get( 'subpost_id' ) ),
+			);
+			$explicit_ids = array_filter( $explicit_ids );
+			if ( array_intersect( $explicit_ids, $forum_ids ) ) {
 				$posts_query->set( 'p', 0 );
+				$posts_query->set( 'page_id', 0 );
+				$posts_query->set( 'attachment_id', 0 );
+				$posts_query->set( 'subpost_id', 0 );
 				$posts_query->set( 'post__in', array( 0 ) );
+
+				// Let existing bbPress routes choose their status after querying.
+				if ( ! $posts_query->is_feed && ! isset( $posts_query->bbp_is_404 ) ) {
+					$posts_query->bbp_is_404 = true;
+				}
 			}
 
 			// WordPress ignores post__not_in when post__in has IDs.
@@ -3564,9 +3584,12 @@ function bbp_forum_enforce_hidden() {
 	$post_id  = ! empty( $wp_query->post->ID )
 		? $wp_query->post->ID
 		: 0;
+	if ( empty( $post_id ) ) {
+		return;
+	}
 
-	// Check post type
-	switch ( $wp_query->get( 'post_type' ) ) {
+	// Check the loaded post type, including array-valued post_type queries.
+	switch ( get_post_type( $post_id ) ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
@@ -3609,9 +3632,12 @@ function bbp_forum_enforce_private() {
 	$post_id  = ! empty( $wp_query->post->ID )
 		? $wp_query->post->ID
 		: 0;
+	if ( empty( $post_id ) ) {
+		return;
+	}
 
-	// Check post type
-	switch ( $wp_query->get( 'post_type' ) ) {
+	// Check the loaded post type, including array-valued post_type queries.
+	switch ( get_post_type( $post_id ) ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :

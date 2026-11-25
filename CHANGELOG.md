@@ -27,6 +27,10 @@ Development for the next bbPress release is in progress. See the active
   storage.
 - Fixed member profile and forum section links on child sites when BuddyPress is network active.
 
+### Security
+
+- Tightened forum visibility enforcement for single-item requests.
+
 ## 2.6.22 - 2026-11-15
 
 ### Changed
