@@ -201,8 +201,8 @@ function bbp_update_post_mentions( $post_id = 0 ) {
 function bbp_claim_mention_notification_recipients( $post_id = 0, $user_ids = array(), $baseline = array() ) {
 	$bbp_db   = bbp_db();
 	$key      = '_bbp_mention_notification';
-	$user_ids = wp_parse_id_list( $user_ids );
-	$baseline = wp_parse_id_list( $baseline );
+	$user_ids = bbp_parse_id_list( $user_ids );
+	$baseline = bbp_parse_id_list( $baseline );
 
 	for ( $attempt = 0; $attempt < 3; ++$attempt ) {
 		$row = $bbp_db->get_row( $bbp_db->prepare( "SELECT meta_id, meta_value FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC LIMIT 1", $post_id, $key ) );
@@ -217,7 +217,7 @@ function bbp_claim_mention_notification_recipients( $post_id = 0, $user_ids = ar
 			return array();
 		}
 
-		$handled = wp_parse_id_list( $state['handled'] );
+		$handled = bbp_parse_id_list( $state['handled'] );
 		$new_ids = array_values( array_diff( $user_ids, $handled ) );
 		if ( empty( $new_ids ) ) {
 			return array();
@@ -300,7 +300,7 @@ function bbp_save_post_mentions( $post_id, $post, $update, $post_before ) {
 		$queue   = (array) $bbp->mention_notification_queue;
 		$urls    = (array) $bbp->mention_notification_urls;
 		$queued  = isset( $queue[ $blog_id ][ $post_id ] ) ? $queue[ $blog_id ][ $post_id ] : array();
-		$queue[ $blog_id ][ $post_id ] = wp_parse_id_list( array_merge( $queued, $new_ids ) );
+		$queue[ $blog_id ][ $post_id ] = bbp_parse_id_list( array_merge( $queued, $new_ids ) );
 
 		// Shutdown may run after another site has changed the rewrite state.
 		$urls[ $blog_id ][ $post_id ]  = ( bbp_get_reply_post_type() === $post->post_type ) ? bbp_get_reply_url( $post_id ) : bbp_get_topic_permalink( $post_id );
@@ -386,7 +386,7 @@ function bbp_is_user_mention_email_enabled( $user_id = 0 ) {
  */
 function bbp_record_mention_subscription_recipients( $post_id, $parent_id, $user_ids ) {
 	$sent = (array) bbpress()->mention_subscription_recipients;
-	$sent[ get_current_blog_id() ][ $post_id ] = wp_parse_id_list( $user_ids );
+	$sent[ get_current_blog_id() ][ $post_id ] = bbp_parse_id_list( $user_ids );
 	bbpress()->mention_subscription_recipients = $sent;
 }
 
@@ -606,7 +606,7 @@ function bbp_get_user_mentions( $user_id = 0 ) {
 			$clauses['fields']  = $forum_field;
 			$clauses['groupby'] = $forum_field;
 		} else {
-			$ids = ! empty( $forum_ids ) ? implode( ',', wp_parse_id_list( $forum_ids ) ) : '0';
+			$ids = ! empty( $forum_ids ) ? implode( ',', bbp_parse_id_list( $forum_ids ) ) : '0';
 			$clauses['where'] .= " AND ({$forum_field}) IN ({$ids})";
 		}
 

@@ -271,7 +271,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		}
 
 		// Parse & return
-		return wp_parse_id_list( $user_ids );
+		return bbp_parse_id_list( $user_ids );
 	}
 
 	/**
@@ -357,7 +357,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 			? get_objects_in_term( $term->term_id, $tax_key )
 			: array();
 		$object_ids = ! is_wp_error( $object_ids )
-			? wp_parse_id_list( $object_ids )
+			? bbp_parse_id_list( $object_ids )
 			: array();
 
 		// Bail if the user has no objects

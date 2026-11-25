@@ -164,7 +164,7 @@ function bbp_get_mention_backfill_plan( $post_id = 0 ) {
 		return $plan;
 	}
 
-	$handled = wp_parse_id_list( array_merge( $changes['current'], $changes['expected'] ) );
+	$handled = bbp_parse_id_list( array_merge( $changes['current'], $changes['expected'] ) );
 	if ( empty( $handled ) ) {
 		return $plan;
 	}

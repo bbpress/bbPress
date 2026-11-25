@@ -240,6 +240,14 @@ class BBP_Tests_Users_Functions_Engagement_Storage extends BBP_UnitTestCase {
 		$this->assertFalse( get_user_option( '_bbp_forum_subscriptions', $user_id ) );
 	}
 
+	public function test_user_strategy_skips_malformed_option_ids() {
+		$strategy = new BBP_User_Engagements_User();
+		$user_id  = $this->factory->user->create();
+		update_user_option( $user_id, '_bbp_subscriptions', array( new stdClass() ) );
+
+		$this->assertSame( array(), $strategy->get_query( $user_id, '', '_bbp_subscription' ) );
+	}
+
 	/**
 	 * @ticket BBP3785
 	 *

@@ -449,7 +449,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			$visibility_forum_ids = ( bbp_get_forum_post_type() === $post->post_type )
 				? bbp_get_forum_ancestors( $forum_id )
 				: array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
-			$visibility_forum_ids = wp_parse_id_list( $visibility_forum_ids );
+			$visibility_forum_ids = bbp_parse_id_list( $visibility_forum_ids );
 		}
 
 		foreach ( $visibility_forum_ids as $visibility_forum_id ) {

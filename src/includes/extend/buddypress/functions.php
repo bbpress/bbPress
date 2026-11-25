@@ -566,7 +566,7 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 	}
 
 	// Make sure result is an array of ints
-	$forum_ids = array_filter( wp_parse_id_list( $forum_ids ) );
+	$forum_ids = array_filter( bbp_parse_id_list( $forum_ids ) );
 
 	/**
 	 * Filters the forum IDs for a group.
@@ -604,7 +604,7 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 	}
 
 	// Make sure result is an array of ints
-	$group_ids = array_filter( wp_parse_id_list( $group_ids ) );
+	$group_ids = array_filter( bbp_parse_id_list( $group_ids ) );
 
 	/**
 	 * Filters the group IDs for a forum.
@@ -753,7 +753,7 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 	}
 
 	// Trim out any empties
-	$forum_ids = array_filter( wp_parse_id_list( $forum_ids ) );
+	$forum_ids = array_filter( bbp_parse_id_list( $forum_ids ) );
 
 	// Get the forums
 	return groups_update_groupmeta( $group_id, 'forum_id', $forum_ids );
@@ -773,7 +773,7 @@ function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Trim out any empties
-	$group_ids = array_filter( wp_parse_id_list( $group_ids ) );
+	$group_ids = array_filter( bbp_parse_id_list( $group_ids ) );
 
 	// Get the forums
 	return update_post_meta( $forum_id, '_bbp_group_ids', $group_ids );

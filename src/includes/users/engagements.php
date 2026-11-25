@@ -500,7 +500,7 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 		: array();
 
 	// Parse results into voices
-	$engagements = wp_parse_id_list( array_filter( $results ) );
+	$engagements = bbp_parse_id_list( array_filter( $results ) );
 
 	/**
 	 * Filters the users who have engaged in a topic, directly with a database query.

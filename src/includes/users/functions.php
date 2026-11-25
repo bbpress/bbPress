@@ -1228,7 +1228,7 @@ function bbp_update_counts_on_user_reassignment( $user_id = 0, $reassign = null 
 			$reply_type
 		);
 
-		$topic_ids[ $key ] = wp_parse_id_list( array_filter( $bbp_db->get_col( $query ) ) );
+		$topic_ids[ $key ] = bbp_parse_id_list( array_filter( $bbp_db->get_col( $query ) ) );
 		return;
 	}
 

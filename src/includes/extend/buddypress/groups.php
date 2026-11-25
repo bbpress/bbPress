@@ -411,7 +411,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( null === $this->published_group_forum_ids ) {
 			$bbp_db = bbp_db();
 
-			$this->published_group_forum_ids = wp_parse_id_list(
+			$this->published_group_forum_ids = bbp_parse_id_list(
 				$bbp_db->get_col(
 					$bbp_db->prepare(
 						"SELECT DISTINCT p.ID FROM {$bbp_db->posts} AS p INNER JOIN {$bbp_db->postmeta} AS pm ON pm.post_id = p.ID WHERE p.post_type = %s AND p.post_status = %s AND pm.meta_key = %s",
@@ -445,8 +445,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			$restricted = array_merge( $restricted, $this->get_published_group_forum_ids() );
 		}
 
-		$restricted   = wp_parse_id_list( $restricted );
-		$excluded     = array_fill_keys( wp_parse_id_list( $forum_ids ), true );
+		$restricted   = bbp_parse_id_list( $restricted );
+		$excluded     = array_fill_keys( bbp_parse_id_list( $forum_ids ), true );
 		$group_forums = array();
 
 		// Inheritance checks need both forum posts and their group metadata.
@@ -514,7 +514,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			}
 		}
 
-		return wp_parse_id_list( $forum_ids );
+		return bbp_parse_id_list( $forum_ids );
 	}
 
 	/**

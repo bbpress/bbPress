@@ -174,7 +174,7 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 		? wp_get_object_terms( $topic_id, $taxonomies, array( 'fields' => 'ids' ) )
 		: array();
 	$term_ids   = ! is_wp_error( $term_ids )
-		? wp_parse_id_list( $term_ids )
+		? bbp_parse_id_list( $term_ids )
 		: array();
 	$contexts   = array();
 
@@ -213,7 +213,7 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 	 * @param array $taxonomies Taxonomies.
 	 */
 	$user_ids = (array) apply_filters( 'bbp_get_subscribers_for_topic_terms', array_keys( $contexts ), $topic_id, $term_ids, $taxonomies );
-	$user_ids = wp_parse_id_list( $user_ids );
+	$user_ids = bbp_parse_id_list( $user_ids );
 
 	// Remove filtered users and retain filtered additions without a context
 	$contexts = array_intersect_key( $contexts, array_fill_keys( $user_ids, true ) );
@@ -247,7 +247,7 @@ function bbp_get_topic_term_subscription_contexts( $topic_id = 0, $for_email = f
 function bbp_get_subscribers_for_topic_terms( $topic_id = 0 ) {
 	$user_ids = array_keys( bbp_get_topic_term_subscription_contexts( $topic_id ) );
 
-	return wp_parse_id_list( $user_ids );
+	return bbp_parse_id_list( $user_ids );
 }
 
 /**

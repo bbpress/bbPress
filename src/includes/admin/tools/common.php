@@ -614,7 +614,7 @@ function bbp_admin_repair_get_users_batch( $args, $cursor, $upper_id, $size, &$m
 			}
 			$previous = $id;
 		}
-		return array_values( array_slice( wp_parse_id_list( $ids ), 0, $args['number'] ) );
+		return array_values( array_slice( bbp_parse_id_list( $ids ), 0, $args['number'] ) );
 	} finally {
 		remove_action( 'pre_user_query', $bound );
 	}

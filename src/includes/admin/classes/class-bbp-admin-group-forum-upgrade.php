@@ -351,7 +351,7 @@ class BBP_Admin_Group_Forum_Upgrade extends BBP_Admin_Batch_Worker {
 				return false;
 			}
 		}
-		return array_values( array_filter( wp_parse_id_list( $value ) ) );
+		return array_values( array_filter( bbp_parse_id_list( $value ) ) );
 	}
 
 	/**

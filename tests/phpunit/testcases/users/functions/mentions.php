@@ -390,6 +390,11 @@ class BBP_Tests_Users_Functions_Mentions extends BBP_UnitTestCase {
 		$this->assertCount( 1, $this->mail );
 	}
 
+	public function test_claims_skip_malformed_recipient_entries() {
+		$topic = $this->topic( array( 'post_content' => 'No mentions.' ) );
+		$this->assertSame( array( $this->recipient ), bbp_claim_mention_notification_recipients( $topic, array( $this->recipient, new stdClass() ), array( new stdClass() ) ) );
+	}
+
 	public function test_interleaved_claims_cannot_reserve_the_same_recipient_twice() {
 		$topic = $this->topic( array( 'post_content' => 'No mentions.' ) );
 		$other = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );

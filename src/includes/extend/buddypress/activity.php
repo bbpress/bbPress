@@ -239,7 +239,7 @@ class BBP_BuddyPress_Activity {
 			&& ! empty( $args['display_comments'] )
 			&& empty( $args['per_page'] )
 			&& ! empty( $args['in'] )
-			&& 1 === count( wp_parse_id_list( $args['in'] ) );
+			&& 1 === count( bbp_parse_id_list( $args['in'] ) );
 	}
 
 	/**
@@ -449,16 +449,16 @@ class BBP_BuddyPress_Activity {
 		}
 
 		$forum_ids = array();
-		foreach ( wp_parse_id_list( bbp_get_excluded_forum_ids() ) as $forum_id ) {
+		foreach ( bbp_parse_id_list( bbp_get_excluded_forum_ids() ) as $forum_id ) {
 			if ( bbp_is_forum_restricted_for_user( $forum_id, get_current_user_id() ) ) {
 				$forum_ids[] = $forum_id;
 			}
 		}
 
 		$password_ids = $this->get_password_protected_post_ids();
-		$forum_ids   = wp_parse_id_list( array_merge( $forum_ids, $password_ids[ bbp_get_forum_post_type() ] ) );
-		$topic_ids   = wp_parse_id_list( $password_ids[ bbp_get_topic_post_type() ] );
-		$reply_ids   = wp_parse_id_list( $password_ids[ bbp_get_reply_post_type() ] );
+		$forum_ids   = bbp_parse_id_list( array_merge( $forum_ids, $password_ids[ bbp_get_forum_post_type() ] ) );
+		$topic_ids   = bbp_parse_id_list( $password_ids[ bbp_get_topic_post_type() ] );
+		$reply_ids   = bbp_parse_id_list( $password_ids[ bbp_get_reply_post_type() ] );
 
 		if ( empty( $forum_ids ) && empty( $topic_ids ) && empty( $reply_ids ) ) {
 			return $where_conditions;

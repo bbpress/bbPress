@@ -303,7 +303,7 @@ function bbp_get_password_protected_object_ids( $object_id = 0, $object_type = '
 		}
 	}
 
-	$post_ids = wp_parse_id_list( $post_ids );
+	$post_ids = bbp_parse_id_list( $post_ids );
 	$post_ids = array_filter( $post_ids );
 
 	return array_values( $post_ids );
@@ -2692,7 +2692,7 @@ function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $
 	$limit    = apply_filters( 'bbp_get_users_chunk_limit', 100 );
 
 	// Prime user caches in chunks before checking capabilities
-	foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
+	foreach ( array_chunk( bbp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
 		cache_users( $user_ids_chunk );
 	}
 
@@ -2974,9 +2974,9 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	$term_user_ids    = array_keys( $term_contexts );
 
 	// Prefer topic subscriptions for shared users, and remove the reply author
-	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $topic_user_ids, array( (int) $reply_author ) ) );
-	$topic_user_ids = wp_parse_id_list( array_diff( $topic_user_ids, array( (int) $reply_author ) ) );
-	$user_ids       = wp_parse_id_list( array_merge( $topic_user_ids, $term_user_ids ) );
+	$term_user_ids  = bbp_parse_id_list( array_diff( $term_user_ids, $topic_user_ids, array( (int) $reply_author ) ) );
+	$topic_user_ids = bbp_parse_id_list( array_diff( $topic_user_ids, array( (int) $reply_author ) ) );
+	$user_ids       = bbp_parse_id_list( array_merge( $topic_user_ids, $term_user_ids ) );
 
 	/**
 	 * Filters the user IDs that receive a new-reply subscription email.
@@ -3282,9 +3282,9 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$term_user_ids    = array_keys( $term_contexts );
 
 	// Prefer forum subscriptions for shared users, and remove the topic author
-	$term_user_ids  = wp_parse_id_list( array_diff( $term_user_ids, $forum_user_ids, array( (int) $topic_author ) ) );
-	$forum_user_ids = wp_parse_id_list( array_diff( $forum_user_ids, array( (int) $topic_author ) ) );
-	$user_ids       = wp_parse_id_list( array_merge( $forum_user_ids, $term_user_ids ) );
+	$term_user_ids  = bbp_parse_id_list( array_diff( $term_user_ids, $forum_user_ids, array( (int) $topic_author ) ) );
+	$forum_user_ids = bbp_parse_id_list( array_diff( $forum_user_ids, array( (int) $topic_author ) ) );
+	$user_ids       = bbp_parse_id_list( array_merge( $forum_user_ids, $term_user_ids ) );
 
 	/**
 	 * Filters the user IDs that receive a new-topic subscription email.
@@ -3551,7 +3551,7 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 
 	// Only do the work if there are user IDs to query for
 	if ( ! empty( $user_ids ) ) {
-		foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $loop_ids ) {
+		foreach ( array_chunk( bbp_parse_id_list( $user_ids ), $limit ) as $loop_ids ) {
 
 			// Prime user and usermeta caches in batches
 			cache_users( $loop_ids );
@@ -4273,7 +4273,7 @@ function bbp_get_child_ids_by_status( $parent_id = 0, $post_type = 'post', $post
 	);
 
 	// Return IDs as integers
-	return wp_parse_id_list( $bbp_db->get_col( $query ) );
+	return bbp_parse_id_list( $bbp_db->get_col( $query ) );
 }
 
 /**

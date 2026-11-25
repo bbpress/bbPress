@@ -306,7 +306,7 @@ function bbp_filter_attachment_comment_feed_query( $query ) {
 	$query->comments      = array_values( $comments );
 	$query->comment_count = count( $query->comments );
 
-	return wp_parse_id_list( array_keys( $denied_post_ids ) );
+	return bbp_parse_id_list( array_keys( $denied_post_ids ) );
 }
 
 /**

@@ -193,7 +193,7 @@ function bbp_admin_repair_post_reference_batch( $reference = 'topic', $dry_run =
 function bbp_admin_repair_clean_post_meta_cache( $post_type = '' ) {
 	$bbp_db   = bbp_db();
 	$query    = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s", $post_type );
-	$post_ids = wp_parse_id_list( $bbp_db->get_col( $query ) );
+	$post_ids = bbp_parse_id_list( $bbp_db->get_col( $query ) );
 
 	if ( ! empty( $post_ids ) ) {
 		wp_cache_delete_multiple( $post_ids, 'post_meta' );
@@ -924,7 +924,7 @@ function bbp_admin_repair_forum_subforum_counts( $forum_ids = null ) {
 	$scope     = '';
 	$args      = array_merge( array( $fpt ), $countable, array( $fpt ), $eligible );
 	if ( null !== $forum_ids ) {
-		$forum_ids = wp_parse_id_list( $forum_ids );
+		$forum_ids = bbp_parse_id_list( $forum_ids );
 		$scope     = 'AND 1 = 0';
 		if ( ! empty( $forum_ids ) ) {
 			$scope = 'AND `forums`.`ID` IN (' . implode( ', ', array_fill( 0, count( $forum_ids ), '%d' ) ) . ')';
@@ -1191,7 +1191,7 @@ function bbp_admin_repair_topic_tag_count_get_status( $taxonomy, $term_taxonomy_
 	$id_sql     = '';
 	$query_args = array_merge( $type_args, array( $tax_id ) );
 	if ( null !== $term_taxonomy_ids ) {
-		$term_taxonomy_ids = wp_parse_id_list( $term_taxonomy_ids );
+		$term_taxonomy_ids = bbp_parse_id_list( $term_taxonomy_ids );
 		$id_sql            = 'AND 1 = 0';
 		if ( ! empty( $term_taxonomy_ids ) ) {
 			$id_slots   = implode( ', ', array_fill( 0, count( $term_taxonomy_ids ), '%d' ) );
@@ -1330,7 +1330,7 @@ function bbp_admin_repair_topic_tag_count_batch( $taxonomy, $callback, $dry_run 
 				bbp_admin_repair_tool_batch_fail( $batch, 'source-read' );
 				return $batch;
 			}
-			$ids = array_values( array_intersect( $ids, wp_parse_id_list( wp_list_pluck( $terms, 'term_taxonomy_id' ) ) ) );
+			$ids = array_values( array_intersect( $ids, bbp_parse_id_list( wp_list_pluck( $terms, 'term_taxonomy_id' ) ) ) );
 		}
 		$batch['processed'] += count( $ids );
 
@@ -1814,7 +1814,7 @@ function bbp_admin_repair_user_meta_values( $tool_id, $token, $collection, $leng
 	if ( false === $ids ) {
 		return false;
 	}
-	$ids = wp_parse_id_list( $ids );
+	$ids = bbp_parse_id_list( $ids );
 	sort( $ids, SORT_NUMERIC );
 
 	return $ids;
@@ -2808,7 +2808,7 @@ function bbp_admin_repair_sticky_batch( $dry_run = false ) {
 		return $batch;
 	}
 	/** This filter is documented in src/includes/topics/functions.php. */
-	$super   = (array) apply_filters( 'bbp_get_super_stickies', is_array( $super ) ? wp_parse_id_list( $super ) : array() );
+	$super   = (array) apply_filters( 'bbp_get_super_stickies', is_array( $super ) ? bbp_parse_id_list( $super ) : array() );
 	$context = array(
 		'forum' => bbp_get_forum_post_type(),
 		'super' => md5( serialize( $super ) )
@@ -3213,7 +3213,7 @@ function bbp_admin_repair_closed_topics_batch( $dry_run = false ) {
 		$batch['processed'] += count( $closed_topics );
 
 		// Ensure Run and Dry Run inspect current database values.
-		wp_cache_delete_multiple( wp_parse_id_list( $closed_topics ), 'post_meta' );
+		wp_cache_delete_multiple( bbp_parse_id_list( $closed_topics ), 'post_meta' );
 		foreach ( $closed_topics as $closed_topic ) {
 			$topic_status = get_post_meta( $closed_topic, '_bbp_status', true );
 			if ( ! empty( $db->last_error ) ) {
@@ -3306,7 +3306,7 @@ function bbp_admin_repair_forum_visibility_dry_run() {
 function bbp_admin_repair_forum_visibility_changes( $stored, $expected ) {
 	$is_default = '' === $stored;
 	$valid      = $is_default || ( is_array( $stored ) && array_values( $stored ) === $stored );
-	$ids        = is_array( $stored ) ? bbp_get_unique_array_values( wp_parse_id_list( $stored ) ) : array();
+	$ids        = is_array( $stored ) ? bbp_get_unique_array_values( bbp_parse_id_list( $stored ) ) : array();
 	$count      = count( array_unique( array_merge( array_diff( $ids, $expected ), array_diff( $expected, $ids ) ) ) );
 	if ( $valid && ! $is_default ) {
 		foreach ( $stored as $id ) {
@@ -3936,7 +3936,7 @@ function bbp_admin_repair_reply_menu_order_position( $reply, &$ranks = array(), 
 			return false;
 		}
 		/** This filter is documented in src/includes/common/functions.php. */
-		$children = array_values( array_filter( (array) apply_filters( 'bbp_get_all_child_ids', wp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() ), 'bbp_is_reply_public' ) );
+		$children = array_values( array_filter( (array) apply_filters( 'bbp_get_all_child_ids', bbp_parse_id_list( $children ), $topic_id, bbp_get_reply_post_type() ), 'bbp_is_reply_public' ) );
 		if ( count( $children ) > $limit ) {
 			$error = 'source-limit';
 			return false;
@@ -4023,8 +4023,8 @@ function bbp_admin_repair_reply_menu_order_preview_window( $state, $size, &$rank
 	}
 	$ids               = wp_list_pluck( $preview['rows'], 'ID' );
 	$parents           = wp_list_pluck( $preview['rows'], 'post_parent' );
-	$ranks             = array_intersect_key( $ranks, array_fill_keys( wp_parse_id_list( $parents ), true ) );
-	$ids               = wp_parse_id_list( array_merge( $ids, $parents ) );
+	$ranks             = array_intersect_key( $ranks, array_fill_keys( bbp_parse_id_list( $parents ), true ) );
+	$ids               = bbp_parse_id_list( array_merge( $ids, $parents ) );
 	$preview['cached'] = array_fill_keys( $ids, true );
 	wp_cache_delete_multiple( $ids, 'posts' );
 	wp_cache_delete_multiple( $ids, 'post_meta' );

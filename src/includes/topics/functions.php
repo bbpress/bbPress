@@ -2497,7 +2497,7 @@ function bbp_get_stickies( $forum_id = 0 ) {
 	// Cast as array
 	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) )
 		? array()
-		: wp_parse_id_list( $stickies );
+		: bbp_parse_id_list( $stickies );
 
 	/**
 	 * Filters the sticky topics of a forum.
@@ -2525,7 +2525,7 @@ function bbp_get_super_stickies() {
 	// Cast as array
 	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) )
 		? array()
-		: wp_parse_id_list( $stickies );
+		: bbp_parse_id_list( $stickies );
 
 	/**
 	 * Filters the topics stuck to front page of the forums.
@@ -3716,7 +3716,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 	if ( ! empty( $reply_ids ) ) {
 		// Save the restore list before trashing so an interrupted run can retry.
 		$pre_spammed_replies = bbp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true ) );
-		$pre_spammed_replies = wp_parse_id_list( array_merge( $pre_spammed_replies, $reply_ids ) );
+		$pre_spammed_replies = bbp_parse_id_list( array_merge( $pre_spammed_replies, $reply_ids ) );
 		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
 
 		$defer    = doing_action( 'bbp_spam_topic' )
@@ -4378,7 +4378,7 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 
 		// Save the restore list before trashing, so an interrupted request can retry.
 		$pre_trashed_replies = bbp_parse_id_list( get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true ) );
-		$pre_trashed_replies = wp_parse_id_list( array_merge( $pre_trashed_replies, $reply_ids ) );
+		$pre_trashed_replies = bbp_parse_id_list( array_merge( $pre_trashed_replies, $reply_ids ) );
 		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
 		$defer               = doing_action( 'wp_trash_post' )
 			&& doing_action( 'bbp_trash_topic' )

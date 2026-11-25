@@ -2426,7 +2426,7 @@ function bbp_reparent_forum_subforums( $forum_id = 0, $forum = false ) {
 			AND postmeta.meta_value = %d";
 	$query     = $bbp_db->prepare( $sql, $meta_key, $post_type, $forum->post_parent, $forum_id );
 
-	foreach ( wp_parse_id_list( $bbp_db->get_col( $query ) ) as $subforum_id ) {
+	foreach ( bbp_parse_id_list( $bbp_db->get_col( $query ) ) as $subforum_id ) {
 		bbp_update_forum_id( $subforum_id, $forum->post_parent );
 	}
 }
@@ -3172,7 +3172,7 @@ function bbp_get_password_protected_forum_ids() {
 			"SELECT ID FROM {$bbp_db->posts} WHERE post_type = %s AND CHAR_LENGTH( post_password ) > 0",
 			bbp_get_forum_post_type()
 		);
-		$forum_ids = wp_parse_id_list( $bbp_db->get_col( $query ) );
+		$forum_ids = bbp_parse_id_list( $bbp_db->get_col( $query ) );
 
 		if ( ! empty( $forum_ids ) ) {
 			$forum_ids = bbp_forum_query_all_descendant_ids( $forum_ids );
@@ -3238,7 +3238,7 @@ function bbp_get_unclassified_forum_ids() {
 			);
 		}
 
-		$forum_ids = wp_parse_id_list( $bbp_db->get_col( $query ) );
+		$forum_ids = bbp_parse_id_list( $bbp_db->get_col( $query ) );
 
 		if ( empty( $bbp_db->last_error ) ) {
 			wp_cache_set( $cache_key, $forum_ids, 'bbpress_posts' );
@@ -3283,7 +3283,7 @@ function bbp_get_excluded_forum_ids() {
 
 	// Merge excluded forums together, and remove any empties.
 	$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) || ! empty( $unclassified ) )
-		? array_filter( wp_parse_id_list( array_merge( $private, $hidden, $unclassified ) ) )
+		? array_filter( bbp_parse_id_list( array_merge( $private, $hidden, $unclassified ) ) )
 		: array();
 
 	// Include every descendant, even below a forum with a non-countable status.
@@ -3292,7 +3292,7 @@ function bbp_get_excluded_forum_ids() {
 	}
 
 	// Normalize forum IDs after adding descendants
-	$forum_ids = wp_parse_id_list( $forum_ids );
+	$forum_ids = bbp_parse_id_list( $forum_ids );
 
 	/**
 	 * Filters the forum IDs excluded from queries and views.
@@ -3355,7 +3355,7 @@ function bbp_forum_query_all_subforum_ids( $forum_id ) {
  * @return int[] Starting IDs and descendant IDs.
  */
 function bbp_forum_query_all_descendant_ids( $forum_ids ) {
-	$forum_ids = wp_parse_id_list( $forum_ids );
+	$forum_ids = bbp_parse_id_list( $forum_ids );
 	$cache_key = 'bbp_descendant_ids:' . md5( serialize( $forum_ids ) ) . ':' . wp_cache_get_last_changed( 'bbpress_posts' );
 	$cached    = wp_cache_get( $cache_key, 'bbpress_posts' );
 
@@ -3609,7 +3609,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Get forums to exclude.
-	$forum_ids = wp_parse_id_list( bbp_exclude_forum_ids( 'array' ) );
+	$forum_ids = bbp_parse_id_list( bbp_exclude_forum_ids( 'array' ) );
 
 	/**
 	 * Search matches and sitemap URLs must not reveal password-protected content.
@@ -3617,7 +3617,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	 * protected topics through the password-search clause.
 	 */
 	if ( $password_search ) {
-		$forum_ids           = wp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) );
+		$forum_ids           = bbp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) );
 		$posts_query->set( '_bbp_password_protected_search', true );
 		$posts_query->set( '_bbp_password_protected_forum_ids', $password_forum_ids );
 	} elseif ( $password_listing && ! empty( $password_forum_ids ) ) {
@@ -3686,7 +3686,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			$not_in = (array) $posts_query->get( 'post__not_in', array() );
 
 			// Add our not-in to existing
-			$not_in = wp_parse_id_list( array_merge( $not_in, $forum_ids ) );
+			$not_in = bbp_parse_id_list( array_merge( $not_in, $forum_ids ) );
 
 			// Set the new not-in val
 			$posts_query->set( 'post__not_in', $not_in );
@@ -3705,7 +3705,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	 */
 	if ( ! empty( $non_bbp_post_types ) || $password_search || ! empty( $password_forum_ids ) ) {
 		$posts_query->set( '_bbp_forum_visibility_post_types', $content_post_types );
-		$posts_query->set( '_bbp_forum_visibility_forum_ids', wp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) ) );
+		$posts_query->set( '_bbp_forum_visibility_forum_ids', bbp_parse_id_list( array_merge( $forum_ids, $password_forum_ids ) ) );
 
 		// Mixed queries cannot use a meta join without losing unrelated posts.
 		if ( ! empty( $non_bbp_post_types ) ) {
@@ -3996,7 +3996,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
  * @return int|false Latest post ID, or false on a database error.
  */
 function bbp_forum_query_latest_post_id( $post_ids ) {
-	$post_ids = wp_parse_id_list( $post_ids );
+	$post_ids = bbp_parse_id_list( $post_ids );
 	if ( empty( $post_ids ) ) {
 		return 0;
 	}
@@ -4358,7 +4358,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 
 		// Save the restore list before trashing, so an interrupted request can retry.
 		$pre_trashed_topics = bbp_parse_id_list( get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true ) );
-		$pre_trashed_topics = wp_parse_id_list( array_merge( $pre_trashed_topics, $topic_ids ) );
+		$pre_trashed_topics = bbp_parse_id_list( array_merge( $pre_trashed_topics, $topic_ids ) );
 		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
 
 		// Loop through topics and trash them.

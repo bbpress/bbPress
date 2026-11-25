@@ -376,7 +376,7 @@ function bbp_allow_forums_of_user( $forum_ids = array(), $user_id = 0 ) {
 		// Capability checks read each forum and its metadata. Load large sets in
 		// batches instead of issuing two queries for every forum.
 		if ( count( $forum_ids ) > 20 ) {
-			foreach ( array_chunk( wp_parse_id_list( $forum_ids ), 500 ) as $batch ) {
+			foreach ( array_chunk( bbp_parse_id_list( $forum_ids ), 500 ) as $batch ) {
 				_prime_post_caches( $batch, false, true );
 			}
 		}

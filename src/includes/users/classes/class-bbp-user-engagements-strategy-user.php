@@ -237,7 +237,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @return array<int, int>
 	 */
 	private function parse_comma_list( $results = '' ) {
-		return array_filter( wp_parse_id_list( $results ) );
+		return array_filter( bbp_parse_id_list( $results ) );
 	}
 
 	/**

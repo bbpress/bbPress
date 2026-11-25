@@ -882,6 +882,8 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$this->assertSame( array(), bbp_get_stickies( $forum_id ) );
 		update_post_meta( $forum_id, '_bbp_sticky_topics', array( (string) $topic_id, (string) $topic_id ) );
 		$this->assertSame( array( $topic_id ), bbp_get_stickies( $forum_id ) );
+		update_post_meta( $forum_id, '_bbp_sticky_topics', array( (string) $topic_id, new stdClass() ) );
+		$this->assertSame( array( $topic_id ), bbp_get_stickies( $forum_id ) );
 	}
 
 	/**
@@ -892,6 +894,8 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		update_option( '_bbp_super_sticky_topics', array( (string) $topic_id, (string) $topic_id ) );
 		$this->assertSame( array( $topic_id ), bbp_get_super_stickies() );
 		$this->assertSame( array( $topic_id ), bbp_get_stickies() );
+		update_option( '_bbp_super_sticky_topics', array( (string) $topic_id, new stdClass() ) );
+		$this->assertSame( array( $topic_id ), bbp_get_super_stickies() );
 	}
 
 	/**

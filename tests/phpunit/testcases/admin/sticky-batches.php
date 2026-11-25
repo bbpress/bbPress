@@ -76,6 +76,13 @@ class BBP_Tests_Admin_Sticky_Batches extends BBP_UnitTestCase {
 		$this->fail( 'Sticky repair did not finish.' );
 	}
 
+	public function test_malformed_super_sticky_ids_do_not_fail_batch() {
+		list( , , , $super ) = $this->fixture();
+		update_option( '_bbp_super_sticky_topics', array( $super, new stdClass() ) );
+
+		$this->assertSame( 0, bbp_admin_repair_sticky_batch( true )['code'] );
+	}
+
 	/** @dataProvider sizes */
 	public function test_previews_match_bounded_writes_and_repeat_runs_preserve_canonical_rows( $size ) {
 		list( $first, $forum, $topic, $super ) = $this->fixture();

@@ -211,7 +211,7 @@ function bbp_filter_notification_user_ids( $user_ids = array(), $type = '' ) {
 	// Prime user metadata in batches before checking each preference
 	/** This filter is documented in src/includes/common/functions.php. */
 	$limit = apply_filters( 'bbp_get_users_chunk_limit', 100 );
-	foreach ( array_chunk( wp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
+	foreach ( array_chunk( bbp_parse_id_list( $user_ids ), $limit ) as $user_ids_chunk ) {
 		cache_users( $user_ids_chunk );
 	}
 

@@ -223,6 +223,21 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 		}
 	}
 
+	public function test_bbp_get_subscribers_for_topic_terms_skips_malformed_filtered_ids() {
+		$topic_id = $this->factory->topic->create();
+		$user_id  = $this->factory->user->create();
+		$filter   = function() use ( $user_id ) {
+			return array( (string) $user_id, new stdClass() );
+		};
+
+		add_filter( 'bbp_get_subscribers_for_topic_terms', $filter );
+		try {
+			$this->assertSame( array( $user_id => array() ), bbp_get_topic_term_subscription_contexts( $topic_id ) );
+		} finally {
+			remove_filter( 'bbp_get_subscribers_for_topic_terms', $filter );
+		}
+	}
+
 	/**
 	 * @covers ::bbp_get_forum_subscribers
 	 */

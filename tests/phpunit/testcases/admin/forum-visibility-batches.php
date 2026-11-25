@@ -78,6 +78,10 @@ class BBP_Tests_Admin_Forum_Visibility_Batches extends BBP_UnitTestCase {
 		$this->assertTrue( bbp_admin_repair_forum_visibility_is_valid_checkpoint( $state, $context ) );
 	}
 
+	public function test_malformed_option_ids_count_as_a_change() {
+		$this->assertSame( 1, bbp_admin_repair_forum_visibility_changes( array( 7, new stdClass() ), array( 7 ) ) );
+	}
+
 	private function option() {
 		return bbp_admin_repair_tool_batch_option_name( 'bbp-sync-forum-visibility' );
 	}
