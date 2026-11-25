@@ -1910,8 +1910,8 @@ function bbp_get_topic_author_link( $args = array() ) {
 	);
 
 	$post_arg  = is_numeric( $r['post_id'] ) ? $r['post_id'] : 0;
-	$title_arg = bbp_get_template_string_arg( $r, 'link_title' );
-	$sep       = bbp_get_template_string_arg( $r, 'sep' );
+	$title_arg = bbp_get_string_arg( $r, 'link_title' );
+	$sep       = bbp_get_string_arg( $r, 'sep' );
 	$size       = is_numeric( $r['size'] ) ? (int) $r['size'] : 80;
 
 	// Default return value
@@ -2157,8 +2157,8 @@ function bbp_get_topic_author_role( $args = array() ) {
 		$r['before'] = '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">';
 	}
 
-	$before_html = bbp_get_template_string_arg( $r, 'before' );
-	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$before_html = bbp_get_string_arg( $r, 'before' );
+	$after_html  = bbp_get_string_arg( $r, 'after' );
 
 	// Backwards compatibilty with old 'class' argument
 	if ( ! empty( $r['class'] ) ) {
@@ -2994,10 +2994,10 @@ function bbp_get_topic_tag_list( $topic_id = 0, $args = array() ) {
 		'get_topic_tag_list'
 	);
 
-	$before_html = bbp_get_template_string_arg( $r, 'before' );
-	$after_html  = bbp_get_template_string_arg( $r, 'after' );
-	$sep_html    = bbp_get_template_string_arg( $r, 'sep' );
-	$none_html   = bbp_get_template_string_arg( $r, 'none' );
+	$before_html = bbp_get_string_arg( $r, 'before' );
+	$after_html  = bbp_get_string_arg( $r, 'after' );
+	$sep_html    = bbp_get_string_arg( $r, 'sep' );
+	$none_html   = bbp_get_string_arg( $r, 'none' );
 
 	$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -3172,9 +3172,9 @@ function bbp_get_topic_admin_links( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$before = bbp_get_template_string_arg( $r, 'before' );
-	$after  = bbp_get_template_string_arg( $r, 'after' );
-	$sep    = bbp_get_template_string_arg( $r, 'sep' );
+	$before = bbp_get_string_arg( $r, 'before' );
+	$after  = bbp_get_string_arg( $r, 'after' );
+	$sep    = bbp_get_string_arg( $r, 'sep' );
 
 	if ( empty( $r['links'] ) ) {
 
@@ -3277,9 +3277,9 @@ function bbp_get_topic_edit_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after  = bbp_get_template_string_arg( $r, 'link_after' );
-	$edit_html   = bbp_get_template_string_arg( $r, 'edit_text' );
+	$link_before = bbp_get_string_arg( $r, 'link_before' );
+	$link_after  = bbp_get_string_arg( $r, 'link_after' );
+	$edit_html   = bbp_get_string_arg( $r, 'edit_text' );
 
 	// Get the topic
 	$topic = bbp_get_topic_for_link( $r );
@@ -3425,12 +3425,12 @@ function bbp_get_topic_trash_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before  = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after   = bbp_get_template_string_arg( $r, 'link_after' );
-	$sep          = bbp_get_template_string_arg( $r, 'sep' );
-	$trash_html   = bbp_get_template_string_arg( $r, 'trash_text' );
-	$restore_html = bbp_get_template_string_arg( $r, 'restore_text' );
-	$delete_html  = bbp_get_template_string_arg( $r, 'delete_text' );
+	$link_before  = bbp_get_string_arg( $r, 'link_before' );
+	$link_after   = bbp_get_string_arg( $r, 'link_after' );
+	$sep          = bbp_get_string_arg( $r, 'sep' );
+	$trash_html   = bbp_get_string_arg( $r, 'trash_text' );
+	$restore_html = bbp_get_string_arg( $r, 'restore_text' );
+	$delete_html  = bbp_get_string_arg( $r, 'delete_text' );
 
 	// Get topic
 	$topic = bbp_get_topic_for_link( $r );
@@ -3540,10 +3540,10 @@ function bbp_get_topic_close_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after  = bbp_get_template_string_arg( $r, 'link_after' );
-	$close_html  = bbp_get_template_string_arg( $r, 'close_text' );
-	$open_html   = bbp_get_template_string_arg( $r, 'open_text' );
+	$link_before = bbp_get_string_arg( $r, 'link_before' );
+	$link_after  = bbp_get_string_arg( $r, 'link_after' );
+	$close_html  = bbp_get_string_arg( $r, 'close_text' );
+	$open_html   = bbp_get_string_arg( $r, 'open_text' );
 
 	// Get topic
 	$topic = bbp_get_topic_for_link( $r );
@@ -3618,10 +3618,10 @@ function bbp_get_topic_approve_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before    = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after     = bbp_get_template_string_arg( $r, 'link_after' );
-	$approve_html   = bbp_get_template_string_arg( $r, 'approve_text' );
-	$unapprove_html = bbp_get_template_string_arg( $r, 'unapprove_text' );
+	$link_before    = bbp_get_string_arg( $r, 'link_before' );
+	$link_after     = bbp_get_string_arg( $r, 'link_after' );
+	$approve_html   = bbp_get_string_arg( $r, 'approve_text' );
+	$unapprove_html = bbp_get_string_arg( $r, 'unapprove_text' );
 
 	// Get topic
 	$topic = bbp_get_topic_for_link( $r );
@@ -3697,11 +3697,11 @@ function bbp_get_topic_stick_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before  = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after   = bbp_get_template_string_arg( $r, 'link_after' );
-	$stick_html   = bbp_get_template_string_arg( $r, 'stick_text' );
-	$unstick_html = bbp_get_template_string_arg( $r, 'unstick_text' );
-	$super_html   = bbp_get_template_string_arg( $r, 'super_text' );
+	$link_before  = bbp_get_string_arg( $r, 'link_before' );
+	$link_after   = bbp_get_string_arg( $r, 'link_after' );
+	$stick_html   = bbp_get_string_arg( $r, 'stick_text' );
+	$unstick_html = bbp_get_string_arg( $r, 'unstick_text' );
+	$super_html   = bbp_get_string_arg( $r, 'super_text' );
 
 	// Get topic
 	$topic = bbp_get_topic_for_link( $r );
@@ -3801,9 +3801,9 @@ function bbp_get_topic_merge_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after  = bbp_get_template_string_arg( $r, 'link_after' );
-	$merge_html  = bbp_get_template_string_arg( $r, 'merge_text' );
+	$link_before = bbp_get_string_arg( $r, 'link_before' );
+	$link_after  = bbp_get_string_arg( $r, 'link_after' );
+	$merge_html  = bbp_get_string_arg( $r, 'merge_text' );
 
 	// Get topic
 	$topic = bbp_get_topic_for_link( $r );
@@ -3872,10 +3872,10 @@ function bbp_get_topic_spam_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after  = bbp_get_template_string_arg( $r, 'link_after' );
-	$spam_html   = bbp_get_template_string_arg( $r, 'spam_text' );
-	$unspam_html = bbp_get_template_string_arg( $r, 'unspam_text' );
+	$link_before = bbp_get_string_arg( $r, 'link_before' );
+	$link_after  = bbp_get_string_arg( $r, 'link_after' );
+	$spam_html   = bbp_get_string_arg( $r, 'spam_text' );
+	$unspam_html = bbp_get_string_arg( $r, 'unspam_text' );
 
 	$topic = bbp_get_topic_for_link( $r );
 
@@ -3947,9 +3947,9 @@ function bbp_get_topic_reply_link( $args = array() ) {
 	);
 
 	// Normalize filtered link arguments before building links
-	$link_before = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after  = bbp_get_template_string_arg( $r, 'link_after' );
-	$reply_html  = bbp_get_template_string_arg( $r, 'reply_text' );
+	$link_before = bbp_get_string_arg( $r, 'link_before' );
+	$link_after  = bbp_get_string_arg( $r, 'link_after' );
+	$reply_html  = bbp_get_string_arg( $r, 'reply_text' );
 
 	// Get the topic to use it's ID and post_parent
 	$topic = bbp_get_topic_for_link( $r );
@@ -4296,8 +4296,8 @@ function bbp_get_form_topic_type_dropdown( $args = array() ) {
 	);
 
 	// Use valid field names and IDs from the parsed arguments
-	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
-	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$select_id    = bbp_get_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_string_arg( $r, 'select_class' );
 	$topic_arg    = is_numeric( $r['topic_id'] ) ? $r['topic_id'] : 0;
 	$topic_id     = (int) $topic_arg;
 
@@ -4414,8 +4414,8 @@ function bbp_get_form_topic_status_dropdown( $args = array() ) {
 	);
 
 	// Use valid field names and IDs from the parsed arguments
-	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
-	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$select_id    = bbp_get_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_string_arg( $r, 'select_class' );
 	$topic_arg    = is_numeric( $r['topic_id'] ) ? $r['topic_id'] : 0;
 	$topic_id     = (int) $topic_arg;
 
@@ -4610,8 +4610,8 @@ function bbp_get_single_topic_description( $args = array() ) {
 	add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
 
 	// Combine the elements together
-	$before_html = bbp_get_template_string_arg( $r, 'before' );
-	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$before_html = bbp_get_string_arg( $r, 'before' );
+	$after_html  = bbp_get_string_arg( $r, 'after' );
 	$retstr     = $before_html . $retstr . $after_html;
 
 	/**
@@ -5070,8 +5070,8 @@ function bbp_get_topic_tag_description( $args = array() ) {
 		'get_topic_tag_description'
 	);
 
-	$before_html = bbp_get_template_string_arg( $r, 'before' );
-	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$before_html = bbp_get_string_arg( $r, 'before' );
+	$after_html  = bbp_get_string_arg( $r, 'after' );
 
 	// Get the term
 	$tag = $r['tag'];

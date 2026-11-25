@@ -927,9 +927,9 @@ function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
 		'get_user_nicename'
 	);
 
-	$force     = bbp_get_template_string_arg( $r, 'force' );
-	$before    = bbp_get_template_string_arg( $r, 'before' );
-	$after     = bbp_get_template_string_arg( $r, 'after' );
+	$force     = bbp_get_string_arg( $r, 'force' );
+	$before    = bbp_get_string_arg( $r, 'before' );
+	$after     = bbp_get_string_arg( $r, 'after' );
 	$lookup_id = is_numeric( $r['user_id'] ) ? (int) $r['user_id'] : 0;
 
 	// Force the nicename (likely from a previous user query)
@@ -1258,9 +1258,9 @@ function bbp_get_admin_link( $args = array() ) {
 		'get_admin_link'
 	);
 
-	$before = bbp_get_template_string_arg( $r, 'before' );
-	$after  = bbp_get_template_string_arg( $r, 'after' );
-	$text   = bbp_get_template_string_arg( $r, 'text' );
+	$before = bbp_get_string_arg( $r, 'before' );
+	$after  = bbp_get_string_arg( $r, 'after' );
+	$text   = bbp_get_string_arg( $r, 'text' );
 	$retval = $before . '<a href="' . esc_url( admin_url() ) . '">' . $text . '</a>' . $after;
 
 	/**
@@ -1313,8 +1313,8 @@ function bbp_get_author_ip( $args = array() ) {
 		'get_author_ip'
 	);
 
-	$before_html = bbp_get_template_string_arg( $r, 'before' );
-	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$before_html = bbp_get_string_arg( $r, 'before' );
+	$after_html  = bbp_get_string_arg( $r, 'after' );
 
 	// Get the author IP meta value
 	$author_ip = get_post_meta( $r['post_id'], '_bbp_author_ip', true );
@@ -1679,12 +1679,12 @@ function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = tru
 	);
 
 	// Use renderable strings for labels and link arguments
-	$favorite    = bbp_get_template_string_arg( $r, 'favorite' );
-	$favorited   = bbp_get_template_string_arg( $r, 'favorited' );
-	$object_type = bbp_get_template_string_arg( $r, 'object_type' );
-	$before      = bbp_get_template_string_arg( $r, 'before' );
-	$after       = bbp_get_template_string_arg( $r, 'after' );
-	$redirect_to = bbp_get_template_string_arg( $r, 'redirect_to' );
+	$favorite    = bbp_get_string_arg( $r, 'favorite' );
+	$favorited   = bbp_get_string_arg( $r, 'favorited' );
+	$object_type = bbp_get_string_arg( $r, 'object_type' );
+	$before      = bbp_get_string_arg( $r, 'before' );
+	$after       = bbp_get_string_arg( $r, 'after' );
+	$redirect_to = bbp_get_string_arg( $r, 'redirect_to' );
 
 	// Validate user and object ID's
 	$user_arg    = $r['user_id'];
@@ -2347,12 +2347,12 @@ function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = tru
 	);
 
 	// Use renderable strings for labels and link arguments
-	$subscribe   = bbp_get_template_string_arg( $r, 'subscribe' );
-	$unsubscribe = bbp_get_template_string_arg( $r, 'unsubscribe' );
-	$object_type = bbp_get_template_string_arg( $r, 'object_type' );
-	$before      = bbp_get_template_string_arg( $r, 'before' );
-	$after       = bbp_get_template_string_arg( $r, 'after' );
-	$redirect_to = bbp_get_template_string_arg( $r, 'redirect_to' );
+	$subscribe   = bbp_get_string_arg( $r, 'subscribe' );
+	$unsubscribe = bbp_get_string_arg( $r, 'unsubscribe' );
+	$object_type = bbp_get_string_arg( $r, 'object_type' );
+	$before      = bbp_get_string_arg( $r, 'before' );
+	$after       = bbp_get_string_arg( $r, 'after' );
+	$redirect_to = bbp_get_string_arg( $r, 'redirect_to' );
 
 	// Validate user
 	$user_arg    = $r['user_id'];
@@ -3494,8 +3494,8 @@ function bbp_get_author_link( $args = array() ) {
 	}
 
 	$explicit_user_id = is_numeric( $r['user_id'] ) ? (int) $r['user_id'] : 0;
-	$title_arg        = bbp_get_template_string_arg( $r, 'link_title' );
-	$sep              = bbp_get_template_string_arg( $r, 'sep' );
+	$title_arg        = bbp_get_string_arg( $r, 'link_title' );
+	$sep              = bbp_get_string_arg( $r, 'sep' );
 	$size             = is_numeric( $r['size'] ) ? (int) $r['size'] : 80;
 
 	// An explicitly empty post ID must not fall back to the current loop post
@@ -4074,10 +4074,10 @@ function bbp_get_moderator_list( $object_id = 0, $args = array() ) {
 		'get_moderator_list'
 	);
 
-	$before = bbp_get_template_string_arg( $r, 'before' );
-	$after  = bbp_get_template_string_arg( $r, 'after' );
-	$sep    = bbp_get_template_string_arg( $r, 'sep' );
-	$none   = bbp_get_template_string_arg( $r, 'none' );
+	$before = bbp_get_string_arg( $r, 'before' );
+	$after  = bbp_get_string_arg( $r, 'after' );
+	$sep    = bbp_get_string_arg( $r, 'sep' );
+	$none   = bbp_get_string_arg( $r, 'none' );
 
 	// Get forum moderators
 	$user_ids = bbp_get_moderator_ids( $object_id );

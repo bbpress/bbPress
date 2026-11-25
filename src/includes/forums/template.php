@@ -1021,14 +1021,14 @@ function bbp_list_forums( $args = array() ) {
 	}
 
 	// Use renderable text for the filtered list wrappers
-	$before       = bbp_get_template_string_arg( $r, 'before' );
-	$after        = bbp_get_template_string_arg( $r, 'after' );
-	$link_before  = bbp_get_template_string_arg( $r, 'link_before' );
-	$link_after   = bbp_get_template_string_arg( $r, 'link_after' );
-	$sep          = bbp_get_template_string_arg( $r, 'sep' );
-	$count_before = bbp_get_template_string_arg( $r, 'count_before' );
-	$count_after  = bbp_get_template_string_arg( $r, 'count_after' );
-	$count_sep    = bbp_get_template_string_arg( $r, 'count_sep' );
+	$before       = bbp_get_string_arg( $r, 'before' );
+	$after        = bbp_get_string_arg( $r, 'after' );
+	$link_before  = bbp_get_string_arg( $r, 'link_before' );
+	$link_after   = bbp_get_string_arg( $r, 'link_after' );
+	$sep          = bbp_get_string_arg( $r, 'sep' );
+	$count_before = bbp_get_string_arg( $r, 'count_before' );
+	$count_after  = bbp_get_string_arg( $r, 'count_after' );
+	$count_sep    = bbp_get_string_arg( $r, 'count_sep' );
 
 	// A query array is also accepted as the subforum source
 	$forum_arg = $r['forum_id'];
@@ -2931,8 +2931,8 @@ function bbp_get_single_forum_description( $args = array() ) {
 	add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 	// Combine the elements together
-	$before_html = bbp_get_template_string_arg( $r, 'before' );
-	$after_html  = bbp_get_template_string_arg( $r, 'after' );
+	$before_html = bbp_get_string_arg( $r, 'before' );
+	$after_html  = bbp_get_string_arg( $r, 'after' );
 	$retstr     = $before_html . $retstr . $after_html;
 
 	/**
@@ -3329,8 +3329,8 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 	);
 
 	// Use valid field names and IDs from the parsed arguments
-	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
-	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$select_id    = bbp_get_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_string_arg( $r, 'select_class' );
 	$forum_arg    = is_numeric( $r['forum_id'] ) ? $r['forum_id'] : 0;
 	$forum_id     = (int) $forum_arg;
 
@@ -3433,8 +3433,8 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 	);
 
 	// Use valid field names and IDs from the parsed arguments
-	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
-	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$select_id    = bbp_get_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_string_arg( $r, 'select_class' );
 	$forum_arg    = is_numeric( $r['forum_id'] ) ? $r['forum_id'] : 0;
 	$forum_id     = (int) $forum_arg;
 
@@ -3537,8 +3537,8 @@ function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 	);
 
 	// Use valid field names and IDs from the parsed arguments
-	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
-	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
+	$select_id    = bbp_get_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_string_arg( $r, 'select_class' );
 	$forum_arg    = is_numeric( $r['forum_id'] ) ? $r['forum_id'] : 0;
 	$forum_id     = (int) $forum_arg;
 

@@ -13,19 +13,19 @@ defined( 'ABSPATH' ) || exit;
 /** Template Arguments ********************************************************/
 
 /**
- * Get a string argument for template output.
+ * Get a string value from an argument array.
  *
  * Parsed arguments can be changed by filters. Keep scalar and stringable values
  * for rendering, and ignore values that cannot be rendered as strings.
  *
- * @since 2.7.0 bbPress (r8634)
+ * @since 2.7.0 bbPress (r8637)
  * @access private
  *
- * @param array<string, mixed> $args Parsed template arguments.
+ * @param array<string, mixed> $args Argument values.
  * @param string               $key  Argument name.
  * @return string Renderable argument value.
  */
-function bbp_get_template_string_arg( $args, $key ) {
+function bbp_get_string_arg( $args, $key ) {
 	$value = isset( $args[ $key ] ) ? $args[ $key ] : '';
 
 	if ( is_scalar( $value ) || ( is_object( $value ) && method_exists( $value, '__toString' ) ) ) {
@@ -2075,9 +2075,9 @@ function bbp_get_dropdown( $args = array() ) {
 		'get_dropdown'
 	);
 
-	$select_id    = bbp_get_template_string_arg( $r, 'select_id' );
-	$select_class = bbp_get_template_string_arg( $r, 'select_class' );
-	$disabled_key = bbp_get_template_string_arg( $r, 'disabled' );
+	$select_id    = bbp_get_string_arg( $r, 'select_id' );
+	$select_class = bbp_get_string_arg( $r, 'select_class' );
+	$disabled_key = bbp_get_string_arg( $r, 'disabled' );
 
 	// Fallback to our walker
 	if ( empty( $r['walker'] ) ) {
@@ -2092,13 +2092,13 @@ function bbp_get_dropdown( $args = array() ) {
 
 	// Force array
 	if ( ! empty( $r['include'] ) && ! is_array( $r['include'] ) ) {
-		$include      = bbp_get_template_string_arg( $r, 'include' );
+		$include      = bbp_get_string_arg( $r, 'include' );
 		$r['include'] = ( '' !== $include ) ? explode( ',', $include ) : array();
 	}
 
 	// Force array
 	if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
-		$exclude      = bbp_get_template_string_arg( $r, 'exclude' );
+		$exclude      = bbp_get_string_arg( $r, 'exclude' );
 		$r['exclude'] = ( '' !== $exclude ) ? explode( ',', $exclude ) : array();
 	}
 
@@ -3020,18 +3020,18 @@ function bbp_get_breadcrumb( $args = array() ) {
 	);
 
 	// Use renderable strings for the filtered breadcrumb parts
-	$before         = bbp_get_template_string_arg( $r, 'before' );
-	$after          = bbp_get_template_string_arg( $r, 'after' );
-	$sep            = bbp_get_template_string_arg( $r, 'sep' );
-	$sep_before     = bbp_get_template_string_arg( $r, 'sep_before' );
-	$sep_after      = bbp_get_template_string_arg( $r, 'sep_after' );
-	$crumb_before   = bbp_get_template_string_arg( $r, 'crumb_before' );
-	$crumb_after    = bbp_get_template_string_arg( $r, 'crumb_after' );
-	$home_html      = bbp_get_template_string_arg( $r, 'home_text' );
-	$root_html      = bbp_get_template_string_arg( $r, 'root_text' );
-	$current_html   = bbp_get_template_string_arg( $r, 'current_text' );
-	$current_before = bbp_get_template_string_arg( $r, 'current_before' );
-	$current_after  = bbp_get_template_string_arg( $r, 'current_after' );
+	$before         = bbp_get_string_arg( $r, 'before' );
+	$after          = bbp_get_string_arg( $r, 'after' );
+	$sep            = bbp_get_string_arg( $r, 'sep' );
+	$sep_before     = bbp_get_string_arg( $r, 'sep_before' );
+	$sep_after      = bbp_get_string_arg( $r, 'sep_after' );
+	$crumb_before   = bbp_get_string_arg( $r, 'crumb_before' );
+	$crumb_after    = bbp_get_string_arg( $r, 'crumb_after' );
+	$home_html      = bbp_get_string_arg( $r, 'home_text' );
+	$root_html      = bbp_get_string_arg( $r, 'root_text' );
+	$current_html   = bbp_get_string_arg( $r, 'current_text' );
+	$current_before = bbp_get_string_arg( $r, 'current_before' );
+	$current_after  = bbp_get_string_arg( $r, 'current_after' );
 	$pad_sep        = is_numeric( $r['pad_sep'] ) ? (int) $r['pad_sep'] : 0;
 
 	/** Ancestors *********************************************************/
