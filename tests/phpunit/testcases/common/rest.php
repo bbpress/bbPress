@@ -113,9 +113,9 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 				$this->assertSame( 200, $this->get_item( 'media', $hidden_id, $keymaster_id )->get_status() );
 
 				$media_ids = wp_list_pluck( $this->get_items( 'media', $participant_id )->get_data(), 'id' );
-				$this->assertContains( $public_id, $media_ids );
-				$this->assertContains( $private_id, $media_ids );
 				$this->assertContains( $normal_id, $media_ids );
+				$this->assertNotContains( $public_id, $media_ids );
+				$this->assertNotContains( $private_id, $media_ids );
 				$this->assertNotContains( $hidden_id, $media_ids );
 			}
 		} finally {
@@ -392,7 +392,7 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 			$this->assertContains( $posts['forum_id'], wp_list_pluck( $this->get_items( bbp_get_forum_post_type() )->get_data(), 'id' ) );
 			$this->assertContains( $posts['topic_id'], wp_list_pluck( $this->get_items( bbp_get_topic_post_type() )->get_data(), 'id' ) );
 			$this->assertContains( $posts['reply_id'], wp_list_pluck( $this->get_items( bbp_get_reply_post_type() )->get_data(), 'id' ) );
-			$this->assertEmpty( array_diff( $media_ids, wp_list_pluck( $this->get_items( 'media' )->get_data(), 'id' ) ) );
+			$this->assertEmpty( array_intersect( $media_ids, wp_list_pluck( $this->get_items( 'media' )->get_data(), 'id' ) ) );
 		} finally {
 			if ( null === $old_cookie ) {
 				unset( $_COOKIE[ $cookie ] );
@@ -783,19 +783,95 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers BBP_REST_Attachments_Controller::check_read_permission
+	 * @covers ::bbp_filter_rest_attachment_query
+	 * @covers ::bbp_filter_rest_attachment_collection_where
 	 */
-	public function test_media_collection_excludes_attachments_in_hidden_forum() {
+	public function test_media_collection_excludes_bbpress_attachments_from_results_and_totals() {
 		$public     = $this->create_forum_content();
 		$restricted = $this->create_forum_content( bbp_get_hidden_status_id() );
 		$public_id  = $this->create_attachment( $public['topic_id'] );
 		$hidden_id  = $this->create_attachment( $restricted['topic_id'] );
+		$forum_id   = $this->create_attachment( $public['forum_id'] );
+		$reply_id   = $this->create_attachment( $restricted['reply_id'] );
+		$normal_id  = $this->create_attachment( $this->factory->post->create() );
+		wp_update_post( array( 'ID' => $normal_id, 'post_title' => 'Ordinary attachment' ) );
 		$media      = $this->get_items( 'media' );
 		$media_ids  = wp_list_pluck( $media->get_data(), 'id' );
 
 		$this->assertSame( 200, $media->get_status() );
-		$this->assertContains( $public_id, $media_ids );
+		$this->assertContains( $normal_id, $media_ids );
+		$this->assertNotContains( $public_id, $media_ids );
 		$this->assertNotContains( $hidden_id, $media_ids );
+		$this->assertNotContains( $forum_id, $media_ids );
+		$this->assertNotContains( $reply_id, $media_ids );
+		$this->assertSame( 1, (int) $media->get_headers()['X-WP-Total'] );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'include', array( $hidden_id ) );
+		$request->set_param( 'search', 'Restricted attachment' );
+		$hidden = rest_get_server()->dispatch( $request );
+		$this->assertSame( array(), $hidden->get_data() );
+		$this->assertSame( 0, (int) $hidden->get_headers()['X-WP-Total'] );
+		$this->assertSame( 0, (int) $hidden->get_headers()['X-WP-TotalPages'] );
+
+		$request->set_param( 'include', array() );
+		$searched = rest_get_server()->dispatch( $request );
+		$this->assertSame( array(), $searched->get_data() );
+		$this->assertSame( 0, (int) $searched->get_headers()['X-WP-Total'] );
+
+		$request->set_param( 'include', array( $public_id ) );
+		$public_media = rest_get_server()->dispatch( $request );
+		$this->assertSame( array(), $public_media->get_data() );
+		$this->assertSame( 0, (int) $public_media->get_headers()['X-WP-Total'] );
+
+		$request->set_param( 'include', array( $normal_id ) );
+		$request->set_param( 'search', 'Ordinary attachment' );
+		$normal = rest_get_server()->dispatch( $request );
+		$this->assertSame( array( $normal_id ), wp_list_pluck( $normal->get_data(), 'id' ) );
+		$this->assertSame( 1, (int) $normal->get_headers()['X-WP-Total'] );
+
+		$request->set_param( 'include', array() );
+		$request->set_param( 'search', '' );
+		$request->set_param( 'per_page', 1 );
+		$request->set_param( 'page', 2 );
+		$paged = rest_get_server()->dispatch( $request );
+		$this->assertSame( 400, $paged->get_status() );
+		$this->assertSame( 'rest_post_invalid_page_number', $paged->get_data()['code'] );
+
+		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'parent', array( $restricted['topic_id'] ) );
+		$request->set_param( 'context', 'edit' );
+		$admin = rest_get_server()->dispatch( $request );
+		$this->assertSame( 200, $admin->get_status() );
+		$this->assertSame( array(), $admin->get_data() );
+		$this->assertSame( 0, (int) $admin->get_headers()['X-WP-Total'] );
+	}
+
+	/**
+	 * @covers ::bbp_filter_rest_attachment_collection_where
+	 */
+	public function test_media_collection_fails_closed_when_a_plugin_extends_bbpress_parent_types() {
+		$page_id   = $this->factory->post->create( array( 'post_type' => 'page', 'post_status' => 'private' ) );
+		$media_id  = $this->create_attachment( $page_id );
+		$normal_id = $this->create_attachment( $this->factory->post->create() );
+		$filter    = function( $is_bbp, $post ) use ( $page_id ) {
+			return ( $post instanceof WP_Post && $page_id === $post->ID ) ? true : $is_bbp;
+		};
+
+		add_filter( 'bbp_is_custom_post_type', $filter, 10, 2 );
+
+		try {
+			$this->assertSame( $page_id, bbp_get_attachment_parent( $media_id )->ID );
+			$this->assertSame( 401, $this->get_item( 'media', $media_id )->get_status() );
+			$media = $this->get_items( 'media' );
+			$this->assertSame( array(), $media->get_data() );
+			$this->assertSame( 0, (int) $media->get_headers()['X-WP-Total'] );
+		} finally {
+			remove_filter( 'bbp_is_custom_post_type', $filter, 10 );
+		}
+
+		$this->assertContains( $normal_id, wp_list_pluck( $this->get_items( 'media' )->get_data(), 'id' ) );
 	}
 
 	/**

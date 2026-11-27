@@ -61,6 +61,8 @@ add_filter( 'rest_request_before_callbacks', 'bbp_filter_rest_password_required_
 add_filter( 'rest_post_search_query',        'bbp_exclude_replies_from_non_public_topics'        );
 add_filter( 'wp_sitemaps_posts_query_args',  'bbp_exclude_replies_from_non_public_topics'        );
 add_filter( 'wp_sitemaps_posts_query_args',  'bbp_exclude_password_protected_sitemap_posts', 10, 2 );
+add_filter( 'rest_attachment_query',        'bbp_filter_rest_attachment_query', PHP_INT_MAX );
+add_filter( 'posts_where',                  'bbp_filter_rest_attachment_collection_where', 10, 2 );
 
 // Filter WordPress post data for forums, pending dates, and anonymous posts
 add_filter( 'wp_insert_post_data', 'bbp_filter_admin_forum_post_data', 20, 2 );
