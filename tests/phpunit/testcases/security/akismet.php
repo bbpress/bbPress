@@ -159,6 +159,120 @@ class BBP_Tests_Security_Akismet extends BBP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * @ticket 3794
+	 * @covers BBP_Akismet::check_post
+	 */
+	public function test_akismet_ignores_malformed_post_fields() {
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+
+		$user_id  = $this->factory->user->create();
+		$outbound = array();
+		$bypass   = function( $skip, $payload ) use ( &$outbound ) {
+			$outbound = $payload;
+			return true;
+		};
+		add_filter( 'bbp_bypass_check_for_spam', $bypass, 10, 2 );
+
+		try {
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$result     = $akismet->check_post( array(
+				'post_author'  => $user_id,
+				'post_parent'  => array( 'invalid' ),
+				'post_title'   => array( 'invalid' ),
+				'post_content' => array( 'invalid' ),
+				'post_type'    => bbp_get_topic_post_type(),
+			) );
+
+			$this->assertSame( 0, $outbound['comment_post_ID'] );
+			$this->assertSame( '', $outbound['comment_content'] );
+			$this->assertSame( $user_id, $result['post_author'] );
+		} finally {
+			remove_filter( 'bbp_bypass_check_for_spam', $bypass, 10 );
+		}
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers BBP_Akismet::parse_response
+	 */
+	public function test_akismet_accepts_array_access_response_headers() {
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+
+		$original = get_option( 'akismet_strictness', false );
+		$redirect = function() {
+			throw new RuntimeException( 'akismet-redirect' );
+		};
+		update_option( 'akismet_strictness', 1 );
+		add_filter( 'wp_redirect', $redirect );
+
+		try {
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$method     = $reflection->getMethod( 'parse_response' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+
+			$this->expectException( RuntimeException::class );
+			$this->expectExceptionMessage( 'akismet-redirect' );
+			$method->invoke( $akismet, array(
+				'bbp_post_as_submitted'        => array( 'comment_post_ID' => array( 'invalid' ) ),
+				'bbp_akismet_result_headers' => new ArrayObject( array( 'x-akismet-pro-tip' => 'discard' ) ),
+				'bbp_akismet_result'         => 'true',
+			) );
+		} finally {
+			remove_filter( 'wp_redirect', $redirect );
+			if ( false === $original ) {
+				delete_option( 'akismet_strictness' );
+			} else {
+				update_option( 'akismet_strictness', $original );
+			}
+		}
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers BBP_Akismet::maybe_spam
+	 */
+	public function test_akismet_omits_non_scalar_request_data() {
+		global $akismet_api_host, $akismet_api_port;
+
+		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
+		if ( ! defined( 'AKISMET_VERSION' ) ) {
+			define( 'AKISMET_VERSION', 'test' );
+		}
+
+		$previous_host = $akismet_api_host;
+		$previous_port = $akismet_api_port;
+		$request_body  = '';
+		$intercept     = function( $pre, $args ) use ( &$request_body ) {
+			$request_body = $args['body'];
+			return array( 'headers' => array(), 'body' => 'false' );
+		};
+		$akismet_api_host = 'example.invalid';
+		$akismet_api_port = 80;
+		add_filter( 'pre_http_request', $intercept, 10, 2 );
+
+		try {
+			$reflection = new ReflectionClass( 'BBP_Akismet' );
+			$akismet    = $reflection->newInstanceWithoutConstructor();
+			$method     = $reflection->getMethod( 'maybe_spam' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+			$method->invoke( $akismet, array( 'valid' => 'ok', 'invalid' => array( 'no' ) ) );
+
+			$this->assertStringContainsString( 'valid=ok&', $request_body );
+			$this->assertStringNotContainsString( 'invalid=', $request_body );
+		} finally {
+			remove_filter( 'pre_http_request', $intercept, 10 );
+			$akismet_api_host = $previous_host;
+			$akismet_api_port = $previous_port;
+		}
+	}
+
 	public function test_akismet_preserves_plugin_request_fields_without_credential_values() {
 		require_once BBP_PLUGIN_DIR . 'includes/extend/akismet.php';
 

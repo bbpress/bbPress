@@ -121,6 +121,9 @@ class BBP_Akismet {
 		if ( empty( $post_data['post_author'] ) ) {
 			$post_data['post_author'] = 0;
 		}
+		$post_parent              = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
+		$post_data['post_author'] = bbp_parse_int( $post_data['post_author'] );
+		$post_data['post_parent'] = bbp_parse_int( $post_parent );
 
 		/** Author ************************************************************/
 
@@ -162,7 +165,9 @@ class BBP_Akismet {
 		}
 
 		// Pass title & content together into comment content
-		$_post_content = trim( $post_data['post_title'] . "\n\n" . $post_data['post_content'] );
+		$post_title    = bbp_get_string_arg( $post_data, 'post_title' );
+		$post_content  = bbp_get_string_arg( $post_data, 'post_content' );
+		$_post_content = trim( $post_title . "\n\n" . $post_content );
 
 		// Prepare the post data for Akismet.
 		$akismet_data = array(
@@ -239,9 +244,11 @@ class BBP_Akismet {
 	private function parse_response( $post_data = array() ) {
 
 		// Get the parent ID of the post as submitted
-		$parent_id = ! empty( $post_data['bbp_post_as_submitted']['comment_post_ID'] )
-			? absint( $post_data['bbp_post_as_submitted']['comment_post_ID'] )
-			: 0;
+		$submitted = isset( $post_data['bbp_post_as_submitted'] ) && is_array( $post_data['bbp_post_as_submitted'] )
+			? $post_data['bbp_post_as_submitted']
+			: array();
+		$parent_id = isset( $submitted['comment_post_ID'] ) ? bbp_parse_int( $submitted['comment_post_ID'] ) : 0;
+		$parent_id = abs( $parent_id );
 
 		// Allow moderators to skip spam (includes per-forum moderators via $parent_id)
 		$skip_spam = current_user_can( 'moderate', $parent_id );
@@ -264,15 +271,21 @@ class BBP_Akismet {
 		if ( get_option( 'akismet_strictness' ) ) {
 
 			// Akismet is 100% confident this is spam
+			$headers = isset( $post_data['bbp_akismet_result_headers'] ) ? $post_data['bbp_akismet_result_headers'] : array();
+			if ( ! is_array( $headers ) && ! ( $headers instanceof ArrayAccess ) ) {
+				$headers = array();
+			}
 			if (
-				! empty( $post_data['bbp_akismet_result_headers']['x-akismet-pro-tip'] )
+				! empty( $headers['x-akismet-pro-tip'] )
 				&&
-				( 'discard' === $post_data['bbp_akismet_result_headers']['x-akismet-pro-tip'] )
+				( 'discard' === $headers['x-akismet-pro-tip'] )
 			) {
 
 				// URL to redirect to (current, or forum root)
-				$redirect_to = ( ! empty( $_SERVER['HTTP_HOST'] ) && ! empty( $_SERVER['REQUEST_URI'] ) )
-					? bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+				$host        = isset( $_SERVER['HTTP_HOST'] ) && is_string( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '';
+				$request_uri = isset( $_SERVER['REQUEST_URI'] ) && is_string( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+				$redirect_to = ( '' !== $host ) && ( '' !== $request_uri )
+					? bbp_get_url_scheme() . $host . $request_uri
 					: bbp_get_root_url();
 
 				// Do the redirect (post data not saved!)
@@ -404,58 +417,60 @@ class BBP_Akismet {
 
 		// Manual user action
 		if ( isset( $post_data['reporter'] ) ) {
+			$reporter     = bbp_get_string_arg( $post_data, 'reporter' );
+			$comment_type = bbp_get_string_arg( $post_data, 'comment_type' );
 
 			// What kind of action
 			switch ( $request_type ) {
 
 				// Spammy
 				case 'spam' :
-					if ( 'topic' === $post_data['comment_type'] ) {
+					if ( 'topic' === $comment_type ) {
 						/* translators: %s: reporter name */
 						$message = sprintf( esc_html__( '%s reported this topic as spam', 'bbpress' ),
-							$post_data['reporter']
+							$reporter
 						);
-					} elseif ( 'reply' === $post_data['comment_type'] ) {
+					} elseif ( 'reply' === $comment_type ) {
 						/* translators: %s: reporter name */
 						$message = sprintf( esc_html__( '%s reported this reply as spam', 'bbpress' ),
-							$post_data['reporter']
+							$reporter
 						);
 					} else {
 						/* translators: 1: reporter name, 2: comment type */
 						$message = sprintf( esc_html__( '%1$s reported this %2$s as spam', 'bbpress' ),
-							$post_data['reporter'],
-							$post_data['comment_type']
+							$reporter,
+							$comment_type
 						);
 					}
 
 					$this->update_post_history( $post_id, $message, 'report-spam' );
 					update_post_meta( $post_id, '_bbp_akismet_user_result', 'true'                 );
-					update_post_meta( $post_id, '_bbp_akismet_user',        $post_data['reporter'] );
+					update_post_meta( $post_id, '_bbp_akismet_user',        $reporter );
 					break;
 
 				// Hammy
 				case 'ham' :
-					if ( 'topic' === $post_data['comment_type'] ) {
+					if ( 'topic' === $comment_type ) {
 						/* translators: %s: reporter name */
 						$message = sprintf( esc_html__( '%s reported this topic as not spam', 'bbpress' ),
-							$post_data['reporter']
+							$reporter
 						);
-					} elseif ( 'reply' === $post_data['comment_type'] ) {
+					} elseif ( 'reply' === $comment_type ) {
 						/* translators: %s: reporter name */
 						$message = sprintf( esc_html__( '%s reported this reply as not spam', 'bbpress' ),
-							$post_data['reporter']
+							$reporter
 						);
 					} else {
 						/* translators: 1: reporter name, 2: comment type */
 						$message = sprintf( esc_html__( '%1$s reported this %2$s as not spam', 'bbpress' ),
-							$post_data['reporter'],
-							$post_data['comment_type']
+							$reporter,
+							$comment_type
 						);
 					}
 
 					$this->update_post_history( $post_id, $message, 'report-ham' );
 					update_post_meta( $post_id, '_bbp_akismet_user_result', 'false'                 );
-					update_post_meta( $post_id, '_bbp_akismet_user',         $post_data['reporter'] );
+					update_post_meta( $post_id, '_bbp_akismet_user',         $reporter );
 
 					// @todo Topic term revision history
 					break;
@@ -474,7 +489,7 @@ class BBP_Akismet {
 		 * @since 2.0.0 bbPress (r3308)
 		 *
 		 * @param int    $post_id Post ID.
-		 * @param string $result  Akismet's spam check result.
+		 * @param mixed  $result  Akismet's spam check result, which filters may change.
 		 */
 		do_action( 'bbp_akismet_submit_' . $request_type . '_post', $post_id, $post_data['bbp_akismet_result'] );
 	}
@@ -530,7 +545,11 @@ class BBP_Akismet {
 
 			// Encode post data
 			foreach ( $post_data as $key => $data ) {
-				$query_string .= $key . '=' . urlencode( wp_unslash( $data ) ) . '&';
+				$data = wp_unslash( $data );
+				if ( ! is_scalar( $data ) && ! ( is_object( $data ) && method_exists( $data, '__toString' ) ) ) {
+					continue;
+				}
+				$query_string .= $key . '=' . urlencode( (string) $data ) . '&';
 		}
 
 		// Only accepts spam|ham
@@ -664,7 +683,7 @@ class BBP_Akismet {
 			if (
 
 				// Post matches
-				( intval( $as_submitted['comment_post_ID'] ) === intval( $_post->post_parent ) )
+				( bbp_parse_int( $as_submitted['comment_post_ID'] ) === intval( $_post->post_parent ) )
 
 				&&
 
@@ -734,12 +753,13 @@ class BBP_Akismet {
 				} else {
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_error', time() );
+					$akismet_result = bbp_get_string_arg( $this->last_post, 'bbp_akismet_result' );
 					$this->update_post_history(
 						$post_id,
 						sprintf(
 							/* translators: %s: Akismet response */
 							esc_html__( 'Akismet was unable to check this post (response: %s), will automatically retry again later.', 'bbpress' ),
-							$this->last_post['bbp_akismet_result']
+							$akismet_result
 						),
 						'check-error'
 					);
@@ -811,17 +831,26 @@ class BBP_Akismet {
 	 *
 	 * @param int $post_id Post ID whose Akismet history is requested.
 	 *
-	 * @return list<mixed> Array of Akismet history.
+	 * @return list<array<array-key, mixed>> Array of Akismet history.
 	 */
 	public function get_post_history( $post_id = 0 ) {
 
 		// Retrieve any previous history
 		$history = get_post_meta( $post_id, '_bbp_akismet_history', false );
+		if ( ! is_array( $history ) ) {
+			return array();
+		}
+		$valid_history = array();
+		foreach ( $history as $event ) {
+			if ( is_array( $event ) && isset( $event['time'] ) && is_numeric( $event['time'] ) ) {
+				$valid_history[] = $event;
+			}
+		}
 
 		// Sort it by the time recorded
-		usort( $history, 'akismet_cmp_time' );
+		usort( $valid_history, 'akismet_cmp_time' );
 
-		return $history;
+		return $valid_history;
 	}
 
 	/**
@@ -866,7 +895,7 @@ class BBP_Akismet {
 	 * @param string $path The path from the host.
 	 * @param int|string $port Legacy port argument, currently unused.
 	 * @param string $ip Optional Override $host with an IP address.
-	 * @return mixed WP_Error on error, array on success, empty on failure.
+	 * @return array{0: mixed, 1: mixed} Response headers and body, or empty values on failure.
 	 */
 	private function http_post( $request, $host, $path, $port = 80, $ip = '' ) {
 
@@ -875,6 +904,11 @@ class BBP_Akismet {
 		$ak_version   = constant( 'AKISMET_VERSION' );
 		$http_host    = $host;
 		$blog_charset = get_option( 'blog_charset' );
+		if ( is_scalar( $blog_charset ) || ( is_object( $blog_charset ) && method_exists( $blog_charset, '__toString' ) ) ) {
+			$blog_charset = (string) $blog_charset;
+		} else {
+			$blog_charset = '';
+		}
 
 		// User Agent & Content Type
 		$akismet_ua   = "bbPress/{$bbp_version} | Akismet/{$ak_version}";
@@ -908,8 +942,8 @@ class BBP_Akismet {
 	 * @since 2.6.7 bbPress (r7196)
 	 *
 	 * @param string $host_and_path Scheme-less URL.
-	 * @param array<string, mixed> $http_args     Array of arguments for wp_remote_post().
-	 * @return array<int, mixed>
+	 * @param array{httpversion?:string, timeout?:int, body?:string, headers?:array<string, string>, redirection?:int, sslverify?:bool} $http_args Arguments for wp_remote_post().
+	 * @return array{0: mixed, 1: mixed} Response headers and body, or empty values on failure.
 	 */
 	private function get_response( $host_and_path = '', $http_args = array() ) {
 
@@ -1016,15 +1050,19 @@ class BBP_Akismet {
 					<tbody>
 
 						<?php foreach ( $history as $row ) : ?>
+							<?php
+								$time    = isset( $row['time'] ) ? bbp_parse_int( $row['time'] ) : 0;
+								$message = bbp_get_string_arg( $row, 'message' );
+							?>
 
 							<tr>
 								<td style="color: #999; text-align: right; white-space: nowrap;">
-									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', bbp_parse_int( $row['time'] ) ) . ' GMT' ); ?>">
-										<?php bbp_time_since( bbp_parse_int( $row['time'] ), false, true ); ?>
+									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', $time ) . ' GMT' ); ?>">
+										<?php bbp_time_since( $time, false, true ); ?>
 									</span>
 								</td>
 								<td style="padding-left: 5px;">
-									<?php echo esc_html( $row['message'] ); ?>
+									<?php echo esc_html( $message ); ?>
 								</td>
 							</tr>
 
@@ -1272,7 +1310,7 @@ class BBP_Akismet {
 		$last_meta_id = 0;
 
 		// Start time (float)
-		$start_time = isset( $_SERVER['REQUEST_TIME_FLOAT'] )
+		$start_time = isset( $_SERVER['REQUEST_TIME_FLOAT'] ) && is_numeric( $_SERVER['REQUEST_TIME_FLOAT'] )
 			? (float) $_SERVER['REQUEST_TIME_FLOAT']
 			: microtime( true );
 
