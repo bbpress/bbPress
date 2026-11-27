@@ -38,7 +38,7 @@
 		"check-dependencies": "~2.0.0",
 		"colord": "~2.10.0",
 		"eslint": "~10.13.0",
-		"globals": "~17.13.0",
+		"globals": "~17.14.0",
 		"grunt": "~1.6.3",
 		"grunt-checktextdomain": "~1.0.1",
 		"grunt-contrib-clean": "~2.0.1",
