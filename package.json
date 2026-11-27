@@ -56,7 +56,7 @@
 		"postcss-scss": "~4.0.9",
 		"postcss-value-parser": "~4.2.0",
 		"rtlcss": "~4.3.0",
-		"sass": "~1.106.1",
+		"sass": "~1.108.0",
 		"stylelint": "~17.16.0",
 		"stylelint-scss": "~7.4.0",
 		"terser": "~5.51.2"
