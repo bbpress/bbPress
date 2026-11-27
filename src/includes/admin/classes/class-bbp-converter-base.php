@@ -25,7 +25,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Field mapping used during conversion.
 	 *
-	 * @var array<int, array<string, mixed>>
+	 * @var array<int, array<string, string>>
 	 */
 	protected $field_map = array();
 
@@ -170,12 +170,12 @@ abstract class BBP_Converter_Base {
 
 		/** Sanitize Connection ***********************************************/
 
-		$db_user   = get_option( '_bbp_converter_db_user',   DB_USER     );
-		$db_pass   = get_option( '_bbp_converter_db_pass',   DB_PASSWORD );
-		$db_name   = get_option( '_bbp_converter_db_name',   DB_NAME     );
-		$db_host   = get_option( '_bbp_converter_db_server', DB_HOST     );
-		$db_port   = get_option( '_bbp_converter_db_port',   ''          );
-		$db_prefix = get_option( '_bbp_converter_db_prefix', ''          );
+		$db_user   = $this->string_option( '_bbp_converter_db_user',   DB_USER     );
+		$db_pass   = $this->string_option( '_bbp_converter_db_pass',   DB_PASSWORD );
+		$db_name   = $this->string_option( '_bbp_converter_db_name',   DB_NAME     );
+		$db_host   = $this->string_option( '_bbp_converter_db_server', DB_HOST     );
+		$db_port   = $this->string_option( '_bbp_converter_db_port',   ''          );
+		$db_prefix = $this->string_option( '_bbp_converter_db_prefix', ''          );
 
 		// Maybe add port to server
 		if ( ! empty( $db_port ) && ! empty( $db_host ) && ! strstr( $db_host, ':' ) ) {
@@ -292,8 +292,38 @@ abstract class BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => 'role',
-			'default'      => get_option( 'default_role' )
+			'default'      => $this->string_option( 'default_role' )
 		);
+	}
+
+	/**
+	 * Return a converter setting as a string.
+	 *
+	 * @since 2.7.0 bbPress (r8655)
+	 *
+	 * @param string $name    Option name.
+	 * @param string $default Value used when the option is not scalar.
+	 * @return string Converter setting.
+	 */
+	private function string_option( $name, $default = '' ) {
+		$value = get_option( $name, $default );
+
+		return is_scalar( $value ) ? (string) $value : $default;
+	}
+
+	/**
+	 * Read a scalar value from an imported row as text.
+	 *
+	 * @since 2.7.0 bbPress (r8655)
+	 *
+	 * @param array<string, mixed> $row Source row.
+	 * @param string               $key Column name.
+	 * @return string Source value, or an empty string when it is unavailable.
+	 */
+	protected function row_string( $row, $key ) {
+		$value = isset( $row[ $key ] ) ? $row[ $key ] : null;
+
+		return is_scalar( $value ) ? (string) $value : '';
 	}
 
 	/**
@@ -594,13 +624,17 @@ abstract class BBP_Converter_Base {
 							/** New user **************************************/
 
 							case 'user' :
-								if ( username_exists( $insert_post['user_login'] ) ) {
-									$insert_post['user_login'] = "imported_{$insert_post['user_login']}";
+								$user_login = bbp_get_string_arg( $insert_post, 'user_login' );
+								$user_email = bbp_get_string_arg( $insert_post, 'user_email' );
+								if ( username_exists( $user_login ) ) {
+									$user_login = "imported_{$user_login}";
 								}
 
-								if ( email_exists( $insert_post['user_email'] ) ) {
-									$insert_post['user_email'] = "imported_{$insert_post['user_email']}";
+								if ( email_exists( $user_email ) ) {
+									$user_email = "imported_{$user_email}";
 								}
+								$insert_post['user_login'] = $user_login;
+								$insert_post['user_email'] = $user_email;
 
 								if ( empty( $insert_post['user_pass'] ) ) {
 									$insert_post['user_pass'] = wp_generate_password();
@@ -632,15 +666,17 @@ abstract class BBP_Converter_Base {
 							/** New Topic-Tag *********************************/
 
 							case 'tags' :
-								$post_id = wp_set_object_terms( $insert_postmeta['objectid'], $insert_postmeta['name'], 'topic-tag', true );
-								$term    = get_term_by( 'name', $insert_postmeta['name'], 'topic-tag');
+								$object_id = bbp_parse_int( isset( $insert_postmeta['objectid'] ) ? $insert_postmeta['objectid'] : 0 );
+								$name      = bbp_get_string_arg( $insert_postmeta, 'name' );
+								$post_id   = wp_set_object_terms( $object_id, $name, 'topic-tag', true );
+								$term      = get_term_by( 'name', $name, 'topic-tag');
 								if ( false !== $term ) {
 									wp_update_term(
 										$term->term_id,
 										'topic-tag',
 										array(
-											'description' => $insert_postmeta['description'],
-											'slug'        => $insert_postmeta['slug']
+											'description' => bbp_get_string_arg( $insert_postmeta, 'description' ),
+											'slug'        => bbp_get_string_arg( $insert_postmeta, 'slug' )
 										)
 									);
 								}
@@ -804,11 +840,13 @@ abstract class BBP_Converter_Base {
 		// Keep safe source formatting without trusting imported HTML.
 		foreach ( array( 'post_content', 'post_excerpt' ) as $field ) {
 			if ( isset( $post_data[ $field ] ) ) {
-				$post_data[ $field ] = wp_kses_post( $post_data[ $field ] );
+				$content             = bbp_get_string_arg( $post_data, $field );
+				$post_data[ $field ] = wp_kses_post( $content );
 			}
 		}
 		if ( isset( $post_data['post_title'] ) ) {
-			$post_data['post_title'] = wp_strip_all_tags( $post_data['post_title'] );
+			$title                   = bbp_get_string_arg( $post_data, 'post_title' );
+			$post_data['post_title'] = wp_strip_all_tags( $title );
 		}
 
 		$suppress_count_updates = false === has_filter( 'bbp_pre_update_counts_on_transition_post_status', '__return_false' );
@@ -1162,7 +1200,7 @@ abstract class BBP_Converter_Base {
 
 		if ( isset( $posts[0] ) && ! empty( $posts[0]['value_id'] ) ) {
 			foreach ( (array) $posts as $value ) {
-				$deleted = wp_delete_post( $value['value_id'], true );
+				$deleted = wp_delete_post( bbp_parse_int( $value['value_id'] ), true );
 
 				// Only flag if not empty or error
 				if ( ( false === $has_delete ) && ! empty( $deleted ) && ! is_wp_error( $deleted ) ) {
@@ -1186,7 +1224,7 @@ abstract class BBP_Converter_Base {
 
 		if ( ! empty( $users ) ) {
 			foreach ( $users as $value ) {
-				$deleted = wp_delete_user( $value['value_id'] );
+				$deleted = wp_delete_user( bbp_parse_int( $value['value_id'] ) );
 
 				// Only flag if not empty or error
 				if ( ( false === $has_delete ) && ! empty( $deleted ) && ! is_wp_error( $deleted ) ) {
@@ -1222,15 +1260,22 @@ abstract class BBP_Converter_Base {
 
 		if ( ! empty( $converted ) ) {
 			foreach ( $converted as $value ) {
-				if ( is_serialized( $value['meta_value'] ) ) {
-					$this->update_password( $value['user_id'], '' );
-				} else {
-					$this->update_password( $value['user_id'], $value['meta_value'] );
-					delete_user_meta( $value['user_id'], '_bbp_password' );
+				$user_id  = bbp_parse_int( $value['user_id'] );
+				$password = bbp_get_string_arg( $value, 'meta_value' );
+				$cursor   = bbp_parse_int( $value['umeta_id'] );
+
+				if ( $user_id <= 0 ) {
+					continue;
 				}
 
-				clean_user_cache( $value['user_id'] );
-				$cursor = bbp_parse_int( $value['umeta_id'] );
+				if ( is_serialized( $password ) ) {
+					$this->update_password( $user_id, '' );
+				} else {
+					$this->update_password( $user_id, $password );
+					delete_user_meta( $user_id, '_bbp_password' );
+				}
+
+				clean_user_cache( $user_id );
 			}
 			update_option( '_bbp_converter_passwords_cursor', $cursor, false );
 			$has_delete = true;
@@ -1274,7 +1319,7 @@ abstract class BBP_Converter_Base {
 
 		// Add fields to array
 		foreach ( $field_array as $field ) {
-			if ( ! empty( $field['Field'] ) ) {
+			if ( is_array( $field ) && isset( $field['Field'] ) && is_string( $field['Field'] ) && ( '' !== $field['Field'] ) ) {
 				$retval[] = $field['Field'];
 			}
 		}

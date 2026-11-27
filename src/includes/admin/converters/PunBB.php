@@ -671,7 +671,7 @@ class PunBB extends BBP_Converter_Base {
 		// Preserve backslashes when WordPress unslashes metadata on write.
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => isset( $row['salt'] ) ? wp_slash( (string) $row['salt'] ) : ''
+			'salt' => wp_slash( $this->row_string( $row, 'salt' ) )
 		);
 
 		return $pass_array;

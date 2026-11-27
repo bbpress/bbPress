@@ -716,9 +716,11 @@ class phpBB extends BBP_Converter_Base {
 	 * @return array<string, mixed> Password hash and optional source metadata.
 	 */
 	public function callback_savepass( $field, $row ) {
+		$hash = is_scalar( $field ) ? (string) $field : '';
+
 		return array(
-			'hash' => wp_slash( (string) $field ),
-			'salt' => isset( $row['user_form_salt'] ) ? wp_slash( (string) $row['user_form_salt'] ) : ''
+			'hash' => wp_slash( $hash ),
+			'salt' => wp_slash( $this->row_string( $row, 'user_form_salt' ) )
 		);
 	}
 

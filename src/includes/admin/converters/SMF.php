@@ -665,7 +665,7 @@ class SMF extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash'     => $field,
-			'username' => isset( $row['member_name'] ) ? wp_slash( (string) $row['member_name'] ) : ''
+			'username' => wp_slash( $this->row_string( $row, 'member_name' ) )
 		);
 
 		return $pass_array;

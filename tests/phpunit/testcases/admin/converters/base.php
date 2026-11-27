@@ -65,6 +65,24 @@ class BBP_Tests_Admin_Converters_Base_Converter extends BBP_Converter_Base {
 	public function set_source_database( $database ) {
 		$this->opdb = $database;
 	}
+
+	public function get_source_database_settings() {
+		return array(
+			'user'     => $this->opdb->dbuser,
+			'password' => $this->opdb->dbpassword,
+			'name'     => $this->opdb->dbname,
+			'host'     => $this->opdb->dbhost,
+			'prefix'   => $this->opdb->prefix
+		);
+	}
+
+	public function get_default_role_mapping() {
+		return end( $this->field_map )['default'];
+	}
+
+	public function get_row_string( $row, $key ) {
+		return $this->row_string( $row, $key );
+	}
 }
 
 class BBP_Tests_Admin_Converters_Base_Delegating_Converter extends BBP_Tests_Admin_Converters_Base_Converter {
@@ -241,6 +259,100 @@ class BBP_Tests_Admin_Converters_Base extends BBP_UnitTestCase {
 			),
 			$database->get_connection_settings()
 		);
+	}
+
+	/**
+	 * @covers BBP_Converter_Base::__construct
+	 * @covers BBP_Converter_Base::string_option
+	 * @covers BBP_Converter_Base::row_string
+	 * @ticket 3794
+	 */
+	public function test_converter_ignores_non_scalar_settings_and_row_values() {
+		add_filter( 'pre_option__bbp_converter_db_user', '__return_empty_array' );
+		add_filter( 'pre_option__bbp_converter_db_pass', '__return_empty_array' );
+		add_filter( 'pre_option__bbp_converter_db_name', '__return_empty_array' );
+		add_filter( 'pre_option__bbp_converter_db_server', '__return_empty_array' );
+		add_filter( 'pre_option__bbp_converter_db_port', '__return_empty_array' );
+		add_filter( 'pre_option__bbp_converter_db_prefix', '__return_empty_array' );
+		add_filter( 'pre_option_default_role', '__return_empty_array' );
+
+		try {
+			$converter = new BBP_Tests_Admin_Converters_Base_Converter();
+
+			$this->assertSame(
+				array(
+					'user'     => DB_USER,
+					'password' => DB_PASSWORD,
+					'name'     => DB_NAME,
+					'host'     => DB_HOST,
+					'prefix'   => ''
+				),
+				$converter->get_source_database_settings()
+			);
+			$this->assertSame( '', $converter->get_default_role_mapping() );
+			$this->assertSame( '', $converter->get_row_string( array( 'salt' => array( 'bad' ) ), 'salt' ) );
+			$this->assertSame( '123', $converter->get_row_string( array( 'salt' => 123 ), 'salt' ) );
+		} finally {
+			remove_filter( 'pre_option__bbp_converter_db_user', '__return_empty_array' );
+			remove_filter( 'pre_option__bbp_converter_db_pass', '__return_empty_array' );
+			remove_filter( 'pre_option__bbp_converter_db_name', '__return_empty_array' );
+			remove_filter( 'pre_option__bbp_converter_db_server', '__return_empty_array' );
+			remove_filter( 'pre_option__bbp_converter_db_port', '__return_empty_array' );
+			remove_filter( 'pre_option__bbp_converter_db_prefix', '__return_empty_array' );
+			remove_filter( 'pre_option_default_role', '__return_empty_array' );
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter::setup_options
+	 * @ticket 3794
+	 */
+	public function test_converter_ignores_non_scalar_platform_option() {
+		add_filter( 'pre_option__bbp_converter_platform', '__return_empty_array' );
+
+		try {
+			$converter = new BBP_Converter();
+			$setup     = new ReflectionMethod( 'BBP_Converter', 'setup_options' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$setup->setAccessible( true );
+			}
+			$setup->invoke( $converter );
+
+			$this->assertFalse( $converter->platform );
+			$this->assertNull( $converter->converter );
+		} finally {
+			remove_filter( 'pre_option__bbp_converter_platform', '__return_empty_array' );
+		}
+	}
+
+	/**
+	 * @covers BBP_Converter::bump_start
+	 * @ticket 3794
+	 */
+	public function test_converter_ignores_non_scalar_row_limit_option() {
+		$old_start = get_option( '_bbp_converter_start', false );
+		add_filter( 'pre_option__bbp_converter_rows_in_step', '__return_empty_array' );
+
+		try {
+			$converter        = new BBP_Converter();
+			$converter->rows  = 10;
+			$converter->start = 0;
+			$bump             = new ReflectionMethod( 'BBP_Converter', 'bump_start' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$bump->setAccessible( true );
+			}
+			$bump->invoke( $converter );
+
+			$this->assertSame( 0, $converter->rows_in_step );
+			$this->assertSame( 10, (int) get_option( '_bbp_converter_start' ) );
+		} finally {
+			remove_filter( 'pre_option__bbp_converter_rows_in_step', '__return_empty_array' );
+			if ( false === $old_start ) {
+				delete_option( '_bbp_converter_start' );
+			} else {
+				update_option( '_bbp_converter_start', $old_start );
+			}
+		}
 	}
 
 	/**

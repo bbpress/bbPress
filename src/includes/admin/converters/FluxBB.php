@@ -639,7 +639,7 @@ class FluxBB extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => isset( $row['salt'] ) ? wp_slash( (string) $row['salt'] ) : ''
+			'salt' => wp_slash( $this->row_string( $row, 'salt' ) )
 		);
 
 		return $pass_array;

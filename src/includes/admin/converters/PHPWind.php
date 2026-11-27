@@ -496,7 +496,7 @@ class PHPWind extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		$pass_array = array(
 			'hash' => $field,
-			'salt' => wp_slash( isset( $row['salt'] ) ? (string) $row['salt'] : '' )
+			'salt' => wp_slash( $this->row_string( $row, 'salt' ) )
 		);
 
 		return $pass_array;

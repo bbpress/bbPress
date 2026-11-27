@@ -525,7 +525,7 @@ class Invision extends BBP_Converter_Base {
 	public function callback_savepass( $field, $row ) {
 		return array(
 			'hash' => $field,
-			'salt' => isset( $row['members_pass_salt'] ) ? wp_slash( (string) $row['members_pass_salt'] ) : ''
+			'salt' => wp_slash( $this->row_string( $row, 'members_pass_salt' ) )
 		);
 	}
 

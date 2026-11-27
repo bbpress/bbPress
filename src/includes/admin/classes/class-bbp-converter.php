@@ -476,7 +476,8 @@ class BBP_Converter {
 		$this->max          = ( $this->start + $this->rows ) - 1;
 
 		// Set platform
-		$this->platform     = get_option( '_bbp_converter_platform' );
+		$platform           = get_option( '_bbp_converter_platform' );
+		$this->platform     = is_string( $platform ) ? $platform : false;
 
 		// Total percentage
 		$this->total_percentage = round( ( $this->step / $this->max_steps ) * 100, 2 );
@@ -567,7 +568,7 @@ class BBP_Converter {
 	private function bump_start() {
 
 		// Set rows in step from option
-		$this->rows_in_step = get_option( '_bbp_converter_rows_in_step', 0 );
+		$this->rows_in_step = bbp_parse_int( get_option( '_bbp_converter_rows_in_step', 0 ) );
 
 		// Get rows to start from
 		$start = (int) ( $this->start + $this->rows );
