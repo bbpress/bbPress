@@ -360,6 +360,22 @@ function bbp_filter_default_option( $default = false, $option = '', $passed_defa
 }
 
 /**
+ * Read a slug option, keeping its default when the value is malformed.
+ *
+ * @since 2.7.0 bbPress (r8654)
+ * @access private
+ *
+ * @param string $option  Option name.
+ * @param string $default Default value.
+ * @return string Slug option or default value.
+ */
+function bbp_get_slug_option( $option, $default ) {
+	$value = get_option( $option, $default );
+
+	return is_string( $value ) ? $value : $default;
+}
+
+/**
  * Loads & caches bbPress options if a persistent cache is not being used.
  *
  * @since 2.6.0 bbPress (r6544)
@@ -1552,6 +1568,7 @@ function bbp_engagements_strategy( $default = 'meta' ) {
  * @return string
  */
 function bbp_get_root_slug( $default = 'forums' ) {
+	$value = bbp_get_slug_option( '_bbp_root_slug', $default );
 
 	/**
 	 * Filters the root slug.
@@ -1560,7 +1577,7 @@ function bbp_get_root_slug( $default = 'forums' ) {
 	 *
 	 * @param string $value The root slug.
 	 */
-	return apply_filters( 'bbp_get_root_slug', get_option( '_bbp_root_slug', $default ) );
+	return apply_filters( 'bbp_get_root_slug', $value );
 }
 
 /**
@@ -1635,6 +1652,8 @@ function bbp_maybe_get_root_slug() {
  * @return string
  */
 function bbp_get_forum_slug( $default = 'forum' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_forum_slug', $default );
 
 	/**
 	 * Filters the single forum slug.
@@ -1643,7 +1662,7 @@ function bbp_get_forum_slug( $default = 'forum' ) {
 	 *
 	 * @param string $value The single forum slug.
 	 */
-	return apply_filters( 'bbp_get_forum_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_forum_slug', $default ) );
+	return apply_filters( 'bbp_get_forum_slug', $root . $slug );
 }
 
 /**
@@ -1655,6 +1674,7 @@ function bbp_get_forum_slug( $default = 'forum' ) {
  * @return string
  */
 function bbp_get_topic_archive_slug( $default = 'topics' ) {
+	$value = bbp_get_slug_option( '_bbp_topic_archive_slug', $default );
 
 	/**
 	 * Filters the topic archive slug.
@@ -1663,7 +1683,7 @@ function bbp_get_topic_archive_slug( $default = 'topics' ) {
 	 *
 	 * @param string $value The topic archive slug.
 	 */
-	return apply_filters( 'bbp_get_topic_archive_slug', get_option( '_bbp_topic_archive_slug', $default ) );
+	return apply_filters( 'bbp_get_topic_archive_slug', $value );
 }
 
 /**
@@ -1675,6 +1695,7 @@ function bbp_get_topic_archive_slug( $default = 'topics' ) {
  * @return string
  */
 function bbp_get_reply_archive_slug( $default = 'replies' ) {
+	$value = bbp_get_slug_option( '_bbp_reply_archive_slug', $default );
 
 	/**
 	 * Filters the reply archive slug.
@@ -1683,7 +1704,7 @@ function bbp_get_reply_archive_slug( $default = 'replies' ) {
 	 *
 	 * @param string $value The reply archive slug.
 	 */
-	return apply_filters( 'bbp_get_reply_archive_slug', get_option( '_bbp_reply_archive_slug', $default ) );
+	return apply_filters( 'bbp_get_reply_archive_slug', $value );
 }
 
 /**
@@ -1695,6 +1716,8 @@ function bbp_get_reply_archive_slug( $default = 'replies' ) {
  * @return string
  */
 function bbp_get_topic_slug( $default = 'topic' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_topic_slug', $default );
 
 	/**
 	 * Filters the single topic slug.
@@ -1703,7 +1726,7 @@ function bbp_get_topic_slug( $default = 'topic' ) {
 	 *
 	 * @param string $value The single topic slug.
 	 */
-	return apply_filters( 'bbp_get_topic_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_slug', $default ) );
+	return apply_filters( 'bbp_get_topic_slug', $root . $slug );
 }
 
 /**
@@ -1715,6 +1738,8 @@ function bbp_get_topic_slug( $default = 'topic' ) {
  * @return string
  */
 function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_topic_tag_slug', $default );
 
 	/**
 	 * Filters the topic-tag taxonomy slug.
@@ -1723,7 +1748,7 @@ function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
 	 *
 	 * @param string $value The topic-tag taxonomy slug.
 	 */
-	return apply_filters( 'bbp_get_topic_tag_tax_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_tag_slug', $default ) );
+	return apply_filters( 'bbp_get_topic_tag_tax_slug', $root . $slug );
 }
 
 /**
@@ -1735,6 +1760,8 @@ function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
  * @return string
  */
 function bbp_get_reply_slug( $default = 'reply' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_reply_slug', $default );
 
 	/**
 	 * Filters the single reply slug (used mostly for editing).
@@ -1743,7 +1770,7 @@ function bbp_get_reply_slug( $default = 'reply' ) {
 	 *
 	 * @param string $value The single reply slug (used mostly for editing).
 	 */
-	return apply_filters( 'bbp_get_reply_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_reply_slug', $default ) );
+	return apply_filters( 'bbp_get_reply_slug', $root . $slug );
 }
 
 /**
@@ -1755,6 +1782,8 @@ function bbp_get_reply_slug( $default = 'reply' ) {
  * @return string
  */
 function bbp_get_user_slug( $default = 'users' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_user_slug', $default );
 
 	/**
 	 * Filters the single user slug.
@@ -1763,7 +1792,7 @@ function bbp_get_user_slug( $default = 'users' ) {
 	 *
 	 * @param string $value The single user slug.
 	 */
-	return apply_filters( 'bbp_get_user_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_user_slug', $default ) );
+	return apply_filters( 'bbp_get_user_slug', $root . $slug );
 }
 
 /**
@@ -1775,6 +1804,7 @@ function bbp_get_user_slug( $default = 'users' ) {
  * @return string
  */
 function bbp_get_user_favorites_slug( $default = 'favorites' ) {
+	$value = bbp_get_slug_option( '_bbp_user_favs_slug', $default );
 
 	/**
 	 * Filters the single user favorites slug.
@@ -1783,7 +1813,7 @@ function bbp_get_user_favorites_slug( $default = 'favorites' ) {
 	 *
 	 * @param string $value The single user favorites slug.
 	 */
-	return apply_filters( 'bbp_get_user_favorites_slug', get_option( '_bbp_user_favs_slug', $default ) );
+	return apply_filters( 'bbp_get_user_favorites_slug', $value );
 }
 
 /**
@@ -1795,6 +1825,7 @@ function bbp_get_user_favorites_slug( $default = 'favorites' ) {
  * @return string
  */
 function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
+	$value = bbp_get_slug_option( '_bbp_user_subs_slug', $default );
 
 	/**
 	 * Filters the single user subscriptions slug.
@@ -1803,7 +1834,7 @@ function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
 	 *
 	 * @param string $value The single user subscriptions slug.
 	 */
-	return apply_filters( 'bbp_get_user_subscriptions_slug', get_option( '_bbp_user_subs_slug', $default ) );
+	return apply_filters( 'bbp_get_user_subscriptions_slug', $value );
 }
 
 /**
@@ -1815,6 +1846,7 @@ function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
  * @return string
  */
 function bbp_get_user_engagements_slug( $default = 'engagements' ) {
+	$value = bbp_get_slug_option( '_bbp_user_engs_slug', $default );
 
 	/**
 	 * Filters the single user engagements slug.
@@ -1823,7 +1855,7 @@ function bbp_get_user_engagements_slug( $default = 'engagements' ) {
 	 *
 	 * @param string $value The single user engagements slug.
 	 */
-	return apply_filters( 'bbp_get_user_engagements_slug', get_option( '_bbp_user_engs_slug', $default ) );
+	return apply_filters( 'bbp_get_user_engagements_slug', $value );
 }
 
 /**
@@ -1835,6 +1867,7 @@ function bbp_get_user_engagements_slug( $default = 'engagements' ) {
  * @return string
  */
 function bbp_get_user_mentions_slug( $default = 'mentions' ) {
+	$value = bbp_get_slug_option( '_bbp_user_mentions_slug', $default );
 
 	/**
 	 * Filters the user mentions URL slug.
@@ -1843,7 +1876,7 @@ function bbp_get_user_mentions_slug( $default = 'mentions' ) {
 	 *
 	 * @param string $value The user mentions URL slug.
 	 */
-	return apply_filters( 'bbp_get_user_mentions_slug', get_option( '_bbp_user_mentions_slug', $default ) );
+	return apply_filters( 'bbp_get_user_mentions_slug', $value );
 }
 
 /**
@@ -1855,6 +1888,8 @@ function bbp_get_user_mentions_slug( $default = 'mentions' ) {
  * @return string
  */
 function bbp_get_view_slug( $default = 'view' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_view_slug', $default );
 
 	/**
 	 * Filters the topic view slug.
@@ -1863,7 +1898,7 @@ function bbp_get_view_slug( $default = 'view' ) {
 	 *
 	 * @param string $value The topic view slug.
 	 */
-	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
+	return apply_filters( 'bbp_get_view_slug', $root . $slug );
 }
 
 /**
@@ -1902,6 +1937,8 @@ function bbp_get_route_root_slugs() {
  * @return string
  */
 function bbp_get_search_slug( $default = 'search' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_search_slug', $default );
 
 	/**
 	 * Filters the search slug.
@@ -1910,7 +1947,7 @@ function bbp_get_search_slug( $default = 'search' ) {
 	 *
 	 * @param string $value The search slug.
 	 */
-	return apply_filters( 'bbp_get_search_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_search_slug', $default ) );
+	return apply_filters( 'bbp_get_search_slug', $root . $slug );
 }
 
 /**
@@ -1922,6 +1959,8 @@ function bbp_get_search_slug( $default = 'search' ) {
  * @return string
  */
 function bbp_get_subscription_unsubscribe_slug( $default = 'unsubscribe' ) {
+	$root = bbp_maybe_get_root_slug();
+	$slug = bbp_get_slug_option( '_bbp_unsubscribe_slug', $default );
 
 	/**
 	 * Filters the subscription unsubscribe slug.
@@ -1930,7 +1969,10 @@ function bbp_get_subscription_unsubscribe_slug( $default = 'unsubscribe' ) {
 	 *
 	 * @param string $value The subscription unsubscribe slug.
 	 */
-	return apply_filters( 'bbp_get_subscription_unsubscribe_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_unsubscribe_slug', $default ) );
+	return apply_filters(
+		'bbp_get_subscription_unsubscribe_slug',
+		$root . $slug
+	);
 }
 
 /**
@@ -1942,6 +1984,7 @@ function bbp_get_subscription_unsubscribe_slug( $default = 'unsubscribe' ) {
  * @return string
  */
 function bbp_get_edit_slug( $default = 'edit' ) {
+	$value = bbp_get_slug_option( '_bbp_edit_slug', $default );
 
 	/**
 	 * Filters the edit slug.
@@ -1950,7 +1993,7 @@ function bbp_get_edit_slug( $default = 'edit' ) {
 	 *
 	 * @param string $value The edit slug.
 	 */
-	return apply_filters( 'bbp_get_edit_slug', get_option( '_bbp_edit_slug', $default ) );
+	return apply_filters( 'bbp_get_edit_slug', $value );
 }
 
 /** Legacy ********************************************************************/

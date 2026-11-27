@@ -996,6 +996,52 @@ class BBP_Tests_Core_Options extends BBP_UnitTestCase {
 			'legacy config'      => array( 'bbp_get_config_location', 'bb-config-location', '/tmp/bb-config.php', 'bbp_get_config_location' ),
 		);
 	}
+
+	/**
+	 * @dataProvider slug_option_provider
+	 */
+	public function test_slug_options_reject_non_string_values_and_preserve_filters( $function, $option, $default ) {
+		$this->set_option( '_bbp_include_root', 0 );
+		$this->set_option( $option, array( 'malformed' ) );
+		$this->assertSame( $default, $function( $default ) );
+		$this->set_option( $option, $default );
+
+		$pre_option = '__return_empty_array';
+		add_filter( 'pre_option_' . $option, $pre_option );
+		try {
+			$this->assertSame( $default, $function( $default ) );
+		} finally {
+			remove_filter( 'pre_option_' . $option, $pre_option );
+		}
+
+		add_filter( $function, '__return_false' );
+		try {
+			$this->assertFalse( $function( $default ) );
+		} finally {
+			remove_filter( $function, '__return_false' );
+		}
+	}
+
+	public static function slug_option_provider() {
+		return array(
+			'root'                => array( 'bbp_get_root_slug', '_bbp_root_slug', 'forums' ),
+			'topic archive'       => array( 'bbp_get_topic_archive_slug', '_bbp_topic_archive_slug', 'topics' ),
+			'reply archive'       => array( 'bbp_get_reply_archive_slug', '_bbp_reply_archive_slug', 'replies' ),
+			'user favorites'      => array( 'bbp_get_user_favorites_slug', '_bbp_user_favs_slug', 'favorites' ),
+			'user subscriptions'  => array( 'bbp_get_user_subscriptions_slug', '_bbp_user_subs_slug', 'subscriptions' ),
+			'user engagements'    => array( 'bbp_get_user_engagements_slug', '_bbp_user_engs_slug', 'engagements' ),
+			'user mentions'       => array( 'bbp_get_user_mentions_slug', '_bbp_user_mentions_slug', 'mentions' ),
+			'edit'                => array( 'bbp_get_edit_slug', '_bbp_edit_slug', 'edit' ),
+			'forum'               => array( 'bbp_get_forum_slug', '_bbp_forum_slug', 'forum' ),
+			'topic'               => array( 'bbp_get_topic_slug', '_bbp_topic_slug', 'topic' ),
+			'topic tag'           => array( 'bbp_get_topic_tag_tax_slug', '_bbp_topic_tag_slug', 'topic-tag' ),
+			'reply'               => array( 'bbp_get_reply_slug', '_bbp_reply_slug', 'reply' ),
+			'user'                => array( 'bbp_get_user_slug', '_bbp_user_slug', 'users' ),
+			'view'                => array( 'bbp_get_view_slug', '_bbp_view_slug', 'view' ),
+			'search'              => array( 'bbp_get_search_slug', '_bbp_search_slug', 'search' ),
+			'unsubscribe'         => array( 'bbp_get_subscription_unsubscribe_slug', '_bbp_unsubscribe_slug', 'unsubscribe' ),
+		);
+	}
 }
 
 /**
