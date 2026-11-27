@@ -407,6 +407,65 @@ function bbp_register_rest_attachment_controller() {
 }
 
 /**
+ * Mark REST media collection queries for bbPress attachment exclusion.
+ *
+ * Core counts attachments before applying per-item read permissions. Exclude
+ * all bbPress attachments, including public ones, so collection totals cannot
+ * reveal media whose parent is not visible to the current user. Individual
+ * media requests continue to use their parent permission checks. When a plugin
+ * extends bbPress parent classification, only unattached media is listed.
+ *
+ * @since 2.6.23 bbPress (r8653)
+ *
+ * @param array $args Attachment query arguments.
+ * @return array Attachment query arguments.
+ */
+function bbp_filter_rest_attachment_query( $args ) {
+	$args['_bbp_rest_attachment_collection'] = true;
+	$args['suppress_filters']                = false;
+
+	return $args;
+}
+
+/**
+ * Exclude bbPress attachments from REST media collections and their totals.
+ *
+ * @since 2.6.23 bbPress (r8653)
+ *
+ * @param string   $where SQL WHERE clause.
+ * @param WP_Query $query Posts query.
+ * @return string SQL WHERE clause.
+ */
+function bbp_filter_rest_attachment_collection_where( $where, $query ) {
+	if ( ! $query->get( '_bbp_rest_attachment_collection' ) ) {
+		return $where;
+	}
+
+	$bbp_db = bbp_db();
+
+	// Per-post parent classification cannot be represented in a collection query.
+	if ( has_filter( 'bbp_is_custom_post_type' ) ) {
+		return $where . " AND {$bbp_db->posts}.post_parent = 0";
+	}
+
+	$types        = array_values( bbp_get_post_types() );
+	if ( empty( $types ) ) {
+		return $where;
+	}
+
+	$placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+
+	return $where . $bbp_db->prepare(
+		" AND NOT EXISTS (
+			SELECT 1 FROM {$bbp_db->posts} AS bbp_attachment_parent
+			WHERE bbp_attachment_parent.ID = {$bbp_db->posts}.post_parent
+				AND bbp_attachment_parent.post_type IN ({$placeholders})
+		)",
+		$types
+	);
+}
+
+/**
  * REST API controller for bbPress attachment parents.
  *
  * bbPress post types may be attachment parents even when their own REST routes
