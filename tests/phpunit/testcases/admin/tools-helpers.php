@@ -118,6 +118,47 @@ class BBP_Tests_Admin_Tools_Helpers extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_tool_batch_add
+	 */
+	public function test_batch_add_rejects_invalid_counts() {
+		$batch = bbp_admin_repair_tool_batch_status( array( 'repaired' => 2 ) );
+		bbp_admin_repair_tool_batch_add( $batch, 'repaired', 3 );
+
+		$this->assertSame( 5, $batch['repaired'] );
+		$this->assertSame( 0, $batch['code'] );
+
+		bbp_admin_repair_tool_batch_add( $batch, 'repaired', 'invalid' );
+		$this->assertSame( 5, $batch['repaired'] );
+		$this->assertSame( 'progress', $batch['error'] );
+
+		$batch = bbp_admin_repair_tool_batch_status( array( 'repaired' => 'invalid' ) );
+		bbp_admin_repair_tool_batch_add( $batch, 'repaired' );
+		$this->assertSame( 'invalid', $batch['repaired'] );
+		$this->assertSame( 'progress', $batch['error'] );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_tool_batch_add
+	 * @covers ::bbp_admin_repair_tool_batch_save
+	 */
+	public function test_failed_batch_add_keeps_the_saved_checkpoint() {
+		$tool_id = 'bbp-test-batch-counter';
+		$option  = bbp_admin_repair_tool_batch_option_name( $tool_id );
+		$state   = array( 'cursor' => 1, 'upper_id' => 2 );
+		$batch   = bbp_admin_repair_tool_batch_status( array( 'repaired' => 0 ) );
+		update_option( $option, $state, false );
+
+		try {
+			bbp_admin_repair_tool_batch_add( $batch, 'repaired', 'invalid' );
+			$this->assertTrue( bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, true ) );
+			$this->assertSame( $state, get_option( $option ) );
+			$this->assertFalse( $batch['complete'] );
+		} finally {
+			delete_option( $option );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_tool_run_url
 	 * @covers ::bbp_get_admin_repair_tool_page
 	 * @covers ::bbp_get_admin_repair_tool_page_id

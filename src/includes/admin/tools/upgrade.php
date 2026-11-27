@@ -341,9 +341,9 @@ function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
 			}
 			$state['cursor'] = $preview['cursor'];
 			foreach ( array( 'posts', 'scanned', 'added', 'removed', 'baselines' ) as $field ) {
-				$batch[ $field ] += $preview[ $field ];
+				bbp_admin_repair_tool_batch_add( $batch, $field, $preview[ $field ] );
 			}
-			++$batch['batches'];
+			bbp_admin_repair_tool_batch_add( $batch, 'batches' );
 			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, ! $preview['more'], true, $fields ) ) {
 				return $batch;
 			}
@@ -394,7 +394,7 @@ function bbp_admin_upgrade_user_mentions_batch( $dry_run = false ) {
 	}
 
 	$complete = $exhausted && ( count( $posts ) < $size || $state['cursor'] >= $state['upper_id'] );
-	++$batch['batches'];
+	bbp_admin_repair_tool_batch_add( $batch, 'batches' );
 	if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete ) ) {
 		return $batch;
 	}
@@ -657,8 +657,8 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 			}
 			: null;
 		$repair           = bbp_admin_repair_engagement_rows( $rows, $source, $dry_run, $planned, $claim );
-		$batch['added']  += $repair['added'];
-		$batch['removed'] += $repair['removed'];
+		bbp_admin_repair_tool_batch_add( $batch, 'added', $repair['added'] );
+		bbp_admin_repair_tool_batch_add( $batch, 'removed', $repair['removed'] );
 		if ( ! empty( $repair['code'] ) ) {
 			bbp_admin_repair_tool_batch_fail( $batch, $repair['error'] );
 			return $batch;
@@ -667,7 +667,7 @@ function bbp_admin_upgrade_user_engagements_batch( $dry_run = false ) {
 			$state['cursor'] = $repair['cursor'];
 		}
 
-		++$batch['batches'];
+		bbp_admin_repair_tool_batch_add( $batch, 'batches' );
 		if ( $complete && $dry_run && bbp_admin_repair_tool_is_async_dry_run() ) {
 			$state['phase'] = 'cleanup';
 			$complete       = false;
@@ -1029,9 +1029,9 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 				}
 
 				if ( ! $dry_run && bbp_admin_repair_metadata_add( 'post', $post_id, $new_key, $user_id )['code'] ) {
-					++$batch['failed'];
+					bbp_admin_repair_tool_batch_add( $batch, 'failed' );
 				} else {
-					++$batch['added'];
+					bbp_admin_repair_tool_batch_add( $batch, 'added' );
 				}
 			}
 
@@ -1064,7 +1064,7 @@ function bbp_admin_upgrade_user_meta_batch( $tool_id, $old_key, $new_key, $dry_r
 			$complete          = false;
 		}
 
-		$batch['batches'] += max( 1, (int) ceil( $work / $size ) );
+		bbp_admin_repair_tool_batch_add( $batch, 'batches', max( 1, (int) ceil( $work / $size ) ) );
 		$data = ( $dry_run && ! bbp_admin_repair_tool_is_async_dry_run() ) ? array( 'planned' => $planned ) : array();
 		if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields, $data ) ) {
 			return $batch;
@@ -1452,10 +1452,10 @@ function bbp_admin_upgrade_remove_user_meta_batch( $type = 'favorites', $dry_run
 						return $batch;
 					}
 				}
-				++$batch['removed'];
+				bbp_admin_repair_tool_batch_add( $batch, 'removed' );
 				$state['cursor'] = (int) $row->umeta_id;
 			}
-			++$batch['batches'];
+			bbp_admin_repair_tool_batch_add( $batch, 'batches' );
 			if ( ! bbp_admin_repair_tool_batch_save( $tool_id, $state, $batch, $complete, $dry_run, $fields ) ) {
 				return $batch;
 			}

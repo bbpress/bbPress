@@ -1617,6 +1617,31 @@ function bbp_admin_repair_tool_batch_count( &$batch, $field ) {
 }
 
 /**
+ * Add to a validated procedural batch counter.
+ *
+ * @since 2.7.0 bbPress (r8651)
+ * @access private
+ *
+ * @param array<string, mixed> $batch Current worker result.
+ * @param string $field Counter field name.
+ * @param mixed $amount Nonnegative integer amount to add.
+ * @return void
+ */
+function bbp_admin_repair_tool_batch_add( &$batch, $field, $amount = 1 ) {
+	if ( ! is_int( $amount ) || ( $amount < 0 ) ) {
+		bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
+		return;
+	}
+
+	$count = bbp_admin_repair_tool_batch_count( $batch, $field );
+	if ( ! empty( $batch['code'] ) ) {
+		return;
+	}
+
+	$batch[ $field ] = $count + $amount;
+}
+
+/**
  * Load one procedural worker checkpoint into its shared batch result.
  *
  * @since 2.7.0 bbPress (r8339)
@@ -1655,6 +1680,10 @@ function bbp_admin_repair_tool_batch_start( $tool_id, &$state, &$batch, $validat
  * @return bool Whether the checkpoint was saved or removed.
  */
 function bbp_admin_repair_tool_batch_save( $tool_id, &$state, &$batch, $complete, $dry_run = false, $fields = array(), $data = array() ) {
+	if ( ! empty( $batch['code'] ) ) {
+		$complete = false;
+	}
+
 	if ( ! bbp_admin_repair_tool_refresh_lock() ) {
 		return bbp_admin_repair_tool_batch_fail( $batch, 'progress' );
 	}
