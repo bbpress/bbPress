@@ -2204,6 +2204,30 @@ class BBP_Tests_Common_Template extends BBP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * @covers ::bbp_get_template_notice_class
+	 * @covers ::bbp_template_notice_class
+	 */
+	public function test_bbp_get_template_notice_class_and_filter() {
+		$this->assertSame( 'bbp-template-notice', bbp_get_template_notice_class() );
+		$this->assertSame( 'bbp-template-notice error', bbp_get_template_notice_class( 'error', 'errors' ) );
+		$this->assertSame( 'bbp-template-notice info custom', bbp_get_template_notice_class( array( 'info', 'custom' ), 'notice' ) );
+
+		$filter = static function ( $classes, $extra, $context ) {
+			if ( 'errors' === $context ) {
+				$classes[] = 'my-error-notice';
+			}
+			return $classes;
+		};
+		add_filter( 'bbp_get_template_notice_class', $filter, 10, 3 );
+
+		try {
+			$this->assertSame( 'bbp-template-notice error my-error-notice', bbp_get_template_notice_class( 'error', 'errors' ) );
+		} finally {
+			remove_filter( 'bbp_get_template_notice_class', $filter, 10 );
+		}
+	}
+
 	private function create_bbp_post( $factory_name ) {
 		if ( 'reply' === $factory_name ) {
 			$topic_id = $this->factory->topic->create();

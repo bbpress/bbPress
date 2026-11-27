@@ -3343,7 +3343,7 @@ function bbp_template_notices( $context = '' ) {
 	// Display errors first...
 	if ( ! empty( $errors ) ) { ?>
 
-		<div class="bbp-template-notice error" role="alert" tabindex="-1">
+		<div class="<?php bbp_template_notice_class( 'error', 'errors' ); ?>" role="alert" tabindex="-1">
 			<ul>
 				<li><?php echo implode( "</li>\n<li>", $errors ); ?></li>
 			</ul>
@@ -3354,7 +3354,7 @@ function bbp_template_notices( $context = '' ) {
 	// ...and messages last
 	if ( ! empty( $messages ) ) { ?>
 
-		<div class="bbp-template-notice">
+		<div class="<?php bbp_template_notice_class( '', 'messages' ); ?>">
 			<ul>
 				<li><?php echo implode( "</li>\n<li>", $messages ); ?></li>
 			</ul>
@@ -3363,6 +3363,53 @@ function bbp_template_notices( $context = '' ) {
 	<?php
 
 	}
+}
+
+/**
+ * Output the CSS classes for a template notice container.
+ *
+ * @since 2.8.0 bbPress
+ *
+ * @param string|array<int, string> $classes Optional. Extra classes for the notice.
+ * @param string                    $context Optional. Notice context identifier.
+ * @return void
+ */
+function bbp_template_notice_class( $classes = array(), $context = '' ) {
+	echo bbp_get_template_notice_class( $classes, $context );
+}
+
+/**
+ * Return the CSS classes for a template notice container.
+ *
+ * @since 2.8.0 bbPress
+ *
+ * @param string|array<int, string> $classes Optional. Extra classes for the notice.
+ * @param string                    $context Optional. Notice context identifier.
+ * @return string Escaped space-separated CSS class string.
+ */
+function bbp_get_template_notice_class( $classes = array(), $context = '' ) {
+	if ( is_string( $classes ) ) {
+		$classes = preg_split( '/\s+/', trim( $classes ) );
+	}
+
+	$classes = array_filter( (array) $classes );
+
+	// Ensure base class is always present first.
+	$r = array_values( array_unique( array_merge( array( 'bbp-template-notice' ), $classes ) ) );
+
+	/**
+	 * Filters the CSS classes for a template notice container.
+	 *
+	 * @since 2.8.0 bbPress
+	 *
+	 * @param array<int, string>        $r       Merged notice classes.
+	 * @param string|array<int, string> $classes Extra classes passed to the function.
+	 * @param string                    $context Notice context identifier.
+	 */
+	$filtered = (array) apply_filters( 'bbp_get_template_notice_class', $r, $classes, $context );
+	$filtered = array_filter( array_map( 'sanitize_html_class', $filtered ) );
+
+	return esc_attr( implode( ' ', array_unique( $filtered ) ) );
 }
 
 /** Login/logout/register/lost pass *******************************************/
