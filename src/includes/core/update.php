@@ -629,12 +629,12 @@ function bbp_get_pending_upgrade_count( $type = '' ) {
  *
  * @param string $type Type of pending upgrades (upgrade|repair|empty).
  *
- * @return array<array-key, mixed> Pending upgrade IDs.
+ * @return array<array-key, string> Pending upgrade IDs.
  */
 function bbp_get_pending_upgrades( $type = '' ) {
 
 	// Get the pending upgrades
-	$retval = (array) get_option( '_bbp_db_pending_upgrades', array() );
+	$retval = array_filter( (array) get_option( '_bbp_db_pending_upgrades', array() ), 'is_string' );
 
 	// Looking for a specific type?
 	if ( ! empty( $type ) ) {

@@ -2848,7 +2848,7 @@ function bbp_is_user_profile_form_post_request( $user_id = 0 ) {
 	}
 
 	// Fallback for admin profile requests where URL validation can vary.
-	if ( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
+	if ( isset( $_REQUEST['_wpnonce'] ) && is_string( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
 		return true;
 	}
 

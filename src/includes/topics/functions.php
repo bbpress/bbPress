@@ -3457,9 +3457,12 @@ function bbp_update_topic_revision_log( $args = array() ) {
 	);
 
 	// Populate the variables
-	$r['reason']      = bbp_format_revision_reason( $r['reason'] );
-	$r['topic_id']    = bbp_get_topic_id( $r['topic_id'] );
-	$r['author_id']   = bbp_get_user_id ( $r['author_id'], false, true );
+	$topic_id         = is_numeric( $r['topic_id'] ) ? $r['topic_id'] : 0;
+	$author_id        = is_numeric( $r['author_id'] ) ? $r['author_id'] : 0;
+	$reason           = bbp_get_string_arg( $r, 'reason' );
+	$r['reason']      = bbp_format_revision_reason( $reason );
+	$r['topic_id']    = bbp_get_topic_id( $topic_id );
+	$r['author_id']   = bbp_get_user_id ( $author_id, false, true );
 	$r['revision_id'] = bbp_parse_int( $r['revision_id'] );
 
 	// Get the logs and append the new one to those

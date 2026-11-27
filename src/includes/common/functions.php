@@ -4686,7 +4686,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	$matched_url = apply_filters( 'bbp_verify_nonce_request_url', $requested_url );
 
 	// Check the nonce
-	$result = isset( $_REQUEST[ $query_arg ] )
+	$result = isset( $_REQUEST[ $query_arg ] ) && is_string( $_REQUEST[ $query_arg ] )
 		? wp_verify_nonce( $_REQUEST[ $query_arg ], $action )
 		: false;
 

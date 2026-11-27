@@ -1533,9 +1533,12 @@ function bbp_update_reply_revision_log( $args = array() ) {
 	);
 
 	// Populate the variables
-	$r['reason']      = bbp_format_revision_reason( $r['reason'] );
-	$r['reply_id']    = bbp_get_reply_id( $r['reply_id'] );
-	$r['author_id']   = bbp_get_user_id ( $r['author_id'], false, true );
+	$reply_id         = is_numeric( $r['reply_id'] ) ? $r['reply_id'] : 0;
+	$author_id        = is_numeric( $r['author_id'] ) ? $r['author_id'] : 0;
+	$reason           = bbp_get_string_arg( $r, 'reason' );
+	$r['reason']      = bbp_format_revision_reason( $reason );
+	$r['reply_id']    = bbp_get_reply_id( $reply_id );
+	$r['author_id']   = bbp_get_user_id ( $author_id, false, true );
 	$r['revision_id'] = bbp_parse_int( $r['revision_id'] );
 
 	// Get the logs and append the new one to those

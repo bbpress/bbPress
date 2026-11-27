@@ -507,7 +507,10 @@ class BBP_Replies_Admin {
 		}
 
 		// Nonce check
-		if ( empty( $_POST['bbp_reply_metabox'] ) || ! wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' ) ) {
+		$nonce = isset( $_POST['bbp_reply_metabox'] ) && is_string( $_POST['bbp_reply_metabox'] )
+			? $_POST['bbp_reply_metabox']
+			: '';
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'bbp_reply_metabox_save' ) ) {
 			return $reply_id;
 		}
 

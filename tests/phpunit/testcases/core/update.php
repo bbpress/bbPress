@@ -57,6 +57,26 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_pending_upgrades
+	 * @ticket 3794
+	 */
+	public function test_pending_upgrades_ignore_non_string_ids() {
+		$original = get_option( '_bbp_db_pending_upgrades', false );
+		update_option( '_bbp_db_pending_upgrades', array( 'repair-one', array( 'invalid' ), 5, 'upgrade-one' ) );
+
+		try {
+			$this->assertSame( array( 0 => 'repair-one', 3 => 'upgrade-one' ), bbp_get_pending_upgrades() );
+			$this->assertSame( 2, bbp_get_pending_upgrade_count() );
+		} finally {
+			if ( false === $original ) {
+				delete_option( '_bbp_db_pending_upgrades' );
+			} else {
+				update_option( '_bbp_db_pending_upgrades', $original );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_get_pending_upgrade_count
 	 * @covers ::bbp_get_pending_upgrades
 	 * @covers ::bbp_maybe_append_pending_upgrade_count

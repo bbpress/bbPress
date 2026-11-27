@@ -2856,6 +2856,12 @@ function bbp_update_forum( $args = array() ) {
 		'update_forum'
 	);
 
+	$r['forum_id']       = bbp_parse_int( $r['forum_id'] );
+	$r['post_parent']    = bbp_parse_int( $r['post_parent'] );
+	$r['last_topic_id']  = bbp_parse_int( $r['last_topic_id'] );
+	$r['last_reply_id']  = bbp_parse_int( $r['last_reply_id'] );
+	$r['last_active_id'] = bbp_parse_int( $r['last_active_id'] );
+
 	// Update the forum parent
 	bbp_update_forum_id( $r['forum_id'], $r['post_parent'] );
 
@@ -2874,7 +2880,8 @@ function bbp_update_forum( $args = array() ) {
 	}
 
 	if ( bbp_get_public_status_id() === $r['last_active_status'] ) {
-		bbp_update_forum_last_active_time( $r['forum_id'], $r['last_active_time'] );
+		$last_active_time = bbp_get_string_arg( $r, 'last_active_time' );
+		bbp_update_forum_last_active_time( $r['forum_id'], $last_active_time );
 	}
 
 	// Subforum counts are updated on bbp_transition_post_status,

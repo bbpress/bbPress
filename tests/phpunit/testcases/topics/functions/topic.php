@@ -1170,6 +1170,12 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$log = bbp_get_topic_raw_revision_log( $topic_id );
 		$this->assertSame( $user_id, $log[17]['author'] );
 		$this->assertSame( 'Clarify wording', $log[17]['reason'] );
+
+		$args['revision_id'] = 18;
+		$args['reason']      = array( 'invalid' );
+		$this->assertNotFalse( bbp_update_topic_revision_log( $args ) );
+		$log = bbp_get_topic_raw_revision_log( $topic_id );
+		$this->assertSame( '', $log[18]['reason'] );
 	}
 
 	/**

@@ -446,6 +446,30 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_forum
+	 * @ticket 3794
+	 */
+	public function test_bbp_update_forum_ignores_non_scalar_parsed_values() {
+		$forum_id      = $this->factory->forum->create();
+		$original_time = get_post_meta( $forum_id, '_bbp_last_active_time', true );
+
+		bbp_update_forum(
+			array(
+				'forum_id'         => $forum_id,
+				'post_parent'      => array( 'invalid' ),
+				'last_topic_id'    => array( 'invalid' ),
+				'last_reply_id'    => array( 'invalid' ),
+				'last_active_id'   => array( 'invalid' ),
+				'last_active_time' => array( 'invalid' )
+			)
+		);
+
+		$this->assertSame( 0, bbp_get_forum_last_topic_id( $forum_id ) );
+		$this->assertSame( 0, bbp_get_forum_last_reply_id( $forum_id ) );
+		$this->assertSame( $original_time, get_post_meta( $forum_id, '_bbp_last_active_time', true ) );
+	}
+
+	/**
 	 * @covers ::bbp_check_forum_edit
 	 */
 	public function test_bbp_check_forum_edit() {

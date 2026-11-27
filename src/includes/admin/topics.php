@@ -634,7 +634,10 @@ class BBP_Topics_Admin {
 		}
 
 		// Nonce check
-		if ( empty( $_POST['bbp_topic_metabox'] ) || ! wp_verify_nonce( $_POST['bbp_topic_metabox'], 'bbp_topic_metabox_save' ) ) {
+		$nonce = isset( $_POST['bbp_topic_metabox'] ) && is_string( $_POST['bbp_topic_metabox'] )
+			? $_POST['bbp_topic_metabox']
+			: '';
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'bbp_topic_metabox_save' ) ) {
 			return $topic_id;
 		}
 

@@ -587,6 +587,10 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 		$this->assertSame( $user_id, $log[17]['author'] );
 		$this->assertSame( 'Clarify wording', $log[17]['reason'] );
 		$this->assertSame( $log, bbp_get_reply_raw_revision_log( $reply_id ) );
+
+		$log = bbp_update_reply_revision_log( array( 'reply_id' => $reply_id, 'author_id' => $user_id, 'revision_id' => 18, 'reason' => array( 'invalid' ) ) );
+		$this->assertSame( '', $log[18]['reason'] );
+		$this->assertSame( $log, bbp_get_reply_raw_revision_log( $reply_id ) );
 	}
 
 	/**

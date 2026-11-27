@@ -304,7 +304,8 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Bail if user did not take this action
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-favorite_' . $object->ID ) ) {
+		$nonce = isset( $_POST['nonce'] ) && is_string( $_POST['nonce'] ) ? $_POST['nonce'] : '';
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'toggle-favorite_' . $object->ID ) ) {
 			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 
@@ -368,7 +369,8 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Bail if user did not take this action
-		if ( ! isset( $_POST['nonce'] ) || ( ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $type . '_' . $id ) && ( ( 'post' !== $type ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $id ) ) ) ) {
+		$nonce = isset( $_POST['nonce'] ) && is_string( $_POST['nonce'] ) ? $_POST['nonce'] : '';
+		if ( empty( $nonce ) || ( ! wp_verify_nonce( $nonce, 'toggle-subscription_' . $type . '_' . $id ) && ( ( 'post' !== $type ) || ! wp_verify_nonce( $nonce, 'toggle-subscription_' . $id ) ) ) ) {
 			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 

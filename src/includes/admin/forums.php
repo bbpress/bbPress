@@ -365,7 +365,10 @@ class BBP_Forums_Admin {
 		}
 
 		// Nonce check
-		if ( empty( $_POST['bbp_forum_metabox'] ) || ! wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) ) {
+		$nonce = isset( $_POST['bbp_forum_metabox'] ) && is_string( $_POST['bbp_forum_metabox'] )
+			? $_POST['bbp_forum_metabox']
+			: '';
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'bbp_forum_metabox_save' ) ) {
 			return $forum_id;
 		}
 

@@ -2713,6 +2713,8 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			$_REQUEST['_wpnonce'] = wp_create_nonce( $action );
 			$this->assertNotFalse( bbp_verify_nonce_request( $action ) );
 			$this->assertFalse( bbp_verify_nonce_request( 'wrong-action' ) );
+			$_REQUEST['_wpnonce'] = array( 'invalid' );
+			$this->assertFalse( bbp_verify_nonce_request( $action ) );
 			unset( $_REQUEST['_wpnonce'] );
 			$this->assertFalse( bbp_verify_nonce_request( $action ) );
 		} finally {

@@ -42,13 +42,14 @@ class BBP_Tests_Users_Functions_Engagement_Ajax extends BBP_UnitTestCase {
 	 * @param int    $object_id    Object ID.
 	 * @param string $object_type  Object type.
 	 * @param string $nonce_action Nonce action.
+	 * @param mixed  $nonce_value  Optional nonce value to submit directly.
 	 * @return array Decoded response.
 	 */
-	protected function ajax_subscription( $object_id = 0, $object_type = 'post', $nonce_action = '' ) {
+	protected function ajax_subscription( $object_id = 0, $object_type = 'post', $nonce_action = '', $nonce_value = null ) {
 		$_POST = array(
 			'id'    => $object_id,
 			'type'  => $object_type,
-			'nonce' => wp_create_nonce( $nonce_action )
+			'nonce' => ( null === $nonce_value ) ? wp_create_nonce( $nonce_action ) : $nonce_value
 		);
 
 		$handler = function() {
@@ -125,6 +126,19 @@ class BBP_Tests_Users_Functions_Engagement_Ajax extends BBP_UnitTestCase {
 		$this->assertFalse( $response['success'] );
 		$this->assertSame( 304, $response['status'] );
 		$this->assertFalse( bbp_is_user_subscribed( $this->user_id, $tag_id, 'term' ) );
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers BBP_Default::ajax_subscription
+	 */
+	public function test_subscription_rejects_an_array_nonce() {
+		$forum_id = $this->factory->forum->create();
+		$response = $this->ajax_subscription( $forum_id, 'post', '', array( 'invalid' ) );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 304, $response['status'] );
+		$this->assertFalse( bbp_is_user_subscribed( $this->user_id, $forum_id ) );
 	}
 
 	/**
