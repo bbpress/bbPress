@@ -755,6 +755,7 @@ function bbp_filter_post_title_data( $data = array() ) {
 	if (
 		isset( $data['post_type'], $data['post_title'] )
 		&& in_array( $data['post_type'], $post_types, true )
+		&& is_string( $data['post_title'] )
 	) {
 		$data['post_title'] = wp_filter_post_kses( $data['post_title'] );
 	}
@@ -849,6 +850,7 @@ function bbp_set_pending_post_date_gmt( $data = array() ) {
 		&& in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true )
 		&& ( bbp_get_pending_status_id() === $data['post_status'] )
 		&& ( '0000-00-00 00:00:00' === $data['post_date_gmt'] )
+		&& is_string( $data['post_date'] )
 	) {
 		$data['post_date_gmt'] = get_gmt_from_date( $data['post_date'] );
 	}
@@ -870,22 +872,23 @@ function bbp_set_pending_post_date_gmt( $data = array() ) {
  * @return array<string, mixed> Data.
  */
 function bbp_fix_post_author( $data = array(), $postarr = array() ) {
+	$post_id = bbp_parse_int( isset( $postarr['ID'] ) ? $postarr['ID'] : 0 );
 
 	// Post is not being updated or the post_author is already 0, return
-	if ( empty( $postarr['ID'] ) || empty( $data['post_author'] ) ) {
+	if ( ( $post_id <= 0 ) || empty( $data['post_author'] ) ) {
 		return $data;
 	}
 
 	// Post is not a topic or reply, return
-	if ( ! in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+	if ( ! isset( $data['post_type'] ) || ! in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
 		return $data;
 	}
 
 	// Is the post by an anonymous user?
 	if (
-		( bbp_get_topic_post_type() === $data['post_type'] && ! bbp_is_topic_anonymous( $postarr['ID'] ) )
+		( bbp_get_topic_post_type() === $data['post_type'] && ! bbp_is_topic_anonymous( $post_id ) )
 		||
-		( bbp_get_reply_post_type() === $data['post_type'] && ! bbp_is_reply_anonymous( $postarr['ID'] ) )
+		( bbp_get_reply_post_type() === $data['post_type'] && ! bbp_is_reply_anonymous( $post_id ) )
 	) {
 		return $data;
 	}
@@ -1480,8 +1483,12 @@ function bbp_get_statistics( $args = array() ) {
 function bbp_filter_revision_post_author( $data = array() ) {
 	if ( isset( $data['post_type'], $data['post_parent'] ) && ( 'revision' === $data['post_type'] ) && ! empty( $data['post_parent'] ) ) {
 		$parent = bbp_get_post_by_id( $data['post_parent'] );
+		$name   = isset( $data['post_name'] ) ? $data['post_name'] : '';
+		if ( is_scalar( $name ) ) {
+			$name = (string) $name;
+		}
 
-		if ( ! empty( $parent ) && in_array( $parent->post_type, bbp_get_post_types(), true ) && ( empty( $data['post_name'] ) || ( false === strpos( $data['post_name'], '-autosave-v1' ) ) ) ) {
+		if ( ! empty( $parent ) && in_array( $parent->post_type, bbp_get_post_types(), true ) && ( empty( $name ) || ( is_string( $name ) && ( false === strpos( $name, '-autosave-v1' ) ) ) ) ) {
 			$data['post_author'] = (int) $parent->post_author;
 		}
 	}
@@ -1660,7 +1667,10 @@ function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
 	// Strip invalid text from fields
 	foreach ( $fields as $bbp_field => $comment_field ) {
 		if ( ! empty( $r[ $bbp_field ] ) ) {
-			$r[ $bbp_field ] = $bbp_db->strip_invalid_text_for_column( $bbp_db->comments, $comment_field, $r[ $bbp_field ] );
+			$value = $r[ $bbp_field ];
+			$r[ $bbp_field ] = is_scalar( $value )
+				? $bbp_db->strip_invalid_text_for_column( $bbp_db->comments, $comment_field, (string) $value )
+				: '';
 		}
 	}
 
@@ -1714,10 +1724,11 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
 
 	// Update all anonymous metas
 	foreach ( $r as $anon_key => $anon_value ) {
+		$anon_value = is_scalar( $anon_value ) ? (string) $anon_value : '';
 
 		// Update, or delete if empty
 		! empty( $anon_value )
-			? update_post_meta( $post_id, '_' . $anon_key, (string) $anon_value, false )
+			? update_post_meta( $post_id, '_' . $anon_key, $anon_value, false )
 			: delete_post_meta( $post_id, '_' . $anon_key );
 	}
 }
@@ -1760,10 +1771,14 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	$join = $where = '';
 
 	// Check for anonymous post
-	if ( empty( $r['post_author'] ) && ( ! empty( $r['anonymous_data'] ) && ! empty( $r['anonymous_data']['bbp_anonymous_email'] ) ) ) {
+	$anonymous = isset( $r['anonymous_data'] ) && is_array( $r['anonymous_data'] ) ? $r['anonymous_data'] : array();
+	$email     = isset( $anonymous['bbp_anonymous_email'] ) && is_scalar( $anonymous['bbp_anonymous_email'] )
+		? (string) $anonymous['bbp_anonymous_email']
+		: '';
+	if ( empty( $r['post_author'] ) && ( '' !== $email ) ) {
 
 		// Sanitize the email address for querying
-		$email = sanitize_email( $r['anonymous_data']['bbp_anonymous_email'] );
+		$email = sanitize_email( $email );
 
 		// Only proceed
 		if ( ! empty( $email ) && is_email( $email ) ) {
@@ -1867,14 +1882,14 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 	}
 
 	// Option disabled. No flood checks.
-	$throttle_time = get_option( '_bbp_throttle_time' );
-	if ( empty( $throttle_time ) || ! bbp_allow_content_throttle() ) {
+	$throttle_time = bbp_parse_int( get_option( '_bbp_throttle_time' ) );
+	if ( ( $throttle_time <= 0 ) || ! bbp_allow_content_throttle() ) {
 		return true;
 	}
 
 	// User is anonymous, so check a transient based on the IP
 	if ( ! empty( $anonymous_data ) ) {
-		$last_posted = get_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted' );
+		$last_posted = bbp_parse_int( get_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted' ) );
 
 		if ( ! empty( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) ) {
 			return false;
@@ -1883,7 +1898,7 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 	// User is logged in, so check their last posted time
 	} elseif ( ! empty( $author_id ) ) {
 		$author_id   = (int) $author_id;
-		$last_posted = bbp_get_user_last_posted( $author_id );
+		$last_posted = bbp_parse_int( bbp_get_user_last_posted( $author_id ) );
 
 		if ( ! empty( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) && ! user_can( $author_id, 'throttle' ) ) {
 			return false;
@@ -2024,11 +2039,16 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	 *
 	 * @param string $moderation List of moderation keys. One per new line.
 	 */
-	$moderation = apply_filters( "bbp_{$hook_name}_keys", trim( get_option( $option_name ) ) );
+	$moderation = get_option( $option_name );
+	$moderation = is_scalar( $moderation ) ? trim( (string) $moderation ) : '';
+	$moderation = apply_filters( "bbp_{$hook_name}_keys", $moderation );
 
 	// Bail if no words to look for
 	if ( empty( $moderation ) ) {
 		return true;
+	}
+	if ( ! is_string( $moderation ) ) {
+		return false;
 	}
 
 	/** User Data *************************************************************/
@@ -2087,9 +2107,12 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 
 		// Loop through post data
 		foreach ( $_post as $post_data ) {
+			if ( ! is_scalar( $post_data ) ) {
+				return false;
+			}
 
 			// Check each user data for current word
-			if ( preg_match( $pattern, $post_data ) ) {
+			if ( preg_match( $pattern, (string) $post_data ) ) {
 
 				// Post does not pass
 				return false;
@@ -2128,9 +2151,10 @@ function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $ti
  * @return int Suspension depth.
  */
 function bbp_suspend_moderation_notifications() {
-	$GLOBALS['_bbp_moderation_notifications_suspended'] = isset( $GLOBALS['_bbp_moderation_notifications_suspended'] )
-		? $GLOBALS['_bbp_moderation_notifications_suspended'] + 1
-		: 1;
+	$depth = isset( $GLOBALS['_bbp_moderation_notifications_suspended'] )
+		? max( 0, bbp_parse_int( $GLOBALS['_bbp_moderation_notifications_suspended'] ) )
+		: 0;
+	$GLOBALS['_bbp_moderation_notifications_suspended'] = $depth + 1;
 
 	return $GLOBALS['_bbp_moderation_notifications_suspended'];
 }
@@ -2144,7 +2168,7 @@ function bbp_suspend_moderation_notifications() {
  */
 function bbp_resume_moderation_notifications() {
 	$depth = isset( $GLOBALS['_bbp_moderation_notifications_suspended'] )
-		? max( 0, $GLOBALS['_bbp_moderation_notifications_suspended'] - 1 )
+		? max( 0, bbp_parse_int( $GLOBALS['_bbp_moderation_notifications_suspended'] ) - 1 )
 		: 0;
 
 	if ( empty( $depth ) ) {

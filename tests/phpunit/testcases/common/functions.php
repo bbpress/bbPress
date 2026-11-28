@@ -110,6 +110,22 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_filter_revision_post_author
+	 */
+	public function test_bbp_filter_revision_post_author_ignores_a_malformed_slug() {
+		$topic_id = $this->factory->topic->create();
+		$data     = array(
+			'post_type'   => 'revision',
+			'post_parent' => $topic_id,
+			'post_author' => 123,
+			'post_name'   => array( 'invalid' ),
+		);
+
+		$this->assertSame( $data, bbp_filter_revision_post_author( $data ) );
+	}
+
+	/**
 	 * @covers ::bbp_filter_revision_post_author
 	 */
 	public function test_bbp_filter_revision_post_author_ignores_a_missing_parent() {
@@ -953,6 +969,19 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_filter_post_title_data
+	 */
+	public function test_bbp_filter_post_title_data_ignores_a_malformed_title() {
+		$data = array(
+			'post_type'  => bbp_get_topic_post_type(),
+			'post_title' => array( 'invalid' ),
+		);
+
+		$this->assertSame( $data, bbp_filter_post_title_data( $data ) );
+	}
+
+	/**
 	 * @covers ::bbp_filter_post_title_data
 	 */
 	public function test_bbp_titles_are_sanitized_on_insert_and_update() {
@@ -1072,6 +1101,16 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$this->assertSame( $data, bbp_fix_post_author( $data, array( 'ID' => $authored_topic ) ) );
 		$non_bbp_data = array( 'post_type' => 'post', 'post_author' => $author_id );
 		$this->assertSame( $non_bbp_data, bbp_fix_post_author( $non_bbp_data, array( 'ID' => $this->factory->post->create() ) ) );
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers ::bbp_fix_post_author
+	 */
+	public function test_bbp_fix_post_author_ignores_a_malformed_post_id() {
+		$data = array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => 123 );
+
+		$this->assertSame( $data, bbp_fix_post_author( $data, array( 'ID' => array( 1 ) ) ) );
 	}
 
 	/**
@@ -1242,6 +1281,21 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 			$this->assertSame( $post_date, get_post_field( 'post_date', $post_id ) );
 		}
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers ::bbp_set_pending_post_date_gmt
+	 */
+	public function test_bbp_set_pending_post_date_gmt_ignores_a_malformed_date() {
+		$data = array(
+			'post_type'     => bbp_get_topic_post_type(),
+			'post_status'   => bbp_get_pending_status_id(),
+			'post_date'     => array( 'invalid' ),
+			'post_date_gmt' => '0000-00-00 00:00:00',
+		);
+
+		$this->assertSame( $data, bbp_set_pending_post_date_gmt( $data ) );
 	}
 
 	/**
@@ -1461,6 +1515,21 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_check_for_duplicate
+	 */
+	public function test_bbp_check_for_duplicate_ignores_malformed_anonymous_email() {
+		$post_data = array(
+			'post_author'    => 0,
+			'post_type'      => bbp_get_topic_post_type(),
+			'post_content'   => 'A new anonymous topic',
+			'anonymous_data' => array( 'bbp_anonymous_email' => array( 'invalid' ) ),
+		);
+
+		$this->assertTrue( bbp_check_for_duplicate( $post_data ) );
+	}
+
+	/**
 	 * @ticket 2950
 	 * @covers ::bbp_check_for_duplicate
 	 * @dataProvider get_duplicate_content_filters
@@ -1539,6 +1608,38 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_check_for_flood
+	 */
+	public function test_bbp_check_for_flood_ignores_malformed_time_values() {
+		$old_throttle = get_option( '_bbp_throttle_time', null );
+		$key          = '_bbp_' . bbp_current_author_ip() . '_last_posted';
+		$old_posted   = get_transient( $key );
+		$anonymous    = array( 'bbp_anonymous_email' => 'visitor@example.org' );
+
+		try {
+			update_option( '_bbp_throttle_time', array( 60 ) );
+			set_transient( $key, time() );
+			$this->assertTrue( bbp_check_for_flood( $anonymous ) );
+
+			update_option( '_bbp_throttle_time', 60 );
+			set_transient( $key, array( time() ) );
+			$this->assertTrue( bbp_check_for_flood( $anonymous ) );
+		} finally {
+			if ( null === $old_throttle ) {
+				delete_option( '_bbp_throttle_time' );
+			} else {
+				update_option( '_bbp_throttle_time', $old_throttle );
+			}
+			if ( false === $old_posted ) {
+				delete_transient( $key );
+			} else {
+				set_transient( $key, $old_posted );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::bbp_check_for_moderation
 	 */
 	public function test_bbp_check_for_moderation() {
@@ -1573,6 +1674,31 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'custom_keys', 'custombad' );
 		$this->assertFalse( bbp_check_for_moderation( array(), 0, '', 'A custombad phrase.', 'custom' ) );
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_bbp_check_for_moderation_rejects_malformed_values() {
+		$old_keys = get_option( 'moderation_keys' );
+		$filter   = function() { return array( 'invalid' ); };
+		update_option( 'moderation_keys', 'blocked' );
+
+		try {
+			$anonymous = array(
+				'bbp_anonymous_name'    => array( 'invalid' ),
+				'bbp_anonymous_email'   => '',
+				'bbp_anonymous_website' => '',
+			);
+			$this->assertFalse( bbp_check_for_moderation( $anonymous, 0, '', 'Allowed text.' ) );
+
+			add_filter( 'bbp_moderation_keys', $filter );
+			$this->assertFalse( bbp_check_for_moderation( array(), 0, '', 'Allowed text.' ) );
+		} finally {
+			remove_filter( 'bbp_moderation_keys', $filter );
+			update_option( 'moderation_keys', $old_keys );
+		}
 	}
 
 	/**
@@ -3717,6 +3843,23 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 3794
+	 * @covers ::bbp_sanitize_anonymous_post_author
+	 */
+	public function test_bbp_sanitize_anonymous_post_author_drops_non_scalar_fields() {
+		$data = array(
+			'bbp_anonymous_name'    => array( 'invalid' ),
+			'bbp_anonymous_email'   => 'visitor@example.org',
+			'bbp_anonymous_website' => new stdClass(),
+		);
+
+		$sanitized = bbp_sanitize_anonymous_post_author( $data );
+		$this->assertSame( '', $sanitized['bbp_anonymous_name'] );
+		$this->assertSame( '', $sanitized['bbp_anonymous_website'] );
+		$this->assertSame( 'visitor@example.org', $sanitized['bbp_anonymous_email'] );
+	}
+
+	/**
 	 * @covers ::bbp_update_anonymous_post_author
 	 */
 	public function test_bbp_update_anonymous_post_author_updates_and_deletes_meta() {
@@ -3736,6 +3879,23 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$this->assertSame( 'Anonymous Author', get_post_meta( $topic_id, '_bbp_anonymous_name', true ) );
 		$this->assertSame( 'anonymous@example.org', get_post_meta( $topic_id, '_bbp_anonymous_email', true ) );
 		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_anonymous_website' ) );
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers ::bbp_update_anonymous_post_author
+	 */
+	public function test_bbp_update_anonymous_post_author_deletes_non_scalar_meta() {
+		$topic_id = $this->factory->topic->create( array( 'post_author' => 0 ) );
+		update_post_meta( $topic_id, '_bbp_anonymous_name', 'Old name' );
+
+		bbp_update_anonymous_post_author(
+			$topic_id,
+			array( 'bbp_anonymous_name' => array( 'invalid' ) ),
+			bbp_get_topic_post_type()
+		);
+
+		$this->assertFalse( metadata_exists( 'post', $topic_id, '_bbp_anonymous_name' ) );
 	}
 
 	/**
@@ -3777,6 +3937,29 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 			$this->assertSame( 0, bbp_resume_moderation_notifications() );
 			$this->assertFalse( bbp_is_moderation_notifications_suspended() );
 			$this->assertSame( 0, bbp_resume_moderation_notifications() );
+		} finally {
+			if ( $had_global ) {
+				$GLOBALS['_bbp_moderation_notifications_suspended'] = $original;
+			} else {
+				unset( $GLOBALS['_bbp_moderation_notifications_suspended'] );
+			}
+		}
+	}
+
+	/**
+	 * @ticket 3794
+	 * @covers ::bbp_suspend_moderation_notifications
+	 * @covers ::bbp_resume_moderation_notifications
+	 */
+	public function test_bbp_moderation_notification_suspension_recovers_malformed_depth() {
+		$had_global = array_key_exists( '_bbp_moderation_notifications_suspended', $GLOBALS );
+		$original   = $had_global ? $GLOBALS['_bbp_moderation_notifications_suspended'] : null;
+
+		try {
+			$GLOBALS['_bbp_moderation_notifications_suspended'] = array( 'invalid' );
+			$this->assertSame( 1, bbp_suspend_moderation_notifications() );
+			$this->assertSame( 0, bbp_resume_moderation_notifications() );
+			$this->assertFalse( bbp_is_moderation_notifications_suspended() );
 		} finally {
 			if ( $had_global ) {
 				$GLOBALS['_bbp_moderation_notifications_suspended'] = $original;
