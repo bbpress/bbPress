@@ -2453,7 +2453,7 @@ function bbp_notice_edit_user_success() {
 		return;
 	} ?>
 
-	<div class="bbp-template-notice">
+	<div class="<?php bbp_template_notice_class( '', 'user-updated' ); ?>">
 		<ul>
 			<li><?php esc_html_e( 'User updated.', 'bbpress' ); ?></li>
 		</ul>
@@ -2508,7 +2508,7 @@ function bbp_notice_edit_user_pending_email() {
 	}
 	$coded_email = '<code>' . esc_html( $new_email['newemail'] ) . '</code>'; ?>
 
-	<div class="bbp-template-notice info">
+	<div class="<?php bbp_template_notice_class( 'info', 'user-pending-email' ); ?>">
 		<ul>
 			<li>
 				<?php
@@ -2534,7 +2534,7 @@ function bbp_notice_edit_user_pending_email() {
 function bbp_notice_edit_user_is_super_admin() {
 	if ( is_multisite() && ( bbp_is_single_user() || bbp_is_single_user_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
 
-	<div class="bbp-template-notice important">
+	<div class="<?php bbp_template_notice_class( 'important', 'user-super-admin' ); ?>">
 		<ul>
 			<li><?php bbp_is_user_home() || bbp_is_user_home_edit() ? esc_html_e( 'You have super admin privileges.', 'bbpress' ) : esc_html_e( 'This user has super admin privileges.', 'bbpress' ); ?></li>
 		</ul>
